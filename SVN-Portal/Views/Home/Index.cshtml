@@ -166,14 +166,14 @@
                                         status = "bg-danger";
                                     }
                                     */
-                                    if (subitem.Percent > 100 && subitem.Percent <= 175)
+                                    if (subitem.Percent > 100)
                                     {
 
-                                        status = "bg-warning";
-                                    }
-                                    else if (subitem.Percent > 175)
-                                    {
                                         status = "bg-danger";
+                                    }
+                                    else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                    {
+                                        status = "bg-warning";
                                     }
                                     else
                                     {
