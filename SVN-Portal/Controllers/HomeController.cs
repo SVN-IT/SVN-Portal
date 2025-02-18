@@ -1,0 +1,152 @@
+using Microsoft.AspNetCore.Mvc;
+using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.DAL.DTO;
+using SVN_Portal.Models;
+using SVN_Portal.Services.Configurations;
+using System.Diagnostics;
+
+namespace SVN_Portal.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        AppConfig appConfig;
+        DBConfiguration dBConfiguration;
+        string connectionString;
+        QCInfoConfig qCInfoConfig;
+
+        public HomeController(ILogger<HomeController> logger, 
+            AppConfig appConfig, 
+            DBConfiguration dBConfiguration, 
+            QCInfoConfig qCInfoConfig)
+        {
+            _logger = logger;
+            this.appConfig = appConfig;
+            this.dBConfiguration = dBConfiguration;
+            connectionString = dBConfiguration.GetConnectionString();
+            this.qCInfoConfig = qCInfoConfig;
+        }
+
+        public async Task<IActionResult> Index(DateTime date)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                string strdate = "20241220";
+                if (date == DateTime.MinValue) 
+                { 
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                List<string> opers = appConfig.OperList.Split(",").ToList();
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers);
+                if (models.Count > 0) 
+                {
+                    foreach (var model in models) 
+                    { 
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null) 
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                }
+                return View(models);
+            }
+            catch (Exception ex) 
+            {
+                QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+                var data1 = model.GetData("POP");
+                var data2 = model.GetData("eKIT");
+                var data3 = model.GetData("Solar");
+                var data4 = model.GetData("Injection");
+                models = new List<QtyProdResultByOperViewModel> { data1, data2, data3, data4 };
+                return View(models);
+
+            }
+        }
+        // Defect rate 20250103
+
+        public async Task<IActionResult> Defect_Rate(DateTime date)
+        {
+            List<SVN_Defect_record> models = new List<SVN_Defect_record>();
+            try
+            {
+                string strdate = "20241220";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                List<string> opers = appConfig.OperList.Split(",").ToList();
+                var dataPortal = new SVN_Defect_recordDataPortal(connectionString);
+                models = await dataPortal.ReadList(strdate);
+                return View(models);
+            }
+            catch (Exception ex)
+            {
+                
+                return View(models);
+
+            }
+        }
+
+
+
+        public async Task<IActionResult> ChartPerOper(DateTime date, string oper)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                string strdate = "20241220";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                ViewBag.oper = oper;
+                strdate = date.ToString("yyyyMMdd");
+                List<string> opers = appConfig.OperList.Split(",").ToList();
+                opers = opers.Where(x => x == oper).ToList();
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers);
+                if (models.Count > 0)
+                {
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                }
+                return View(models);
+            }
+            catch (Exception ex)
+            {
+                QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+                var data = model.GetData(oper);
+                models = new List<QtyProdResultByOperViewModel> { data };
+                return View(models);
+
+            }
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

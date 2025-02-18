@@ -1,0 +1,171 @@
+﻿using Dapper;
+using SVN_Portal.DAL.DTO;
+using SVN_Portal.Models;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace SVN_Portal.DAL.DataPortal
+{
+    public class SVN_production_resultDataPortal
+    {
+        string connectionString;
+        public SVN_production_resultDataPortal(string connectionString)
+        {
+            this.connectionString = connectionString;
+        }
+
+        public async Task<List<SVN_production_resultUI>> ReadList(string date)
+        {
+            List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
+            int timeOut = 1000;
+            try
+            {
+                using(IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    string sql = string.Empty;
+                    var param = new object();
+                    sql = "select * from SVN_production_result where Date_time = @date";
+                    param = new { date = date };
+                    var data = await conn.QueryAsync<SVN_production_resultUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    dataUI = data.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<string> opers)
+        {
+            List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
+            List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
+            List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
+            var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
+
+            try
+            {
+                targetDataUI = await targetdataportal.ReadList(date);//lấy dữ liệu target từ csdl 
+                dataUI = await ReadList(date);
+                if (dataUI.Count > 0) 
+                { 
+                   foreach(var item in opers)
+                    {
+                        QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
+                        QtyProdResultViewModel val1 = new QtyProdResultViewModel();
+                        QtyProdResultViewModel val2 = new QtyProdResultViewModel();
+                        QtyProdResultViewModel val3 = new QtyProdResultViewModel();
+                        QtyProdResultViewModel val4 = new QtyProdResultViewModel();
+                        QtyProdResultViewModel val5 = new QtyProdResultViewModel();
+                        viewModel.Operation = item;
+
+                        //sai ở đây
+                        //dùng linq mà list đang bị null
+                        var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == item);//Lấy ra 1 dòng target theo opearation
+
+                        var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Target");
+                        if (dataUIbyOperTarget != null) 
+                        {
+                            val1.Time = "8h-10h";
+                            val1.Target = dataUIbyOperTarget.Time1;
+                            val2.Time = "10h10-12h";
+                            val2.Target = dataUIbyOperTarget.Time2;
+                            val3.Time = "13h-15h";
+                            val3.Target = dataUIbyOperTarget.Time3;
+                            val4.Time = "15h10-17h30";
+                            val4.Target = dataUIbyOperTarget.Time4;
+                            val5.Time = "18h-20h";
+                            val5.Target = dataUIbyOperTarget.Time5;
+                        }
+                        var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Production Qty");
+                        if(dataUIbyOperLine != null)
+                        {
+                            val1.Line = dataUIbyOperLine.Time1;
+                            val2.Line = dataUIbyOperLine.Time2;
+                            val3.Line = dataUIbyOperLine.Time3;
+                            val4.Line = dataUIbyOperLine.Time4;
+                            val5.Line = dataUIbyOperLine.Time5;
+                        }
+                        var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Man Q'ty");
+                        if (dataUIbyOperManQty != null)
+                        {
+                            val1.ManQuantity = dataUIbyOperManQty.Time1;
+                            val2.ManQuantity = dataUIbyOperManQty.Time2;
+                            val3.ManQuantity = dataUIbyOperManQty.Time3;
+                            val4.ManQuantity = dataUIbyOperManQty.Time4;
+                            val5.ManQuantity = dataUIbyOperManQty.Time5;
+                        }
+                        var dataUIbyOperNGQty = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "NG_Qty");
+                        if (dataUIbyOperNGQty != null)
+                        {
+                            val1.NG = dataUIbyOperNGQty.Time1;
+                            val2.NG = dataUIbyOperNGQty.Time2;
+                            val3.NG = dataUIbyOperNGQty.Time3;
+                            val4.NG = dataUIbyOperNGQty.Time4;
+                            val5.NG = dataUIbyOperNGQty.Time5;
+                        }
+                        viewModel.ViewModels.Add(val1);
+                        viewModel.ViewModels.Add(val2);
+                        viewModel.ViewModels.Add(val3);
+                        viewModel.ViewModels.Add(val4);
+                        viewModel.ViewModels.Add(val5);
+
+                        if(dataUIByOper != null)
+                        {
+                            //tạo dong Daiily plan của 1 operation
+                            SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel() { 
+                                Item = "Daily Plan", 
+                                Target = dataUIByOper.Daily_plan, 
+                                Current = dataUIByOper.Total_Qty, 
+                                Percent = (dataUIByOper.Total_Qty/dataUIByOper.Daily_plan)*100
+                            };
+                            SVN_targetViewModel UPHVM = new SVN_targetViewModel()
+                            {
+                                Item = "UPH",
+                                Target = dataUIByOper.UPH,
+                                Current = dataUIByOper.Current_UPH,
+                                Percent = (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100
+                            };
+                            SVN_targetViewModel UPPHVM = new SVN_targetViewModel()
+                            {
+                                Item = "UPPH",
+                                Target = dataUIByOper.UPPH,
+                                Current = dataUIByOper.Current_UPPH,
+                                Percent = (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100
+                            };
+                            SVN_targetViewModel LaborVM = new SVN_targetViewModel()
+                            {
+                                Item = "Labor",
+                                Target = dataUIByOper.Labor,
+                                Current = dataUIByOper.MaxLabor,
+                                Percent = (dataUIByOper.MaxLabor / dataUIByOper.Labor) * 100
+                            };
+                            SVN_targetViewModel NGVM = new SVN_targetViewModel()
+                            {
+                                Item = "Defect",
+                                Target = dataUIByOper.Defect * 100,
+                                Current = (dataUIByOper.Total_NG_Qty/ dataUIByOper.Total_Qty) *100,
+                                Percent = (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100
+                            };
+                            viewModel.TargetViewModels.Add(dailyPlanVM);
+                            viewModel.TargetViewModels.Add(UPHVM);
+                            viewModel.TargetViewModels.Add(UPPHVM);
+                            viewModel.TargetViewModels.Add(LaborVM);
+                            viewModel.TargetViewModels.Add(NGVM);
+                            viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
+                        }   
+
+                        viewModels.Add(viewModel);
+                    }
+                }
+                return viewModels;
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
+        }
+    }
+}
