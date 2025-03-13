@@ -18,5 +18,6 @@ namespace SVNShareLib
 
         public int ErrorNumber { get; set; }
         public int UserID { get; set; }
+        public string DataType { get; set; }
     }
 }

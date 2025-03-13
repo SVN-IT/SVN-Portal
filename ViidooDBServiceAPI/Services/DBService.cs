@@ -1,5 +1,6 @@
 ﻿using CookComputing.XmlRpc;
 using SVNShareLib;
+using System.Collections.Generic;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -64,57 +65,63 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetProductionResult()
+        public List<BODataProcessResult> GetData()
         {
-            BODataProcessResult processResult = new BODataProcessResult();
-            try
+            List<BODataProcessResult> processResults = new List<BODataProcessResult>();
+            foreach (var item in dBConfig.QueryConfig)
             {
-                var connectResult = ConnectDB();
-                if (connectResult.OK)
+                BODataProcessResult processResult = new BODataProcessResult();
+                processResult.DataType = item.TableName;
+                try
                 {
-                    IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
-                    models.Url = serverUrl + "/xmlrpc/2/object";
-
-                    var domain = dBConfig.mrpproductionDomain.Split(",");
-                    var fields = dBConfig.mrpproductionFields.Split(",");
-
-                    var querydata = new object[]
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
                     {
-                        new object[] { new string[] { "state", "=", "done" } },
-                        fields
-                    };
-                    //new object[] { new object[] { "state", "=", "done" } }
-                    //new string[] { "name", "product_id", "state" }
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
 
-                    object searchResult = models.Execute_Kw(
-                        dbName, 
-                        connectResult.UserID, 
-                        password, 
-                        "mrp.production", 
-                        "search_read",
-                        querydata);
-                    if(searchResult != null)
-                    {
-                        processResult.OK = true;
-                        processResult.Message = "Get data success";
-                        processResult.Content = searchResult;
+                        var domain = item.Domain.Split(",");
+                        var fields = item.Fields.Split(",");
+
+                        var querydata = new object[]
+                        {
+                            new object[] { domain },
+                            fields
+                        };
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
                     }
                     else
                     {
-                        processResult.Message = "Get data fail";
+                        processResult.Message = connectResult.Message;
                     }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    processResult.Message = connectResult.Message;
+                    processResult.Message = ex.Message;
                 }
-                
+                processResults.Add(processResult);
             }
-            catch (Exception ex)
-            {
-                processResult.Message = ex.Message;
-            }
-            return processResult;
+            return processResults;
         }
     }
 }

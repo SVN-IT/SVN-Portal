@@ -16,18 +16,20 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetDataFromViindoo")]
         [HttpPost]
-        public BODataProcessResult GetDataFromViindoo()
+        public List<BODataProcessResult> GetDataFromViindoo()
         {
-            BODataProcessResult processResult = new BODataProcessResult();
+            List<BODataProcessResult> processResults = new List<BODataProcessResult>();
             try
             {
-                processResult = dBService.GetProductionResult();
+                processResults = dBService.GetData();
             }
             catch(Exception ex)
             {
+                BODataProcessResult processResult = new BODataProcessResult();
                 processResult.Message = ex.Message;
+                processResults.Add(processResult);
             }
-            return processResult;
+            return processResults;
         }
     }
 }
