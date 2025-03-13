@@ -1,0 +1,116 @@
+﻿using CookComputing.XmlRpc;
+using SVNShareLib;
+
+namespace ViidooDBServiceAPI.Services
+{
+    public interface IOdooCommon : IXmlRpcProxy
+    {
+        [XmlRpcMethod("authenticate")]
+        int Authenticate(string db, string user, string password, XmlRpcStruct context);
+
+        [XmlRpcMethod("version")]
+        XmlRpcStruct Version();
+    }
+
+    public interface IOdooObject : IXmlRpcProxy
+    {
+        [XmlRpcMethod("execute_kw")]
+        object Execute_Kw(string db, int uid, string password, string model, string method, object[] args);
+    }
+    public class DBService
+    {
+        ViindooDBConfig dBConfig;
+        private static string serverUrl;
+        private static string dbName;
+        private static string username;
+        private static string password;
+        private static string tableName;
+        public DBService(ViindooDBConfig dBConfig)
+        {
+            this.dBConfig = dBConfig;
+            serverUrl = dBConfig.ServerUrl;
+            dbName = dBConfig.DbName;
+            username = dBConfig.Username;
+            password = dBConfig.Password;
+        }
+
+        public BODataProcessResult ConnectDB()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                // 1. Authentication
+                IOdooCommon common = XmlRpcProxyGen.Create<IOdooCommon>();
+                common.Url = serverUrl + "/xmlrpc/2/common";
+
+                XmlRpcStruct context = new XmlRpcStruct(); // You might need to add values here in some cases
+                int userId = common.Authenticate(dbName, username, password, context);
+
+                if (userId == 0)
+                {
+                    processResult.Message = "Authentication failed.";
+                }
+                else
+                {
+                    processResult.OK = true;
+                    processResult.UserID = userId;
+                    processResult.Message = "Authentication success.";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetProductionResult()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                var connectResult = ConnectDB();
+                if (connectResult.OK)
+                {
+                    IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                    models.Url = serverUrl + "/xmlrpc/2/object";
+
+                    var querydata = new object[]
+                    {
+                        new object[] { new object[] { "state", "=", "done" } },
+                        new string[] { "name", "product_id", "state" }
+                    };
+                    //new object[] { "name", "=", "NM/MO/00082-016" }
+
+                    object searchResult = models.Execute_Kw(
+                        dbName, 
+                        connectResult.UserID, 
+                        password, 
+                        "mrp.production", 
+                        "search_read",
+                        querydata);
+                    if(searchResult != null)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Get data success";
+                        processResult.Content = searchResult;
+                    }
+                    else
+                    {
+                        processResult.Message = "Get data fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = connectResult.Message;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+    }
+}

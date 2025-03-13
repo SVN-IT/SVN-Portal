@@ -1,0 +1,6 @@
+@ViidooDBServiceAPI_HostAddress = http://localhost:5081
+
+GET {{ViidooDBServiceAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
