@@ -12,5 +12,8 @@ namespace SVNShareLib
         public string DbName { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+
+        public string mrpproductionDomain { get; set; }
+        public string mrpproductionFields { get; set; }
     }
 }

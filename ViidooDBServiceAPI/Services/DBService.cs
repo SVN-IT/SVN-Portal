@@ -75,12 +75,16 @@ namespace ViidooDBServiceAPI.Services
                     IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
                     models.Url = serverUrl + "/xmlrpc/2/object";
 
+                    var domain = dBConfig.mrpproductionDomain.Split(",");
+                    var fields = dBConfig.mrpproductionFields.Split(",");
+
                     var querydata = new object[]
                     {
-                        new object[] { new object[] { "state", "=", "done" } },
-                        new string[] { "name", "product_id", "state" }
+                        new object[] { new string[] { "state", "=", "done" } },
+                        fields
                     };
-                    //new object[] { "name", "=", "NM/MO/00082-016" }
+                    //new object[] { new object[] { "state", "=", "done" } }
+                    //new string[] { "name", "product_id", "state" }
 
                     object searchResult = models.Execute_Kw(
                         dbName, 
