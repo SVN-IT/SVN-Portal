@@ -40,7 +40,7 @@ namespace ViidooDBServiceAPI.Services
                     Port = 443,
                     IsSSL = true
                 };
-                var client = new OdooRpcClient(odooConnection);
+                var client = new SVNOdooRpcClient(odooConnection);
 
                 await client.Authenticate();
 
@@ -77,9 +77,10 @@ namespace ViidooDBServiceAPI.Services
                     {
                         var domain = item.Domain.Split(",");
                         var fields = item.Fields.Split(",");
-                        OdooRpcClient client = (OdooRpcClient)connectResult.Content;
+                        SVNOdooRpcClient client = (SVNOdooRpcClient)connectResult.Content;
 
-
+                        OdooDomainFilter domainFilter = new OdooDomainFilter();
+                        domainFilter = domainFilter.Filter(domain[0], domain[1], domain[2]);
 
                         OdooFieldParameters odooFieldParam = new OdooFieldParameters(fields);
 
@@ -89,8 +90,9 @@ namespace ViidooDBServiceAPI.Services
                         };
                         odooPaginationParam = odooPaginationParam.OrderByDescending("date_finished");
 
-                        var productions = await client.GetAll<mrp_productionUI[]>(
+                        var productions = await client.GetSVNAll<mrp_productionUI[]>(
                             item.TableName,
+                            domainFilter,
                             odooFieldParam,
                             odooPaginationParam);
                     }
