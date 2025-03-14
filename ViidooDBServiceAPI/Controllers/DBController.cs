@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVNShareLib;
+using System.Threading.Tasks;
 using ViidooDBServiceAPI.Services;
 
 namespace ViidooDBServiceAPI.Controllers
@@ -9,19 +10,21 @@ namespace ViidooDBServiceAPI.Controllers
     public class DBController : Controller
     {
         DBService dBService;
-        public DBController(DBService dBService)
+        OdooRpcDBService odooRpcDBService;
+        public DBController(DBService dBService, OdooRpcDBService odooRpcDBService)
         {
             this.dBService = dBService;
+            this.odooRpcDBService = odooRpcDBService;
         }
 
         [Route("GetDataFromViindoo")]
         [HttpPost]
-        public List<BODataProcessResult> GetDataFromViindoo()
+        public async Task<List<BODataProcessResult>> GetDataFromViindoo()
         {
             List<BODataProcessResult> processResults = new List<BODataProcessResult>();
             try
             {
-                processResults = dBService.GetData();
+                processResults = await odooRpcDBService.GetData();
             }
             catch(Exception ex)
             {

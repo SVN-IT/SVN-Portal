@@ -14,6 +14,7 @@ ViindooDBConfig viindooDBConfig = builder.Configuration.GetSection("ViindooDBCon
 
 builder.Services.AddSingleton(viindooDBConfig);
 builder.Services.AddSingleton<DBService>();
+builder.Services.AddSingleton<OdooRpcDBService>();
 
 var app = builder.Build();
 
