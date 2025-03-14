@@ -80,15 +80,19 @@ namespace ViidooDBServiceAPI.Services
                         SVNOdooRpcClient client = (SVNOdooRpcClient)connectResult.Content;
 
                         OdooDomainFilter domainFilter = new OdooDomainFilter();
-                        domainFilter = domainFilter.Filter(domain[0], domain[1], domain[2]);
+
+                        if(domain.Count() > 0)
+                        {
+                            domainFilter = domainFilter.Filter(domain[0], domain[1], domain[2]);
+                        }
 
                         OdooFieldParameters odooFieldParam = new OdooFieldParameters(fields);
 
-                        OdooPaginationParameters odooPaginationParam = new OdooPaginationParameters()
-                        {
-                            Limit = 10
-                        };
-                        odooPaginationParam = odooPaginationParam.OrderByDescending("date_finished");
+                        OdooPaginationParameters odooPaginationParam = new OdooPaginationParameters();
+                        //{
+                        //    Limit = 10
+                        //};
+                        //odooPaginationParam = odooPaginationParam.OrderByDescending("date_finished");
 
                         var productions = await client.GetSVNAll<mrp_productionUI[]>(
                             item.TableName,
