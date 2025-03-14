@@ -80,14 +80,38 @@ namespace ViidooDBServiceAPI.Services
                         IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
                         models.Url = serverUrl + "/xmlrpc/2/object";
 
-                        var domain = item.Domain.Split(",");
-                        var fields = item.Fields.Split(",");
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
 
                         var querydata = new object[]
                         {
-                            new object[] { domain },
-                            fields
+                            search,
+                            fields,
+                            0,
+                            item.Limit
                         };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
                         //new object[] { new object[] { "state", "=", "done" } }
                         //new string[] { "name", "product_id", "state" }
 

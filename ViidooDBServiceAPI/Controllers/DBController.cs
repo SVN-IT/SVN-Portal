@@ -19,12 +19,12 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetDataFromViindoo")]
         [HttpPost]
-        public async Task<List<BODataProcessResult>> GetDataFromViindoo()
+        public List<BODataProcessResult> GetDataFromViindoo()
         {
             List<BODataProcessResult> processResults = new List<BODataProcessResult>();
             try
             {
-                processResults = await odooRpcDBService.GetData();
+                processResults = dBService.GetData();
             }
             catch(Exception ex)
             {
