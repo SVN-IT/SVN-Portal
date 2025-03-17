@@ -42,7 +42,7 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = odooRpcDBService.GetProductionResultData1().Result;
+                processResult = odooRpcDBService.GetProductionResultData().Result;
             }
             catch (Exception ex)
             {
