@@ -1,6 +1,10 @@
 ﻿using CookComputing.XmlRpc;
+using Newtonsoft.Json;
 using SVNShareLib;
+using SVNShareLib.BaseObject;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -16,7 +20,7 @@ namespace ViidooDBServiceAPI.Services
     public interface IOdooObject : IXmlRpcProxy
     {
         [XmlRpcMethod("execute_kw")]
-        object Execute_Kw(string db, int uid, string password, string model, string method, object[] args);
+        Dictionary<string, object>[] Execute_Kw(string db, int uid, string password, string model, string method, object[] args);
     }
     public class DBService
     {
@@ -146,6 +150,126 @@ namespace ViidooDBServiceAPI.Services
                 processResults.Add(processResult);
             }
             return processResults;
+        }
+
+        public BODataProcessResult GetProductionResultData(string tableName = "mrp.production")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        Dictionary<string, object>[] searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                            var uploadResult = UploadProductionResultToSVNServer(searchResult);
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        private BODataProcessResult UploadProductionResultToSVNServer(Dictionary<string, object>[] searchResult)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            List<mrp_production> mrp_Productions = new List<mrp_production>();
+            try
+            {
+                var data = searchResult.ToList();
+                foreach(var item in data)
+                {
+                    var dicItem = item as Dictionary<string, object>;
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return processResult;
+        }
+
+        private BODataProcessResult UploadDataToSVNServer(string tableName, object data)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            string className = "SVNShareLib.BaseObject." + tableName.Replace(".", "_");
+            var type = System.Type.GetType(className);
+            if (type == null)
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly(); // Or load a specific assembly
+                type = assembly.GetType(className);
+            }
+            object instance = Activator.CreateInstance(type);
+            return processResult;
         }
     }
 }

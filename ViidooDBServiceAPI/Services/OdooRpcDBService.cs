@@ -7,6 +7,7 @@ using OdooRpc.CoreCLR.Client;
 using OdooRpc.CoreCLR.Client.Models;
 using OdooRpc.CoreCLR.Client.Models.Parameters;
 using SVNShareLib;
+using SVNShareLib.BaseObject;
 using SVNShareLib.DTO;
 namespace ViidooDBServiceAPI.Services
 {
@@ -112,6 +113,65 @@ namespace ViidooDBServiceAPI.Services
                 processResults.Add(processResult);
             }
             return processResults;
+        }
+
+        public async Task<BODataProcessResult> GetProductionResultData(string tableName = "mrp.production")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            processResult.DataType = item.TableName;
+            try
+            {
+                var connectResult = await ConnectDB();
+                if (connectResult.OK)
+                {
+                    string[] domain = new string[] { };
+                    if (!string.IsNullOrWhiteSpace(item.Domain))
+                    {
+                        domain = item.Domain.Split(",");
+                    }
+                    string[] fields = new string[] { };
+                    if (!string.IsNullOrWhiteSpace(item.Fields))
+                    {
+                        fields = item.Fields.Split(",");
+                    }
+                    SVNOdooRpcClient client = (SVNOdooRpcClient)connectResult.Content;
+
+                    OdooDomainFilter domainFilter = new OdooDomainFilter();
+
+                    if (domain.Count() >= 3)
+                    {
+                        domainFilter = domainFilter.Filter(domain[0], domain[1], domain[2]);
+                    }
+
+                    OdooFieldParameters odooFieldParam = new OdooFieldParameters(fields);
+
+                    OdooPaginationParameters odooPaginationParam = new OdooPaginationParameters();
+                    if(item.Limit > 0)
+                    {
+                        odooPaginationParam.Limit = item.Limit;
+                    }
+                    if (!string.IsNullOrWhiteSpace(item.Order))
+                    {
+                        odooPaginationParam = odooPaginationParam.OrderByDescending(item.Order);
+                    }
+
+                    var productions = await client.GetSVNAll<mrp_production[]>(
+                        item.TableName,
+                        domainFilter,
+                        odooFieldParam,
+                        odooPaginationParam);
+                }
+                else
+                {
+                    processResult.Message = connectResult.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
         }
     }
 }

@@ -11,8 +11,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 ViindooDBConfig viindooDBConfig = builder.Configuration.GetSection("ViindooDBConfig").Get<ViindooDBConfig>();
+SVNDBConfig sVNDBConfig = builder.Configuration.GetSection("SVNDBConfig").Get<SVNDBConfig>();
 
 builder.Services.AddSingleton(viindooDBConfig);
+builder.Services.AddSingleton(sVNDBConfig);
 builder.Services.AddSingleton<DBService>();
 builder.Services.AddSingleton<OdooRpcDBService>();
 

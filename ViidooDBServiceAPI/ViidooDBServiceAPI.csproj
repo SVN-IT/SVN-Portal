@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Kveer.XmlRPC" Version="1.3.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OdooRpc.CoreCLR.Client.V2" Version="2.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
