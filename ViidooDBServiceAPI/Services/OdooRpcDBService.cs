@@ -173,5 +173,55 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
+        public async Task<BODataProcessResult> GetProductionResultData1(string tableName = "mrp.production")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = await ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        var domain = item.Domain.Split(",");
+                        var fields = item.Fields.Split(",");
+                        SVNOdooRpcClient client = (SVNOdooRpcClient)connectResult.Content;
+
+                        OdooDomainFilter domainFilter = new OdooDomainFilter();
+                        domainFilter = domainFilter.Filter(domain[0], domain[1], domain[2]);
+
+                        OdooFieldParameters odooFieldParam = new OdooFieldParameters(fields);
+
+                        OdooPaginationParameters odooPaginationParam = new OdooPaginationParameters()
+                        {
+                            Limit = 10
+                        };
+                        odooPaginationParam = odooPaginationParam.OrderByDescending("date_finished");
+
+                        var productions = await client.GetSVNAll<mrp_production[]>(
+                            item.TableName,
+                            domainFilter,
+                            odooFieldParam,
+                            odooPaginationParam);
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table not found";
+            }
+            return processResult;
+        }
     }
 }
