@@ -34,5 +34,21 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return processResults;
         }
+
+        [Route("GetProductionResultData")]
+        [HttpPost]
+        public async Task<BODataProcessResult> GetProductionResultData()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = await odooRpcDBService.GetProductionResultData();
+            }
+            catch(Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }
