@@ -32,7 +32,9 @@ namespace SVN_Portal.Controllers
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
             {
+                string storedProceduce = "SVN_Pro_CalTarget";
                 string strdate = "20241220";
+                string tableName = "SVN_Production_result";
                 if (date == DateTime.MinValue) 
                 { 
                     date = DateTime.Now;
@@ -41,7 +43,7 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 List<string> opers = appConfig.OperList.Split(",").ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
                 if (models.Count > 0) 
                 {
                     foreach (var model in models) 
@@ -68,6 +70,51 @@ namespace SVN_Portal.Controllers
 
             }
         }
+
+        public async Task<IActionResult> ProductionResult(DateTime date)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                List<string> opers = appConfig.OperList.Split(",").ToList();
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                if (models.Count > 0)
+                {
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                }
+                return View(models);
+            }
+            catch (Exception ex)
+            {
+                QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+                var data1 = model.GetData("POP");
+                var data2 = model.GetData("eKIT");
+                var data3 = model.GetData("Solar");
+                var data4 = model.GetData("Injection");
+                models = new List<QtyProdResultByOperViewModel> { data1, data2, data3, data4 };
+                return View(models);
+
+            }
+        }
+
         // Defect rate 20250103
 
         public async Task<IActionResult> Defect_Rate(DateTime date)
@@ -103,6 +150,8 @@ namespace SVN_Portal.Controllers
             try
             {
                 string strdate = "20241220";
+                string storedProceduce = "SVN_Pro_CalTarget";
+                string tableName = "SVN_Production_result";
                 if (date == DateTime.MinValue)
                 {
                     date = DateTime.Now;
@@ -113,7 +162,7 @@ namespace SVN_Portal.Controllers
                 List<string> opers = appConfig.OperList.Split(",").ToList();
                 opers = opers.Where(x => x == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)

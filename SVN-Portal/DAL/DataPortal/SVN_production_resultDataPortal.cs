@@ -15,7 +15,7 @@ namespace SVN_Portal.DAL.DataPortal
             this.connectionString = connectionString;
         }
 
-        public async Task<List<SVN_production_resultUI>> ReadList(string date)
+        public async Task<List<SVN_production_resultUI>> ReadList(string date, string tableName = "SVN_Production_result_Viindoo")
         {
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             int timeOut = 1000;
@@ -25,7 +25,7 @@ namespace SVN_Portal.DAL.DataPortal
                 {
                     string sql = string.Empty;
                     var param = new object();
-                    sql = "select * from SVN_production_result where Date_time = @date";
+                    sql = "select * from " + tableName + " where Date_time = @date";
                     param = new { date = date };
                     var data = await conn.QueryAsync<SVN_production_resultUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     dataUI = data.ToList();
@@ -38,7 +38,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<string> opers)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<string> opers, string storedProceduce, string tableName)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -47,8 +47,8 @@ namespace SVN_Portal.DAL.DataPortal
 
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadList(date);
+                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                dataUI = await ReadList(date, tableName);
                 if (dataUI.Count > 0) 
                 { 
                    foreach(var item in opers)

@@ -15,7 +15,7 @@ namespace SVN_Portal.DAL.DataPortal
         }
 
 
-        public async Task<List<SVN_target>> ReadList(string date)
+        public async Task<List<SVN_target>> ReadList(string date, string storedProceduce = "SVN_Pro_CalTarget")
         {
             List<SVN_target> dataUI = new List<SVN_target>();
             int timeOut = 1000;
@@ -24,7 +24,7 @@ namespace SVN_Portal.DAL.DataPortal
                 using (IDbConnection conn = new SqlConnection(connectionString))
                 {
                   //Gọi thủ tục tính toán kết quả theo tarhet
-                    string storedProcedure = "SVN_Pro_CalTarget";
+                    string storedProcedure = storedProceduce;
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("date_time", date);
                    
