@@ -79,5 +79,33 @@ namespace SVNShareLib.DAL
                 return -1;
             }
         }
+
+        public BODataProcessResult CallUpdateResutl()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    string storedProcedure = "SVN_Update_result_Viindoo";
+                    DynamicParameters parameters = new DynamicParameters();
+                    var datas = connection.Query<object[]>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+                    if(datas != null)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Call SP success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Call SP fail";
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }

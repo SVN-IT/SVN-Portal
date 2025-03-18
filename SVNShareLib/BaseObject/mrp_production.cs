@@ -11,13 +11,13 @@ namespace SVNShareLib.BaseObject
         public int id { get; set; }
         public int message_main_attachment_id { get; set; }
         public int backorder_sequence { get; set; }
-        public object? product_id { get; set; }
-        public object? product_uom_id { get; set; }
-        public object? lot_producing_id { get; set; }
+        public object[]? product_id { get; set; }
+        public object[]? product_uom_id { get; set; }
+        public object[]? lot_producing_id { get; set; }
         public int picking_type_id { get; set; }
         public int location_src_id { get; set; }
         public int location_dest_id { get; set; }
-        public object? bom_id { get; set; }
+        public object[]? bom_id { get; set; }
         public int user_id { get; set; }
         public int company_id { get; set; }
         public int procurement_group_id { get; set; }
