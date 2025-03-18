@@ -30,7 +30,7 @@ namespace ViidooDBServiceAPI.Services
             this.SVNDBConfig = SVNDBConfig;
         }
 
-        public async Task<BODataProcessResult> ConnectDB()
+        private async Task<BODataProcessResult> ConnectDB()
         {
             BODataProcessResult dataProcessResult = new BODataProcessResult();
             try
