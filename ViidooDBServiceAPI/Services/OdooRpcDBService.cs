@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json.Linq;
 using OdooRpc.CoreCLR.Client;
 using OdooRpc.CoreCLR.Client.Models;
 using OdooRpc.CoreCLR.Client.Models.Parameters;
@@ -207,28 +208,64 @@ namespace ViidooDBServiceAPI.Services
                     mrp_ProductionUI.id = item.id;
                     mrp_ProductionUI.message_main_attachment_id = item.message_main_attachment_id;
                     mrp_ProductionUI.backorder_sequence = item.backorder_sequence;
-                    if(item.product_id != null && item.product_id.Count() > 0)
+                    if(item.product_id != null)
                     {
-                        var intTemp = (Int64)item.product_id[0];
-                        mrp_ProductionUI.product_id = (int)intTemp;
+                        try
+                        {
+                            JArray objects = (JArray)item.product_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                        
                     }
-                    if (item.product_uom_id != null && item.product_uom_id.Count() > 0)
+                    if (item.product_uom_id != null)
                     {
-                        var intTemp = (Int64)item.product_uom_id[0];
-                        mrp_ProductionUI.product_uom_id = (int)intTemp;
+                        try
+                        {
+                            JArray objects = (JArray)item.product_uom_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_uom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                        
                     }
-                    if (item.lot_producing_id != null && item.lot_producing_id.Count() > 0)
+                    if (item.lot_producing_id != null)
                     {
-                        var intTemp = (Int64)item.lot_producing_id[0];
-                        mrp_ProductionUI.lot_producing_id = (int)intTemp;
+                        try
+                        {
+                            JArray objects = (JArray)item.lot_producing_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.lot_producing_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                        
                     }
                     mrp_ProductionUI.picking_type_id = item.picking_type_id;
                     mrp_ProductionUI.location_src_id = item.location_src_id;
                     mrp_ProductionUI.location_dest_id = item.location_dest_id;
-                    if (item.bom_id != null && item.bom_id.Count() > 0)
+                    if (item.bom_id != null)
                     {
-                        var intTemp = (Int64)item.bom_id[0];
-                        mrp_ProductionUI.bom_id = (int)intTemp;
+                        try
+                        {
+                            JArray objects = (JArray)item.bom_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.bom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                        
                     }
                     mrp_ProductionUI.user_id = item.user_id;
                     mrp_ProductionUI.company_id = item.company_id;
