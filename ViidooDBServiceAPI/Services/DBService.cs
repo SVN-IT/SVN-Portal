@@ -5,6 +5,7 @@ using SVNShareLib.BaseObject;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -20,7 +21,7 @@ namespace ViidooDBServiceAPI.Services
     public interface IOdooObject : IXmlRpcProxy
     {
         [XmlRpcMethod("execute_kw")]
-        Dictionary<string, object>[] Execute_Kw(string db, int uid, string password, string model, string method, object[] args);
+        object Execute_Kw(string db, int uid, string password, string model, string method, object[] args);
     }
     public class DBService
     {
@@ -202,7 +203,7 @@ namespace ViidooDBServiceAPI.Services
                         //new object[] { new object[] { "state", "=", "done" } }
                         //new string[] { "name", "product_id", "state" }
 
-                        Dictionary<string, object>[] searchResult = models.Execute_Kw(
+                        object searchResult = models.Execute_Kw(
                             dbName,
                             connectResult.UserID,
                             password,
@@ -239,17 +240,15 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        private BODataProcessResult UploadProductionResultToSVNServer(Dictionary<string, object>[] searchResult)
+        private BODataProcessResult UploadProductionResultToSVNServer(object searchResult)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             List<mrp_production> mrp_Productions = new List<mrp_production>();
             try
             {
-                var data = searchResult.ToList();
-                foreach(var item in data)
-                {
-                    var dicItem = item as Dictionary<string, object>;
-                }
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                mrp_Productions = JsonConvert.DeserializeObject<List<mrp_production>>(json);
             }
             catch(Exception ex)
             {

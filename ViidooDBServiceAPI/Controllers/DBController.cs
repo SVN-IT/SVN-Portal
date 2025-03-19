@@ -50,5 +50,21 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return processResult;
         }
+
+        [Route("GetAndUploadProductionResultDataXMLRPC")]
+        [HttpPost]
+        public BODataProcessResult GetAndUploadProductionResultDataXMLRPC()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = dBService.GetProductionResultData();
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }
