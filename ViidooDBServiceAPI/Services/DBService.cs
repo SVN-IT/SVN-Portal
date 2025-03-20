@@ -1036,6 +1036,72 @@ namespace ViidooDBServiceAPI.Services
                 return null;
             }
         }
+        private List<stock_lotUI> ConverterToStockLotUI(object searchResult)
+        {
+            List<stock_lotUI> dataUIs = new List<stock_lotUI>();
+            List<stock_lot> baseData = new List<stock_lot>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<stock_lot>>(json);
+                foreach (var item in baseData)
+                {
+                    stock_lotUI dataUI = new stock_lotUI();
+                    dataUI.id = item.id;
+                    dataUI.message_main_attachment_id = item.message_main_attachment_id;
+                    if (item.product_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.product_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.product_uom_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_uom_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.product_uom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    dataUI.company_id = item.company_id;
+                    dataUI.create_uid = item.create_uid;
+                    dataUI.write_uid = item.write_uid;
+                    dataUI.create_date = item.create_date;
+                    dataUI.write_date = item.write_date;
+                    dataUI.origin_message_id = item.origin_message_id;
+                    dataUI.origin_references = item.origin_references;
+                    dataUI.name = item.name;
+                    dataUI.Ref = item.Ref;
+                    dataUI.note = item.note;
+                    dataUI.customer_id = item.customer_id;
+                    dataUI.supplier_id = item.supplier_id;
+                    dataUI.country_state_id = item.country_state_id;
+                    dataUI.equipment_id = item.equipment_id;
+                    dataUIs.Add(dataUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         private BODataProcessResult InsertProductionTemplateToSVNDB(List<product_templateUI> dataUI)
         {
@@ -1224,6 +1290,7 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
 
         private BODataProcessResult CallSPToUpdateResult()
         {

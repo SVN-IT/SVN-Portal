@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 
-namespace SVNShareLib.DTO
+namespace SVNShareLib.BaseObject
 {
-    public class stock_lotUI
+    public class stock_lot
     {
         public int id { get; set; }
         public int message_main_attachment_id { get; set; }
-        public int product_id { get; set; }
-        public int product_uom_id { get; set; }
+        public object product_id { get; set; }
+        public object product_uom_id { get; set; }
         public int company_id { get; set; }
         public int create_uid { get; set; }
         public int write_uid { get; set; }
@@ -27,6 +26,5 @@ namespace SVNShareLib.DTO
         public int supplier_id { get; set; }
         public int country_state_id { get; set; }
         public int equipment_id { get; set; }
-
     }
 }
