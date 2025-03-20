@@ -66,5 +66,21 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return processResult;
         }
+
+        [Route("GetAndUploadProductionTemplateData")]
+        [HttpPost]
+        public BODataProcessResult GetAndUploadProductionTemplateData()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = dBService.GetProductTemplateData();
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }

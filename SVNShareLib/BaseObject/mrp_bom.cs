@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 
-namespace SVNShareLib.DTO
+namespace SVNShareLib.BaseObject
 {
-    public class mrp_bomUI
+    public class mrp_bom
     {
         public int id { get; set; }
         public int message_main_attachment_id { get; set; }
         public int product_tmpl_id { get; set; }
-        public int product_id { get; set; }
-        public int product_uom_id { get; set; }
+        public object? product_id { get; set; }
+        public object? product_uom_id { get; set; }
         public int sequence { get; set; }
         public int picking_type_id { get; set; }
         public int company_id { get; set; }
@@ -32,6 +31,5 @@ namespace SVNShareLib.DTO
         public DateTime write_date { get; set; }
         public int version { get; set; }
         public int previous_bom_id { get; set; }
-
     }
 }

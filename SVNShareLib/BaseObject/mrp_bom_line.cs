@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SVNShareLib.DTO
+namespace SVNShareLib.BaseObject
 {
-    public class mrp_bom_lineUI
+    public class mrp_bom_line
     {
         public int id { get; set; }
-        public int product_id { get; set; }
-        public int product_tmpl_id { get; set; }
+        public object product_id { get; set; }
+        public object product_tmpl_id { get; set; }
         public int company_id { get; set; }
-        public int product_uom_id { get; set; }
+        public object product_uom_id { get; set; }
         public int sequence { get; set; }
-        public int bom_id { get; set; }
+        public object bom_id { get; set; }
         public int operation_id { get; set; }
         public int create_uid { get; set; }
         public int write_uid { get; set; }
@@ -25,6 +25,5 @@ namespace SVNShareLib.DTO
         public decimal cost_share { get; set; }
         public decimal standard_qty { get; set; }
         public decimal loss_rate { get; set; }
-
     }
 }
