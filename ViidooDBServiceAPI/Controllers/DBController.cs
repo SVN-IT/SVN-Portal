@@ -34,6 +34,7 @@ namespace ViidooDBServiceAPI.Controllers
                         break;
                     case "stock.move":
                         processResult = dBService.GetStockMoveData();
+                        //processResult = odooRpcDBService.GetStockMoveData().Result;
                         break;
                     case "mrp.production": //done
                         processResult = dBService.GetProductionResultData();
