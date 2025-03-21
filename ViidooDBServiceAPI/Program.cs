@@ -15,6 +15,7 @@ SVNDBConfig sVNDBConfig = builder.Configuration.GetSection("SVNDBConfig").Get<SV
 
 builder.Services.AddSingleton(viindooDBConfig);
 builder.Services.AddSingleton(sVNDBConfig);
+builder.Services.AddSingleton<ConvertDataService>();
 builder.Services.AddSingleton<DBService>();
 builder.Services.AddSingleton<OdooRpcDBService>();
 
