@@ -12,10 +12,17 @@ namespace ViidooDBServiceAPI.Controllers
     {
         DBService dBService;
         OdooRpcDBService odooRpcDBService;
-        public DBController(DBService dBService, OdooRpcDBService odooRpcDBService)
+        ViindooDBConfig dBConfig;
+        ViindooDataService viinDataService;
+        public DBController(DBService dBService, 
+            OdooRpcDBService odooRpcDBService,
+            ViindooDataService viinDataService,
+            ViindooDBConfig dBConfig)
         {
             this.dBService = dBService;
             this.odooRpcDBService = odooRpcDBService;
+            this.dBConfig = dBConfig;
+            this.viinDataService = viinDataService;
         }
 
         [Route("GetDataFromViindoo")]

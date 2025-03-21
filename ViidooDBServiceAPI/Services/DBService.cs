@@ -78,12 +78,12 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public List<BODataProcessResult> GetData()
+        public BODataProcessResult GetViindooData(string objectName)
         {
-            List<BODataProcessResult> processResults = new List<BODataProcessResult>();
-            foreach (var item in dBConfig.QueryConfig)
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
             {
-                BODataProcessResult processResult = new BODataProcessResult();
                 processResult.DataType = item.TableName;
                 try
                 {
@@ -140,6 +140,24 @@ namespace ViidooDBServiceAPI.Services
                             processResult.OK = true;
                             processResult.Message = "Get data success";
                             processResult.Content = searchResult;
+                            var dataUI = convertDataService.ConverterToProductionUI(searchResult);
+
+                            BODataProcessResult insertResult = new BODataProcessResult();
+                            if (dataUI != null && dataUI.Count > 0)
+                            {
+                                //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                insertResult = convertDataService.InsertProductionResultToSVNDB(dataUI);
+                            }
+                            //Nếu insert thành công thì gọi stored proceduce để tổng hợ dữ liệu
+                            if (insertResult.OK)
+                            {
+                                var callResult = CallSPToUpdateResult();
+                                processResult = callResult;
+                            }
+                            else
+                            {
+                                processResult = insertResult;
+                            }
                         }
                         else
                         {
@@ -156,9 +174,12 @@ namespace ViidooDBServiceAPI.Services
                 {
                     processResult.Message = ex.Message;
                 }
-                processResults.Add(processResult);
             }
-            return processResults;
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
         }
 
         /// <summary>
@@ -1036,7 +1057,7 @@ namespace ViidooDBServiceAPI.Services
         }
 
 
-        
+
 
         private BODataProcessResult CallSPToUpdateResult()
         {
