@@ -24,7 +24,7 @@ namespace ViidooDBServiceAPI.Services
         public OdooRpcDBService(ViindooDBConfig dBConfig, SVNDBConfig SVNDBConfig)
         {
             this.dBConfig = dBConfig;
-            serverUrl = dBConfig.ServerUrl;
+            serverUrl = dBConfig.OdooServerUrl;
             dbName = dBConfig.DbName;
             username = dBConfig.Username;
             password = dBConfig.Password;
@@ -157,7 +157,15 @@ namespace ViidooDBServiceAPI.Services
                     }
                     if (!string.IsNullOrWhiteSpace(item.Order))
                     {
-                        odooPaginationParam = odooPaginationParam.OrderByDescending(item.Order);
+                        string[] order = item.Order.Split(" ");
+                        if (item.Order.Contains("desc"))
+                        {
+                            odooPaginationParam = odooPaginationParam.OrderByDescending(order[0]);
+                        }
+                        else
+                        {
+                            odooPaginationParam = odooPaginationParam.OrderBy(item.Order);
+                        }
                     }
 
                     var productions = await client.GetSVNAll<mrp_production[]>(

@@ -65,7 +65,7 @@ namespace SVNShareLib.DTO
         public int byproduct_id { get; set; }
         public int order_finished_lot_id { get; set; }
         public decimal cost_share { get; set; }
-        public int manual_consumption { get; set; }
+        public bool manual_consumption { get; set; }
         public int analytic_account_line_id { get; set; }
         public int to_refund { get; set; }
         public int purchase_line_id { get; set; }

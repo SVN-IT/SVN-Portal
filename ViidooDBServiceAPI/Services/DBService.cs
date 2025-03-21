@@ -2387,7 +2387,19 @@ namespace ViidooDBServiceAPI.Services
 
                         }
                     }
-                    mrp_ProductionUI.order_finished_lot_id = item.order_finished_lot_id;
+                    if (item.order_finished_lot_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.order_finished_lot_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.order_finished_lot_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.cost_share = item.cost_share;
                     mrp_ProductionUI.manual_consumption = item.manual_consumption;
                     if (item.analytic_account_line_id != null)

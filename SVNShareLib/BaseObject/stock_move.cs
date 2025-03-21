@@ -62,9 +62,9 @@ namespace SVNShareLib.BaseObject
         public object? workorder_id { get; set; }
         public object? bom_line_id { get; set; }
         public object? byproduct_id { get; set; }
-        public int order_finished_lot_id { get; set; }
+        public object? order_finished_lot_id { get; set; }
         public decimal cost_share { get; set; }
-        public int manual_consumption { get; set; }
+        public bool manual_consumption { get; set; }
         public object? analytic_account_line_id { get; set; }
         public object? to_refund { get; set; }
         public object? purchase_line_id { get; set; }
