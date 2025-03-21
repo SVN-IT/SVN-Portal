@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVNShareLib;
+using SVNShareLib.Request;
 using System.Threading.Tasks;
 using ViidooDBServiceAPI.Services;
 
@@ -19,20 +20,46 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetDataFromViindoo")]
         [HttpPost]
-        public List<BODataProcessResult> GetDataFromViindoo()
+        public BODataProcessResult GetDataFromViindoo(ViindooDataRequest dataRequest)
         {
-            List<BODataProcessResult> processResults = new List<BODataProcessResult>();
+            BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResults = dBService.GetData();
+                switch (dataRequest.TableName) { 
+                    case "stock_move.line_consume.rel":
+                        processResult = dBService.GetStockMoveLineConsumeRelData();
+                        break;
+                    case "stock_move.line":
+                        processResult = dBService.GetStockMoveLineData();
+                        break;
+                    case "stock.move":
+                        processResult = dBService.GetStockMoveData();
+                        break;
+                    case "mrp.production":
+                        processResult = dBService.GetProductionResultData();
+                        break;
+                    case "product.template":
+                        processResult = dBService.GetProductTemplateData();
+                        break;
+                    case "mrp.bom":
+                        processResult = dBService.GetBomData();
+                        break;
+                    case "mrp.bom.line":
+                        processResult = dBService.GetBomLineData();
+                        break;
+                    case "stock.lot":
+                        processResult = dBService.GetStockLotData();
+                        break;
+                    case "product.category":
+                        processResult = dBService.GetProdCatData();
+                        break;
+                }
             }
             catch(Exception ex)
             {
-                BODataProcessResult processResult = new BODataProcessResult();
                 processResult.Message = ex.Message;
-                processResults.Add(processResult);
             }
-            return processResults;
+            return processResult;
         }
 
         [Route("GetAndUploadProductionResultData")]
