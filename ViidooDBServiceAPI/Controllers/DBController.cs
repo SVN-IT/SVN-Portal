@@ -35,19 +35,19 @@ namespace ViidooDBServiceAPI.Controllers
                     case "stock.move":
                         processResult = dBService.GetStockMoveData();
                         break;
-                    case "mrp.production":
+                    case "mrp.production": //done
                         processResult = dBService.GetProductionResultData();
                         break;
-                    case "product.template":
+                    case "product.template": //done
                         processResult = dBService.GetProductTemplateData();
                         break;
-                    case "mrp.bom":
+                    case "mrp.bom": //done
                         processResult = dBService.GetBomData();
                         break;
-                    case "mrp.bom.line":
+                    case "mrp.bom.line": //done
                         processResult = dBService.GetBomLineData();
                         break;
-                    case "stock.lot":
+                    case "stock.lot": //done
                         processResult = dBService.GetStockLotData();
                         break;
                     case "product.category":

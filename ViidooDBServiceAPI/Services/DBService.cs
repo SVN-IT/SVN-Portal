@@ -1363,9 +1363,35 @@ namespace ViidooDBServiceAPI.Services
                 {
                     mrp_bomUI dataUI = new mrp_bomUI();
                     dataUI.id = item.id;
-                    dataUI.message_main_attachment_id = item.message_main_attachment_id;
-                    dataUI.product_tmpl_id = item.product_tmpl_id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     dataUI.sequence = item.sequence;
+                    if (item.product_tmpl_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_tmpl_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.product_tmpl_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     if (item.product_id != null)
                     {
                         try
@@ -1394,11 +1420,76 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
-                    dataUI.picking_type_id = item.picking_type_id;
-                    dataUI.company_id = item.company_id;
-                    dataUI.create_uid = item.create_uid;
-                    dataUI.write_uid = item.write_uid;
-                    dataUI.origin_message_id = item.origin_message_id;
+                    if (item.picking_type_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.picking_type_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.picking_type_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.origin_message_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.origin_message_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.origin_message_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     dataUI.origin_references = item.origin_references;
                     dataUI.consumption = item.consumption;
                     dataUI.product_qty = item.product_qty;
@@ -1410,7 +1501,20 @@ namespace ViidooDBServiceAPI.Services
                     dataUI.active = item.active;
                     dataUI.allow_operation_dependencies = item.allow_operation_dependencies;
                     dataUI.version = item.version;
-                    dataUI.previous_bom_id = item.previous_bom_id;
+                    if (item.previous_bom_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.previous_bom_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.previous_bom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
 
                     dataUIs.Add(dataUI);
 
@@ -1477,9 +1581,45 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
-                    dataUI.company_id = item.company_id;
-                    dataUI.create_uid = item.create_uid;
-                    dataUI.write_uid = item.write_uid;
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     dataUI.product_qty = item.product_qty;
                     dataUI.create_date = item.create_date;
                     dataUI.write_date = item.write_date;
@@ -1497,7 +1637,20 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
-                    dataUI.operation_id = item.operation_id;
+                    if (item.operation_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.operation_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.operation_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     dataUI.manual_consumption = item.manual_consumption;
                     dataUI.cost_share = item.cost_share;
                     dataUI.standard_qty = item.standard_qty;
@@ -1525,7 +1678,20 @@ namespace ViidooDBServiceAPI.Services
                 {
                     stock_lotUI dataUI = new stock_lotUI();
                     dataUI.id = item.id;
-                    dataUI.message_main_attachment_id = item.message_main_attachment_id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     if (item.product_id != null)
                     {
                         try
@@ -1554,9 +1720,48 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
-                    dataUI.company_id = item.company_id;
-                    dataUI.create_uid = item.create_uid;
-                    dataUI.write_uid = item.write_uid;
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     dataUI.create_date = item.create_date;
                     dataUI.write_date = item.write_date;
                     dataUI.origin_message_id = item.origin_message_id;
@@ -1564,10 +1769,62 @@ namespace ViidooDBServiceAPI.Services
                     dataUI.name = item.name;
                     dataUI.Ref = item.Ref;
                     dataUI.note = item.note;
-                    dataUI.customer_id = item.customer_id;
-                    dataUI.supplier_id = item.supplier_id;
-                    dataUI.country_state_id = item.country_state_id;
-                    dataUI.equipment_id = item.equipment_id;
+                    if (item.customer_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.customer_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.customer_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.supplier_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.supplier_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.supplier_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.country_state_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.country_state_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.country_state_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.equipment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.equipment_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.equipment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     dataUIs.Add(dataUI);
 
                 }
@@ -1591,20 +1848,118 @@ namespace ViidooDBServiceAPI.Services
                 {
                     product_categoryUI dataUI = new product_categoryUI();
                     dataUI.id = item.id;
-                    dataUI.parent_id = item.parent_id;
+                    if (item.parent_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.parent_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.parent_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     dataUI.complete_name = item.complete_name;
                     dataUI.parent_path = item.parent_path;
-                    dataUI.message_main_attachment_id = item.message_main_attachment_id;
-                    dataUI.create_uid = item.create_uid;
-                    dataUI.write_uid = item.write_uid;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     dataUI.create_date = item.create_date;
                     dataUI.write_date = item.write_date;
-                    dataUI.origin_message_id = item.origin_message_id;
-                    dataUI.origin_references = item.origin_references;
+                    if (item.origin_message_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.origin_message_id;
+                            var intTemp = (String)objects[0];
+                            dataUI.origin_message_id = (String)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.origin_references != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.origin_references;
+                            var intTemp = (String)objects[0];
+                            dataUI.origin_references = (String)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     dataUI.name = item.name;
-                    dataUI.removal_strategy_id = item.removal_strategy_id;
+                    if (item.removal_strategy_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.removal_strategy_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.removal_strategy_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     dataUI.packaging_reserve_method = item.packaging_reserve_method;
-                    dataUI.technician_user_id = item.technician_user_id;
+                    if (item.technician_user_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.technician_user_id;
+                            var intTemp = (Int64)objects[0];
+                            dataUI.technician_user_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     dataUI.equipment_assign_to = item.equipment_assign_to;
                     dataUIs.Add(dataUI);
 
@@ -1657,34 +2012,253 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
-                    mrp_ProductionUI.location_id = item.location_id;
-                    mrp_ProductionUI.partner_id = item.partner_id;
-                    mrp_ProductionUI.picking_id = item.picking_id;
-                    mrp_ProductionUI.group_id = item.group_id;
-                    mrp_ProductionUI.rule_id = item.rule_id;
-                    mrp_ProductionUI.picking_type_id = item.picking_type_id;
-                    mrp_ProductionUI.origin_returned_move_id = item.origin_returned_move_id;
-                    mrp_ProductionUI.location_dest_id = item.location_dest_id;
-                    mrp_ProductionUI.restrict_partner_id = item.restrict_partner_id;
-                    mrp_ProductionUI.company_id = item.company_id;
-                    mrp_ProductionUI.warehouse_id = item.warehouse_id;
-                    mrp_ProductionUI.orderpoint_id = item.orderpoint_id;
-                    mrp_ProductionUI.package_level_id = item.package_level_id;
-                    mrp_ProductionUI.create_uid = item.create_uid;
-                    mrp_ProductionUI.write_uid = item.write_uid;
+                    if (item.location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.partner_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.partner_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.partner_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.picking_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.picking_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.picking_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.group_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.group_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.group_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.rule_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.rule_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.rule_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.picking_type_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.picking_type_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.picking_type_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.origin_returned_move_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.origin_returned_move_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.origin_returned_move_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_dest_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_dest_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_dest_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.restrict_partner_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.restrict_partner_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.restrict_partner_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.warehouse_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.warehouse_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.warehouse_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.orderpoint_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.orderpoint_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.orderpoint_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.package_level_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.package_level_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.package_level_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.next_serial_count = item.next_serial_count;
-                    mrp_ProductionUI.product_packaging_id = item.product_packaging_id;
+                    if (item.product_packaging_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_packaging_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_packaging_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.name = item.name;
                     mrp_ProductionUI.priority = item.priority;
                     mrp_ProductionUI.origin = item.origin;
                     mrp_ProductionUI.state = item.state;
                     mrp_ProductionUI.procure_method = item.procure_method;
                     mrp_ProductionUI.reference = item.reference;
-                    mrp_ProductionUI.next_serial = item.next_serial;
+                    if (item.next_serial != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.next_serial;
+                            var intTemp = (String)objects[0];
+                            mrp_ProductionUI.next_serial = (String)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.product_qty = item.product_qty;
                     mrp_ProductionUI.reservation_date = item.reservation_date;
                     mrp_ProductionUI.propagate_cancel = item.propagate_cancel;
-                    mrp_ProductionUI.description_picking = item.description_picking;
+                    if (item.description_picking != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.description_picking;
+                            var intTemp = (String)objects[0];
+                            mrp_ProductionUI.description_picking = (String)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.quantity_done = item.quantity_done;
                     mrp_ProductionUI.scrapped = item.scrapped;
                     mrp_ProductionUI.is_inventory = item.is_inventory;
@@ -1695,30 +2269,219 @@ namespace ViidooDBServiceAPI.Services
                     mrp_ProductionUI.write_date = item.write_date;
                     mrp_ProductionUI.product_uom_qty = item.product_uom_qty;
                     mrp_ProductionUI.date = item.date;
-                    mrp_ProductionUI.delay_alert_date = item.delay_alert_date;
+                    if (item.delay_alert_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.delay_alert_date = DateTime.Parse((string)item.delay_alert_date);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.price_unit = item.price_unit;
                     mrp_ProductionUI.is_done = item.is_done;
                     mrp_ProductionUI.unit_factor = item.unit_factor;
-                    mrp_ProductionUI.created_production_id = item.created_production_id;
-                    mrp_ProductionUI.production_id = item.production_id;
-                    mrp_ProductionUI.raw_material_production_id = item.raw_material_production_id;
-                    mrp_ProductionUI.unbuild_id = item.unbuild_id;
-                    mrp_ProductionUI.consume_unbuild_id = item.consume_unbuild_id;
-                    mrp_ProductionUI.operation_id = item.operation_id;
-                    mrp_ProductionUI.workorder_id = item.workorder_id;
-                    mrp_ProductionUI.bom_line_id = item.bom_line_id;
-                    mrp_ProductionUI.byproduct_id = item.byproduct_id;
+                    if (item.created_production_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.created_production_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.created_production_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.raw_material_production_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.raw_material_production_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.raw_material_production_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.unbuild_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.unbuild_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.unbuild_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.consume_unbuild_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.consume_unbuild_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.consume_unbuild_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.operation_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.operation_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.operation_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.workorder_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.workorder_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.workorder_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.bom_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.bom_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.bom_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.byproduct_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.byproduct_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.byproduct_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.order_finished_lot_id = item.order_finished_lot_id;
                     mrp_ProductionUI.cost_share = item.cost_share;
                     mrp_ProductionUI.manual_consumption = item.manual_consumption;
-                    mrp_ProductionUI.analytic_account_line_id = item.analytic_account_line_id;
-                    mrp_ProductionUI.to_refund = item.to_refund;
-                    mrp_ProductionUI.purchase_line_id = item.purchase_line_id;
-                    mrp_ProductionUI.created_purchase_line_id = item.created_purchase_line_id;
-                    mrp_ProductionUI.component_standard_consumption_id = item.component_standard_consumption_id;
-                    mrp_ProductionUI.byproduct_standard_consumption_id = item.byproduct_standard_consumption_id;
-                    mrp_ProductionUI.sale_line_id = item.sale_line_id;
+                    if (item.analytic_account_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.analytic_account_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.analytic_account_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
 
+                        }
+                    }
+                    if (item.to_refund != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.to_refund;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.to_refund = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.purchase_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.purchase_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.purchase_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.created_purchase_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.created_purchase_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.created_purchase_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.component_standard_consumption_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.component_standard_consumption_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.component_standard_consumption_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.byproduct_standard_consumption_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.byproduct_standard_consumption_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.byproduct_standard_consumption_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.sale_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.sale_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.sale_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.sequence = item.sequence;
                     dataUIs.Add(mrp_ProductionUI);
 
                 }

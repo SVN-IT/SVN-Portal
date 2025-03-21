@@ -9,15 +9,15 @@ namespace SVNShareLib.BaseObject
     public class mrp_bom_line
     {
         public int id { get; set; }
-        public object product_id { get; set; }
-        public object product_tmpl_id { get; set; }
-        public int company_id { get; set; }
-        public object product_uom_id { get; set; }
+        public object? product_id { get; set; }
+        public object? product_tmpl_id { get; set; }
+        public object? company_id { get; set; }
+        public object? product_uom_id { get; set; }
         public int sequence { get; set; }
-        public object bom_id { get; set; }
-        public int operation_id { get; set; }
-        public int create_uid { get; set; }
-        public int write_uid { get; set; }
+        public object? bom_id { get; set; }
+        public object? operation_id { get; set; }
+        public object? create_uid { get; set; }
+        public object? write_uid { get; set; }
         public decimal product_qty { get; set; }
         public bool manual_consumption { get; set; }
         public DateTime create_date { get; set; }

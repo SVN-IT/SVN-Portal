@@ -9,16 +9,16 @@ namespace SVNShareLib.BaseObject
     public class mrp_bom
     {
         public int id { get; set; }
-        public int message_main_attachment_id { get; set; }
-        public int product_tmpl_id { get; set; }
+        public object? message_main_attachment_id { get; set; }
+        public object? product_tmpl_id { get; set; }
         public object? product_id { get; set; }
         public object? product_uom_id { get; set; }
         public int sequence { get; set; }
-        public int picking_type_id { get; set; }
-        public int company_id { get; set; }
-        public int create_uid { get; set; }
-        public int write_uid { get; set; }
-        public int origin_message_id { get; set; }
+        public object? picking_type_id { get; set; }
+        public object? company_id { get; set; }
+        public object? create_uid { get; set; }
+        public object? write_uid { get; set; }
+        public object? origin_message_id { get; set; }
         public string origin_references { get; set; }
         public string code { get; set; }
         public string type { get; set; }
@@ -30,6 +30,6 @@ namespace SVNShareLib.BaseObject
         public DateTime create_date { get; set; }
         public DateTime write_date { get; set; }
         public int version { get; set; }
-        public int previous_bom_id { get; set; }
+        public object? previous_bom_id { get; set; }
     }
 }
