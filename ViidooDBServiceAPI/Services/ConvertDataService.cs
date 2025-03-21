@@ -1243,8 +1243,17 @@ namespace ViidooDBServiceAPI.Services
                     mrp_ProductionUI.scrapped = item.scrapped;
                     mrp_ProductionUI.is_inventory = item.is_inventory;
                     mrp_ProductionUI.additional = item.additional;
-                    mrp_ProductionUI.date_deadline = item.date_deadline;
+                    if (item.date_deadline != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.date_deadline = DateTime.Parse((string)item.date_deadline);
+                        }
+                        catch
+                        {
 
+                        }
+                    }
                     mrp_ProductionUI.create_date = item.create_date;
                     mrp_ProductionUI.write_date = item.write_date;
                     mrp_ProductionUI.product_uom_qty = item.product_uom_qty;

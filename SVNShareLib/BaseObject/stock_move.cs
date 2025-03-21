@@ -46,7 +46,7 @@ namespace SVNShareLib.BaseObject
         public bool is_inventory { get; set; }
         public bool additional { get; set; }
         public DateTime date { get; set; }
-        public DateTime date_deadline { get; set; }
+        public object? date_deadline { get; set; }
         public object? delay_alert_date { get; set; }
         public DateTime create_date { get; set; }
         public DateTime write_date { get; set; }
