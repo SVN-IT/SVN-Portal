@@ -558,6 +558,482 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
+        public BODataProcessResult GetStockLotData(string tableName = "stock.lot")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                            var dataUI = ConverterToStockLotUI(searchResult);
+
+                            BODataProcessResult insertResult = new BODataProcessResult();
+                            if (dataUI != null && dataUI.Count > 0)
+                            {
+                                //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                insertResult = InsertStockLotToSVNDB(dataUI);
+                                processResult = insertResult;
+                            }
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetProdCatData(string tableName = "product.category")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                            var dataUI = ConverterToProductCatUI(searchResult);
+
+                            BODataProcessResult insertResult = new BODataProcessResult();
+                            if (dataUI != null && dataUI.Count > 0)
+                            {
+                                //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                insertResult = InsertProductCatToSVNDB(dataUI);
+                                processResult = insertResult;
+                            }
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetStockMoveData(string tableName = "stock.move")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                            var dataUI = ConverterToStockMoveUI(searchResult);
+
+                            BODataProcessResult insertResult = new BODataProcessResult();
+                            if (dataUI != null && dataUI.Count > 0)
+                            {
+                                //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                insertResult = InsertStockMoveToSVNDB(dataUI);
+                                processResult = insertResult;
+                            }
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetStockMoveLineData(string tableName = "stock.move.line")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                            var dataUI = ConverterToStockMoveLineUI(searchResult);
+
+                            BODataProcessResult insertResult = new BODataProcessResult();
+                            if (dataUI != null && dataUI.Count > 0)
+                            {
+                                //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                insertResult = InsertStockMoveLineToSVNDB(dataUI);
+                                processResult = insertResult;
+                            }
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetStockMoveLineConsumeRelData(string tableName = "stock.move.line.consume.rel")
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Message = "Get data success";
+                            processResult.Content = searchResult;
+                            var dataUI = ConverterToStockMoveLineConsumUI(searchResult);
+
+                            BODataProcessResult insertResult = new BODataProcessResult();
+                            if (dataUI != null && dataUI.Count > 0)
+                            {
+                                //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                insertResult = InsertStockMoveLineConsumToSVNDB(dataUI);
+                                processResult = insertResult;
+                            }
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+
         private List<product_templateUI> ConvertToTemplateUI(object searchResult)
         {
             List<product_templateUI> dataUIs = new List<product_templateUI>();
@@ -1102,6 +1578,314 @@ namespace ViidooDBServiceAPI.Services
                 return null;
             }
         }
+        private List<product_categoryUI> ConverterToProductCatUI(object searchResult)
+        {
+            List<product_categoryUI> dataUIs = new List<product_categoryUI>();
+            List<product_category> baseData = new List<product_category>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<product_category>>(json);
+                foreach (var item in baseData)
+                {
+                    product_categoryUI dataUI = new product_categoryUI();
+                    dataUI.id = item.id;
+                    dataUI.parent_id = item.parent_id;
+                    dataUI.complete_name = item.complete_name;
+                    dataUI.parent_path = item.parent_path;
+                    dataUI.message_main_attachment_id = item.message_main_attachment_id;
+                    dataUI.create_uid = item.create_uid;
+                    dataUI.write_uid = item.write_uid;
+                    dataUI.create_date = item.create_date;
+                    dataUI.write_date = item.write_date;
+                    dataUI.origin_message_id = item.origin_message_id;
+                    dataUI.origin_references = item.origin_references;
+                    dataUI.name = item.name;
+                    dataUI.removal_strategy_id = item.removal_strategy_id;
+                    dataUI.packaging_reserve_method = item.packaging_reserve_method;
+                    dataUI.technician_user_id = item.technician_user_id;
+                    dataUI.equipment_assign_to = item.equipment_assign_to;
+                    dataUIs.Add(dataUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        private List<stock_moveUI> ConverterToStockMoveUI(object searchResult)
+        {
+            List<stock_moveUI> dataUIs = new List<stock_moveUI>();
+            List<stock_move> baseData = new List<stock_move>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<stock_move>>(json);
+                foreach (var item in baseData)
+                {
+                    stock_moveUI mrp_ProductionUI = new stock_moveUI();
+                    mrp_ProductionUI.id = item.id;
+                    if (item.product_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.product_uom != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_uom;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_uom = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    mrp_ProductionUI.location_id = item.location_id;
+                    mrp_ProductionUI.partner_id = item.partner_id;
+                    mrp_ProductionUI.picking_id = item.picking_id;
+                    mrp_ProductionUI.group_id = item.group_id;
+                    mrp_ProductionUI.rule_id = item.rule_id;
+                    mrp_ProductionUI.picking_type_id = item.picking_type_id;
+                    mrp_ProductionUI.origin_returned_move_id = item.origin_returned_move_id;
+                    mrp_ProductionUI.location_dest_id = item.location_dest_id;
+                    mrp_ProductionUI.restrict_partner_id = item.restrict_partner_id;
+                    mrp_ProductionUI.company_id = item.company_id;
+                    mrp_ProductionUI.warehouse_id = item.warehouse_id;
+                    mrp_ProductionUI.orderpoint_id = item.orderpoint_id;
+                    mrp_ProductionUI.package_level_id = item.package_level_id;
+                    mrp_ProductionUI.create_uid = item.create_uid;
+                    mrp_ProductionUI.write_uid = item.write_uid;
+                    mrp_ProductionUI.next_serial_count = item.next_serial_count;
+                    mrp_ProductionUI.product_packaging_id = item.product_packaging_id;
+                    mrp_ProductionUI.name = item.name;
+                    mrp_ProductionUI.priority = item.priority;
+                    mrp_ProductionUI.origin = item.origin;
+                    mrp_ProductionUI.state = item.state;
+                    mrp_ProductionUI.procure_method = item.procure_method;
+                    mrp_ProductionUI.reference = item.reference;
+                    mrp_ProductionUI.next_serial = item.next_serial;
+                    mrp_ProductionUI.product_qty = item.product_qty;
+                    mrp_ProductionUI.reservation_date = item.reservation_date;
+                    mrp_ProductionUI.propagate_cancel = item.propagate_cancel;
+                    mrp_ProductionUI.description_picking = item.description_picking;
+                    mrp_ProductionUI.quantity_done = item.quantity_done;
+                    mrp_ProductionUI.scrapped = item.scrapped;
+                    mrp_ProductionUI.is_inventory = item.is_inventory;
+                    mrp_ProductionUI.additional = item.additional;
+                    mrp_ProductionUI.date_deadline = item.date_deadline;
+                    
+                    mrp_ProductionUI.create_date = item.create_date;
+                    mrp_ProductionUI.write_date = item.write_date;
+                    mrp_ProductionUI.product_uom_qty = item.product_uom_qty;
+                    mrp_ProductionUI.date = item.date;
+                    mrp_ProductionUI.delay_alert_date = item.delay_alert_date;
+                    mrp_ProductionUI.price_unit = item.price_unit;
+                    mrp_ProductionUI.is_done = item.is_done;
+                    mrp_ProductionUI.unit_factor = item.unit_factor;
+                    mrp_ProductionUI.created_production_id = item.created_production_id;
+                    mrp_ProductionUI.production_id = item.production_id;
+                    mrp_ProductionUI.raw_material_production_id = item.raw_material_production_id;
+                    mrp_ProductionUI.unbuild_id = item.unbuild_id;
+                    mrp_ProductionUI.consume_unbuild_id = item.consume_unbuild_id;
+                    mrp_ProductionUI.operation_id = item.operation_id;
+                    mrp_ProductionUI.workorder_id = item.workorder_id;
+                    mrp_ProductionUI.bom_line_id = item.bom_line_id;
+                    mrp_ProductionUI.byproduct_id = item.byproduct_id;
+                    mrp_ProductionUI.order_finished_lot_id = item.order_finished_lot_id;
+                    mrp_ProductionUI.cost_share = item.cost_share;
+                    mrp_ProductionUI.manual_consumption = item.manual_consumption;
+                    mrp_ProductionUI.analytic_account_line_id = item.analytic_account_line_id;
+                    mrp_ProductionUI.to_refund = item.to_refund;
+                    mrp_ProductionUI.purchase_line_id = item.purchase_line_id;
+                    mrp_ProductionUI.created_purchase_line_id = item.created_purchase_line_id;
+                    mrp_ProductionUI.component_standard_consumption_id = item.component_standard_consumption_id;
+                    mrp_ProductionUI.byproduct_standard_consumption_id = item.byproduct_standard_consumption_id;
+                    mrp_ProductionUI.sale_line_id = item.sale_line_id;
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        private List<stock_move_lineUI> ConverterToStockMoveLineUI(object searchResult)
+        {
+            List<stock_move_lineUI> dataUIs = new List<stock_move_lineUI>();
+            List<stock_move_line> baseData = new List<stock_move_line>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<stock_move_line>>(json);
+                foreach (var item in baseData)
+                {
+                    stock_move_lineUI mrp_ProductionUI = new stock_move_lineUI();
+                    mrp_ProductionUI.id = item.id;
+                    mrp_ProductionUI.move_id = item.move_id;
+                    if (item.product_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.product_uom_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_uom_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_uom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.lot_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.lot_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.lot_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.workorder_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.workorder_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.workorder_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    mrp_ProductionUI.location_id = item.location_id;
+                    mrp_ProductionUI.package_id = item.package_id;
+                    mrp_ProductionUI.picking_id = item.picking_id;
+                    mrp_ProductionUI.result_package_id = item.result_package_id;
+                    mrp_ProductionUI.owner_id = item.owner_id;
+                    mrp_ProductionUI.product_category_name = item.product_category_name;
+                    mrp_ProductionUI.lot_name = item.lot_name;
+                    mrp_ProductionUI.location_dest_id = item.location_dest_id;
+                    mrp_ProductionUI.reserved_qty = item.reserved_qty;
+                    mrp_ProductionUI.company_id = item.company_id;
+                    mrp_ProductionUI.reserved_uom_qty = item.reserved_uom_qty;
+                    mrp_ProductionUI.qty_done = item.qty_done;
+                    mrp_ProductionUI.package_level_id = item.package_level_id;
+                    mrp_ProductionUI.create_uid = item.create_uid;
+                    mrp_ProductionUI.write_uid = item.write_uid;
+                    mrp_ProductionUI.equipment_id = item.equipment_id;
+                    mrp_ProductionUI.can_create_equipment = item.can_create_equipment;
+                    mrp_ProductionUI.location_processed = item.location_processed;
+                    mrp_ProductionUI.state = item.state;
+                    mrp_ProductionUI.reference = item.reference;
+                    mrp_ProductionUI.description_picking = item.description_picking;
+
+                    mrp_ProductionUI.create_date = item.create_date;
+                    mrp_ProductionUI.write_date = item.write_date;
+                    mrp_ProductionUI.date = item.date;
+                    mrp_ProductionUI.production_id = item.production_id;
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        private List<stock_move_line_consume_relUI> ConverterToStockMoveLineConsumUI(object searchResult)
+        {
+            List<stock_move_line_consume_relUI> dataUIs = new List<stock_move_line_consume_relUI>();
+            List<stock_move_line_consume_rel> baseData = new List<stock_move_line_consume_rel>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<stock_move_line_consume_rel>>(json);
+                foreach (var item in baseData)
+                {
+                    stock_move_line_consume_relUI mrp_ProductionUI = new stock_move_line_consume_relUI();
+                    if (item.consume_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.consume_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.consume_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.produce_line_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.produce_line_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.produce_line_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         private BODataProcessResult InsertProductionTemplateToSVNDB(List<product_templateUI> dataUI)
         {
@@ -1149,7 +1933,6 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
-
         private BODataProcessResult InsertProductionResultToSVNDB(List<mrp_productionUI> dataUI)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -1196,7 +1979,6 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
-
         private BODataProcessResult InsertBOMToSVNDB(List<mrp_bomUI> dataUI)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -1243,7 +2025,6 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
-
         private BODataProcessResult InsertBomLineToSVNDB(List<mrp_bom_lineUI> dataUI)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -1290,7 +2071,237 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+        private BODataProcessResult InsertStockLotToSVNDB(List<stock_lotUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<stock_lotUI> insertData = new List<stock_lotUI>();
+                List<stock_lotUI> existData = new List<stock_lotUI>();
+                GrandDataPortal<stock_lotUI> dataPortal = new GrandDataPortal<stock_lotUI>("SVN_stock_lot", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_stock_lot]([id],[message_main_attachment_id],[product_id],[product_uom_id],[company_id],[create_uid],[write_uid],[origin_message_id],[origin_references],[name],[ref],[note],[create_date],[write_date],[customer_id],[supplier_id],[country_state_id],[equipment_id])VALUES(@id,@message_main_attachment_id,@product_id,@product_uom_id,@company_id,@create_uid,@write_uid,@origin_message_id,@origin_references,@name,@ref,@note,@create_date,@write_date,@customer_id,@supplier_id,@country_state_id,@equipment_id)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "All data existed";
+                }
 
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return processResult;
+        }
+        private BODataProcessResult InsertProductCatToSVNDB(List<product_categoryUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<product_categoryUI> insertData = new List<product_categoryUI>();
+                List<product_categoryUI> existData = new List<product_categoryUI>();
+                GrandDataPortal<product_categoryUI> dataPortal = new GrandDataPortal<product_categoryUI>("SVN_product_category", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_product_category]([id],[parent_id],[create_uid],[write_uid],[name],[complete_name],[parent_path],[create_date],[write_date],[message_main_attachment_id],[origin_message_id],[origin_references],[removal_strategy_id],[packaging_reserve_method],[technician_user_id],[equipment_assign_to])VALUES(@id,@parent_id,@create_uid,@write_uid,@name,@complete_name,@parent_path,@create_date,@write_date,@message_main_attachment_id,@origin_message_id,@origin_references,@removal_strategy_id,@packaging_reserve_method,@technician_user_id,@equipment_assign_to)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "All data existed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return processResult;
+        }
+        private BODataProcessResult InsertStockMoveToSVNDB(List<stock_moveUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<stock_moveUI> insertData = new List<stock_moveUI>();
+                List<stock_moveUI> existData = new List<stock_moveUI>();
+                GrandDataPortal<stock_moveUI> dataPortal = new GrandDataPortal<stock_moveUI>("SVN_stock_move", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_stock_move]([id],[sequence],[company_id],[product_id],[product_uom],[location_id],[location_dest_id],[partner_id],[picking_id],[group_id],[rule_id],[picking_type_id],[origin_returned_move_id],[restrict_partner_id],[warehouse_id],[package_level_id],[next_serial_count],[orderpoint_id],[product_packaging_id],[create_uid],[write_uid],[name],[priority],[state],[origin],[procure_method],[reference],[next_serial],[reservation_date],[description_picking],[product_qty],[product_uom_qty],[quantity_done],[scrapped],[propagate_cancel],[is_inventory],[additional],[date],[date_deadline],[delay_alert_date],[create_date],[write_date],[price_unit],[is_done],[unit_factor],[created_production_id],[production_id],[raw_material_production_id],[unbuild_id],[consume_unbuild_id],[operation_id],[workorder_id],[bom_line_id],[byproduct_id],[order_finished_lot_id],[cost_share],[manual_consumption],[analytic_account_line_id],[to_refund],[purchase_line_id],[created_purchase_line_id],[component_standard_consumption_id],[byproduct_standard_consumption_id],[sale_line_id])VALUES(@id,@sequence,@company_id,@product_id,@product_uom,@location_id,@location_dest_id,@partner_id,@picking_id,@group_id,@rule_id,@picking_type_id,@origin_returned_move_id,@restrict_partner_id,@warehouse_id,@package_level_id,@next_serial_count,@orderpoint_id,@product_packaging_id,@create_uid,@write_uid,@name,@priority,@state,@origin,@procure_method,@reference,@next_serial,@reservation_date,@description_picking,@product_qty,@product_uom_qty,@quantity_done,@scrapped,@propagate_cancel,@is_inventory,@additional,@date,@date_deadline,@delay_alert_date,@create_date,@write_date,@price_unit,@is_done,@unit_factor,@created_production_id,@production_id,@raw_material_production_id,@unbuild_id,@consume_unbuild_id,@operation_id,@workorder_id,@bom_line_id,@byproduct_id,@order_finished_lot_id,@cost_share,@manual_consumption,@analytic_account_line_id,@to_refund,@purchase_line_id,@created_purchase_line_id,@component_standard_consumption_id,@byproduct_standard_consumption_id,@sale_line_id)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "All data existed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return processResult;
+        }
+        private BODataProcessResult InsertStockMoveLineToSVNDB(List<stock_move_lineUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<stock_move_lineUI> insertData = new List<stock_move_lineUI>();
+                List<stock_move_lineUI> existData = new List<stock_move_lineUI>();
+                GrandDataPortal<stock_move_lineUI> dataPortal = new GrandDataPortal<stock_move_lineUI>("SVN_stock_move_line", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_stock_move_line]([id],[picking_id],[move_id],[company_id],[product_id],[product_uom_id],[package_id],[package_level_id],[lot_id],[result_package_id],[owner_id],[location_id],[location_dest_id],[create_uid],[write_uid],[product_category_name],[lot_name],[state],[reference],[description_picking],[reserved_qty],[reserved_uom_qty],[qty_done],[date],[create_date],[write_date],[workorder_id],[production_id],[equipment_id],[can_create_equipment],[location_processed])VALUES(@id,@picking_id,@move_id,@company_id,@product_id,@product_uom_id,@package_id,@package_level_id,@lot_id,@result_package_id,@owner_id,@location_id,@location_dest_id,@create_uid,@write_uid,@product_category_name,@lot_name,@state,@reference,@description_picking,@reserved_qty,@reserved_uom_qty,@qty_done,@date,@create_date,@write_date,@workorder_id,@production_id,@equipment_id,@can_create_equipment,@location_processed)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "All data existed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return processResult;
+        }
+        private BODataProcessResult InsertStockMoveLineConsumToSVNDB(List<stock_move_line_consume_relUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<stock_move_line_consume_relUI> insertData = new List<stock_move_line_consume_relUI>();
+                List<stock_move_line_consume_relUI> existData = new List<stock_move_line_consume_relUI>();
+                stock_move_line_consume_relĐataPortal dataPortal = new stock_move_line_consume_relĐataPortal(SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByConsumeLineIDAndProduceLineID(item.consume_line_id, item.produce_line_id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    GrandDataPortal<stock_move_line_consume_relUI> grandDataPortal = new GrandDataPortal<stock_move_line_consume_relUI>("SVN_stock_move_line_consume_rel", SVNDBConfig.ConnectionString);
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_stock_move_line_consume_rel]([consume_line_id],[produce_line_id])VALUES(@consume_line_id,@produce_line_id)";
+                    var insertResult = grandDataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "All data existed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return processResult;
+        }
 
         private BODataProcessResult CallSPToUpdateResult()
         {
