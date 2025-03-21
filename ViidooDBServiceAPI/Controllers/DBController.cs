@@ -26,10 +26,10 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 switch (dataRequest.TableName) { 
-                    case "stock_move.line_consume.rel":
+                    case "stock.move.line.consume.rel":
                         processResult = dBService.GetStockMoveLineConsumeRelData();
                         break;
-                    case "stock_move.line":
+                    case "stock.move.line":
                         processResult = dBService.GetStockMoveLineData();
                         break;
                     case "stock.move":

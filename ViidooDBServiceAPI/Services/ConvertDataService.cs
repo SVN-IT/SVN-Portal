@@ -960,7 +960,7 @@ namespace ViidooDBServiceAPI.Services
                 JArray jArray = JArray.FromObject(searchResult);
                 var json = JsonConvert.SerializeObject(jArray);
                 baseData = JsonConvert.DeserializeObject<List<stock_move>>(json);
-                foreach (var item in baseData)
+                baseData = baseData.Select(item =>
                 {
                     stock_moveUI mrp_ProductionUI = new stock_moveUI();
                     mrp_ProductionUI.id = item.id;
@@ -1224,7 +1224,18 @@ namespace ViidooDBServiceAPI.Services
                         }
                     }
                     mrp_ProductionUI.product_qty = item.product_qty;
-                    mrp_ProductionUI.reservation_date = item.reservation_date;
+                    if (item.reservation_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.reservation_date = DateTime.Parse((string)item.reservation_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     mrp_ProductionUI.propagate_cancel = item.propagate_cancel;
                     if (item.description_picking != null)
                     {
@@ -1485,7 +1496,9 @@ namespace ViidooDBServiceAPI.Services
                     mrp_ProductionUI.sequence = item.sequence;
                     dataUIs.Add(mrp_ProductionUI);
 
-                }
+                    return item;
+
+                }).ToList();
                 return dataUIs;
             }
             catch
@@ -1506,7 +1519,20 @@ namespace ViidooDBServiceAPI.Services
                 {
                     stock_move_lineUI mrp_ProductionUI = new stock_move_lineUI();
                     mrp_ProductionUI.id = item.id;
-                    mrp_ProductionUI.move_id = item.move_id;
+                    if (item.move_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.move_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.move_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     if (item.product_id != null)
                     {
                         try
@@ -1563,32 +1589,201 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
-                    mrp_ProductionUI.location_id = item.location_id;
-                    mrp_ProductionUI.package_id = item.package_id;
-                    mrp_ProductionUI.picking_id = item.picking_id;
-                    mrp_ProductionUI.result_package_id = item.result_package_id;
-                    mrp_ProductionUI.owner_id = item.owner_id;
+                    if (item.location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.package_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.package_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.package_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.picking_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.picking_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.picking_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.result_package_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.result_package_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.result_package_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.owner_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.owner_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.owner_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.product_category_name = item.product_category_name;
-                    mrp_ProductionUI.lot_name = item.lot_name;
-                    mrp_ProductionUI.location_dest_id = item.location_dest_id;
+                    if (item.lot_name != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.lot_name;
+                            var intTemp = (string)objects[0];
+                            mrp_ProductionUI.lot_name = (string)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_dest_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_dest_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_dest_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.reserved_qty = item.reserved_qty;
-                    mrp_ProductionUI.company_id = item.company_id;
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.reserved_uom_qty = item.reserved_uom_qty;
                     mrp_ProductionUI.qty_done = item.qty_done;
-                    mrp_ProductionUI.package_level_id = item.package_level_id;
-                    mrp_ProductionUI.create_uid = item.create_uid;
-                    mrp_ProductionUI.write_uid = item.write_uid;
-                    mrp_ProductionUI.equipment_id = item.equipment_id;
+                    if (item.package_level_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.package_level_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.package_level_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.equipment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.equipment_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.equipment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
                     mrp_ProductionUI.can_create_equipment = item.can_create_equipment;
                     mrp_ProductionUI.location_processed = item.location_processed;
                     mrp_ProductionUI.state = item.state;
                     mrp_ProductionUI.reference = item.reference;
-                    mrp_ProductionUI.description_picking = item.description_picking;
+                    if (item.description_picking != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.description_picking;
+                            var intTemp = (string)objects[0];
+                            mrp_ProductionUI.description_picking = (string)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
 
                     mrp_ProductionUI.create_date = item.create_date;
                     mrp_ProductionUI.write_date = item.write_date;
                     mrp_ProductionUI.date = item.date;
-                    mrp_ProductionUI.production_id = item.production_id;
+                    if (item.production_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.production_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.production_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
 
                     dataUIs.Add(mrp_ProductionUI);
 

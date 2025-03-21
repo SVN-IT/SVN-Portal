@@ -37,7 +37,7 @@ namespace SVNShareLib.DTO
         public string procure_method { get; set; }
         public string reference { get; set; }
         public string next_serial { get; set; }
-        public DateTime reservation_date { get; set; }
+        public DateTime? reservation_date { get; set; }
         public string description_picking { get; set; }
         public decimal product_qty { get; set; }
         public decimal product_uom_qty { get; set; }
@@ -46,11 +46,11 @@ namespace SVNShareLib.DTO
         public bool propagate_cancel { get; set; }
         public bool is_inventory { get; set; }
         public bool additional { get; set; }
-        public DateTime date { get; set; }
-        public DateTime date_deadline { get; set; }
-        public DateTime delay_alert_date { get; set; }
-        public DateTime create_date { get; set; }
-        public DateTime write_date { get; set; }
+        public DateTime? date { get; set; }
+        public DateTime? date_deadline { get; set; }
+        public DateTime? delay_alert_date { get; set; }
+        public DateTime? create_date { get; set; }
+        public DateTime? write_date { get; set; }
         public decimal price_unit { get; set; }
         public bool is_done { get; set; }
         public decimal unit_factor { get; set; }

@@ -36,7 +36,7 @@ namespace SVNShareLib.BaseObject
         public string procure_method { get; set; }
         public string reference { get; set; }
         public object? next_serial { get; set; }
-        public DateTime reservation_date { get; set; }
+        public object? reservation_date { get; set; }
         public object? description_picking { get; set; }
         public decimal product_qty { get; set; }
         public decimal product_uom_qty { get; set; }
