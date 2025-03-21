@@ -9,5 +9,6 @@ namespace SVNShareLib
     public class SVNDBConfig
     {
         public string ConnectionString { get; set; }
+        public string ViindooConnectionString { get; set; }
     }
 }

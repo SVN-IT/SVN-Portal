@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVNShareLib;
+using SVNShareLib.NpgDAL;
 using SVNShareLib.Request;
 using System.Threading.Tasks;
 using ViidooDBServiceAPI.Services;
@@ -12,10 +13,12 @@ namespace ViidooDBServiceAPI.Controllers
     {
         DBService dBService;
         OdooRpcDBService odooRpcDBService;
-        public DBController(DBService dBService, OdooRpcDBService odooRpcDBService)
+        SVNDBConfig VNDBConfig;
+        public DBController(DBService dBService, OdooRpcDBService odooRpcDBService, SVNDBConfig vNDBConfig)
         {
             this.dBService = dBService;
             this.odooRpcDBService = odooRpcDBService;
+            VNDBConfig = vNDBConfig;
         }
 
         [Route("GetDataFromViindoo")]
@@ -103,6 +106,23 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 processResult = dBService.GetProductTemplateData();
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("Testnpg")]
+        [HttpPost]
+        public BODataProcessResult Testnpg()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                NPG_stock_move_dataportal dataportal = new NPG_stock_move_dataportal(VNDBConfig.ViindooConnectionString);
+                dataportal.ReadList();
             }
             catch (Exception ex)
             {
