@@ -39,5 +39,6 @@ namespace SVNShareLib.BaseObject
         public object? equipment_id { get; set; }
         public bool can_create_equipment { get; set; }
         public bool location_processed { get; set; }
+        public object? consume_line_ids { get; set; }
     }
 }

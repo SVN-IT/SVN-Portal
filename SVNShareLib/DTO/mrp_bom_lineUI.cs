@@ -25,6 +25,7 @@ namespace SVNShareLib.DTO
         public decimal cost_share { get; set; }
         public decimal standard_qty { get; set; }
         public decimal loss_rate { get; set; }
+        
 
     }
 }

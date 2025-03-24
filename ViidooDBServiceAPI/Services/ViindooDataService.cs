@@ -1,6 +1,10 @@
 ﻿using CookComputing.XmlRpc;
 using Dapper;
+using Microsoft.OpenApi.Services;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SVNShareLib;
+using SVNShareLib.BaseObject;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 
@@ -75,7 +79,7 @@ namespace ViidooDBServiceAPI.Services
         public BODataProcessResult GetViindooData(string objectName)
         {
             BODataProcessResult processResult = new BODataProcessResult();
-            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == tableName);
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
             if (item != null)
             {
                 processResult.DataType = item.TableName;
@@ -194,24 +198,24 @@ namespace ViidooDBServiceAPI.Services
 
                 switch (objectName)
                 {
-                    case "stock.move.line.consume.rel":
-                        var dataUI = convertDataService.ConverterToStockMoveLineConsumUI(searchResult);
-                        if (dataUI != null && dataUI.Count > 0)
-                        {
-                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
-                            insertResult = convertDataService.InsertStockMoveLineConsumToSVNDB(dataUI);
-                            processResult = insertResult;
-                        }
-                        break;
-                    case "stock.move.line":
-                        var dataUI1 = convertDataService.ConverterToStockMoveLineUI(searchResult);
-                        if (dataUI1 != null && dataUI1.Count > 0)
-                        {
-                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
-                            insertResult = convertDataService.InsertStockMoveLineToSVNDB(dataUI1);
-                            processResult = insertResult;
-                        }
-                        break;
+                    //case "stock.move.line.consume.rel":
+                    //    var dataUI = convertDataService.ConverterToStockMoveLineConsumUI(searchResult);
+                    //    if (dataUI != null && dataUI.Count > 0)
+                    //    {
+                    //        //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                    //        insertResult = convertDataService.InsertStockMoveLineConsumToSVNDB(dataUI);
+                    //        processResult = insertResult;
+                    //    }
+                    //    break;
+                    //case "stock.move.line":
+                    //    var dataUI1 = convertDataService.ConverterToStockMoveLineUI(searchResult);
+                    //    if (dataUI1 != null && dataUI1.Count > 0)
+                    //    {
+                    //        //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                    //        insertResult = convertDataService.InsertStockMoveLineToSVNDB(dataUI1);
+                    //        processResult = insertResult;
+                    //    }
+                    //    break;
                     case "stock.move":
                         var dataUI2 = convertDataService.ConverterToStockMoveUI(searchResult);
                         if (dataUI2 != null && dataUI2.Count > 0)
@@ -222,13 +226,14 @@ namespace ViidooDBServiceAPI.Services
                         }
                         break;
                     case "mrp.production": //done
-                        var dataUI3 = convertDataService.ConverterToProductionUI(searchResult);
-                        if (dataUI3 != null && dataUI3.Count > 0)
-                        {
-                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
-                            insertResult = convertDataService.InsertProductionResultToSVNDB(dataUI3);
-                            processResult = insertResult;
-                        }
+                        //var dataUI3 = convertDataService.ConverterToProductionUI(searchResult);
+                        //if (dataUI3 != null && dataUI3.Count > 0)
+                        //{
+                        //    //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                        //    insertResult = convertDataService.InsertProductionResultToSVNDB(dataUI3);
+                        //    processResult = insertResult;
+                        //}
+                        processResult = GetDataAndUpdateProductionMoveLine();
                         break;
                     case "product.template": //done
                         var dataUI4 = convertDataService.ConvertToTemplateUI(searchResult);
@@ -283,5 +288,174 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
+        #region Get dữ liệu các bảng mrp.production, stock.move.line, stock.move.line.consume.rel
+        private BODataProcessResult GetViindooDataByCondition(string objectName, object[] domain)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] fields = new string[] { };
+                        
+                        search = new object[] { domain };
+
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult.OK = true;
+                            processResult.Content = searchResult;
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetDataAndUpdateProductionMoveLine()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                BODataProcessResult processResultProductionResult = new BODataProcessResult();
+                BODataProcessResult insertResult = new BODataProcessResult();
+                List<stock_move_lineUI> stock_Move_LineUIs = new List<stock_move_lineUI>();
+                List<stock_move_line_consume_relUI> consume_RelUIs = new List<stock_move_line_consume_relUI>();
+                object[] domain = new object[] { "state", "=", "done" };
+                processResultProductionResult = GetViindooDataByCondition("mrp.production", domain);
+                if (processResultProductionResult.OK) 
+                {
+                    var productiongDataUI = convertDataService.ConverterToProductionUI(processResultProductionResult.Content);
+                    if (productiongDataUI != null) 
+                    {
+                        insertResult = convertDataService.InsertProductionResultToSVNDB(productiongDataUI);
+                        if (insertResult.OK) 
+                        {
+                            foreach(var item in productiongDataUI)
+                            {
+                                if(item.finished_move_line_ids != null)
+                                {
+                                    JArray jArray = JArray.FromObject(item.finished_move_line_ids);
+                                    var json = JsonConvert.SerializeObject(jArray);
+                                    int[] finished_move_line_ids = JsonConvert.DeserializeObject<int[]>(json);
+                                    domain = new object[] { "id", "in", finished_move_line_ids };
+                                    BODataProcessResult processResultStockMoveLine = new BODataProcessResult();
+                                    processResultStockMoveLine = GetViindooDataByCondition("stock.move.line", domain);
+                                    if (processResultStockMoveLine.OK)
+                                    {
+                                        var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine.Content);
+                                        if(stockMoveLineUI != null)
+                                        {
+                                            insertResult = convertDataService.InsertStockMoveLineToSVNDB(stockMoveLineUI);
+                                            if (insertResult.OK) 
+                                            {
+                                                stock_Move_LineUIs.AddRange(stockMoveLineUI);
+                                            }
+                                            processResult = insertResult;
+                                        }
+                                    }
+                                }
+                                
+                            }
+
+                            if (stock_Move_LineUIs.Count > 0)
+                            {
+                                foreach (var item in stock_Move_LineUIs)
+                                {
+                                    JArray jArray = JArray.FromObject(item.consume_line_ids);
+                                    var json = JsonConvert.SerializeObject(jArray);
+                                    var consume_line_ids = JsonConvert.DeserializeObject<List<int>>(json);
+                                    if (consume_line_ids != null)
+                                    {
+                                        foreach (var subitem in consume_line_ids)
+                                        {
+                                            stock_move_line_consume_relUI dataUI = new stock_move_line_consume_relUI();
+                                            dataUI.produce_line_id = item.id;
+                                            dataUI.consume_line_id = subitem;
+                                        }
+                                    }
+
+                                }
+
+                                if(consume_RelUIs.Count > 0)
+                                {
+                                    insertResult = convertDataService.InsertStockMoveLineConsumToSVNDB(consume_RelUIs);
+                                }
+                            }
+                            
+                        }
+                        processResult = insertResult;
+                    }
+
+                }
+            }
+            catch(Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+        #endregion
     }
 }

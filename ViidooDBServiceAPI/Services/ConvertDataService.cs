@@ -202,6 +202,7 @@ namespace ViidooDBServiceAPI.Services
                 foreach (var item in baseData)
                 {
                     mrp_productionUI mrp_ProductionUI = new mrp_productionUI();
+                    mrp_ProductionUI.finished_move_line_ids = item.finished_move_line_ids;
                     mrp_ProductionUI.id = item.id;
                     mrp_ProductionUI.message_main_attachment_id = item.message_main_attachment_id;
                     mrp_ProductionUI.backorder_sequence = item.backorder_sequence;

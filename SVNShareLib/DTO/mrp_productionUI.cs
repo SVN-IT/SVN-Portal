@@ -52,6 +52,7 @@ namespace SVNShareLib.DTO
         public int analytic_account_id { get; set; }
         public decimal extra_cost { get; set; }
         public string x_Svn_customer_SN { get; set; }
+        public object? finished_move_line_ids { get; set; }
 
     }
 }
