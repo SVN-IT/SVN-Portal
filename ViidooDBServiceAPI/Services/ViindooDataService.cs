@@ -53,6 +53,7 @@ namespace ViidooDBServiceAPI.Services
             {
                 // 1. Authentication
                 IOdooCommon common = XmlRpcProxyGen.Create<IOdooCommon>();
+                common.Timeout = 60000;
                 common.Url = serverUrl + "/xmlrpc/2/common";
 
                 XmlRpcStruct context = new XmlRpcStruct(); // You might need to add values here in some cases
@@ -89,6 +90,7 @@ namespace ViidooDBServiceAPI.Services
                     if (connectResult.OK)
                     {
                         IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Timeout = 60000;
                         models.Url = serverUrl + "/xmlrpc/2/object";
 
 
@@ -106,8 +108,8 @@ namespace ViidooDBServiceAPI.Services
                                 //Trừ đi 10p để lấy dữ liệu từ 10p trước đến hiện tại
                                 curTime = curTime.AddHours(-10);
 
-                                //item.Domain = item.Domain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
-                                item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
+                                item.Domain = item.Domain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
+                                //item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
                                 //curTime.ToString("yyyy-MM-dd HH:mm:ss")
                             }
                             domain = item.Domain.Split(",");
@@ -305,6 +307,7 @@ namespace ViidooDBServiceAPI.Services
                     if (connectResult.OK)
                     {
                         IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Timeout = 60000;
                         models.Url = serverUrl + "/xmlrpc/2/object";
 
 

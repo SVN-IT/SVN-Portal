@@ -15,6 +15,7 @@ namespace ViidooDBServiceAPI.Services
 {
     public interface IOdooCommon : IXmlRpcProxy
     {
+        
         [XmlRpcMethod("authenticate")]
         int Authenticate(string db, string user, string password, XmlRpcStruct context);
 
