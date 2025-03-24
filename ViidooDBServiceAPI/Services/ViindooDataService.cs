@@ -106,7 +106,9 @@ namespace ViidooDBServiceAPI.Services
                                 //Trừ đi 10p để lấy dữ liệu từ 10p trước đến hiện tại
                                 curTime = curTime.AddHours(-10);
 
-                                item.Domain = item.Domain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                                //item.Domain = item.Domain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
+                                item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
+                                //curTime.ToString("yyyy-MM-dd HH:mm:ss")
                             }
                             domain = item.Domain.Split(",");
                             search = new object[] { domain };
@@ -233,7 +235,7 @@ namespace ViidooDBServiceAPI.Services
                         //    insertResult = convertDataService.InsertProductionResultToSVNDB(dataUI3);
                         //    processResult = insertResult;
                         //}
-                        processResult = GetDataAndUpdateProductionMoveLine();
+                        processResult = GetDataAndUpdateProductionMoveLine(searchResult);
                         break;
                     case "product.template": //done
                         var dataUI4 = convertDataService.ConvertToTemplateUI(searchResult);
@@ -372,77 +374,70 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetDataAndUpdateProductionMoveLine()
+        public BODataProcessResult GetDataAndUpdateProductionMoveLine(object searchResult)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                BODataProcessResult processResultProductionResult = new BODataProcessResult();
                 BODataProcessResult insertResult = new BODataProcessResult();
                 List<stock_move_lineUI> stock_Move_LineUIs = new List<stock_move_lineUI>();
                 List<stock_move_line_consume_relUI> consume_RelUIs = new List<stock_move_line_consume_relUI>();
-                object[] domain = new object[] { "state", "=", "done" };
-                processResultProductionResult = GetViindooDataByCondition("mrp.production", domain);
-                if (processResultProductionResult.OK) 
+                object[] domain = new object[] {  };
+                if (searchResult != null) 
                 {
-                    var productiongDataUI = convertDataService.ConverterToProductionUI(processResultProductionResult.Content);
+                    var productiongDataUI = convertDataService.ConverterToProductionUI(searchResult);
                     if (productiongDataUI != null) 
                     {
                         insertResult = convertDataService.InsertProductionResultToSVNDB(productiongDataUI);
-                        if (insertResult.OK) 
+                        foreach (var item in productiongDataUI)
                         {
-                            foreach(var item in productiongDataUI)
+                            if (item.finished_move_line_ids != null)
                             {
-                                if(item.finished_move_line_ids != null)
+                                JArray jArray = JArray.FromObject(item.finished_move_line_ids);
+                                var json = JsonConvert.SerializeObject(jArray);
+                                int[] finished_move_line_ids = JsonConvert.DeserializeObject<int[]>(json);
+                                domain = new object[] { "id", "in", finished_move_line_ids };
+                                BODataProcessResult processResultStockMoveLine = new BODataProcessResult();
+                                processResultStockMoveLine = GetViindooDataByCondition("stock.move.line", domain);
+                                if (processResultStockMoveLine.OK)
                                 {
-                                    JArray jArray = JArray.FromObject(item.finished_move_line_ids);
-                                    var json = JsonConvert.SerializeObject(jArray);
-                                    int[] finished_move_line_ids = JsonConvert.DeserializeObject<int[]>(json);
-                                    domain = new object[] { "id", "in", finished_move_line_ids };
-                                    BODataProcessResult processResultStockMoveLine = new BODataProcessResult();
-                                    processResultStockMoveLine = GetViindooDataByCondition("stock.move.line", domain);
-                                    if (processResultStockMoveLine.OK)
+                                    var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine.Content);
+                                    if (stockMoveLineUI != null)
                                     {
-                                        var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine.Content);
-                                        if(stockMoveLineUI != null)
-                                        {
-                                            insertResult = convertDataService.InsertStockMoveLineToSVNDB(stockMoveLineUI);
-                                            if (insertResult.OK) 
-                                            {
-                                                stock_Move_LineUIs.AddRange(stockMoveLineUI);
-                                            }
-                                            processResult = insertResult;
-                                        }
+                                        insertResult = convertDataService.InsertStockMoveLineToSVNDB(stockMoveLineUI);
+                                        stock_Move_LineUIs.AddRange(stockMoveLineUI);
+                                        processResult = insertResult;
                                     }
                                 }
-                                
                             }
 
-                            if (stock_Move_LineUIs.Count > 0)
+                        }
+
+                        if (stock_Move_LineUIs.Count > 0)
+                        {
+                            foreach (var item in stock_Move_LineUIs)
                             {
-                                foreach (var item in stock_Move_LineUIs)
+
+                                if (item.consume_line_ids != null)
                                 {
                                     JArray jArray = JArray.FromObject(item.consume_line_ids);
                                     var json = JsonConvert.SerializeObject(jArray);
                                     var consume_line_ids = JsonConvert.DeserializeObject<List<int>>(json);
-                                    if (consume_line_ids != null)
+                                    foreach (var subitem in consume_line_ids)
                                     {
-                                        foreach (var subitem in consume_line_ids)
-                                        {
-                                            stock_move_line_consume_relUI dataUI = new stock_move_line_consume_relUI();
-                                            dataUI.produce_line_id = item.id;
-                                            dataUI.consume_line_id = subitem;
-                                        }
+                                        stock_move_line_consume_relUI dataUI = new stock_move_line_consume_relUI();
+                                        dataUI.produce_line_id = item.id;
+                                        dataUI.consume_line_id = subitem;
+                                        consume_RelUIs.Add(dataUI);
                                     }
-
                                 }
 
-                                if(consume_RelUIs.Count > 0)
-                                {
-                                    insertResult = convertDataService.InsertStockMoveLineConsumToSVNDB(consume_RelUIs);
-                                }
                             }
-                            
+
+                            if (consume_RelUIs.Count > 0)
+                            {
+                                insertResult = convertDataService.InsertStockMoveLineConsumToSVNDB(consume_RelUIs);
+                            }
                         }
                         processResult = insertResult;
                     }

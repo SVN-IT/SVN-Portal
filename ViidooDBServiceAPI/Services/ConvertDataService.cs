@@ -1785,7 +1785,7 @@ namespace ViidooDBServiceAPI.Services
 
                         }
                     }
-
+                    mrp_ProductionUI.consume_line_ids = item.consume_line_ids;
                     dataUIs.Add(mrp_ProductionUI);
 
                 }
