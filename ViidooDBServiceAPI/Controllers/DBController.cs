@@ -70,6 +70,35 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetDataFromViindooV1")]
+        [HttpPost]
+        public List<BODataProcessResult> GetDataFromViindooV1()
+        {
+            List<BODataProcessResult> processResults = new List<BODataProcessResult>();
+            try
+            {
+                List<string> objectNames = dBConfig.ObjectList.Split(',').ToList();
+                foreach (string objectName in objectNames) 
+                {
+                    BODataProcessResult processResult = new BODataProcessResult();
+                    processResult = viinDataService.GetViindooData(objectName);
+                    processResults.Add(processResult);
+                }
+
+                BODataProcessResult callProcessResult = new BODataProcessResult();
+                callProcessResult = viinDataService.CallSPToUpdateResult();
+                processResults.Add(callProcessResult);
+
+            }
+            catch (Exception ex)
+            {
+                BODataProcessResult processResult = new BODataProcessResult();
+                processResult.Message = ex.Message;
+                processResults.Add(processResult);
+            }
+            return processResults;
+        }
+
         [Route("GetAndUploadProductionResultData")]
         [HttpPost]
         public BODataProcessResult GetAndUploadProductionResultData()

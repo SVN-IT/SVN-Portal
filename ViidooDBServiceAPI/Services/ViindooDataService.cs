@@ -1,5 +1,8 @@
 ﻿using CookComputing.XmlRpc;
+using Dapper;
 using SVNShareLib;
+using SVNShareLib.DAL;
+using SVNShareLib.DTO;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -39,7 +42,7 @@ namespace ViidooDBServiceAPI.Services
             this.convertDataService = convertDataService;
         }
 
-        public BODataProcessResult ConnectDB()
+        private BODataProcessResult ConnectDB()
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
@@ -160,6 +163,23 @@ namespace ViidooDBServiceAPI.Services
             else
             {
                 processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+        public BODataProcessResult CallSPToUpdateResult()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            processResult.DataType = "CallSPToUpdateResult";
+            try
+            {
+                GrandDataPortal<mrp_productionUI> dataPortal = new GrandDataPortal<mrp_productionUI>("SVN_mrp_production_1", SVNDBConfig.ConnectionString);
+                string storedProcedure = "SVN_Update_result_Viindoo";
+                DynamicParameters parameters = new DynamicParameters();
+                processResult = dataPortal.CallStoredProcedure(storedProcedure, parameters);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
             }
             return processResult;
         }
