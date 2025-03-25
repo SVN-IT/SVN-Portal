@@ -277,12 +277,12 @@ namespace SVN_Portal.Controllers
                         List<string> WCs = item.WC.Split(",").ToList();
                         foreach (var wc in WCs)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WC = wc });
+                            opers.Add(new OperInfo { Operation = item.Operation, WC = wc, ColWidth = item.ColWidth });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WC = "" });
+                        opers.Add(new OperInfo { Operation = item.Operation, WC = "", ColWidth = item.ColWidth });
                     }
                 }
 

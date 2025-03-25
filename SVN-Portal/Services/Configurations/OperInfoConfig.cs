@@ -8,5 +8,6 @@
     {
         public string Operation { get; set; }
         public string WC { get; set; }
+        public int ColWidth { get; set; }
     }
 }
