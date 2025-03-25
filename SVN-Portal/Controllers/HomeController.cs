@@ -214,12 +214,12 @@ namespace SVN_Portal.Controllers
                         List<string> WCs = item.WC.Split(",").ToList();
                         foreach (var wc in WCs)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WC = wc });
+                            opers.Add(new OperInfo { Operation = item.Operation, WC = wc, ColWidth = item.ColWidth });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WC = "" });
+                        opers.Add(new OperInfo { Operation = item.Operation, WC = "", ColWidth = item.ColWidth });
                     }
                 }
 
@@ -230,10 +230,15 @@ namespace SVN_Portal.Controllers
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                        }
+                        if (operInfo != null)
+                        {
+                            model.ColWidth = operInfo.ColWidth;
                         }
                     }
                 }
@@ -293,10 +298,15 @@ namespace SVN_Portal.Controllers
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                        }
+                        if (operInfo != null)
+                        {
+                            model.ColWidth = operInfo.ColWidth;
                         }
                     }
                 }

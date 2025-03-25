@@ -17,6 +17,7 @@ namespace SVN_Portal.Models
         public string WC { get; set; }
         public string PDName { get; set; }
         public string QCName { get; set; }
+        public int ColWidth { get; set; }
         public List<QtyProdResultViewModel> ViewModels { get; set; }
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
         public double Est { get; set; }
