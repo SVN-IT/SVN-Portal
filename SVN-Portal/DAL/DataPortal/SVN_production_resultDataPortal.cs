@@ -191,10 +191,10 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
                         viewModel.Operation = item.Operation;
-                        if(string.IsNullOrWhiteSpace(item.WC))
-                        {
-                            item.WC = "default";
-                        }
+                        //if(string.IsNullOrWhiteSpace(item.WC))
+                        //{
+                        //    item.WC = "default";
+                        //}
                         viewModel.WC = item.WC;
 
                         //sai ở đây
