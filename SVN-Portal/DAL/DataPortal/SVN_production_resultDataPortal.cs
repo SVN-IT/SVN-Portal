@@ -50,9 +50,14 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadList(date, tableName);
+
+
                 if (dataUI.Count > 0) 
-                { 
-                   foreach(var item in opers)
+                {
+                    //Lấy Data có WC = null hoặc WC contain FG
+                    dataUI = dataUI.Where(x => string.IsNullOrWhiteSpace(x.WC) || x.WC.Contains("FG")).ToList();
+
+                    foreach (var item in opers)
                     {
                         QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
                         QtyProdResultViewModel val1 = new QtyProdResultViewModel();
