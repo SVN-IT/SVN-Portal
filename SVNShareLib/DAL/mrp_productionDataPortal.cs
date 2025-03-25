@@ -87,7 +87,7 @@ namespace SVNShareLib.DAL
             {
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
-                    string storedProcedure = "SVN_Update_result_Viindoo";
+                    string storedProcedure = "SVN_Update_result_Viindoo_WC_Astro"; //SVN_Update_result_Viindoo_WC_Astro SVN_Update_result_Viindoo
                     DynamicParameters parameters = new DynamicParameters();
                     var datas = connection.Query<object[]>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
                     if(datas != null)

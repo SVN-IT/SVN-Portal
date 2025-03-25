@@ -289,7 +289,18 @@ namespace ViidooDBServiceAPI.Services
                     mrp_ProductionUI.allow_workorder_dependencies = item.allow_workorder_dependencies;
                     mrp_ProductionUI.date_planned_start = item.date_planned_start;
                     mrp_ProductionUI.date_planned_finished = item.date_planned_finished;
-                    mrp_ProductionUI.date_deadline = item.date_deadline;
+                    if (item.date_deadline != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.date_deadline = DateTime.Parse((string)item.date_deadline);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     if (item.date_start != null)
                     {
                         try

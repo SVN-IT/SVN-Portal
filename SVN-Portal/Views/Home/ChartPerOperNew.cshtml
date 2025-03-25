@@ -30,6 +30,11 @@
     @foreach (var item in Model)
     {
         string charID = "chartdiv" + item.Operation;
+        if (!string.IsNullOrWhiteSpace(item.WC))
+        {
+            charID = "chartdiv" + item.Operation + item.WC;
+            charID = charID.Replace("-", "");
+        }
         string jsonData = string.Empty;
         jsonData = JsonConvert.SerializeObject(item.ViewModels);
         <style>
@@ -42,7 +47,7 @@
             <div class="card">
                 <div class="card-title">
                     <h4>
-                        @item.Operation
+                        @item.Operation - @item.WC
                         <br />
                         <br />
                         <p style="font-size:20px" class=" text-primary"> @item.PDName - @item.QCName </p>
@@ -53,7 +58,7 @@
                     <div class="row">
                         <div class="col-6 row">
                             <div class="col-12 border table-cell text-center">
-                                <strong>Production result: @item.Operation - @item.WC</strong>
+                                <strong>Production result: @item.Operation</strong>
                             </div>
                             <div class="col-2">
                                 <div class="row">

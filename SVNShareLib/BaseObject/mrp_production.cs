@@ -42,7 +42,7 @@ namespace SVNShareLib.BaseObject
         public bool allow_workorder_dependencies { get; set; }
         public DateTime? date_planned_start { get; set; }
         public DateTime? date_planned_finished { get; set; }
-        public DateTime? date_deadline { get; set; }
+        public object? date_deadline { get; set; }
         public object? date_start { get; set; }
         public object? date_finished { get; set; }
         public DateTime? create_date { get; set; }
