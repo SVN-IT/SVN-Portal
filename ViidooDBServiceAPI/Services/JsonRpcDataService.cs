@@ -1,31 +1,17 @@
 ﻿using CookComputing.XmlRpc;
 using Dapper;
-using Microsoft.OpenApi.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
-using SVNShareLib.BaseObject;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ViidooDBServiceAPI.Services
 {
-    public interface IViindooCommon : IXmlRpcProxy
-    {
-        [XmlRpcMethod("authenticate")]
-        int Authenticate(string db, string user, string password, XmlRpcStruct context);
-
-        [XmlRpcMethod("version")]
-        XmlRpcStruct Version();
-    }
-
-    public interface IViindooObject : IXmlRpcProxy
-    {
-        [XmlRpcMethod("execute_kw")]
-        object Execute_Kw(string db, int uid, string password, string model, string method, object[] args);
-    }
-
-    public class ViindooDataService
+    public class JsonRpcDataService
     {
         SVNDBConfig SVNDBConfig;
         ViindooDBConfig dBConfig;
@@ -34,8 +20,7 @@ namespace ViidooDBServiceAPI.Services
         private static string dbName;
         private static string username;
         private static string password;
-        private static string tableName;
-        public ViindooDataService(ViindooDBConfig dBConfig, SVNDBConfig sVNDBConfig, ConvertDataService convertDataService)
+        public JsonRpcDataService(ViindooDBConfig dBConfig, SVNDBConfig sVNDBConfig, ConvertDataService convertDataService)
         {
             this.dBConfig = dBConfig;
             serverUrl = dBConfig.ServerUrl;
@@ -46,28 +31,41 @@ namespace ViidooDBServiceAPI.Services
             this.convertDataService = convertDataService;
         }
 
-        private BODataProcessResult ConnectDB()
+        private static async Task<BODataProcessResult> Authenticate(string url, string db, string username, string password)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                // 1. Authentication
-                IOdooCommon common = XmlRpcProxyGen.Create<IOdooCommon>();
-                common.Timeout = 60000;
-                common.Url = serverUrl + "/xmlrpc/2/common";
-
-                XmlRpcStruct context = new XmlRpcStruct(); // You might need to add values here in some cases
-                int userId = common.Authenticate(dbName, username, password, context);
-
-                if (userId == 0)
+                using (var client = new HttpClient())
                 {
-                    processResult.Message = "Authentication failed.";
-                }
-                else
-                {
+                    var requestBody = new
+                    {
+                        jsonrpc = "2.0",
+                        method = "call",
+                        @params = new
+                        {
+                            db,
+                            login = username,
+                            password
+                        },
+                        id = Guid.NewGuid().ToString()
+                    };
+
+                    var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                    var response = await client.PostAsync($"{url}jsonrpc", content);
+
+                    response.EnsureSuccessStatusCode();
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    dynamic responseObject = JsonConvert.DeserializeObject(responseString);
+
+                    if (responseObject.error != null)
+                    {
+                        throw new Exception($"Login failed: {responseObject.error}");
+                    }
+
                     processResult.OK = true;
-                    processResult.UserID = userId;
-                    processResult.Message = "Authentication success.";
+                    processResult.UserID = responseObject.result.uid;
+                    processResult.Message = "Authentication success";
                 }
             }
             catch (Exception ex)
@@ -77,7 +75,48 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetViindooData(string objectName)
+        private static async Task<dynamic> ExecuteSearchRead(string url, 
+            string db, int uid, string password, string model, object[] domain, string[] fields, int limit)
+        {
+            using (var client = new HttpClient())
+            {
+                var requestBody = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model,
+                        method = "search_read",
+                        args = new object[]
+                        {
+                        domain, // Domain filter
+                        new
+                        {
+                            fields = fields, // Specify fields to fetch
+                            limit = limit                              // Limit for results
+                        }
+                        },
+                        kwargs = new { context = new { uid, password, db } }
+                    },
+                    id = 2
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                var response = await client.PostAsync($"{url}jsonrpc", content);
+
+                response.EnsureSuccessStatusCode();
+                var responseString = await response.Content.ReadAsStringAsync();
+                dynamic responseObject = JsonConvert.DeserializeObject(responseString);
+
+                if (responseObject.result == null)
+                    throw new Exception("Error in search_read");
+
+                return responseObject.result;
+            }
+        }
+
+        public async Task<BODataProcessResult> GetDataByJsonRpc(string objectName)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
@@ -86,14 +125,9 @@ namespace ViidooDBServiceAPI.Services
                 processResult.DataType = item.TableName;
                 try
                 {
-                    var connectResult = ConnectDB();
+                    var connectResult = await Authenticate(serverUrl, dbName, username, password);
                     if (connectResult.OK)
                     {
-                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
-                        models.Timeout = 60000;
-                        models.Url = serverUrl + "/xmlrpc/2/object";
-
-
                         object[] search = new object[] { };
                         string[] domain = new string[] { };
                         string[] fields = new string[] { };
@@ -141,16 +175,17 @@ namespace ViidooDBServiceAPI.Services
                         //new object[] { new object[] { "state", "=", "done" } }
                         //new string[] { "name", "product_id", "state" }
 
-                        object searchResult = models.Execute_Kw(
+                        object searchResult = await ExecuteSearchRead(serverUrl,
                             dbName,
                             connectResult.UserID,
                             password,
                             item.TableName,
-                            "search_read",
-                            querydata);
+                            search,
+                            fields,
+                            item.Limit);
                         if (searchResult != null)
                         {
-                            processResult = SwitchFunctionToInsert(searchResult, objectName);
+                            processResult = await SwitchFunctionToInsert(searchResult, objectName);
                         }
                         else
                         {
@@ -174,6 +209,7 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
         public BODataProcessResult CallSPToUpdateResult()
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -192,7 +228,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        private BODataProcessResult SwitchFunctionToInsert(object searchResult, string objectName)
+        private async Task<BODataProcessResult> SwitchFunctionToInsert(object searchResult, string objectName)
         {
             //Switch function to insert data
             BODataProcessResult processResult = new BODataProcessResult();
@@ -237,7 +273,7 @@ namespace ViidooDBServiceAPI.Services
                         //    insertResult = convertDataService.InsertProductionResultToSVNDB(dataUI3);
                         //    processResult = insertResult;
                         //}
-                        processResult = GetDataAndUpdateProductionMoveLine(searchResult);
+                        processResult = await GetDataAndUpdateProductionMoveLine(searchResult);
                         break;
                     case "product.template": //done
                         var dataUI4 = convertDataService.ConvertToTemplateUI(searchResult);
@@ -286,7 +322,7 @@ namespace ViidooDBServiceAPI.Services
                         break;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
@@ -294,7 +330,7 @@ namespace ViidooDBServiceAPI.Services
         }
 
         #region Get dữ liệu các bảng mrp.production, stock.move.line, stock.move.line.consume.rel
-        private BODataProcessResult GetViindooDataByCondition(string objectName, object[] domain)
+        private async Task<BODataProcessResult> GetViindooDataByCondition(string objectName, object[] domain)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
@@ -303,17 +339,12 @@ namespace ViidooDBServiceAPI.Services
                 processResult.DataType = item.TableName;
                 try
                 {
-                    var connectResult = ConnectDB();
+                    var connectResult = await Authenticate(serverUrl, dbName, username, password);
                     if (connectResult.OK)
                     {
-                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
-                        models.Timeout = 60000;
-                        models.Url = serverUrl + "/xmlrpc/2/object";
-
-
                         object[] search = new object[] { };
                         string[] fields = new string[] { };
-                        
+
                         search = new object[] { domain };
 
                         if (!string.IsNullOrWhiteSpace(item.Fields))
@@ -342,13 +373,14 @@ namespace ViidooDBServiceAPI.Services
                         //new object[] { new object[] { "state", "=", "done" } }
                         //new string[] { "name", "product_id", "state" }
 
-                        object searchResult = models.Execute_Kw(
+                        object searchResult = await ExecuteSearchRead(serverUrl,
                             dbName,
                             connectResult.UserID,
                             password,
                             item.TableName,
-                            "search_read",
-                            querydata);
+                            search,
+                            fields,
+                            item.Limit);
                         if (searchResult != null)
                         {
                             processResult.OK = true;
@@ -377,7 +409,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        private BODataProcessResult GetDataAndUpdateProductionMoveLine(object searchResult)
+        private async Task<BODataProcessResult> GetDataAndUpdateProductionMoveLine(object searchResult)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
@@ -385,11 +417,11 @@ namespace ViidooDBServiceAPI.Services
                 BODataProcessResult insertResult = new BODataProcessResult();
                 List<stock_move_lineUI> stock_Move_LineUIs = new List<stock_move_lineUI>();
                 List<stock_move_line_consume_relUI> consume_RelUIs = new List<stock_move_line_consume_relUI>();
-                object[] domain = new object[] {  };
-                if (searchResult != null) 
+                object[] domain = new object[] { };
+                if (searchResult != null)
                 {
                     var productiongDataUI = convertDataService.ConverterToProductionUI(searchResult);
-                    if (productiongDataUI != null) 
+                    if (productiongDataUI != null)
                     {
                         insertResult = convertDataService.InsertProductionResultToSVNDB(productiongDataUI);
                         foreach (var item in productiongDataUI)
@@ -401,7 +433,7 @@ namespace ViidooDBServiceAPI.Services
                                 int[] finished_move_line_ids = JsonConvert.DeserializeObject<int[]>(json);
                                 domain = new object[] { "id", "in", finished_move_line_ids };
                                 BODataProcessResult processResultStockMoveLine = new BODataProcessResult();
-                                processResultStockMoveLine = GetViindooDataByCondition("stock.move.line", domain);
+                                processResultStockMoveLine = await GetViindooDataByCondition("stock.move.line", domain);
                                 if (processResultStockMoveLine.OK)
                                 {
                                     var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine.Content);
@@ -447,7 +479,7 @@ namespace ViidooDBServiceAPI.Services
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 processResult.OK = false;
                 processResult.Message = ex.Message;

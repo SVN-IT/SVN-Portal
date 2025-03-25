@@ -19,6 +19,7 @@ builder.Services.AddSingleton<ConvertDataService>();
 builder.Services.AddSingleton<DBService>();
 builder.Services.AddSingleton<OdooRpcDBService>();
 builder.Services.AddSingleton<ViindooDataService>();
+builder.Services.AddSingleton<JsonRpcDataService>();
 
 var app = builder.Build();
 

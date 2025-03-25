@@ -14,15 +14,18 @@ namespace ViidooDBServiceAPI.Controllers
         OdooRpcDBService odooRpcDBService;
         ViindooDBConfig dBConfig;
         ViindooDataService viinDataService;
+        JsonRpcDataService jsonRpcDataService;
         public DBController(DBService dBService, 
             OdooRpcDBService odooRpcDBService,
             ViindooDataService viinDataService,
-            ViindooDBConfig dBConfig)
+            ViindooDBConfig dBConfig,
+            JsonRpcDataService jsonRpcDataService)
         {
             this.dBService = dBService;
             this.odooRpcDBService = odooRpcDBService;
             this.dBConfig = dBConfig;
             this.viinDataService = viinDataService;
+            this.jsonRpcDataService = jsonRpcDataService;
         }
 
         [Route("GetDataFromViindoo")]
@@ -87,6 +90,35 @@ namespace ViidooDBServiceAPI.Controllers
 
                 BODataProcessResult callProcessResult = new BODataProcessResult();
                 callProcessResult = viinDataService.CallSPToUpdateResult();
+                processResults.Add(callProcessResult);
+
+            }
+            catch (Exception ex)
+            {
+                BODataProcessResult processResult = new BODataProcessResult();
+                processResult.Message = ex.Message;
+                processResults.Add(processResult);
+            }
+            return processResults;
+        }
+
+        [Route("GetDataFromViindooV2")]
+        [HttpPost]
+        public async Task<List<BODataProcessResult>> GetDataFromViindooV2()
+        {
+            List<BODataProcessResult> processResults = new List<BODataProcessResult>();
+            try
+            {
+                List<string> objectNames = dBConfig.ObjectList.Split(',').ToList();
+                foreach (string objectName in objectNames)
+                {
+                    BODataProcessResult processResult = new BODataProcessResult();
+                    processResult = await jsonRpcDataService.GetDataByJsonRpc(objectName);
+                    processResults.Add(processResult);
+                }
+
+                BODataProcessResult callProcessResult = new BODataProcessResult();
+                callProcessResult = jsonRpcDataService.CallSPToUpdateResult();
                 processResults.Add(callProcessResult);
 
             }
