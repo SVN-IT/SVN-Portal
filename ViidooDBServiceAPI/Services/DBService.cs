@@ -1066,7 +1066,7 @@ namespace ViidooDBServiceAPI.Services
             try
             {
                 GrandDataPortal<mrp_productionUI> dataPortal = new GrandDataPortal<mrp_productionUI>("SVN_mrp_production_1", SVNDBConfig.ConnectionString);
-                string storedProcedure = "SVN_Update_result_Viindoo";
+                string storedProcedure = "SVN_Update_result_Viindoo_WC";
                 DynamicParameters parameters = new DynamicParameters();
                 processResult = dataPortal.CallStoredProcedure(storedProcedure, parameters);
             }

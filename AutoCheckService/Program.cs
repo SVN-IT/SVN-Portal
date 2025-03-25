@@ -3,7 +3,7 @@
 using SVNShareLib;
 
 string BaseURL = "http://10.10.99.10:8101/";
-string GetAndUploadProductionResultDataURL = "api/DB/GetAndUploadProductionResultData";
+string GetAndUploadProductionResultDataURL = "api/DB/GetAndUploadProductionResultDataXMLRPC";
 
 HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(BaseURL, 1000);
 BODataProcessResult bODataProcessResult = new BODataProcessResult();
