@@ -11,5 +11,6 @@
         public double Time6 { get; set; }
         public string Operation { get; set; }
         public string Date_time { get; set; }
+        public string WC { get; set; }
     }
 }

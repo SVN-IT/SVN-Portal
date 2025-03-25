@@ -14,6 +14,7 @@ namespace SVN_Portal.Models
             TargetViewModels = new List<SVN_targetViewModel>();// khai báo kiểu này giup list ko bọ null
         }
         public string Operation { get; set; }
+        public string WC { get; set; }
         public string PDName { get; set; }
         public string QCName { get; set; }
         public List<QtyProdResultViewModel> ViewModels { get; set; }

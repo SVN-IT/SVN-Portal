@@ -8,11 +8,13 @@ builder.Services.AddControllersWithViews();
 AppConfig appConfig = builder.Configuration.GetSection("AppConfig").Get<AppConfig>();
 DBConfiguration dBConfiguration = builder.Configuration.GetSection("DBConfiguration").Get<DBConfiguration>();
 QCInfoConfig qCInfoConfig = builder.Configuration.GetSection("QCInfoConfig").Get<QCInfoConfig>();
+OperInfoConfig operInfoConfig = builder.Configuration.GetSection("OperInfoConfig").Get<OperInfoConfig>();
 dBConfiguration.ProductMode = appConfig.ProductMode;
 
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(dBConfiguration);
 builder.Services.AddSingleton(qCInfoConfig);
+builder.Services.AddSingleton(operInfoConfig);
 
 var app = builder.Build();
 

@@ -14,5 +14,6 @@
         public double Current_UPPH { get; set; }
         public double Defect { get; set; }
         public double Total_NG_Qty { get; set; }
+        public string WC { get; set; }
     }
 }

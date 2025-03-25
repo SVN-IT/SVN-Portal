@@ -294,6 +294,15 @@
                             </ul>
                         </li>
                         <li><a asp-controller="Home" asp-action="ProductionResult"><i class="fa fa-envelope"></i>Production Result</a></li>
+                        <li>
+                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-tachometer"></i><span class="hide-menu">Dashboard <span class="label label-rouded label-primary pull-right">@operList.Count</span></span></a>
+                            <ul aria-expanded="false" class="collapse">
+                                @foreach (var item in operList)
+                                {
+                                    <li><a asp-controller="Home" asp-action="ChartPerOperNew" asp-route-oper="@item">@item Dashboard</a></li>
+                                }
+                            </ul>
+                        </li>
                     </ul>
                 </nav>
                 <!-- End Sidebar navigation -->
