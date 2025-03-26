@@ -1,4 +1,5 @@
 ﻿@model List<PrintTemViewModel>
+@using Newtonsoft.Json;
 @{
     ViewData["Title"] = "In tem";
 }
@@ -39,7 +40,7 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="form-group" style="margin-top:33px">
-                    <button class="btn btn-primary" type="submit" asp-action="Print"><i class="fa fa-print"></i> In</button>
+                    <button class="btn btn-primary" id="printButton"><i class="fa fa-print"></i> In</button>
                 </div>
             </div>
         </div>
@@ -96,7 +97,36 @@
     //         allowClear: true
     //     });
     // });
+    
     $(document).ready(function() {
+        
         $('#selectedProductID').selectpicker();
+
+        $("#printButton").click(function () {
+            // Assume printModels is defined on the page (for instance from server-side rendering)
+            var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
+            // Read copies from a number input and convert to integer
+            var copies = parseInt($("#copiesInput").val(), 10);
+
+            $.ajax({
+                url: '@Url.Action("Print", "Tools")',  // Adjust controller name if needed
+                type: 'POST',
+                data: JSON.stringify({ viewModels: printModels, copies: copies }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    // Check if "message" property exists in the response object
+                    if (response && response.message) {
+                        alert(response.message);
+                    } else {
+                        alert("No message received");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        });
     });
 </script>

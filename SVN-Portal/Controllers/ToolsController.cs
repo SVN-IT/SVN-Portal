@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lextm.SharpSnmpLib.Messaging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using SVN_Portal.DAL.DataPortal;
@@ -60,9 +61,10 @@ namespace SVN_Portal.Controllers
             return View(viewModels);
         }
 
+        [HttpPost]
         public IActionResult Print(List<PrintTemViewModel> viewModels, int copies)
         {
-            return View(viewModels);
+            return Json("This is a browser alert!");
         }
     }
 }
