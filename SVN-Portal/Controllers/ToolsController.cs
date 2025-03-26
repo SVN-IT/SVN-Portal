@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
@@ -62,9 +63,15 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult Print(List<PrintTemViewModel> viewModels, int copies)
+        public IActionResult Print([FromBody] PrintRequest requestPayload)
         {
-            return Json("This is a browser alert!");
+            return Json(new { message = "Message" });
         }
+    }
+
+    public class PrintRequest
+    {
+        public List<PrintTemViewModel> ViewModels { get; set; }
+        public int Copies { get; set; }
     }
 }

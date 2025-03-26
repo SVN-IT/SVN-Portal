@@ -35,7 +35,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Số lượng bản</label>
-                    <input type="number" name="copies" class="form-control" value="1" />
+                    <input type="number" id="copiesInput" name="copies" class="form-control" value="1" />
                 </div>
             </div>
             <div class="col-12 col-md-3">
@@ -103,24 +103,23 @@
         $('#selectedProductID').selectpicker();
 
         $("#printButton").click(function () {
-            // Assume printModels is defined on the page (for instance from server-side rendering)
             var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
-            // Read copies from a number input and convert to integer
             var copies = parseInt($("#copiesInput").val(), 10);
 
+            // Wrap the values in a single object that matches the PrintRequest class
+            var requestPayload = {
+                ViewModels: printModels, // case-sensitive; property name must match
+                Copies: copies
+            };
+
             $.ajax({
-                url: '@Url.Action("Print", "Tools")',  // Adjust controller name if needed
+                url: '@Url.Action("Print", "Tools")',  // Adjust the controller name if needed
                 type: 'POST',
-                data: JSON.stringify({ viewModels: printModels, copies: copies }),
+                data: JSON.stringify(requestPayload),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
-                    // Check if "message" property exists in the response object
-                    if (response && response.message) {
-                        alert(response.message);
-                    } else {
-                        alert("No message received");
-                    }
+                    alert(response.message);
                 },
                 error: function (xhr, status, error) {
                     console.error("AJAX error:", error);
