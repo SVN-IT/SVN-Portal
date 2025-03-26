@@ -59,5 +59,10 @@ namespace SVN_Portal.Controllers
             ViewBag.CountRows = countRows;
             return View(viewModels);
         }
+
+        public IActionResult Print(List<PrintTemViewModel> viewModels, int copies)
+        {
+            return View(viewModels);
+        }
     }
 }

@@ -10,22 +10,37 @@
 
 <form method="post">
     <div class="row">
-        <div class="col-12 col-md-3">
-            <div class="form-group">
-                <label class="control-label">Chọn số dòng cần lấy</label>
-                <input type="number" name="countRows" class="form-control" value="@ViewBag.CountRows" />
+        <div class="row col-12">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Chọn số dòng cần lấy</label>
+                    <input type="number" name="countRows" class="form-control" value="@ViewBag.CountRows" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Chọn sản phẩm</label>
+                    <select id="selectedProductID" class="form-control" name="selectedProductID" data-live-search="true" asp-items="@ViewBag.ProductList">
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group" style="margin-top:33px">
+                    <button class="btn btn-success" type="submit"><i class="fa fa-filter"></i> Tìm kiếm</button>
+                </div>
             </div>
         </div>
-        <div class="col-12 col-md-3">
-            <div class="form-group">
-                <label class="control-label">Chọn sản phẩm</label>
-                <select id="selectedProductID" class="form-control" name="selectedProductID" data-live-search="true" asp-items="@ViewBag.ProductList">
-                </select>
+        <div class="row col-12">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Số lượng bản</label>
+                    <input type="number" name="copies" class="form-control" value="1" />
+                </div>
             </div>
-        </div>
-        <div class="col-12 col-md-3">
-            <div class="form-group" style="margin-top:33px">
-                <button class="btn btn-success" type="submit"><i class="fa fa-filter"></i> Tìm kiếm</button>
+            <div class="col-12 col-md-3">
+                <div class="form-group" style="margin-top:33px">
+                    <button class="btn btn-primary" type="submit" asp-action="Print"><i class="fa fa-print"></i> In</button>
+                </div>
             </div>
         </div>
         <div class="col-12">
@@ -48,9 +63,18 @@
                                     int no = i + 1;
                                 }
                                 <th scope="row">@no</th>
-                                <td>@Model[i].item_name</td>
-                                <td>@Model[i].lot_code</td>
-                                <td>@Model[i].product_qty</td>
+                                <td>
+                                    @Model[i].item_name
+                                    <input type="hidden" asp-for="@Model[i].item_name" />
+                                </td>
+                                <td>
+                                    @Model[i].lot_code
+                                    <input type="hidden" asp-for="@Model[i].lot_code" />
+                                </td>
+                                <td>
+                                    @Model[i].product_qty
+                                    <input type="hidden" asp-for="@Model[i].product_qty" />
+                                </td>
                             </tr>
                         }
                     }
