@@ -31,7 +31,16 @@
                 </div>
             </div>
         </div>
-        <div class="row col-12">
+        @if (Model != null && Model.Count() > 0)
+        {
+            <div class="row col-12">
+                <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Chọn máy in</label>
+                    <select id="selectedPrinterID" class="form-control" name="selectedPrinterID" data-live-search="true" asp-items="@ViewBag.PrinterList">
+                    </select>
+                </div>
+            </div>
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Số lượng bản</label>
@@ -40,10 +49,11 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="form-group" style="margin-top:33px">
-                    <button class="btn btn-primary" id="printButton"><i class="fa fa-print"></i> In</button>
+                    <button type="button" class="btn btn-primary" id="printButton"><i class="fa fa-print"></i> In</button>
                 </div>
             </div>
         </div>
+        }
         <div class="col-12">
             <table class="table">
                 <thead class="thead-light">
@@ -102,14 +112,21 @@
         
         $('#selectedProductID').selectpicker();
 
+        $('#selectedPrinterID').selectpicker();
+
+        
+
         $("#printButton").click(function () {
             var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
             var copies = parseInt($("#copiesInput").val(), 10);
 
+            var selectPrinterID = document.getElementById("selectedPrinterID").value;
+
             // Wrap the values in a single object that matches the PrintRequest class
             var requestPayload = {
                 ViewModels: printModels, // case-sensitive; property name must match
-                Copies: copies
+                Copies: copies,
+                PrinterID: selectPrinterID
             };
 
             $.ajax({

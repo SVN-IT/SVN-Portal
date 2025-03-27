@@ -25,9 +25,15 @@ namespace SVN_Portal.Services.Helpers
             {
                 foreach (var viewModel in viewModels)
                 {
-                    string zpl = PrepareTemplate(zplData, viewModel);
-                    TCP_Printter tcp_Printter = new TCP_Printter();
-                    tcp_Printter.SendToPrinterViaTCP(printerIp, port, zpl);
+                    for(int i = 0; i < copies; i++)
+                    {
+                        string zpl = PrepareTemplate(zplData, viewModel);
+                        TCP_Printter tcp_Printter = new TCP_Printter();
+                        tcp_Printter.SendToPrinterViaTCP(printerIp, port, zpl);
+                    }
+                    //string zpl = PrepareTemplate(zplData, viewModel);
+                    //TCP_Printter tcp_Printter = new TCP_Printter();
+                    //tcp_Printter.SendToPrinterViaTCP(printerIp, port, zpl);
                 }
                 return new BODataProcessResult { OK = true, Message = "Print successfully over TCP/IP." };
             }
@@ -40,10 +46,9 @@ namespace SVN_Portal.Services.Helpers
         private string PrepareTemplate(string template, PrintTemViewModel viewModel)
         {
             string bar_code = $"{viewModel.item_name},{viewModel.lot_code},{viewModel.product_qty}";
-            template = template.Replace("{item_name}", viewModel.item_name).
+            template = template.Replace("{product_name}", viewModel.item_name).
                 Replace("{lot_code}", viewModel.lot_code).
-                Replace("{product_qty}", viewModel.product_qty.ToString()).
-                Replace("{bar_code}", bar_code);
+                Replace("{production_qty}", viewModel.product_qty.ToString());
             return template;
         }
     }

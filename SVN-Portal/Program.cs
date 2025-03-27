@@ -1,4 +1,5 @@
 using SVN_Portal.Services.Configurations;
+using SVN_Portal.Services.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(dBConfiguration);
 builder.Services.AddSingleton(qCInfoConfig);
 builder.Services.AddSingleton(operInfoConfig);
+builder.Services.AddSingleton<ToolsHelper>();
 
 var app = builder.Build();
 
