@@ -87,6 +87,7 @@ namespace SVN_Portal.Controllers
                 ViewBag.ProductList = productList;
                 ViewBag.PrinterList = printerList;
                 ViewBag.CountRows = countRows;
+                ViewBag.oper = "Print";
             }
             catch
             {
