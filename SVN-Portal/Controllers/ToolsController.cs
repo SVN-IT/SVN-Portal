@@ -80,6 +80,46 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> InsertPrinterInfo([FromBody] PrinterConfigData insertData)
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            try
+            {
+                var result = await printerDataPortal.Insert(insertData);
+                if (result <= 0)
+                {
+                    return Json(new { ok = false, message = "Thêm thông tin máy in không thành công." });
+                }
+                return Json(new { ok = true, message = "Thêm thông tin máy in thành công." });
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { message = message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePrinterInfo([FromBody]PrinterConfigData updateData)
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            try
+            {
+                var result = await printerDataPortal.Update(updateData);
+                if (result <= 0)
+                {
+                    return Json(new { ok = false, message = "Cập nhật thông tin máy in không thành công." });
+                }
+                return Json(new { ok = true, message = "Cập nhật thông tin máy in thành công." });
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { message = message });
+            }
+        }
+
         public async Task<IActionResult> PrintTem(int selectedProductID, string selectedPrinterID, int countRows = 1) 
         {
             SVN_product_productDataPortal productDataPortal = new SVN_product_productDataPortal(connectionString);
