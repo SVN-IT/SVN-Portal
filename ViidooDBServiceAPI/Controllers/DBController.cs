@@ -131,6 +131,27 @@ namespace ViidooDBServiceAPI.Controllers
             return processResults;
         }
 
+        [Route("GetDataFromViindooV3")]
+        [HttpPost]
+        public BODataProcessResult GetDataFromViindooV3(ViindooDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetViindooDataV1(dataRequest.TableName, 
+                    dataRequest.Domain, 
+                    dataRequest.Fields, 
+                    dataRequest.Order, 
+                    dataRequest.Limit);
+
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetAndUploadProductionResultData")]
         [HttpPost]
         public BODataProcessResult GetAndUploadProductionResultData()

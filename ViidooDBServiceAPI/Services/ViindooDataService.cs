@@ -76,122 +76,6 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
-
-        public BODataProcessResult GetViindooData(string objectName)
-        {
-            BODataProcessResult processResult = new BODataProcessResult();
-            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
-            if (item != null)
-            {
-                processResult.DataType = item.TableName;
-                try
-                {
-                    var connectResult = ConnectDB();
-                    if (connectResult.OK)
-                    {
-                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
-                        models.Timeout = 60000;
-                        models.Url = serverUrl + "/xmlrpc/2/object";
-
-
-                        object[] search = new object[] { };
-                        string[] domain = new string[] { };
-                        string[] fields = new string[] { };
-                        if (!string.IsNullOrWhiteSpace(item.Domain))
-                        {
-                            if (item.Domain.Contains("@write_date"))
-                            {
-                                //Lấy thời gian hiện tại
-                                DateTime curTime = DateTime.Now;
-                                //Trừ đi 7h vì dữ liệu trả về cũng bị trừ đi 7 giờ
-                                curTime = curTime.AddHours(-7);
-                                //Trừ đi 10p để lấy dữ liệu từ 10p trước đến hiện tại
-                                curTime = curTime.AddHours(-10);
-
-                                item.Domain = item.Domain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
-                                //item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
-                                //curTime.ToString("yyyy-MM-dd HH:mm:ss")
-                            }
-                            domain = item.Domain.Split(",");
-                            search = new object[] { domain };
-                        }
-                        if (!string.IsNullOrWhiteSpace(item.Fields))
-                        {
-                            fields = item.Fields.Split(",");
-                        }
-
-                        var querydata = new object[]
-                        {
-                            search,
-                            fields,
-                            0,
-                            item.Limit
-                        };
-                        if (!string.IsNullOrWhiteSpace(item.Order))
-                        {
-                            querydata = new object[]
-                            {
-                                search,
-                                fields,
-                                0,
-                                item.Limit,
-                                item.Order
-                            };
-                        }
-                        //new object[] { new object[] { "state", "=", "done" } }
-                        //new string[] { "name", "product_id", "state" }
-
-                        object searchResult = models.Execute_Kw(
-                            dbName,
-                            connectResult.UserID,
-                            password,
-                            item.TableName,
-                            "search_read",
-                            querydata);
-                        if (searchResult != null)
-                        {
-                            processResult = SwitchFunctionToInsert(searchResult, objectName);
-                        }
-                        else
-                        {
-                            processResult.Message = "Get data fail";
-                        }
-                    }
-                    else
-                    {
-                        processResult.Message = connectResult.Message;
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    processResult.Message = ex.Message;
-                }
-            }
-            else
-            {
-                processResult.Message = "Table name not found";
-            }
-            return processResult;
-        }
-        public BODataProcessResult CallSPToUpdateResult()
-        {
-            BODataProcessResult processResult = new BODataProcessResult();
-            processResult.DataType = "CallSPToUpdateResult";
-            try
-            {
-                GrandDataPortal<mrp_productionUI> dataPortal = new GrandDataPortal<mrp_productionUI>("SVN_mrp_production_1", SVNDBConfig.ConnectionString);
-                string storedProcedure = "SVN_Update_result_Viindoo";
-                DynamicParameters parameters = new DynamicParameters();
-                processResult = dataPortal.CallStoredProcedure(storedProcedure, parameters);
-            }
-            catch (Exception ex)
-            {
-                processResult.Message = ex.Message;
-            }
-            return processResult;
-        }
-
         private BODataProcessResult SwitchFunctionToInsert(object searchResult, string objectName)
         {
             //Switch function to insert data
@@ -450,6 +334,217 @@ namespace ViidooDBServiceAPI.Services
             catch(Exception ex)
             {
                 processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetViindooData(string objectName)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            var item = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
+            if (item != null)
+            {
+                processResult.DataType = item.TableName;
+                try
+                {
+                    var connectResult = ConnectDB();
+                    if (connectResult.OK)
+                    {
+                        IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                        models.Timeout = 60000;
+                        models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                        object[] search = new object[] { };
+                        string[] domain = new string[] { };
+                        string[] fields = new string[] { };
+                        if (!string.IsNullOrWhiteSpace(item.Domain))
+                        {
+                            if (item.Domain.Contains("@write_date"))
+                            {
+                                //Lấy thời gian hiện tại
+                                DateTime curTime = DateTime.Now;
+                                //Trừ đi 7h vì dữ liệu trả về cũng bị trừ đi 7 giờ
+                                curTime = curTime.AddHours(-7);
+                                //Trừ đi 10p để lấy dữ liệu từ 10p trước đến hiện tại
+                                curTime = curTime.AddHours(-10);
+
+                                item.Domain = item.Domain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
+                                //item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
+                                //curTime.ToString("yyyy-MM-dd HH:mm:ss")
+                            }
+                            domain = item.Domain.Split(",");
+                            search = new object[] { domain };
+                        }
+                        if (!string.IsNullOrWhiteSpace(item.Fields))
+                        {
+                            fields = item.Fields.Split(",");
+                        }
+
+                        var querydata = new object[]
+                        {
+                            search,
+                            fields,
+                            0,
+                            item.Limit
+                        };
+                        if (!string.IsNullOrWhiteSpace(item.Order))
+                        {
+                            querydata = new object[]
+                            {
+                                search,
+                                fields,
+                                0,
+                                item.Limit,
+                                item.Order
+                            };
+                        }
+                        //new object[] { new object[] { "state", "=", "done" } }
+                        //new string[] { "name", "product_id", "state" }
+
+                        object searchResult = models.Execute_Kw(
+                            dbName,
+                            connectResult.UserID,
+                            password,
+                            item.TableName,
+                            "search_read",
+                            querydata);
+                        if (searchResult != null)
+                        {
+                            processResult = SwitchFunctionToInsert(searchResult, objectName);
+                        }
+                        else
+                        {
+                            processResult.Message = "Get data fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = connectResult.Message;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    processResult.Message = ex.Message;
+                }
+            }
+            else
+            {
+                processResult.Message = "Table name not found";
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetViindooDataV1(string objectName, string strDomain, string strFields, string strOrder, int strLimit)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            processResult.DataType = objectName;
+            try
+            {
+                var connectResult = ConnectDB();
+                if (connectResult.OK)
+                {
+                    IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                    models.Timeout = 60000;
+                    models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                    object[] search = new object[] { };
+                    string[] domain = new string[] { };
+                    string[] fields = new string[] { };
+                    if (!string.IsNullOrWhiteSpace(strDomain))
+                    {
+                        if (strDomain.Contains("@write_date"))
+                        {
+                            //Lấy thời gian hiện tại
+                            DateTime curTime = DateTime.Now;
+                            //Trừ đi 7h vì dữ liệu trả về cũng bị trừ đi 7 giờ
+                            curTime = curTime.AddHours(-7);
+                            //Trừ đi 10p để lấy dữ liệu từ 10p trước đến hiện tại
+                            curTime = curTime.AddHours(-10);
+
+                            strDomain = strDomain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
+                                                                                                                       //item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
+                                                                                                                       //curTime.ToString("yyyy-MM-dd HH:mm:ss")
+                        }
+                        domain = strDomain.Split(",");
+                        search = new object[] { domain };
+                    }
+                    if (!string.IsNullOrWhiteSpace(strFields))
+                    {
+                        fields = strFields.Split(",");
+                    }
+
+                    var querydata = new object[]
+                    {
+                            search,
+                            fields,
+                            0,
+                            strLimit
+                    };
+                    if (!string.IsNullOrWhiteSpace(strOrder))
+                    {
+                        querydata = new object[]
+                        {
+                                search,
+                                fields,
+                                0,
+                                strLimit,
+                                strOrder
+                        };
+                    }
+                    //new object[] { new object[] { "state", "=", "done" } }
+                    //new string[] { "name", "product_id", "state" }
+
+                    object searchResult = models.Execute_Kw(
+                        dbName,
+                        connectResult.UserID,
+                        password,
+                        objectName,
+                        "search_read",
+                        querydata);
+                    if (searchResult != null)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Get data success";
+
+                        JArray jArray = JArray.FromObject(searchResult);
+                        object data = JsonConvert.SerializeObject(jArray);
+                        processResult.Content = data;
+                    }
+                    else
+                    {
+                        processResult.Message = "Get data fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = connectResult.Message;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult CallSPToUpdateResult()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            processResult.DataType = "CallSPToUpdateResult";
+            try
+            {
+                GrandDataPortal<mrp_productionUI> dataPortal = new GrandDataPortal<mrp_productionUI>("SVN_mrp_production_1", SVNDBConfig.ConnectionString);
+                string storedProcedure = "SVN_Update_result_Viindoo";
+                DynamicParameters parameters = new DynamicParameters();
+                processResult = dataPortal.CallStoredProcedure(storedProcedure, parameters);
+            }
+            catch (Exception ex)
+            {
                 processResult.Message = ex.Message;
             }
             return processResult;
