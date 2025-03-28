@@ -30,6 +30,56 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
+        public async Task<IActionResult> PrinterManager()
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            List<PrinterConfigData> printerConfigData = new List<PrinterConfigData>();
+            try
+            {
+                printerConfigData = await printerDataPortal.ReadList();
+                if (printerConfigData == null)
+                {
+                    printerConfigData = new List<PrinterConfigData>();
+                }
+            }
+            catch
+            {
+                printerConfigData = new List<PrinterConfigData>();
+            }
+            ViewBag.oper = "Quản lý máy in";
+            return View(printerConfigData);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetPrinterInfoByID(string printerID)
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            PrinterConfigData printerConfigData = new PrinterConfigData();
+            try
+            {
+                printerConfigData = await printerDataPortal.ReadByID(printerID);
+                if(printerConfigData == null)
+                {
+                    return Json(new {ok = false, message = "Không tìm thấy máy in." });
+                }
+                return Json(new {ok = true, 
+                    message = "Lấy dữ liệu thành công",
+                    name_Printer = printerConfigData.Name_Printer,
+                    mac_Address = printerConfigData.MAC_Printer,
+                    ip_Address = printerConfigData.IP_Printer,
+                    port = printerConfigData.Port_Printer,
+                    size = printerConfigData.Size,
+                    type = printerConfigData.Type,
+                    zpl_Template = printerConfigData.ZPL_Temp,
+                    dpl_Template = printerConfigData.DPL_Temp });
+            }
+            catch(Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new {message = message });
+            }
+        }
+
         public async Task<IActionResult> PrintTem(int selectedProductID, string selectedPrinterID, int countRows = 1) 
         {
             SVN_product_productDataPortal productDataPortal = new SVN_product_productDataPortal(connectionString);

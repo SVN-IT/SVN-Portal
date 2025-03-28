@@ -2376,7 +2376,7 @@ textarea {
   background: #1976d2 none repeat scroll 0 0;
   color: #ffffff;
 }
-.modal-dialog {
+/*.modal-dialog {
   margin: 30px auto;
   position: relative;
   top: 50%;
@@ -2390,7 +2390,7 @@ textarea {
 }
 .modal-content {
   border-radius: 3px;
-}
+}*/
 .timeline {
   list-style: none;
   padding: 0 0 8px;
@@ -5996,10 +5996,10 @@ tbody tr td:last-child {
   margin: 0px;
   top: 3px;
 }
-#event-modal .modal-dialog,
+/*#event-modal .modal-dialog,
 #add-category .modal-dialog {
   max-width: 600px;
-}
+}*/
 .flotTip {
   background: #252525;
   border: 1px solid #252525;

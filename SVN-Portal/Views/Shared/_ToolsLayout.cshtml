@@ -96,8 +96,9 @@
                         <li class="nav-devider"></li>
                         <li class="nav-label"></li>
                         <li>
-                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">1</span></span></a>
+                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">2</span></span></a>
                             <ul aria-expanded="false" class="collapse">
+                                <li><a asp-controller="Tools" asp-action="PrinterManager">Quản lý máy in</a></li>
                                 <li><a asp-controller="Tools" asp-action="PrintTem">In tem</a></li>
                             </ul>
                         </li>
@@ -113,12 +114,9 @@
             <!-- Bread crumb -->
             <div class="row page-titles">
                 <div class="col-md-5 align-self-center">
-                    @* <h5 class="text-primary">
-
-                        <a class="p-3 mb-2 bg-danger text-white">&lt;=75%</a>
-                        <a class="p-3 mb-2 bg-warning text-dark">Between 75% and 92%</a>
-                        <a class="p-3 mb-2 bg-primary text-white">&gt;92%</a>
-                    </h5> *@
+                    <h5 class="text-primary">
+                        @ViewBag.oper
+                    </h5>
 
                 </div>
                 <div class="col-md-7 align-self-center">
