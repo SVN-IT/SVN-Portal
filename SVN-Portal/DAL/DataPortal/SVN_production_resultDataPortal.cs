@@ -196,17 +196,17 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
                         viewModel.Operation = item.Operation;
-                        if (string.IsNullOrWhiteSpace(item.WC))
+                        if (string.IsNullOrWhiteSpace(item.WCName))
                         {
-                            item.WC = null;
+                            item.WCName = null;
                         }
-                        viewModel.WC = item.WC;
+                        viewModel.WC = item.WCName;
 
                         //sai ở đây
                         //dùng linq mà list đang bị null
-                        var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WC);//Lấy ra 1 dòng target theo opearation
+                        var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName);//Lấy ra 1 dòng target theo opearation
 
-                        var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WC && x.Type_value == "Target");
+                        var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Target");
                         if (dataUIbyOperTarget != null)
                         {
                             val1.Time = "8h-10h";
@@ -220,7 +220,7 @@ namespace SVN_Portal.DAL.DataPortal
                             val5.Time = "18h-20h";
                             val5.Target = dataUIbyOperTarget.Time5;
                         }
-                        var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WC && x.Type_value == "Production Qty");
+                        var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Production Qty");
                         if (dataUIbyOperLine != null)
                         {
                             val1.Line = dataUIbyOperLine.Time1;
@@ -229,7 +229,7 @@ namespace SVN_Portal.DAL.DataPortal
                             val4.Line = dataUIbyOperLine.Time4;
                             val5.Line = dataUIbyOperLine.Time5;
                         }
-                        var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WC && x.Type_value == "Man Q'ty");
+                        var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Man Q'ty");
                         if (dataUIbyOperManQty != null)
                         {
                             val1.ManQuantity = dataUIbyOperManQty.Time1;
@@ -238,7 +238,7 @@ namespace SVN_Portal.DAL.DataPortal
                             val4.ManQuantity = dataUIbyOperManQty.Time4;
                             val5.ManQuantity = dataUIbyOperManQty.Time5;
                         }
-                        var dataUIbyOperNGQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WC && x.Type_value == "NG_Qty");
+                        var dataUIbyOperNGQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "NG_Qty");
                         if (dataUIbyOperNGQty != null)
                         {
                             val1.NG = dataUIbyOperNGQty.Time1;

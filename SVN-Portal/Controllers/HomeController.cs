@@ -209,17 +209,16 @@ namespace SVN_Portal.Controllers
 
                 foreach (var item in operInfoConfig.OperInfo)
                 {
-                    if(!string.IsNullOrWhiteSpace(item.WC))
+                    if(item.WC != null && item.WC.Count > 0)
                     {
-                        List<string> WCs = item.WC.Split(",").ToList();
-                        foreach (var wc in WCs)
+                        foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WC = wc, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, ColWidth = item.ColWidth });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WC = "", ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth });
                     }
                 }
 
@@ -277,17 +276,16 @@ namespace SVN_Portal.Controllers
                 var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
-                    if (!string.IsNullOrWhiteSpace(item.WC))
+                    if (item.WC != null && item.WC.Count > 0)
                     {
-                        List<string> WCs = item.WC.Split(",").ToList();
-                        foreach (var wc in WCs)
+                        foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WC = wc, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, ColWidth = item.ColWidth });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WC = "", ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth });
                     }
                 }
 
