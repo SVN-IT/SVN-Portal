@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SVNShareLib.DTO;
+using System.Collections.Generic;
 
 namespace SVN_Portal.Models
 {
@@ -12,6 +13,7 @@ namespace SVN_Portal.Models
         {
             ViewModels = new List<QtyProdResultViewModel>();
             TargetViewModels = new List<SVN_targetViewModel>();// khai báo kiểu này giup list ko bọ null
+            ProductionUIs = new List<mrp_productionUI>();
         }
         public string Operation { get; set; }
         public string WC { get; set; }
@@ -20,6 +22,7 @@ namespace SVN_Portal.Models
         public int ColWidth { get; set; }
         public List<QtyProdResultViewModel> ViewModels { get; set; }
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
+        public List<mrp_productionUI> ProductionUIs { get; set; }
         public double Est { get; set; }
 
         public QtyProdResultByOperViewModel GetData(string operation)

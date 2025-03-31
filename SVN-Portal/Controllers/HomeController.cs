@@ -213,12 +213,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
                     }
                 }
 
@@ -280,12 +280,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
                     }
                 }
 

@@ -5,6 +5,7 @@ using SVN_Portal.Services.Configurations;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using SVNShareLib.DAL;
 
 namespace SVN_Portal.DAL.DataPortal
 {
@@ -180,6 +181,7 @@ namespace SVN_Portal.DAL.DataPortal
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
+            var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
 
             try
             {
@@ -252,6 +254,17 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.ViewModels.Add(val3);
                         viewModel.ViewModels.Add(val4);
                         viewModel.ViewModels.Add(val5);
+
+                        try
+                        {
+                            var productionUIs = mrp_productionDataPortal.GetDataByProduct_ID(item.Produce_id, item.Top_row);
+                            viewModel.ProductionUIs = productionUIs;
+                        }
+                        catch
+                        {
+
+                        }
+                        
 
                         if (dataUIByOper != null)
                         {

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PrinterServices\PrinterServices.csproj" />
+    <ProjectReference Include="..\SVNShareLib\SVNShareLib.csproj" />
   </ItemGroup>
 
 </Project>
