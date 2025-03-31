@@ -293,8 +293,10 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
-                if (models.Count > 0)
+                
+                if (models!= null && models.Count > 0)
                 {
+                    models = models.OrderBy(x => x.WC).ToList();
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);

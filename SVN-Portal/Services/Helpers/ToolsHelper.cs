@@ -45,7 +45,14 @@ namespace SVN_Portal.Services.Helpers
 
         private string PrepareTemplate(string template, PrintTemViewModel viewModel)
         {
-            string bar_code = $"{viewModel.item_name},{viewModel.lot_code},{viewModel.product_qty}";
+            if(!string.IsNullOrWhiteSpace(viewModel.lot_code))
+            {
+                char lasstChar = viewModel.lot_code[viewModel.lot_code.Length - 1];
+                if (lasstChar == '0')
+                {
+                    viewModel.lot_code = viewModel.lot_code.Remove(viewModel.lot_code.Length - 1) + ">60";
+                }
+            }
             template = template.Replace("{product_name}", viewModel.item_name).
                 Replace("{lot_code}", viewModel.lot_code).
                 Replace("{production_qty}", viewModel.product_qty.ToString());
