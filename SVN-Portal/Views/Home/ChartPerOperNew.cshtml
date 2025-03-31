@@ -39,8 +39,8 @@
         jsonData = JsonConvert.SerializeObject(item.ViewModels);
         <style>
             #@charID {
-                height: 450px;
-                width: 100%;
+            height: 450px;
+            width: 100%;
             }
         </style>
         <div class="col-lg-@item.ColWidth">
@@ -102,81 +102,106 @@
                                 </div>
                             }
                         </div>
-                        <div class="col-6 row" style="padding-left:20px">
-                            <div class="col-3 border table-cell text-center"><strong>Item</strong></div>
-                            <div class="col-2 border table-cell text-center"><strong>Target</strong></div>
-                            <div class="col-2 border table-cell text-center"><strong>Current</strong></div>
-                            <div class="col-3 border table-cell text-center"><strong>Rate</strong></div>
-                            <div class="col-2 border table-cell text-center"><strong>Status</strong></div>
-                            @* <div class="col-3 border table-cell">Expert</div> *@
-                            @foreach (var subitem in item.TargetViewModels)
-                            {
-                                <div class="col-3 border table-cell text-center"><strong>@subitem.Item</strong></div>
-                                if (subitem.Item == "Defect")
+                        @if (item.WC.Contains("FG"))
+                        {
+                            <div class="col-6 row" style="padding-left:20px">
+                                <div class="col-3 border table-cell text-center"><strong>Item</strong></div>
+                                <div class="col-2 border table-cell text-center"><strong>Target</strong></div>
+                                <div class="col-2 border table-cell text-center"><strong>Current</strong></div>
+                                <div class="col-3 border table-cell text-center"><strong>Rate</strong></div>
+                                <div class="col-2 border table-cell text-center"><strong>Status</strong></div>
+                                @* <div class="col-3 border table-cell">Expert</div> *@
+                                @foreach (var subitem in item.TargetViewModels)
                                 {
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Target, 2) %</div>
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Current, 2) %</div>
-                                    <div class="col-3 border table-cell text-center">@Math.Round(subitem.Percent, 2) %</div>
-                                }
-                                else
-                                {
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Target, 2)</div>
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Current, 2)</div>
-                                    <div class="col-3 border table-cell text-center">@Math.Round(subitem.Percent, 2) %</div>
-                                }
-
-                                string status = string.Empty;
-                                if (subitem.Item == "Defect")
-                                {
-                                    /*
-                                    if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                    <div class="col-3 border table-cell text-center"><strong>@subitem.Item</strong></div>
+                                    if (subitem.Item == "Defect")
                                     {
-
-                                        status = "bg-warning";
-                                        }
-                                    else if (subitem.Percent > 75 && subitem.Percent <= 92)
-                                    {
-                                        status = "bg-danger";
-                                        }
-                                    */
-                                    if (subitem.Percent > 100)
-                                    {
-
-                                        status = "bg-danger";
-                                    }
-                                    else if (subitem.Percent > 75 && subitem.Percent <= 100)
-                                    {
-                                        status = "bg-warning";
+                                        <div class="col-2 border table-cell text-center">@Math.Round(subitem.Target, 2) %</div>
+                                        <div class="col-2 border table-cell text-center">@Math.Round(subitem.Current, 2) %</div>
+                                        <div class="col-3 border table-cell text-center">@Math.Round(subitem.Percent, 2) %</div>
                                     }
                                     else
                                     {
-                                        status = "bg-primary";
+                                        <div class="col-2 border table-cell text-center">@Math.Round(subitem.Target, 2)</div>
+                                        <div class="col-2 border table-cell text-center">@Math.Round(subitem.Current, 2)</div>
+                                        <div class="col-3 border table-cell text-center">@Math.Round(subitem.Percent, 2) %</div>
                                     }
-                                }
-                                else
-                                {
 
-                                    if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                    string status = string.Empty;
+                                    if (subitem.Item == "Defect")
                                     {
-                                        status = "bg-danger";
-                                    }
-                                    else if (subitem.Percent > 75 && subitem.Percent <= 92)
-                                    {
-                                        status = "bg-warning";
+                                        /*
+                                        if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                        {
+
+                                            status = "bg-warning";
+                                            }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                        {
+                                            status = "bg-danger";
+                                            }
+                                        */
+                                                    if (subitem.Percent > 100)
+                                        {
+
+                                            status = "bg-danger";
+                                        }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                        {
+                                            status = "bg-warning";
+                                        }
+                                        else
+                                        {
+                                            status = "bg-primary";
+                                        }
                                     }
                                     else
                                     {
-                                        status = "bg-primary";
+
+                                        if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                        {
+                                            status = "bg-danger";
+                                        }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                        {
+                                            status = "bg-warning";
+                                        }
+                                        else
+                                        {
+                                            status = "bg-primary";
+                                        }
                                     }
+                                    <div class="col-2 border table-cell text-center @status"></div>
+                                    @* <div class="col-3 border table-cell">@Math.Round(item.Est, 2) %</div> *@
                                 }
-
-
-
-
-                                <div class="col-2 border table-cell text-center @status"></div>
-                                @* <div class="col-3 border table-cell">@Math.Round(item.Est, 2) %</div> *@
-                            }
-                        </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-6 row" style="padding-left:20px">
+                                <div class="col-4 border table-cell text-center">
+                                    <strong>WO Name</strong>
+                                </div>
+                                <div class="col-4 border table-cell text-center">
+                                    <strong>State</strong>
+                                </div>
+                                <div class="col-4 border table-cell text-center">
+                                    <strong>Product Qty</strong>
+                                </div>
+                                @foreach (var subitem in item.ProductionUIs)
+                                {
+                                    <div class="col-4 border table-cell text-center">
+                                        @subitem.name
+                                    </div>
+                                    <div class="col-4 border table-cell text-center">
+                                        @subitem.state
+                                    </div>
+                                    <div class="col-4 border table-cell text-center">
+                                        @subitem.product_uom_qty
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
 
                     <div id=@charID></div>
