@@ -39,6 +39,27 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public mrp_productionUI GetDataByProduct_ID(List<int> product_id, int countRow)
+        {
+            try
+            {
+                mrp_productionUI data = new mrp_productionUI();
+                string sql = "SELECT TOP(#countRow) FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'progress'";
+                sql = sql.Replace("#countRow", countRow.ToString());
+                var param = new { product_id = product_id };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.QueryFirstOrDefault<mrp_productionUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public int InsertBulk(List<mrp_productionUI> mrp_ProductionUIs)
         {
             int timeOut = 1000;
