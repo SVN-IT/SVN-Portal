@@ -75,8 +75,9 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetDataFromViindooV1")]
         [HttpPost]
-        public List<BODataProcessResult> GetDataFromViindooV1()
+        public BODataProcessResult GetDataFromViindooV1()
         {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
             List<BODataProcessResult> processResults = new List<BODataProcessResult>();
             try
             {
@@ -99,13 +100,15 @@ namespace ViidooDBServiceAPI.Controllers
                 processResult.Message = ex.Message;
                 processResults.Add(processResult);
             }
-            return processResults;
+            bODataProcessResult.Content = processResults;
+            return bODataProcessResult;
         }
 
         [Route("GetDataFromViindooV2")]
         [HttpPost]
-        public async Task<List<BODataProcessResult>> GetDataFromViindooV2()
+        public async Task<BODataProcessResult> GetDataFromViindooV2()
         {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
             List<BODataProcessResult> processResults = new List<BODataProcessResult>();
             try
             {
@@ -128,7 +131,8 @@ namespace ViidooDBServiceAPI.Controllers
                 processResult.Message = ex.Message;
                 processResults.Add(processResult);
             }
-            return processResults;
+            bODataProcessResult.Content = processResults;
+            return bODataProcessResult;
         }
 
         [Route("GetDataFromViindooV3")]

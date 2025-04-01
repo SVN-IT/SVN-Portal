@@ -5,6 +5,7 @@ using SVNShareLib.Request;
 
 string BaseURL = "http://10.10.99.10:8101/"; //http://10.10.99.10:8101/ https://localhost:7272/
 string GetAndUploadProductionResultDataURL = "api/DB/GetAndUploadProductionResultDataXMLRPC";
+string GetDataFromViindooV1URL = "api/DB/GetDataFromViindooV1";
 string GetDataFromViindooV3URL = "api/DB/GetDataFromViindooV3";
 
 ViindooDataRequest dataRequest = new ViindooDataRequest()
@@ -18,5 +19,5 @@ ViindooDataRequest dataRequest = new ViindooDataRequest()
 
 HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(BaseURL, 1000);
 BODataProcessResult bODataProcessResult = new BODataProcessResult();
-var result = await httpClientHelper.PostRequest(GetDataFromViindooV3URL, dataRequest, new CancellationToken(false));
+var result = await httpClientHelper.PostRequest(GetDataFromViindooV1URL, bODataProcessResult, new CancellationToken(false));
 Console.WriteLine("[Time]: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + " [Status]: " + result.OK.ToString() + " [Message]: " + result.Message);
