@@ -168,6 +168,15 @@ namespace ViidooDBServiceAPI.Services
                             processResult = insertResult;
                         }
                         break;
+                    case "product.product":
+                        var dataUI9 = convertDataService.ConverterToProductProductUI(searchResult);
+                        if (dataUI9 != null && dataUI9.Count > 0)
+                        {
+                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                            insertResult = convertDataService.InsertProductProductToSVNDB(dataUI9);
+                            processResult = insertResult;
+                        }
+                        break;
                 }
             }
             catch(Exception ex)

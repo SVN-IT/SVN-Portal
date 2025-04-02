@@ -1858,6 +1858,117 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        public List<product_productUI> ConverterToProductProductUI(object searchResult)
+        {
+            List<product_productUI> dataUIs = new List<product_productUI>();
+            List<product_product> baseData = new List<product_product>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<product_product>>(json);
+                foreach (var item in baseData)
+                {
+                    product_productUI mrp_ProductionUI = new product_productUI();
+                    mrp_ProductionUI.id= item.id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.product_tmpl_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_tmpl_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_tmpl_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.origin_message_id = item.origin_message_id;
+                    mrp_ProductionUI.origin_references = item.origin_references;
+                    mrp_ProductionUI.default_code = item.default_code;
+                    mrp_ProductionUI.active = item.active;
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    mrp_ProductionUI.barcode = item.barcode;
+                    mrp_ProductionUI.volume = item.volume;
+                    mrp_ProductionUI.weight = item.weight;
+                    mrp_ProductionUI.can_image_variant_1024_be_zoomed = item.can_image_variant_1024_be_zoomed;
+                    mrp_ProductionUI.combination_indices = item.combination_indices;
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public BODataProcessResult InsertProductionTemplateToSVNDB(List<product_templateUI> dataUI)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -2251,6 +2362,53 @@ namespace ViidooDBServiceAPI.Services
                     GrandDataPortal<stock_move_line_consume_relUI> grandDataPortal = new GrandDataPortal<stock_move_line_consume_relUI>("SVN_stock_move_line_consume_rel", SVNDBConfig.ConnectionString);
                     string sqlQuery = "INSERT INTO [dbo].[SVN_stock_move_line_consume_rel]([consume_line_id],[produce_line_id])VALUES(@consume_line_id,@produce_line_id)";
                     var insertResult = grandDataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "All data existed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult InsertProductProductToSVNDB(List<product_productUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<product_productUI> insertData = new List<product_productUI>();
+                List<product_productUI> existData = new List<product_productUI>();
+                GrandDataPortal<product_productUI> dataPortal = new GrandDataPortal<product_productUI>("SVN_product_product",SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_product_product]([id],[message_main_attachment_id],[product_tmpl_id],[create_uid],[write_uid],[origin_message_id],[origin_references],[default_code],[barcode],[combination_indices],[volume],[weight],[active],[can_image_variant_1024_be_zoomed],[create_date],[write_date])VALUES(@id,@message_main_attachment_id,@product_tmpl_id,@create_uid,@write_uid,@origin_message_id,@origin_references,@default_code,@barcode,@combination_indices,@volume,@weight,@active,@can_image_variant_1024_be_zoomed,@create_date,@write_date)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
                     if (insertResult > 0)
                     {
                         processResult.OK = true;
