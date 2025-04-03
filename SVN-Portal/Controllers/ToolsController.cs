@@ -203,6 +203,18 @@ namespace SVN_Portal.Controllers
             }
             return Json(new { message = processResult.Message });
         }
+
+        public IActionResult ProductionUpdateQty()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ProductionUpdateQty(string workOrderCode)
+        {
+            ViewBag.WorkOrder = workOrderCode;
+            return View();
+        }
     }
 
     public class PrintRequest

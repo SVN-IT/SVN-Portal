@@ -7,6 +7,7 @@ using SVNShareLib;
 using SVNShareLib.BaseObject;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
+using SVNShareLib.Request;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -541,10 +542,19 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetViindooDataV2(string objectName, List<string> listDomain, string strFields, string strOrder, int strLimit)
+        /// <summary>
+        /// Hàm search data từ viindoo
+        /// </summary>
+        /// <param name="objectName"></param>
+        /// <param name="listDomain"></param>
+        /// <param name="strFields"></param>
+        /// <param name="strOrder"></param>
+        /// <param name="strLimit"></param>
+        /// <returns></returns>
+        public BODataProcessResult GetViindooDataV2(ViindooDataRequest dataRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
-            processResult.DataType = objectName;
+            processResult.DataType = dataRequest.TableName;
             try
             {
                 var connectResult = ConnectDB();
@@ -558,27 +568,27 @@ namespace ViidooDBServiceAPI.Services
                     object[] search = new object[] { };
                     object[] domain = new object[] { };
                     string[] fields = new string[] { };
-                    if (listDomain != null && listDomain.Count > 0)
+                    if (dataRequest.listDomain != null && dataRequest.listDomain.Count > 0)
                     {
                         var domainItems = new List<object>();
 
-                        for (var i = 0; i < listDomain.Count; i++)
+                        for (var i = 0; i < dataRequest.listDomain.Count; i++)
                         {
-                            if (listDomain[i].Contains("@write_date"))
+                            if (dataRequest.listDomain[i].Contains("@write_date"))
                             {
                                 DateTime curTime = DateTime.Now;
                                 curTime = curTime.AddHours(-7);
                                 curTime = curTime.AddHours(-10);
-                                listDomain[i] = listDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                                dataRequest.listDomain[i] = dataRequest.listDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
                             }
-                            if(listDomain[i].Contains(","))
+                            if(dataRequest.listDomain[i].Contains(","))
                             {
-                                object[] domainItem = listDomain[i].Split(",");
+                                object[] domainItem = dataRequest.listDomain[i].Split(",");
                                 for (int j = 0; j < domainItem.Length; j++)
                                 {
-                                    if (domainItem[j] is string && domainItem[j].ToString().Contains("/"))
+                                    if (domainItem[j] is string && domainItem[j].ToString().Contains(";"))
                                     {
-                                        string[] parts = domainItem[j].ToString().Split('/'); // Split "2,IPQC"
+                                        string[] parts = domainItem[j].ToString().Split(';'); // Split "2,IPQC"
 
                                         object[] convertedParts = Array.ConvertAll(parts, part =>
                                         {
@@ -602,9 +612,9 @@ namespace ViidooDBServiceAPI.Services
                                 }
                                 domainItems.Add(domainItem);
                             }
-                            if(listDomain[i] == "|")
+                            if(dataRequest.listDomain[i] == "|")
                             {
-                                domainItems.Add(listDomain[i]);
+                                domainItems.Add(dataRequest.listDomain[i]);
                             }
                         }
 
@@ -612,33 +622,33 @@ namespace ViidooDBServiceAPI.Services
                         search = domain;
                         //search = new object[] { domain };
                     }
-                    if (!string.IsNullOrWhiteSpace(strFields))
+                    if (!string.IsNullOrWhiteSpace(dataRequest.Fields))
                     {
-                        fields = strFields.Split(",");
+                        fields = dataRequest.Fields.Split(",");
                     }
                     var querydata = new object[]
                     {
                             search,
                             fields,
                             0,
-                            strLimit
+                            dataRequest.Limit
                     };
-                    if (!string.IsNullOrWhiteSpace(strOrder))
+                    if (!string.IsNullOrWhiteSpace(dataRequest.Order))
                     {
                         querydata = new object[]
                         {
                                 search,
                                 fields,
                                 0,
-                                strLimit,
-                                strOrder
+                                dataRequest.Limit,
+                                dataRequest.Order
                         };
                     }
                     object searchResult = models.Execute_Kw(
                         dbName,
                         connectResult.UserID,
                         password,
-                        objectName,
+                        dataRequest.TableName,
                         "search_read",
                         querydata);
                     if (searchResult != null)
@@ -667,7 +677,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public static object[] ReplaceItem(object[] originalArray, int index, object newItem)
+        private static object[] ReplaceItem(object[] originalArray, int index, object newItem)
         {
             object[] newArray = new object[originalArray.Length]; // Create a new array
             Array.Copy(originalArray, newArray, originalArray.Length); // Copy original values
@@ -682,7 +692,7 @@ namespace ViidooDBServiceAPI.Services
             try
             {
                 GrandDataPortal<mrp_productionUI> dataPortal = new GrandDataPortal<mrp_productionUI>("SVN_mrp_production_1", SVNDBConfig.ConnectionString);
-                string storedProcedure = "SVN_Update_result_Viindoo";
+                string storedProcedure = "SVN_Update_result_Viindoo_WC";
                 DynamicParameters parameters = new DynamicParameters();
                 processResult = dataPortal.CallStoredProcedure(storedProcedure, parameters);
             }

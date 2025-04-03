@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVNShareLib;
 using SVNShareLib.Request;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ViidooDBServiceAPI.Services;
 
@@ -142,11 +143,7 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = viinDataService.GetViindooDataV2(dataRequest.TableName, 
-                    dataRequest.listDomain, 
-                    dataRequest.Fields, 
-                    dataRequest.Order, 
-                    dataRequest.Limit);
+                processResult = viinDataService.GetViindooDataV2(dataRequest);
 
             }
             catch (Exception ex)
@@ -154,6 +151,41 @@ namespace ViidooDBServiceAPI.Controllers
                 processResult.Message = ex.Message;
             }
             return processResult.Content;
+        }
+
+        [Route("UpdateProductionQty")]
+        [HttpPost]
+        public BODataProcessResult UpdateProductionQty(ViindooDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                var productionResult = viinDataService.GetViindooDataV2(dataRequest);
+                if(productionResult != null && productionResult.OK)
+                {
+                    for (int i = 0; i < dataRequest.listDomain.Count; i++)
+                    {
+                        if (dataRequest.listDomain[i].Contains("name"))
+                        {
+                            dataRequest.listDomain[i] = dataRequest.listDomain[i].Replace("name", "reference");
+                        }
+                    }
+
+                    dataRequest.TableName = "stock.move";
+                    dataRequest.Fields = "";
+                    dataRequest.Limit = 0;
+                    dataRequest.Order = "";
+                    var stockMoveResult = viinDataService.GetViindooDataV2(dataRequest);
+                    if(stockMoveResult != null && processResult.OK)
+                    {
+                    }
+                }
+            }
+            catch (Exception ex) 
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;   
         }
 
         [Route("GetAndUploadProductionResultData")]
