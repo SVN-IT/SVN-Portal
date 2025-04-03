@@ -137,7 +137,7 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetDataFromViindooV3")]
         [HttpPost]
-        public BODataProcessResult GetDataFromViindooV3(ViindooDataRequest dataRequest)
+        public object GetDataFromViindooV3(ViindooDataRequest dataRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
@@ -153,7 +153,7 @@ namespace ViidooDBServiceAPI.Controllers
             {
                 processResult.Message = ex.Message;
             }
-            return processResult;
+            return processResult.Content;
         }
 
         [Route("GetAndUploadProductionResultData")]
