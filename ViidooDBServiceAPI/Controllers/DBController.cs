@@ -142,8 +142,8 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = viinDataService.GetViindooDataV1(dataRequest.TableName, 
-                    dataRequest.Domain, 
+                processResult = viinDataService.GetViindooDataV2(dataRequest.TableName, 
+                    dataRequest.listDomain, 
                     dataRequest.Fields, 
                     dataRequest.Order, 
                     dataRequest.Limit);

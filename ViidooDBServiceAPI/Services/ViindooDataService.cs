@@ -560,7 +560,7 @@ namespace ViidooDBServiceAPI.Services
                     string[] fields = new string[] { };
                     if (listDomain != null && listDomain.Count > 0)
                     {
-                        var domainItems = new List<object[]>();
+                        var domainItems = new List<object>();
 
                         for (var i = 0; i < listDomain.Count; i++)
                         {
@@ -571,12 +571,46 @@ namespace ViidooDBServiceAPI.Services
                                 curTime = curTime.AddHours(-10);
                                 listDomain[i] = listDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
                             }
-                            object[] domainItem = listDomain[i].Split(",");
-                            domainItems.Add(domainItem);
+                            if(listDomain[i].Contains(","))
+                            {
+                                object[] domainItem = listDomain[i].Split(",");
+                                for (int j = 0; j < domainItem.Length; j++)
+                                {
+                                    if (domainItem[j] is string && domainItem[j].ToString().Contains("/"))
+                                    {
+                                        string[] parts = domainItem[j].ToString().Split('/'); // Split "2,IPQC"
+
+                                        object[] convertedParts = Array.ConvertAll(parts, part =>
+                                        {
+                                            if (int.TryParse(part, out int result))
+                                            {
+                                                return (object)result; // Convert "2" to int
+                                            }
+                                            if(bool.TryParse(part, out bool resultBool))
+                                            {
+                                                return (object)resultBool; // Convert "true" to bool
+                                            }
+                                            return (object)part; // Keep "IPQC" as string
+                                        });
+
+                                        //object[] convertedItem = new object[] { convertedParts }; // Convert to new object[]
+
+                                        // Create a new array with the updated value
+                                        domainItem = ReplaceItem(domainItem, j, convertedParts);
+                                        //break;
+                                    }
+                                }
+                                domainItems.Add(domainItem);
+                            }
+                            if(listDomain[i] == "|")
+                            {
+                                domainItems.Add(listDomain[i]);
+                            }
                         }
 
                         domain = domainItems.ToArray();
-                        search = new object[] { domain };
+                        search = domain;
+                        //search = new object[] { domain };
                     }
                     if (!string.IsNullOrWhiteSpace(strFields))
                     {
@@ -631,6 +665,14 @@ namespace ViidooDBServiceAPI.Services
                 processResult.Message = ex.Message;
             }
             return processResult;
+        }
+
+        public static object[] ReplaceItem(object[] originalArray, int index, object newItem)
+        {
+            object[] newArray = new object[originalArray.Length]; // Create a new array
+            Array.Copy(originalArray, newArray, originalArray.Length); // Copy original values
+            newArray[index] = newItem; // Replace the specified index
+            return newArray;
         }
 
         public BODataProcessResult CallSPToUpdateResult()
