@@ -4,6 +4,7 @@ using SVNShareLib.BaseObject;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib;
+using Dapper;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -2430,6 +2431,38 @@ namespace ViidooDBServiceAPI.Services
 
             }
             return processResult;
+        }
+
+        public List<DynamicParameters> ConvertObjectToData(object searchResult)
+        {
+            List<DynamicParameters> data = new List<DynamicParameters>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                if (jArray!=null && jArray.Count > 0) 
+                {
+                    foreach (var item in jArray)
+                    {
+                        // Tạo DynamicParameters
+                        var parameters = new DynamicParameters();
+
+                        foreach (var property in (JObject)item)
+                        {
+                            parameters.Add($"@{property.Key}", property.Value); // Thêm tham số
+                        }
+                        data.Add(parameters);
+                    }
+                    return data;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

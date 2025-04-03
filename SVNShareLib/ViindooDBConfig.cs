@@ -19,8 +19,10 @@ namespace SVNShareLib
 
     public class QueryConfig
     {
+        public string SVNTableName { get; set; }
         public string TableName { get; set; }
         public string Domain { get; set; }
+        public List<object[]> ListDomain { get; set; }
         public string Fields { get; set; }
         public int Limit { get; set; }
         public string Order { get; set; }

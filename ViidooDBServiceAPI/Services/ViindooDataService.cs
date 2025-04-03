@@ -461,7 +461,7 @@ namespace ViidooDBServiceAPI.Services
 
 
                     object[] search = new object[] { };
-                    string[] domain = new string[] { };
+                    object[] domain = new object[] { };
                     string[] fields = new string[] { };
                     if (!string.IsNullOrWhiteSpace(strDomain))
                     {
@@ -533,6 +533,98 @@ namespace ViidooDBServiceAPI.Services
                     processResult.Message = connectResult.Message;
                 }
 
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetViindooDataV2(string objectName, List<string> listDomain, string strFields, string strOrder, int strLimit)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            processResult.DataType = objectName;
+            try
+            {
+                var connectResult = ConnectDB();
+                if (connectResult.OK)
+                {
+                    IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+                    models.Timeout = 60000;
+                    models.Url = serverUrl + "/xmlrpc/2/object";
+
+
+                    object[] search = new object[] { };
+                    object[] domain = new object[] { };
+                    string[] fields = new string[] { };
+                    if (listDomain != null && listDomain.Count > 0)
+                    {
+                        var domainItems = new List<object[]>();
+
+                        for (var i = 0; i < listDomain.Count; i++)
+                        {
+                            if (listDomain[i].Contains("@write_date"))
+                            {
+                                DateTime curTime = DateTime.Now;
+                                curTime = curTime.AddHours(-7);
+                                curTime = curTime.AddHours(-10);
+                                listDomain[i] = listDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                            }
+                            object[] domainItem = listDomain[i].Split(",");
+                            domainItems.Add(domainItem);
+                        }
+
+                        domain = domainItems.ToArray();
+                        search = new object[] { domain };
+                    }
+                    if (!string.IsNullOrWhiteSpace(strFields))
+                    {
+                        fields = strFields.Split(",");
+                    }
+                    var querydata = new object[]
+                    {
+                            search,
+                            fields,
+                            0,
+                            strLimit
+                    };
+                    if (!string.IsNullOrWhiteSpace(strOrder))
+                    {
+                        querydata = new object[]
+                        {
+                                search,
+                                fields,
+                                0,
+                                strLimit,
+                                strOrder
+                        };
+                    }
+                    object searchResult = models.Execute_Kw(
+                        dbName,
+                        connectResult.UserID,
+                        password,
+                        objectName,
+                        "search_read",
+                        querydata);
+                    if (searchResult != null)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Get data success";
+
+                        JArray jArray = JArray.FromObject(searchResult);
+                        object data = JsonConvert.SerializeObject(jArray);
+                        processResult.Content = data;
+                    }
+                    else
+                    {
+                        processResult.Message = "Get data fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = connectResult.Message;
+                }
             }
             catch (Exception ex)
             {
