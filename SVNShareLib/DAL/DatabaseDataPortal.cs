@@ -13,11 +13,9 @@ namespace SVNShareLib.DAL
     public class DatabaseDataPortal
     {
         string connectionString;
-        string tableName;
-        public DatabaseDataPortal(string connectionString, string tableName)
+        public DatabaseDataPortal(string connectionString)
         {
             this.connectionString = connectionString;
-            this.tableName = tableName;
         }
 
         /// <summary>
