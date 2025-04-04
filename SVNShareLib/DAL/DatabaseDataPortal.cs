@@ -87,8 +87,8 @@ namespace SVNShareLib.DAL
                     {
                         try
                         {
-                            var insertResult = connection.Execute(query, parameters, trans, commandTimeout: timeOut);
-                            if (insertResult <= 0)
+                            var executeResult = connection.Execute(query, parameters, trans, commandTimeout: timeOut);
+                            if (executeResult <= 0)
                             {
                                 trans.Rollback();
                                 return false;
