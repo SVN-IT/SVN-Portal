@@ -2448,7 +2448,27 @@ namespace ViidooDBServiceAPI.Services
 
                         foreach (var property in (JObject)item)
                         {
-                            parameters.Add($"@{property.Key}", property.Value); // Thêm tham số
+                            string propertyKey = property.Key;
+                            JToken propertyValue = property.Value;
+
+                            // Điều kiện: Bỏ qua các key kết thúc bằng "ids"
+                            if (propertyKey.EndsWith("ids"))
+                            {
+                                continue; // Skip this property
+                            }
+
+                            // Điều kiện: Nếu key kết thúc bằng "id" và value là mảng
+                            if (propertyKey.EndsWith("id") && propertyValue.Type == JTokenType.Array)
+                            {
+                                // Lấy phần tử đầu tiên của mảng (nếu có)
+                                var firstItem = propertyValue.FirstOrDefault();
+                                parameters.Add($"@{propertyKey}", firstItem); // Thêm phần tử đầu tiên
+                            }
+                            else
+                            {
+                                // Thêm các giá trị khác bình thường
+                                parameters.Add($"@{propertyKey}", propertyValue);
+                            }
                         }
                         data.Add(parameters);
                     }

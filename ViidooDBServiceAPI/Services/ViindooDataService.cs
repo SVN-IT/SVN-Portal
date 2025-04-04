@@ -653,6 +653,8 @@ namespace ViidooDBServiceAPI.Services
                         querydata);
                     if (searchResult != null)
                     {
+                        var dynamicParameters = convertDataService.ConvertObjectToData(searchResult);
+
                         processResult.OK = true;
                         processResult.Message = "Get data success";
 
