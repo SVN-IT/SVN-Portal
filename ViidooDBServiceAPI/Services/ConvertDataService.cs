@@ -2061,15 +2061,26 @@ namespace ViidooDBServiceAPI.Services
                         processResult.Message = "Insert fail";
                     }
                 }
-                else
+                
+                if(existData.Count > 0)
                 {
-                    processResult.Message = "All data existed";
+                    string sqlQuery = "UPDATE [dbo].[SVN_mrp_production_1] SET[message_main_attachment_id] = @message_main_attachment_id,[backorder_sequence] = @backorder_sequence,[product_id] = @product_id,[product_uom_id] = @product_uom_id,[lot_producing_id] = @lot_producing_id,[picking_type_id] = @picking_type_id,[location_src_id] = @location_src_id,[location_dest_id] = @location_dest_id,[bom_id] = @bom_id,[user_id] = @user_id,[company_id] = @company_id,[procurement_group_id] = @procurement_group_id,[orderpoint_id] = @orderpoint_id,[production_location_id] = @production_location_id,[create_uid] = @create_uid,[write_uid] = @write_uid,[origin_message_id] = @origin_message_id,[origin_references] = @origin_references,[name] = @name,[priority] = @priority,[origin] = @origin,[state] = @state,[reservation_state] = @reservation_state,[product_description_variants] = @product_description_variants,[consumption] = @consumption,[product_qty] = @product_qty,[qty_producing] = @qty_producing,[propagate_cancel] = @propagate_cancel,[is_locked] = @is_locked,[is_planned] = @is_planned,[allow_workorder_dependencies] = @allow_workorder_dependencies,[date_planned_start] = @date_planned_start,[date_planned_finished] = @date_planned_finished,[date_deadline] = @date_deadline,[date_start] = @date_start,[date_finished] = @date_finished,[create_date] = @create_date,[write_date] = @write_date,[product_uom_qty] = @product_uom_qty,[analytic_account_id] = @analytic_account_id,[extra_cost] = @extra_cost,[x_Svn_customer_SN] = @x_Svn_customer_SN WHERE[id] = @id";
+                    var updateResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (updateResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
                 }
 
             }
             catch (Exception ex)
             {
-
+                processResult.Message = ex.Message;
             }
             return processResult;
         }
@@ -2245,15 +2256,26 @@ namespace ViidooDBServiceAPI.Services
                         processResult.Message = "Insert fail";
                     }
                 }
-                else
+
+                if (existData.Count > 0)
                 {
-                    processResult.Message = "All data existed";
+                    string sqlQuery = "UPDATE [dbo].[SVN_product_category]\r\nSET\r\n    [parent_id] = @parent_id,\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [name] = @name,\r\n    [complete_name] = @complete_name,\r\n    [parent_path] = @parent_path,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date,\r\n    [message_main_attachment_id] = @message_main_attachment_id,\r\n    [origin_message_id] = @origin_message_id,\r\n    [origin_references] = @origin_references,\r\n    [removal_strategy_id] = @removal_strategy_id,\r\n    [packaging_reserve_method] = @packaging_reserve_method,\r\n    [technician_user_id] = @technician_user_id,\r\n    [equipment_assign_to] = @equipment_assign_to\r\nWHERE\r\n    [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
                 }
 
             }
             catch (Exception ex)
             {
-
+                processResult.Message = ex.Message;
             }
             return processResult;
         }
@@ -2337,15 +2359,26 @@ namespace ViidooDBServiceAPI.Services
                         processResult.Message = "Insert fail";
                     }
                 }
-                else
+                
+                if(existData.Count > 0)
                 {
-                    processResult.Message = "All data existed";
+                    string sqlQuery = "UPDATE [dbo].[SVN_stock_move_line]\r\nSET\r\n    [picking_id] = @picking_id,\r\n    [move_id] = @move_id,\r\n    [company_id] = @company_id,\r\n    [product_id] = @product_id,\r\n    [product_uom_id] = @product_uom_id,\r\n    [package_id] = @package_id,\r\n    [package_level_id] = @package_level_id,\r\n    [lot_id] = @lot_id,\r\n    [result_package_id] = @result_package_id,\r\n    [owner_id] = @owner_id,\r\n    [location_id] = @location_id,\r\n    [location_dest_id] = @location_dest_id,\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [product_category_name] = @product_category_name,\r\n    [lot_name] = @lot_name,\r\n    [state] = @state,\r\n    [reference] = @reference,\r\n    [description_picking] = @description_picking,\r\n    [reserved_qty] = @reserved_qty,\r\n    [reserved_uom_qty] = @reserved_uom_qty,\r\n    [qty_done] = @qty_done,\r\n    [date] = @date,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date,\r\n    [workorder_id] = @workorder_id,\r\n    [production_id] = @production_id,\r\n    [equipment_id] = @equipment_id,\r\n    [can_create_equipment] = @can_create_equipment,\r\n    [location_processed] = @location_processed\r\nWHERE\r\n    [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
                 }
 
             }
             catch (Exception ex)
             {
-
+                processResult.Message = ex.Message;
             }
             return processResult;
         }
@@ -2431,15 +2464,25 @@ namespace ViidooDBServiceAPI.Services
                         processResult.Message = "Insert fail";
                     }
                 }
-                else
-                {
-                    processResult.Message = "All data existed";
-                }
 
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_product_product]\r\nSET\r\n    [message_main_attachment_id] = @message_main_attachment_id,\r\n    [product_tmpl_id] = @product_tmpl_id,\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [origin_message_id] = @origin_message_id,\r\n    [origin_references] = @origin_references,\r\n    [default_code] = @default_code,\r\n    [barcode] = @barcode,\r\n    [combination_indices] = @combination_indices,\r\n    [volume] = @volume,\r\n    [weight] = @weight,\r\n    [active] = @active,\r\n    [can_image_variant_1024_be_zoomed] = @can_image_variant_1024_be_zoomed,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date\r\nWHERE\r\n    [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
+                }
             }
             catch (Exception ex)
             {
-
+                processResult.Message = ex.Message;
             }
             return processResult;
         }

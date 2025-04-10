@@ -8,6 +8,7 @@ using SVNShareLib.BaseObject;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
+using System.Security.AccessControl;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -447,10 +448,19 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetViindooDataV1(string objectName, string strDomain, string strFields, string strOrder, int strLimit)
+        /// <summary>
+        /// Hàm search data từ viindoo
+        /// </summary>
+        /// <param name="objectName"></param>
+        /// <param name="listDomain"></param>
+        /// <param name="strFields"></param>
+        /// <param name="strOrder"></param>
+        /// <param name="strLimit"></param>
+        /// <returns></returns>
+        public BODataProcessResult GetViindooDataV1(QueryConfig dataRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
-            processResult.DataType = objectName;
+            processResult.DataType = dataRequest.TableName;
             try
             {
                 var connectResult = ConnectDB();
@@ -464,65 +474,92 @@ namespace ViidooDBServiceAPI.Services
                     object[] search = new object[] { };
                     object[] domain = new object[] { };
                     string[] fields = new string[] { };
-                    if (!string.IsNullOrWhiteSpace(strDomain))
+                    if (dataRequest.ListDomain != null && dataRequest.ListDomain.Count > 0)
                     {
-                        if (strDomain.Contains("@write_date"))
+                        var domainItems = new List<object>();
+
+                        for (var i = 0; i < dataRequest.ListDomain.Count; i++)
                         {
-                            //Lấy thời gian hiện tại
-                            DateTime curTime = DateTime.Now;
-                            //Trừ đi 7h vì dữ liệu trả về cũng bị trừ đi 7 giờ
-                            curTime = curTime.AddHours(-7);
-                            //Trừ đi 10p để lấy dữ liệu từ 10p trước đến hiện tại
-                            curTime = curTime.AddHours(-10);
+                            if (dataRequest.ListDomain[i].Contains("@write_date"))
+                            {
+                                DateTime curTime = DateTime.Now;
+                                curTime = curTime.AddHours(-7);
+                                curTime = curTime.AddMinutes(-10);
+                                dataRequest.ListDomain[i] = dataRequest.ListDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                            }
+                            if (dataRequest.ListDomain[i].Contains(","))
+                            {
+                                object[] domainItem = dataRequest.ListDomain[i].Split(",");
+                                for (int j = 0; j < domainItem.Length; j++)
+                                {
+                                    if (domainItem[j] is string && domainItem[j].ToString().Contains(";"))
+                                    {
+                                        string[] parts = domainItem[j].ToString().Split(';'); // Split "2,IPQC"
 
-                            strDomain = strDomain.Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss")); //"2025-03-20 00:00:00"
-                                                                                                                       //item.Domain = item.Domain.Replace("@write_date", "2025-03-20 00:00:00");
-                                                                                                                       //curTime.ToString("yyyy-MM-dd HH:mm:ss")
+                                        object[] convertedParts = Array.ConvertAll(parts, part =>
+                                        {
+                                            if (int.TryParse(part, out int result))
+                                            {
+                                                return (object)result; // Convert "2" to int
+                                            }
+                                            if (bool.TryParse(part, out bool resultBool))
+                                            {
+                                                return (object)resultBool; // Convert "true" to bool
+                                            }
+                                            return (object)part; // Keep "IPQC" as string
+                                        });
+
+                                        //object[] convertedItem = new object[] { convertedParts }; // Convert to new object[]
+
+                                        // Create a new array with the updated value
+                                        domainItem = ReplaceItem(domainItem, j, convertedParts);
+                                        //break;
+                                    }
+                                }
+                                domainItems.Add(domainItem);
+                            }
+                            if (dataRequest.ListDomain[i] == "|")
+                            {
+                                domainItems.Add(dataRequest.ListDomain[i]);
+                            }
                         }
-                        domain = strDomain.Split(",");
-                        search = new object[] { domain };
-                    }
-                    if (!string.IsNullOrWhiteSpace(strFields))
-                    {
-                        fields = strFields.Split(",");
-                    }
 
+                        domain = domainItems.ToArray();
+                        search = domain;
+                        //search = new object[] { domain };
+                    }
+                    if (!string.IsNullOrWhiteSpace(dataRequest.Fields))
+                    {
+                        fields = dataRequest.Fields.Split(",");
+                    }
                     var querydata = new object[]
                     {
                             search,
                             fields,
                             0,
-                            strLimit
+                            dataRequest.Limit
                     };
-                    if (!string.IsNullOrWhiteSpace(strOrder))
+                    if (!string.IsNullOrWhiteSpace(dataRequest.Order))
                     {
                         querydata = new object[]
                         {
                                 search,
                                 fields,
                                 0,
-                                strLimit,
-                                strOrder
+                                dataRequest.Limit,
+                                dataRequest.Order
                         };
                     }
-                    //new object[] { new object[] { "state", "=", "done" } }
-                    //new string[] { "name", "product_id", "state" }
-
                     object searchResult = models.Execute_Kw(
                         dbName,
                         connectResult.UserID,
                         password,
-                        objectName,
+                        dataRequest.TableName,
                         "search_read",
                         querydata);
                     if (searchResult != null)
                     {
-                        processResult.OK = true;
-                        processResult.Message = "Get data success";
-
-                        JArray jArray = JArray.FromObject(searchResult);
-                        object data = JsonConvert.SerializeObject(jArray);
-                        processResult.Content = data;
+                        processResult = SwitchFunctionToInsert(searchResult, dataRequest.TableName);
                     }
                     else
                     {
@@ -533,7 +570,6 @@ namespace ViidooDBServiceAPI.Services
                 {
                     processResult.Message = connectResult.Message;
                 }
-
             }
             catch (Exception ex)
             {

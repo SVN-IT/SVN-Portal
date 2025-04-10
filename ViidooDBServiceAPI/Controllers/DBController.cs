@@ -85,8 +85,9 @@ namespace ViidooDBServiceAPI.Controllers
                 List<string> objectNames = dBConfig.ObjectList.Split(',').ToList();
                 foreach (string objectName in objectNames) 
                 {
+                    var queryConfig = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
                     BODataProcessResult processResult = new BODataProcessResult();
-                    processResult = viinDataService.GetViindooData(objectName);
+                    processResult = viinDataService.GetViindooDataV1(queryConfig);
                     processResults.Add(processResult);
                 }
 
