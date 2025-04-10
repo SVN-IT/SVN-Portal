@@ -32,4 +32,11 @@ $(document).ready(function () {
 
     setInterval(updateDateTime, 1000); // Cập nhật mỗi giây
     updateDateTime(); // Gọi hàm ngay lập tức để hiển thị thời gian ban đầu
+
+    function setNeedle(percentage) {
+        let angle = (percentage / 100) * 180; // Tính góc dựa trên phần trăm
+        $(".gauge-needle").css("transform", `translateX(-50%) rotate(${angle-90}deg)`);
+    }
+
+    setNeedle(52.64);
 });

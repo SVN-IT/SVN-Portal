@@ -1,4 +1,4 @@
-html {
+﻿html {
   font-size: 14px;
 }
 
@@ -19,4 +19,52 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+
+.gauge-chart {
+    width: 300px;
+    height: 200px;
+    position: relative;
+    margin: 50px auto;
+}
+
+.gauge-arc {
+    width: 280px;
+    height: 140px;
+    border-radius: 140px 140px 0 0;
+    border: 10px solid #ddd;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    box-sizing: border-box;
+}
+
+.gauge-needle {
+    width: 4px;
+    height: 120px;
+    background-color: #333;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform-origin: bottom center;
+    transition: transform 1s ease-in-out; /* Hiệu ứng chuyển động */
+    top:25px;
+}
+
+.gauge-value {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.gauge-label {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    top:200px;
 }
