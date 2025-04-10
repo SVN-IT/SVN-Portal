@@ -1992,7 +1992,7 @@ namespace ViidooDBServiceAPI.Services
                 }
                 if (insertData.Count > 0)
                 {
-                    string sqlQuery = "INSERT INTO [dbo].[SVN_product_template_1]([id],[message_main_attachment_id],[sequence],[categ_id],[uom_id],[uom_po_id],[company_id],[color],[create_uid],[write_uid],[origin_message_id],[origin_references],[detailed_type],[type],[default_code],[priority],[name],[description],[description_purchase],[description_sale],[list_price],[volume],[weight],[sale_ok],[purchase_ok],[active],[can_image_1024_be_zoomed],[has_configurable_attributes],[create_date],[write_date],[tracking],[description_picking],[description_pickingout],[description_pickingin],[sale_delay],[produce_delay],[days_to_prepare_mo],[purchase_method],[purchase_line_warn],[purchase_line_warn_msg],[service_type],[sale_line_warn],[expense_policy],[invoice_policy],[sale_line_warn_msg],[technician_user_id],[equipment_assign_to],[period_uom],[recurring_sale_price],[service_tracking])\r\n     VALUES(@id,@message_main_attachment_id,@sequence,@categ_id,@uom_id,@uom_po_id,@company_id,@color,@create_uid,@write_uid,@origin_message_id,@origin_references,@detailed_type,@type,@default_code,@priority,@name,@description,@description_purchase,@description_sale,@list_price,@volume,@weight,@sale_ok,@purchase_ok,@active,@can_image_1024_be_zoomed,@has_configurable_attributes,@create_date,@write_date,@tracking,@description_picking,@description_pickingout,@description_pickingin,@sale_delay,@produce_delay,@days_to_prepare_mo,@purchase_method,@purchase_line_warn,@purchase_line_warn_msg,@service_type,@sale_line_warn,@expense_policy,@invoice_policy,@sale_line_warn_msg,@technician_user_id,@equipment_assign_to,@period_uom,@recurring_sale_price,@service_tracking)";
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_product_template_1]([id],[message_main_attachment_id],[sequence],[categ_id],[uom_id],[uom_po_id],[company_id],[color],[create_uid],[write_uid],[origin_message_id],[origin_references],[detailed_type],[type],[default_code],[priority],[name],[description],[description_purchase],[description_sale],[list_price],[volume],[weight],[sale_ok],[purchase_ok],[active],[can_image_1024_be_zoomed],[has_configurable_attributes],[create_date],[write_date],[tracking],[description_picking],[description_pickingout],[description_pickingin],[sale_delay],[produce_delay],[days_to_prepare_mo],[purchase_method],[purchase_line_warn],[purchase_line_warn_msg],[service_type],[sale_line_warn],[expense_policy],[invoice_policy],[sale_line_warn_msg],[technician_user_id],[equipment_assign_to],[period_uom],[recurring_sale_price],[service_tracking]) VALUES(@id,@message_main_attachment_id,@sequence,@categ_id,@uom_id,@uom_po_id,@company_id,@color,@create_uid,@write_uid,@origin_message_id,@origin_references,@detailed_type,@type,@default_code,@priority,@name,@description,@description_purchase,@description_sale,@list_price,@volume,@weight,@sale_ok,@purchase_ok,@active,@can_image_1024_be_zoomed,@has_configurable_attributes,@create_date,@write_date,@tracking,@description_picking,@description_pickingout,@description_pickingin,@sale_delay,@produce_delay,@days_to_prepare_mo,@purchase_method,@purchase_line_warn,@purchase_line_warn_msg,@service_type,@sale_line_warn,@expense_policy,@invoice_policy,@sale_line_warn_msg,@technician_user_id,@equipment_assign_to,@period_uom,@recurring_sale_price,@service_tracking)";
                     var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
                     if (insertResult > 0)
                     {
@@ -2004,15 +2004,26 @@ namespace ViidooDBServiceAPI.Services
                         processResult.Message = "Insert fail";
                     }
                 }
-                else
+
+                if(existData.Count > 0)
                 {
-                    processResult.Message = "All data existed";
+                    string sqlQuery = "UPDATE [dbo].[SVN_product_template_1]SET[message_main_attachment_id] = @message_main_attachment_id,[sequence] = @sequence,[categ_id] = @categ_id,[uom_id] = @uom_id,[uom_po_id] = @uom_po_id,[company_id] = @company_id,[color] = @color,[create_uid] = @create_uid,[write_uid] = @write_uid,[origin_message_id] = @origin_message_id,[origin_references] = @origin_references,[detailed_type] = @detailed_type,[type] = @type,[default_code] = @default_code,[priority] = @priority,[name] = @name,[description] = @description,[description_purchase] = @description_purchase,[description_sale] = @description_sale,[list_price] = @list_price,[volume] = @volume,[weight] = @weight,[sale_ok] = @sale_ok,[purchase_ok] = @purchase_ok,[active] = @active,[can_image_1024_be_zoomed] = @can_image_1024_be_zoomed,[has_configurable_attributes] = @has_configurable_attributes,[create_date] = @create_date,[write_date] = @write_date,[tracking] = @tracking,[description_picking] = @description_picking,[description_pickingout] = @description_pickingout,[description_pickingin] = @description_pickingin,[sale_delay] = @sale_delay,[produce_delay] = @produce_delay,[days_to_prepare_mo] = @days_to_prepare_mo,[purchase_method] = @purchase_method,[purchase_line_warn] = @purchase_line_warn,[purchase_line_warn_msg] = @purchase_line_warn_msg,[service_type] = @service_type,[sale_line_warn] = @sale_line_warn,[expense_policy] = @expense_policy,[invoice_policy] = @invoice_policy,[sale_line_warn_msg] = @sale_line_warn_msg,[technician_user_id] = @technician_user_id,[equipment_assign_to] = @equipment_assign_to,[period_uom] = @period_uom,[recurring_sale_price] = @recurring_sale_price,[service_tracking] = @service_tracking WHERE[id] = @id";
+                    var updateResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (updateResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
                 }
 
             }
             catch (Exception ex)
             {
-
+                processResult.Message = ex.Message;
             }
             return processResult;
         }
