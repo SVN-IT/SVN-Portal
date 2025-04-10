@@ -6,6 +6,7 @@
         public string OperList { get; set; }
         public int TimeBeforeReload { get; set; }
         public int ChartCol { get; set; }
+        public string ShowSingleChart { get; set; }
 
     }
 }

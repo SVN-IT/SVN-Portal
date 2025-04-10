@@ -4,6 +4,7 @@ using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace SVN_Portal.Controllers
 {
@@ -293,6 +294,72 @@ namespace SVN_Portal.Controllers
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
                 
                 if (models!= null && models.Count > 0)
+                {
+                    models = models.OrderBy(x => x.WC).ToList();
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                        if (operInfo != null)
+                        {
+                            model.ColWidth = operInfo.ColWidth;
+                        }
+                    }
+                }
+                return View(models);
+            }
+            catch (Exception ex)
+            {
+                QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+                var data = model.GetData(oper);
+                models = new List<QtyProdResultByOperViewModel> { data };
+                return View(models);
+
+            }
+        }
+
+        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string oper)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                ViewBag.oper = oper;
+                strdate = date.ToString("yyyyMMdd");
+
+                List<OperInfo> opers = new List<OperInfo>();
+                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                foreach (var item in singleOper)
+                {
+                    if (item.WC != null && item.WC.Count > 0)
+                    {
+                        foreach (var wc in item.WC)
+                        {
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                        }
+                    }
+                    else
+                    {
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                    }
+                }
+
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+
+                if (models != null && models.Count > 0)
                 {
                     models = models.OrderBy(x => x.WC).ToList();
                     foreach (var model in models)
