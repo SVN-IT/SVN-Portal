@@ -21,50 +21,65 @@ body {
   margin-bottom: 60px;
 }
 
-.gauge-chart {
-    width: 300px;
-    height: 200px;
+.gauge {
     position: relative;
-    margin: 50px auto;
+    border-radius: 50%/100% 100% 0 0;
+    background-color: var(--color, #a22);
+    overflow: hidden;
 }
 
-.gauge-arc {
-    width: 280px;
-    height: 140px;
-    border-radius: 140px 140px 0 0;
-    border: 10px solid #ddd;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    box-sizing: border-box;
-}
+    .gauge:before {
+        content: "";
+        display: block;
+        padding-top: 50%; /* ratio of 2:1*/
+    }
 
-.gauge-needle {
-    width: 4px;
-    height: 120px;
-    background-color: #333;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform-origin: bottom center;
-    transition: transform 1s ease-in-out; /* Hiệu ứng chuyển động */
-    top:25px;
-}
+    .gauge .chart {
+        overflow: hidden;
+    }
 
-.gauge-value {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 24px;
-    font-weight: bold;
-}
+    .gauge .mask {
+        position: absolute;
+        left: 20%;
+        right: 20%;
+        bottom: 0;
+        top: 40%;
+        background-color: #fff;
+        border-radius: 50%/100% 100% 0 0;
+    }
 
-.gauge-label {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    top:200px;
-}
+    .gauge .percentage {
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        bottom: 0;
+        right: -1px;
+        background-color: var(--background, #aaa);
+        transform: rotate(var(--rotation));
+        transform-origin: bottom center;
+        transition-duration: 600;
+    }
+
+    .gauge:hover {
+        --rotation: 100deg;
+    }
+
+    .gauge .value {
+        position: absolute;
+        bottom: 0%;
+        left: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .gauge .min {
+        position: absolute;
+        bottom: 0;
+        left: 5%;
+    }
+
+    .gauge .max {
+        position: absolute;
+        bottom: 0;
+        right: 5%;
+    }
