@@ -302,7 +302,7 @@ h6 {
   background-color: #5c4ac7 !important;
 }
 .bg-success {
-  background-color: #26dad2 !important;
+    background-color: #28a745 !important;
 }
 .bg-info {
   background-color: #1976d2 !important;
@@ -868,9 +868,9 @@ h6.h1 {
   fill: #4680ff;
 }
 .bg-success {
-  background: #26dad2 !important;
-  color: #ffffff;
-  fill: #26dad2;
+    background: #28a745 !important;
+    color: #ffffff;
+    fill: #28a745;
 }
 .bg-info {
   background: #62d1f3 !important;

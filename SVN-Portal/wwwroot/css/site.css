@@ -27,14 +27,19 @@ body {
 }
 
 .svn-card {
-    background: #332c61 none repeat scroll 0 0!important;
-    color: white!important;
+    background: #0e1213 none repeat scroll 0 0 !important; /*#332c61*/
+    color: white !important;
 }
 
 .svn-layout {
-    background-color: #584ca3!important;
+    background-color: #1c2222 !important; /*#584ca3*/
 }
 
-.svn-border{
-    border-radius: 10px;
+.svn-border {
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-bottom-width: 0.1px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+    margin-bottom: 20px;
 }

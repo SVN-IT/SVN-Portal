@@ -161,7 +161,7 @@
                                                 width: 100%;
                                             }
                                         </style>
-                                        <div class="col-lg-@item.ColWidth border mt-2 svn-border">
+                                        <div class="col-lg-@item.ColWidth mt-2 svn-border">
                                             <h4>
                                                 @item.Operation - @item.WC
                                             </h4>
@@ -527,27 +527,27 @@
                             
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-3 border svn-border">
+                                    <div class="col-3 svn-border">
                                         <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
                                         <h3>PD: Vũ Văn Công</h3>
                                         <h3>(SVN0003)</h3>
                                     </div>
-                                    <div class="col-9 border text-center svn-border">
+                                    <div class="col-9 text-center svn-border">
                                         <h3><b>Achieve</b></h3>
                                         <canvas id="achieveChart" width="400" height="200"></canvas>
                                         <h3>92 %</h3>
                                     </div>
-                                    <div class="col-3 border svn-border">
+                                    <div class="col-3 svn-border">
                                         <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
                                         <h3>QC: Vũ Thị Lan Anh</h3>
                                         <h3>(SVN0334)</h3>
                                     </div>
-                                    <div class="col-9 border text-center svn-border">
+                                    <div class="col-9 text-center svn-border">
                                         <h3><b>Forecast</b></h3>
                                         <canvas id="forecastChart" width="400" height="200"></canvas>
                                         <h3>92 %</h3>
                                     </div>
-                                    <div class="col-12 border svn-border">
+                                    <div class="col-12 svn-border">
                                         <h3><b>Defect rate</b></h3>
                                         <div id="defectchart"></div>
                                 </div>
@@ -570,14 +570,14 @@
     }
 </style>
 <script>
-    var opts = {
+    var optsAchieve = {
         angle: 0, // The span of the gauge arc
         lineWidth: 0.3, // The line thickness
         radiusScale: 0.9, // Relative radius
         pointer: {
             length: 0.42, // // Relative to gauge radius
             strokeWidth: 0.029, // The thickness
-            color: '#000000' // Fill color
+            color: '#FFFFFF' // Fill color
         },
         limitMax: true,     // If false, max value increases automatically if value > maxValue
         limitMin: true,     // If true, the min value of the gauge will be fixed
@@ -612,21 +612,28 @@
         },
 
     };
-    var target = document.getElementById('achieveChart'); // your canvas element
-    var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
-    gauge.maxValue = 100; // set max gauge value
-    gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
-    gauge.animationSpeed = 10; // set animation speed (32 is default value)
-    gauge.set(92); // set actual value
+    var targetAchieve = document.getElementById('achieveChart'); // your canvas element
+    var gaugeAchieve = new Gauge(targetAchieve).setOptions(optsAchieve); // create sexy gauge!
+    gaugeAchieve.maxValue = 100; // set max gauge value
+    gaugeAchieve.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+    gaugeAchieve.animationSpeed = 10; // set animation speed (32 is default value)
+    gaugeAchieve.set(92); // set actual value
 
-    var opts = {
+    setInterval(function () {
+        gaugeAchieve.set(0); // Reset to 0 (or any starting value)
+        setTimeout(function () {
+            gaugeAchieve.set(92); // Animate to the desired value
+        }, 500); // Adjust timing to ensure smooth reset
+    }, 5000); // Repeat every 5 seconds
+
+    var optsForecast = {
         angle: 0, // The span of the gauge arc
         lineWidth: 0.3, // The line thickness
         radiusScale: 0.9, // Relative radius
         pointer: {
             length: 0.42, // // Relative to gauge radius
             strokeWidth: 0.029, // The thickness
-            color: '#000000' // Fill color
+            color: '#FFFFFF' // Fill color
         },
         limitMax: true,     // If false, max value increases automatically if value > maxValue
         limitMin: true,     // If true, the min value of the gauge will be fixed
@@ -661,12 +668,19 @@
         },
 
     };
-    var target = document.getElementById('forecastChart'); // your canvas element
-    var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
-    gauge.maxValue = 100; // set max gauge value
-    gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
-    gauge.animationSpeed = 10; // set animation speed (32 is default value)
-    gauge.set(92); // set actual value
+    var targetForecast = document.getElementById('forecastChart'); // your canvas element
+    var gaugeForecast = new Gauge(targetForecast).setOptions(optsForecast); // create sexy gauge!
+    gaugeForecast.maxValue = 100; // set max gauge value
+    gaugeForecast.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+    gaugeForecast.animationSpeed = 10; // set animation speed (32 is default value)
+    gaugeForecast.set(92); // set actual value
+
+    setInterval(function () {
+        gaugeForecast.set(0); // Reset to 0 (or any starting value)
+        setTimeout(function () {
+            gaugeForecast.set(92); // Animate to the desired value
+        }, 500); // Adjust timing to ensure smooth reset
+    }, 5000); // Repeat every 5 seconds
 
     $(document).ready(function () {
         var dataParam = @Html.Raw(defectJsonData);
