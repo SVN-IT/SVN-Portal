@@ -34,3 +34,7 @@ body {
 .svn-layout {
     background-color: #584ca3!important;
 }
+
+.svn-border{
+    border-radius: 10px;
+}
