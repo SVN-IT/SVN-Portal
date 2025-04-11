@@ -27,19 +27,21 @@ body {
 }
 
 .svn-card {
-    background: #0e1213 none repeat scroll 0 0 !important; /*#332c61*/
-    color: white !important;
+    background: #ffffff none repeat scroll 0 0 !important; /*#332c61 #0e1213*/
+    /*color: white !important;*/
 }
 
 .svn-layout {
-    background-color: #1c2222 !important; /*#584ca3*/
+    /*background-color: #1c2222 !important;*/ /*#584ca3*/
 }
 
 .svn-border {
-    border-right-style: solid;
+    /*border-right-style: solid;
     border-bottom-style: solid;
-    border-bottom-width: 0.1px;
-    border-bottom-right-radius: 10px;
-    border-top-right-radius: 10px;
+    border-bottom-width: 0.1px;*/
     margin-bottom: 20px;
+    margin-left: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.15);
+    /*border-color: #616f7e !important;*/
 }
