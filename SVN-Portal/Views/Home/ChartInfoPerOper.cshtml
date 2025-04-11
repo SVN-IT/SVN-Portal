@@ -3,6 +3,20 @@
 @{
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
+
+    QtyProdResultByOperViewModel defectModel = new QtyProdResultByOperViewModel();
+    if(Model != null)
+    {
+        if (Model.Count() == 1)
+        {
+            defectModel = Model.FirstOrDefault();
+        }
+        else
+        {
+            defectModel = Model.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.WC) && x.WC.Contains("FG"));
+        }
+    }
+    var defectJsonData = JsonConvert.SerializeObject(defectModel.ViewModels);
 }
 <script>
     var dataParam;
@@ -438,6 +452,9 @@
                                         <canvas id="forecastChart" width="400" height="200"></canvas>
                                         <h3>92 %</h3>
                                     </div>
+                                    <div class="col-12 border">
+                                        <h3><b>Defect rate</b></h3>
+                                        <div id="defectchart"></div>
                                 </div>
                                 
                             </div>
@@ -450,6 +467,12 @@
         </div>
     </div>
 </div>
+<style>
+    #defectchart {
+        height: 450px;
+        width: 100%;
+    }
+</style>
 <script>
     var opts = {
         angle: 0, // The span of the gauge arc
@@ -548,4 +571,70 @@
     gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
     gauge.animationSpeed = 10; // set animation speed (32 is default value)
     gauge.set(92); // set actual value
+
+    $(document).ready(function () {
+        var dataParam = @Html.Raw(defectJsonData);
+        var chart = AmCharts.makeChart("defectchart", {
+            "type": "serial",
+            "theme": "light",
+
+            "dataDateFormat": "YYYY-MM-DD",
+            "dataProvider": dataParam,
+
+            "addClassNames": true,
+            "startDuration": 1,
+            //"color": "#FFFFFF",
+            "marginLeft": 0,
+
+            "categoryField": "Time",
+            "categoryAxis": {
+                "parseDates": false,
+                // "minPeriod": "DD",
+                "autoGridCount": false,
+                "gridCount": 50,
+                "gridAlpha": 0.1,
+                "gridColor": "#FFFFFF",
+                "axisColor": "#555555"
+            },
+
+            "valueAxes": [{
+                "id": "a1",
+                "title": "quatity",
+                "gridAlpha": 0,
+                "axisAlpha": 0
+            }],
+                "graphs": [{
+                    "id": "g1",
+                    "title": "Defect rate",
+                    "valueField": "NG",
+                    "type": "line",
+                    "valueAxis": "a1",
+                    "lineColor": "#006600",
+                    "balloonText": "[[value]]",
+                    "lineThickness": 4,
+                    "legendValueText": "[[value]]",
+                    "bullet": "square",
+                    "bulletBorderColor": "#006600",
+                    "bulletBorderThickness": 1,
+                    "bulletBorderAlpha": 1,
+                    "dashLengthField": "dashLength",
+                    "animationPlayed": true
+                }],
+
+            "chartCursor": {
+                "zoomable": false,
+                "categoryBalloonDateFormat": "DD",
+                "cursorAlpha": 0,
+                "valueBalloonsEnabled": false
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true
+                //"color": "#FFFFFF"
+            }
+        });
+
+    });
 </script>
