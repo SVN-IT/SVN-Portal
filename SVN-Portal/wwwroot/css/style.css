@@ -130,7 +130,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #455a64;
+  /*color: #455a64;*/
   font-weight: 400;
 }
 h1 {
@@ -701,7 +701,7 @@ h3,
 h4,
 h5,
 h6.h1 {
-  color: #455a64;
+  /*color: #455a64;*/
 }
 .dib {
   display: inline-block;

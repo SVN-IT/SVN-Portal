@@ -25,3 +25,12 @@ body {
     text-align: center;
     padding: 10px;
 }
+
+.svn-card {
+    background: #332c61 none repeat scroll 0 0!important;
+    color: white!important;
+}
+
+.svn-layout {
+    background-color: #584ca3!important;
+}
