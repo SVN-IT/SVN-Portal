@@ -20,6 +20,17 @@ namespace SVNShareLib.DAL
             this.connectionString = connectionString;
         }
 
+        public List<T> GetListData(string sqlQuery, object param)
+        {
+            List<T> data;
+            int timeOut = 1000;
+            using (IDbConnection connection = new SqlConnection(connectionString))
+            {
+                data = connection.Query<T>(sqlQuery, param, commandTimeout: timeOut, commandType: CommandType.Text).ToList();
+                return data;
+            }
+        }
+
         public T GetDataByID(int id)
         {
             T data;

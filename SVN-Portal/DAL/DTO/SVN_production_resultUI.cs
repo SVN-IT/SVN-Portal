@@ -12,5 +12,10 @@
         public string Operation { get; set; }
         public string Date_time { get; set; }
         public string WC { get; set; }
+        public double Achieve { get; set; }
+        public double Forecast { get; set; }
+        public string WORunning { get; set; }
+        public string Product { get; set; }
+        public string Customer { get; set; }
     }
 }

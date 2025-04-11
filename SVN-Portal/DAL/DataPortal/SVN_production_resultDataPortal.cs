@@ -230,6 +230,13 @@ namespace SVN_Portal.DAL.DataPortal
                             val3.Line = dataUIbyOperLine.Time3;
                             val4.Line = dataUIbyOperLine.Time4;
                             val5.Line = dataUIbyOperLine.Time5;
+
+                            //Lấy dữ liệu Achieve và Forecast
+                            viewModel.Achieve = dataUIbyOperLine.Achieve;
+                            viewModel.Forecast = dataUIbyOperLine.Forecast;
+                            viewModel.WORunning = dataUIbyOperLine.WORunning;
+                            viewModel.Product = dataUIbyOperLine.Product;
+                            viewModel.Customer = dataUIbyOperLine.Customer;
                         }
                         var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Man Q'ty");
                         if (dataUIbyOperManQty != null)

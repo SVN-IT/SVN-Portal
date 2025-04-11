@@ -1,8 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
+using SVNShareLib.DAL;
+using SVNShareLib.DTO;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -358,6 +360,15 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+
+                //Lấy danh sách thiết bị
+                List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
+                string equipmentTable = "SVN_Equipment_Info";
+                GrandDataPortal<SVN_Equipment_InfoUI> grandDataPortal = new GrandDataPortal<SVN_Equipment_InfoUI>(equipmentTable, connectionString);
+                string query = "SELECT * FROM SVN_Equipment_Info WHERE Operation = @Operation";
+                var param = new { Operation = oper };
+                equipments = grandDataPortal.GetListData(query, param);
+                ViewBag.Equipments = equipments;
 
                 if (models != null && models.Count > 0)
                 {

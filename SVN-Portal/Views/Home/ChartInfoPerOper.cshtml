@@ -1,8 +1,14 @@
 ﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
 @model IEnumerable<QtyProdResultByOperViewModel>
 @{
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
+    double Achieve = 0;
+    double Forecast = 0;
+    string WORunning = string.Empty;
+    string Product = string.Empty;
+    string Customer = string.Empty;
 
     QtyProdResultByOperViewModel defectModel = new QtyProdResultByOperViewModel();
     if(Model != null)
@@ -10,13 +16,51 @@
         if (Model.Count() == 1)
         {
             defectModel = Model.FirstOrDefault();
+            if (defectModel != null)
+            {
+                Achieve = defectModel.Achieve;
+                Forecast = defectModel.Forecast;
+                WORunning = defectModel.WORunning;
+                Product = defectModel.Product;
+                Customer = defectModel.Customer;
+            }
         }
         else
         {
             defectModel = Model.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.WC) && x.WC.Contains("FG"));
+            if (defectModel != null)
+            {
+                Achieve = defectModel.Achieve;
+                Forecast = defectModel.Forecast;
+                WORunning = defectModel.WORunning;
+                Product = defectModel.Product;
+                Customer = defectModel.Customer;
+            }
         }
     }
     var defectJsonData = JsonConvert.SerializeObject(defectModel.ViewModels);
+
+    int All = 0;
+    int Run = 0;
+    int Fault = 0;
+    int Adjust = 0;
+    int Item = 0;
+    int Maint = 0;
+    int Stop = 0;
+    int Devel = 0;
+
+    List<SVN_Equipment_InfoUI> equipments = ViewBag.Equipments;
+    if(equipments != null)
+    {
+        All = equipments.Count();
+        Run = equipments.Count(x => x.State == "Run");
+        Fault = equipments.Count(x => x.State == "Fault");
+        Adjust = equipments.Count(x => x.State == "Adjust");
+        Item = equipments.Count(x => x.State == "Item");
+        Maint = equipments.Count(x => x.State == "Maint");
+        Stop = equipments.Count(x => x.State == "Stop");
+        Devel = equipments.Count(x => x.State == "Devel");
+    }
 }
 <script>
     var dataParam;
@@ -50,35 +94,43 @@
                         <div class="row">
                             <div class="col-12 col-md-6 row">
                                 <div class="col-3 bg-info border table-cell text-center">
-                                    All: 5
+                                    All: @All
                                 </div>
                                 <div class="col-3 bg-success border table-cell text-center">
-                                    Run: 5
+                                    Run: @Run
                                 </div>
                                 <div class="col-3 bg-warning border table-cell text-center">
-                                    Fault: 0
+                                    Fault: @Fault
                                 </div>
                                 <div class="col-3 bg-primary border table-cell text-center">
-                                    Adjust: 0
+                                    Adjust: @Adjust
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 row">
-                                <div class="col-3 border table-cell text-center">
-                                    Item: 0
+                                <div class="col-3 bg-light border table-cell text-center">
+                                    Item: @Item
                                 </div>
                                 <div class="col-3 bg-secondary color-white border table-cell text-center">
-                                    Maint: 1
+                                    Maint: @Maint
                                 </div>
                                 <div class="col-3 bg-danger border table-cell text-center">
-                                    Stop: 0
+                                    Stop: @Stop
                                 </div>
                                 <div class="col-3 bg-dark border table-cell text-center">
-                                    Devel: 0
+                                    Devel: @Devel
                                 </div>
                             </div>
 
                         </div>
                         <div class="row">
+                            @{
+                                string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
+                                string[] machineStateColor = { "bg-info", "bg-success", "bg-warning", "bg-primary", "bg-light", "bg-secondary", "bg-danger", "bg-dark" };
+                            }
+                            @foreach(var item in equipments)
+                            {
+                                
+                            }
                             <div class="col-2">
                                 <div class="card color-white bg-success">
                                     <div class="card-body">
@@ -127,13 +179,13 @@
                         <h1>Production result</h1>
                         <div class="row">
                             <div class="col-4">
-                                <strong>WO running: NM/MO/00226-384</strong>
+                                <strong>WO running: @WORunning</strong>
                             </div>
                             <div class="col-4">
-                                <strong>Product: F8W973btBLU AP1</strong>
+                                <strong>Product: @Product</strong>
                             </div>
                             <div class="col-4">
-                                <strong>Customer: Sigma Worldwide Asia Limited</strong>
+                                <strong>Customer: @Customer</strong>
                             </div>
                             @foreach (var item in Model)
                             {
@@ -520,7 +572,7 @@
                             <div class="col-8 text-center svn-border svn-card">
                                 <h3><b>Achieve</b></h3>
                                 <canvas id="achieveChart" width="400" height="200"></canvas>
-                                <h3>92 %</h3>
+                                <h3>@Achieve %</h3>
                             </div>
                             <div class="col-3 svn-border svn-card">
                                 <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
@@ -530,7 +582,7 @@
                             <div class="col-8 text-center svn-border svn-card">
                                 <h3><b>Forecast</b></h3>
                                 <canvas id="forecastChart" width="400" height="200"></canvas>
-                                <h3>92 %</h3>
+                                <h3>@Forecast %</h3>
                             </div>
                             <div class="col-11 svn-border svn-card">
                                 <h3><b>Defect rate</b></h3>
@@ -546,7 +598,7 @@
 </div>
 <style>
     #defectchart {
-        height: 450px;
+        height: 260px;
         width: 100%;
     }
 </style>
@@ -598,14 +650,14 @@
     gaugeAchieve.maxValue = 100; // set max gauge value
     gaugeAchieve.setMinValue(0);  // Prefer setter over gauge.minValue = 0
     gaugeAchieve.animationSpeed = 10; // set animation speed (32 is default value)
-    gaugeAchieve.set(92); // set actual value
+    gaugeAchieve.set(@Achieve); // set actual value
 
     setInterval(function () {
-        gaugeAchieve.set(0); // Reset to 0 (or any starting value)
+        gaugeAchieve.set(@Achieve+5); // Reset to 0 (or any starting value)
         setTimeout(function () {
-            gaugeAchieve.set(92); // Animate to the desired value
+            gaugeAchieve.set(@Achieve); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset
-    }, 5000); // Repeat every 5 seconds
+    }, 1500); // Repeat every 5 seconds
 
     var optsForecast = {
         angle: 0, // The span of the gauge arc
@@ -654,14 +706,14 @@
     gaugeForecast.maxValue = 100; // set max gauge value
     gaugeForecast.setMinValue(0);  // Prefer setter over gauge.minValue = 0
     gaugeForecast.animationSpeed = 10; // set animation speed (32 is default value)
-    gaugeForecast.set(92); // set actual value
+    gaugeForecast.set(@Forecast); // set actual value
 
     setInterval(function () {
-        gaugeForecast.set(0); // Reset to 0 (or any starting value)
+        gaugeForecast.set(@Forecast+5); // Reset to 0 (or any starting value)
         setTimeout(function () {
-            gaugeForecast.set(92); // Animate to the desired value
+            gaugeForecast.set(@Forecast); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset
-    }, 5000); // Repeat every 5 seconds
+    }, 1500); // Repeat every 5 seconds
 
     $(document).ready(function () {
         var dataParam = @Html.Raw(defectJsonData);

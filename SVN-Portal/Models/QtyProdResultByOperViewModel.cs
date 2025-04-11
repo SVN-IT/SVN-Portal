@@ -24,6 +24,11 @@ namespace SVN_Portal.Models
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
         public List<mrp_productionUI> ProductionUIs { get; set; }
         public double Est { get; set; }
+        public double Achieve { get; set; }
+        public double Forecast { get; set; }
+        public string WORunning { get; set; }
+        public string Product { get; set; }
+        public string Customer { get; set; }
 
         public QtyProdResultByOperViewModel GetData(string operation)
         {
