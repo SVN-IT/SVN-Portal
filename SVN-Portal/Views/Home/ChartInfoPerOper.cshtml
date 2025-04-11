@@ -127,52 +127,21 @@
                                 string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
                                 string[] machineStateColor = { "bg-info", "bg-success", "bg-warning", "bg-primary", "bg-light", "bg-secondary", "bg-danger", "bg-dark" };
                             }
-                            @foreach(var item in equipments)
+                            @if (equipments != null)
                             {
-                                
+                                foreach (var item in equipments)
+                                {
+                                    int stateIndex = Array.IndexOf(machineStates, item.State);
+                                    string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
+                                    <div class="col-2">
+                                        <div class="card color-white @colorClass">
+                                            <div class="card-body">
+                                                @item.Name (@item.State)
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             }
-                            <div class="col-2">
-                                <div class="card color-white bg-success">
-                                    <div class="card-body">
-                                        M-1 (Run)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="card color-white bg-success">
-                                    <div class="card-body">
-                                        M-2 (Run)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="card color-white bg-success">
-                                    <div class="card-body">
-                                        M-3 (Run)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="card color-white bg-warning">
-                                    <div class="card-body">
-                                        M-4 (Develop)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="card color-white bg-success">
-                                    <div class="card-body">
-                                        M-5 (Run)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                <div class="card color-white bg-success">
-                                    <div class="card-body">
-                                        M-6 (Run)
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="col-12 svn-card  svn-border">
