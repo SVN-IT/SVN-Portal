@@ -40,6 +40,29 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<List<SVN_production_resultUI>> ReadListByOper(string date, string oper, string tableName = "SVN_Production_result_Viindoo")
+        {
+            List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    string sql = string.Empty;
+                    var param = new object();
+                    sql = "select * from " + tableName + " where Date_time = @date AND Operation = @oper";
+                    param = new { date = date, oper = oper };
+                    var data = await conn.QueryAsync<SVN_production_resultUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    dataUI = data.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<string> opers, string storedProceduce, string tableName)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
@@ -329,5 +352,7 @@ namespace SVN_Portal.DAL.DataPortal
                 return null;
             }
         }
+
+
     }
 }
