@@ -139,12 +139,12 @@
                                             Devel: @Devel
                                         </div>
                                     </div>
-
                                 </div>
-                                <div class="row">
+                                <div class="svn-machine-card">
+                                    <div class="row">
                                     @{
                                         string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
-                                        string[] machineStateColor = { "bg-info", "bg-success", "bg-warning", "bg-primary", "bg-light", "bg-secondary", "bg-danger", "bg-dark" };
+                                        string[] machineStateColor = { "btn-info", "btn-success", "btn-warning", "btn-primary", "btn-light", "btn-secondary", "btn-danger", "btn-dark" };
                                     }
                                     @if (equipments != null)
                                     {
@@ -152,15 +152,12 @@
                                         {
                                             int stateIndex = Array.IndexOf(machineStates, item.State);
                                             string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
-                                            <div class="col-2">
-                                                <div class="card color-white @colorClass">
-                                                    <div class="card-body">
-                                                        @item.Name (@item.State)
-                                                    </div>
-                                                </div>
+                                            <div class="col-1 mt-2">
+                                                <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
                                             </div>
                                         }
                                     }
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -354,7 +351,7 @@
                                             <script>
                                                 $(document).ready(function () {
                                                     var dataParam = @Html.Raw(jsonData);
-                                                    var chart = AmCharts.makeChart(@charID, {
+                                                        var chart = AmCharts.makeChart(@charID, {
                                                         "type": "serial",
                                                         "theme": "light",
 
@@ -634,7 +631,7 @@
 </div>
 <style>
     #defectchart {
-        height: 260px;
+        height: 395px;
         width: 100%;
     }
 </style>
@@ -753,7 +750,7 @@
 
     $(document).ready(function () {
         var dataParam = @Html.Raw(defectJsonData);
-        var chart = AmCharts.makeChart("defectchart", {
+        var chartDefect = AmCharts.makeChart("defectchart", {
             "type": "serial",
             "theme": "light",
 
@@ -816,8 +813,8 @@
         });
 
         setInterval(function () {
-            chart.clear(); // Clear the existing chart
-            chart = chart = AmCharts.makeChart("defectchart", {
+            chartDefect.clear(); // Clear the existing chart
+            chartDefect = chart = AmCharts.makeChart("defectchart", {
                 "type": "serial",
                 "theme": "light",
 
