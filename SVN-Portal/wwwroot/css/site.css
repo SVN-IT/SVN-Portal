@@ -51,3 +51,13 @@ body {
     height: 220px;
     overflow: auto;
 }
+
+.image-container {
+    height: 200px;
+    overflow: hidden; /* Ẩn phần thừa */
+}
+
+.SVN-card-img-top {
+    height: auto; /* Chiều cao tự động điều chỉnh theo tỷ lệ */
+    object-fit: cover; /* Cắt hình ảnh để lấp đầy container, giữ tỷ lệ */
+}

@@ -532,14 +532,16 @@
                             <div class="col-3">
                                 <div class="card svn-card">
                                     <div class="card-body">
-                                        @if (!string.IsNullOrWhiteSpace(PDURL))
-                                        {
-                                            <img class="card-img-top mt-1" src="@PDURL" alt="Card image cap" width="200" height="200">
-                                        }
-                                        else
-                                        {
-                                            <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap" width="200" height="200">
-                                        }
+                                        <div class="image-container">
+                                            @if (!string.IsNullOrWhiteSpace(PDURL))
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="@PDURL" alt="Card image cap">
+                                            }
+                                            else
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
+                                            }
+                                        </div>
                                         <h3>PD: @PDName</h3>
                                     </div>
                                 </div>
@@ -560,14 +562,16 @@
                             <div class="col-3">
                                 <div class="card svn-card">
                                     <div class="card-body">
-                                        @if (!string.IsNullOrWhiteSpace(QCURL))
-                                        {
-                                            <img class="card-img-top mt-1" src="@QCURL" alt="Card image cap" width="200" height="200">
-                                        }
-                                        else
-                                        {
-                                            <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap" width="200" height="200">
-                                        }
+                                        <div class="image-container">
+                                            @if (!string.IsNullOrWhiteSpace(QCURL))
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="@QCURL" alt="Card image cap">
+                                            }
+                                            else
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
+                                            }
+                                        </div>
                                         <h3>QC: @QCName</h3>
                                         @* <h3>(SVN0334)</h3> *@
                                     </div>
