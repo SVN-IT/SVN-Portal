@@ -381,6 +381,8 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.PDURL = userInfo.PDURL;
+                            model.QCURL = userInfo.QCURL;
                         }
                         if (operInfo != null)
                         {

@@ -10,5 +10,7 @@
         public string Operation { get; set; }
         public string QCName { get; set; }
         public string PDName { get; set; }
+        public string QCURL { get; set; }
+        public string PDURL { get; set; }
     }
 }

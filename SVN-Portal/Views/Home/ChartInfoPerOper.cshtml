@@ -9,6 +9,10 @@
     string WORunning = string.Empty;
     string Product = string.Empty;
     string Customer = string.Empty;
+    string PDName = string.Empty;
+    string QCName = string.Empty;
+    string PDURL = string.Empty;
+    string QCURL = string.Empty;
 
     QtyProdResultByOperViewModel defectModel = new QtyProdResultByOperViewModel();
     if(Model != null)
@@ -23,6 +27,10 @@
                 WORunning = defectModel.WORunning;
                 Product = defectModel.Product;
                 Customer = defectModel.Customer;
+                PDName = defectModel.PDName;
+                QCName = defectModel.QCName;
+                PDURL = defectModel.PDURL;
+                QCURL = defectModel.QCURL;
             }
         }
         else
@@ -35,6 +43,10 @@
                 WORunning = defectModel.WORunning;
                 Product = defectModel.Product;
                 Customer = defectModel.Customer;
+                PDName = defectModel.PDName;
+                QCName = defectModel.QCName;
+                PDURL = defectModel.PDURL;
+                QCURL = defectModel.QCURL;
             }
         }
     }
@@ -67,6 +79,9 @@
 </script>
 
 <div class="row svn-layout">
+    <div class="col-12 text-center">
+        <h1><b>Operation: @ViewBag.oper</b></h1>
+    </div>
     <div class="col-lg-12">
         <form method="post">
             <div class="form-group row mt-1">
@@ -168,13 +183,13 @@
                                 jsonData = JsonConvert.SerializeObject(item.ViewModels);
                                 <style>
                                     #@charID {
-                                        height: 450px;
+                                        height: 470px;
                                         width: 100%;
                                     }
                                 </style>
                                 <div class="col-lg-@item.ColWidth mt-2">
                                     <h1>
-                                        @item.Operation - @item.WC
+                                        @item.WC
                                     </h1>
                                     <div class="row">
                                         <div class="col-6 row">
@@ -534,9 +549,16 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col-3 svn-border svn-card">
-                                <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
-                                <h3>PD: Vũ Văn Công</h3>
-                                <h3>(SVN0003)</h3>
+                                @if (!string.IsNullOrWhiteSpace(PDURL))
+                                {
+                                    <img class="card-img-top mt-1" src="@PDURL" alt="Card image cap" width="200" height="200">
+                                }
+                                else
+                                {
+                                    <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap" width="200" height="200">
+                                }
+                                <h3>PD: @PDName</h3>
+                                @* <h3>(SVN0003)</h3> *@
                             </div>
                             <div class="col-8 text-center svn-border svn-card">
                                 <h3><b>Achieve</b></h3>
@@ -544,9 +566,16 @@
                                 <h3>@Achieve %</h3>
                             </div>
                             <div class="col-3 svn-border svn-card">
-                                <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
-                                <h3>QC: Vũ Thị Lan Anh</h3>
-                                <h3>(SVN0334)</h3>
+                                @if (!string.IsNullOrWhiteSpace(QCURL))
+                                {
+                                    <img class="card-img-top mt-1" src="@QCURL" alt="Card image cap" width="200" height="200">
+                                }
+                                else
+                                {
+                                    <img class="card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap" width="200" height="200">
+                                }
+                                <h3>QC: @QCName</h3>
+                                @* <h3>(SVN0334)</h3> *@
                             </div>
                             <div class="col-8 text-center svn-border svn-card">
                                 <h3><b>Forecast</b></h3>
