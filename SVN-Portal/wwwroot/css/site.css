@@ -27,8 +27,9 @@ body {
 }
 
 .svn-card {
-    background: #ffffff none repeat scroll 0 0 !important; /*#332c61 #0e1213*/
+    /*background: #ffffff none repeat scroll 0 0 !important;*/ /*#332c61 #0e1213*/
     /*color: white !important;*/
+    height: 90%;
 }
 
 .svn-layout {
