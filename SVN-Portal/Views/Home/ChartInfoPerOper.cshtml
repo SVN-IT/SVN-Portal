@@ -235,46 +235,6 @@
     }
 
     var charIDs = [];
-
-    function fetchChartData(charID, date, oper, wc) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: '/Home/GetDataByOperAndWC',
-                type: 'POST',
-                data: {
-                    date: date,
-                    oper: oper,
-                    wc: wc
-                },
-                success: function (response) {
-                    if (response.result) {
-                        // Clear content first
-                        $(`#pd_${charID}`).empty();
-                        $(`#tg_${charID}`).empty();
-
-                        // Populate content after clearing
-                        $(`#pd_${charID}`).html(response.productionResultTable);
-                        $(`#tg_${charID}`).html(response.targetTable);
-
-                        var pdData = JSON.parse(response.pdmodel);
-
-                        // Build charts for this charID
-                        BuildProductionChart(pdData, charID);
-                        BuildDefectChart(pdData, "defectchart");
-
-                        resolve(); // Mark AJAX call as complete
-                    } else {
-                        console.error("Error: " + response.message);
-                        reject(response.message); // Handle failure
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("AJAX Error: " + status + ", " + error);
-                    reject(error); // Reject promise on AJAX error
-                }
-            });
-        });
-    }
 </script>
 
 <div class="row svn-layout">
@@ -806,6 +766,46 @@
             gaugeForecast.set(@Forecast); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset
     }, 1500); // Repeat every 5 seconds
+
+    function fetchChartData(charID, date, oper, wc) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/Home/GetDataByOperAndWC',
+                type: 'POST',
+                data: {
+                    date: date,
+                    oper: oper,
+                    wc: wc
+                },
+                success: function (response) {
+                    if (response.result) {
+                        // Clear content first
+                        $(`#pd_${charID}`).empty();
+                        $(`#tg_${charID}`).empty();
+
+                        // Populate content after clearing
+                        $(`#pd_${charID}`).html(response.productionResultTable);
+                        $(`#tg_${charID}`).html(response.targetTable);
+
+                        var pdData = JSON.parse(response.pdmodel);
+
+                        // Build charts for this charID
+                        BuildProductionChart(pdData, charID);
+                        BuildDefectChart(pdData, "defectchart");
+
+                        resolve(); // Mark AJAX call as complete
+                    } else {
+                        console.error("Error: " + response.message);
+                        reject(response.message); // Handle failure
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error: " + status + ", " + error);
+                    reject(error); // Reject promise on AJAX error
+                }
+            });
+        });
+    }
 
     $(document).ready(function () {
         var dataParam = @Html.Raw(defectJsonData);
