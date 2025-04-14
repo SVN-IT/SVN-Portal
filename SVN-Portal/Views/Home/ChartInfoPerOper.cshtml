@@ -233,6 +233,48 @@
             }
         });
     }
+
+    var charIDs = [];
+
+    function fetchChartData(charID, date, oper, wc) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/Home/GetDataByOperAndWC',
+                type: 'POST',
+                data: {
+                    date: date,
+                    oper: oper,
+                    wc: wc
+                },
+                success: function (response) {
+                    if (response.result) {
+                        // Clear content first
+                        $(`#pd_${charID}`).empty();
+                        $(`#tg_${charID}`).empty();
+
+                        // Populate content after clearing
+                        $(`#pd_${charID}`).html(response.productionResultTable);
+                        $(`#tg_${charID}`).html(response.targetTable);
+
+                        var pdData = JSON.parse(response.pdmodel);
+
+                        // Build charts for this charID
+                        BuildProductionChart(pdData, charID);
+                        BuildDefectChart(pdData, "defectchart");
+
+                        resolve(); // Mark AJAX call as complete
+                    } else {
+                        console.error("Error: " + response.message);
+                        reject(response.message); // Handle failure
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error: " + status + ", " + error);
+                    reject(error); // Reject promise on AJAX error
+                }
+            });
+        });
+    }
 </script>
 
 <div class="row svn-layout">
@@ -506,84 +548,54 @@
                                             </div>
                                             <div id=@charID></div>
                                             <script>
-
-                                                function Test(oper, wc){
-                                                    var date = "@date.ToString("yyyyMMdd")";
-                                                    var oper = oper;
-                                                    var wc = wc;
-                                                    /* chart.clear(); */ // Clear the existing chart
-                                                    $.ajax({
-                                                        url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
-                                                        type: 'POST',
-                                                        data: {
-                                                            date: date,
-                                                            oper: oper,
-                                                            wc: wc
-                                                        },
-                                                        success: function (response) {
-                                                            if (response.result) {
-                                                                // Clear the content of the two divs first
-                                                                $("#pd_@charID").empty();
-                                                                $("#tg_@charID").empty();
-
-                                                                // Populate the content after clearing
-                                                                $("#pd_@charID").html(response.productionResultTable);
-                                                                $("#tg_@charID").html(response.targetTable);
-
-                                                                var pdData = JSON.parse(response.pdmodel);
-
-                                                                BuildProductionChart(pdData, @charID)
-                                                                BuildDefectChart(pdData, "defectchart")
-                                                            } else {
-                                                                alert("Error: " + response.message);
-                                                            }
-                                                        },
-                                                        error: function (xhr, status, error) {
-                                                            console.error("AJAX Error: " + status + ", " + error);
-                                                        }
-                                                    });
-                                                }
                                                 
                                                 $(document).ready(function () {
                                                     var dataParam = @Html.Raw(jsonData);
                                                     BuildProductionChart(dataParam, @charID)
 
-                                                    setInterval(function () {
-                                                        var date = "@date.ToString("yyyyMMdd")";
-                                                        var oper = "@item.Operation";
-                                                        var wc = "@item.WC";
-                                                        /* chart.clear(); */ // Clear the existing chart
-                                                        $.ajax({
-                                                            url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
-                                                            type: 'POST',
-                                                            data: {
-                                                                date: date,
-                                                                oper: oper,
-                                                                wc: wc
-                                                            },
-                                                            success: function (response) {
-                                                                if (response.result) {
-                                                                    // Clear the content of the two divs first
-                                                                    $("#pd_@charID").empty();
-                                                                    $("#tg_@charID").empty();
+                                                    charIDs.push({
+                                                        charID: "@charID",
+                                                        date: "@date.ToString("yyyyMMdd")",
+                                                        oper: "@item.Operation",
+                                                        wc: "@item.WC"
+                                                    })
 
-                                                                    // Populate the content after clearing
-                                                                    $("#pd_@charID").html(response.productionResultTable);
-                                                                    $("#tg_@charID").html(response.targetTable);
+                                                    // setInterval(function () {
+                                                    //     var date = "@date.ToString("yyyyMMdd")";
+                                                    //     var oper = "@item.Operation";
+                                                    //     var wc = "@item.WC";
+                                                    //     /* chart.clear(); */ // Clear the existing chart
+                                                    //     $.ajax({
+                                                    //         url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
+                                                    //         type: 'POST',
+                                                    //         data: {
+                                                    //             date: date,
+                                                    //             oper: oper,
+                                                    //             wc: wc
+                                                    //         },
+                                                    //         success: function (response) {
+                                                    //             if (response.result) {
+                                                    //                 // Clear the content of the two divs first
+                                                    //                 $("#pd_@charID").empty();
+                                                    //                 $("#tg_@charID").empty();
 
-                                                                    var pdData = JSON.parse(response.pdmodel);
+                                                    //                 // Populate the content after clearing
+                                                    //                 $("#pd_@charID").html(response.productionResultTable);
+                                                    //                 $("#tg_@charID").html(response.targetTable);
 
-                                                                    BuildProductionChart(pdData, @charID)
-                                                                    BuildDefectChart(pdData, "defectchart")
-                                                                } else {
-                                                                    alert("Error: " + response.message);
-                                                                }
-                                                            },
-                                                            error: function (xhr, status, error) {
-                                                                console.error("AJAX Error: " + status + ", " + error);
-                                                            }
-                                                        });
-                                                    }, 10000); // Repeat every 5 seconds
+                                                    //                 var pdData = JSON.parse(response.pdmodel);
+
+                                                    //                 BuildProductionChart(pdData, @charID)
+                                                    //                 BuildDefectChart(pdData, "defectchart")
+                                                    //             } else {
+                                                    //                 alert("Error: " + response.message);
+                                                    //             }
+                                                    //         },
+                                                    //         error: function (xhr, status, error) {
+                                                    //             console.error("AJAX Error: " + status + ", " + error);
+                                                    //         }
+                                                    //     });
+                                                    // }, 10000); // Repeat every 5 seconds
                                                 });
                                             </script>
                                         </div>
@@ -620,7 +632,7 @@
                             <div class="col-9 text-center">
                                 <div class="card svn-card">
                                     <div class="card-title">
-                                        <h4>Achieve</h4>
+                                        <h3 id="txtAchieve">Achieve</h3>
                                     </div>
                                     <div class="card-body">
                                         <canvas id="achieveChart" width="400" height="200"></canvas>
@@ -654,7 +666,7 @@
                                     </div>
                                     <div class="card-body">
                                         <canvas id="forecastChart" width="400" height="200"></canvas>
-                                        <h3>@Forecast %</h3>
+                                        <h3 id="txtForecast">@Forecast %</h3>
                                     </div>
                                 </div>
                             </div>
@@ -803,5 +815,14 @@
         // setInterval(function () {
         //     BuildDefectChart(dataParam, "defectchart")
         // }, 10000); // Repeat every 5 seconds
+
+        async function executeSequentialCalls(charIDs) {
+            for (const charID of charIDs) {
+                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+            }
+            setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        }
+        setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        
     });
 </script>
