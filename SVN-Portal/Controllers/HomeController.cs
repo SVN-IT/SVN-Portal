@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
@@ -404,7 +405,7 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetDataByOperAndWC(DateTime date, string oper, string wc)
+        public async Task<IActionResult> GetDataByOperAndWC(string date, string oper, string wc)
         {
             QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
             string strProductionResultTable = string.Empty;
@@ -413,16 +414,10 @@ namespace SVN_Portal.Controllers
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
-                string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
-                if (date == DateTime.MinValue)
-                {
-                    date = DateTime.Now;
-                }
-                strdate = date.ToString("yyyyMMdd");
                 OperInfo operInfo = new OperInfo();
-                var singleOper = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
-                if(singleOper != null)
+                operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+                if(operInfo != null)
                 {
                     if (!string.IsNullOrWhiteSpace(wc))
                     {
@@ -430,7 +425,7 @@ namespace SVN_Portal.Controllers
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(strdate, operInfo, storedProceduce, tableName);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null) 
@@ -438,7 +433,7 @@ namespace SVN_Portal.Controllers
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildTargetTable(model);
                 }
-                return new JsonResult(new { result = true, productionResultTable = strProductionResultTable, targetTable = strTargetTable, model = model });
+                return new JsonResult(new { result = true, productionResultTable = strProductionResultTable, targetTable = strTargetTable, pdmodel = JsonConvert.SerializeObject(model.ViewModels) });
             }
             catch (Exception ex)
             {

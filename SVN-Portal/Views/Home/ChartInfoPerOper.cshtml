@@ -355,6 +355,7 @@
                                             <h1>
                                                 @item.WC
                                             </h1>
+                                            @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                             <div class="row">
                                                 <div id="pd_@charID" class="col-6 row">
                                                     <div class="col-12 border table-cell text-center">
@@ -505,17 +506,85 @@
                                             </div>
                                             <div id=@charID></div>
                                             <script>
+
+                                                function Test(oper, wc){
+                                                    var date = "@date.ToString("yyyyMMdd")";
+                                                    var oper = oper;
+                                                    var wc = wc;
+                                                    /* chart.clear(); */ // Clear the existing chart
+                                                    $.ajax({
+                                                        url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
+                                                        type: 'POST',
+                                                        data: {
+                                                            date: date,
+                                                            oper: oper,
+                                                            wc: wc
+                                                        },
+                                                        success: function (response) {
+                                                            if (response.result) {
+                                                                // Clear the content of the two divs first
+                                                                $("#pd_@charID").empty();
+                                                                $("#tg_@charID").empty();
+
+                                                                // Populate the content after clearing
+                                                                $("#pd_@charID").html(response.productionResultTable);
+                                                                $("#tg_@charID").html(response.targetTable);
+
+                                                                var pdData = JSON.parse(response.pdmodel);
+
+                                                                BuildProductionChart(pdData, @charID)
+                                                                BuildDefectChart(pdData, "defectchart")
+                                                            } else {
+                                                                alert("Error: " + response.message);
+                                                            }
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            console.error("AJAX Error: " + status + ", " + error);
+                                                        }
+                                                    });
+                                                }
                                                 
                                                 $(document).ready(function () {
                                                     var dataParam = @Html.Raw(jsonData);
                                                     BuildProductionChart(dataParam, @charID)
 
                                                     setInterval(function () {
+                                                        var date = "@date.ToString("yyyyMMdd")";
+                                                        var oper = "@item.Operation";
+                                                        var wc = "@item.WC";
                                                         /* chart.clear(); */ // Clear the existing chart
-                                                        BuildProductionChart(dataParam, @charID)
+                                                        $.ajax({
+                                                            url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
+                                                            type: 'POST',
+                                                            data: {
+                                                                date: date,
+                                                                oper: oper,
+                                                                wc: wc
+                                                            },
+                                                            success: function (response) {
+                                                                if (response.result) {
+                                                                    // Clear the content of the two divs first
+                                                                    $("#pd_@charID").empty();
+                                                                    $("#tg_@charID").empty();
+
+                                                                    // Populate the content after clearing
+                                                                    $("#pd_@charID").html(response.productionResultTable);
+                                                                    $("#tg_@charID").html(response.targetTable);
+
+                                                                    var pdData = JSON.parse(response.pdmodel);
+
+                                                                    BuildProductionChart(pdData, @charID)
+                                                                    BuildDefectChart(pdData, "defectchart")
+                                                                } else {
+                                                                    alert("Error: " + response.message);
+                                                                }
+                                                            },
+                                                            error: function (xhr, status, error) {
+                                                                console.error("AJAX Error: " + status + ", " + error);
+                                                            }
+                                                        });
                                                     }, 10000); // Repeat every 5 seconds
                                                 });
-
                                             </script>
                                         </div>
                                     }
@@ -731,8 +800,8 @@
         BuildDefectChart(dataParam, "defectchart")
         
 
-        setInterval(function () {
-            BuildDefectChart(dataParam, "defectchart")
-        }, 10000); // Repeat every 5 seconds
+        // setInterval(function () {
+        //     BuildDefectChart(dataParam, "defectchart")
+        // }, 10000); // Repeat every 5 seconds
     });
 </script>
