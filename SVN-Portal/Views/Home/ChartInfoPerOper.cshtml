@@ -356,7 +356,7 @@
                                                 @item.WC
                                             </h1>
                                             <div class="row">
-                                                <div class="col-6 row">
+                                                <div id="pd_@charID" class="col-6 row">
                                                     <div class="col-12 border table-cell text-center">
                                                         <strong>Production result: @item.Operation</strong>
                                                     </div>
@@ -404,7 +404,7 @@
                                                 </div>
                                                 @if ((!string.IsNullOrWhiteSpace(item.WC) && item.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(item.Operation))
                                                 {
-                                                    <div class="col-6 row" style="padding-left:20px">
+                                                    <div id="tg_@charID" class="col-6 row" style="padding-left:20px">
                                                         <div class="col-3 border table-cell text-center"><strong>Item</strong></div>
                                                         <div class="col-2 border table-cell text-center"><strong>Target</strong></div>
                                                         <div class="col-2 border table-cell text-center"><strong>Current</strong></div>
@@ -478,7 +478,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <div class="col-6 row" style="padding-left:20px">
+                                                    <div id="tg_@charID" class="col-6 row" style="padding-left:20px">
                                                         <div class="col-4 border table-cell text-center">
                                                             <strong>WO Name</strong>
                                                         </div>

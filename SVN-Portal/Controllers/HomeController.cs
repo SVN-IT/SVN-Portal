@@ -7,6 +7,7 @@ using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 
 namespace SVN_Portal.Controllers
 {
@@ -400,6 +401,180 @@ namespace SVN_Portal.Controllers
                 return View(models);
 
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetDataByOperAndWC(DateTime date, string oper, string wc)
+        {
+            QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+            string strProductionResultTable = string.Empty;
+            string strTargetTable = string.Empty;
+
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                strdate = date.ToString("yyyyMMdd");
+                OperInfo operInfo = new OperInfo();
+                var singleOper = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+                if(singleOper != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(wc))
+                    {
+                        operInfo.WCName = wc;
+                    }
+                }
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                model = await dataPortal.GetDataByOperAndWC(strdate, operInfo, storedProceduce, tableName);
+
+                //sử dụng stringBuilder để build lại 2 table
+                if (model != null) 
+                {
+                    strProductionResultTable = BuildProductionResultTable(model);
+                    strTargetTable = BuildTargetTable(model);
+                }
+                return new JsonResult(new { result = true, productionResultTable = strProductionResultTable, targetTable = strTargetTable, model = model });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { result = false, message = ex.Message });
+            }
+        }
+
+        private string BuildProductionResultTable(QtyProdResultByOperViewModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<div class='col-12 border table-cell text-center'>");
+            sb.Append("<strong>Production result: " + model.Operation + "</strong>");
+            sb.Append("</div>");
+            sb.Append("<div class='col-2'>");
+            sb.Append(" <div class='row'>");
+            sb.Append("<div class='col-12 border table-cell text-center'>");
+            sb.Append("<strong>Time</strong>");
+            sb.Append("</div>");
+            sb.Append("<div class='col-12 border table-cell text-center'>");
+            sb.Append("<strong>Target</strong>");
+            sb.Append("</div>");
+            sb.Append("<div class='col-12 border table-cell text-center'>");
+            sb.Append("<strong>Line</strong>");
+            sb.Append("</div>");
+            sb.Append("<div class='col-12 border table-cell text-center'>");
+            sb.Append("<strong>Labor</strong>");
+            sb.Append("</div>");
+            sb.Append("<div class='col-12 border table-cell text-center'>");
+            sb.Append("<strong>Defect</strong>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            foreach(var item in model.ViewModels)
+            {
+                sb.Append("<div class='col-2'>");
+                sb.Append("<div class='row'>");
+                sb.Append("<div class='col-12 border table-cell text-center'>");
+                sb.Append(item.Time);
+                sb.Append("</div>");
+                sb.Append("<div class='col-12 border table-cell text-center'>");
+                sb.Append(Math.Round(item.Target, 2));
+                sb.Append("</div>");
+                sb.Append("<div class='col-12 border table-cell text-center'>");
+                sb.Append(Math.Round(item.Line, 2));
+                sb.Append("</div>");
+                sb.Append("<div class='col-12 border table-cell text-center'>");
+                sb.Append(Math.Round(item.ManQuantity, 2));
+                sb.Append("</div>");
+                sb.Append("<div class='col-12 border table-cell text-center'>");
+                sb.Append(Math.Round(item.NG, 2));
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+            }
+            return sb.ToString();
+        }
+
+        private string BuildTargetTable(QtyProdResultByOperViewModel model) 
+        {
+            StringBuilder sb = new StringBuilder();
+            if((!string.IsNullOrWhiteSpace(model.WC) && model.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(model.Operation))
+            {
+                sb.Append("<div class='col-3 border table-cell text-center'><strong>Item</strong></div>");
+                sb.Append("<div class='col-2 border table-cell text-center'><strong>Target</strong></div>");
+                sb.Append("<div class='col-2 border table-cell text-center'><strong>Current</strong></div>");
+                sb.Append("<div class='col-3 border table-cell text-center'><strong>Rate</strong></div>");
+                sb.Append("<div class='col-2 border table-cell text-center'><strong>Status</strong></div>");
+                foreach(var item in model.TargetViewModels)
+                {
+                    string status = string.Empty;
+                    sb.Append("<div class='col-3 border table-cell text-center'><strong>" + item.Item + "</strong></div>");
+                    if(item.Item == "Defect")
+                    {
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + " %</div>");
+                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
+                        if (item.Percent > 100)
+                        {
+                            status = "bg-danger";
+                        }
+                        else if (item.Percent > 75 && item.Percent <= 100)
+                        {
+                            status = "bg-warning";
+                        }
+                        else
+                        {
+                            status = "bg-primary";
+                        }
+                    }
+                    else
+                    {
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + "</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + "</div>");
+                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
+                        if (item.Percent > 0 && item.Percent <= 75)
+                        {
+                            status = "bg-danger";
+                        }
+                        else if (item.Percent > 75 && item.Percent <= 92)
+                        {
+                            status = "bg-warning";
+                        }
+                        else
+                        {
+                            status = "bg-primary";
+                        }
+                    }
+                    sb.Append("<div class='col-2 border table-cell text-center " + status + "'></div>");
+                }
+
+            }
+            else
+            {
+                sb.Append("<div class='col-4 border table-cell text-center'>");
+                sb.Append("<strong>WO Name</strong>");
+                sb.Append("</div>");
+                sb.Append("<div class='col-4 border table-cell text-center'>");
+                sb.Append("<strong>State</strong>");
+                sb.Append("</div>");
+                sb.Append("<div class='col-4 border table-cell text-center'>");
+                sb.Append("<strong>Product Qty</strong>");
+                sb.Append("</div>");
+                foreach(var item in model.ProductionUIs)
+                {
+                    sb.Append("<div class='col-4 border table-cell text-center'>");
+                    sb.Append(item.name);
+                    sb.Append("</div>");
+                    sb.Append("<div class='col-4 border table-cell text-center'>");
+                    sb.Append(item.state);
+                    sb.Append("</div>");
+                    sb.Append("<div class='col-4 border table-cell text-center'>");
+                    sb.Append(item.product_uom_qty);
+                    sb.Append("</div>");
+                }
+            }
+                return sb.ToString();
         }
 
         public IActionResult Privacy()
