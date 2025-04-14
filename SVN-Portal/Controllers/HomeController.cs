@@ -433,7 +433,14 @@ namespace SVN_Portal.Controllers
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildTargetTable(model);
                 }
-                return new JsonResult(new { result = true, productionResultTable = strProductionResultTable, targetTable = strTargetTable, pdmodel = JsonConvert.SerializeObject(model.ViewModels) });
+                return new JsonResult(new { result = true, productionResultTable = strProductionResultTable, 
+                    targetTable = strTargetTable, pdmodel = JsonConvert.SerializeObject(model.ViewModels),
+                    achieve = model.Achieve,
+                    forecast = model.Forecast,
+                    woRunning = model.WORunning,
+                    product = model.Product,
+                    customer = model.Customer
+                });
             }
             catch (Exception ex)
             {

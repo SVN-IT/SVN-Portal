@@ -592,11 +592,11 @@
                             <div class="col-9 text-center">
                                 <div class="card svn-card">
                                     <div class="card-title">
-                                        <h3 id="txtAchieve">Achieve</h3>
+                                        <h4>Achieve</h4>
                                     </div>
                                     <div class="card-body">
                                         <canvas id="achieveChart" width="400" height="200"></canvas>
-                                        <h3>@Achieve %</h3>
+                                        <h3 id="txtAchieve">@Achieve %</h3>
                                     </div>
                                 </div>
                             </div>
@@ -655,6 +655,9 @@
     }
 </style>
 <script>
+    var intAchieve = @Achieve;
+    var intForecast = @Forecast;
+
     var optsAchieve = {
         angle: 0, // The span of the gauge arc
         lineWidth: 0.3, // The line thickness
@@ -702,12 +705,12 @@
     gaugeAchieve.maxValue = 100; // set max gauge value
     gaugeAchieve.setMinValue(0);  // Prefer setter over gauge.minValue = 0
     gaugeAchieve.animationSpeed = 10; // set animation speed (32 is default value)
-    gaugeAchieve.set(@Achieve); // set actual value
+    gaugeAchieve.set(intAchieve); // set actual value
 
     setInterval(function () {
-        gaugeAchieve.set(@Achieve+5); // Reset to 0 (or any starting value)
+        gaugeAchieve.set(intAchieve+5); // Reset to 0 (or any starting value)
         setTimeout(function () {
-            gaugeAchieve.set(@Achieve); // Animate to the desired value
+            gaugeAchieve.set(intAchieve); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset
     }, 1500); // Repeat every 5 seconds
 
@@ -758,12 +761,12 @@
     gaugeForecast.maxValue = 100; // set max gauge value
     gaugeForecast.setMinValue(0);  // Prefer setter over gauge.minValue = 0
     gaugeForecast.animationSpeed = 10; // set animation speed (32 is default value)
-    gaugeForecast.set(@Forecast); // set actual value
+    gaugeForecast.set(intForecast); // set actual value
 
     setInterval(function () {
-        gaugeForecast.set(@Forecast+5); // Reset to 0 (or any starting value)
+        gaugeForecast.set(intForecast+5); // Reset to 0 (or any starting value)
         setTimeout(function () {
-            gaugeForecast.set(@Forecast); // Animate to the desired value
+            gaugeForecast.set(intForecast); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset
     }, 1500); // Repeat every 5 seconds
 
@@ -791,7 +794,16 @@
 
                         // Build charts for this charID
                         BuildProductionChart(pdData, charID);
-                        BuildDefectChart(pdData, "defectchart");
+                        
+                        if(wc.includes("FG")){
+                            BuildDefectChart(pdData, "defectchart");
+                            intAchieve = response.achieve;
+                            intForecast = response.forecast;
+                            gaugeAchieve.set(intAchieve);
+                            gaugeForecast.set(intForecast);
+                            $("#txtAchieve").text(intAchieve + " %");
+                            $("#txtForecast").text(intForecast + " %");
+                        }
 
                         resolve(); // Mark AJAX call as complete
                     } else {
