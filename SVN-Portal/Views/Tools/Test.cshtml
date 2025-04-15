@@ -1,0 +1,69 @@
+﻿<style>
+    body {
+        background: #111;
+        font-family: Arial, sans-serif;
+    }
+
+    .chart {
+        display: flex;
+        justify-content: center;
+        align-items: end;
+        height: 300px;
+        margin-top: 50px;
+    }
+
+    .cylinder {
+        width: 80px;
+        text-align: center;
+        position: relative;
+    }
+
+    .top {
+        width: 100%;
+        height: 20px;
+        background: radial-gradient(circle at 50% 30%, #eeeeee, #cccccc);
+        border-radius: 50% / 50%;
+        z-index: 3;
+        position: relative;
+    }
+
+    .glass {
+        height: 200px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 40px / 20px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+
+    .fill {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 0;
+        background: radial
+
+</style>
+<div class="chart">
+    <div class="cylinder" data-percent="41.96">
+        <div class="top"></div>
+        <div class="glass">
+            <div class="fill"></div>
+        </div>
+        <div class="percent-label">0%</div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+      $('.cylinder').each(function(){
+        const percent = parseFloat($(this).attr('data-percent'));
+        const maxHeight = 200; // height of the glass
+        const fillHeight = Math.min(percent, 100) / 100 * maxHeight;
+
+        $(this).find('.fill').css('height', fillHeight + 'px');
+        $(this).find('.percent-label').text(percent.toFixed(2) + '%');
+      });
+    });
+</script>

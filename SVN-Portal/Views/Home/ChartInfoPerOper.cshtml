@@ -708,7 +708,12 @@
     gaugeAchieve.set(intAchieve); // set actual value
 
     setInterval(function () {
-        gaugeAchieve.set(intAchieve+5); // Reset to 0 (or any starting value)
+        if (intAchieve > 100) {
+            gaugeAchieve.set(95);
+        }
+        else{
+            gaugeAchieve.set(intAchieve+5); // Reset to 0 (or any starting value)
+        }
         setTimeout(function () {
             gaugeAchieve.set(intAchieve); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset
@@ -764,7 +769,12 @@
     gaugeForecast.set(intForecast); // set actual value
 
     setInterval(function () {
-        gaugeForecast.set(intForecast+5); // Reset to 0 (or any starting value)
+        if (intForecast > 100) {
+            gaugeForecast.set(95);
+        }
+        else{
+            gaugeForecast.set(intForecast+5); // Reset to 0 (or any starting value)
+        }
         setTimeout(function () {
             gaugeForecast.set(intForecast); // Animate to the desired value
         }, 500); // Adjust timing to ensure smooth reset

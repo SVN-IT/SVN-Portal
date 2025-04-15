@@ -215,6 +215,11 @@ namespace SVN_Portal.Controllers
             ViewBag.WorkOrder = workOrderCode;
             return View();
         }
+
+        public IActionResult Test()
+        {
+            return View();
+        }
     }
 
     public class PrintRequest
