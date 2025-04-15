@@ -803,6 +803,10 @@
                             gaugeForecast.set(intForecast);
                             $("#txtAchieve").text(intAchieve + " %");
                             $("#txtForecast").text(intForecast + " %");
+
+                            $("#txtWORunning").text("WO running: " + response.woRunning);
+                            $("#txtProduct").text("Product: " + response.product);
+                            $("#txtCustomer").text("Customer: " + response.customer);
                         }
 
                         resolve(); // Mark AJAX call as complete
