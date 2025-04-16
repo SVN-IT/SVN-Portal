@@ -68,150 +68,170 @@
         jsonData = JsonConvert.SerializeObject(item.ViewModels);
         <style>
             #@charID {
-                height: 450px;
-                width: 100%;
+            height: 450px;
+            width: 100%;
             }
         </style>
         <div class="col-lg-@appConfig.ChartCol">
-            <div class="card">
+            <div class="card svn-card">
                 <div class="card-title">
                     <h4>
                         @item.Operation
                         <br />
                         <br />
-                        <p style="font-size:20px" class=" text-primary"> @item.PDName - @item.QCName </p>
+                        <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
 
                     </h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-6 row">
-                            <div class="col-12 border table-cell text-center">
-                                <strong>Production result: @item.Operation</strong>
-                            </div>
-                            <div class="col-2">
-                                <div class="row">
-                                    <div class="col-12 border table-cell text-center">
-                                        <strong>Time</strong>
-                                    </div>
-                                    <div class="col-12 border table-cell text-center">
-                                        <strong>Target</strong>
-                                    </div>
-                                    <div class="col-12 border table-cell text-center">
-                                        <strong>Line</strong>
-                                    </div>
-                                    <div class="col-12 border table-cell text-center">
-                                        <strong>Labor</strong>
-                                    </div>
-                                    <div class="col-12 border table-cell text-center">
-                                        <strong>Defect</strong>
-                                    </div>
-                                </div>
-                            </div>
-                            @foreach (var subitem in item.ViewModels)
-                            {
-                                <div class="col-2">
-                                    <div class="row">
-                                        <div class="col-12 border table-cell text-center">
-                                            @subitem.Time
-                                        </div>
-                                        <div class="col-12 border table-cell text-center">
-                                            @Math.Round(subitem.Target, 2)
-                                        </div>
-                                        <div class="col-12 border table-cell text-center">
-                                            @Math.Round(subitem.Line, 2)
-                                        </div>
-                                        <div class="col-12 border table-cell text-center">
-                                            @Math.Round(subitem.ManQuantity, 2)
-                                        </div>
-                                        <div class="col-12 border table-cell text-center">
-                                            @Math.Round(subitem.NG, 2)
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                        <div class="col-6 row" style="padding-left:20px">
-                            <div class="col-3 border table-cell text-center"><strong>Item</strong></div>
-                            <div class="col-2 border table-cell text-center"><strong>Target</strong></div>
-                            <div class="col-2 border table-cell text-center"><strong>Current</strong></div>
-                            <div class="col-3 border table-cell text-center"><strong>Rate</strong></div>
-                            <div class="col-2 border table-cell text-center"><strong>Status</strong></div>
-                            @* <div class="col-3 border table-cell">Expert</div> *@
+                        <div class="target-container">
                             @foreach (var subitem in item.TargetViewModels)
                             {
-                                <div class="col-3 border table-cell text-center"><strong>@subitem.Item</strong></div>
-                                if (subitem.Item == "Defect")
+                                string cardColor = string.Empty;
+                                if (subitem.Item == "Daily Plan")
                                 {
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Target, 2) %</div>
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Current, 2) %</div>
-                                    <div class="col-3 border table-cell text-center">@Math.Round(subitem.Percent, 2) %</div>
+                                    cardColor = "bg-dailyPlan";
                                 }
-                                else
+                                else if (subitem.Item == "UPH")
                                 {
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Target, 2)</div>
-                                    <div class="col-2 border table-cell text-center">@Math.Round(subitem.Current, 2)</div>
-                                    <div class="col-3 border table-cell text-center">@Math.Round(subitem.Percent, 2) %</div>
+                                    cardColor = "bg-uph";
                                 }
-
-                                string status = string.Empty;
-                                if (subitem.Item == "Defect")
+                                else if (subitem.Item == "UPPH")
                                 {
-                                    /*
-                                    if (subitem.Percent > 0 && subitem.Percent <= 75)
-                                    {
-
-                                        status = "bg-warning";
-                                        }
-                                    else if (subitem.Percent > 75 && subitem.Percent <= 92)
-                                    {
-                                        status = "bg-danger";
-                                        }
-                                    */
-                                    if (subitem.Percent > 100)
-                                    {
-
-                                        status = "bg-danger";
+                                    cardColor = "bg-upph";
+                                }
+                                else if (subitem.Item == "Labor")
+                                {
+                                    cardColor = "bg-labor";
+                                }
+                                else if (subitem.Item == "Defect")
+                                {
+                                    cardColor = "bg-defect";
+                                }
+                                <div class="target-item @cardColor">
+                                    @{
+                                        string status = string.Empty;
                                     }
-                                    else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                    @if (subitem.Item == "Defect")
                                     {
-                                        status = "bg-warning";
+                                        if (subitem.Percent > 100)
+                                        {
+
+                                            status = "bg-danger";
+                                        }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                        {
+                                            status = "bg-warning";
+                                        }
+                                        else
+                                        {
+                                            status = "bg-primary";
+                                        }
                                     }
                                     else
                                     {
-                                        status = "bg-primary";
-                                    }
-                                }
-                                else
-                                {
 
-                                    if (subitem.Percent > 0 && subitem.Percent <= 75)
-                                    {
-                                        status = "bg-danger";
+                                        if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                        {
+                                            status = "bg-danger";
+                                        }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                        {
+                                            status = "bg-warning";
+                                        }
+                                        else
+                                        {
+                                            status = "bg-primary";
+                                        }
                                     }
-                                    else if (subitem.Percent > 75 && subitem.Percent <= 92)
+
+                                    <div>
+                                        @if (subitem.Item == "Daily Plan")
+                                        {
+                                            <strong>📅 @subitem.Item</strong>
+
+                                            <br>
+                                        }
+                                        else if (subitem.Item == "UPH")
+                                        {
+                                            <strong>⚙️ @subitem.Item</strong>
+
+                                            <br>
+                                        }
+                                        else if (subitem.Item == "UPPH")
+                                        {
+                                            <strong>📈 @subitem.Item</strong>
+
+                                            <br>
+                                        }
+                                        else if (subitem.Item == "Labor")
+                                        {
+                                            <strong>👷 @subitem.Item</strong>
+
+                                            <br>
+                                        }
+                                        else if (subitem.Item == "Defect")
+                                        {
+                                            <strong><span style="filter: brightness(0) invert(1);">❌</span> @subitem.Item</strong>
+
+                                            <br>
+                                        }
+                                        
+                                        @if (subitem.Item == "Defect")
+                                        {
+                                            <span>Tar: @Math.Round(subitem.Target, 2) %</span>
+                                            <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
+                                            <span>
+                                                <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>Tar: @Math.Round(subitem.Target, 2)</span>
+                                            <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
+                                            <span>
+                                                <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                            </span>
+                                        }
+                                    </div>
+                                    @* @if (subitem.Item == "Defect")
                                     {
-                                        status = "bg-warning";
+                                        <span>
+                                            <strong class="f-s-26">Rate:</strong> <br />
+                                            <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                        </span>
                                     }
                                     else
                                     {
-                                        status = "bg-primary";
-                                    }
-                                }
+                                        <span>
+                                            <strong class="f-s-26">Rate:</strong> <br />
+                                            <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                        </span>
+                                    } *@
+                                </div>
 
-
-
-
-                                <div class="col-2 border table-cell text-center @status"></div>
-                                @* <div class="col-3 border table-cell">@Math.Round(item.Est, 2) %</div> *@
+                                
                             }
                         </div>
                     </div>
-
-                    <div id=@charID></div>
+                    <div class="row">
+                        <div class="col-12 col-md-9 border-right">
+                            <div id=@charID></div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <canvas id="pieChart_@charID" width="250" height="250"></canvas>
+                            <h3 class="mt-3 text-center">Defect by category</h3>
+                        </div>
+                    </div>
+                    
                     <script>
                         $(document).ready(function () {
                             var dataParam = @Html.Raw(jsonData);
+                            dataParam = dataParam.map(item => ({
+                                ...item,
+                                Time: `${item.Time} (Line: ${item.Line})` // Concatenate Line value with Time
+                            }));
                             var chart = AmCharts.makeChart(@charID, {
                                 "type": "serial",
                                 "theme": "light",
@@ -221,7 +241,7 @@
 
                                 "addClassNames": true,
                                 "startDuration": 1,
-                                //"color": "#FFFFFF",
+                                "color": "#FFFFFF",
                                 "marginLeft": 0,
 
                                 "categoryField": "Time",
@@ -260,18 +280,21 @@
                                     "title": "Labor",
                                     "type": "line",
                                     "valueAxis": "a1",
-                                    "lineColor": "#333300",
+                                    "lineColor": "#FF0000",
                                     "lineThickness": 1,
                                     "legendValueText": "[[value]]/[[description]]",
                                     "bullet": "round",
-                                        "bulletBorderColor": "#333300	",
+                                        "bulletBorderColor": "#FF0000",
                                     "bulletBorderAlpha": 1,
                                     "bulletBorderThickness": 1,
-                                        "bulletColor": "#333300	",
+                                        "bulletColor": "#FF0000",
                                     "labelPosition": "right",
                                     "balloonText": "Man Qty:[[value]]",
                                     "showBalloon": true,
-                                    "animationPlayed": true
+                                    "animationPlayed": true,
+                                    "labelText": "[[value]]",
+                                    "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
+                                    "labelColor": "#FF0000", // Màu chữ trên đường
                                 }, {
                                     "id": "g3",
                                     "title": "Target",
@@ -287,7 +310,10 @@
                                     "bulletBorderThickness": 1,
                                     "bulletBorderAlpha": 1,
                                     "dashLengthField": "dashLength",
-                                    "animationPlayed": true
+                                    "animationPlayed": true,
+                                    "labelText": "[[value]]",
+                                    "labelPosition": "top", // Giá trị nằm trên điểm của đường
+                                    "labelColor": "#006600", // Màu chữ trên đường
                                 }],
 
                                 "chartCursor": {
@@ -300,11 +326,25 @@
                                     "bulletType": "round",
                                     "equalWidths": false,
                                     "valueWidth": 120,
-                                    "useGraphSettings": true
-                                    //"color": "#FFFFFF"
+                                    "useGraphSettings": true,
+                                    "color": "#FFFFFF"
                                 }
                             });
 
+                            new Chart(document.getElementById("pieChart_@charID"), {
+                              type: 'pie',
+                              data: {
+                                labels: ["Surface", "Alignment", "Electrical"],
+                                datasets: [{
+                                  label: "Defects",
+                                  data: [50, 30, 20]
+                                }]
+                              },
+                              options: {
+                                plugins: { legend: { labels: { color: "#fff" } } },
+                                responsive: false
+                              }
+                            });
                         });
 
                     </script>

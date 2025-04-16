@@ -27,13 +27,12 @@ body {
 }
 
 .svn-card {
-    /*background: #ffffff none repeat scroll 0 0 !important;*/ /*#332c61 #0e1213*/
-    /*color: white !important;*/
-    height: 90%;
+    background: #181f29 none repeat scroll 0 0 !important; /*#332c61 #0e1213*/
+    color: white !important;
 }
 
 .svn-layout {
-    /*background-color: #1c2222 !important;*/ /*#584ca3*/
+    background-color: #141414 !important; /*#584ca3*/
 }
 
 .svn-border {
@@ -61,3 +60,45 @@ body {
     height: auto; /* Chiều cao tự động điều chỉnh theo tỷ lệ */
     object-fit: cover; /* Cắt hình ảnh để lấp đầy container, giữ tỷ lệ */
 }
+
+.target-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.target-item {
+    flex: 1 1 15%;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bg-dailyPlan {
+    background-color: #3b82f6 !important;
+}
+.bg-uph {
+    background-color: #10b981 !important;
+}
+.bg-upph {
+    background-color: #6366f1 !important;
+}
+.bg-labor {
+    background-color: #f59e0b !important;
+}
+.bg-defect {
+    background-color: #ef4444 !important;
+}
+
+.rate-box {
+    padding-right: 5px;
+    padding-left: 5px;
+    border: 1px solid;
+    border-radius: 50px;
+}
+
