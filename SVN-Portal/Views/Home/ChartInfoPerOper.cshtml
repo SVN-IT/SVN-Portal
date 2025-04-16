@@ -76,6 +76,11 @@
 }
 <script>
     function BuildProductionChart(dataParam, chartID){
+        // Modify dataParam to include Line data in the Time field for categoryField
+        dataParam = dataParam.map(item => ({
+            ...item,
+            Time: `${item.Time} (Line: ${item.Line})` // Concatenate Line value with Time
+        }));
         var chart = AmCharts.makeChart(chartID, {
             "type": "serial",
             "theme": "light",
@@ -128,14 +133,17 @@
                 "lineThickness": 1,
                 "legendValueText": "[[value]]/[[description]]",
                 "bullet": "round",
-                    "bulletBorderColor": "#FF0000	",
+                    "bulletBorderColor": "#FF0000",
                 "bulletBorderAlpha": 1,
                 "bulletBorderThickness": 1,
                     "bulletColor": "#FF0000	",
                 "labelPosition": "right",
                 "balloonText": "Man Qty:[[value]]",
                 "showBalloon": true,
-                "animationPlayed": true
+                "animationPlayed": true,
+                "labelText": "[[value]]",
+                "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
+                "labelColor": "#FF0000", // Màu chữ trên đường
             }, {
                 "id": "g3",
                 "title": "Target",
@@ -151,7 +159,10 @@
                 "bulletBorderThickness": 1,
                 "bulletBorderAlpha": 1,
                 "dashLengthField": "dashLength",
-                "animationPlayed": true
+                "animationPlayed": true,
+                "labelText": "[[value]]",
+                "labelPosition": "top", // Giá trị nằm trên điểm của đường
+                "labelColor": "#006600", // Màu chữ trên đường
             }],
 
             "chartCursor": {
