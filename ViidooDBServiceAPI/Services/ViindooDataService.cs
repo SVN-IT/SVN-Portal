@@ -9,6 +9,7 @@ using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using System.Security.AccessControl;
+using System.Threading.Tasks;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -690,6 +691,15 @@ namespace ViidooDBServiceAPI.Services
                     if (searchResult != null)
                     {
                         var dynamicParameters = convertDataService.ConvertObjectToData(searchResult);
+                        if(dataRequest.IsUpdate == true && dynamicParameters != null)
+                        {
+                            DatabaseDataPortal dataPortal = new DatabaseDataPortal(SVNDBConfig.ConnectionString);
+                            foreach (var item in dynamicParameters) 
+                            {
+                                var result = dataPortal.ExecuteData(dataRequest.InsertQuery, item);
+                            }
+                            
+                        }
 
                         processResult.OK = true;
                         processResult.Message = "Get data success";
