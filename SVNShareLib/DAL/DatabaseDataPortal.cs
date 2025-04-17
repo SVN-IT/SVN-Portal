@@ -70,7 +70,7 @@ namespace SVNShareLib.DAL
         /// <param name="query"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public bool ExecuteData(string query, DynamicParameters parameters)
+        public bool ExecuteData(string query, object data)
         {
             int timeOut = 1000;
             try
@@ -85,7 +85,7 @@ namespace SVNShareLib.DAL
                     {
                         try
                         {
-                            var executeResult = connection.Execute(query, parameters, trans, commandTimeout: timeOut);
+                            var executeResult = connection.Execute(query, data, trans, commandTimeout: timeOut);
                             if (executeResult <= 0)
                             {
                                 trans.Rollback();

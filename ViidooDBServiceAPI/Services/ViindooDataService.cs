@@ -9,6 +9,7 @@ using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using System.Security.AccessControl;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace ViidooDBServiceAPI.Services
@@ -691,21 +692,44 @@ namespace ViidooDBServiceAPI.Services
                     if (searchResult != null)
                     {
                         var dynamicParameters = convertDataService.ConvertObjectToData(searchResult);
-                        if(dataRequest.IsUpdate == true && dynamicParameters != null)
-                        {
-                            DatabaseDataPortal dataPortal = new DatabaseDataPortal(SVNDBConfig.ConnectionString);
-                            foreach (var item in dynamicParameters) 
-                            {
-                                var result = dataPortal.ExecuteData(dataRequest.InsertQuery, item);
-                            }
-                            
-                        }
 
                         processResult.OK = true;
                         processResult.Message = "Get data success";
 
                         JArray jArray = JArray.FromObject(searchResult);
                         object data = JsonConvert.SerializeObject(jArray);
+
+                        //var dataUI = convertDataService.ConverterToQuantityReasonUI(searchResult);
+                        //var result = convertDataService.InsertQuantityReasonToSVNDB(dataUI);
+
+                        var dataUI = convertDataService.ConverterToQuantityAlertUI(searchResult);
+                        var result = convertDataService.InsertQuantityAlertToSVNDB(dataUI);
+
+                        //List<Dictionary<string, object>> dataDict = new List<Dictionary<string, object>>();
+
+                        //// Duyệt qua từng phần tử trong JArray và thêm vào danh sách
+                        //foreach (var item in jArray)
+                        //{
+                        //    var obj = new Dictionary<string, object>();
+
+                        //    // Duyệt qua các cặp key-value trong mỗi đối tượng JSON
+                        //    foreach (var property in item.Children<JProperty>())
+                        //    {
+                        //        obj[property.Name] = property.Value;
+                        //    }
+
+                        //    // Thêm đối tượng vào danh sách
+                        //    dataDict.Add(obj);
+                        //}
+
+                        //if (dataRequest.IsUpdate == true && dataDict != null)
+                        //{
+                        //    DatabaseDataPortal dataPortal = new DatabaseDataPortal(SVNDBConfig.ConnectionString);
+
+                        //    var result = dataPortal.ExecuteData(dataRequest.InsertQuery, dataDict);
+
+                        //}
+
                         processResult.Content = data;
                     }
                     else
