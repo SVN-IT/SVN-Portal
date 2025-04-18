@@ -199,6 +199,15 @@ namespace ViidooDBServiceAPI.Services
                             processResult = insertResult;
                         }
                         break;
+                    case "quality.reason":
+                        var dataUI12 = convertDataService.ConverterToQuantityCheckUI(searchResult);
+                        if (dataUI12 != null && dataUI12.Count > 0)
+                        {
+                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                            insertResult = convertDataService.InsertQuantityCheckToSVNDB(dataUI12);
+                            processResult = insertResult;
+                        }
+                        break;
                 }
             }
             catch(Exception ex)
