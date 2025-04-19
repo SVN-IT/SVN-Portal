@@ -2,44 +2,140 @@
 @model IEnumerable<QtyProdResultByOperViewModel>
 @{
     ViewData["Title"] = "Home Page";
-    // string jsonPOPdata = string.Empty;
-    // string jsoneKITdata = string.Empty;
-    // string jsonSolardata = string.Empty;
-    // string jsonInjection = string.Empty;
-    // QtyProdResultByOperViewModel POPviewmodel = new QtyProdResultByOperViewModel();
-    // QtyProdResultByOperViewModel eKITviewmodel = new QtyProdResultByOperViewModel();
-    // QtyProdResultByOperViewModel Solarviewmodel = new QtyProdResultByOperViewModel();
-    // QtyProdResultByOperViewModel Injectionviewmodel = new QtyProdResultByOperViewModel();
-    // if(Model.Count() >= 4)
-    // {
-    //     foreach(var item in Model)
-    //     {
-    //         if(item.Operation == "POP")
-    //         {
-    //             jsonPOPdata = JsonConvert.SerializeObject(item.ViewModels);
-    //             POPviewmodel = item;
-    //         }
-    //         if(item.Operation == "eKIT")
-    //         {
-    //             jsoneKITdata = JsonConvert.SerializeObject(item.ViewModels);
-    //             eKITviewmodel = item;
-    //         }
-    //         if (item.Operation == "Solar")
-    //         {
-    //             jsonSolardata = JsonConvert.SerializeObject(item.ViewModels);
-    //             Solarviewmodel = item;
-    //         }
-    //         if (item.Operation == "Injection")
-    //         {
-    //             jsonInjection = JsonConvert.SerializeObject(item.ViewModels);
-    //             Injectionviewmodel = item;
-    //         }
-    //     }
-    // }
     DateTime date = ViewBag.date;
 }
 <script>
     var dataParam;
+    function BuildProductionChart(dataParam, chartID){
+        dataParam = dataParam.map(item => ({
+            ...item,
+            Time: `${item.Time} (Line: ${item.Line})` // Concatenate Line value with Time
+        }));
+        var chart = AmCharts.makeChart(chartID, {
+            "type": "serial",
+            "theme": "light",
+
+            "dataDateFormat": "YYYY-MM-DD",
+            "dataProvider": dataParam,
+
+            "addClassNames": true,
+            "startDuration": 1,
+            "color": "#FFFFFF",
+            "marginLeft": 0,
+
+            "categoryField": "Time",
+            "categoryAxis": {
+                "parseDates": false,
+                // "minPeriod": "DD",
+                "autoGridCount": false,
+                "gridCount": 50,
+                "gridAlpha": 0.1,
+                "gridColor": "#FFFFFF",
+                "axisColor": "#555555"
+            },
+
+            "valueAxes": [{
+                "id": "a1",
+                "title": "quatity",
+                "gridAlpha": 0,
+                "axisAlpha": 0
+            }],
+            "graphs": [{
+                "id": "g1",
+                "valueField": "Line",
+                "title": "Line",
+                "type": "column",
+                "fillAlphas": 0.9,
+                "valueAxis": "a1",
+                "balloonText": "[[value]] qty",
+                "legendValueText": "[[value]] qty",
+                "legendPeriodValueText": "total: [[value.sum]] qty",
+                "lineColor": "#428bca",
+                "alphaField": "alpha"
+            }, {
+                "id": "g2",
+                "valueField": "ManQuantity",
+                "classNameField": "bulletClass",
+                "title": "Labor",
+                "type": "smoothedLine",
+                "valueAxis": "a1",
+                "lineColor": "#FF0000",
+                "lineThickness": 1,
+                "legendValueText": "[[value]]/[[description]]",
+                "bullet": "round",
+                    "bulletBorderColor": "#FF0000",
+                "bulletBorderAlpha": 1,
+                "bulletBorderThickness": 1,
+                    "bulletColor": "#FF0000",
+                "labelPosition": "right",
+                "balloonText": "Man Qty:[[value]]",
+                "showBalloon": true,
+                "animationPlayed": true,
+                "labelText": "[[value]]",
+                "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
+                "labelColor": "#FF0000", // Màu chữ trên đường
+            }, {
+                "id": "g3",
+                "title": "Target",
+                "valueField": "Target",
+                "type": "smoothedLine",
+                "valueAxis": "a1",
+                "lineColor": "#006600",
+                "balloonText": "[[value]]",
+                "lineThickness": 4,
+                "legendValueText": "[[value]]",
+                "bullet": "square",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "animationPlayed": true,
+                "labelText": "[[value]]",
+                "labelPosition": "top", // Giá trị nằm trên điểm của đường
+                "labelColor": "#006600", // Màu chữ trên đường
+            }],
+
+            "chartCursor": {
+                "zoomable": false,
+                "categoryBalloonDateFormat": "DD",
+                "cursorAlpha": 0,
+                "valueBalloonsEnabled": false
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+    }
+
+    function BuildDefectPieChart(dataParam, chartID) {
+        var chart = AmCharts.makeChart(chartID, {
+            "type": "pie",
+            "addClassNames": true,
+            "classNameField": "class",
+            "dataProvider": dataParam,
+            "valueField": "value",
+            "categoryField": "category",
+            "labelRadius": 10,  // Adjust label radius
+            "radius": "42%",
+            "innerRadius": "60%",
+            "labelText": "[[category]]",  // Display the category field as the label text
+            "labelColorField": "color",  // Optional: If you want custom colors for the labels
+            "labelFontSize": 14,         // Adjust the font size of the labels
+            "labelColor": "#FFFFFF",     // This changes the label text color to white
+            "export": {
+                "enabled": true
+            },
+            "labelPosition": "outside",  // Ensure the labels are outside the slices
+            "fontSize": 14,
+            "fontColor": "#FFFFFF",      // Optional: Ensure the font color is white
+        });
+    }
+    
+    var charIDs = [];
 </script>
 
 <div class="row">
@@ -68,7 +164,7 @@
         jsonData = JsonConvert.SerializeObject(item.ViewModels);
         <style>
             #@charID {
-            height: 450px;
+            height: 500px;
             width: 100%;
             }
 
@@ -266,147 +362,30 @@
                     <script>
                         $(document).ready(function () {
                             var dataParam = @Html.Raw(jsonData);
-                            dataParam = dataParam.map(item => ({
-                                ...item,
-                                Time: `${item.Time} (Line: ${item.Line})` // Concatenate Line value with Time
-                            }));
-                            var chart = AmCharts.makeChart(@charID, {
-                                "type": "serial",
-                                "theme": "light",
 
-                                "dataDateFormat": "YYYY-MM-DD",
-                                "dataProvider": dataParam,
+                            var defectParam = [{
+                                "value": 3,
+                                "category": "Surface",
+                                "class": "color1"
+                            }, {
+                                "value": 5,
+                                "category": "Alighment",
+                                "class": "color2"
+                            }, {
+                                "value": 4,
+                                "category": "Electtrical",
+                                "class": "color3"
+                            }];
 
-                                "addClassNames": true,
-                                "startDuration": 1,
-                                "color": "#FFFFFF",
-                                "marginLeft": 0,
+                            BuildProductionChart(dataParam, @charID)
+                            BuildDefectPieChart(defectParam, "chartPie_@charID")
 
-                                "categoryField": "Time",
-                                "categoryAxis": {
-                                    "parseDates": false,
-                                    // "minPeriod": "DD",
-                                    "autoGridCount": false,
-                                    "gridCount": 50,
-                                    "gridAlpha": 0.1,
-                                    "gridColor": "#FFFFFF",
-                                    "axisColor": "#555555"
-                                },
-
-                                "valueAxes": [{
-                                    "id": "a1",
-                                    "title": "quatity",
-                                    "gridAlpha": 0,
-                                    "axisAlpha": 0
-                                }],
-                                "graphs": [{
-                                    "id": "g1",
-                                    "valueField": "Line",
-                                    "title": "Line",
-                                    "type": "column",
-                                    "fillAlphas": 0.9,
-                                    "valueAxis": "a1",
-                                    "balloonText": "[[value]] qty",
-                                    "legendValueText": "[[value]] qty",
-                                    "legendPeriodValueText": "total: [[value.sum]] qty",
-                                    "lineColor": "#428bca",
-                                    "alphaField": "alpha"
-                                }, {
-                                    "id": "g2",
-                                    "valueField": "ManQuantity",
-                                    "classNameField": "bulletClass",
-                                    "title": "Labor",
-                                    "type": "smoothedLine",
-                                    "valueAxis": "a1",
-                                    "lineColor": "#FF0000",
-                                    "lineThickness": 1,
-                                    "legendValueText": "[[value]]/[[description]]",
-                                    "bullet": "round",
-                                        "bulletBorderColor": "#FF0000",
-                                    "bulletBorderAlpha": 1,
-                                    "bulletBorderThickness": 1,
-                                        "bulletColor": "#FF0000",
-                                    "labelPosition": "right",
-                                    "balloonText": "Man Qty:[[value]]",
-                                    "showBalloon": true,
-                                    "animationPlayed": true,
-                                    "labelText": "[[value]]",
-                                    "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
-                                    "labelColor": "#FF0000", // Màu chữ trên đường
-                                }, {
-                                    "id": "g3",
-                                    "title": "Target",
-                                    "valueField": "Target",
-                                    "type": "smoothedLine",
-                                    "valueAxis": "a1",
-                                    "lineColor": "#006600",
-                                    "balloonText": "[[value]]",
-                                    "lineThickness": 4,
-                                    "legendValueText": "[[value]]",
-                                    "bullet": "square",
-                                    "bulletBorderColor": "#006600",
-                                    "bulletBorderThickness": 1,
-                                    "bulletBorderAlpha": 1,
-                                    "dashLengthField": "dashLength",
-                                    "animationPlayed": true,
-                                    "labelText": "[[value]]",
-                                    "labelPosition": "top", // Giá trị nằm trên điểm của đường
-                                    "labelColor": "#006600", // Màu chữ trên đường
-                                }],
-
-                                "chartCursor": {
-                                    "zoomable": false,
-                                    "categoryBalloonDateFormat": "DD",
-                                    "cursorAlpha": 0,
-                                    "valueBalloonsEnabled": false
-                                },
-                                "legend": {
-                                    "bulletType": "round",
-                                    "equalWidths": false,
-                                    "valueWidth": 120,
-                                    "useGraphSettings": true,
-                                    "color": "#FFFFFF"
-                                }
-                            });
-
-                            var chart = AmCharts.makeChart("chartPie_@charID", {
-                                "type": "pie",
-                                "addClassNames": true,
-                                "classNameField": "class",
-                                "dataProvider": [{
-                                    "value": 3,
-                                    "category": "Surface",
-                                    "class": "color1"
-                                }, {
-                                    "value": 5,
-                                    "category": "Alighment",
-                                    "class": "color2"
-                                }, {
-                                    "value": 4,
-                                    "category": "Electtrical",
-                                    "class": "color3"
-                                }],
-                                "valueField": "value",
-                                "categoryField": "category",
-                                "labelRadius": 10,  // Adjust label radius
-                                "radius": "42%",
-                                "innerRadius": "60%",
-                                "labelText": "[[category]]",  // Display the category field as the label text
-                                "labelColorField": "color",  // Optional: If you want custom colors for the labels
-                                "labelFontSize": 14,         // Adjust the font size of the labels
-                                "labelColor": "#FFFFFF",     // This changes the label text color to white
-                                "export": {
-                                    "enabled": true
-                                },
-                                "labelPosition": "outside",  // Ensure the labels are outside the slices
-                                "fontSize": 14,
-                                "fontColor": "#FFFFFF",      // Optional: Ensure the font color is white
-                                "valueBox": {
-                                    "enabled": true,
-                                    "text": "[[value]]"
-                                },
-                                "labelText": "[[category]]",  // Ensure category is used in the label
-                            });
+                            charIDs.push({
+                                charID: "@charID",
+                                date: "@date.ToString("yyyyMMdd")",
+                                oper: "@item.Operation",
+                                wc: "@item.WC"
+                            })
                         });
 
                     </script>
