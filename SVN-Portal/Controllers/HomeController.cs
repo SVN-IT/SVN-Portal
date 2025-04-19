@@ -6,6 +6,7 @@ using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -452,7 +453,7 @@ namespace SVN_Portal.Controllers
         public async Task<IActionResult> GetDataByOperAndWCMainDashBoard(string date, string oper, string wc)
         {
             QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
-            string strProductionResultTable = string.Empty;
+            string strForecase = string.Empty;
             string strTargetTable = string.Empty;
 
             try
@@ -474,13 +475,13 @@ namespace SVN_Portal.Controllers
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
                 {
-                    strProductionResultTable = BuildProductionResultTable(model);
-                    strTargetTable = BuildTargetTable(model);
+                    strForecase = BuildForecastInfo(model.Forecast);
+                    strTargetTable = BuildAchievementCard(model);
                 }
                 return new JsonResult(new
                 {
                     result = true,
-                    productionResultTable = strProductionResultTable,
+                    strForecase = strForecase,
                     targetTable = strTargetTable,
                     pdmodel = JsonConvert.SerializeObject(model.ViewModels),
                     achieve = model.Achieve,
@@ -667,9 +668,83 @@ namespace SVN_Portal.Controllers
                 }
                 sb.Append("<div>");
                 if(item.Item == "Daily Plan")
+                {
+                    sb.Append("<strong class='f-s-26'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                    sb.Append("<br>");
+                }
+                if (item.Item == "UPH")
+                {
+                    sb.Append("<strong class='f-s-26'>⚙️ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                    sb.Append("<br>");
+                }
+                if (item.Item == "UPPH")
+                {
+                    sb.Append("<strong class='f-s-26'>📈 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                    sb.Append("<br>");
+                }
+                if (item.Item == "Labor")
+                {
+                    sb.Append("<strong class='f-s-26'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                    sb.Append("<br>");
+                }
+                if (item.Item == "Defect")
+                {
+                    sb.Append("<strong class='f-s-26'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                    sb.Append("<br>");
+                }
+
+                if(item.Item == "Defect")
+                {
+                    sb.Append("<span class='f-s-26'> " + Math.Round(item.Target, 2) + " %</span>");
+                    sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
+                    sb.Append("<span>");
+                    sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                    sb.Append("</span>");
+                }
+                else
+                {
+                    sb.Append("<span class='f-s-26'> " + Math.Round(item.Target, 2) + "</span>");
+                    sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
+                    sb.Append("<span>");
+                    sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                    sb.Append("</span>");
+                }
+
                 sb.Append("</div>");
                 sb.Append("</div>");
             }
+            return sb.ToString();
+        }
+
+        private string BuildForecastInfo(double Forecast)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (Forecast > 100)
+            {
+                sb.Append("<span style='font-size:100px;'>☀️</span>");                    
+            }
+            else if (Forecast > 75 && Forecast <= 100)
+            {
+                sb.Append("<span style='font-size:100px;'>🌥️</span>");
+            }
+            else if (Forecast > 50 && Forecast <= 75)
+            {
+                sb.Append("<span style='font-size:100px;'>☁️</span>");
+            }
+            else if (Forecast > 30 && Forecast <= 50)
+            {
+                sb.Append("<span style='font-size:100px;'>🌦️</span>");
+            }
+            else if (Forecast > 10 && Forecast <= 30)
+            {
+                sb.Append("<span style='font-size:100px;'>🌧️</span>");
+            }
+            else
+            {
+                sb.Append("<span style='font-size:100px;'>⚡</span>");
+            }
+            sb.Append("<h4 class='mt-3 text-center'>" + Forecast + " %</h4>");
+            sb.Append("<h3 class='mt-3 text-center'>Forecast</h3>");
             return sb.ToString();
         }
 
