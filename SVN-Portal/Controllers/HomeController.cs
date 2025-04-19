@@ -448,6 +448,54 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetDataByOperAndWCMainDashBoard(string date, string oper, string wc)
+        {
+            QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+            string strProductionResultTable = string.Empty;
+            string strTargetTable = string.Empty;
+
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string tableName = "SVN_Production_result_Viindoo";
+                OperInfo operInfo = new OperInfo();
+                operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+                if (operInfo != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(wc))
+                    {
+                        operInfo.WCName = wc;
+                    }
+                }
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
+
+                //sử dụng stringBuilder để build lại 2 table
+                if (model != null)
+                {
+                    strProductionResultTable = BuildProductionResultTable(model);
+                    strTargetTable = BuildTargetTable(model);
+                }
+                return new JsonResult(new
+                {
+                    result = true,
+                    productionResultTable = strProductionResultTable,
+                    targetTable = strTargetTable,
+                    pdmodel = JsonConvert.SerializeObject(model.ViewModels),
+                    achieve = model.Achieve,
+                    forecast = model.Forecast,
+                    woRunning = model.WORunning,
+                    product = model.Product,
+                    customer = model.Customer
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { result = false, message = ex.Message });
+            }
+        }
+
         private string BuildProductionResultTable(QtyProdResultByOperViewModel model)
         {
             StringBuilder sb = new StringBuilder();
@@ -577,6 +625,52 @@ namespace SVN_Portal.Controllers
                 }
             }
                 return sb.ToString();
+        }
+
+        private string BuildAchievementCard(QtyProdResultByOperViewModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach(var item in model.TargetViewModels)
+            {
+                string textColor = string.Empty;
+                sb.Append("<div class='target-item bg-primary'>");
+                string status = string.Empty;
+                if (item.Item == "Defect")
+                {
+                    if (item.Percent > 100)
+                    {
+                        status = "bg-danger";
+                    }
+                    else if (item.Percent > 75 && item.Percent <= 100)
+                    {
+                        status = "bg-warning";
+                    }
+                    else
+                    {
+                        status = "bg-primary";
+                    }
+                }
+                else
+                {
+                    if (item.Percent > 0 && item.Percent <= 75)
+                    {
+                        status = "bg-danger";
+                    }
+                    else if (item.Percent > 75 && item.Percent <= 92)
+                    {
+                        status = "bg-warning";
+                    }
+                    else
+                    {
+                        status = "bg-primary";
+                    }
+                }
+                sb.Append("<div>");
+                if(item.Item == "Daily Plan")
+                sb.Append("</div>");
+                sb.Append("</div>");
+            }
+            return sb.ToString();
         }
 
         public IActionResult Privacy()
