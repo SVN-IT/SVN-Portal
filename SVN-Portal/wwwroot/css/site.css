@@ -96,6 +96,26 @@ body {
     background-color: #ef4444 !important;
 }
 
+.text-dailyPlan {
+    color: #3b82f6 !important;
+}
+
+.text-uph {
+    color: #10b981 !important;
+}
+
+.text-upph {
+    color: #6366f1 !important;
+}
+
+.text-labor {
+    color: #f59e0b !important;
+}
+
+.text-defect {
+    color: #ef4444 !important;
+}
+
 .rate-box {
     padding-right: 5px;
     padding-left: 5px;

@@ -90,7 +90,7 @@
 
             "addClassNames": true,
             "startDuration": 1,
-            // "color": "#FFFFFF",
+            "color": "#FFFFFF",
             "marginLeft": 0,
 
             "categoryField": "Time",
@@ -175,8 +175,8 @@
                 "bulletType": "round",
                 "equalWidths": false,
                 "valueWidth": 120,
-                "useGraphSettings": true
-                // "color": "#FFFFFF"
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
             }
         });
     }
@@ -191,7 +191,7 @@
 
             "addClassNames": true,
             "startDuration": 1,
-            // "color": "#FFFFFF",
+            "color": "#FFFFFF",
             "marginLeft": 0,
 
             "categoryField": "Time",
@@ -239,8 +239,8 @@
                 "bulletType": "round",
                 "equalWidths": false,
                 "valueWidth": 120,
-                "useGraphSettings": true
-                // "color": "#FFFFFF"
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
             }
         });
     }
@@ -250,7 +250,7 @@
 
 <div class="row svn-layout">
     <div class="col-12 text-center">
-        <h1><b>@ViewBag.oper</b></h1>
+        <h1 class="text-white"><b>@ViewBag.oper</b></h1>
     </div>
     <div class="col-lg-12">
         <form method="post">
@@ -333,7 +333,7 @@
                         </div>
                     </div>
                     <div class="col-12 ">
-                        <div class="card">
+                        <div class="card svn-card">
                             <div class="card-title">
                                 <h4>Production result</h4>
                             </div>
@@ -661,7 +661,7 @@
 </div>
 <style>
     #defectchart {
-        height: 395px;
+        height: 375px;
         width: 100%;
     }
 </style>
@@ -676,7 +676,7 @@
         pointer: {
             length: 0.42, // // Relative to gauge radius
             strokeWidth: 0.029, // The thickness
-            color: '#000000' // Fill color
+            color: '#ffffff' // Fill color
         },
         limitMax: true,     // If false, max value increases automatically if value > maxValue
         limitMin: true,     // If true, the min value of the gauge will be fixed
@@ -706,7 +706,7 @@
         staticLabels: {
             font: "10px sans-serif",  // Specifies font
             labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],  // Print labels at these values
-            color: "#000000",  // Optional: Label text color
+            color: "#ffffff",  // Optional: Label text color
             fractionDigits: 0  // Optional: Numerical precision. 0=round off.
         },
 
@@ -737,7 +737,7 @@
         pointer: {
             length: 0.42, // // Relative to gauge radius
             strokeWidth: 0.029, // The thickness
-            color: '#000000' // Fill color
+            color: '#ffffff' // Fill color
         },
         limitMax: true,     // If false, max value increases automatically if value > maxValue
         limitMin: true,     // If true, the min value of the gauge will be fixed
@@ -767,7 +767,7 @@
         staticLabels: {
             font: "10px sans-serif",  // Specifies font
             labels: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],  // Print labels at these values
-            color: "#000000",  // Optional: Label text color
+            color: "#ffffff",  // Optional: Label text color
             fractionDigits: 0  // Optional: Numerical precision. 0=round off.
         },
 
