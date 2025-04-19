@@ -30,7 +30,7 @@ $(document).ready(function () {
         document.getElementById('datetime').innerHTML = time;
     }
 
-    setInterval(updateDateTime, 1000); // Cập nhật mỗi giây
+    /*setInterval(updateDateTime, 1000);*/ // Cập nhật mỗi giây
     updateDateTime(); // Gọi hàm ngay lập tức để hiển thị thời gian ban đầu
 
     

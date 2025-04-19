@@ -98,6 +98,7 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
                         viewModel.Operation = item;
+                        
 
                         //sai ở đây
                         //dùng linq mà list đang bị null
@@ -132,6 +133,7 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.WORunning = dataUIbyOperLine.WORunning;
                             viewModel.Product = dataUIbyOperLine.Product;
                             viewModel.Customer = dataUIbyOperLine.Customer;
+                            viewModel.WC = dataUIbyOperLine.WC;
                         }
                         var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Man Q'ty");
                         if (dataUIbyOperManQty != null)
@@ -319,35 +321,35 @@ namespace SVN_Portal.DAL.DataPortal
                                 Item = "Daily Plan",
                                 Target = dataUIByOper.Daily_plan,
                                 Current = dataUIByOper.Total_Qty,
-                                Percent = (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100
+                                Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
                             };
                             SVN_targetViewModel UPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPH",
                                 Target = dataUIByOper.UPH,
                                 Current = dataUIByOper.Current_UPH,
-                                Percent = (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100
+                                Percent = dataUIByOper.UPH != 0 ? (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100 : 0
                             };
                             SVN_targetViewModel UPPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPPH",
                                 Target = dataUIByOper.UPPH,
                                 Current = dataUIByOper.Current_UPPH,
-                                Percent = (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100
+                                Percent = dataUIByOper.UPPH != 0 ? (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100 : 0
                             };
                             SVN_targetViewModel LaborVM = new SVN_targetViewModel()
                             {
                                 Item = "Labor",
                                 Target = dataUIByOper.Labor,
                                 Current = dataUIByOper.MaxLabor,
-                                Percent = (dataUIByOper.MaxLabor / dataUIByOper.Labor) * 100
+                                Percent = dataUIByOper.Labor != 0 ? (dataUIByOper.MaxLabor / dataUIByOper.Labor) * 100 : 0
                             };
                             SVN_targetViewModel NGVM = new SVN_targetViewModel()
                             {
                                 Item = "Defect",
                                 Target = dataUIByOper.Defect * 100,
-                                Current = (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100,
-                                Percent = (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100
+                                Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
+                                Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
                             };
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
@@ -476,35 +478,35 @@ namespace SVN_Portal.DAL.DataPortal
                             Item = "Daily Plan",
                             Target = dataUIByOper.Daily_plan,
                             Current = dataUIByOper.Total_Qty,
-                            Percent = (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100
+                            Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
                         };
                         SVN_targetViewModel UPHVM = new SVN_targetViewModel()
                         {
                             Item = "UPH",
                             Target = dataUIByOper.UPH,
                             Current = dataUIByOper.Current_UPH,
-                            Percent = (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100
+                            Percent = dataUIByOper.UPH != 0 ? (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100 : 0
                         };
                         SVN_targetViewModel UPPHVM = new SVN_targetViewModel()
                         {
                             Item = "UPPH",
                             Target = dataUIByOper.UPPH,
                             Current = dataUIByOper.Current_UPPH,
-                            Percent = (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100
+                            Percent = dataUIByOper.UPPH != 0 ? (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100 : 0
                         };
                         SVN_targetViewModel LaborVM = new SVN_targetViewModel()
                         {
                             Item = "Labor",
                             Target = dataUIByOper.Labor,
                             Current = dataUIByOper.MaxLabor,
-                            Percent = (dataUIByOper.MaxLabor / dataUIByOper.Labor) * 100
+                            Percent = dataUIByOper.Labor != 0 ? (dataUIByOper.MaxLabor / dataUIByOper.Labor) * 100 : 0
                         };
                         SVN_targetViewModel NGVM = new SVN_targetViewModel()
                         {
                             Item = "Defect",
                             Target = dataUIByOper.Defect * 100,
-                            Current = (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100,
-                            Percent = (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100
+                            Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
+                            Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
                         };
                         viewModel.TargetViewModels.Add(dailyPlanVM);
                         viewModel.TargetViewModels.Add(UPHVM);

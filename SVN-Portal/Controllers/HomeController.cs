@@ -481,14 +481,9 @@ namespace SVN_Portal.Controllers
                 return new JsonResult(new
                 {
                     result = true,
-                    strForecase = strForecase,
+                    forecase = strForecase,
                     targetTable = strTargetTable,
-                    pdmodel = JsonConvert.SerializeObject(model.ViewModels),
-                    achieve = model.Achieve,
-                    forecast = model.Forecast,
-                    woRunning = model.WORunning,
-                    product = model.Product,
-                    customer = model.Customer
+                    pdmodel = JsonConvert.SerializeObject(model.ViewModels)
                 });
             }
             catch (Exception ex)

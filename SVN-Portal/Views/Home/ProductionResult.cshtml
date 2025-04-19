@@ -186,7 +186,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="target-container">
+                        <div id="achieveCard_@charID" class="target-container">
                             @foreach (var subitem in item.TargetViewModels)
                             {
                                 string textColor = string.Empty;
@@ -322,7 +322,7 @@
                             <div id=@charID></div>
                         </div>
                         <div class="col-12 col-md-3 row">
-                            <div class="col-12 text-center border-bottom">
+                            <div id="divForecast_@charID" class="col-12 text-center border-bottom">
                                 @if (item.Forecast > 100)
                                 {
                                     <span style="font-size:100px;">☀️</span>
@@ -393,48 +393,71 @@
             </div>
         </div>
     }
-
-
-    @*   <div class="col-lg-6">
-        <div class="card">
-            <div class="card-title">
-                <h4>AmChart</h4>
-            </div>
-            <div class="card-body">
-                <div id="chartdiv3"></div>
-            </div>
-        </div>
-    </div> *@
-    @*   <div class="col-lg-6">
-        <div class="card">
-            <div class="card-title">
-                <h4>AmChart</h4>
-            </div>
-            <div class="card-body">
-                <div id="chartdiv"></div>
-            </div>
-        </div>
-    </div> *@
 </div>
-@* <div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-title">
-                <h4>AmChart</h4>
-            </div>
-            <div class="card-body">
-                <div id="chartMap"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-title">
-                <h4>AmChart</h4>
-            </div>
-            <div class="card-body">
-                <div id="zoomable"></div>
-            </div>
-        </div>
-    </div>
-</div> *@
+<script>
+    function fetchChartData(charID, date, oper, wc) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/Home/GetDataByOperAndWCMainDashBoard',
+                type: 'POST',
+                data: {
+                    date: date,
+                    oper: oper,
+                    wc: wc
+                },
+                success: function (response) {
+                    if (response.result) {
+                        // Clear content first
+                        $(`#achieveCard_${charID}`).empty();
+                        $(`#divForecast_${charID}`).empty();
+
+                        // Populate content after clearing
+                        $(`#achieveCard_${charID}`).html(response.targetTable);
+                        $(`#divForecast_${charID}`).html(response.forecase);
+
+                        var pdData = JSON.parse(response.pdmodel);
+
+                        // Build charts for this charID
+                        BuildProductionChart(pdData, charID);
+
+                        var defectParam = [{
+                            "value": 3,
+                            "category": "Surface",
+                            "class": "color1"
+                        }, {
+                            "value": 5,
+                            "category": "Alighment",
+                            "class": "color2"
+                        }, {
+                            "value": 4,
+                            "category": "Electtrical",
+                            "class": "color3"
+                        }];
+
+                        BuildDefectPieChart(defectParam, "chartPie_" + charID)
+
+                        resolve(); // Mark AJAX call as complete
+                    } else {
+                        console.error("Error: " + response.message);
+                        reject(response.message); // Handle failure
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error: " + status + ", " + error);
+                    reject(error); // Reject promise on AJAX error
+                }
+            });
+        });
+    }
+
+    $(document).ready(function () {
+        async function executeSequentialCalls(charIDs) {
+            for (const charID of charIDs) {
+                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+            }
+            setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        }
+        setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+
+    });
+</script>
