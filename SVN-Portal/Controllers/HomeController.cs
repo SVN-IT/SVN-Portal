@@ -433,15 +433,24 @@ namespace SVN_Portal.Controllers
                 {
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildTargetTable(model);
+                    return new JsonResult(new
+                    {
+                        result = true,
+                        productionResultTable = strProductionResultTable,
+                        targetTable = strTargetTable,
+                        pdmodel = JsonConvert.SerializeObject(model.ViewModels),
+                        achieve = model.Achieve,
+                        forecast = model.Forecast,
+                        woRunning = model.WORunning,
+                        product = model.Product,
+                        customer = model.Customer
+                    });
                 }
-                return new JsonResult(new { result = true, productionResultTable = strProductionResultTable, 
-                    targetTable = strTargetTable, pdmodel = JsonConvert.SerializeObject(model.ViewModels),
-                    achieve = model.Achieve,
-                    forecast = model.Forecast,
-                    woRunning = model.WORunning,
-                    product = model.Product,
-                    customer = model.Customer
-                });
+                else
+                {
+                    return new JsonResult(new { result = false, message = "No data" });
+                }
+
             }
             catch (Exception ex)
             {
@@ -477,14 +486,20 @@ namespace SVN_Portal.Controllers
                 {
                     strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model);
+
+                    return new JsonResult(new
+                    {
+                        result = true,
+                        forecase = strForecase,
+                        targetTable = strTargetTable,
+                        pdmodel = JsonConvert.SerializeObject(model.ViewModels)
+                    });
                 }
-                return new JsonResult(new
+                else
                 {
-                    result = true,
-                    forecase = strForecase,
-                    targetTable = strTargetTable,
-                    pdmodel = JsonConvert.SerializeObject(model.ViewModels)
-                });
+                    return new JsonResult(new { result = false, message = "No data" });
+                }
+                
             }
             catch (Exception ex)
             {

@@ -9,7 +9,7 @@
     function BuildProductionChart(dataParam, chartID){
         dataParam = dataParam.map(item => ({
             ...item,
-            Time: `${item.Time} (Line: ${item.Line})` // Concatenate Line value with Time
+            Time: `${item.Time}\nLine: ${item.Line}` // Concatenate Line value with Time
         }));
         var chart = AmCharts.makeChart(chartID, {
             "type": "serial",
@@ -21,6 +21,7 @@
             "addClassNames": true,
             "startDuration": 1,
             "color": "#FFFFFF",
+            "fontSize": 20,
             "marginLeft": 0,
 
             "categoryField": "Time",
@@ -70,7 +71,7 @@
                 "labelPosition": "right",
                 "balloonText": "Man Qty:[[value]]",
                 "showBalloon": true,
-                "animationPlayed": true,
+                "animationPlayed": false,
                 "labelText": "[[value]]",
                 "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
                 "labelColor": "#FF0000", // Màu chữ trên đường
@@ -89,7 +90,7 @@
                 "bulletBorderThickness": 1,
                 "bulletBorderAlpha": 1,
                 "dashLengthField": "dashLength",
-                "animationPlayed": true,
+                "animationPlayed": false,
                 "labelText": "[[value]]",
                 "labelPosition": "top", // Giá trị nằm trên điểm của đường
                 "labelColor": "#006600", // Màu chữ trên đường
@@ -126,12 +127,14 @@
             "labelColorField": "color",  // Optional: If you want custom colors for the labels
             "labelFontSize": 14,         // Adjust the font size of the labels
             "labelColor": "#FFFFFF",     // This changes the label text color to white
-            "export": {
-                "enabled": true
-            },
+            // "export": {
+            //     "enabled": true
+            // },
             "labelPosition": "outside",  // Ensure the labels are outside the slices
-            "fontSize": 14,
+            "fontSize": 30,
             "fontColor": "#FFFFFF",      // Optional: Ensure the font color is white
+            "animationPlayed": false,
+            "color": "#FFFFFF"
         });
     }
     
@@ -438,8 +441,8 @@
 
                         resolve(); // Mark AJAX call as complete
                     } else {
-                        console.error("Error: " + response.message);
-                        reject(response.message); // Handle failure
+                        // console.error("Error: " + response.message);
+                        // reject(response.message); // Handle failure
                     }
                 },
                 error: function (xhr, status, error) {
