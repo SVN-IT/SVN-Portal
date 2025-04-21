@@ -443,12 +443,12 @@
                         resolve(); // Mark AJAX call as complete
                     } else {
                         // console.error("Error: " + response.message);
-                        // reject(response.message); // Handle failure
+                        reject(response.message); // Handle failure
                     }
                 },
                 error: function (xhr, status, error) {
                     // console.error("AJAX Error: " + status + ", " + error);
-                    // reject(error); // Reject promise on AJAX error
+                    reject(error); // Reject promise on AJAX error
                 }
             });
         });
@@ -457,11 +457,15 @@
     $(document).ready(function () {
         async function executeSequentialCalls(charIDs) {
             for (const charID of charIDs) {
-                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+                try{
+                    await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+                } catch (error) {
+                    // console.error("Error fetching data for " + charID.charID + ": " + error);
+                }
             }
             setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         }
-        setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        executeSequentialCalls(charIDs);
 
     });
 </script>
