@@ -19,7 +19,7 @@
             "dataProvider": dataParam,
 
             "addClassNames": true,
-            "startDuration": 1,
+            "startDuration": 0,
             "color": "#FFFFFF",
             "fontSize": 20,
             "marginLeft": 0,
@@ -116,6 +116,7 @@
         var chart = AmCharts.makeChart(chartID, {
             "type": "pie",
             "addClassNames": true,
+            "startDuration": 0,
             "classNameField": "class",
             "dataProvider": dataParam,
             "valueField": "value",
@@ -446,8 +447,8 @@
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.error("AJAX Error: " + status + ", " + error);
-                    reject(error); // Reject promise on AJAX error
+                    // console.error("AJAX Error: " + status + ", " + error);
+                    // reject(error); // Reject promise on AJAX error
                 }
             });
         });
