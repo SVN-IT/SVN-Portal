@@ -124,18 +124,29 @@
             "labelRadius": 10,  // Adjust label radius
             "radius": "42%",
             "innerRadius": "60%",
-            "labelText": "[[category]]",  // Display the category field as the label text
-            "labelColorField": "color",  // Optional: If you want custom colors for the labels
-            "labelFontSize": 14,         // Adjust the font size of the labels
-            "labelColor": "#FFFFFF",     // This changes the label text color to white
+            /* "labelText": "[[category]]", */  // Display the category field as the label text
+            /* "labelColorField": "color",  */ // Optional: If you want custom colors for the labels
+            /* "labelFontSize": 14, */         // Adjust the font size of the labels
+            /* "labelColor": "#FFFFFF", */     // This changes the label text color to white
             // "export": {
             //     "enabled": true
             // },
-            "labelPosition": "outside",  // Ensure the labels are outside the slices
-            "fontSize": 30,
+            /* "labelPosition": "outside", */  // Ensure the labels are outside the slices
+            "fontSize": 14,
             "fontColor": "#FFFFFF",      // Optional: Ensure the font color is white
             "animationPlayed": false,
-            "color": "#FFFFFF"
+            "color": "#FFFFFF",
+            "legendValueText": "[[category]: [value]]",
+            "legend": {
+                "enabled": true,               // Bật legend
+                "position": "bottom",          // Đặt legend ở dưới biểu đồ
+                "marginTop": 10,               // Khoảng cách trên cùng của legend
+                "marginBottom": 10,            // Khoảng cách dưới cùng của legend
+                "labelWidth": 100,             // Độ rộng của nhãn trong legend
+                "markerType": "circle",        // Loại marker trong legend (có thể là "square", "circle", v.v.)
+                "fontSize": 14,                // Kích thước font chữ của legend
+                "color": "#FFFFFF"             // Màu chữ của legend
+            }
         });
     }
     
