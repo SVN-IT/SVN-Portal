@@ -112,36 +112,39 @@
                             </div>
                             @foreach (var subitem in item.ViewModels)
                             {
-                                var times = subitem.Time.Split('-');
-                                DateTime today = DateTime.Today;
+                                if (!string.IsNullOrWhiteSpace(subitem.Time))
+                                { 
+                                    var times = subitem.Time.Split('-');
+                                    DateTime today = DateTime.Today;
 
-                                // Chuyển đổi thành định dạng HH:mm
-                                string startTime = times[0].Replace("h", ":");
-                                if (startTime.Last() == ':')
-                                {
-                                    startTime = startTime + "00";
-                                }
-                                if(startTime.Length == 4)
-                                {
-                                    startTime = "0" + startTime;
-                                }
+                                    // Chuyển đổi thành định dạng HH:mm
+                                    string startTime = times[0].Replace("h", ":");
+                                    if (startTime.Last() == ':')
+                                    {
+                                        startTime = startTime + "00";
+                                    }
+                                    if (startTime.Length == 4)
+                                    {
+                                        startTime = "0" + startTime;
+                                    }
 
-                                string endTime = times[1].Replace("h", ":");
-                                if (endTime.Last() == ':')
-                                {
-                                    endTime = endTime + "00";
-                                }
-                                if (endTime.Length == 4)
-                                {
-                                    endTime = "0" + endTime;
-                                }
+                                    string endTime = times[1].Replace("h", ":");
+                                    if (endTime.Last() == ':')
+                                    {
+                                        endTime = endTime + "00";
+                                    }
+                                    if (endTime.Length == 4)
+                                    {
+                                        endTime = "0" + endTime;
+                                    }
 
-                                // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
-                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
-                                {
-                                    currentTime = subitem.Time;
+                                    // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                    if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                    {
+                                        currentTime = subitem.Time;
+                                    }
                                 }
                                 <div class="col-2">
                                     <div class="row">
@@ -201,7 +204,7 @@
                                         status = "bg-danger";
                                         }
                                     */
-                                    if (subitem.Percent > 100)
+                                                            if (subitem.Percent > 100)
                                     {
                                         status = "bg-danger";
                                     }
@@ -216,36 +219,54 @@
                                 }
                                 else if (subitem.Item == "Daily Plan")
                                 {
-                                    var times = currentTime.Split('-');
-                                    DateTime today = DateTime.Today;
+                                    if (!string.IsNullOrWhiteSpace(currentTime))
+                                    {
+                                        var times = currentTime.Split('-');
+                                        DateTime today = DateTime.Today;
 
-                                    // Chuyển đổi thành định dạng HH:mm
-                                    string startTime = times[0].Replace("h", ":");
-                                    if (startTime.Last() == ':')
-                                    {
-                                        startTime = startTime + "00";
-                                    }
-                                    if (startTime.Length == 4)
-                                    {
-                                        startTime = "0" + startTime;
-                                    }
+                                        // Chuyển đổi thành định dạng HH:mm
+                                        string startTime = times[0].Replace("h", ":");
+                                        if (startTime.Last() == ':')
+                                        {
+                                            startTime = startTime + "00";
+                                        }
+                                        if (startTime.Length == 4)
+                                        {
+                                            startTime = "0" + startTime;
+                                        }
 
-                                    string endTime = times[1].Replace("h", ":");
-                                    if (endTime.Last() == ':')
-                                    {
-                                        endTime = endTime + "00";
-                                    }
-                                    if (endTime.Length == 4)
-                                    {
-                                        endTime = "0" + endTime;
-                                    }
+                                        string endTime = times[1].Replace("h", ":");
+                                        if (endTime.Last() == ':')
+                                        {
+                                            endTime = endTime + "00";
+                                        }
+                                        if (endTime.Length == 4)
+                                        {
+                                            endTime = "0" + endTime;
+                                        }
 
-                                    // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
-                                    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                    if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
-                                    {
-                                        status = "bg-primary";
+                                        // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                        DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                        DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                        if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                        {
+                                            status = "bg-primary";
+                                        }
+                                        else
+                                        {
+                                            if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                            {
+                                                status = "bg-danger";
+                                            }
+                                            else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                            {
+                                                status = "bg-warning";
+                                            }
+                                            else
+                                            {
+                                                status = "bg-primary";
+                                            }
+                                        }
                                     }
                                     else
                                     {
@@ -262,6 +283,7 @@
                                             status = "bg-primary";
                                         }
                                     }
+
                                 }
                                 else
                                 {
@@ -279,13 +301,9 @@
                                         status = "bg-primary";
                                     }
                                 }
-
-
-
-
                                 <div class="col-2 border table-cell text-center @status"></div>
                                 @* <div class="col-3 border table-cell">@Math.Round(item.Est, 2) %</div> *@
-                            }
+                        }
                         </div>
                     </div>
 
