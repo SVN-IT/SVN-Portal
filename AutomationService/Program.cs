@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var logDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File(Path.Combine(logDirectory, "api-log-.txt"), rollingInterval: RollingInterval.Day, retainedFileCountLimit: 14)
+    .WriteTo.File(@"C:\Logs\api-log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 14)
     .CreateLogger();
 builder.Host.UseSerilog();
 
