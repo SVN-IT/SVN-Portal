@@ -6,9 +6,11 @@ namespace AutomationService.Services
     public class APIService
     {
         APIConfiguration _apiConfiguration;
-        public APIService(APIConfiguration apiConfiguration)
+        private readonly ILogger<APIService> _logger;
+        public APIService(APIConfiguration apiConfiguration, ILogger<APIService> logger)
         {
             _apiConfiguration = apiConfiguration;
+            _logger = logger;
         }
 
         /// <summary>
@@ -19,10 +21,21 @@ namespace AutomationService.Services
         {
             HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(_apiConfiguration.BaseURL, _apiConfiguration.Timeout);
             BODataProcessResult processResult = new BODataProcessResult();
-            foreach (var apiInfo in _apiConfiguration.APIURL)
+            try
             {
-                var result = await httpClientHelper.PostRequest(apiInfo.URL, null, new CancellationToken(false));
-                processResult = result;
+                foreach (var apiInfo in _apiConfiguration.APIURL)
+                {
+                    var result = await httpClientHelper.PostRequest(apiInfo.URL, null, new CancellationToken(false));
+                    processResult = result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[Time]: {DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} [Status]: {false} [Message]: {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"[Time]: {DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} [Status]: {processResult.OK} [Message]: {processResult.Message}");
             }
             return processResult;
         }
