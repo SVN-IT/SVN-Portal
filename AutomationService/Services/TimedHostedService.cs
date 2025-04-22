@@ -8,10 +8,12 @@ namespace AutomationService.Services
         private Timer? _timer;
         APIConfiguration _apiConfiguration;
         APIService _apiService;
-        public TimedHostedService(APIConfiguration apiConfiguration, APIService apiService)
+        ILogger<TimedHostedService> _logger;
+        public TimedHostedService(APIConfiguration apiConfiguration, APIService apiService, ILogger<TimedHostedService> logger)
         {
             _apiConfiguration = apiConfiguration;
             _apiService = apiService;
+            _logger = logger;
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
