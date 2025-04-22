@@ -575,6 +575,7 @@ namespace ViidooDBServiceAPI.Services
             {
                 processResult.Message = ex.Message;
             }
+            processResult.DataType = dataRequest.TableName;
             return processResult;
         }
 
