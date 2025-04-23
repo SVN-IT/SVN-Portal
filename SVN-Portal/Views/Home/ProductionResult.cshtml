@@ -124,7 +124,7 @@
             "labelRadius": 10,  // Adjust label radius
             "radius": "42%",
             "innerRadius": "60%",
-            "labelText": "[[category]]",
+            "labelText": "", //[[category]]
             "labelColorField": "color",
             "labelFontSize": 14,
             "labelColor": "#FFFFFF",
@@ -136,16 +136,18 @@
             "fontColor": "#FFFFFF",
             "animationPlayed": false,
             "color": "#FFFFFF",
-            "legendValueText": "[[category]: [value]]",
+            // Configure legend
             "legend": {
-                "enabled": true,               // Bật legend
-                "position": "bottom",          // Đặt legend ở dưới biểu đồ
-                "marginTop": 10,               // Khoảng cách trên cùng của legend
-                "marginBottom": 10,            // Khoảng cách dưới cùng của legend
-                "labelWidth": 100,             // Độ rộng của nhãn trong legend
-                "markerType": "circle",        // Loại marker trong legend (có thể là "square", "circle", v.v.)
-                "fontSize": 14,                // Kích thước font chữ của legend
-                "color": "#FFFFFF"             // Màu chữ của legend
+                "enabled": true,                        // Bật legend
+                "position": "bottom",                   // Đặt legend ở dưới biểu đồ
+                "marginTop": 10,                        // Khoảng cách trên cùng của legend
+                "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
+                "labelWidth": 100,                      // Độ rộng của nhãn trong legend
+                "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
+                "fontSize": 14,                         // Kích thước font chữ của legend
+                "color": "#FFFFFF",                     // Màu chữ của legend
+                "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
+                "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
             }
         });
     }
