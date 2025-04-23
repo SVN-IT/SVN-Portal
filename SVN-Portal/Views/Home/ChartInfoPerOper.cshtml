@@ -79,7 +79,7 @@
         // Modify dataParam to include Line data in the Time field for categoryField
         dataParam = dataParam.map(item => ({
             ...item,
-            Time: `${item.Time} (Line: ${item.Line})` // Concatenate Line value with Time
+            Time: `${item.Time} \nLine: ${item.Line}` // Concatenate Line value with Time
         }));
         var chart = AmCharts.makeChart(chartID, {
             "type": "serial",
@@ -91,6 +91,7 @@
             "addClassNames": true,
             "startDuration": 1,
             "color": "#FFFFFF",
+            "fontSize": 20,
             "marginLeft": 0,
 
             "categoryField": "Time",
@@ -192,6 +193,7 @@
             "addClassNames": true,
             "startDuration": 1,
             "color": "#FFFFFF",
+            "fontSize": 20,
             "marginLeft": 0,
 
             "categoryField": "Time",
@@ -859,7 +861,7 @@
             }
             setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         }
-        setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        executeSequentialCalls(charIDs);
         
     });
 </script>
