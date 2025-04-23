@@ -52,7 +52,7 @@ namespace ViidooDBServiceAPI.Services
                     };
 
                     var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-                    var response = await client.PostAsync($"{url}jsonrpc", content);
+                    var response = await client.PostAsync($"{url}/web/session/authenticate", content);
 
                     response.EnsureSuccessStatusCode();
                     var responseString = await response.Content.ReadAsStringAsync();
