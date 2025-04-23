@@ -705,7 +705,7 @@ namespace SVN_Portal.Controllers
 
                 if(item.Item == "Defect")
                 {
-                    sb.Append("<span class='f-s-26'> " + Math.Round(item.Target, 2) + " %</span>");
+                    sb.Append("<span>Tar: " + Math.Round(item.Target, 2) + " %</span>");
                     sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
                     sb.Append("<span>");
                     sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
@@ -713,7 +713,7 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    sb.Append("<span class='f-s-26'> " + Math.Round(item.Target, 2) + "</span>");
+                    sb.Append("<span>Tar " + Math.Round(item.Target, 2) + "</span>");
                     sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
                     sb.Append("<span>");
                     sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
