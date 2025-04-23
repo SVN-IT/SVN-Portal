@@ -314,22 +314,22 @@
                                 </div>
                                 <div class="svn-machine-card">
                                     <div class="row">
-                                    @{
-                                        string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
-                                        string[] machineStateColor = { "btn-info", "btn-success", "btn-warning", "btn-primary", "btn-light", "btn-secondary", "btn-danger", "btn-dark" };
-                                    }
-                                    @if (equipments != null)
-                                    {
-                                        foreach (var item in equipments)
-                                        {
-                                            int stateIndex = Array.IndexOf(machineStates, item.State);
-                                            string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
-                                            <div class="col-1 mt-2">
-                                                <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
-                                            </div>
+                                        @{
+                                            string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
+                                            string[] machineStateColor = { "btn-info", "btn-success", "btn-warning", "btn-primary", "btn-light", "btn-secondary", "btn-danger", "btn-dark" };
                                         }
-                                    }
-                                </div>
+                                        @if (equipments != null)
+                                        {
+                                            foreach (var item in equipments)
+                                            {
+                                                int stateIndex = Array.IndexOf(machineStates, item.State);
+                                                string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
+                                                <div class="col-1 mt-2">
+                                                    <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
