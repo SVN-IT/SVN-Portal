@@ -9,6 +9,8 @@ namespace AutomationService.Services
         APIConfiguration _apiConfiguration;
         APIService _apiService;
         ILogger<TimedHostedService> _logger;
+        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+
         public TimedHostedService(APIConfiguration apiConfiguration, APIService apiService, ILogger<TimedHostedService> logger)
         {
             _apiConfiguration = apiConfiguration;
@@ -20,9 +22,21 @@ namespace AutomationService.Services
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(_apiConfiguration.TimeReload));
             return Task.CompletedTask;
         }
-        private void DoWork(object? state)
+        private async void DoWork(object? state)
         {
-            var result = _apiService.CallAPI().Result;
+            await _semaphore.WaitAsync();
+            try
+            {
+                await _apiService.CallAPI();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[Time]: {DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} [Status]: {false} [Message]: {ex.Message}");
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
         public Task StopAsync(CancellationToken cancellationToken)
         {
