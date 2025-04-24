@@ -20,9 +20,9 @@ namespace AutomationService.Services
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(_apiConfiguration.TimeReload));
             return Task.CompletedTask;
         }
-        private async void DoWork(object? state)
+        private void DoWork(object? state)
         {
-            await _apiService.CallAPI();
+            var result = _apiService.CallAPI().Result;
         }
         public Task StopAsync(CancellationToken cancellationToken)
         {
