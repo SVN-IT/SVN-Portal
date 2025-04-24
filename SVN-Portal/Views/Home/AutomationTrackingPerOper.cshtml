@@ -293,7 +293,7 @@
                                                             // Kiểm tra nếu Time là '10h10-12h'
                                                             if (item.Time === '13h-15h') {
                                                                 // Cộng thêm 5 vào Line
-                                                                item.Line += 5;
+                                                                item.Line += 4;
 
                                                                 passCount += 1;
                                                             }
@@ -318,7 +318,7 @@
                                                         let totalLine = dataParam.reduce((sum, item) => sum + item.Line, 0);
                                                         $("#sumLine").text(totalLine.toLocaleString());
                                                         BuildProductionChart(dataParam, @charID)
-                                                    }, 10000); // Repeat every 5 seconds
+                                                    }, 30000); // Repeat every 5 seconds
                                                 });
                                             </script>
                                         </div>
