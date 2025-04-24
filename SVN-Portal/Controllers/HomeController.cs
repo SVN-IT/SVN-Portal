@@ -405,6 +405,83 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        public async Task<IActionResult> AutomationTrackingPerOper(DateTime date, string oper = "Injection")
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+            try
+            {
+                
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                strdate = date.ToString("yyyyMMdd");
+                ViewBag.date = date;
+                ViewBag.oper = oper;
+                List<OperInfo> opers = new List<OperInfo>();
+                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                foreach (var item in singleOper)
+                {
+                    if (item.WC != null && item.WC.Count > 0)
+                    {
+                        foreach (var wc in item.WC)
+                        {
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                        }
+                    }
+                    else
+                    {
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                    }
+                }
+
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+
+                //Lấy danh sách thiết bị
+                List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
+                string equipmentTable = "SVN_Equipment_Info";
+                GrandDataPortal<SVN_Equipment_InfoUI> grandDataPortal = new GrandDataPortal<SVN_Equipment_InfoUI>(equipmentTable, connectionString);
+                string query = "SELECT * FROM SVN_Equipment_Info WHERE Operation = @Operation";
+                var param = new { Operation = oper };
+                equipments = grandDataPortal.GetListData(query, param);
+                ViewBag.Equipments = equipments;
+
+                if (models != null && models.Count > 0)
+                {
+                    models = models.OrderBy(x => x.WC).ToList();
+                    foreach (var item in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            item.PDName = userInfo.PDName;
+                            item.QCName = userInfo.QCName;
+                            item.PDURL = userInfo.PDURL;
+                            item.QCURL = userInfo.QCURL;
+                        }
+                        if (operInfo != null)
+                        {
+                            item.ColWidth = operInfo.ColWidth;
+                        }
+                    }
+                    model = models.FirstOrDefault(x => x.Operation == oper);
+                }
+
+                
+                return View(model);
+            }
+            catch (Exception ex)
+            { 
+                return View(model);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> GetDataByOperAndWC(string date, string oper, string wc)
         {
