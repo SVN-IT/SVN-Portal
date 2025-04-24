@@ -267,7 +267,7 @@
                                         }
                                         <style>
                                             #@charID {
-                                                height: 600px;
+                                                height: 570px;
                                                 width: 100%;
                                             }
                                         </style>
@@ -316,7 +316,7 @@
                                                             passCount = 0;
                                                         }
                                                         let totalLine = dataParam.reduce((sum, item) => sum + item.Line, 0);
-                                                        $("#sumLine").text(totalLine);
+                                                        $("#sumLine").text(totalLine.toLocaleString());
                                                         BuildProductionChart(dataParam, @charID)
                                                     }, 10000); // Repeat every 5 seconds
                                                 });
@@ -346,12 +346,12 @@
                             <div class="col-12 text-center">
                                 <div class="card svn-card">
                                     <div class="card-title">
-                                        <h4>Forecast</h4>
+                                        <h4>Production Result</h4>
                                     </div>
                                     <div class="card-body">
                                         <canvas id="forecastChart" width="800" height="400"></canvas>
-                                        <h3 id="txtForecast">@Forecast %</h3>
-                                        <h1>Total: <strong id="sumLine">@Model.ViewModels.Sum(x => x.Line)</strong></h1>
+                                        <h3 id="txtForecast" class="d-none">@Forecast %</h3>
+                                        <h1 class="f-s-100">Total: <strong id="sumLine">@Model.ViewModels.Sum(x => x.Line).ToString("N0")</strong></h1>
                                     </div>
                                 </div>
                             </div>
