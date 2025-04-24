@@ -372,7 +372,7 @@
                                             </h1>
                                             @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                             <div class="row">
-                                                <div id="pd_@charID" class="col-6 row">
+                                                @* <div id="pd_@charID" class="col-6 row">
                                                     <div class="col-12 border table-cell text-center">
                                                         <strong>Production result: @item.Operation</strong>
                                                     </div>
@@ -417,10 +417,10 @@
                                                             </div>
                                                         </div>
                                                     }
-                                                </div>
+                                                </div> *@
                                                 @if ((!string.IsNullOrWhiteSpace(item.WC) && item.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(item.Operation))
                                                 {
-                                                    <div id="tg_@charID" class="col-6 row" style="padding-left:20px">
+                                                    <div id="tg_@charID" class="col-12 row" style="padding-left:20px; height:160px">
                                                         <div class="col-3 border table-cell text-center"><strong>Item</strong></div>
                                                         <div class="col-2 border table-cell text-center"><strong>Target</strong></div>
                                                         <div class="col-2 border table-cell text-center"><strong>Current</strong></div>
@@ -494,7 +494,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <div id="tg_@charID" class="col-6 row" style="padding-left:20px">
+                                                    <div id="tg_@charID" class="col-12 row" style="padding-left:20px; height:160px">
                                                         <div class="col-4 border table-cell text-center">
                                                             <strong>WO Name</strong>
                                                         </div>
@@ -806,11 +806,11 @@
                 success: function (response) {
                     if (response.result) {
                         // Clear content first
-                        $(`#pd_${charID}`).empty();
+                        // $(`#pd_${charID}`).empty();
                         $(`#tg_${charID}`).empty();
 
                         // Populate content after clearing
-                        $(`#pd_${charID}`).html(response.productionResultTable);
+                        // $(`#pd_${charID}`).html(response.productionResultTable);
                         $(`#tg_${charID}`).html(response.targetTable);
 
                         var pdData = JSON.parse(response.pdmodel);
