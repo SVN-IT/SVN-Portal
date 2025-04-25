@@ -809,27 +809,27 @@ namespace SVN_Portal.Controllers
             StringBuilder sb = new StringBuilder();
             if (Forecast > 100)
             {
-                sb.Append("<span style='font-size:100px;'>☀️</span>");                    
+                sb.Append("<span style='font-size:60px;'>☀️</span>");                    
             }
             else if (Forecast > 75 && Forecast <= 100)
             {
-                sb.Append("<span style='font-size:100px;'>🌥️</span>");
+                sb.Append("<span style='font-size:60px;'>🌥️</span>");
             }
             else if (Forecast > 50 && Forecast <= 75)
             {
-                sb.Append("<span style='font-size:100px;'>☁️</span>");
+                sb.Append("<span style='font-size:60px;'>☁️</span>");
             }
             else if (Forecast > 30 && Forecast <= 50)
             {
-                sb.Append("<span style='font-size:100px;'>🌦️</span>");
+                sb.Append("<span style='font-size:60px;'>🌦️</span>");
             }
             else if (Forecast > 10 && Forecast <= 30)
             {
-                sb.Append("<span style='font-size:100px;'>🌧️</span>");
+                sb.Append("<span style='font-size:60px;'>🌧️</span>");
             }
             else
             {
-                sb.Append("<span style='font-size:100px;'>⚡</span>");
+                sb.Append("<span style='font-size:60px;'>⚡</span>");
             }
             sb.Append("<h4 class='mt-3 text-center'>" + Forecast + " %</h4>");
             sb.Append("<h3 class='mt-3 text-center'>Forecast</h3>");
