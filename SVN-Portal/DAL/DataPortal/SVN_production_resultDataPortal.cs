@@ -116,7 +116,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 return x;
                             }).ToList();
                         }
-                        
+
+                        //get 5 ng lỡn nhất
+                        if(viewModel.DefectByCategoryViewModels != null && viewModel.DefectByCategoryViewModels.Count > 0)
+                        {
+                            viewModel.DefectByCategoryViewModels = viewModel.DefectByCategoryViewModels.OrderByDescending(x => x.value).Take(3).ToList();
+                        }
+
 
                         //sai ở đây
                         //dùng linq mà list đang bị null
@@ -434,6 +440,12 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.DefectByCategoryViewModels.Add(model);
                             return x;
                         }).ToList();
+                    }
+
+                    //get 5 ng lỡn nhất
+                    if (viewModel.DefectByCategoryViewModels != null && viewModel.DefectByCategoryViewModels.Count > 0)
+                    {
+                        viewModel.DefectByCategoryViewModels = viewModel.DefectByCategoryViewModels.OrderByDescending(x => x.value).Take(3).ToList();
                     }
 
                     if (string.IsNullOrWhiteSpace(oper.WCName))
