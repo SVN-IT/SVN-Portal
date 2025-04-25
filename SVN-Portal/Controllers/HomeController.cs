@@ -672,7 +672,7 @@ namespace SVN_Portal.Controllers
                         sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + "</div>");
                         sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + "</div>");
                         sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
-                        if (item.Percent > 0 && item.Percent <= 75)
+                        if (item.Percent >= 0 && item.Percent <= 75)
                         {
                             status = "bg-danger";
                         }
@@ -741,7 +741,7 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    if (item.Percent > 0 && item.Percent <= 75)
+                    if (item.Percent >= 0 && item.Percent <= 75)
                     {
                         status = "bg-danger";
                     }
