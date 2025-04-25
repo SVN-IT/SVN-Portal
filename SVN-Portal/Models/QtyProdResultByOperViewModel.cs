@@ -24,6 +24,7 @@ namespace SVN_Portal.Models
         public string PDURL { get; set; }
         public string QCURL { get; set; }
         public int ColWidth { get; set; }
+        public bool IsProduction { get; set; }
         public List<QtyProdResultViewModel> ViewModels { get; set; }
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
         public List<DefectByCategoryViewModel> DefectByCategoryViewModels { get; set; }

@@ -141,6 +141,15 @@ namespace SVN_Portal.DAL.DataPortal
                             val4.Target = dataUIbyOperTarget.Time4;
                             val5.Time = "18h-20h";
                             val5.Target = dataUIbyOperTarget.Time5;
+                            if(dataUIbyOperTarget.Time1 == 0 && dataUIbyOperTarget.Time2 == 0 && 
+                                dataUIbyOperTarget.Time3 == 0 && dataUIbyOperTarget.Time4 == 0 && dataUIbyOperTarget.Time5 == 0)
+                            {
+                                viewModel.IsProduction = false;
+                            }
+                            else
+                            {
+                                viewModel.IsProduction = true;
+                            }
                         }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Production Qty");
                         if(dataUIbyOperLine != null)
@@ -471,6 +480,15 @@ namespace SVN_Portal.DAL.DataPortal
                         val4.Target = dataUIbyOperTarget.Time4;
                         val5.Time = "18h-20h";
                         val5.Target = dataUIbyOperTarget.Time5;
+                        if (dataUIbyOperTarget.Time1 == 0 && dataUIbyOperTarget.Time2 == 0 &&
+                                dataUIbyOperTarget.Time3 == 0 && dataUIbyOperTarget.Time4 == 0 && dataUIbyOperTarget.Time5 == 0)
+                        {
+                            viewModel.IsProduction = false;
+                        }
+                        else
+                        {
+                            viewModel.IsProduction = true;
+                        }
                     }
                     var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName && x.Type_value == "Production Qty");
                     if (dataUIbyOperLine != null)

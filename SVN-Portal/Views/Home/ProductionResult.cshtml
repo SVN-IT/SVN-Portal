@@ -184,8 +184,18 @@
             string charID = "chartdiv" + item.Operation;
             string jsonData = string.Empty;
             string defectData = string.Empty;
+            string disableStatus = string.Empty;
+            string hideStatus = string.Empty;
             jsonData = JsonConvert.SerializeObject(item.ViewModels);
             defectData = JsonConvert.SerializeObject(item.DefectByCategoryViewModels);
+            if (item.IsProduction == false)
+            {
+                disableStatus = "card-disable";
+            }
+            else
+            {
+                hideStatus = "d-none";
+            }
             <style>
                 #@charID {
                 height: 500px;
@@ -198,7 +208,9 @@
                 }
             </style>
             <div class="col-lg-@appConfig.ChartCol">
-                <div class="card svn-card">
+                <div id="disableCard_@charID" class="no-production @hideStatus">Không sản xuất</div>
+                <div id="bigCard_@charID" class="card svn-card @disableStatus">
+                    
                     <div class="card-title">
                         <h4>
                             @item.Operation
@@ -431,6 +443,17 @@
                         $(`#divForecast_${charID}`).html(response.forecase);
 
                         var pdData = JSON.parse(response.pdmodel);
+
+                        if(response.isProduction)
+                        {
+                            $(`#bigCard_${charID}`).removeClass("card-disable");
+                            $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#bigCard_${charID}`).addClass("card-disable");
+                            $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
 
                         // Build charts for this charID
                         BuildProductionChart(pdData, charID);

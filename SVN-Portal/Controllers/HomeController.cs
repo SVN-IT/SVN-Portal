@@ -569,6 +569,7 @@ namespace SVN_Portal.Controllers
                         result = true,
                         forecase = strForecase,
                         targetTable = strTargetTable,
+                        isProduction = model.IsProduction,
                         pdmodel = JsonConvert.SerializeObject(model.ViewModels),
                         defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
                     });
