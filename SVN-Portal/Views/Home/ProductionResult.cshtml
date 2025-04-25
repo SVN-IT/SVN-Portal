@@ -142,12 +142,14 @@
                 "position": "bottom",                   // Đặt legend ở dưới biểu đồ
                 "marginTop": 10,                        // Khoảng cách trên cùng của legend
                 "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
-                "labelWidth": 100,                      // Độ rộng của nhãn trong legend
+                "labelWidth": 150,                      // Độ rộng của nhãn trong legend
                 "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
                 "fontSize": 14,                         // Kích thước font chữ của legend
                 "color": "#FFFFFF",                     // Màu chữ của legend
                 "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
                 "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
+                "markerLabelGap": 10,
+                "valueAlign": "left"
             }
         });
     }
@@ -174,231 +176,234 @@
             </div>
         </form>
     </div>
-    @foreach (var item in Model)
+    @if(Model != null)
     {
-        string charID = "chartdiv" + item.Operation;
-        string jsonData = string.Empty;
-        string defectData = string.Empty;
-        jsonData = JsonConvert.SerializeObject(item.ViewModels);
-        defectData = JsonConvert.SerializeObject(item.DefectByCategoryViewModels);
-        <style>
-            #@charID {
-            height: 500px;
-            width: 100%;
-            }
-
-            #chartPie_@charID{
-                height:250px;
+        foreach (var item in Model)
+        {
+            string charID = "chartdiv" + item.Operation;
+            string jsonData = string.Empty;
+            string defectData = string.Empty;
+            jsonData = JsonConvert.SerializeObject(item.ViewModels);
+            defectData = JsonConvert.SerializeObject(item.DefectByCategoryViewModels);
+            <style>
+                #@charID {
+                height: 500px;
                 width: 100%;
-            }
-        </style>
-        <div class="col-lg-@appConfig.ChartCol">
-            <div class="card svn-card">
-                <div class="card-title">
-                    <h4>
-                        @item.Operation
-                        <br />
-                        <br />
-                        <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+                }
 
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div id="achieveCard_@charID" class="target-container">
-                            @foreach (var subitem in item.TargetViewModels)
-                            {
-                                string textColor = string.Empty;
-                                @* if (subitem.Item == "Daily Plan")
+                #chartPie_@charID{
+                    height:250px;
+                    width: 100%;
+                }
+            </style>
+            <div class="col-lg-@appConfig.ChartCol">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h4>
+                            @item.Operation
+                            <br />
+                            <br />
+                            <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div id="achieveCard_@charID" class="target-container">
+                                @foreach (var subitem in item.TargetViewModels)
                                 {
-                                    textColor = "text-dailyPlan";
-                                }
-                                else if (subitem.Item == "UPH")
-                                {
-                                    textColor = "text-uph";
-                                }
-                                else if (subitem.Item == "UPPH")
-                                {
-                                    textColor = "text-upph";
-                                }
-                                else if (subitem.Item == "Labor")
-                                {
-                                    textColor = "text-labor";
-                                }
-                                else if (subitem.Item == "Defect")
-                                {
-                                    textColor = "text-defect";
-                                } *@
-                                <div class="target-item bg-primary">
-                                    @{
-                                        string status = string.Empty;
-                                    }
-                                    @if (subitem.Item == "Defect")
+                                    string textColor = string.Empty;
+                                    @* if (subitem.Item == "Daily Plan")
                                     {
-                                        if (subitem.Percent > 100)
-                                        {
-
-                                            status = "bg-danger";
-                                        }
-                                        else if (subitem.Percent > 75 && subitem.Percent <= 100)
-                                        {
-                                            status = "bg-warning";
-                                        }
-                                        else
-                                        {
-                                            status = "bg-primary";
-                                        }
+                                        textColor = "text-dailyPlan";
                                     }
-                                    else
+                                    else if (subitem.Item == "UPH")
                                     {
-
-                                        if (subitem.Percent > 0 && subitem.Percent <= 75)
-                                        {
-                                            status = "bg-danger";
-                                        }
-                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
-                                        {
-                                            status = "bg-warning";
-                                        }
-                                        else
-                                        {
-                                            status = "bg-primary";
-                                        }
+                                        textColor = "text-uph";
                                     }
-
-                                    <div>
-                                        @if (subitem.Item == "Daily Plan")
-                                        {
-                                            <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
-
-                                            <br>
+                                    else if (subitem.Item == "UPPH")
+                                    {
+                                        textColor = "text-upph";
+                                    }
+                                    else if (subitem.Item == "Labor")
+                                    {
+                                        textColor = "text-labor";
+                                    }
+                                    else if (subitem.Item == "Defect")
+                                    {
+                                        textColor = "text-defect";
+                                    } *@
+                                    <div class="target-item bg-primary">
+                                        @{
+                                            string status = string.Empty;
                                         }
-                                        else if (subitem.Item == "UPH")
-                                        {
-                                            <strong class="f-s-26">⚙️ <span class="@textColor">@subitem.Item</span></strong>
-
-                                            <br>
-                                        }
-                                        else if (subitem.Item == "UPPH")
-                                        {
-                                            <strong class="f-s-26">📈 <span class="@textColor">@subitem.Item</span></strong>
-
-                                            <br>
-                                        }
-                                        else if (subitem.Item == "Labor")
-                                        {
-                                            <strong class="f-s-26">👷 <span class="@textColor">@subitem.Item</span></strong>
-
-                                            <br>
-                                        }
-                                        else if (subitem.Item == "Defect")
-                                        {
-                                            <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
-
-                                            <br>
-                                        }
-                                        
                                         @if (subitem.Item == "Defect")
                                         {
-                                            <span>Tar: @Math.Round(subitem.Target, 2) %</span>
-                                            <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
+                                            if (subitem.Percent > 100)
+                                            {
+
+                                                status = "bg-danger";
+                                            }
+                                            else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                            {
+                                                status = "bg-warning";
+                                            }
+                                            else
+                                            {
+                                                status = "bg-primary";
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                            if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                            {
+                                                status = "bg-danger";
+                                            }
+                                            else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                            {
+                                                status = "bg-warning";
+                                            }
+                                            else
+                                            {
+                                                status = "bg-primary";
+                                            }
+                                        }
+
+                                        <div>
+                                            @if (subitem.Item == "Daily Plan")
+                                            {
+                                                <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
+                                            else if (subitem.Item == "UPH")
+                                            {
+                                                <strong class="f-s-26">⚙️ <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
+                                            else if (subitem.Item == "UPPH")
+                                            {
+                                                <strong class="f-s-26">📈 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
+                                            else if (subitem.Item == "Labor")
+                                            {
+                                                <strong class="f-s-26">👷 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
+                                            else if (subitem.Item == "Defect")
+                                            {
+                                                <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
+                                        
+                                            @if (subitem.Item == "Defect")
+                                            {
+                                                <span>Tar: @Math.Round(subitem.Target, 2) %</span>
+                                                <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
+                                                <span>
+                                                    <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span>Tar: @Math.Round(subitem.Target, 2)</span>
+                                                <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
+                                                <span>
+                                                    <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                                </span>
+                                            }
+                                        </div>
+                                        @* @if (subitem.Item == "Defect")
+                                        {
                                             <span>
-                                                <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                                <strong class="f-s-26">Rate:</strong> <br />
+                                                <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
                                             </span>
                                         }
                                         else
                                         {
-                                            <span>Tar: @Math.Round(subitem.Target, 2)</span>
-                                            <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
                                             <span>
-                                                <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                                <strong class="f-s-26">Rate:</strong> <br />
+                                                <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
                                             </span>
-                                        }
+                                        } *@
                                     </div>
-                                    @* @if (subitem.Item == "Defect")
+
+                                
+                                }
+                        
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-md-9 border-right">
+                                <div id=@charID></div>
+                            </div>
+                            <div class="col-12 col-md-3 row">
+                                <div id="divForecast_@charID" class="col-12 text-center border-bottom">
+                                    @if (item.Forecast > 100)
                                     {
-                                        <span>
-                                            <strong class="f-s-26">Rate:</strong> <br />
-                                            <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
-                                        </span>
+                                        <span style="font-size:100px;">☀️</span>
+                                    }
+                                    else if (item.Forecast > 75 && item.Forecast <= 100)
+                                    {
+                                        <span style="font-size:100px;">🌥️</span>
+                                    }
+                                    else if (item.Forecast > 50 && item.Forecast <= 75)
+                                    {
+                                        <span style="font-size:100px;">☁️</span>
+                                    }
+                                    else if (item.Forecast > 30 && item.Forecast <= 50)
+                                    {
+                                        <span style="font-size:100px;">🌦️</span>
+                                    }
+                                    else if (item.Forecast > 10 && item.Forecast <= 30)
+                                    {
+                                        <span style="font-size:100px;">🌧️</span>
                                     }
                                     else
                                     {
-                                        <span>
-                                            <strong class="f-s-26">Rate:</strong> <br />
-                                            <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
-                                        </span>
-                                    } *@
+                                        <span style="font-size:100px;">⚡</span>
+                                    }
+                                
+                                    <h4 class="mt-3 text-center">@item.Forecast %</h4>
+                                    <h3 class="mt-3 text-center">Forecast</h3>
                                 </div>
-
-                                
-                            }
-                        
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-md-9 border-right">
-                            <div id=@charID></div>
-                        </div>
-                        <div class="col-12 col-md-3 row">
-                            <div id="divForecast_@charID" class="col-12 text-center border-bottom">
-                                @if (item.Forecast > 100)
-                                {
-                                    <span style="font-size:100px;">☀️</span>
-                                }
-                                else if (item.Forecast > 75 && item.Forecast <= 100)
-                                {
-                                    <span style="font-size:100px;">🌥️</span>
-                                }
-                                else if (item.Forecast > 50 && item.Forecast <= 75)
-                                {
-                                    <span style="font-size:100px;">☁️</span>
-                                }
-                                else if (item.Forecast > 30 && item.Forecast <= 50)
-                                {
-                                    <span style="font-size:100px;">🌦️</span>
-                                }
-                                else if (item.Forecast > 10 && item.Forecast <= 30)
-                                {
-                                    <span style="font-size:100px;">🌧️</span>
-                                }
-                                else
-                                {
-                                    <span style="font-size:100px;">⚡</span>
-                                }
-                                
-                                <h4 class="mt-3 text-center">@item.Forecast %</h4>
-                                <h3 class="mt-3 text-center">Forecast</h3>
-                            </div>
-                            <div class="col-12">
-                                <div id="chartPie_@charID"></div>
-                                <h3 class="mt-3 text-center">Defect by category</h3>
-                            </div>
+                                <div class="col-12">
+                                    <div id="chartPie_@charID"></div>
+                                    <h3 class="mt-3 text-center">Defect by category</h3>
+                                </div>
                             
+                            </div>
                         </div>
-                    </div>
                     
-                    <script>
-                        $(document).ready(function () {
-                            var dataParam = @Html.Raw(jsonData);
+                        <script>
+                            $(document).ready(function () {
+                                var dataParam = @Html.Raw(jsonData);
 
-                            var defectParam = @Html.Raw(defectData);
+                                var defectParam = @Html.Raw(defectData);
 
-                            BuildProductionChart(dataParam, @charID)
-                            BuildDefectPieChart(defectParam, "chartPie_@charID")
+                                BuildProductionChart(dataParam, @charID)
+                                BuildDefectPieChart(defectParam, "chartPie_@charID")
 
-                            charIDs.push({
-                                charID: "@charID",
-                                date: "@date.ToString("yyyyMMdd")",
-                                oper: "@item.Operation",
-                                wc: "@item.WC"
-                            })
-                        });
+                                charIDs.push({
+                                    charID: "@charID",
+                                    date: "@date.ToString("yyyyMMdd")",
+                                    oper: "@item.Operation",
+                                    wc: "@item.WC"
+                                })
+                            });
 
-                    </script>
+                        </script>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     }
 </div>
 <script>
