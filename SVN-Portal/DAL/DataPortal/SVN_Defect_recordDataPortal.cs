@@ -14,9 +14,9 @@ namespace SVN_Portal.DAL.DataPortal
             this.connectionString = connectionString;
         }
 
-        public async Task<List<SVN_Defect_record>> ReadList(string date)
+        public async Task<List<SVN_Defect_recordUI>> ReadList(string date)
         {
-            List<SVN_Defect_record> dataUI = new List<SVN_Defect_record>();
+            List<SVN_Defect_recordUI> dataUI = new List<SVN_Defect_recordUI>();
             int timeOut = 1000;
             try
             {
@@ -26,7 +26,7 @@ namespace SVN_Portal.DAL.DataPortal
                     var param = new object();
                     sql = "select * from SVN_Defect_Record where INSDatetime = @date";
                     param = new { date = date };
-                    var data = await conn.QueryAsync<SVN_Defect_record>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    var data = await conn.QueryAsync<SVN_Defect_recordUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     dataUI = data.ToList();
                 }
                 return dataUI;

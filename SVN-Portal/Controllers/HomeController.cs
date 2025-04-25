@@ -128,7 +128,7 @@ namespace SVN_Portal.Controllers
 
         public async Task<IActionResult> Defect_Rate(DateTime date)
         {
-            List<SVN_Defect_record> models = new List<SVN_Defect_record>();
+            List<SVN_Defect_recordUI> models = new List<SVN_Defect_recordUI>();
             try
             {
                 string strdate = "20241220";
