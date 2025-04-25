@@ -1,4 +1,5 @@
-﻿using SVNShareLib.DTO;
+﻿using SVN_Portal.DAL.DTO;
+using SVNShareLib.DTO;
 using System.Collections.Generic;
 
 namespace SVN_Portal.Models
@@ -24,6 +25,7 @@ namespace SVN_Portal.Models
         public int ColWidth { get; set; }
         public List<QtyProdResultViewModel> ViewModels { get; set; }
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
+        public List<DefectByCategoryViewModel> DefectByCategoryViewModels { get; set; }
         public List<mrp_productionUI> ProductionUIs { get; set; }
         public double Est { get; set; }
         public double Achieve { get; set; }

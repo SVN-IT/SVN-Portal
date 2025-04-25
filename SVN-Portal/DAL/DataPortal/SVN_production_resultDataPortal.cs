@@ -76,11 +76,16 @@ namespace SVN_Portal.DAL.DataPortal
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
+            List<SVN_Defect_recordUI> defect_RecordUI = new List<SVN_Defect_recordUI>();
+            List<SVN_quantity_reasonUI> quantity_ReasonUI = new List<SVN_quantity_reasonUI>();
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
-
+            var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
+            var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                defect_RecordUI = await defectdataportal.ReadList(date);
+                quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 dataUI = await ReadList(date, tableName);
 
 
@@ -98,6 +103,19 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
                         viewModel.Operation = item;
+
+                        //add defect by category
+                        if(quantity_ReasonUI != null)
+                        {
+                            quantity_ReasonUI = quantity_ReasonUI.Select(x =>
+                            {
+                                DefectByCategoryViewModel model = new DefectByCategoryViewModel();
+                                model.category = x.name;
+                                model.value = defect_RecordUI.Where(y => y.Operation == item && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
+                                viewModel.DefectByCategoryViewModels.Add(model);
+                                return x;
+                            }).ToList();
+                        }
                         
 
                         //sai ở đây
