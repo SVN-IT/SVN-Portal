@@ -117,7 +117,7 @@
             "type": "pie",
             "addClassNames": true,
             "startDuration": 0,
-            "classNameField": "class",
+            // "classNameField": "class",
             "dataProvider": dataParam,
             "valueField": "value",
             "categoryField": "category",
@@ -178,7 +178,9 @@
     {
         string charID = "chartdiv" + item.Operation;
         string jsonData = string.Empty;
+        string defectData = string.Empty;
         jsonData = JsonConvert.SerializeObject(item.ViewModels);
+        defectData = JsonConvert.SerializeObject(item.DefectByCategoryViewModels);
         <style>
             #@charID {
             height: 500px;
@@ -380,19 +382,7 @@
                         $(document).ready(function () {
                             var dataParam = @Html.Raw(jsonData);
 
-                            var defectParam = [{
-                                "value": 3,
-                                "category": "Surface",
-                                "class": "color1"
-                            }, {
-                                "value": 5,
-                                "category": "Alighment",
-                                "class": "color2"
-                            }, {
-                                "value": 4,
-                                "category": "Electtrical",
-                                "class": "color3"
-                            }];
+                            var defectParam = @Html.Raw(defectData);
 
                             BuildProductionChart(dataParam, @charID)
                             BuildDefectPieChart(defectParam, "chartPie_@charID")
@@ -437,19 +427,7 @@
                         // Build charts for this charID
                         BuildProductionChart(pdData, charID);
 
-                        var defectParam = [{
-                            "value": 3,
-                            "category": "Surface",
-                            "class": "color1"
-                        }, {
-                            "value": 5,
-                            "category": "Alighment",
-                            "class": "color2"
-                        }, {
-                            "value": 4,
-                            "category": "Electtrical",
-                            "class": "color3"
-                        }];
+                        var defectParam = JSON.parse(response.defectcalmodel);
 
                         BuildDefectPieChart(defectParam, "chartPie_" + charID)
 

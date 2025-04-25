@@ -105,7 +105,7 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.Operation = item;
 
                         //add defect by category
-                        if(quantity_ReasonUI != null)
+                        if(quantity_ReasonUI != null && defect_RecordUI != null)
                         {
                             quantity_ReasonUI = quantity_ReasonUI.Select(x =>
                             {
@@ -401,11 +401,17 @@ namespace SVN_Portal.DAL.DataPortal
             QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
+            List<SVN_Defect_recordUI> defect_RecordUI = new List<SVN_Defect_recordUI>();
+            List<SVN_quantity_reasonUI> quantity_ReasonUI = new List<SVN_quantity_reasonUI>();
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
+            var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
+            var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
 
             try
             {
+                defect_RecordUI = await defectdataportal.ReadList(date);
+                quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
                 if (dataUI.Count > 0)
@@ -416,6 +422,20 @@ namespace SVN_Portal.DAL.DataPortal
                     QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val5 = new QtyProdResultViewModel();
                     viewModel.Operation = oper.Operation;
+
+                    //add defect by category
+                    if (quantity_ReasonUI != null && defect_RecordUI != null)
+                    {
+                        quantity_ReasonUI = quantity_ReasonUI.Select(x =>
+                        {
+                            DefectByCategoryViewModel model = new DefectByCategoryViewModel();
+                            model.category = x.name;
+                            model.value = defect_RecordUI.Where(y => y.Operation == oper.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
+                            viewModel.DefectByCategoryViewModels.Add(model);
+                            return x;
+                        }).ToList();
+                    }
+
                     if (string.IsNullOrWhiteSpace(oper.WCName))
                     {
                         oper.WCName = null;

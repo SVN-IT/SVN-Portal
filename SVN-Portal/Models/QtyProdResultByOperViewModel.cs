@@ -15,6 +15,7 @@ namespace SVN_Portal.Models
             ViewModels = new List<QtyProdResultViewModel>();
             TargetViewModels = new List<SVN_targetViewModel>();// khai báo kiểu này giup list ko bọ null
             ProductionUIs = new List<mrp_productionUI>();
+            DefectByCategoryViewModels = new List<DefectByCategoryViewModel>();
         }
         public string Operation { get; set; }
         public string WC { get; set; }

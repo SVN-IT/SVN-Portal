@@ -97,7 +97,7 @@ namespace SVN_Portal.Controllers
                 List<string> opers = appConfig.OperList.Split(",").ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
-                if (models.Count > 0)
+                if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
                     {
@@ -569,7 +569,8 @@ namespace SVN_Portal.Controllers
                         result = true,
                         forecase = strForecase,
                         targetTable = strTargetTable,
-                        pdmodel = JsonConvert.SerializeObject(model.ViewModels)
+                        pdmodel = JsonConvert.SerializeObject(model.ViewModels),
+                        defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
                     });
                 }
                 else
