@@ -7,153 +7,153 @@
 <script>
     var dataParam;
     function BuildProductionChart(dataParam, chartID){
-        dataParam = dataParam.map(item => ({
-            ...item,
-            Time: `${item.Time}\nLine: ${item.Line}` // Concatenate Line value with Time
-        }));
-        var chart = AmCharts.makeChart(chartID, {
-            "type": "serial",
-            "theme": "light",
+    dataParam = dataParam.map(item => ({
+    ...item,
+    Time: `${item.Time}\nLine: ${item.Line}` // Concatenate Line value with Time
+    }));
+    var chart = AmCharts.makeChart(chartID, {
+    "type": "serial",
+    "theme": "light",
 
-            "dataDateFormat": "YYYY-MM-DD",
-            "dataProvider": dataParam,
+    "dataDateFormat": "YYYY-MM-DD",
+    "dataProvider": dataParam,
 
-            "addClassNames": true,
-            "startDuration": 0,
-            "color": "#FFFFFF",
-            "fontSize": 20,
-            "marginLeft": 0,
+    "addClassNames": true,
+    "startDuration": 0,
+    "color": "#FFFFFF",
+    "fontSize": 20,
+    "marginLeft": 0,
 
-            "categoryField": "Time",
-            "categoryAxis": {
-                "parseDates": false,
-                // "minPeriod": "DD",
-                "autoGridCount": false,
-                "gridCount": 50,
-                "gridAlpha": 0.1,
-                "gridColor": "#FFFFFF",
-                "axisColor": "#555555"
-            },
+    "categoryField": "Time",
+    "categoryAxis": {
+    "parseDates": false,
+    // "minPeriod": "DD",
+    "autoGridCount": false,
+    "gridCount": 50,
+    "gridAlpha": 0.1,
+    "gridColor": "#FFFFFF",
+    "axisColor": "#555555"
+    },
 
-            "valueAxes": [{
-                "id": "a1",
-                "title": "quatity",
-                "gridAlpha": 0,
-                "axisAlpha": 0
-            }],
-            "graphs": [{
-                "id": "g1",
-                "valueField": "Line",
-                "title": "Line",
-                "type": "column",
-                "fillAlphas": 0.9,
-                "valueAxis": "a1",
-                "balloonText": "[[value]] qty",
-                "legendValueText": "[[value]] qty",
-                "legendPeriodValueText": "total: [[value.sum]] qty",
-                "lineColor": "#428bca",
-                "alphaField": "alpha"
-            }, {
-                "id": "g2",
-                "valueField": "ManQuantity",
-                "classNameField": "bulletClass",
-                "title": "Labor",
-                "type": "smoothedLine",
-                "valueAxis": "a1",
-                "lineColor": "#FF0000",
-                "lineThickness": 1,
-                "legendValueText": "[[value]]/[[description]]",
-                "bullet": "round",
-                    "bulletBorderColor": "#FF0000",
-                "bulletBorderAlpha": 1,
-                "bulletBorderThickness": 1,
-                    "bulletColor": "#FF0000",
-                "labelPosition": "right",
-                "balloonText": "Man Qty:[[value]]",
-                "showBalloon": true,
-                "animationPlayed": false,
-                "labelText": "[[value]]",
-                "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
-                "labelColor": "#FF0000", // Màu chữ trên đường
-            }, {
-                "id": "g3",
-                "title": "Target",
-                "valueField": "Target",
-                "type": "smoothedLine",
-                "valueAxis": "a1",
-                "lineColor": "#006600",
-                "balloonText": "[[value]]",
-                "lineThickness": 4,
-                "legendValueText": "[[value]]",
-                "bullet": "square",
-                "bulletBorderColor": "#006600",
-                "bulletBorderThickness": 1,
-                "bulletBorderAlpha": 1,
-                "dashLengthField": "dashLength",
-                "animationPlayed": false,
-                "labelText": "[[value]]",
-                "labelPosition": "top", // Giá trị nằm trên điểm của đường
-                "labelColor": "#006600", // Màu chữ trên đường
-            }],
+    "valueAxes": [{
+    "id": "a1",
+    "title": "quatity",
+    "gridAlpha": 0,
+    "axisAlpha": 0
+    }],
+    "graphs": [{
+    "id": "g1",
+    "valueField": "Line",
+    "title": "Line",
+    "type": "column",
+    "fillAlphas": 0.9,
+    "valueAxis": "a1",
+    "balloonText": "[[value]] qty",
+    "legendValueText": "[[value]] qty",
+    "legendPeriodValueText": "total: [[value.sum]] qty",
+    "lineColor": "#428bca",
+    "alphaField": "alpha"
+    }, {
+    "id": "g2",
+    "valueField": "ManQuantity",
+    "classNameField": "bulletClass",
+    "title": "Labor",
+    "type": "smoothedLine",
+    "valueAxis": "a1",
+    "lineColor": "#FF0000",
+    "lineThickness": 1,
+    "legendValueText": "[[value]]/[[description]]",
+    "bullet": "round",
+    "bulletBorderColor": "#FF0000",
+    "bulletBorderAlpha": 1,
+    "bulletBorderThickness": 1,
+    "bulletColor": "#FF0000",
+    "labelPosition": "right",
+    "balloonText": "Man Qty:[[value]]",
+    "showBalloon": true,
+    "animationPlayed": false,
+    "labelText": "[[value]]",
+    "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
+    "labelColor": "#FF0000", // Màu chữ trên đường
+    }, {
+    "id": "g3",
+    "title": "Target",
+    "valueField": "Target",
+    "type": "smoothedLine",
+    "valueAxis": "a1",
+    "lineColor": "#006600",
+    "balloonText": "[[value]]",
+    "lineThickness": 4,
+    "legendValueText": "[[value]]",
+    "bullet": "square",
+    "bulletBorderColor": "#006600",
+    "bulletBorderThickness": 1,
+    "bulletBorderAlpha": 1,
+    "dashLengthField": "dashLength",
+    "animationPlayed": false,
+    "labelText": "[[value]]",
+    "labelPosition": "top", // Giá trị nằm trên điểm của đường
+    "labelColor": "#006600", // Màu chữ trên đường
+    }],
 
-            "chartCursor": {
-                "zoomable": false,
-                "categoryBalloonDateFormat": "DD",
-                "cursorAlpha": 0,
-                "valueBalloonsEnabled": false
-            },
-            "legend": {
-                "bulletType": "round",
-                "equalWidths": false,
-                "valueWidth": 120,
-                "useGraphSettings": true,
-                "color": "#FFFFFF"
-            }
-        });
+    "chartCursor": {
+    "zoomable": false,
+    "categoryBalloonDateFormat": "DD",
+    "cursorAlpha": 0,
+    "valueBalloonsEnabled": false
+    },
+    "legend": {
+    "bulletType": "round",
+    "equalWidths": false,
+    "valueWidth": 120,
+    "useGraphSettings": true,
+    "color": "#FFFFFF"
+    }
+    });
     }
 
     function BuildDefectPieChart(dataParam, chartID) {
-        var chart = AmCharts.makeChart(chartID, {
-            "type": "pie",
-            "addClassNames": true,
-            "startDuration": 0,
-            // "classNameField": "class",
-            "dataProvider": dataParam,
-            "valueField": "value",
-            "categoryField": "category",
-            "labelRadius": 10,  // Adjust label radius
-            "radius": "42%",
-            "innerRadius": "60%",
-            "labelText": "", //[[category]]
-            "labelColorField": "color",
-            "labelFontSize": 14,
-            "labelColor": "#FFFFFF",
-            // "export": {
-            //     "enabled": true
-            // },
-            "labelPosition": "outside",
-            "fontSize": 14,
-            "fontColor": "#FFFFFF",
-            "animationPlayed": false,
-            "color": "#FFFFFF",
-            // Configure legend
-            "legend": {
-                "enabled": true,                        // Bật legend
-                "position": "bottom",                   // Đặt legend ở dưới biểu đồ
-                "marginTop": 10,                        // Khoảng cách trên cùng của legend
-                "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
-                "labelWidth": 150,                      // Độ rộng của nhãn trong legend
-                "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
-                "fontSize": 14,                         // Kích thước font chữ của legend
-                "color": "#FFFFFF",                     // Màu chữ của legend
-                "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
-                "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
-                "markerLabelGap": 10,
-                "valueAlign": "left"
-            }
-        });
+    var chart = AmCharts.makeChart(chartID, {
+    "type": "pie",
+    "addClassNames": true,
+    "startDuration": 0,
+    // "classNameField": "class",
+    "dataProvider": dataParam,
+    "valueField": "value",
+    "categoryField": "category",
+    "labelRadius": 10,  // Adjust label radius
+    "radius": "42%",
+    "innerRadius": "60%",
+    "labelText": "", //[[category]]
+    "labelColorField": "color",
+    "labelFontSize": 14,
+    "labelColor": "#FFFFFF",
+    // "export": {
+    //     "enabled": true
+    // },
+    "labelPosition": "outside",
+    "fontSize": 14,
+    "fontColor": "#FFFFFF",
+    "animationPlayed": false,
+    "color": "#FFFFFF",
+    // Configure legend
+    "legend": {
+    "enabled": true,                        // Bật legend
+    "position": "bottom",                   // Đặt legend ở dưới biểu đồ
+    "marginTop": 10,                        // Khoảng cách trên cùng của legend
+    "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
+    "labelWidth": 150,                      // Độ rộng của nhãn trong legend
+    "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
+    "fontSize": 14,                         // Kích thước font chữ của legend
+    "color": "#FFFFFF",                     // Màu chữ của legend
+    "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
+    "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
+    "markerLabelGap": 10,
+    "valueAlign": "left"
     }
-    
+    });
+    }
+
     var charIDs = [];
 </script>
 
@@ -192,8 +192,8 @@
                 }
 
                 #chartPie_@charID{
-                    height:290px;
-                    width: 100%;
+                height:290px;
+                width: 100%;
                 }
             </style>
             <div class="col-lg-@appConfig.ChartCol">
@@ -233,43 +233,45 @@
                                     {
                                         textColor = "text-defect";
                                     } *@
-                                    <div class="target-item bg-primary">
-                                        @{
-                                            string status = string.Empty;
-                                        }
-                                        @if (subitem.Item == "Defect")
-                                        {
-                                            if (subitem.Percent > 100)
-                                            {
 
-                                                status = "bg-danger";
-                                            }
-                                            else if (subitem.Percent > 75 && subitem.Percent <= 100)
-                                            {
-                                                status = "bg-warning";
-                                            }
-                                            else
-                                            {
-                                                status = "bg-primary";
-                                            }
+                                    string status = string.Empty;
+                                    string alert = string.Empty;
+                                    if (subitem.Item == "Defect")
+                                    {
+                                        if (subitem.Percent > 100)
+                                        {
+
+                                            status = "bg-danger";
+                                            alert = "blinking";
+                                        }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                        {
+                                            status = "bg-warning";
                                         }
                                         else
                                         {
-
-                                            if (subitem.Percent >= 0 && subitem.Percent <= 75)
-                                            {
-                                                status = "bg-danger";
-                                            }
-                                            else if (subitem.Percent > 75 && subitem.Percent <= 92)
-                                            {
-                                                status = "bg-warning";
-                                            }
-                                            else
-                                            {
-                                                status = "bg-primary";
-                                            }
+                                            status = "bg-primary";
                                         }
+                                    }
+                                    else
+                                    {
 
+                                        if (subitem.Percent >= 0 && subitem.Percent <= 75)
+                                        {
+                                            status = "bg-danger";
+                                            alert = "blinking";
+                                        }
+                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                        {
+                                            status = "bg-warning";
+                                        }
+                                        else
+                                        {
+                                            status = "bg-primary";
+                                        }
+                                    }
+
+                                    <div class="target-item bg-primary @alert">
                                         <div>
                                             @if (subitem.Item == "Daily Plan")
                                             {

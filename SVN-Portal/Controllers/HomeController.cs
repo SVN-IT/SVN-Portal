@@ -722,13 +722,14 @@ namespace SVN_Portal.Controllers
             foreach(var item in model.TargetViewModels)
             {
                 string textColor = string.Empty;
-                sb.Append("<div class='target-item bg-primary'>");
                 string status = string.Empty;
+                string alert = string.Empty;
                 if (item.Item == "Defect")
                 {
                     if (item.Percent > 100)
                     {
                         status = "bg-danger";
+                        alert = "blinking";
                     }
                     else if (item.Percent > 75 && item.Percent <= 100)
                     {
@@ -744,6 +745,7 @@ namespace SVN_Portal.Controllers
                     if (item.Percent >= 0 && item.Percent <= 75)
                     {
                         status = "bg-danger";
+                        alert = "blinking";
                     }
                     else if (item.Percent > 75 && item.Percent <= 92)
                     {
@@ -754,6 +756,7 @@ namespace SVN_Portal.Controllers
                         status = "bg-primary";
                     }
                 }
+                sb.Append("<div class='target-item bg-primary " + alert + "'>");
                 sb.Append("<div>");
                 if(item.Item == "Daily Plan")
                 {
