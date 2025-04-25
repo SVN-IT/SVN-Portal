@@ -124,24 +124,34 @@ body {
 }
 
 .blinking {
-    border: 1px solid rgba(255, 0, 0, 0.6) !important;
-    animation: blinkBorder 1s infinite; /* Thêm animation cho viền nhấp nháy */
+    /*border: 5px solid rgba(255, 0, 0, 0.6) !important;*/
+    animation: blinkBorder 2s infinite; /* Thêm animation cho viền nhấp nháy */
 }
 
 @keyframes blinkBorder {
     0% {
-        border-color: rgba(255, 0, 0, 0.6);
-        box-shadow: 0 4px 10px rgba(255, 0, 0, 0.6);
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    25% {
+        border: 10px solid #FF5733;
+        box-shadow: 0 0 10px #FF5733;
     }
 
     50% {
-        border-color: red;
-        box-shadow: 0 4px 10px rgba(255, 0, 0, 1);
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    75% {
+        border: 10px solid #FF5733;
+        box-shadow: 0 0 10px #FF5733;
     }
 
     100% {
-        border-color: rgba(255, 0, 0, 0.6);
-        box-shadow: 0 4px 10px rgba(255, 0, 0, 0.6);
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
 }
 

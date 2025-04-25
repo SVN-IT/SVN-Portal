@@ -192,10 +192,10 @@
             {
                 disableStatus = "card-disable";
             }
-            else
+            @* else
             {
                 hideStatus = "d-none";
-            }
+            } *@
             <style>
                 #@charID {
                 height: 500px;
@@ -208,7 +208,7 @@
                 }
             </style>
             <div class="col-lg-@appConfig.ChartCol">
-                <div id="disableCard_@charID" class="no-production @hideStatus">Không sản xuất</div>
+                <div id="disableCard_@charID" class="no-production d-none">Không sản xuất</div>
                 <div id="bigCard_@charID" class="card svn-card @disableStatus">
                     
                     <div class="card-title">
@@ -447,12 +447,12 @@
                         if(response.isProduction)
                         {
                             $(`#bigCard_${charID}`).removeClass("card-disable");
-                            $(`#disableCard_${charID}`).addClass("d-none");
+                            // $(`#disableCard_${charID}`).addClass("d-none");
                         }
                         else
                         {
                             $(`#bigCard_${charID}`).addClass("card-disable");
-                            $(`#disableCard_${charID}`).removeClass("d-none");
+                            // $(`#disableCard_${charID}`).removeClass("d-none");
                         }
 
                         // Build charts for this charID
