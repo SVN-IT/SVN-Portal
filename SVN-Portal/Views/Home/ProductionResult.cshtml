@@ -255,7 +255,10 @@
                                         {
 
                                             status = "bg-danger";
-                                            alert = "blinking";
+                                            if (item.IsProduction)
+                                            {
+                                                alert = "blinking";
+                                            }
                                         }
                                         else if (subitem.Percent > 75 && subitem.Percent <= 100)
                                         {
@@ -272,7 +275,10 @@
                                         if (subitem.Percent >= 0 && subitem.Percent <= 75)
                                         {
                                             status = "bg-danger";
-                                            alert = "blinking";
+                                            if (item.IsProduction)
+                                            {
+                                                alert = "blinking";
+                                            }
                                         }
                                         else if (subitem.Percent > 75 && subitem.Percent <= 92)
                                         {

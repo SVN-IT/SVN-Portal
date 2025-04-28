@@ -730,7 +730,10 @@ namespace SVN_Portal.Controllers
                     if (item.Percent > 100)
                     {
                         status = "bg-danger";
-                        alert = "blinking";
+                        if (model.IsProduction)
+                        {
+                            alert = "blinking";
+                        }
                     }
                     else if (item.Percent > 75 && item.Percent <= 100)
                     {
@@ -746,7 +749,10 @@ namespace SVN_Portal.Controllers
                     if (item.Percent >= 0 && item.Percent <= 75)
                     {
                         status = "bg-danger";
-                        alert = "blinking";
+                        if (model.IsProduction)
+                        {
+                            alert = "blinking";
+                        }
                     }
                     else if (item.Percent > 75 && item.Percent <= 92)
                     {
