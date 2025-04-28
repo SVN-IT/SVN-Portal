@@ -509,7 +509,7 @@ namespace SVN_Portal.Controllers
                 if (model != null) 
                 {
                     strProductionResultTable = BuildProductionResultTable(model);
-                    strTargetTable = BuildTargetTable(model);
+                    strTargetTable = BuildAchievementCard(model);
                     return new JsonResult(new
                     {
                         result = true,
@@ -720,98 +720,125 @@ namespace SVN_Portal.Controllers
         private string BuildAchievementCard(QtyProdResultByOperViewModel model)
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var item in model.TargetViewModels)
+            if ((!string.IsNullOrWhiteSpace(model.WC) && model.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(model.Operation))
             {
-                string textColor = string.Empty;
-                string status = string.Empty;
-                string alert = string.Empty;
-                if (item.Item == "Defect")
+                foreach (var item in model.TargetViewModels)
                 {
-                    if (item.Percent > 100)
+                    string textColor = string.Empty;
+                    string status = string.Empty;
+                    string alert = string.Empty;
+                    if (item.Item == "Defect")
                     {
-                        status = "bg-danger";
-                        if (model.IsProduction)
+                        if (item.Percent > 100)
                         {
-                            alert = "blinking";
+                            status = "bg-danger";
+                            if (model.IsProduction)
+                            {
+                                alert = "blinking";
+                            }
                         }
-                    }
-                    else if (item.Percent > 75 && item.Percent <= 100)
-                    {
-                        status = "bg-warning";
+                        else if (item.Percent > 75 && item.Percent <= 100)
+                        {
+                            status = "bg-warning";
+                        }
+                        else
+                        {
+                            status = "bg-primary";
+                        }
                     }
                     else
                     {
-                        status = "bg-primary";
-                    }
-                }
-                else
-                {
-                    if (item.Percent >= 0 && item.Percent <= 75)
-                    {
-                        status = "bg-danger";
-                        if (model.IsProduction)
+                        if (item.Percent >= 0 && item.Percent <= 75)
                         {
-                            alert = "blinking";
+                            status = "bg-danger";
+                            if (model.IsProduction)
+                            {
+                                alert = "blinking";
+                            }
+                        }
+                        else if (item.Percent > 75 && item.Percent <= 92)
+                        {
+                            status = "bg-warning";
+                        }
+                        else
+                        {
+                            status = "bg-primary";
                         }
                     }
-                    else if (item.Percent > 75 && item.Percent <= 92)
+                    sb.Append("<div class='target-item bg-primary " + alert + "'>");
+                    sb.Append("<div>");
+                    if (item.Item == "Daily Plan")
                     {
-                        status = "bg-warning";
+                        sb.Append("<strong class='f-s-26'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
+                    if (item.Item == "UPH")
+                    {
+                        sb.Append("<strong class='f-s-26'>⚙️ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
+                    if (item.Item == "UPPH")
+                    {
+                        sb.Append("<strong class='f-s-26'>📈 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
+                    if (item.Item == "Labor")
+                    {
+                        sb.Append("<strong class='f-s-26'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
+                    if (item.Item == "Defect")
+                    {
+                        sb.Append("<strong class='f-s-26'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
+
+                    if (item.Item == "Defect")
+                    {
+                        sb.Append("<span>Tar: " + Math.Round(item.Target, 2) + " %</span>");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
+                        sb.Append("<span>");
+                        sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("</span>");
                     }
                     else
                     {
-                        status = "bg-primary";
+                        sb.Append("<span>Tar " + Math.Round(item.Target, 2) + "</span>");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
+                        sb.Append("<span>");
+                        sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("</span>");
                     }
-                }
-                sb.Append("<div class='target-item bg-primary " + alert + "'>");
-                sb.Append("<div>");
-                if(item.Item == "Daily Plan")
-                {
-                    sb.Append("<strong class='f-s-26'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
-                    sb.Append("<br>");
-                }
-                if (item.Item == "UPH")
-                {
-                    sb.Append("<strong class='f-s-26'>⚙️ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
-                    sb.Append("<br>");
-                }
-                if (item.Item == "UPPH")
-                {
-                    sb.Append("<strong class='f-s-26'>📈 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
-                    sb.Append("<br>");
-                }
-                if (item.Item == "Labor")
-                {
-                    sb.Append("<strong class='f-s-26'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
-                    sb.Append("<br>");
-                }
-                if (item.Item == "Defect")
-                {
-                    sb.Append("<strong class='f-s-26'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
-                    sb.Append("<br>");
-                }
 
-                if(item.Item == "Defect")
-                {
-                    sb.Append("<span>Tar: " + Math.Round(item.Target, 2) + " %</span>");
-                    sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
-                    sb.Append("<span>");
-                    sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
-                    sb.Append("</span>");
+                    sb.Append("</div>");
+                    sb.Append("</div>");
                 }
-                else
-                {
-                    sb.Append("<span>Tar " + Math.Round(item.Target, 2) + "</span>");
-                    sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
-                    sb.Append("<span>");
-                    sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
-                    sb.Append("</span>");
-                }
-
-                sb.Append("</div>");
-                sb.Append("</div>");
             }
-            return sb.ToString();
+            else
+            {
+                sb.Append("<div class='col-4 border table-cell text-center'>");
+                sb.Append("<strong>WO Name</strong>");
+                sb.Append("</div>");
+                sb.Append("<div class='col-4 border table-cell text-center'>");
+                sb.Append("<strong>State</strong>");
+                sb.Append("</div>");
+                sb.Append("<div class='col-4 border table-cell text-center'>");
+                sb.Append("<strong>Product Qty</strong>");
+                sb.Append("</div>");
+                foreach (var item in model.ProductionUIs)
+                {
+                    sb.Append("<div class='col-4 border table-cell text-center'>");
+                    sb.Append(item.name);
+                    sb.Append("</div>");
+                    sb.Append("<div class='col-4 border table-cell text-center'>");
+                    sb.Append(item.state);
+                    sb.Append("</div>");
+                    sb.Append("<div class='col-4 border table-cell text-center'>");
+                    sb.Append(item.product_uom_qty);
+                    sb.Append("</div>");
+                }
+            }
+                return sb.ToString();
         }
 
         private string BuildForecastInfo(double Forecast)
