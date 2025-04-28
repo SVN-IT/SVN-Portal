@@ -959,13 +959,13 @@
         //     BuildDefectChart(dataParam, "defectchart")
         // }, 10000); // Repeat every 5 seconds
 
-        async function executeSequentialCalls(charIDs) {
-            for (const charID of charIDs) {
-                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
-            }
-            setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
-        }
-        setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        // async function executeSequentialCalls(charIDs) {
+        //     for (const charID of charIDs) {
+        //         await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+        //     }
+        //     setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        // }
+        // setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         
     });
 </script>
