@@ -1,4 +1,5 @@
 ﻿@using Newtonsoft.Json
+@using System.Globalization
 @model IEnumerable<QtyProdResultByOperViewModel>
 @{
     ViewData["Title"] = "Home Page";
@@ -181,6 +182,44 @@
     {
         foreach (var item in Model)
         {
+            string currentTime = string.Empty;
+            foreach (var subitem in item.ViewModels)
+            {
+                if (!string.IsNullOrWhiteSpace(subitem.Time))
+                {
+                    var times = subitem.Time.Split('-');
+                    DateTime today = DateTime.Today;
+
+                    // Chuyển đổi thành định dạng HH:mm
+                    string startTime = times[0].Replace("h", ":");
+                    if (startTime.Last() == ':')
+                    {
+                        startTime = startTime + "00";
+                    }
+                    if (startTime.Length == 4)
+                    {
+                        startTime = "0" + startTime;
+                    }
+
+                    string endTime = times[1].Replace("h", ":");
+                    if (endTime.Last() == ':')
+                    {
+                        endTime = endTime + "00";
+                    }
+                    if (endTime.Length == 4)
+                    {
+                        endTime = "0" + endTime;
+                    }
+
+                    // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                    {
+                        currentTime = subitem.Time;
+                    }
+                }
+            }
             string charID = "chartdiv" + item.Operation;
             string jsonData = string.Empty;
             string defectData = string.Empty;
@@ -210,7 +249,7 @@
             <div class="col-lg-@appConfig.ChartCol">
                 <div id="disableCard_@charID" class="no-production d-none">Không sản xuất</div>
                 <div id="bigCard_@charID" class="card svn-card @disableStatus">
-                    
+
                     <div class="card-title">
                         <h4>
                             @item.Operation
@@ -267,6 +306,62 @@
                                         else
                                         {
                                             status = "bg-primary";
+                                        }
+                                    }
+                                    else if (subitem.Item == "Daily Plan")
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(currentTime))
+                                        {
+                                            var times = currentTime.Split('-');
+                                            DateTime today = DateTime.Today;
+
+                                            // Chuyển đổi thành định dạng HH:mm
+                                            string startTime = times[0].Replace("h", ":");
+                                            if (startTime.Last() == ':')
+                                            {
+                                                startTime = startTime + "00";
+                                            }
+                                            if (startTime.Length == 4)
+                                            {
+                                                startTime = "0" + startTime;
+                                            }
+
+                                            string endTime = times[1].Replace("h", ":");
+                                            if (endTime.Last() == ':')
+                                            {
+                                                endTime = endTime + "00";
+                                            }
+                                            if (endTime.Length == 4)
+                                            {
+                                                endTime = "0" + endTime;
+                                            }
+
+                                            // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                            if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                            {
+                                                status = "bg-primary";
+                                            }
+                                            else
+                                            {
+                                                if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                                {
+                                                    status = "bg-danger";
+                                                    if (item.IsProduction)
+                                                    {
+                                                        alert = "blinking";
+                                                    }
+                                                }
+                                                else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                                {
+                                                    status = "bg-warning";
+                                                }
+                                                else
+                                                {
+                                                    status = "bg-primary";
+                                                }
+                                            }
                                         }
                                     }
                                     else

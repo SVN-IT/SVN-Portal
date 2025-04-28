@@ -8,6 +8,7 @@ using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -719,6 +720,45 @@ namespace SVN_Portal.Controllers
 
         private string BuildAchievementCard(QtyProdResultByOperViewModel model)
         {
+            string currentTime = string.Empty;
+            foreach (var subitem in model.ViewModels)
+            {
+                if (!string.IsNullOrWhiteSpace(subitem.Time))
+                {
+                    var times = subitem.Time.Split('-');
+                    DateTime today = DateTime.Today;
+
+                    // Chuyển đổi thành định dạng HH:mm
+                    string startTime = times[0].Replace("h", ":");
+                    if (startTime.Last() == ':')
+                    {
+                        startTime = startTime + "00";
+                    }
+                    if (startTime.Length == 4)
+                    {
+                        startTime = "0" + startTime;
+                    }
+
+                    string endTime = times[1].Replace("h", ":");
+                    if (endTime.Last() == ':')
+                    {
+                        endTime = endTime + "00";
+                    }
+                    if (endTime.Length == 4)
+                    {
+                        endTime = "0" + endTime;
+                    }
+
+                    // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                    {
+                        currentTime = subitem.Time;
+                    }
+                }
+            }
+
             StringBuilder sb = new StringBuilder();
             if ((!string.IsNullOrWhiteSpace(model.WC) && model.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(model.Operation))
             {
@@ -744,6 +784,62 @@ namespace SVN_Portal.Controllers
                         else
                         {
                             status = "bg-primary";
+                        }
+                    }
+                    else if (item.Item == "Daily Plan")
+                    {
+                        if (!string.IsNullOrWhiteSpace(currentTime))
+                        {
+                            var times = currentTime.Split('-');
+                            DateTime today = DateTime.Today;
+
+                            // Chuyển đổi thành định dạng HH:mm
+                            string startTime = times[0].Replace("h", ":");
+                            if (startTime.Last() == ':')
+                            {
+                                startTime = startTime + "00";
+                            }
+                            if (startTime.Length == 4)
+                            {
+                                startTime = "0" + startTime;
+                            }
+
+                            string endTime = times[1].Replace("h", ":");
+                            if (endTime.Last() == ':')
+                            {
+                                endTime = endTime + "00";
+                            }
+                            if (endTime.Length == 4)
+                            {
+                                endTime = "0" + endTime;
+                            }
+
+                            // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                            {
+                                status = "bg-primary";
+                            }
+                            else
+                            {
+                                if (item.Percent > 0 && item.Percent <= 75)
+                                {
+                                    status = "bg-danger";
+                                    if (model.IsProduction)
+                                    {
+                                        alert = "blinking";
+                                    }
+                                }
+                                else if (item.Percent > 75 && item.Percent <= 92)
+                                {
+                                    status = "bg-warning";
+                                }
+                                else
+                                {
+                                    status = "bg-primary";
+                                }
+                            }
                         }
                     }
                     else
