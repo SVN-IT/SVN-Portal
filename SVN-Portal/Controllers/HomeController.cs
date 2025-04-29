@@ -965,7 +965,7 @@ namespace SVN_Portal.Controllers
                 sb.Append("<span style='font-size:60px;'>⚡</span>");
             }
             sb.Append("<h4 class='mt-3 text-center'>" + Forecast + " %</h4>");
-            sb.Append("<h3 class='mt-3 text-center'>Forecast</h3>");
+            sb.Append("<h3 class='mt-3 text-center'>Achievement Rate</h3>");
             return sb.ToString();
         }
 
