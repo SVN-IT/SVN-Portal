@@ -3,25 +3,25 @@
 
 // Write your JavaScript code.
 $(document).ready(function () {
-    //var idleTime = 0;
+    var idleTime = 0;
 
-    //// Increment the idle time counter every minute.
-    //var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+    // Increment the idle time counter every minute.
+    var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
 
-    //// Zero the idle timer on mouse movement or key press.
-    //$(this).mousemove(function (e) {
-    //    idleTime = 0;
-    //});
-    //$(this).keypress(function (e) {
-    //    idleTime = 0;
-    //});
+    // Zero the idle timer on mouse movement or key press.
+    $(this).mousemove(function (e) {
+        idleTime = 0;
+    });
+    $(this).keypress(function (e) {
+        idleTime = 0;
+    });
 
-    //function timerIncrement() {
-    //    idleTime++;
-    //    if (idleTime >= timeBeforeReload) { // 5 minutes
-    //        location.reload();
-    //    }
-    //}
+    function timerIncrement() {
+        idleTime++;
+        if (idleTime >= timeBeforeReload) { // 5 minutes
+            location.reload();
+        }
+    }
 
     function updateDateTime() {
         var now = new Date();
