@@ -715,7 +715,7 @@ namespace SVN_Portal.Controllers
                     sb.Append("</div>");
                 }
             }
-                return sb.ToString();
+            return sb.ToString();
         }
 
         private string BuildAchievementCard(QtyProdResultByOperViewModel model)
@@ -894,7 +894,7 @@ namespace SVN_Portal.Controllers
                         sb.Append("<span>Tar: " + Math.Round(item.Target, 2) + " %</span>");
                         sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, 2) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else
@@ -902,7 +902,7 @@ namespace SVN_Portal.Controllers
                         sb.Append("<span>Tar " + Math.Round(item.Target, 2) + "</span>");
                         sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-26'>Rate:</strong> <strong class='rate-box " + status + " f-s-26'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, 2) + " %</strong>");
                         sb.Append("</span>");
                     }
 
