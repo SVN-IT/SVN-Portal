@@ -265,7 +265,7 @@
                                 @foreach (var subitem in item.TargetViewModels)
                                 {
                                     string textColor = string.Empty;
-                                    @* if (subitem.Item == "Daily Plan")
+                                    @* if (subitem.Item == "Hourly Plan")
                                     {
                                         textColor = "text-dailyPlan";
                                     }
@@ -308,7 +308,7 @@
                                             status = "bg-primary";
                                         }
                                     }
-                                    else if (subitem.Item == "Daily Plan")
+                                    else if (subitem.Item == "Hourly Plan")
                                     {
                                         if (!string.IsNullOrWhiteSpace(currentTime))
                                         {
@@ -387,7 +387,7 @@
 
                                     <div class="target-item bg-primary @alert">
                                         <div>
-                                            @if (subitem.Item == "Daily Plan")
+                                            @if (subitem.Item == "Hourly Plan")
                                             {
                                                 <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
 

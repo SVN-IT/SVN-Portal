@@ -196,7 +196,7 @@ namespace SVN_Portal.DAL.DataPortal
                         {
                             //tạo dong Daiily plan của 1 operation
                             SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel() { 
-                                Item = "Daily Plan", 
+                                Item = "Hourly Plan", 
                                 Target = dataUIByOper.Daily_plan, 
                                 Current = dataUIByOper.Total_Qty, 
                                 Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
@@ -351,7 +351,7 @@ namespace SVN_Portal.DAL.DataPortal
                             //tạo dong Daiily plan của 1 operation
                             SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel()
                             {
-                                Item = "Daily Plan",
+                                Item = "Hourly Plan",
                                 Target = dataUIByOper.Daily_plan,
                                 Current = dataUIByOper.Total_Qty,
                                 Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
@@ -543,7 +543,7 @@ namespace SVN_Portal.DAL.DataPortal
                         //tạo dong Daiily plan của 1 operation
                         SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel()
                         {
-                            Item = "Daily Plan",
+                            Item = "Hourly Plan",
                             Target = dataUIByOper.Daily_plan,
                             Current = dataUIByOper.Total_Qty,
                             Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0

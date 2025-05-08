@@ -786,7 +786,7 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
-                    else if (item.Item == "Daily Plan")
+                    else if (item.Item == "Hourly Plan")
                     {
                         if (!string.IsNullOrWhiteSpace(currentTime))
                         {
@@ -863,7 +863,7 @@ namespace SVN_Portal.Controllers
                     }
                     sb.Append("<div class='target-item bg-primary " + alert + "'>");
                     sb.Append("<div>");
-                    if (item.Item == "Daily Plan")
+                    if (item.Item == "Hourly Plan")
                     {
                         sb.Append("<strong class='f-s-26'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
