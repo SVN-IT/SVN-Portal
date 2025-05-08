@@ -278,7 +278,7 @@
             <div class="col-12 col-md-7">
                 <div class="row">
                     <div class="col-12">
-                        <div class="card svn-card">
+                        <div class="card svn-card svn-small-card">
                             <div class="card-title">
                                 <h4>Machine</h4>
                             </div>
@@ -715,7 +715,7 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col-3">
-                                <div class="card svn-card">
+                                <div class="card svn-card svn-small-card">
                                     <div class="card-body">
                                         <div class="image-container">
                                             @if (!string.IsNullOrWhiteSpace(PDURL))
@@ -734,7 +734,7 @@
                                 @* <h3>(SVN0003)</h3> *@
                             </div>
                             <div class="col-9 text-center">
-                                <div class="card svn-card">
+                                <div class="card svn-card svn-small-card">
                                     <div class="card-title">
                                         <h4>Daily Plan Achieve</h4>
                                     </div>
@@ -745,7 +745,7 @@
                                 </div>
                             </div>
                             <div class="col-3">
-                                <div class="card svn-card">
+                                <div class="card svn-card svn-small-card">
                                     <div class="card-body">
                                         <div class="image-container">
                                             @if (!string.IsNullOrWhiteSpace(QCURL))
@@ -764,7 +764,7 @@
                                 
                             </div>
                             <div class="col-9 text-center">
-                                <div class="card svn-card">
+                                <div class="card svn-card svn-small-card">
                                     <div class="card-title">
                                         <h4>Forecast</h4>
                                     </div>
@@ -958,9 +958,27 @@
                             $("#txtAchieve").text(intAchieve + " %");
                             $("#txtForecast").text(intForecast + " %");
 
-                            $("#txtWORunning").text("WO running: " + response.woRunning);
-                            $("#txtProduct").text("Product: " + response.product);
-                            $("#txtCustomer").text("Customer: " + response.customer);
+                            if(response.woRunning != null){
+                                $("#txtWORunning").text("WO running: " + response.woRunning);
+                            }
+                            else{
+                                $("#txtWORunning").text(" ");
+                            }
+
+                            if(response.product != null){
+                                $("#txtProduct").text("Product: " + response.product);
+                            }
+                            else{
+                                $("#txtProduct").text(" ");
+                            }
+
+                            if(response.customer != null){
+                                $("#txtCustomer").text("Customer: " + response.customer);
+                            }
+                            else{
+                                $("#txtCustomer").text(" ");
+                            }
+
                         }
 
                         resolve(); // Mark AJAX call as complete

@@ -51,6 +51,10 @@ body {
     overflow: auto;
 }
 
+.svn-small-card {
+    height: 320px!important;
+}
+
 .image-container {
     height: 200px;
     overflow: hidden; /* Ẩn phần thừa */
