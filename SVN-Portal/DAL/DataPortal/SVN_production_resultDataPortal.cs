@@ -107,7 +107,7 @@ namespace SVN_Portal.DAL.DataPortal
                         //add defect by category
                         if(quantity_ReasonUI != null && defect_RecordUI != null)
                         {
-                            quantity_ReasonUI = quantity_ReasonUI.Select(x =>
+                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item).Select(x =>
                             {
                                 DefectByCategoryViewModel model = new DefectByCategoryViewModel();
                                 model.category = x.name;
@@ -441,7 +441,7 @@ namespace SVN_Portal.DAL.DataPortal
                     //add defect by category
                     if (quantity_ReasonUI != null && defect_RecordUI != null)
                     {
-                        quantity_ReasonUI = quantity_ReasonUI.Select(x =>
+                        var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == oper.Operation).Select(x =>
                         {
                             DefectByCategoryViewModel model = new DefectByCategoryViewModel();
                             model.category = x.name;

@@ -10,5 +10,6 @@
         public string write_date { get; set; }
         public string code { get; set; }
         public string priority { get; set; }
+        public string operation { get; set; }
     }
 }
