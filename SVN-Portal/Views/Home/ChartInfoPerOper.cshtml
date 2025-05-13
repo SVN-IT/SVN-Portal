@@ -218,7 +218,7 @@
     "id": "g3",
     "title": "Defect rate",
     "valueField": "NG",
-    "type": "line",
+    "type": "smoothedLine",
     "valueAxis": "a1",
     "lineColor": "#006600",
     "balloonText": "[[value]]",
@@ -229,7 +229,10 @@
     "bulletBorderThickness": 1,
     "bulletBorderAlpha": 1,
     "dashLengthField": "dashLength",
-    "animationPlayed": true
+    "animationPlayed": true,
+    "labelText": "[[value]]",
+    "labelPosition": "top", // Giá trị nằm trên điểm của đường
+    "labelColor": "#006600", // Màu chữ trên đường
     }],
 
     "chartCursor": {
@@ -338,7 +341,7 @@
                     <div class="col-12 ">
                         <div class="card svn-card">
                             <div class="card-title">
-                                <h4>Production result</h4>
+                                <h4>@* Production result *@</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -490,7 +493,7 @@
                                                                         status = "bg-primary";
                                                                     }
                                                                 }
-                                                                else if (subitem.Item == "Hourly Plan")
+                                                                else if (subitem.Item == "Hourly Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
                                                                 {
                                                                     if (!string.IsNullOrWhiteSpace(currentTime))
                                                                     {

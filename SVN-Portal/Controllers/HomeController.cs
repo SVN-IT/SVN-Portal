@@ -786,7 +786,7 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
-                    else if (item.Item == "Hourly Plan")
+                    else if (item.Item == "Hourly Plan" || item.Item == "UPH" || item.Item == "UPPH")
                     {
                         if (!string.IsNullOrWhiteSpace(currentTime))
                         {
