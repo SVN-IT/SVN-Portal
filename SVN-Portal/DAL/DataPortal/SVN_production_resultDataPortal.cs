@@ -102,6 +102,13 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val3 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
+
+                        val1.Time = "8h-10h";
+                        val2.Time = "10h10-12h";
+                        val3.Time = "13h-15h";
+                        val4.Time = "15h10-17h30";
+                        val5.Time = "18h-20h";
+
                         viewModel.Operation = item;
 
                         //add defect by category
@@ -131,15 +138,10 @@ namespace SVN_Portal.DAL.DataPortal
                         var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Target");
                         if (dataUIbyOperTarget != null) 
                         {
-                            val1.Time = "8h-10h";
                             val1.Target = dataUIbyOperTarget.Time1;
-                            val2.Time = "10h10-12h";
                             val2.Target = dataUIbyOperTarget.Time2;
-                            val3.Time = "13h-15h";
                             val3.Target = dataUIbyOperTarget.Time3;
-                            val4.Time = "15h10-17h30";
                             val4.Target = dataUIbyOperTarget.Time4;
-                            val5.Time = "18h-20h";
                             val5.Target = dataUIbyOperTarget.Time5;
                             if(dataUIbyOperTarget.Time1 == 0 && dataUIbyOperTarget.Time2 == 0 && 
                                 dataUIbyOperTarget.Time3 == 0 && dataUIbyOperTarget.Time4 == 0 && dataUIbyOperTarget.Time5 == 0)
@@ -436,6 +438,13 @@ namespace SVN_Portal.DAL.DataPortal
                     QtyProdResultViewModel val3 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val5 = new QtyProdResultViewModel();
+
+                    val1.Time = "8h-10h";
+                    val2.Time = "10h10-12h";
+                    val3.Time = "13h-15h";
+                    val4.Time = "15h10-17h30";
+                    val5.Time = "18h-20h";
+
                     viewModel.Operation = oper.Operation;
 
                     //add defect by category
@@ -470,15 +479,10 @@ namespace SVN_Portal.DAL.DataPortal
                     var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName && x.Type_value == "Target");
                     if (dataUIbyOperTarget != null)
                     {
-                        val1.Time = "8h-10h";
                         val1.Target = dataUIbyOperTarget.Time1;
-                        val2.Time = "10h10-12h";
                         val2.Target = dataUIbyOperTarget.Time2;
-                        val3.Time = "13h-15h";
                         val3.Target = dataUIbyOperTarget.Time3;
-                        val4.Time = "15h10-17h30";
                         val4.Target = dataUIbyOperTarget.Time4;
-                        val5.Time = "18h-20h";
                         val5.Target = dataUIbyOperTarget.Time5;
                         if (dataUIbyOperTarget.Time1 == 0 && dataUIbyOperTarget.Time2 == 0 &&
                                 dataUIbyOperTarget.Time3 == 0 && dataUIbyOperTarget.Time4 == 0 && dataUIbyOperTarget.Time5 == 0)
