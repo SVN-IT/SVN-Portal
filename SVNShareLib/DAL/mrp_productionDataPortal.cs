@@ -43,9 +43,11 @@ namespace SVNShareLib.DAL
         {
             try
             {
-                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'confirmed'";
+                DateTime today = DateTime.Today.Date.AddHours(-7);
+
+                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'confirmed' AND date_planned_start >= @today";
                 sql = sql.Replace("#countRow", countRow.ToString());
-                var param = new { product_id = product_id };
+                var param = new { product_id = product_id, today = today };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
