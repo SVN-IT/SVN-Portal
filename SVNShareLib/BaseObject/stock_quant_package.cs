@@ -11,7 +11,7 @@ namespace SVNShareLib.BaseObject
         public object package_type_id { get; set; }
         public object write_uid { get; set; }
         public DateTime __last_update { get; set; }
-        public DateTime create_date { get; set; }
+        public object create_date { get; set; }
         public object valid_sscc { get; set; }
         public object owner_id { get; set; }
         public object create_uid { get; set; }
@@ -22,8 +22,8 @@ namespace SVNShareLib.BaseObject
         public object location_id { get; set; }
         public object company_id { get; set; }
         public string display_name { get; set; }
-        public DateTime pack_date { get; set; }
+        public object pack_date { get; set; }
         public int id { get; set; }
-        public DateTime write_date { get; set; }
+        public object write_date { get; set; }
     }
 }

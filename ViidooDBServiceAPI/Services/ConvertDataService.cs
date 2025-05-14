@@ -2271,7 +2271,9 @@ namespace ViidooDBServiceAPI.Services
                 {
                     stock_quant_packageUI mrp_ProductionUI = new stock_quant_packageUI();
                     mrp_ProductionUI.id = item.id;
-                    
+                    mrp_ProductionUI.name = item.name;
+                    mrp_ProductionUI.package_use = item.package_use;
+
                     if (item.create_uid != null)
                     {
                         try
@@ -2294,6 +2296,80 @@ namespace ViidooDBServiceAPI.Services
                         }
                         catch
                         {
+                        }
+                    }
+                    if (item.package_type_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.package_type_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.package_type_id = (int)intTemp;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.pack_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.pack_date = DateTime.Parse((string)item.pack_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
                         }
                     }
                     dataUIs.Add(mrp_ProductionUI);
