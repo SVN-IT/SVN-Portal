@@ -699,7 +699,7 @@ namespace SVN_Portal.Controllers
             }
             else
             {
-                sb.Append("<div class='col-12 row'>");
+                sb.Append("<div class='row'>");
                 sb.Append("<div class='col-4 border table-cell text-center'>");
                 sb.Append("<strong>WO Name</strong>");
                 sb.Append("</div>");
@@ -920,7 +920,7 @@ namespace SVN_Portal.Controllers
             }
             else
             {
-                sb.Append("<div class='col-12 row'>");
+                sb.Append("<div class='row'>");
                 sb.Append("<div class='col-4 border table-cell text-center'>");
                 sb.Append("<strong>WO Name</strong>");
                 sb.Append("</div>");
