@@ -43,7 +43,7 @@ namespace SVNShareLib.DAL
         {
             try
             {
-                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'progress'";
+                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'confirmed'";
                 sql = sql.Replace("#countRow", countRow.ToString());
                 var param = new { product_id = product_id };
                 int timeOut = 1000;
