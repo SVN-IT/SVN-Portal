@@ -148,8 +148,11 @@ namespace SVN_Portal.Controllers
                 }
                 products = products.Select(product =>
                 {
-                    Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(product.product_name);
-                    product.product_name = dictionary["vi_VN"];
+                    if(product.product_name.Contains("vi_VN"))
+                    {
+                        Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(product.product_name);
+                        product.product_name = dictionary["vi_VN"];
+                    }
                     return product;
                 }).ToList();
                 SelectList productList = new SelectList(products, "id", "product_name");
@@ -164,8 +167,11 @@ namespace SVN_Portal.Controllers
                         dataUI = dataUI.Select(item =>
                         {
                             PrintTemViewModel viewModel = new PrintTemViewModel();
-                            Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
-                            viewModel.item_name = dictionary["vi_VN"];
+                            if(item.item_name.Contains("vi_VN"))
+                            {
+                                Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
+                                item.item_name = dictionary["vi_VN"];
+                            }
                             viewModel.lot_code = item.lot_code;
                             viewModel.product_qty = item.product_qty;
                             viewModels.Add(viewModel);
