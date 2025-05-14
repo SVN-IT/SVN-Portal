@@ -628,27 +628,29 @@
                                                     else
                                                     {
                                                         <div id="tg_@charID" class="col-12 row" style="padding-left:20px; height:160px">
-                                                            <div class="col-4 border table-cell text-center">
-                                                                <strong>WO Name</strong>
-                                                            </div>
-                                                            <div class="col-4 border table-cell text-center">
-                                                                <strong>State</strong>
-                                                            </div>
-                                                            <div class="col-4 border table-cell text-center">
-                                                                <strong>Product Qty</strong>
-                                                            </div>
-                                                            @foreach (var subitem in item.ProductionUIs)
-                                                            {
+                                                            <div class="col-12 row">
                                                                 <div class="col-4 border table-cell text-center">
-                                                                    @subitem.name
+                                                                    <strong>WO Name</strong>
                                                                 </div>
                                                                 <div class="col-4 border table-cell text-center">
-                                                                    @subitem.state
+                                                                    <strong>State</strong>
                                                                 </div>
                                                                 <div class="col-4 border table-cell text-center">
-                                                                    @subitem.product_uom_qty
+                                                                    <strong>Product Qty</strong>
                                                                 </div>
-                                                            }
+                                                                @foreach (var subitem in item.ProductionUIs)
+                                                                {
+                                                                    <div class="col-4 border table-cell text-center">
+                                                                        @subitem.name
+                                                                    </div>
+                                                                    <div class="col-4 border table-cell text-center">
+                                                                        @subitem.state
+                                                                    </div>
+                                                                    <div class="col-4 border table-cell text-center">
+                                                                        @subitem.product_uom_qty
+                                                                    </div>
+                                                                }
+                                                            </div>
                                                         </div>
                                                     }
                                                 </div>
