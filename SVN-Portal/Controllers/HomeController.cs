@@ -501,6 +501,12 @@ namespace SVN_Portal.Controllers
                     if (!string.IsNullOrWhiteSpace(wc))
                     {
                         operInfo.WCName = wc;
+                        var wcInfo = operInfo.WC.FirstOrDefault(x => x.WCName == wc);
+                        if(wcInfo != null)
+                        {
+                            operInfo.Produce_id = wcInfo.Produce_id;
+                            operInfo.Top_row = wcInfo.Top_row;
+                        }
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
