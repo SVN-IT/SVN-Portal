@@ -212,7 +212,9 @@ namespace ViidooDBServiceAPI.Services
                         var dataUI13 = convertDataService.ConverterQuantPackageUI(searchResult);
                         if (dataUI13 != null && dataUI13.Count > 0)
                         {
-                            
+                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                            insertResult = convertDataService.InsertStockQuantPackageToSVNDB(dataUI13);
+                            processResult = insertResult;
                         }
                         break;
                 }

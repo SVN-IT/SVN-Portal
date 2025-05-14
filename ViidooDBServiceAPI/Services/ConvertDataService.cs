@@ -3176,6 +3176,63 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
+        public BODataProcessResult InsertStockQuantPackageToSVNDB(List<stock_quant_packageUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<stock_quant_packageUI> insertData = new List<stock_quant_packageUI>();
+                List<stock_quant_packageUI> existData = new List<stock_quant_packageUI>();
+                GrandDataPortal<stock_quant_packageUI> dataPortal = new GrandDataPortal<stock_quant_packageUI>("SVN_stock_quant_package", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_stock_quant_package]\r\n           ([id]\r\n           ,[package_type_id]\r\n           ,[location_id]\r\n           ,[company_id]\r\n           ,[create_uid]\r\n           ,[write_uid]\r\n           ,[name]\r\n           ,[package_use]\r\n           ,[pack_date]\r\n           ,[create_date]\r\n           ,[write_date])\r\n     VALUES\r\n           (@id\r\n           ,@package_type_id\r\n           ,@location_id\r\n           ,@company_id\r\n           ,@create_uid\r\n           ,@write_uid\r\n           ,@name\r\n           ,@package_use\r\n           ,@pack_date\r\n           ,@create_date\r\n           ,@write_date)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_stock_quant_package]\r\n   SET [id] = @id\r\n      ,[package_type_id] = @package_type_id\r\n      ,[location_id] = @location_id\r\n      ,[company_id] = @company_id\r\n      ,[create_uid] = @create_uid\r\n      ,[write_uid] = @write_uid\r\n      ,[name] = @name\r\n      ,[package_use] = @package_use\r\n      ,[pack_date] = @pack_date\r\n      ,[create_date] = @create_date\r\n      ,[write_date] = @write_date\r\n WHERE [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         public BODataProcessResult InsertQuantityAlertToSVNDB(List<viin_quantity_alert_teamUI> dataUI)
         {
             BODataProcessResult processResult = new BODataProcessResult();
