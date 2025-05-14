@@ -2258,6 +2258,54 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        public List<stock_quant_packageUI> ConverterQuantPackageUI(object searchResult)
+        {
+            List<stock_quant_packageUI> dataUIs = new List<stock_quant_packageUI>();
+            List<stock_quant_package> baseData = new List<stock_quant_package>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<stock_quant_package>>(json);
+                foreach (var item in baseData)
+                {
+                    stock_quant_packageUI mrp_ProductionUI = new stock_quant_packageUI();
+                    mrp_ProductionUI.id = item.id;
+                    
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    dataUIs.Add(mrp_ProductionUI);
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public List<viin_quantity_alert_teamUI> ConverterToQuantityAlertUI(object searchResult)
         {
             List<viin_quantity_alert_teamUI> dataUIs = new List<viin_quantity_alert_teamUI>();

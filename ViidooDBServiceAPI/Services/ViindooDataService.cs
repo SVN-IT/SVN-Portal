@@ -208,6 +208,13 @@ namespace ViidooDBServiceAPI.Services
                             processResult = insertResult;
                         }
                         break;
+                    case "stock.quant.package":
+                        var dataUI13 = convertDataService.ConverterQuantPackageUI(searchResult);
+                        if (dataUI13 != null && dataUI13.Count > 0)
+                        {
+                            
+                        }
+                        break;
                 }
             }
             catch(Exception ex)
