@@ -421,7 +421,8 @@ namespace ViidooDBServiceAPI.Services
                                             var stockMoveLineUI2 = convertDataService.ConverterToStockMoveLineUI(processResult.Content);
                                             if (stockMoveLineUI2 != null && stockMoveLineUI2.Count > 0)
                                             {
-                                                
+                                                processResult.OK = true;
+                                                processResult.Content = stockMoveLineUI2;
                                             }
                                             else
                                             {
