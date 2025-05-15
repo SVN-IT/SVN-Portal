@@ -74,6 +74,39 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetProductionResult")]
+        [HttpPost]
+        public BODataProcessResult GetProductionResult()
+        {
+            BODataProcessResult totalDataProcessResult = new BODataProcessResult();
+            try
+            {
+                string objectName = "mrp.production";
+                var queryConfig = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
+
+                BODataProcessResult productionResult = new BODataProcessResult();
+                productionResult = viinDataService.GetViindooDataV1(queryConfig);
+
+                BODataProcessResult callProcessResult = new BODataProcessResult();
+                callProcessResult = viinDataService.CallSPToUpdateResult();
+                if(productionResult.OK && callProcessResult.OK)
+                {
+                    totalDataProcessResult.OK = true;
+                }
+                else
+                {
+                    totalDataProcessResult.OK = false;
+                }
+
+                totalDataProcessResult.Message = "Get production result: " + productionResult.Message + " / " + "Call update: " + callProcessResult.Message;
+            }
+            catch (Exception ex)
+            {
+                totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + ex.Message;
+            }
+            return totalDataProcessResult;
+        }
+
         [Route("GetDataFromViindooV1")]
         [HttpPost]
         public BODataProcessResult GetDataFromViindooV1()
@@ -91,9 +124,9 @@ namespace ViidooDBServiceAPI.Controllers
                     processResults.Add(processResult);
                 }
 
-                BODataProcessResult callProcessResult = new BODataProcessResult();
-                callProcessResult = viinDataService.CallSPToUpdateResult();
-                processResults.Add(callProcessResult);
+                //BODataProcessResult callProcessResult = new BODataProcessResult();
+                //callProcessResult = viinDataService.CallSPToUpdateResult();
+                //processResults.Add(callProcessResult);
 
             }
             catch (Exception ex)
