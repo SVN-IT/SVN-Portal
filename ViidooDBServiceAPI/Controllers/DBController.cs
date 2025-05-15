@@ -79,6 +79,7 @@ namespace ViidooDBServiceAPI.Controllers
         public BODataProcessResult GetProductionResult()
         {
             BODataProcessResult totalDataProcessResult = new BODataProcessResult();
+            totalDataProcessResult.Message = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             try
             {
                 string objectName = "mrp.production";
@@ -98,7 +99,7 @@ namespace ViidooDBServiceAPI.Controllers
                     totalDataProcessResult.OK = false;
                 }
 
-                totalDataProcessResult.Message = "Get production result: " + productionResult.Message + " / " + "Call update: " + callProcessResult.Message;
+                totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + "Get production result: " + productionResult.Message + " / " + "Call update: " + callProcessResult.Message;
             }
             catch (Exception ex)
             {
