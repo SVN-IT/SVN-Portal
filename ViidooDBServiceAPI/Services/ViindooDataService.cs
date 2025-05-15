@@ -388,6 +388,88 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
+        public BODataProcessResult GetPackageBySeri(string serialNumber)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                object[] domain = new object[] { "name", "=", serialNumber };
+                processResult = GetViindooDataByCondition("stock.lot", domain);
+                if (processResult.OK)
+                {
+                    var stockLotUI = convertDataService.ConverterToStockLotUI(processResult.Content);
+                    if (stockLotUI != null && stockLotUI.Count == 1)
+                    {
+                        domain = new object[] { "lot_id", "=", stockLotUI[0].id };
+                        processResult = GetViindooDataByCondition("stock.move.line", domain);
+                        if (processResult.OK) 
+                        { 
+                            var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResult.Content);
+                            if (stockMoveLineUI != null && stockMoveLineUI.Count > 0)
+                            {
+                                domain = new object[] { "id", "=", stockMoveLineUI[0].result_package_id };
+                                processResult = GetViindooDataByCondition("stock.quant.package", domain);
+                                if(processResult.OK)
+                                {
+                                    var stockQuantPackageUI = convertDataService.ConverterQuantPackageUI(processResult.Content);
+                                    if (stockQuantPackageUI != null && stockQuantPackageUI.Count == 1)
+                                    {
+                                        domain = new object[] { "result_package_id", "=", stockQuantPackageUI[0].id };
+                                        processResult = GetViindooDataByCondition("stock.move.line", domain);
+                                        if (processResult.OK)
+                                        {
+                                            var stockMoveLineUI2 = convertDataService.ConverterToStockMoveLineUI(processResult.Content);
+                                            if (stockMoveLineUI2 != null && stockMoveLineUI2.Count > 0)
+                                            {
+                                                
+                                            }
+                                            else
+                                            {
+                                                processResult.Message = "Get stock move line fail";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            processResult.Message = "Get stock move line fail";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        processResult.Message = "Get stock quant package fail";
+                                    }
+                                }
+                                else
+                                {
+                                    processResult.Message = "Get stock quant package fail";
+                                }
+                            }
+                            else
+                            {
+                                processResult.Message = "Get stock move line fail";
+                            }
+                        }
+                        else
+                        {
+                            processResult.Message = "Get stock move line fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.Message = "Get stock lot fail";
+                    }
+                }
+                else
+                {
+                    processResult.Message = "Get stock lot fail";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         public BODataProcessResult GetViindooData(string objectName)
         {
             BODataProcessResult processResult = new BODataProcessResult();

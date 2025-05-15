@@ -221,6 +221,22 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetPackageBySeri")]
+        [HttpPost]
+        public BODataProcessResult GetPackageBySeri(string seriNumber)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetPackageBySeri(seriNumber);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetAndUploadProductionTemplateData")]
         [HttpPost]
         public BODataProcessResult GetAndUploadProductionTemplateData()

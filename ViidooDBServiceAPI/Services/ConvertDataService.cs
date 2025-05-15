@@ -1676,6 +1676,19 @@ namespace ViidooDBServiceAPI.Services
                             JArray objects = (JArray)item.lot_name;
                             var intTemp = (string)objects[0];
                             mrp_ProductionUI.lot_name = (string)intTemp;
+                            if(string.IsNullOrWhiteSpace(mrp_ProductionUI.lot_name))
+                            {
+                                try
+                                {
+                                    JArray object2s = (JArray)item.lot_id;
+                                    var intTemp2 = (string)objects[1];
+                                    mrp_ProductionUI.lot_name = (string)intTemp;
+                                }
+                                catch
+                                {
+
+                                }
+                            }
                         }
                         catch
                         {
