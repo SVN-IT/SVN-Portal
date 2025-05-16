@@ -286,5 +286,21 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return processResult;
         }
+
+        [Route("GetLotByMODone")]
+        [HttpPost]
+        public BODataProcessResult GetLotByMODone(int product_id)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetLotByMODone(product_id);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }
