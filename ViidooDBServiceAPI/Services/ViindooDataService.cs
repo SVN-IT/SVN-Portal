@@ -597,7 +597,8 @@ namespace ViidooDBServiceAPI.Services
                                             string strListLotProducingID = string.Join(";", stockLotUIs.Select(x => x.id));
                                             int[] lot_producing_id = stockLotUIs.Select(x => x.id).ToArray();
                                             domain = new object[] { "lot_producing_id", "in", lot_producing_id };
-                                            search = new object[] { domain };
+                                            var domain2 = new object[] { "state", "=", "done" };
+                                            search = new object[] { domain, domain2 };
                                             objectName = "mrp.production";
                                             fields = "id,product_id,product_uom_id,lot_producing_id,bom_id,name,priority,origin,state,reservation_state,consumption,product_qty,qty_producing,date_planned_start,date_planned_finished,date_deadline,date_start,date_finished,product_uom_qty,x_Svn_customer_SN,finished_move_line_ids";
                                             limit = 0;
