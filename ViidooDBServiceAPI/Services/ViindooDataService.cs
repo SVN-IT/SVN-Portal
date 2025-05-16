@@ -551,6 +551,7 @@ namespace ViidooDBServiceAPI.Services
         public BODataProcessResult GetLotByMODone(int product_id)
         {
             BODataProcessResult processResult = new BODataProcessResult();
+            List<svn_lot_infoUI> svn_Lot_InfoUIs = new List<svn_lot_infoUI>();
             try
             {
                 object[] domain = new object[] { "product_id", "=", product_id };
@@ -594,23 +595,47 @@ namespace ViidooDBServiceAPI.Services
                                         var productTemplateUIs = convertDataService.ConvertToTemplateUI(processResult.Content);
                                         if (productTemplateUIs != null && productTemplateUIs.Count > 0)
                                         {
-                                            string strListLotProducingID = string.Join(";", stockLotUIs.Select(x => x.id));
-                                            int[] lot_producing_id = stockLotUIs.Select(x => x.id).ToArray();
-                                            domain = new object[] { "lot_producing_id", "in", lot_producing_id };
-                                            var domain2 = new object[] { "state", "=", "done" };
-                                            search = new object[] { domain, domain2 };
-                                            objectName = "mrp.production";
-                                            fields = "id,product_id,product_uom_id,lot_producing_id,bom_id,name,priority,origin,state,reservation_state,consumption,product_qty,qty_producing,date_planned_start,date_planned_finished,date_deadline,date_start,date_finished,product_uom_qty,x_Svn_customer_SN,finished_move_line_ids";
-                                            limit = 0;
-                                            order = "write_date desc";
-                                            processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
-                                            if (processResult.OK) 
+                                            var productTemplateUI = productTemplateUIs.FirstOrDefault();
+                                            if (productTemplateUI != null) 
                                             {
-                                                var mrpProductionUIs = convertDataService.ConverterToProductionUI(processResult.Content);
-                                                if (mrpProductionUIs != null && mrpProductionUIs.Count > 0)
+                                                string strListLotProducingID = string.Join(";", stockLotUIs.Select(x => x.id));
+                                                int[] lot_producing_id = stockLotUIs.Select(x => x.id).ToArray();
+                                                domain = new object[] { "lot_producing_id", "in", lot_producing_id };
+                                                var domain2 = new object[] { "state", "=", "done" };
+                                                search = new object[] { domain, domain2 };
+                                                objectName = "mrp.production";
+                                                fields = "id,product_id,product_uom_id,lot_producing_id,bom_id,name,priority,origin,state,reservation_state,consumption,product_qty,qty_producing,date_planned_start,date_planned_finished,date_deadline,date_start,date_finished,product_uom_qty,x_Svn_customer_SN,finished_move_line_ids";
+                                                limit = 0;
+                                                order = "write_date desc";
+                                                processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
+                                                if (processResult.OK)
                                                 {
-                                                    processResult.OK = true;
-                                                    processResult.Content = mrpProductionUIs;
+                                                    var mrpProductionUIs = convertDataService.ConverterToProductionUI(processResult.Content);
+                                                    if (mrpProductionUIs != null && mrpProductionUIs.Count > 0)
+                                                    {
+                                                        stockLotUIs = stockLotUIs.Select(x =>
+                                                        {
+                                                            svn_lot_infoUI svn_Lot_InfoUI = new svn_lot_infoUI();
+                                                            svn_Lot_InfoUI.lot_code = x.name;
+                                                            svn_Lot_InfoUI.item_name = productTemplateUI.name;
+                                                            var productionResult = mrpProductionUIs.FirstOrDefault(y => y.lot_producing_id == x.id);
+                                                            if (productionResult != null)
+                                                            {
+                                                                svn_Lot_InfoUI.product_qty = productionResult.product_qty;
+                                                            }
+                                                            svn_Lot_InfoUIs.Add(svn_Lot_InfoUI);
+
+                                                            return x;
+
+                                                        }).ToList();
+                                                        processResult.OK = true;
+                                                        processResult.Content = svn_Lot_InfoUIs;
+                                                        processResult.Message = "Get lot info success";
+                                                    }
+                                                    else
+                                                    {
+                                                        processResult.Message = "Get mrp production fail";
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -619,7 +644,7 @@ namespace ViidooDBServiceAPI.Services
                                             }
                                             else
                                             {
-                                                processResult.Message = "Get mrp production fail";
+                                                processResult.Message = "Get product template fail";
                                             }
                                         }
                                         else
