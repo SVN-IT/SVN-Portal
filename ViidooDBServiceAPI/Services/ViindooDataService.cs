@@ -310,10 +310,10 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetViindooDataByConditionV1(QueryConfig dataRequest)
+        private BODataProcessResult GetViindooDataByConditionV1(string objectName, object[] search, string strfields, int limit, string order)
         {
             BODataProcessResult processResult = new BODataProcessResult();
-            processResult.DataType = dataRequest.TableName;
+            processResult.DataType = objectName;
             try
             {
                 var connectResult = ConnectDB();
@@ -324,90 +324,42 @@ namespace ViidooDBServiceAPI.Services
                     models.Url = serverUrl + "/xmlrpc/2/object";
 
 
-                    object[] search = new object[] { };
-                    object[] domain = new object[] { };
+                    //object[] search = new object[] { };
                     string[] fields = new string[] { };
-                    if (dataRequest.ListDomain != null && dataRequest.ListDomain.Count > 0)
+
+                    //search = new object[] { domain };
+
+                    if (!string.IsNullOrWhiteSpace(strfields))
                     {
-                        var domainItems = new List<object>();
-
-                        for (var i = 0; i < dataRequest.ListDomain.Count; i++)
-                        {
-                            if (dataRequest.ListDomain[i].Contains("@write_date"))
-                            {
-                                DateTime curTime = DateTime.Now;
-                                curTime = curTime.AddHours(-7);
-                                curTime = curTime.AddMinutes(-10);
-                                dataRequest.ListDomain[i] = dataRequest.ListDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
-                            }
-                            if (dataRequest.ListDomain[i].Contains(","))
-                            {
-                                object[] domainItem = dataRequest.ListDomain[i].Split(",");
-                                for (int j = 0; j < domainItem.Length; j++)
-                                {
-                                    if (domainItem[j] is string && domainItem[j].ToString().Contains(";"))
-                                    {
-                                        string[] parts = domainItem[j].ToString().Split(';'); // Split "2,IPQC"
-
-                                        object[] convertedParts = Array.ConvertAll(parts, part =>
-                                        {
-                                            if (int.TryParse(part, out int result))
-                                            {
-                                                return (object)result; // Convert "2" to int
-                                            }
-                                            if (bool.TryParse(part, out bool resultBool))
-                                            {
-                                                return (object)resultBool; // Convert "true" to bool
-                                            }
-                                            return (object)part; // Keep "IPQC" as string
-                                        });
-
-                                        //object[] convertedItem = new object[] { convertedParts }; // Convert to new object[]
-
-                                        // Create a new array with the updated value
-                                        domainItem = ReplaceItem(domainItem, j, convertedParts);
-                                        //break;
-                                    }
-                                }
-                                domainItems.Add(domainItem);
-                            }
-                            if (dataRequest.ListDomain[i] == "|")
-                            {
-                                domainItems.Add(dataRequest.ListDomain[i]);
-                            }
-                        }
-
-                        domain = domainItems.ToArray();
-                        search = domain;
-                        //search = new object[] { domain };
+                        fields = strfields.Split(",");
                     }
-                    if (!string.IsNullOrWhiteSpace(dataRequest.Fields))
-                    {
-                        fields = dataRequest.Fields.Split(",");
-                    }
+
                     var querydata = new object[]
                     {
                             search,
                             fields,
                             0,
-                            dataRequest.Limit
+                            limit
                     };
-                    if (!string.IsNullOrWhiteSpace(dataRequest.Order))
+                    if (!string.IsNullOrWhiteSpace(order))
                     {
                         querydata = new object[]
                         {
                                 search,
                                 fields,
                                 0,
-                                dataRequest.Limit,
-                                dataRequest.Order
+                                limit,
+                                order
                         };
                     }
+                    //new object[] { new object[] { "state", "=", "done" } }
+                    //new string[] { "name", "product_id", "state" }
+
                     object searchResult = models.Execute_Kw(
                         dbName,
                         connectResult.UserID,
                         password,
-                        dataRequest.TableName,
+                        objectName,
                         "search_read",
                         querydata);
                     if (searchResult != null)
@@ -424,6 +376,7 @@ namespace ViidooDBServiceAPI.Services
                 {
                     processResult.Message = connectResult.Message;
                 }
+
             }
             catch (Exception ex)
             {
@@ -600,41 +553,25 @@ namespace ViidooDBServiceAPI.Services
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                QueryConfig dataRequest = new QueryConfig();
-                //{
-                //    SVNTableName = "SVN_stock_lot",
-                //    TableName = "stock.lot",
-                //    Domain = "",
-                //    ListDomain = new List<string>()
-                //    {
-                //        "product_id,=," + product_id
-                //    },
-                //    Fields = "id,message_main_attachment_id,product_id,product_uom_id,company_id,create_uid,write_uid,origin_message_id,origin_references,name,ref,note,create_date,write_date,customer_id,supplier_id,country_state_id,equipment_id",
-                //    Limit = 10,
-                //    Order = "write_date desc"
-                //};
-                //processResult = GetViindooDataByConditionV1(dataRequest);
                 object[] domain = new object[] { "product_id", "=", product_id };
-                processResult = GetViindooDataByCondition("stock.lot", domain);
+                object[] search = new object[] { domain };
+                string objectName = "stock.lot";
+                string fields = "id,message_main_attachment_id,product_id,product_uom_id,company_id,create_uid,write_uid,origin_message_id,origin_references,name,ref,note,create_date,write_date,customer_id,supplier_id,country_state_id,equipment_id";
+                int limit = 10;
+                string order = "write_date desc";
+                processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
                 if (processResult.OK)
                 {
                     var stockLotUIs = convertDataService.ConverterToStockLotUI(processResult.Content);
                     if (stockLotUIs != null && stockLotUIs.Count > 0 )
                     {
-                        dataRequest = new QueryConfig()
-                        {
-                            SVNTableName = "SVN_product_product",
-                            TableName = "product.product",
-                            Domain = "",
-                            ListDomain = new List<string>()
-                            {
-                                "id,=," + product_id
-                            },
-                            Fields = "id,message_main_attachment_id,product_tmpl_id,create_uid,write_uid,origin_message_id,origin_references,default_code,barcode,combination_indices,volume,weight,active,can_image_variant_1024_be_zoomed,create_date,write_date",
-                            Limit = 0,
-                            Order = "write_date desc"
-                        };
-                        processResult = GetViindooDataByConditionV1(dataRequest);
+                        domain = new object[] { "id", "=", product_id };
+                        search = new object[] { domain };
+                        objectName = "product.product";
+                        fields = "id,message_main_attachment_id,product_tmpl_id,create_uid,write_uid,origin_message_id,origin_references,default_code,barcode,combination_indices,volume,weight,active,can_image_variant_1024_be_zoomed,create_date,write_date";
+                        limit = 0;
+                        order = "write_date desc";
+                        processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
                         if (processResult.OK) 
                         {
 
@@ -644,20 +581,13 @@ namespace ViidooDBServiceAPI.Services
                                 var productProductUI = productProductUIs.FirstOrDefault();
                                 if (productProductUI != null)
                                 {
-                                    dataRequest = new QueryConfig()
-                                    {
-                                        SVNTableName = "SVN_product_template_1",
-                                        TableName = "product.template",
-                                        Domain = "",
-                                        ListDomain = new List<string>()
-                                        {
-                                            "id,=," + productProductUI.product_tmpl_id
-                                        },
-                                        Fields = "id,message_main_attachment_id,sequence,categ_id,uom_id,uom_po_id,company_id,color,create_uid,write_uid,origin_message_id,origin_references,detailed_type,type,default_code,priority,name,description,description_purchase,description_sale,list_price,volume,weight,sale_ok,purchase_ok,active,can_image_1024_be_zoomed,has_configurable_attributes,create_date,write_date,tracking,description_picking,description_pickingout,description_pickingin,sale_delay,produce_delay,days_to_prepare_mo,purchase_method,purchase_line_warn,purchase_line_warn_msg,service_type,sale_line_warn,expense_policy,invoice_policy,sale_line_warn_msg,technician_user_id,equipment_assign_to,period_uom,recurring_sale_price,service_tracking",
-                                        Limit = 0,
-                                        Order = "write_date desc"
-                                    };
-                                    processResult = GetViindooDataByConditionV1(dataRequest);
+                                    domain = new object[] { "id", "=", productProductUI.product_tmpl_id };
+                                    search = new object[] { domain };
+                                    objectName = "product.template";
+                                    fields = "id,message_main_attachment_id,sequence,categ_id,uom_id,uom_po_id,company_id,color,create_uid,write_uid,origin_message_id,origin_references,detailed_type,type,default_code,priority,name,description,description_purchase,description_sale,list_price,volume,weight,sale_ok,purchase_ok,active,can_image_1024_be_zoomed,has_configurable_attributes,create_date,write_date,tracking,description_picking,description_pickingout,description_pickingin,sale_delay,produce_delay,days_to_prepare_mo,purchase_method,purchase_line_warn,purchase_line_warn_msg,service_type,sale_line_warn,expense_policy,invoice_policy,sale_line_warn_msg,technician_user_id,equipment_assign_to,period_uom,recurring_sale_price,service_tracking";
+                                    limit = 0;
+                                    order = "write_date desc";
+                                    processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
                                     if (processResult.OK) 
                                     {
 
@@ -665,20 +595,14 @@ namespace ViidooDBServiceAPI.Services
                                         if (productTemplateUIs != null && productTemplateUIs.Count > 0)
                                         {
                                             string strListLotProducingID = string.Join(";", stockLotUIs.Select(x => x.id));
-                                            dataRequest = new QueryConfig()
-                                            {
-                                                SVNTableName = "SVN_mrp_production_1",
-                                                TableName = "mrp.production",
-                                                Domain = "",
-                                                ListDomain = new List<string>()
-                                                {
-                                                    "lot_producing_id,in," + strListLotProducingID
-                                                },
-                                                Fields = "id,product_id,product_uom_id,lot_producing_id,bom_id,name,priority,origin,state,reservation_state,consumption,product_qty,qty_producing,date_planned_start,date_planned_finished,date_deadline,date_start,date_finished,product_uom_qty,x_Svn_customer_SN,finished_move_line_ids",
-                                                Limit = 0,
-                                                Order = "write_date desc"
-                                            };
-                                            processResult = GetViindooDataByConditionV1(dataRequest);
+                                            int[] lot_producing_id = stockLotUIs.Select(x => x.id).ToArray();
+                                            domain = new object[] { "lot_producing_id", "in", lot_producing_id };
+                                            search = new object[] { domain };
+                                            objectName = "mrp.production";
+                                            fields = "id,product_id,product_uom_id,lot_producing_id,bom_id,name,priority,origin,state,reservation_state,consumption,product_qty,qty_producing,date_planned_start,date_planned_finished,date_deadline,date_start,date_finished,product_uom_qty,x_Svn_customer_SN,finished_move_line_ids";
+                                            limit = 0;
+                                            order = "write_date desc";
+                                            processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
                                             if (processResult.OK) 
                                             {
                                                 var mrpProductionUIs = convertDataService.ConverterToProductionUI(processResult.Content);
