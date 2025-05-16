@@ -5,7 +5,7 @@ using SVNShareLib.Request;
 
 string BaseURL = "http://10.10.99.10:8101/"; //http://10.10.99.10:8101/ https://localhost:7272/
 string GetAndUploadProductionResultDataURL = "api/DB/GetAndUploadProductionResultDataXMLRPC";
-string GetDataFromViindooV1URL = "api/DB/GetDataFromViindooV1";
+string GetDataFromViindooV1URL = "api/DB/GetDataFromViindooV1"; //api/DB/GetDataFromViindooV1
 string GetDataFromViindooV3URL = "api/DB/GetDataFromViindooV3";
 
 ViindooDataRequest dataRequest = new ViindooDataRequest()

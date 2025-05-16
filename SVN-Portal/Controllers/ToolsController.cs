@@ -10,6 +10,8 @@ using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
 using SVNShareLib;
+using SVNShareLib.DTO;
+using SVNShareLib.Request;
 using System.Threading.Tasks;
 
 namespace SVN_Portal.Controllers
@@ -19,11 +21,13 @@ namespace SVN_Portal.Controllers
         DBConfiguration dBConfiguration;
         string connectionString;
         ToolsHelper toolsHelper;
-        public ToolsController(DBConfiguration dBConfiguration, ToolsHelper toolsHelper)
+        APIConfiguration aPIConfiguration;
+        public ToolsController(DBConfiguration dBConfiguration, ToolsHelper toolsHelper, APIConfiguration aPIConfiguration)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
             this.toolsHelper = toolsHelper;
+            this.aPIConfiguration = aPIConfiguration;
         }
         public IActionResult Index()
         {
@@ -160,23 +164,37 @@ namespace SVN_Portal.Controllers
                 {
                     productList = new SelectList(products, "id", "product_name", selectedProductID);
 
-                    SVN_stock_lotDataPortal lotDataPortal = new SVN_stock_lotDataPortal(connectionString);
-                    var dataUI = await lotDataPortal.ReadListByProductID(selectedProductID, countRows);
-                    if (dataUI != null)
+                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+
+                    ProductDataRequest dataRequest = new ProductDataRequest()
                     {
-                        dataUI = dataUI.Select(item =>
+                        product_id = selectedProductID,
+                        count = countRows
+                    };
+
+                    var result = await httpClientHelper.PostRequest(aPIConfiguration.GetLotByMODoneURL, dataRequest, new CancellationToken(false));
+                    if(result != null)
+                    {
+                        if(result.OK)
                         {
-                            PrintTemViewModel viewModel = new PrintTemViewModel();
-                            if(item.item_name.Contains("vi_VN"))
+                            var dataUI = JsonConvert.DeserializeObject<List<svn_lot_infoUI>>(result.Content.ToString());
+                            if (dataUI != null)
                             {
-                                Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
-                                item.item_name = dictionary["vi_VN"];
+                                dataUI = dataUI.Select(item =>
+                                {
+                                    PrintTemViewModel viewModel = new PrintTemViewModel();
+                                    if (item.item_name.Contains("vi_VN"))
+                                    {
+                                        Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
+                                        item.item_name = dictionary["vi_VN"];
+                                    }
+                                    viewModel.lot_code = item.lot_code;
+                                    viewModel.product_qty = item.product_qty;
+                                    viewModels.Add(viewModel);
+                                    return item;
+                                }).ToList();
                             }
-                            viewModel.lot_code = item.lot_code;
-                            viewModel.product_qty = item.product_qty;
-                            viewModels.Add(viewModel);
-                            return item;
-                        }).ToList();
+                        }
                     }
 
                 }

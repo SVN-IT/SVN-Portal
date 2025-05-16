@@ -10,12 +10,14 @@ AppConfig appConfig = builder.Configuration.GetSection("AppConfig").Get<AppConfi
 DBConfiguration dBConfiguration = builder.Configuration.GetSection("DBConfiguration").Get<DBConfiguration>();
 QCInfoConfig qCInfoConfig = builder.Configuration.GetSection("QCInfoConfig").Get<QCInfoConfig>();
 OperInfoConfig operInfoConfig = builder.Configuration.GetSection("OperInfoConfig").Get<OperInfoConfig>();
+APIConfiguration aPIConfiguration = builder.Configuration.GetSection("APIConfiguration").Get<APIConfiguration>();
 dBConfiguration.ProductMode = appConfig.ProductMode;
 
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(dBConfiguration);
 builder.Services.AddSingleton(qCInfoConfig);
 builder.Services.AddSingleton(operInfoConfig);
+builder.Services.AddSingleton(aPIConfiguration);
 builder.Services.AddSingleton<ToolsHelper>();
 
 var app = builder.Build();
