@@ -157,7 +157,11 @@ namespace SVN_Portal.Controllers
                         Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(product.product_name);
                         product.product_name = dictionary["vi_VN"];
                     }
-                    return product;
+                    else
+                    {
+                        product.product_name = product.product_name;
+                    }
+                        return product;
                 }).ToList();
                 SelectList productList = new SelectList(products, "id", "product_name");
                 if (selectedProductID != 0)
@@ -169,7 +173,8 @@ namespace SVN_Portal.Controllers
                     ProductDataRequest dataRequest = new ProductDataRequest()
                     {
                         product_id = selectedProductID,
-                        count = countRows
+                        count = countRows,
+                        seriNumber = ""
                     };
 
                     var result = await httpClientHelper.PostRequest(aPIConfiguration.GetLotByMODoneURL, dataRequest, new CancellationToken(false));
@@ -188,6 +193,11 @@ namespace SVN_Portal.Controllers
                                         Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
                                         item.item_name = dictionary["vi_VN"];
                                     }
+                                    else
+                                    {
+                                        item.item_name = item.item_name;
+                                    }
+                                    viewModel.item_name = item.item_name;
                                     viewModel.lot_code = item.lot_code;
                                     viewModel.product_qty = item.product_qty;
                                     viewModels.Add(viewModel);

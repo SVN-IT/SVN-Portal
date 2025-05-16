@@ -21,7 +21,8 @@ string GetDataFromViindooV3URL = "api/DB/GetDataFromViindooV3";
 ProductDataRequest dataRequest = new ProductDataRequest()
 {
     product_id = 236,
-    count = 10
+    count = 10,
+    seriNumber = "1234567890"
 };
 
 HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(BaseURL, 1000);
