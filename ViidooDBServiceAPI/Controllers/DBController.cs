@@ -289,12 +289,12 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetLotByMODone")]
         [HttpPost]
-        public BODataProcessResult GetLotByMODone(int product_id)
+        public BODataProcessResult GetLotByMODone(ProductDataRequest dataRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = viinDataService.GetLotByMODone(product_id);
+                processResult = viinDataService.GetLotByMODone(dataRequest.product_id, dataRequest.count);
             }
             catch (Exception ex)
             {

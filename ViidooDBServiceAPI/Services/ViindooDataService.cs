@@ -548,7 +548,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetLotByMODone(int product_id)
+        public BODataProcessResult GetLotByMODone(int product_id, int rows)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             List<svn_lot_infoUI> svn_Lot_InfoUIs = new List<svn_lot_infoUI>();
@@ -558,7 +558,7 @@ namespace ViidooDBServiceAPI.Services
                 object[] search = new object[] { domain };
                 string objectName = "stock.lot";
                 string fields = "id,message_main_attachment_id,product_id,product_uom_id,company_id,create_uid,write_uid,origin_message_id,origin_references,name,ref,note,create_date,write_date,customer_id,supplier_id,country_state_id,equipment_id";
-                int limit = 10;
+                int limit = rows;
                 string order = "write_date desc";
                 processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
                 if (processResult.OK)
