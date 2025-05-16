@@ -600,20 +600,22 @@ namespace ViidooDBServiceAPI.Services
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                QueryConfig dataRequest = new QueryConfig()
-                {
-                    SVNTableName = "SVN_stock_lot",
-                    TableName = "stock.lot",
-                    Domain = "",
-                    ListDomain = new List<string>()
-                    {
-                        "product_id,=," + product_id
-                    },
-                    Fields = "id,message_main_attachment_id,product_id,product_uom_id,company_id,create_uid,write_uid,origin_message_id,origin_references,name,ref,note,create_date,write_date,customer_id,supplier_id,country_state_id,equipment_id",
-                    Limit = 10,
-                    Order = "write_date desc"
-                };
-                processResult = GetViindooDataByConditionV1(dataRequest);
+                QueryConfig dataRequest = new QueryConfig();
+                //{
+                //    SVNTableName = "SVN_stock_lot",
+                //    TableName = "stock.lot",
+                //    Domain = "",
+                //    ListDomain = new List<string>()
+                //    {
+                //        "product_id,=," + product_id
+                //    },
+                //    Fields = "id,message_main_attachment_id,product_id,product_uom_id,company_id,create_uid,write_uid,origin_message_id,origin_references,name,ref,note,create_date,write_date,customer_id,supplier_id,country_state_id,equipment_id",
+                //    Limit = 10,
+                //    Order = "write_date desc"
+                //};
+                //processResult = GetViindooDataByConditionV1(dataRequest);
+                object[] domain = new object[] { "product_id", "=", product_id };
+                processResult = GetViindooDataByCondition("stock.lot", domain);
                 if (processResult.OK)
                 {
                     var stockLotUIs = convertDataService.ConverterToStockLotUI(processResult.Content);
