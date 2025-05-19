@@ -238,6 +238,29 @@ namespace SVN_Portal.Controllers
             return Json(new { message = processResult.Message });
         }
 
+        public async Task<IActionResult> GetImageBySelectedLot(string itemName, string itemCode, decimal qty, string printID)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            try
+            {
+                PrinterConfigData printerConfigData = new PrinterConfigData();
+                printerConfigData = await printerDataPortal.ReadByID(printID);
+
+                PrintTemViewModel viewModel = new PrintTemViewModel();
+                viewModel.item_name = itemName;
+                viewModel.lot_code = itemCode;
+                viewModel.product_qty = qty;
+
+                processResult = await toolsHelper.GetImageFromImage(viewModel, printerConfigData.Size, printerConfigData.ZPL_Temp);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { message = processResult.Message });
+        }
+
         public IActionResult ProductionUpdateQty()
         {
             return View();

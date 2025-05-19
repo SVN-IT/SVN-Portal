@@ -2,6 +2,8 @@
 using PrinterServices.Objects;
 using SVN_Portal.Models;
 using SVNShareLib;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace SVN_Portal.Services.Helpers
 {
@@ -41,6 +43,44 @@ namespace SVN_Portal.Services.Helpers
             {
                 return new BODataProcessResult { OK = false, Message = "Error connecting via TCP/IP: " + ex.Message };
             }
+        }
+
+        public async Task<BODataProcessResult> GetImageFromImage(PrintTemViewModel viewModel, string size, string zplTemp)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                string zpl = PrepareTemplate(zplTemp, viewModel);
+                var content = new StringContent(zpl);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+                string apiGetImage = "http://api.labelary.com/v1/printers/8dpmm/labels/#size/0/";
+                apiGetImage = apiGetImage.Replace("#size", size);
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(apiGetImage, content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var image = await response.Content.ReadAsByteArrayAsync();
+                        processResult.OK = true;
+                        processResult.Content = image;
+                        processResult.Message = "Get image successfully.";
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Error getting image: " + response.ReasonPhrase;
+                    }
+                }
+
+            }
+            catch(Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = "Error connecting via TCP/IP: " + ex.Message;
+            }
+            return processResult;
         }
 
         private string PrepareTemplate(string template, PrintTemViewModel viewModel)
