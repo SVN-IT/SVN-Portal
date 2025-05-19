@@ -23,7 +23,7 @@ namespace SVN_Portal.DAL.DataPortal
                 {
                     string sql = string.Empty;
                     var param = new object();
-                    sql = "select pp.id, pt.name AS product_name from SVN_product_product pp" +
+                    sql = "select pp.id, pp.default_code, pt.name AS product_name from SVN_product_product pp" +
                         " left join SVN_product_template_1 pt on pp.product_tmpl_id = pt.id";
                     param = new object();
                     var data = await conn.QueryAsync<SVN_product_productUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);

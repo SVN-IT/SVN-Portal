@@ -152,14 +152,20 @@ namespace SVN_Portal.Controllers
                 }
                 products = products.Select(product =>
                 {
+                    string item_code = string.Empty;
+                    if(!string.IsNullOrWhiteSpace(product.default_code))
+                    {
+                        item_code ="[" + product.default_code + "] ";
+                    }    
+
                     if(product.product_name.Contains("vi_VN"))
                     {
                         Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(product.product_name);
-                        product.product_name = dictionary["vi_VN"];
+                        product.product_name = item_code + dictionary["vi_VN"];
                     }
                     else
                     {
-                        product.product_name = product.product_name;
+                        product.product_name = item_code + product.product_name;
                     }
                         return product;
                 }).ToList();
