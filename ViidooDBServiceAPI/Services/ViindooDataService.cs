@@ -217,6 +217,15 @@ namespace ViidooDBServiceAPI.Services
                             processResult = insertResult;
                         }
                         break;
+                    case "mrp.unbuild":
+                        var dataUI14 = convertDataService.ConverterToMrpUnbuildUI(searchResult);
+                        if (dataUI14 != null && dataUI14.Count > 0)
+                        {
+                            //Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                            insertResult = convertDataService.InsertUnbuildToSVNDB(dataUI14);
+                            processResult = insertResult;
+                        }
+                        break;
                 }
             }
             catch(Exception ex)

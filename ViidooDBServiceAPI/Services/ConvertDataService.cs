@@ -2615,6 +2615,236 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        public List<mrp_unbuildUI> ConverterToMrpUnbuildUI(object searchResult)
+        {
+            List<mrp_unbuildUI> dataUIs = new List<mrp_unbuildUI>();
+            List<mrp_unbuild> baseData = new List<mrp_unbuild>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<mrp_unbuild>>(json);
+                foreach (var item in baseData)
+                {
+                    mrp_unbuildUI mrp_ProductionUI = new mrp_unbuildUI();
+                    mrp_ProductionUI.id = item.id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.origin_message_id = item.origin_message_id;
+                    mrp_ProductionUI.origin_references = item.origin_references;
+                    mrp_ProductionUI.name = item.name;
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.lot_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.lot_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.lot_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.bom_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.bom_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.bom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.mo_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.mo_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.mo_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_dest_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_dest_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_dest_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.state = item.state;
+                    mrp_ProductionUI.product_qty = item.product_qty;
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public BODataProcessResult InsertUnbuildToSVNDB(List<mrp_unbuildUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<mrp_unbuildUI> insertData = new List<mrp_unbuildUI>();
+                List<mrp_unbuildUI> existData = new List<mrp_unbuildUI>();
+                GrandDataPortal<mrp_unbuildUI> dataPortal = new GrandDataPortal<mrp_unbuildUI>("SVN_mrp_unbuild", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_mrp_unbuild]\r\n           ([id]\r\n           ,[message_main_attachment_id]\r\n           ,[product_id]\r\n           ,[company_id]\r\n           ,[product_uom_id]\r\n           ,[bom_id]\r\n           ,[mo_id]\r\n           ,[lot_id]\r\n           ,[location_id]\r\n           ,[location_dest_id]\r\n           ,[create_uid]\r\n           ,[write_uid]\r\n           ,[origin_message_id]\r\n           ,[origin_references]\r\n           ,[name]\r\n           ,[state]\r\n           ,[create_date]\r\n           ,[write_date]\r\n           ,[product_qty])\r\n     VALUES\r\n           (@id\r\n           ,@message_main_attachment_id\r\n           ,@product_id\r\n           ,@company_id\r\n           ,@product_uom_id\r\n           ,@bom_id\r\n           ,@mo_id\r\n           ,@lot_id\r\n           ,@location_id\r\n           ,@location_dest_id\r\n           ,@create_uid\r\n           ,@write_uid\r\n           ,@origin_message_id\r\n           ,@origin_references\r\n           ,@name\r\n           ,@state\r\n           ,@create_date\r\n           ,@write_date\r\n           ,@product_qty)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_mrp_unbuild]\r\nSET\r\n    message_main_attachment_id = @message_main_attachment_id,\r\n    product_id = @product_id,\r\n    company_id = @company_id,\r\n    product_uom_id = @product_uom_id,\r\n    bom_id = @bom_id,\r\n    mo_id = @mo_id,\r\n    lot_id = @lot_id,\r\n    location_id = @location_id,\r\n    location_dest_id = @location_dest_id,\r\n    create_uid = @create_uid,\r\n    write_uid = @write_uid,\r\n    origin_message_id = @origin_message_id,\r\n    origin_references = @origin_references,\r\n    name = @name,\r\n    state = @state,\r\n    create_date = @create_date,\r\n    write_date = @write_date,\r\n    product_qty = @product_qty\r\nWHERE id = @id;";
+                    var updateResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (updateResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         public BODataProcessResult InsertProductionTemplateToSVNDB(List<product_templateUI> dataUI)
         {
             BODataProcessResult processResult = new BODataProcessResult();
