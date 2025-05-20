@@ -226,6 +226,64 @@ namespace SVN_Portal.Controllers
             return View(viewModels);
         }
 
+        public async Task<IActionResult> PrintShippingLabelBySeriNumber(string selectedPrinterID, string seriNumber)
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            List<PrintTemViewModel> viewModels = new List<PrintTemViewModel>();
+            List<PrinterConfigData> printerConfigData = new List<PrinterConfigData>();
+            try
+            {
+                printerConfigData = await printerDataPortal.ReadList();
+                if (printerConfigData == null)
+                {
+                    printerConfigData = new List<PrinterConfigData>();
+                }
+                SelectList printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer");
+                if (!string.IsNullOrWhiteSpace(selectedPrinterID))
+                {
+                    printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer", selectedPrinterID);
+                }
+
+                if (!string.IsNullOrWhiteSpace(seriNumber))
+                {
+                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                    ProductDataRequest dataRequest = new ProductDataRequest()
+                    {
+                        product_id = 0,
+                        count = 0,
+                        seriNumber = seriNumber
+                    };
+                    var result = await httpClientHelper.PostRequest(aPIConfiguration.GetPackageBySeriURL, dataRequest, new CancellationToken(false));
+                    if (result != null)
+                    {
+                        if (result.OK)
+                        {
+                            var dataUI = JsonConvert.DeserializeObject<List<stock_lotUI>>(result.Content.ToString());
+                            if (dataUI != null)
+                            {
+                                dataUI = dataUI.Select(item =>
+                                {
+                                    PrintTemViewModel viewModel = new PrintTemViewModel();
+                                    viewModel.lot_code = item.name;
+                                    viewModels.Add(viewModel);
+                                    return item;
+                                }).ToList();
+                            }
+                            ViewBag.PackageCode = result.Message;
+                        }
+                    }
+                }
+
+                ViewBag.PrinterList = printerList;
+                ViewBag.oper = "Print Shipping Label";
+                ViewBag.SeriNumber = seriNumber;
+            }
+            catch
+            {
+            }
+            return View(viewModels);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Print([FromBody] PrintRequest requestPayload)
         {
@@ -290,5 +348,6 @@ namespace SVN_Portal.Controllers
         public List<PrintTemViewModel> ViewModels { get; set; }
         public int Copies { get; set; }
         public string PrinterID { get; set; }
+        public string PackageCode { get; set; }
     }
 }
