@@ -14,6 +14,13 @@ namespace SVN_Portal.Services.Helpers
             
         }
 
+        /// <summary>
+        /// Hàm in label đơn
+        /// </summary>
+        /// <param name="viewModels"></param>
+        /// <param name="printerConfigData"></param>
+        /// <param name="copies"></param>
+        /// <returns></returns>
         public BODataProcessResult PrintByTCP(List<PrintTemViewModel> viewModels, 
             PrinterConfigData printerConfigData, 
             int copies)
@@ -36,6 +43,38 @@ namespace SVN_Portal.Services.Helpers
                     //string zpl = PrepareTemplate(zplData, viewModel);
                     //TCP_Printter tcp_Printter = new TCP_Printter();
                     //tcp_Printter.SendToPrinterViaTCP(printerIp, port, zpl);
+                }
+                return new BODataProcessResult { OK = true, Message = "Print successfully over TCP/IP." };
+            }
+            catch (Exception ex)
+            {
+                return new BODataProcessResult { OK = false, Message = "Error connecting via TCP/IP: " + ex.Message };
+            }
+        }
+
+        /// <summary>
+        /// Hàm in shipping label
+        /// </summary>
+        /// <param name="viewModels"></param>
+        /// <param name="printerConfigData"></param>
+        /// <param name="copies"></param>
+        /// <returns></returns>
+        public BODataProcessResult PrintShippingByTCP(List<PrintShippingViewModel> viewModels,
+            PrinterConfigData printerConfigData,
+            int copies, string dateCode)
+        {
+            // Lấy thông tin máy in
+            string printerIp = printerConfigData.IP_Printer;
+            int port = Convert.ToInt32(printerConfigData.Port_Printer);
+            string zplData = printerConfigData.ZPL_Temp;
+            string dplData = printerConfigData.DPL_Temp;
+            try
+            {
+                for (int i = 0; i < copies; i++)
+                {
+                    string zpl = PrepareShippingTemplate(zplData, viewModels, viewModels[0].package_code, dateCode);
+                    TCP_Printter tcp_Printter = new TCP_Printter();
+                    tcp_Printter.SendToPrinterViaTCP(printerIp, port, zpl);
                 }
                 return new BODataProcessResult { OK = true, Message = "Print successfully over TCP/IP." };
             }
@@ -96,6 +135,17 @@ namespace SVN_Portal.Services.Helpers
             template = template.Replace("{product_name}", viewModel.item_name).
                 Replace("{lot_code}", viewModel.lot_code).
                 Replace("{production_qty}", viewModel.product_qty.ToString());
+            return template;
+        }
+
+        private string PrepareShippingTemplate(string template, List<PrintShippingViewModel> viewModels, string packageCode, string dateCode)
+        {
+            template = template.Replace("{package_code}", packageCode).Replace("{date}", dateCode);
+            for(int i = 0; i < viewModels.Count; i++)
+            {
+                int index = i + 1;
+                template = template.Replace("{lot_code" + index + "}", viewModels[i].lot_code);
+            }
             return template;
         }
     }

@@ -1,4 +1,4 @@
-﻿@model List<PrintTemViewModel>
+﻿@model List<PrintShippingViewModel>
 @using Newtonsoft.Json;
 @{
     Layout = "~/Views/Shared/_ToolsLayout.cshtml";
@@ -17,6 +17,7 @@
                 <div class="form-group">
                     <label class="control-label">Số Seri</label>
                     <input type="text" name="seriNumber" class="form-control" value="@ViewBag.SeriNumber" />
+                    <input type="hidden" name="productID" class="form-control" value="@ViewBag.ProductID" />
                 </div>
             </div>
             <div class="col-12 col-md-3">
@@ -28,6 +29,12 @@
         @if (Model != null && Model.Count() > 0)
         {
             <div class="row col-12">
+                <div class="col-12 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Nhập date code</label>
+                        <input type="text" id="txtDateCode" name="copies" class="form-control" placeholder="25/18" />
+                    </div>
+                </div>
                 <div class="col-12 col-md-3">
                     <div class="form-group">
                         <label class="control-label">Chọn máy in</label>
@@ -53,6 +60,7 @@
                 <thead class="thead-light">
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Mã Package</th>
                         <th scope="col">Mã Lot</th>
                     </tr>
                 </thead>
@@ -66,6 +74,10 @@
                                     int no = i + 1;
                                 }
                                 <th scope="row">@no</th>
+                                <td>
+                                    @Model[i].package_code
+                                    <input type="hidden" asp-for="@Model[i].package_code" />
+                                </td>
                                 <td>
                                     @Model[i].lot_code
                                     <input type="hidden" asp-for="@Model[i].lot_code" />
@@ -101,6 +113,7 @@
         $("#printButton").click(function () {
             var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
             var copies = parseInt($("#copiesInput").val(), 10);
+            var dateCode = $("#txtDateCode").val();
 
             var selectPrinterID = document.getElementById("selectedPrinterID").value;
 
@@ -109,11 +122,11 @@
                 ViewModels: printModels, // case-sensitive; property name must match
                 Copies: copies,
                 PrinterID: selectPrinterID,
-                PackageCode: @ViewBag.PackageCode
+                DateCode: dateCode
             };
 
             $.ajax({
-                url: '@Url.Action("Print", "Tools")',  // Adjust the controller name if needed
+                url: '@Url.Action("PrintShippingLabel", "Tools")',  // Adjust the controller name if needed
                 type: 'POST',
                 data: JSON.stringify(requestPayload),
                 contentType: 'application/json; charset=utf-8',

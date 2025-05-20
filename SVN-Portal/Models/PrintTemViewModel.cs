@@ -3,7 +3,14 @@
     public class PrintTemViewModel
     {
         public string item_name { get; set; }
+        public string package_code { get; set; }
         public string lot_code { get; set; }
         public decimal product_qty { get; set; }
+    }
+
+    public class PrintShippingViewModel
+    {
+        public string package_code { get; set; }
+        public string lot_code { get; set; }
     }
 }

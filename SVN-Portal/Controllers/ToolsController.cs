@@ -226,10 +226,10 @@ namespace SVN_Portal.Controllers
             return View(viewModels);
         }
 
-        public async Task<IActionResult> PrintShippingLabelBySeriNumber(string selectedPrinterID, string seriNumber)
+        public async Task<IActionResult> PrintShippingLabelBySeriNumber(string selectedPrinterID, string seriNumber, int productID = 177)
         {
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
-            List<PrintTemViewModel> viewModels = new List<PrintTemViewModel>();
+            List<PrintShippingViewModel> viewModels = new List<PrintShippingViewModel>();
             List<PrinterConfigData> printerConfigData = new List<PrinterConfigData>();
             try
             {
@@ -249,7 +249,7 @@ namespace SVN_Portal.Controllers
                     HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
                     ProductDataRequest dataRequest = new ProductDataRequest()
                     {
-                        product_id = 0,
+                        product_id = productID,
                         count = 0,
                         seriNumber = seriNumber
                     };
@@ -263,8 +263,9 @@ namespace SVN_Portal.Controllers
                             {
                                 dataUI = dataUI.Select(item =>
                                 {
-                                    PrintTemViewModel viewModel = new PrintTemViewModel();
+                                    PrintShippingViewModel viewModel = new PrintShippingViewModel();
                                     viewModel.lot_code = item.name;
+                                    viewModel.package_code = result.Message;
                                     viewModels.Add(viewModel);
                                     return item;
                                 }).ToList();
@@ -277,6 +278,7 @@ namespace SVN_Portal.Controllers
                 ViewBag.PrinterList = printerList;
                 ViewBag.oper = "Print Shipping Label";
                 ViewBag.SeriNumber = seriNumber;
+                ViewBag.ProductID = productID;
             }
             catch
             {
@@ -296,6 +298,24 @@ namespace SVN_Portal.Controllers
                 processResult = toolsHelper.PrintByTCP(requestPayload.ViewModels, printerConfigData, requestPayload.Copies);
             }
             catch (Exception ex) 
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { message = processResult.Message });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PrintShippingLabel([FromBody] PrintShippingRequest requestPayload)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            try
+            {
+                PrinterConfigData printerConfigData = new PrinterConfigData();
+                printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
+                processResult = toolsHelper.PrintShippingByTCP(requestPayload.ViewModels, printerConfigData, requestPayload.Copies, requestPayload.DateCode);
+            }
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
@@ -348,6 +368,13 @@ namespace SVN_Portal.Controllers
         public List<PrintTemViewModel> ViewModels { get; set; }
         public int Copies { get; set; }
         public string PrinterID { get; set; }
-        public string PackageCode { get; set; }
+    }
+
+    public class PrintShippingRequest
+    {
+        public List<PrintShippingViewModel> ViewModels { get; set; }
+        public int Copies { get; set; }
+        public string PrinterID { get; set; }
+        public string DateCode { get; set; }
     }
 }
