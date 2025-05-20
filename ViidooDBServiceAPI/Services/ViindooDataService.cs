@@ -498,8 +498,32 @@ namespace ViidooDBServiceAPI.Services
                                             var stockMoveLineUI2 = convertDataService.ConverterToStockMoveLineUI(processResult.Content);
                                             if (stockMoveLineUI2 != null && stockMoveLineUI2.Count > 0)
                                             {
-                                                processResult.OK = true;
-                                                processResult.Content = stockMoveLineUI2;
+                                                List<stock_lotUI> stock_LotUIs = new List<stock_lotUI>();
+                                                stockMoveLineUI2 = stockMoveLineUI2.Select(x =>
+                                                {
+                                                    domain = new object[] { "id", "=", x.lot_id };
+                                                    processResult = GetViindooDataByCondition("stock.lot", domain);
+                                                    if (processResult.OK)
+                                                    {
+                                                        var stockLotUI2 = convertDataService.ConverterToStockLotUI(processResult.Content);
+                                                        if (stockLotUI2 != null && stockLotUI2.Count > 0)
+                                                        {
+                                                            stock_LotUIs.AddRange(stockLotUI2);
+                                                        }
+                                                    }
+                                                    return x;
+                                                }).ToList();
+
+                                                if (stock_LotUIs.Count > 0)
+                                                {
+                                                    processResult.OK = true;
+                                                    processResult.Content = stock_LotUIs;
+                                                    processResult.Message = stockQuantPackageUI[0].name;
+                                                }
+                                                else
+                                                {
+                                                    processResult.Message = "Get stock lot fail";
+                                                }
                                             }
                                             else
                                             {
