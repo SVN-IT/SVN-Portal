@@ -257,12 +257,12 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("GetPackageBySeri")]
         [HttpPost]
-        public BODataProcessResult GetPackageBySeri(string seriNumber)
+        public BODataProcessResult GetPackageBySeri(ProductDataRequest dataRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = viinDataService.GetPackageBySeri(seriNumber);
+                processResult = viinDataService.GetPackageBySeri(dataRequest.seriNumber);
             }
             catch (Exception ex)
             {
