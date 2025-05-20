@@ -262,7 +262,7 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = viinDataService.GetPackageBySeri(dataRequest.seriNumber);
+                processResult = viinDataService.GetPackageBySeri(dataRequest.seriNumber, dataRequest.product_id);
             }
             catch (Exception ex)
             {

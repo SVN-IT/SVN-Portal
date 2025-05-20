@@ -465,7 +465,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        public BODataProcessResult GetPackageBySeri(string serialNumber)
+        public BODataProcessResult GetPackageBySeri(string serialNumber, int productID)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
@@ -475,16 +475,25 @@ namespace ViidooDBServiceAPI.Services
                 if (processResult.OK)
                 {
                     var stockLotUI = convertDataService.ConverterToStockLotUI(processResult.Content);
+                    stockLotUI = stockLotUI.Where(x => x.product_id == productID).ToList();
                     if (stockLotUI != null && stockLotUI.Count == 1)
                     {
                         domain = new object[] { "lot_id", "=", stockLotUI[0].id };
                         processResult = GetViindooDataByCondition("stock.move.line", domain);
                         if (processResult.OK) 
                         { 
-                            var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResult.Content);
-                            if (stockMoveLineUI != null && stockMoveLineUI.Count > 0)
+                            var stockMoveLineUIs = convertDataService.ConverterToStockMoveLineUI(processResult.Content);
+                            if (stockMoveLineUIs != null && stockMoveLineUIs.Count > 0)
                             {
-                                domain = new object[] { "id", "=", stockMoveLineUI[0].result_package_id };
+                                //test package_id
+                                var stockMoveLineUI = stockMoveLineUIs.FirstOrDefault(x => x.package_id == 0);
+                                if(stockMoveLineUI == null)
+                                {
+                                    processResult.OK = false;
+                                    processResult.Message = "Get stock move line fail";
+                                    return processResult;
+                                }
+                                domain = new object[] { "id", "=", stockMoveLineUI.result_package_id };
                                 processResult = GetViindooDataByCondition("stock.quant.package", domain);
                                 if(processResult.OK)
                                 {
