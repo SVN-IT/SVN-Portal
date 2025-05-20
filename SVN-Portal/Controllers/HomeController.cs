@@ -109,6 +109,7 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
                     }
+                    models = models.OrderByDescending(x => x.IsProduction).ToList();
                 }
                 return View(models);
             }
