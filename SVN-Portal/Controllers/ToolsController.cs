@@ -226,7 +226,7 @@ namespace SVN_Portal.Controllers
             return View(viewModels);
         }
 
-        public async Task<IActionResult> PrintShippingLabelBySeriNumber(string selectedPrinterID, string seriNumber, int productID = 177)
+        public async Task<IActionResult> PrintShippingLabelBySeriNumber(string selectedPrinterID, string seriNumber, string dateCode, int productID = 177)
         {
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
             List<PrintShippingViewModel> viewModels = new List<PrintShippingViewModel>();
@@ -279,6 +279,7 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = "Print Shipping Label";
                 ViewBag.SeriNumber = seriNumber;
                 ViewBag.ProductID = productID;
+                ViewBag.DateCode = dateCode;
             }
             catch
             {

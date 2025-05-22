@@ -16,7 +16,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Số Seri</label>
-                    <input type="text" name="seriNumber" class="form-control" value="@ViewBag.SeriNumber" />
+                    <input id="txtSeriNumber" type="text" name="seriNumber" class="form-control" value="@ViewBag.SeriNumber" />
                     <input type="hidden" name="productID" class="form-control" value="@ViewBag.ProductID" />
                 </div>
             </div>
@@ -32,7 +32,7 @@
                 <div class="col-12 col-md-3">
                     <div class="form-group">
                         <label class="control-label">Nhập date code</label>
-                        <input type="text" id="txtDateCode" name="copies" class="form-control" placeholder="25/18" />
+                        <input type="text" id="txtDateCode" name="dateCode" class="form-control" placeholder="25/18" value="@ViewBag.DateCode" />
                     </div>
                 </div>
                 <div class="col-12 col-md-3">
@@ -133,12 +133,29 @@
                 dataType: 'json',
                 success: function (response) {
                     alert(response.message);
+                    $('#txtSeriNumber').val('');
+                    $('#txtSeriNumber').focus();
                 },
                 error: function (xhr, status, error) {
                     console.error("AJAX error:", error);
                     alert("An error occurred while printing.");
                 }
             });
+        });
+
+
+        $('#txtSeriNumber').focus();
+        if ($('#txtDateCode').length) {
+            // Nếu tồn tại, focus vào textbox
+            $('#txtDateCode').focus();
+        }
+
+        $('#txtDateCode').on('keydown', function(event) {
+            // Kiểm tra nếu phím nhấn là Enter (keyCode 13)
+            if (event.shiftKey) {
+                // Nếu có, click vào nút btnPrint
+                $('#printButton').click();
+            }
         });
     });
 </script>
