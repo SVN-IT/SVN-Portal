@@ -323,6 +323,31 @@ namespace SVN_Portal.Controllers
             return Json(new { message = processResult.Message });
         }
 
+        public async Task<IActionResult> PrintToastLabel(string selectedPrinterID)
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            List<PrinterConfigData> printerConfigData = new List<PrinterConfigData>();
+            try
+            {
+                printerConfigData = await printerDataPortal.ReadList();
+                if (printerConfigData == null)
+                {
+                    printerConfigData = new List<PrinterConfigData>();
+                }
+                SelectList printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer");
+                if (!string.IsNullOrWhiteSpace(selectedPrinterID))
+                {
+                    printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer", selectedPrinterID);
+                }
+                ViewBag.PrinterList = printerList;
+            }
+            catch
+            {
+
+            }
+            return View();
+        }
+
         public async Task<IActionResult> GetImageBySelectedLot(string itemName, string itemCode, decimal qty, string printID)
         {
             BODataProcessResult processResult = new BODataProcessResult();

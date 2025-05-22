@@ -1,0 +1,145 @@
+﻿@using Newtonsoft.Json
+@{
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Print Toast Label";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+
+<div class="row">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Chọn máy in</label>
+                    <select id="selectedPrinterID" class="form-control" name="selectedPrinterID" data-live-search="true" asp-items="@ViewBag.PrinterList">
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Số lượng bản</label>
+                    <input type="number" id="copiesInput" name="copies" class="form-control" value="1" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group" style="margin-top:33px">
+                    <button type="button" class="btn btn-primary" id="printButton"><i class="fa fa-print"></i> In</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Toast Part Number</label>
+                    <input id="txtToastPartNumber" type="text" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Model Number</label>
+                    <input id="txtModelNumber" type="text" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Toast PO Number</label>
+                    <input id="txtToastPONumber" type="text" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Số lượng</label>
+                    <input type="number" id="txtQuantity" class="form-control" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">LotID</label>
+                    <input type="text" id="txtLotID" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <label class="control-label">Serial Number</label>
+            </div>
+            <div class="col-12 col-md-3">
+                <textarea id="txtSeriNumber1" class="w-100" rows="5" placeholder="Nhập số seri"></textarea>
+                <div class="form-group">
+                    <label class="control-label">Serial Number Count</label>
+                    <input id="txtSerialNumberCount1" type="number" class="form-control w-25" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <textarea id="txtSeriNumber2" class="w-100" rows="5" placeholder="Nhập số seri"></textarea>
+                <div class="form-group">
+                    <label class="control-label">Serial Number Count</label>
+                    <input id="txtSerialNumberCount2" type="number" class="form-control w-25" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <textarea id="txtSeriNumber3" class="w-100" rows="5" placeholder="Nhập số seri"></textarea>
+                <div class="form-group">
+                    <label class="control-label">Serial Number Count</label>
+                    <input id="txtSerialNumberCount3" type="number" class="form-control w-25" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // $(document).ready(function () {
+    //     $('#selectedProductID').select2({
+    //         placeholder: "Select an option",
+    //         allowClear: true
+    //     });
+    // });
+
+    $(document).ready(function() {
+
+        $('#selectedPrinterID').selectpicker();
+
+
+
+        $("#printButton").click(function () {
+            var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
+            var copies = parseInt($("#copiesInput").val(), 10);
+            var dateCode = $("#txtDateCode").val();
+
+            var selectPrinterID = document.getElementById("selectedPrinterID").value;
+
+            // Wrap the values in a single object that matches the PrintRequest class
+            var requestPayload = {
+                ViewModels: printModels, // case-sensitive; property name must match
+                Copies: copies,
+                PrinterID: selectPrinterID,
+                DateCode: dateCode
+            };
+
+            $.ajax({
+                url: '@Url.Action("PrintShippingLabel", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: JSON.stringify(requestPayload),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    alert(response.message);
+                    $('#txtSeriNumber').val('');
+                    $('#txtSeriNumber').focus();
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        });
+    });
+</script>
