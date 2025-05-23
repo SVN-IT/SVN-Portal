@@ -107,6 +107,14 @@
         <div class="row">
             <div class="col-12 col-md-3">
                 <div class="form-group">
+                    <label class="control-label">Part Desc</label>
+                    <input id="txtPartDesc" type="text" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
                     <label class="control-label">Toast PO Number</label>
                     <input id="txtToastPONumber" type="text" class="form-control" />
                 </div>
@@ -215,6 +223,7 @@
             var toastPONumber = $("txtToastPONumber").val();
             var quantity = $("txtQuantity").val();
             var lotID = $("txtLotID").val();
+            var partDesc = $("txtPartDesc").val();
             var print150Seri = $('#chkbApplyPrint150').is(':checked');
             var allSeri1 = $("txtSeriNumber1").val();
             var allSeri2 = $("txtSeriNumber2").val();
@@ -230,6 +239,7 @@
                 ToastPONumber: toastPONumber,
                 Quantity: quantity,
                 LotID: lotID,
+                PartDesc: partDesc,
                 Print150Seri: print150Seri,
                 AllSeri1: allSeri1,
                 AllSeri2: allSeri2,
@@ -239,15 +249,14 @@
             };
 
             $.ajax({
-                url: '@Url.Action("PrintShippingLabel", "Tools")',  // Adjust the controller name if needed
+                url: '@Url.Action("PrintToastLabelAJAX", "Tools")',  // Adjust the controller name if needed
                 type: 'POST',
                 data: JSON.stringify(requestPayload),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
                     alert(response.message);
-                    $('#txtSeriNumber').val('');
-                    $('#txtSeriNumber').focus();
+                    
                 },
                 error: function (xhr, status, error) {
                     console.error("AJAX error:", error);

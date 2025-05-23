@@ -323,6 +323,24 @@ namespace SVN_Portal.Controllers
             return Json(new { message = processResult.Message });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> PrintToastLabelAJAX([FromBody] PrintToastLabelRequest requestPayload)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            try
+            {
+                PrinterConfigData printerConfigData = new PrinterConfigData();
+                printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
+                processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { message = processResult.Message });
+        }
+
         public async Task<IActionResult> PrintToastLabel(string selectedPrinterID)
         {
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
@@ -402,5 +420,21 @@ namespace SVN_Portal.Controllers
         public int Copies { get; set; }
         public string PrinterID { get; set; }
         public string DateCode { get; set; }
+    }
+
+    public class PrintToastLabelRequest 
+    {
+        public string PartNumber { get; set; }
+        public string ModelNumber { get; set; }
+        public string ToastPONumber { get; set; }
+        public string Quantity { get; set; }
+        public string PartDesc { get; set; }
+        public string LotID { get; set; }
+        public bool Print150Seri { get; set; }
+        public string AllSeri1 { get; set; }
+        public string AllSeri2 { get; set; }
+        public string AllSeri3 { get; set; }
+        public int Copies { get; set; }
+        public string PrinterID { get; set; }
     }
 }
