@@ -210,18 +210,32 @@
 
 
         $("#printButton").click(function () {
-            var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
+            var partNumber = $("txtToastPartNumber").val();
+            var modelNumber = $("txtModelNumber").val();
+            var toastPONumber = $("txtToastPONumber").val();
+            var quantity = $("txtQuantity").val();
+            var lotID = $("txtLotID").val();
+            var print150Seri = $('#chkbApplyPrint150').is(':checked');
+            var allSeri1 = $("txtSeriNumber1").val();
+            var allSeri2 = $("txtSeriNumber2").val();
+            var allSeri3 = $("txtSeriNumber3").val();
             var copies = parseInt($("#copiesInput").val(), 10);
-            var dateCode = $("#txtDateCode").val();
 
             var selectPrinterID = document.getElementById("selectedPrinterID").value;
 
             // Wrap the values in a single object that matches the PrintRequest class
             var requestPayload = {
-                ViewModels: printModels, // case-sensitive; property name must match
+                PartNumber: partNumber, // case-sensitive; property name must match
+                ModelNumber: modelNumber,
+                ToastPONumber: toastPONumber,
+                Quantity: quantity,
+                LotID: lotID,
+                Print150Seri: print150Seri,
+                AllSeri1: allSeri1,
+                AllSeri2: allSeri2,
+                AllSeri3: allSeri3,
                 Copies: copies,
-                PrinterID: selectPrinterID,
-                DateCode: dateCode
+                PrinterID: selectPrinterID
             };
 
             $.ajax({
