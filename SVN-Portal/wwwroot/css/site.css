@@ -180,3 +180,7 @@ body {
     z-index: 1; /* Đảm bảo nằm trên các phần tử khác */
 }
 
+.pe-none {
+    pointer-events: none;
+}
+

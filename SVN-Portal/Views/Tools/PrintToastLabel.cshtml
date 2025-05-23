@@ -36,7 +36,16 @@
                         }
                     }
                 }
-                if(isExits == false && isMatched == true && arr.length <= 50){
+
+                var limitSeri = 5;
+                if ($('#chkbApplyPrint150').is(':checked')) {
+                    limitSeri = 50;
+                } 
+                else {
+                    limitSeri = 5;
+                }
+
+                if(isExits == false && isMatched == true && arr.length < limitSeri){
                     $(allSerial).val($(allSerial).val() + newItem + ',');
                 }
                 series = $(allSerial).val();
@@ -129,10 +138,10 @@
                     <label class="control-label">New Seri Number</label>
                     <input id="txtNewSeri1" type="text" class="form-control w-50" oninput="GetSerialNumber('#txtNewSeri1', '#txtSeriNumber1', '#txtSerialNumberCount1')" />
                 </div>
-                <textarea id="txtSeriNumber1" class="w-100" rows="5" placeholder="Nhập số seri"></textarea>
+                <textarea id="txtSeriNumber1" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
                 <div class="form-group">
                     <label class="control-label">Serial Number Count</label>
-                    <input id="txtSerialNumberCount1" type="text" class="form-control w-25" />
+                    <input id="txtSerialNumberCount1" type="text" class="form-control w-25 pe-none" />
                 </div>
             </div>
             <div id="divSeriNumber2" class="col-12 col-md-3 d-none">
@@ -140,10 +149,10 @@
                     <label class="control-label">New Seri Number</label>
                     <input id="txtNewSeri2" type="text" class="form-control w-50" oninput="GetSerialNumber('#txtNewSeri2', '#txtSeriNumber2', '#txtSerialNumberCount2')" />
                 </div>
-                <textarea id="txtSeriNumber2" class="w-100" rows="5" placeholder="Nhập số seri"></textarea>
+                <textarea id="txtSeriNumber2" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
                 <div class="form-group">
                     <label class="control-label">Serial Number Count</label>
-                    <input id="txtSerialNumberCount2" type="text" class="form-control w-25" />
+                    <input id="txtSerialNumberCount2" type="text" class="form-control w-25 pe-none" />
                 </div>
             </div>
             <div id="divSeriNumber3" class="col-12 col-md-3 d-none">
@@ -151,10 +160,10 @@
                     <label class="control-label">New Seri Number</label>
                     <input id="txtNewSeri3" type="text" class="form-control w-50" oninput="GetSerialNumber('#txtNewSeri3', '#txtSeriNumber3', '#txtSerialNumberCount3')" />
                 </div>
-                <textarea id="txtSeriNumber3" class="w-100" rows="5" placeholder="Nhập số seri"></textarea>
+                <textarea id="txtSeriNumber3" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
                 <div class="form-group">
                     <label class="control-label">Serial Number Count</label>
-                    <input id="txtSerialNumberCount3" type="text" class="form-control w-25" />
+                    <input id="txtSerialNumberCount3" type="text" class="form-control w-25 pe-none" />
                 </div>
             </div>
         </div>
