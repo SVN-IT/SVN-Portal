@@ -7,7 +7,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
 <script>
-    function GetSerialNumber(oneSerial, allSerial, countSerial){
+    function GetSerialNumber(oneSerial, allSerial, countSerial, reportSerial){
         var newItem = $(oneSerial).val();
         if(newItem.length == 13){
             var series = $(allSerial).val();
@@ -32,6 +32,7 @@
                         isMatched = true;
                         if(number1 == number){
                             isExits = true;
+                            $(reportSerial).text(newItem + ' đã tồn tại');
                             break;
                         }
                     }
@@ -47,6 +48,10 @@
 
                 if(isExits == false && isMatched == true && arr.length < limitSeri){
                     $(allSerial).val($(allSerial).val() + newItem + ',');
+                    $(reportSerial).text('');
+                }
+                else{
+                    $(reportSerial).text('Đã đủ số lượng serial number');
                 }
                 series = $(allSerial).val();
                 arr = series.split(',');
@@ -61,9 +66,10 @@
         }
     }
 
-    function ClearSerial(allSerial, countSerial){
+    function ClearSerial(allSerial, countSerial, reportSerial){
         $(allSerial).val('');
         $(countSerial).val('');
+        $(reportSerial).text('');
     }
 </script>
 <div class="row">
@@ -151,17 +157,24 @@
                     <label class="control-label">New Seri Number</label>
                     <div class="row">
                         <div class="col-12 col-md-6">
-                            <input id="txtNewSeri1" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri1', '#txtSeriNumber1', '#txtSerialNumberCount1')" />
+                            <input id="txtNewSeri1" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri1', '#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')" />
                         </div>
                         <div class="col-12 col-md-6">
-                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1')"><i class="fa fa-trash"></i> Xóa</button>
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')"><i class="fa fa-trash"></i> Xóa</button>
                         </div>
                     </div>
                 </div>
                 <textarea id="txtSeriNumber1" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
                 <div class="form-group">
                     <label class="control-label">Serial Number Count</label>
-                    <input id="txtSerialNumberCount1" type="text" class="form-control w-25 pe-none" />
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <input id="txtSerialNumberCount1" type="text" class="form-control w-100 pe-none" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <span id="spanReport1" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="divSeriNumber2" class="col-12 col-md-3 d-none">
@@ -169,17 +182,24 @@
                     <label class="control-label">New Seri Number</label>
                     <div class="row">
                         <div class="col-12 col-md-6">
-                            <input id="txtNewSeri2" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri2', '#txtSeriNumber2', '#txtSerialNumberCount2')" />
+                            <input id="txtNewSeri2" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri2', '#txtSeriNumber2', '#txtSerialNumberCount2', '#spanReport2')" />
                         </div>
                         <div class="col-12 col-md-6">
-                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber2', '#txtSerialNumberCount2')"><i class="fa fa-trash"></i> Xóa</button>
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber2', '#txtSerialNumberCount2', '#spanReport2')"><i class="fa fa-trash"></i> Xóa</button>
                         </div>
                     </div>
                 </div>
                 <textarea id="txtSeriNumber2" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
                 <div class="form-group">
                     <label class="control-label">Serial Number Count</label>
-                    <input id="txtSerialNumberCount2" type="text" class="form-control w-25 pe-none" />
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <input id="txtSerialNumberCount2" type="text" class="form-control w-100 pe-none" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <span id="spanReport2" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="divSeriNumber3" class="col-12 col-md-3 d-none">
@@ -187,17 +207,24 @@
                     <label class="control-label">New Seri Number</label>
                     <div class="row">
                         <div class="col-12 col-md-6">
-                            <input id="txtNewSeri3" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri3', '#txtSeriNumber3', '#txtSerialNumberCount3')" />
+                            <input id="txtNewSeri3" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri3', '#txtSeriNumber3', '#txtSerialNumberCount3', '#spanReport3')" />
                         </div>
                         <div class="col-12 col-md-6">
-                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber3', '#txtSerialNumberCount3')"><i class="fa fa-trash"></i> Xóa</button>
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber3', '#txtSerialNumberCount3', '#spanReport3')"><i class="fa fa-trash"></i> Xóa</button>
                         </div>
                     </div>
                 </div>
                 <textarea id="txtSeriNumber3" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
                 <div class="form-group">
                     <label class="control-label">Serial Number Count</label>
-                    <input id="txtSerialNumberCount3" type="text" class="form-control w-25 pe-none" />
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <input id="txtSerialNumberCount3" type="text" class="form-control w-100 pe-none" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <span id="spanReport3" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
