@@ -120,7 +120,9 @@ namespace SVN_Portal.Controllers
                     int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
                     int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
 
-                    string comparePeople = "👷‍👷‍ Checking: " + checkingQty + " /Arranging: " + arrangeQty;
+                    decimal rate = arrangeQty * 100 / checkingQty;
+
+                    string comparePeople = "🏢📲: " + checkingQty + " /🛠️ 📋: " + arrangeQty + " /Rate: " + rate + "%";
                     ViewBag.ComparePeople = comparePeople;
                 }
 
