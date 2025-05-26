@@ -71,6 +71,14 @@
         $(countSerial).val('');
         $(reportSerial).text('');
     }
+
+    function ChangeForcusTextBox(curtextbox, nexttextbox){
+        $(curtextbox).keypress(function(event) {
+            if (event.which === 13) { // phím Enter có mã là 13
+            $(nexttextbox).focus();
+            }
+        });
+    }
 </script>
 <div class="row">
     <div class="col-12">
@@ -98,7 +106,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Toast Part Number</label>
-                    <input id="txtToastPartNumber" type="text" class="form-control" />
+                    <input id="txtToastPartNumber" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtToastPartNumber', '#txtModelNumber')" />
                 </div>
             </div>
         </div>
@@ -106,7 +114,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Model Number</label>
-                    <input id="txtModelNumber" type="text" class="form-control" />
+                    <input id="txtModelNumber" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtModelNumber', '#txtPartDesc')" />
                 </div>
             </div>
         </div>
@@ -114,7 +122,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Part Desc</label>
-                    <input id="txtPartDesc" type="text" class="form-control" />
+                    <input id="txtPartDesc" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtPartDesc', '#txtToastPONumber')" />
                 </div>
             </div>
         </div>
@@ -122,7 +130,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Toast PO Number</label>
-                    <input id="txtToastPONumber" type="text" class="form-control" />
+                    <input id="txtToastPONumber" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtToastPONumber', '#txtQuantity')" />
                 </div>
             </div>
         </div>
@@ -130,7 +138,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Số lượng</label>
-                    <input type="number" id="txtQuantity" class="form-control" />
+                    <input type="number" id="txtQuantity" class="form-control" onkeypress="ChangeForcusTextBox('#txtQuantity', '#txtLotID')" />
                 </div>
             </div>
             <div class="col-12 col-md-3">
@@ -242,7 +250,7 @@
 
         $('#selectedPrinterID').selectpicker();
 
-
+        $('#txtToastPartNumber').focus();
 
         $("#printButton").click(function () {
             var partNumber = $("#txtToastPartNumber").val();
