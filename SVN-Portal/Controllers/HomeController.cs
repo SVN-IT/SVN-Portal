@@ -111,6 +111,19 @@ namespace SVN_Portal.Controllers
                     }
                     models = models.OrderByDescending(x => x.IsProduction).ToList();
                 }
+
+                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
+                var compareUI = await compareDataPortal.ReadList(strdate);
+
+                if (compareUI != null && compareUI.Count > 0)
+                {
+                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
+                    int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+
+                    string comparePeople = "👷‍👷‍ Checking: " + checkingQty + " /Arranging: " + arrangeQty;
+                    ViewBag.ComparePeople = comparePeople;
+                }
+
                 return View(models);
             }
             catch (Exception ex)
