@@ -428,8 +428,8 @@ namespace SVN_Portal.Controllers
         public string ModelNumber { get; set; }
         public string ToastPONumber { get; set; }
         public string Quantity { get; set; }
-        public string PartDesc { get; set; }
         public string LotID { get; set; }
+        public string PartDesc { get; set; }
         public bool Print150Seri { get; set; }
         public string AllSeri1 { get; set; }
         public string AllSeri2 { get; set; }

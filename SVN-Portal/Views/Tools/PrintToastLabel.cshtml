@@ -245,16 +245,16 @@
 
 
         $("#printButton").click(function () {
-            var partNumber = $("txtToastPartNumber").val();
-            var modelNumber = $("txtModelNumber").val();
-            var toastPONumber = $("txtToastPONumber").val();
-            var quantity = $("txtQuantity").val();
-            var lotID = $("txtLotID").val();
-            var partDesc = $("txtPartDesc").val();
+            var partNumber = $("#txtToastPartNumber").val();
+            var modelNumber = $("#txtModelNumber").val();
+            var toastPONumber = $("#txtToastPONumber").val();
+            var quantity = $("#txtQuantity").val();
+            var lotID = $("#txtLotID").val();
+            var partDesc = $("#txtPartDesc").val();
             var print150Seri = $('#chkbApplyPrint150').is(':checked');
-            var allSeri1 = $("txtSeriNumber1").val();
-            var allSeri2 = $("txtSeriNumber2").val();
-            var allSeri3 = $("txtSeriNumber3").val();
+            var allSeri1 = $("#txtSeriNumber1").val();
+            var allSeri2 = $("#txtSeriNumber2").val();
+            var allSeri3 = $("#txtSeriNumber3").val();
             var copies = parseInt($("#copiesInput").val(), 10);
 
             var selectPrinterID = document.getElementById("selectedPrinterID").value;
