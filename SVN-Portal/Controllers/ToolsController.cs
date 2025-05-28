@@ -337,30 +337,34 @@ namespace SVN_Portal.Controllers
                 processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
                 if (processResult.OK)
                 {
-                    // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
-                    SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
+                    var existItem = sVN_Label_InfoDataPortal.ReadListBySerialNumbers(requestPayload.AllSeri1);
+                    if (existItem == null) 
                     {
-                        Date = DateTime.Today.ToString("yyyyMMdd"),
-                        LotID = requestPayload.LotID,
-                        SerialNumbers = requestPayload.AllSeri1,
-                        ScanDateTime = DateTime.Now,
-                        Status = "Printed",
-                        Operation = "TOAST",
-                        EmployerID = "SVN0418"
-                    };
+                        // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
+                        SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
+                        {
+                            Date = DateTime.Today.ToString("yyyyMMdd"),
+                            LotID = requestPayload.LotID,
+                            SerialNumbers = requestPayload.AllSeri1,
+                            ScanDateTime = DateTime.Now,
+                            Status = "Printed",
+                            Operation = "TOAST",
+                            EmployerID = "SVN0418"
+                        };
 
-                    var labelInfos = new List<SVN_Label_InfoUI>();
-                    labelInfos.Add(labelInfo);
+                        var labelInfos = new List<SVN_Label_InfoUI>();
+                        labelInfos.Add(labelInfo);
 
-                    var result = sVN_Label_InfoDataPortal.InsertBulk(labelInfos);
-                    if (result <= 0)
-                    {
-                        processResult.Message = "Lưu thông tin nhãn in không thành công.";
-                    }
-                    else
-                    {
-                        processResult.OK = false;
-                        processResult.Message = "In nhãn thành công và đã lưu thông tin vào cơ sở dữ liệu.";
+                        var result = sVN_Label_InfoDataPortal.InsertBulk(labelInfos);
+                        if (result <= 0)
+                        {
+                            processResult.Message = "Lưu thông tin nhãn in không thành công.";
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = "In nhãn thành công và đã lưu thông tin vào cơ sở dữ liệu.";
+                        }
                     }
                 }
             }
