@@ -352,5 +352,53 @@
             $('#divSeriNumber3').addClass('d-none');
           }
         });
+
+        $("#printConfirmPallet").click(function () {
+            var partNumber = $("#txtToastPartNumber").val();
+            var modelNumber = $("#txtModelNumber").val();
+            var toastPONumber = $("#txtToastPONumber").val();
+            var quantity = $("#txtQuantity").val();
+            var lotID = $("#txtLotID").val();
+            var partDesc = $("#txtPartDesc").val();
+            var print150Seri = $('#chkbApplyPrint150').is(':checked');
+            var allSeri1 = $("#txtSeriNumber1").val();
+            var allSeri2 = $("#txtSeriNumber2").val();
+            var allSeri3 = $("#txtSeriNumber3").val();
+            var copies = parseInt($("#copiesInput").val(), 10);
+
+            var selectPrinterID = document.getElementById("selectedPrinterID").value;
+
+            // Wrap the values in a single object that matches the PrintRequest class
+            var requestPayload = {
+                PartNumber: partNumber, // case-sensitive; property name must match
+                ModelNumber: modelNumber,
+                ToastPONumber: toastPONumber,
+                Quantity: quantity,
+                LotID: lotID,
+                PartDesc: partDesc,
+                Print150Seri: print150Seri,
+                AllSeri1: allSeri1,
+                AllSeri2: allSeri2,
+                AllSeri3: allSeri3,
+                Copies: copies,
+                PrinterID: selectPrinterID
+            };
+
+            $.ajax({
+                url: '@Url.Action("PrintPalletLabelAJAX", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: JSON.stringify(requestPayload),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    alert(response.message);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        });
     });
 </script>

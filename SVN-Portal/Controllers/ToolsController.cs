@@ -403,9 +403,11 @@ namespace SVN_Portal.Controllers
                         }
                     }
 
+                    requestPayload.Print150Seri = true;
                     requestPayload.AllSeri1 = "";
                     requestPayload.AllSeri2 = "";
                     requestPayload.AllSeri3 = "";
+                    requestPayload.Quantity = dataUI.Count.ToString();
 
                     if (top50Item1 != null && top50Item1.Count > 0)
                     {
