@@ -372,6 +372,65 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> PrintPalletLabelAJAX([FromBody] PrintToastLabelRequest requestPayload)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            try
+            {
+                PrinterConfigData printerConfigData = new PrinterConfigData();
+                printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
+
+                List<SVN_Label_InfoUI> dataUI = new List<SVN_Label_InfoUI>();
+                dataUI = sVN_Label_InfoDataPortal.ReadListByLotID(requestPayload.LotID);
+                if (dataUI != null && dataUI.Count > 0)
+                {
+                    List<SVN_Label_InfoUI> top50Item1 = new List<SVN_Label_InfoUI>();
+                    List<SVN_Label_InfoUI> top50Item2 = new List<SVN_Label_InfoUI>();
+                    List<SVN_Label_InfoUI> top50Item3 = new List<SVN_Label_InfoUI>();
+
+                    List<SVN_Label_InfoUI> remainItems = new List<SVN_Label_InfoUI>();
+
+                    top50Item1 = dataUI.Take(50).ToList();
+                    if(top50Item1 != null && top50Item1.Count > 0)
+                    {
+                        remainItems = dataUI.Except(top50Item1).ToList();
+                        if (remainItems != null && remainItems.Count > 0) 
+                        {
+                            top50Item2 = remainItems.Take(50).ToList();
+                            top50Item3 = remainItems.Except(top50Item2).ToList();
+                        }
+                    }
+
+                    requestPayload.AllSeri1 = "";
+                    requestPayload.AllSeri2 = "";
+                    requestPayload.AllSeri3 = "";
+
+                    if (top50Item1 != null && top50Item1.Count > 0)
+                    {
+                        requestPayload.AllSeri1 = string.Join("", top50Item1.Select(item => item.SerialNumbers));
+                    }
+                    if (top50Item2 != null && top50Item2.Count > 0)
+                    {
+                        requestPayload.AllSeri2 = string.Join("", top50Item2.Select(item => item.SerialNumbers));
+                    }
+                    if (top50Item3 != null && top50Item3.Count > 0)
+                    {
+                        requestPayload.AllSeri3 = string.Join("", top50Item3.Select(item => item.SerialNumbers));
+                    }
+                }
+
+                processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { message = processResult.Message });
+        }
+
+        [HttpPost]
         public IActionResult GetRecordBySerialID(string newItem)
         {
             SVN_Label_InfoDataPortal dataPortal = new SVN_Label_InfoDataPortal(connectionString);
