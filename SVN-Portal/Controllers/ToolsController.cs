@@ -10,6 +10,7 @@ using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
 using SVNShareLib;
+using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using System.Threading.Tasks;
@@ -328,17 +329,71 @@ namespace SVN_Portal.Controllers
         {
             BODataProcessResult processResult = new BODataProcessResult();
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
             try
             {
                 PrinterConfigData printerConfigData = new PrinterConfigData();
                 printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
                 processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
+                if (processResult.OK)
+                {
+                    // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
+                    SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
+                    {
+                        Date = DateTime.Today.ToString("yyyyMMdd"),
+                        LotID = requestPayload.LotID,
+                        SerialNumbers = requestPayload.AllSeri1,
+                        ScanDateTime = DateTime.Now,
+                        Status = "Printed",
+                        Operation = "TOAST",
+                        EmployerID = "SVN0418"
+                    };
+
+                    var labelInfos = new List<SVN_Label_InfoUI>();
+                    labelInfos.Add(labelInfo);
+
+                    var result = sVN_Label_InfoDataPortal.InsertBulk(labelInfos);
+                    if (result <= 0)
+                    {
+                        processResult.Message = "Lưu thông tin nhãn in không thành công.";
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "In nhãn thành công và đã lưu thông tin vào cơ sở dữ liệu.";
+                    }
+                }
             }
             catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
             return Json(new { message = processResult.Message });
+        }
+
+        [HttpPost]
+        public IActionResult GetRecordBySerialID(string newItem)
+        {
+            SVN_Label_InfoDataPortal dataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+            try
+            {
+                data =  dataPortal.ReadListBySerialNumbers(newItem);
+                if (data == null)
+                {
+                    return Json(new { ok = true, message = " Chưa tồn tại" });
+                }
+                return Json(new
+                {
+                    ok = false,
+                    message = " Đã tồn tại"
+                });
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { message = message });
+            }
         }
 
         public async Task<IActionResult> PrintToastLabel(string selectedPrinterID)
@@ -399,6 +454,7 @@ namespace SVN_Portal.Controllers
         {
             ViewBag.WorkOrder = workOrderCode;
             return View();
+            
         }
 
         public IActionResult Test()

@@ -306,7 +306,9 @@
                         $('#printerZPLTemp').val(printerZPLTemp);
                         $('#printerDPLTemp').val(printerDPLTemp);
                     }
-                    alert(response.message);
+                    else{
+                        alert(response.message);
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error("AJAX error:", error);

@@ -7,9 +7,45 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
 <script>
+
+    var isExitsInDB = false;
+
+    function CheckSerialNumberInDB(oneSerial, reportSerial) {
+        var newItem = $(oneSerial).val();
+        if (newItem.length == 13) {
+            $.ajax({
+                url: '@Url.Action("GetRecordBySerialID", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: {newItem: newItem},
+                dataType: 'json',
+                success: function (response) {
+
+                    if(response.ok == true){
+                        isExitsInDB = true;
+                    }
+                    else{
+                        isExitsInDB = false;
+                        $(reportSerial).text(newItem + response.message);
+                        $(oneSerial).val('');
+                        $(oneSerial).focus();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        }
+        
+    }
+
+
     function GetSerialNumber(oneSerial, allSerial, countSerial, reportSerial){
         var newItem = $(oneSerial).val();
-        if(newItem.length == 13){
+
+        CheckSerialNumberInDB(oneSerial, reportSerial);
+
+        if(newItem.length == 13 && isExitsInDB){
             var series = $(allSerial).val();
             if(series == ''){
                 $(allSerial).val(newItem + ',');
@@ -50,7 +86,7 @@
                     $(allSerial).val($(allSerial).val() + newItem + ',');
                     $(reportSerial).text('');
                 }
-                else{
+                else if(isExits == false && isMatched == true && arr.length >= limitSeri){
                     $(reportSerial).text('Đã đủ số lượng serial number');
                 }
                 series = $(allSerial).val();
