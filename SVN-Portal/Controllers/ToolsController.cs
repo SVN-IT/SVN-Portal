@@ -344,48 +344,67 @@ namespace SVN_Portal.Controllers
                 requestPayload.Quantity = labelConfiguration.Quantity.ToString();
                 requestPayload.LotID = labelConfiguration.LotID;
 
-
-                PrinterConfigData printerConfigData = new PrinterConfigData();
-                printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
-                processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
-                if (processResult.OK)
+                List<SVN_Label_InfoUI> existingLabel = new List<SVN_Label_InfoUI>();
+                int countExistingLabel = 0;
+                if (!string.IsNullOrWhiteSpace(requestPayload.PalletID))
                 {
-                    var existItem = sVN_Label_InfoDataPortal.ReadListBySerialNumbers(requestPayload.AllSeri1);
-                    if (existItem == null) 
+                    existingLabel = sVN_Label_InfoDataPortal.ReadListByPalletID(requestPayload.PalletID);
+                    if (existingLabel != null && existingLabel.Count > 0)
                     {
-                        if (string.IsNullOrWhiteSpace(requestPayload.PalletID))
-                        {
-                            requestPayload.PalletID = Guid.NewGuid().ToString();
-                        }
-                        // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
-                        SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
-                        {
-                            Date = DateTime.Today.ToString("yyyyMMdd"),
-                            LotID = requestPayload.LotID,
-                            SerialNumbers = requestPayload.AllSeri1,
-                            ScanDateTime = DateTime.Now,
-                            Status = "Printed",
-                            Operation = "TOAST",
-                            EmployerID = "SVN0418",
-                            PalletID = requestPayload.PalletID,
-                            SerialCount = requestPayload.AllSeri1.Split(',').Where(x => x != "").Count()
-                        };
+                        countExistingLabel = existingLabel.Sum(x => x.SerialCount);
+                    }
+                }
 
-                        var labelInfos = new List<SVN_Label_InfoUI>();
-                        labelInfos.Add(labelInfo);
+                if(countExistingLabel < 150) 
+                {
+                    PrinterConfigData printerConfigData = new PrinterConfigData();
+                    printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
+                    processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
+                    if (processResult.OK)
+                    {
+                        var existItem = sVN_Label_InfoDataPortal.ReadListBySerialNumbers(requestPayload.AllSeri1);
+                        if (existItem == null)
+                        {
+                            if (string.IsNullOrWhiteSpace(requestPayload.PalletID))
+                            {
+                                requestPayload.PalletID = Guid.NewGuid().ToString();
+                            }
+                            // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
+                            SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
+                            {
+                                Date = DateTime.Today.ToString("yyyyMMdd"),
+                                LotID = requestPayload.LotID,
+                                SerialNumbers = requestPayload.AllSeri1,
+                                ScanDateTime = DateTime.Now,
+                                Status = "Printed",
+                                Operation = "TOAST",
+                                EmployerID = "SVN0418",
+                                PalletID = requestPayload.PalletID,
+                                SerialCount = requestPayload.AllSeri1.Split(',').Where(x => x != "").Count()
+                            };
 
-                        var result = sVN_Label_InfoDataPortal.InsertBulk(labelInfos);
-                        if (result <= 0)
-                        {
-                            processResult.Message = "Lưu thông tin nhãn in không thành công.";
-                        }
-                        else
-                        {
-                            processResult.OK = false;
-                            processResult.Message = "In nhãn thành công và đã lưu thông tin vào cơ sở dữ liệu.";
+                            var labelInfos = new List<SVN_Label_InfoUI>();
+                            labelInfos.Add(labelInfo);
+
+                            var result = sVN_Label_InfoDataPortal.InsertBulk(labelInfos);
+                            if (result <= 0)
+                            {
+                                processResult.Message = "Lưu thông tin nhãn in không thành công.";
+                            }
+                            else
+                            {
+                                processResult.OK = false;
+                                processResult.Message = "In nhãn thành công và đã lưu thông tin vào cơ sở dữ liệu.";
+                            }
                         }
                     }
                 }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Số lượng nhãn đã in cho pallet này đã đạt giới hạn tối đa (150). Không thể in thêm.";
+                }
+                
             }
             catch (Exception ex)
             {
@@ -413,7 +432,7 @@ namespace SVN_Portal.Controllers
                 printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
 
                 List<SVN_Label_InfoUI> dataUI = new List<SVN_Label_InfoUI>();
-                dataUI = sVN_Label_InfoDataPortal.ReadListByLotID(requestPayload.LotID);
+                dataUI = sVN_Label_InfoDataPortal.ReadListByPalletID(requestPayload.PalletID);
                 if (dataUI != null && dataUI.Count > 0)
                 {
                     List<SVN_Label_InfoUI> top50Item1 = new List<SVN_Label_InfoUI>();

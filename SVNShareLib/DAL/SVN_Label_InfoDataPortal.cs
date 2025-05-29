@@ -62,6 +62,30 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public List<SVN_Label_InfoUI> ReadListByPalletID(string PalletID, string Date = "")
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Date))
+                {
+                    Date = DateTime.Now.ToString("yyyyMMdd");
+                }
+                List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
+                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND Date = @date";
+                var param = new { PalletID = PalletID, Date = Date };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.Query<SVN_Label_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text).ToList();
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public SVN_Label_InfoUI ReadListBySerialNumbers(string SerialNumber, string Date = "")
         {
             try
@@ -107,7 +131,7 @@ namespace SVNShareLib.DAL
                     {
                         try
                         {
-                            var insertResult = connection.Execute("INSERT INTO [dbo].[SVN_Label_Info]\r\n           ([Date]\r\n           ,[LotID]\r\n           ,[SerialNumbers]\r\n           ,[ScanDateTime]\r\n           ,[Status]\r\n           ,[Operation]\r\n           ,[EmployerID])\r\n     VALUES\r\n           (@Date\r\n           ,@LotID\r\n           ,@SerialNumbers\r\n           ,@ScanDateTime\r\n           ,@Status\r\n           ,@Operation\r\n           ,@EmployerID)", mrp_ProductionUIs, trans, commandTimeout: timeOut);
+                            var insertResult = connection.Execute("INSERT INTO [dbo].[SVN_Label_Info]\r\n           ([Date]\r\n           ,[LotID]\r\n           ,[SerialNumbers]\r\n           ,[ScanDateTime]\r\n           ,[Status]\r\n           ,[Operation]\r\n           ,[EmployerID], [PalletID], [SerialCount])\r\n     VALUES\r\n           (@Date\r\n           ,@LotID\r\n           ,@SerialNumbers\r\n           ,@ScanDateTime\r\n           ,@Status\r\n           ,@Operation\r\n           ,@EmployerID, @PalletID, @SerialCount)", mrp_ProductionUIs, trans, commandTimeout: timeOut);
                             if (insertResult <= 0)
                             {
                                 trans.Rollback();
