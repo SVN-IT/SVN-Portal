@@ -143,6 +143,7 @@
                 <div class="form-group">
                     <label class="control-label">Số lượng bản</label>
                     <input type="number" id="copiesInput" name="copies" class="form-control" value="1" />
+                    <input type="hidden" id="txtPalletID" />
                 </div>
             </div>
             <div class="col-12 col-md-3">
@@ -151,7 +152,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row d-none">
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Toast Part Number</label>
@@ -159,7 +160,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row d-none">
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Model Number</label>
@@ -167,7 +168,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row d-none">
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Part Desc</label>
@@ -175,7 +176,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row d-none">
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Toast PO Number</label>
@@ -183,7 +184,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row d-none">
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Số lượng</label>
@@ -206,7 +207,7 @@
                   </label>
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 d-none">
                 <label class="control-label">Serial Number</label>
             </div>
             <div id="divSeriNumber1" class="col-12 col-md-3">
@@ -313,6 +314,7 @@
             var allSeri2 = $("#txtSeriNumber2").val();
             var allSeri3 = $("#txtSeriNumber3").val();
             var copies = parseInt($("#copiesInput").val(), 10);
+            var palletIDVal = $("#txtPalletID").val();
 
             var selectPrinterID = document.getElementById("selectedPrinterID").value;
 
@@ -329,7 +331,8 @@
                 AllSeri2: allSeri2,
                 AllSeri3: allSeri3,
                 Copies: copies,
-                PrinterID: selectPrinterID
+                PrinterID: selectPrinterID,
+                PalletID: palletIDVal
             };
 
             $.ajax({
@@ -339,6 +342,7 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
+                    $("#txtPalletID").val(response.palletID);
                     alert(response.message);
                     
                 },

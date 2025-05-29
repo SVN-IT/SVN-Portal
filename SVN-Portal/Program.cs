@@ -11,6 +11,7 @@ DBConfiguration dBConfiguration = builder.Configuration.GetSection("DBConfigurat
 QCInfoConfig qCInfoConfig = builder.Configuration.GetSection("QCInfoConfig").Get<QCInfoConfig>();
 OperInfoConfig operInfoConfig = builder.Configuration.GetSection("OperInfoConfig").Get<OperInfoConfig>();
 APIConfiguration aPIConfiguration = builder.Configuration.GetSection("APIConfiguration").Get<APIConfiguration>();
+TOASTLabelConfiguration labelConfiguration = builder.Configuration.GetSection("TOASTLabelConfiguration").Get<TOASTLabelConfiguration>();
 dBConfiguration.ProductMode = appConfig.ProductMode;
 
 builder.Services.AddSingleton(appConfig);
@@ -18,6 +19,7 @@ builder.Services.AddSingleton(dBConfiguration);
 builder.Services.AddSingleton(qCInfoConfig);
 builder.Services.AddSingleton(operInfoConfig);
 builder.Services.AddSingleton(aPIConfiguration);
+builder.Services.AddSingleton(labelConfiguration);
 builder.Services.AddSingleton<ToolsHelper>();
 
 var app = builder.Build();

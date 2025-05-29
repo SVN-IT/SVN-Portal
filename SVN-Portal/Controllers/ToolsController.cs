@@ -23,12 +23,17 @@ namespace SVN_Portal.Controllers
         string connectionString;
         ToolsHelper toolsHelper;
         APIConfiguration aPIConfiguration;
-        public ToolsController(DBConfiguration dBConfiguration, ToolsHelper toolsHelper, APIConfiguration aPIConfiguration)
+        TOASTLabelConfiguration labelConfiguration;
+        public ToolsController(DBConfiguration dBConfiguration, 
+            ToolsHelper toolsHelper, 
+            APIConfiguration aPIConfiguration, 
+            TOASTLabelConfiguration labelConfiguration)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
             this.toolsHelper = toolsHelper;
             this.aPIConfiguration = aPIConfiguration;
+            this.labelConfiguration = labelConfiguration;
         }
         public IActionResult Index()
         {
@@ -332,6 +337,14 @@ namespace SVN_Portal.Controllers
             SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
             try
             {
+                requestPayload.PartNumber = labelConfiguration.PartNumber;
+                requestPayload.ModelNumber = labelConfiguration.ModelNumber;
+                requestPayload.ToastPONumber = labelConfiguration.PONumber;
+                requestPayload.PartDesc = labelConfiguration.PartDesc;
+                requestPayload.Quantity = labelConfiguration.Quantity.ToString();
+                requestPayload.LotID = labelConfiguration.LotID;
+
+
                 PrinterConfigData printerConfigData = new PrinterConfigData();
                 printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
                 processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
@@ -340,6 +353,10 @@ namespace SVN_Portal.Controllers
                     var existItem = sVN_Label_InfoDataPortal.ReadListBySerialNumbers(requestPayload.AllSeri1);
                     if (existItem == null) 
                     {
+                        if (string.IsNullOrWhiteSpace(requestPayload.PalletID))
+                        {
+                            requestPayload.PalletID = Guid.NewGuid().ToString();
+                        }
                         // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
                         SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
                         {
@@ -349,7 +366,9 @@ namespace SVN_Portal.Controllers
                             ScanDateTime = DateTime.Now,
                             Status = "Printed",
                             Operation = "TOAST",
-                            EmployerID = "SVN0418"
+                            EmployerID = "SVN0418",
+                            PalletID = requestPayload.PalletID,
+                            SerialCount = requestPayload.AllSeri1.Split(',').Where(x => x != "").Count()
                         };
 
                         var labelInfos = new List<SVN_Label_InfoUI>();
@@ -372,7 +391,7 @@ namespace SVN_Portal.Controllers
             {
                 processResult.Message = ex.Message;
             }
-            return Json(new { message = processResult.Message });
+            return Json(new { palletID = requestPayload.PalletID, message = processResult.Message });
         }
 
         [HttpPost]
@@ -383,6 +402,13 @@ namespace SVN_Portal.Controllers
             SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
             try
             {
+                requestPayload.PartNumber = labelConfiguration.PartNumber;
+                requestPayload.ModelNumber = labelConfiguration.ModelNumber;
+                requestPayload.ToastPONumber = labelConfiguration.PONumber;
+                requestPayload.PartDesc = labelConfiguration.PartDesc;
+                requestPayload.Quantity = labelConfiguration.Quantity.ToString();
+                requestPayload.LotID = labelConfiguration.LotID;
+
                 PrinterConfigData printerConfigData = new PrinterConfigData();
                 printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
 
@@ -557,5 +583,6 @@ namespace SVN_Portal.Controllers
         public string AllSeri3 { get; set; }
         public int Copies { get; set; }
         public string PrinterID { get; set; }
+        public string PalletID { get; set; }
     }
 }
