@@ -130,6 +130,7 @@
             <div class="col-12">
                 <div class="form-group float-end" style="margin-top:33px">
                     <button type="button" class="btn btn-success pe-none" id="printConfirmPallet"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Xác nhận xong Pallet</button>
+                    <button type="button" class="btn btn-warning pe-none" id="printConfirmPallet"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Xác nhận xong Pallet</button>
                 </div>
             </div>
             <div class="col-12 col-md-3">
@@ -343,8 +344,9 @@
                 dataType: 'json',
                 success: function (response) {
                     $("#txtPalletID").val(response.palletID);
-                    alert(response.message);
-                    
+                    if(response.result == false) {
+                        alert(response.message);
+                    } 
                 },
                 error: function (xhr, status, error) {
                     console.error("AJAX error:", error);
@@ -377,6 +379,7 @@
             var allSeri2 = $("#txtSeriNumber2").val();
             var allSeri3 = $("#txtSeriNumber3").val();
             var copies = parseInt($("#copiesInput").val(), 10);
+            var palletIDVal = $("#txtPalletID").val();
 
             var selectPrinterID = document.getElementById("selectedPrinterID").value;
 
@@ -393,7 +396,8 @@
                 AllSeri2: allSeri2,
                 AllSeri3: allSeri3,
                 Copies: copies,
-                PrinterID: selectPrinterID
+                PrinterID: selectPrinterID,
+                PalletID: palletIDVal
             };
 
             $.ajax({
@@ -403,7 +407,9 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
-                    alert(response.message);
+                    if(response.result == false) {
+                        alert(response.message);
+                    }
 
                 },
                 error: function (xhr, status, error) {
