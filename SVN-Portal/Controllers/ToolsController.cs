@@ -343,6 +343,7 @@ namespace SVN_Portal.Controllers
                 requestPayload.PartDesc = labelConfiguration.PartDesc;
                 requestPayload.Quantity = labelConfiguration.Quantity.ToString();
                 requestPayload.LotID = labelConfiguration.LotID;
+                
 
                 List<SVN_Label_InfoUI> existingLabel = new List<SVN_Label_InfoUI>();
                 int countExistingLabel = 0;
@@ -428,8 +429,9 @@ namespace SVN_Portal.Controllers
                 requestPayload.PartDesc = labelConfiguration.PartDesc;
                 requestPayload.Quantity = labelConfiguration.Quantity.ToString();
                 requestPayload.LotID = labelConfiguration.LotID;
+                requestPayload.PrinterID = "ZebraZT411_Toast_lastline";
 
-                if(!string.IsNullOrWhiteSpace(requestPayload.PalletID))
+                if (!string.IsNullOrWhiteSpace(requestPayload.PalletID))
                 {
                     PrinterConfigData printerConfigData = new PrinterConfigData();
                     printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
