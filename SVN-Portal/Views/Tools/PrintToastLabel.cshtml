@@ -130,7 +130,7 @@
             <div class="col-12">
                 <div class="form-group float-end" style="margin-top:33px">
                     <button type="button" class="btn btn-success pe-none" id="printConfirmPallet"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Xác nhận xong Pallet</button>
-                    <button type="button" class="btn btn-warning pe-none" id="printConfirmPallet"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Xác nhận xong Pallet</button>
+                    <button type="button" class="btn btn-warning d-none" id="printStartNewPallet"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Bắt đầu Pallet mới</button>
                 </div>
             </div>
             <div class="col-12 col-md-3">
@@ -410,6 +410,9 @@
                     if(response.result == false) {
                         alert(response.message);
                     }
+                    else{
+                        $('#printStartNewPallet').removeClass('d-none');
+                    }
 
                 },
                 error: function (xhr, status, error) {
@@ -417,6 +420,11 @@
                     alert("An error occurred while printing.");
                 }
             });
+        });
+
+        $("#printStartNewPallet").click(function () {
+            $("#txtPalletID").val('');
+            $('#printStartNewPallet').addClass('d-none');
         });
     });
 </script>
