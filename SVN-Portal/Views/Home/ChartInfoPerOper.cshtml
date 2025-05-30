@@ -1013,7 +1013,7 @@
             for (const charID of charIDs) {
                 await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
             }
-            setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000000);
+            setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         }
         executeSequentialCalls(charIDs);
         

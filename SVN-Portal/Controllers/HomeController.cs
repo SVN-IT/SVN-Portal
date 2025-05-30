@@ -362,7 +362,7 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
 
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)

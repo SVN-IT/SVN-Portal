@@ -7,6 +7,7 @@
     public class OperInfo
     {
         public string Operation { get; set; }
+        public string MasterOperation { get; set; }
         public string WCName { get; set; }
         public List<int> Produce_id { get; set; }
         public List<WC> WC { get; set; }
