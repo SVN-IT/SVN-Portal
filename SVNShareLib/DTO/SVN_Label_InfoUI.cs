@@ -17,5 +17,6 @@ namespace SVNShareLib.DTO
         public string EmployerID { get; set; }
         public string PalletID { get; set; }
         public int SerialCount { get; set; }
+        public bool IsDelete { get; set; }
     }
 }

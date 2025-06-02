@@ -109,6 +109,34 @@
         $("#txtNewSeri1").forcus();
     }
 
+    function DeleteSerialHistory(allSerial){
+        var serialList = $(allSerial).val();
+        if (newItem.length == 13) {
+            $.ajax({
+                url: '@Url.Action("DeleteSerialHistory", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: {serialList: serialList},
+                dataType: 'json',
+                success: function (response) {
+
+                    if(response.ok == true){
+                        isExitsInDB = true;
+                    }
+                    else{
+                        isExitsInDB = false;
+                        $(reportSerial).text(newItem + response.message);
+                        $(oneSerial).val('');
+                        $(oneSerial).focus();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        }
+    }
+
     function ChangeForcusTextBox(curtextbox, nexttextbox){
         
         $(curtextbox).keypress(function(event) {
@@ -214,6 +242,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')"><i class="fa fa-trash"></i> Xóa</button>
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')"><i class="fa fa-trash"></i> Xóa lịch sử</button>
                         </div>
                     </div>
                 </div>

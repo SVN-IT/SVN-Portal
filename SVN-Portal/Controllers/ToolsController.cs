@@ -381,7 +381,8 @@ namespace SVN_Portal.Controllers
                                 Operation = "TOAST",
                                 EmployerID = "SVN0418",
                                 PalletID = requestPayload.PalletID,
-                                SerialCount = requestPayload.AllSeri1.Split(',').Where(x => x != "").Count()
+                                SerialCount = requestPayload.AllSeri1.Split(',').Where(x => x != "").Count(),
+                                IsDelete = false
                             };
 
                             var labelInfos = new List<SVN_Label_InfoUI>();
@@ -508,6 +509,37 @@ namespace SVN_Portal.Controllers
                     ok = false,
                     message = " Đã tồn tại"
                 });
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { message = message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteSerialHistory(string allSerial)
+        {
+            SVN_Label_InfoDataPortal dataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+            try
+            {
+                data = dataPortal.ReadListBySerialNumbers(allSerial);
+                if (data == null)
+                {
+                    
+                    return Json(new { ok = true, message = "Chưa tồn tại" });
+                }
+                else
+                {
+                    data.IsDelete = true;
+                    var result = dataPortal.Update(data);
+                }
+                    return Json(new
+                    {
+                        ok = false,
+                        message = " Đã tồn tại"
+                    });
             }
             catch (Exception ex)
             {
