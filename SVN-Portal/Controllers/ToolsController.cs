@@ -533,7 +533,9 @@ namespace SVN_Portal.Controllers
                 else
                 {
                     data.IsDelete = true;
-                    var result = dataPortal.Update(data);
+                    List<SVN_Label_InfoUI> datas = new List<SVN_Label_InfoUI>();
+                    datas.Add(data);
+                    var result = dataPortal.UpdateBulk(datas);
                 }
                     return Json(new
                     {

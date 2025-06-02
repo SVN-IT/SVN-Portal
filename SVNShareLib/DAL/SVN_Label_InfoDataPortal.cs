@@ -23,7 +23,7 @@ namespace SVNShareLib.DAL
             try
             {
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info";
+                string sql = "SELECT * FROM SVN_Label_Info where IsDelete = False";
                 var param = new object();
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
@@ -47,7 +47,7 @@ namespace SVNShareLib.DAL
                     Date = DateTime.Now.ToString("yyyyMMdd");
                 }
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info Where LotID = @LotID AND Date = @date";
+                string sql = "SELECT * FROM SVN_Label_Info Where LotID = @LotID AND Date = @date AND IsDelete = False";
                 var param = new { LotID = LotID, Date = Date };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
@@ -71,7 +71,7 @@ namespace SVNShareLib.DAL
                     Date = DateTime.Now.ToString("yyyyMMdd");
                 }
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND Date = @date";
+                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND Date = @date AND IsDelete = False";
                 var param = new { PalletID = PalletID, Date = Date };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
@@ -101,7 +101,7 @@ namespace SVNShareLib.DAL
                 }
 
                 SVN_Label_InfoUI data = new SVN_Label_InfoUI();
-                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND Date = @date";
+                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND Date = @date AND IsDelete = False";
                 var param = new { SerialNumber = SerialNumber, Date = Date };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
