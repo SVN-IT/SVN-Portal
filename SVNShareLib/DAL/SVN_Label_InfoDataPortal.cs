@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SVNShareLib.DAL
 {
@@ -23,12 +24,32 @@ namespace SVNShareLib.DAL
             try
             {
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info where IsDelete = False";
-                var param = new object();
+                string sql = "SELECT * FROM SVN_Label_Info where IsDelete = @IsDelete";
+                var param = new { IsDelete = false };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
                     data = connection.Query<SVN_Label_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text).ToList();
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public SVN_Label_InfoUI ReadFirstToastItem()
+        {
+            try
+            {
+                SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+                string sql = "SELECT TOP(1) * FROM SVN_Label_Info WHERE Operation = 'TOAST' AND IsDelete = @IsDelete ORDER BY ScanDateTime DESC";
+                var param = new { IsDelete = false };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.QueryFirstOrDefault<SVN_Label_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     return data;
                 }
             }
@@ -47,8 +68,8 @@ namespace SVNShareLib.DAL
                     Date = DateTime.Now.ToString("yyyyMMdd");
                 }
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info Where LotID = @LotID AND Date = @date AND IsDelete = False";
-                var param = new { LotID = LotID, Date = Date };
+                string sql = "SELECT * FROM SVN_Label_Info Where LotID = @LotID AND Date = @date AND IsDelete = @IsDelete";
+                var param = new { LotID = LotID, Date = Date, IsDelete = false };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
@@ -71,8 +92,8 @@ namespace SVNShareLib.DAL
                     Date = DateTime.Now.ToString("yyyyMMdd");
                 }
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND Date = @date AND IsDelete = False";
-                var param = new { PalletID = PalletID, Date = Date };
+                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND Date = @date AND IsDelete = @IsDelete";
+                var param = new { PalletID = PalletID, Date = Date, IsDelete = false };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
@@ -101,8 +122,8 @@ namespace SVNShareLib.DAL
                 }
 
                 SVN_Label_InfoUI data = new SVN_Label_InfoUI();
-                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND Date = @date AND IsDelete = False";
-                var param = new { SerialNumber = SerialNumber, Date = Date };
+                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND Date = @date AND IsDelete = @IsDelete";
+                var param = new { SerialNumber = SerialNumber, Date = Date, IsDelete = false };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
@@ -172,7 +193,7 @@ namespace SVNShareLib.DAL
                     {
                         try
                         {
-                            var insertResult = connection.Execute("UPDATE [dbo].[SVN_Label_Info]\r\nSET\r\n    [Date] = @Date,\r\n    [LotID] = @LotID,\r\n    [SerialNumbers] = @SerialNumbers,\r\n    [ScanDateTime] = @ScanDateTime,\r\n    [Status] = @Status,\r\n    [Operation] = @Operation,\r\n    [EmployerID] = @EmployerID,\r\n    [PalletID] = @PalletID,\r\n    [SerialCount] = @SerialCount,\r\n    [IsDelete] = @IsDelete\r\nWHERE\r\n    [SerialNumbers] like @SerialNumbers", mrp_ProductionUIs, trans, commandTimeout: timeOut);
+                            var insertResult = connection.Execute("UPDATE [dbo].[SVN_Label_Info]\r\nSET\r\n    [Date] = @Date,\r\n    [LotID] = @LotID,\r\n    [SerialNumbers] = @SerialNumbers,\r\n    [ScanDateTime] = @ScanDateTime,\r\n    [Status] = @Status,\r\n    [Operation] = @Operation,\r\n    [EmployerID] = @EmployerID,\r\n    [PalletID] = @PalletID,\r\n    [SerialCount] = @SerialCount,\r\n    [IsDelete] = @IsDelete\r\nWHERE\r\n    [SerialNumbers] = @SerialNumbers", mrp_ProductionUIs, trans, commandTimeout: timeOut);
                             if (insertResult <= 0)
                             {
                                 trans.Rollback();

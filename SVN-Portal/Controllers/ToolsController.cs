@@ -479,10 +479,7 @@ namespace SVN_Portal.Controllers
                     }
 
                     processResult = toolsHelper.PrintToastLabelByTCP(requestPayload, printerConfigData);
-                    
                 }
-
-                
             }
             catch (Exception ex)
             {
@@ -524,10 +521,18 @@ namespace SVN_Portal.Controllers
             SVN_Label_InfoUI data = new SVN_Label_InfoUI();
             try
             {
-                data = dataPortal.ReadListBySerialNumbers(allSerial);
+                if (!string.IsNullOrWhiteSpace(allSerial))
+                {
+                    data = dataPortal.ReadListBySerialNumbers(allSerial);
+                }
+                else
+                {
+                    data = dataPortal.ReadFirstToastItem();
+                }
+
                 if (data == null)
                 {
-                    
+
                     return Json(new { ok = true, message = "Chưa tồn tại" });
                 }
                 else
@@ -536,12 +541,15 @@ namespace SVN_Portal.Controllers
                     List<SVN_Label_InfoUI> datas = new List<SVN_Label_InfoUI>();
                     datas.Add(data);
                     var result = dataPortal.UpdateBulk(datas);
-                }
-                    return Json(new
+                    if (result > 0)
                     {
-                        ok = false,
-                        message = " Đã tồn tại"
-                    });
+                        return Json(new { ok = true, message = "Xóa thành công" });
+                    }
+                    else
+                    {
+                        return Json(new { ok = false, message = "Xóa không thành công" });
+                    }
+                }
             }
             catch (Exception ex)
             {
