@@ -159,6 +159,40 @@ body {
     }
 }
 
+.blinking-warning {
+    /*border: 5px solid rgba(255, 0, 0, 0.6) !important;*/
+    animation: blinkWarning 2s infinite; /* Thêm animation cho viền nhấp nháy */
+}
+
+@keyframes blinkWarning {
+    0% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    25% {
+        border: 10px solid rgba(229, 245, 39, 1);
+        box-shadow: 0 0 10px rgba(229, 245, 39, 1);
+    }
+
+    50% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    75% {
+        border: 10px solid rgba(229, 245, 39, 1);
+        box-shadow: 0 0 10px rgba(229, 245, 39, 1);
+    }
+
+    100% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+}
+
+
+
 .card-disable {
     pointer-events: none;
     opacity: 0.5;
