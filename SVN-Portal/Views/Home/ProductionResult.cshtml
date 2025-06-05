@@ -346,6 +346,16 @@
                                             if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
                                             {
                                                 status = "bg-primary";
+                                                if (subitem.Percent > 100)
+                                                {
+                                                    if (subitem.Item == "Hourly Plan")
+                                                    {
+                                                        if (item.IsProduction)
+                                                        {
+                                                            alert = "blinking-warning";
+                                                        }
+                                                    }
+                                                }
                                             }
                                             else
                                             {
@@ -355,6 +365,17 @@
                                                     if (item.IsProduction)
                                                     {
                                                         alert = "blinking";
+                                                    }
+                                                }
+                                                else if (subitem.Percent > 100)
+                                                {
+                                                    status = "bg-primary";
+                                                    if (subitem.Item == "Hourly Plan")
+                                                    {
+                                                        if (item.IsProduction)
+                                                        {
+                                                            alert = "blinking-warning";
+                                                        }
                                                     }
                                                 }
                                                 else if (subitem.Percent > 75 && subitem.Percent <= 92)
@@ -377,6 +398,17 @@
                                             if (item.IsProduction)
                                             {
                                                 alert = "blinking";
+                                            }
+                                        }
+                                        else if (subitem.Percent > 100)
+                                        {
+                                            status = "bg-primary";
+                                            if (subitem.Item == "Labor")
+                                            {
+                                                if (item.IsProduction)
+                                                {
+                                                    alert = "blinking-warning";
+                                                }
                                             }
                                         }
                                         else if (subitem.Percent > 75 && subitem.Percent <= 92)

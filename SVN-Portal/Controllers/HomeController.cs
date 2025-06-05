@@ -844,6 +844,16 @@ namespace SVN_Portal.Controllers
                             if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
                             {
                                 status = "bg-primary";
+                                if (item.Percent > 100)
+                                {
+                                    if (item.Item == "Hourly Plan")
+                                    {
+                                        if (model.IsProduction)
+                                        {
+                                            alert = "blinking-warning";
+                                        }
+                                    }
+                                }
                             }
                             else
                             {
@@ -853,6 +863,17 @@ namespace SVN_Portal.Controllers
                                     if (model.IsProduction)
                                     {
                                         alert = "blinking";
+                                    }
+                                }
+                                else if (item.Percent > 100)
+                                {
+                                    status = "bg-primary";
+                                    if (item.Item == "Hourly Plan")
+                                    {
+                                        if (model.IsProduction)
+                                        {
+                                            alert = "blinking-warning";
+                                        }
                                     }
                                 }
                                 else if (item.Percent > 75 && item.Percent <= 92)
@@ -874,6 +895,17 @@ namespace SVN_Portal.Controllers
                             if (model.IsProduction)
                             {
                                 alert = "blinking";
+                            }
+                        }
+                        else if (item.Percent > 100)
+                        {
+                            status = "bg-primary";
+                            if (item.Item == "Labor")
+                            {
+                                if (model.IsProduction)
+                                {
+                                    alert = "blinking-warning";
+                                }
                             }
                         }
                         else if (item.Percent > 75 && item.Percent <= 92)

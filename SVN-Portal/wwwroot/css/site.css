@@ -171,8 +171,8 @@ body {
     }
 
     25% {
-        border: 10px solid rgba(229, 245, 39, 1);
-        box-shadow: 0 0 10px rgba(229, 245, 39, 1);
+        border: 10px solid rgba(248, 246, 0, 0.72);
+        box-shadow: 0 0 10px rgba(248, 246, 0, 0.72);
     }
 
     50% {
@@ -181,8 +181,8 @@ body {
     }
 
     75% {
-        border: 10px solid rgba(229, 245, 39, 1);
-        box-shadow: 0 0 10px rgba(229, 245, 39, 1);
+        border: 10px solid rgba(248, 246, 0, 0.72);
+        box-shadow: 0 0 10px rgba(248, 246, 0, 0.72);
     }
 
     100% {
