@@ -81,6 +81,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Trang dashboard tổng hợp kết quả sản xuất theo từng ca, từng tổ
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ProductionResult(DateTime date)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
@@ -345,6 +350,12 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Trang hiển thị thông tin chi tiết theo từng oper, từng ca, từng tổ
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="oper"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ChartInfoPerOper(DateTime date, string oper)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
@@ -558,6 +569,13 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Hàm build lại dữ liệu cho dashboard bằng cách lấy dữ liệu từ oper và wc bằng Ajax
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="oper"></param>
+        /// <param name="wc"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> GetDataByOperAndWCMainDashBoard(string date, string oper, string wc)
         {
@@ -609,6 +627,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Hàm xây dựng bảng Production Result cho từng oper
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         private string BuildProductionResultTable(QtyProdResultByOperViewModel model)
         {
             StringBuilder sb = new StringBuilder();
@@ -659,6 +682,11 @@ namespace SVN_Portal.Controllers
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Hàm xây dựng bảng Target Table cho từng oper
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         private string BuildTargetTable(QtyProdResultByOperViewModel model) 
         {
             StringBuilder sb = new StringBuilder();
@@ -742,6 +770,11 @@ namespace SVN_Portal.Controllers
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Hàm xây dựng bảng Achievement Card cho từng oper
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         private string BuildAchievementCard(QtyProdResultByOperViewModel model)
         {
             string currentTime = string.Empty;
@@ -995,6 +1028,11 @@ namespace SVN_Portal.Controllers
                 return sb.ToString();
         }
 
+        /// <summary>
+        /// Hàm xây dựng thông tin dự báo (Forecast) cho dashboard
+        /// </summary>
+        /// <param name="Forecast"></param>
+        /// <returns></returns>
         private string BuildForecastInfo(double Forecast)
         {
             StringBuilder sb = new StringBuilder();
