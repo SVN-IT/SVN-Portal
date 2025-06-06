@@ -23,8 +23,8 @@ namespace SVN_Portal.Controllers
         QCInfoConfig qCInfoConfig;
         OperInfoConfig operInfoConfig;
 
-        public HomeController(ILogger<HomeController> logger, 
-            AppConfig appConfig, 
+        public HomeController(ILogger<HomeController> logger,
+            AppConfig appConfig,
             DBConfiguration dBConfiguration,
             OperInfoConfig operInfoConfig,
             QCInfoConfig qCInfoConfig)
@@ -45,8 +45,8 @@ namespace SVN_Portal.Controllers
                 string storedProceduce = "SVN_Pro_CalTarget";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result";
-                if (date == DateTime.MinValue) 
-                { 
+                if (date == DateTime.MinValue)
+                {
                     date = DateTime.Now;
                 }
                 ViewBag.date = date;
@@ -54,12 +54,12 @@ namespace SVN_Portal.Controllers
                 List<string> opers = appConfig.OperList.Split(",").ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
-                if (models.Count > 0) 
+                if (models.Count > 0)
                 {
-                    foreach (var model in models) 
-                    { 
+                    foreach (var model in models)
+                    {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        if (userInfo != null) 
+                        if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
@@ -68,7 +68,7 @@ namespace SVN_Portal.Controllers
                 }
                 return View(models);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
                 var data1 = model.GetData("POP");
@@ -167,7 +167,7 @@ namespace SVN_Portal.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 return View(models);
 
             }
@@ -237,7 +237,7 @@ namespace SVN_Portal.Controllers
 
                 foreach (var item in operInfoConfig.OperInfo)
                 {
-                    if(item.WC != null && item.WC.Count > 0)
+                    if (item.WC != null && item.WC.Count > 0)
                     {
                         foreach (var wc in item.WC)
                         {
@@ -319,8 +319,8 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
-                
-                if (models!= null && models.Count > 0)
+
+                if (models != null && models.Count > 0)
                 {
                     models = models.OrderBy(x => x.WC).ToList();
                     foreach (var model in models)
@@ -439,7 +439,7 @@ namespace SVN_Portal.Controllers
             QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
             try
             {
-                
+
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -501,11 +501,11 @@ namespace SVN_Portal.Controllers
                     model = models.FirstOrDefault(x => x.Operation == oper);
                 }
 
-                
+
                 return View(model);
             }
             catch (Exception ex)
-            { 
+            {
                 return View(model);
             }
         }
@@ -523,13 +523,13 @@ namespace SVN_Portal.Controllers
                 string tableName = "SVN_Production_result_Viindoo";
                 OperInfo operInfo = new OperInfo();
                 operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
-                if(operInfo != null)
+                if (operInfo != null)
                 {
                     if (!string.IsNullOrWhiteSpace(wc))
                     {
                         operInfo.WCName = wc;
                         var wcInfo = operInfo.WC.FirstOrDefault(x => x.WCName == wc);
-                        if(wcInfo != null)
+                        if (wcInfo != null)
                         {
                             operInfo.Produce_id = wcInfo.Produce_id;
                             operInfo.Top_row = wcInfo.Top_row;
@@ -540,7 +540,7 @@ namespace SVN_Portal.Controllers
                 model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
 
                 //sử dụng stringBuilder để build lại 2 table
-                if (model != null) 
+                if (model != null)
                 {
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildAchievementCard(model);
@@ -619,7 +619,7 @@ namespace SVN_Portal.Controllers
                 {
                     return new JsonResult(new { result = false, message = "No data" });
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -657,7 +657,7 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
-            foreach(var item in model.ViewModels)
+            foreach (var item in model.ViewModels)
             {
                 sb.Append("<div class='col-2'>");
                 sb.Append("<div class='row'>");
@@ -687,21 +687,21 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private string BuildTargetTable(QtyProdResultByOperViewModel model) 
+        private string BuildTargetTable(QtyProdResultByOperViewModel model)
         {
             StringBuilder sb = new StringBuilder();
-            if((!string.IsNullOrWhiteSpace(model.WC) && model.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(model.Operation))
+            if ((!string.IsNullOrWhiteSpace(model.WC) && model.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(model.Operation))
             {
                 sb.Append("<div class='col-3 border table-cell text-center'><strong>Item</strong></div>");
                 sb.Append("<div class='col-2 border table-cell text-center'><strong>Target</strong></div>");
                 sb.Append("<div class='col-2 border table-cell text-center'><strong>Current</strong></div>");
                 sb.Append("<div class='col-3 border table-cell text-center'><strong>Rate</strong></div>");
                 sb.Append("<div class='col-2 border table-cell text-center'><strong>Status</strong></div>");
-                foreach(var item in model.TargetViewModels)
+                foreach (var item in model.TargetViewModels)
                 {
                     string status = string.Empty;
                     sb.Append("<div class='col-3 border table-cell text-center'><strong>" + item.Item + "</strong></div>");
-                    if(item.Item == "Defect")
+                    if (item.Item == "Defect")
                     {
                         sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + " %</div>");
                         sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + " %</div>");
@@ -753,7 +753,7 @@ namespace SVN_Portal.Controllers
                 sb.Append("<div class='col-4 border table-cell text-center'>");
                 sb.Append("<strong>Product Qty</strong>");
                 sb.Append("</div>");
-                foreach(var item in model.ProductionUIs)
+                foreach (var item in model.ProductionUIs)
                 {
                     sb.Append("<div class='col-4 border table-cell text-center'>");
                     sb.Append(item.name);
@@ -1025,7 +1025,7 @@ namespace SVN_Portal.Controllers
                 }
                 sb.Append("</div>");
             }
-                return sb.ToString();
+            return sb.ToString();
         }
 
         /// <summary>
@@ -1038,7 +1038,7 @@ namespace SVN_Portal.Controllers
             StringBuilder sb = new StringBuilder();
             if (Forecast > 100)
             {
-                sb.Append("<span style='font-size:60px;'>☀️</span>");                    
+                sb.Append("<span style='font-size:60px;'>☀️</span>");
             }
             else if (Forecast > 75 && Forecast <= 100)
             {
@@ -1075,5 +1075,34 @@ namespace SVN_Portal.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        #region report
+        public IActionResult PDResultByMonthReport(DateTime date)
+        {
+            List<SVN_production_summaryUI> models = new List<SVN_production_summaryUI>();
+            SVN_production_summaryDataPortal dataPortal = new SVN_production_summaryDataPortal(connectionString);
+            try
+            {
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                int year = date.Year;
+                int month = date.Month;
+                models = dataPortal.ReadListByYearMonth(year, month);
+                if (models.Count > 0)
+                {
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                
+            }
+            return View(models);
+        }
+
+        #endregion
     }
 }
