@@ -40,6 +40,10 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Màn hình quản lý máy in
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> PrinterManager()
         {
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
@@ -60,6 +64,11 @@ namespace SVN_Portal.Controllers
             return View(printerConfigData);
         }
 
+        /// <summary>
+        /// Hàm lấy thông tin máy in theo ID
+        /// </summary>
+        /// <param name="printerID"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> GetPrinterInfoByID(string printerID)
         {
@@ -90,6 +99,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Hàm thêm mới thông tin máy in
+        /// </summary>
+        /// <param name="insertData"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> InsertPrinterInfo([FromBody] PrinterConfigData insertData)
         {
@@ -110,6 +124,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Cập nhật thông tin máy in
+        /// </summary>
+        /// <param name="updateData"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> UpdatePrinterInfo([FromBody]PrinterConfigData updateData)
         {
@@ -130,6 +149,13 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Màn hình in tem Astro 0001
+        /// </summary>
+        /// <param name="selectedProductID"></param>
+        /// <param name="selectedPrinterID"></param>
+        /// <param name="countRows"></param>
+        /// <returns></returns>
         public async Task<IActionResult> PrintTem(int selectedProductID, string selectedPrinterID, int countRows = 1) 
         {
             SVN_product_productDataPortal productDataPortal = new SVN_product_productDataPortal(connectionString);
@@ -232,6 +258,16 @@ namespace SVN_Portal.Controllers
             return View(viewModels);
         }
 
+        /// <summary>
+        /// Hàm in shipping label theo seri number
+        /// Đọc dữ liệu từ Viindoo API để lấy thông tin lô hàng theo seri number
+        /// Sử dụng cho Astro 0004
+        /// </summary>
+        /// <param name="selectedPrinterID"></param>
+        /// <param name="seriNumber"></param>
+        /// <param name="dateCode"></param>
+        /// <param name="productID"></param>
+        /// <returns></returns>
         public async Task<IActionResult> PrintShippingLabelBySeriNumber(string selectedPrinterID, string seriNumber, string dateCode, int productID = 177)
         {
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
@@ -293,6 +329,11 @@ namespace SVN_Portal.Controllers
             return View(viewModels);
         }
 
+        /// <summary>
+        /// Hàm in tem cho màn hình PrintTem
+        /// </summary>
+        /// <param name="requestPayload"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Print([FromBody] PrintRequest requestPayload)
         {
@@ -311,6 +352,11 @@ namespace SVN_Portal.Controllers
             return Json(new { message = processResult.Message });
         }
 
+        /// <summary>
+        /// Hàm in tem cho Astro 0004
+        /// </summary>
+        /// <param name="requestPayload"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> PrintShippingLabel([FromBody] PrintShippingRequest requestPayload)
         {
@@ -329,6 +375,11 @@ namespace SVN_Portal.Controllers
             return Json(new { message = processResult.Message });
         }
 
+        /// <summary>
+        /// Hàm in nhãn Toast Label Thùng
+        /// </summary>
+        /// <param name="requestPayload"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> PrintToastLabelAJAX([FromBody] PrintToastLabelRequest requestPayload)
         {
@@ -416,6 +467,11 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, palletID = requestPayload.PalletID, message = processResult.Message });
         }
 
+        /// <summary>
+        /// Hàm in nhãn Toast Label Pallet AJAX
+        /// </summary>
+        /// <param name="requestPayload"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> PrintPalletLabelAJAX([FromBody] PrintToastLabelRequest requestPayload)
         {
@@ -489,6 +545,11 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message });
         }
 
+        /// <summary>
+        /// Kiểm tra mã seri đã tồn tại
+        /// </summary>
+        /// <param name="newItem"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult GetRecordBySerialID(string newItem)
         {
@@ -558,6 +619,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Màn hình in nhãn Toast Label
+        /// </summary>
+        /// <param name="selectedPrinterID"></param>
+        /// <returns></returns>
         public async Task<IActionResult> PrintToastLabel(string selectedPrinterID)
         {
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
@@ -581,6 +647,135 @@ namespace SVN_Portal.Controllers
 
             }
             return View();
+        }
+
+        /// <summary>
+        /// Màn hình in nhãn Astro Label
+        /// </summary>
+        /// <param name="selectedPrinterID"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> PrintAstroLabel(string selectedPrinterID)
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            List<PrinterConfigData> printerConfigData = new List<PrinterConfigData>();
+            try
+            {
+                printerConfigData = await printerDataPortal.ReadList();
+                if (printerConfigData == null)
+                {
+                    printerConfigData = new List<PrinterConfigData>();
+                }
+                SelectList printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer");
+                if (!string.IsNullOrWhiteSpace(selectedPrinterID))
+                {
+                    printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer", selectedPrinterID);
+                }
+                ViewBag.PrinterList = printerList;
+            }
+            catch
+            {
+
+            }
+            return View();
+        }
+
+        /// <summary>
+        /// Hàm in nhãn Toast Label Thùng
+        /// </summary>
+        /// <param name="requestPayload"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> PrintAstroLabelAJAX([FromBody] PrintToastLabelRequest requestPayload)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            try
+            {
+                requestPayload.PartNumber = labelConfiguration.PartNumber;
+                requestPayload.ModelNumber = labelConfiguration.ModelNumber;
+                requestPayload.ToastPONumber = labelConfiguration.PONumber;
+                requestPayload.PartDesc = labelConfiguration.PartDesc;
+                requestPayload.Quantity = labelConfiguration.Quantity.ToString();
+                requestPayload.LotID = labelConfiguration.LotID;
+
+
+                List<SVN_Label_InfoUI> existingLabel = new List<SVN_Label_InfoUI>();
+                int countExistingLabel = 0;
+                PrinterConfigData printerConfigData = new PrinterConfigData();
+                printerConfigData = await printerDataPortal.ReadByID(requestPayload.PrinterID);
+
+                List<PrintShippingViewModel> viewModels = new List<PrintShippingViewModel>();
+                if(!string.IsNullOrWhiteSpace(requestPayload.LotID) && !string.IsNullOrWhiteSpace(requestPayload.AllSeri1))
+                {
+                    var listSeries = requestPayload.AllSeri1.Split(',').Select(x =>
+                    {
+                        PrintShippingViewModel xViewModel = new PrintShippingViewModel
+                        {
+                            lot_code = x,
+                            package_code = requestPayload.LotID
+                        };
+                        return x;
+                    }).ToList();
+                }
+
+                if(viewModels.Count > 0)
+                {
+                    processResult = toolsHelper.PrintShippingByTCP(viewModels, printerConfigData, requestPayload.Copies, requestPayload.PartDesc);
+                    if (processResult.OK)
+                    {
+                        var existItem = sVN_Label_InfoDataPortal.ReadListBySerialNumbers(requestPayload.AllSeri1);
+                        if (existItem == null)
+                        {
+                            if (string.IsNullOrWhiteSpace(requestPayload.PalletID))
+                            {
+                                requestPayload.PalletID = Guid.NewGuid().ToString();
+                            }
+                            // Lưu thông tin nhãn đã in vào cơ sở dữ liệu
+                            SVN_Label_InfoUI labelInfo = new SVN_Label_InfoUI
+                            {
+                                Date = DateTime.Today.ToString("yyyyMMdd"),
+                                LotID = requestPayload.LotID,
+                                SerialNumbers = requestPayload.AllSeri1,
+                                ScanDateTime = DateTime.Now,
+                                Status = "Printed",
+                                Operation = "Astro",
+                                EmployerID = "SVN0418",
+                                PalletID = requestPayload.PalletID,
+                                SerialCount = requestPayload.AllSeri1.Split(',').Where(x => x != "").Count(),
+                                IsDelete = false
+                            };
+
+                            var labelInfos = new List<SVN_Label_InfoUI>();
+                            labelInfos.Add(labelInfo);
+
+                            var result = sVN_Label_InfoDataPortal.InsertBulk(labelInfos);
+                            if (result <= 0)
+                            {
+                                processResult.Message = "Lưu thông tin nhãn in không thành công.";
+                            }
+                            else
+                            {
+                                processResult.OK = true;
+                                processResult.Message = "In nhãn thành công và đã lưu thông tin vào cơ sở dữ liệu.";
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Chưa nhập package id hoặc chưa có số seri để in";
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, palletID = requestPayload.PalletID, message = processResult.Message });
         }
 
         public async Task<IActionResult> GetImageBySelectedLot(string itemName, string itemCode, decimal qty, string printID)
