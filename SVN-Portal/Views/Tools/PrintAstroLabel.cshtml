@@ -103,7 +103,7 @@
     function DeleteSerialHistory(allSerial){
         var serialList = $(allSerial).val();
         $.ajax({
-            url: '@Url.Action("DeleteSerialHistory", "Tools")',  // Adjust the controller name if needed
+            url: '@Url.Action("DeleteAstroSerialHistory", "Tools")',  // Adjust the controller name if needed
             type: 'POST',
             data: {serialList: serialList, operation: "Astro"},
             dataType: 'json',
@@ -244,7 +244,6 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')"><i class="fa fa-trash"></i> Xóa</button>
-                            <button type="button" class="btn btn-danger" onclick="DeleteSerialHistory('#txtSerialNumberCount1')"><i class="fa fa-trash"></i> Xóa lịch sử</button>
                         </div>
                     </div>
                 </div>
@@ -257,6 +256,19 @@
                         </div>
                         <div class="col-12 col-md-8">
                             <span id="spanReport1" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Search PackageID</label>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <input id="txtSearchPackageID" type="text" class="form-control w-100" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger" onclick="DeleteSerialHistory('#txtSearchPackageID')"><i class="fa fa-trash"></i> Xóa lịch sử</button>
                         </div>
                     </div>
                 </div>

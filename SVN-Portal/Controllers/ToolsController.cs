@@ -619,6 +619,50 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult DeleteAstroSerialHistory(string serialList, string operation)
+        {
+            SVN_Label_InfoDataPortal dataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(serialList))
+                {
+                    data = dataPortal.GetTop1LablebyPackageID(serialList, operation);
+                }
+                else
+                {
+                    data = dataPortal.GetTop1LableToday(operation);
+                }
+
+                if (data == null)
+                {
+
+                    return Json(new { ok = true, message = "Chưa tồn tại" });
+                }
+                else
+                {
+                    data.IsDelete = true;
+                    List<SVN_Label_InfoUI> datas = new List<SVN_Label_InfoUI>();
+                    datas.Add(data);
+                    var result = dataPortal.UpdateBulk(datas);
+                    if (result > 0)
+                    {
+                        return Json(new { ok = true, message = "Xóa thành công" });
+                    }
+                    else
+                    {
+                        return Json(new { ok = false, message = "Xóa không thành công" });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { message = message });
+            }
+        }
+
         /// <summary>
         /// Màn hình in nhãn Toast Label
         /// </summary>
