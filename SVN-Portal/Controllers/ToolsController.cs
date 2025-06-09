@@ -576,19 +576,19 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteSerialHistory(string allSerial)
+        public IActionResult DeleteSerialHistory(string serialList, string operation)
         {
             SVN_Label_InfoDataPortal dataPortal = new SVN_Label_InfoDataPortal(connectionString);
             SVN_Label_InfoUI data = new SVN_Label_InfoUI();
             try
             {
-                if (!string.IsNullOrWhiteSpace(allSerial))
+                if (!string.IsNullOrWhiteSpace(serialList))
                 {
-                    data = dataPortal.ReadListBySerialNumbers(allSerial);
+                    data = dataPortal.ReadListBySerialNumbers(serialList);
                 }
                 else
                 {
-                    data = dataPortal.ReadFirstToastItem();
+                    data = dataPortal.ReadFirstItem(operation);
                 }
 
                 if (data == null)
@@ -692,12 +692,12 @@ namespace SVN_Portal.Controllers
             SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
             try
             {
-                requestPayload.PartNumber = labelConfiguration.PartNumber;
-                requestPayload.ModelNumber = labelConfiguration.ModelNumber;
-                requestPayload.ToastPONumber = labelConfiguration.PONumber;
-                requestPayload.PartDesc = labelConfiguration.PartDesc;
-                requestPayload.Quantity = labelConfiguration.Quantity.ToString();
-                requestPayload.LotID = labelConfiguration.LotID;
+                //requestPayload.PartNumber = labelConfiguration.PartNumber;
+                //requestPayload.ModelNumber = labelConfiguration.ModelNumber;
+                //requestPayload.ToastPONumber = labelConfiguration.PONumber;
+                //requestPayload.PartDesc = labelConfiguration.PartDesc;
+                //requestPayload.Quantity = labelConfiguration.Quantity.ToString();
+                //requestPayload.LotID = labelConfiguration.LotID;
 
 
                 List<SVN_Label_InfoUI> existingLabel = new List<SVN_Label_InfoUI>();
@@ -708,13 +708,14 @@ namespace SVN_Portal.Controllers
                 List<PrintShippingViewModel> viewModels = new List<PrintShippingViewModel>();
                 if(!string.IsNullOrWhiteSpace(requestPayload.LotID) && !string.IsNullOrWhiteSpace(requestPayload.AllSeri1))
                 {
-                    var listSeries = requestPayload.AllSeri1.Split(',').Select(x =>
+                    var listSeries = requestPayload.AllSeri1.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).Select(x =>
                     {
-                        PrintShippingViewModel xViewModel = new PrintShippingViewModel
+                        PrintShippingViewModel viewModel = new PrintShippingViewModel
                         {
                             lot_code = x,
                             package_code = requestPayload.LotID
                         };
+                        viewModels.Add(viewModel);
                         return x;
                     }).ToList();
                 }

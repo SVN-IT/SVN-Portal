@@ -39,13 +39,13 @@ namespace SVNShareLib.DAL
             }
         }
 
-        public SVN_Label_InfoUI ReadFirstToastItem()
+        public SVN_Label_InfoUI ReadFirstItem(string Operation)
         {
             try
             {
                 SVN_Label_InfoUI data = new SVN_Label_InfoUI();
-                string sql = "SELECT TOP(1) * FROM SVN_Label_Info WHERE Operation = 'TOAST' AND IsDelete = @IsDelete ORDER BY ScanDateTime DESC";
-                var param = new { IsDelete = false };
+                string sql = "SELECT TOP(1) * FROM SVN_Label_Info WHERE Operation = @Operation AND IsDelete = @IsDelete ORDER BY ScanDateTime DESC";
+                var param = new { IsDelete = false, Operation = Operation };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {

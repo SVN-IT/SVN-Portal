@@ -12,7 +12,7 @@
 
     function CheckSerialNumberInDB(oneSerial, reportSerial) {
         var newItem = $(oneSerial).val();
-        if (newItem.length == 13) {
+        if (newItem.length == 14) {
             $.ajax({
                 url: '@Url.Action("GetRecordBySerialID", "Tools")',  // Adjust the controller name if needed
                 type: 'POST',
@@ -45,7 +45,7 @@
 
         CheckSerialNumberInDB(oneSerial, reportSerial);
 
-        if(newItem.length == 13 && isExitsInDB){
+        if(newItem.length == 14 && isExitsInDB){
             var series = $(allSerial).val();
             if(series == ''){
                 $(allSerial).val(newItem + ',');
@@ -57,20 +57,11 @@
                     return el != '';
                 });
                 var isExits = false;
-                var isMatched = false;
                 for(var i = 0; i < arr.length; i++){
-                    var prefix = arr[i].slice(0, -4);
-                    var number = arr[i].slice(-4);
-
-                    var prefix1 = newItem.slice(0, -4);
-                    var number1 = newItem.slice(-4);
-                    if(prefix1 == prefix){
-                        isMatched = true;
-                        if(number1 == number){
-                            isExits = true;
-                            $(reportSerial).text(newItem + ' đã tồn tại');
-                            break;
-                        }
+                    if(newItem == arr[i]){
+                        isExits = true;
+                        $(reportSerial).text(newItem + ' đã tồn tại');
+                        break;
                     }
                 }
 
@@ -82,11 +73,11 @@
                     limitSeri = 12;
                 }
 
-                if(isExits == false && isMatched == true && arr.length < limitSeri){
+                if(isExits == false && arr.length < limitSeri){
                     $(allSerial).val($(allSerial).val() + newItem + ',');
                     $(reportSerial).text('');
                 }
-                else if(isExits == false && isMatched == true && arr.length >= limitSeri){
+                else if(isExits == false && arr.length >= limitSeri){
                     $(reportSerial).text('Đã đủ số lượng serial number');
                 }
                 series = $(allSerial).val();
@@ -114,7 +105,7 @@
         $.ajax({
             url: '@Url.Action("DeleteSerialHistory", "Tools")',  // Adjust the controller name if needed
             type: 'POST',
-            data: {serialList: serialList},
+            data: {serialList: serialList, operation: "Astro"},
             dataType: 'json',
             success: function (response) {
                 alert(response.message);
@@ -179,7 +170,7 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Date code</label>
-                    <input id="txtPartDesc" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtPartDesc', '#txtLotID')" />
+                    <input id="txtPartDesc" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtPartDesc', '#txtLotID')" placeholder="25/18" />
                 </div>
             </div>
         </div>
@@ -344,7 +335,7 @@
             };
 
             $.ajax({
-                url: '@Url.Action("PrintToastLabelAJAX", "Tools")',  // Adjust the controller name if needed
+                url: '@Url.Action("PrintAstroLabelAJAX", "Tools")',  // Adjust the controller name if needed
                 type: 'POST',
                 data: JSON.stringify(requestPayload),
                 contentType: 'application/json; charset=utf-8',

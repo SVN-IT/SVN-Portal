@@ -114,7 +114,7 @@
         $.ajax({
             url: '@Url.Action("DeleteSerialHistory", "Tools")',  // Adjust the controller name if needed
             type: 'POST',
-            data: {serialList: serialList},
+            data: {serialList: serialList, operation: "TOAST"},
             dataType: 'json',
             success: function (response) {
                 alert(response.message);
