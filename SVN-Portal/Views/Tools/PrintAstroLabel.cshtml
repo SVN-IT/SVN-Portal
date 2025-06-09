@@ -118,6 +118,28 @@
         });
     }
 
+    function UpdatePackageID(txtPackageID) {
+        var packageID = $(txtPackageID).val();
+        $.ajax({
+            url: '@Url.Action("UpdatePackageID", "Tools")',  // Adjust the controller name if needed
+            type: 'POST',
+            data: {packageID: packageID},
+            dataType: 'json',
+            success: function (response) {
+                if(response.result == false) {
+                    alert(response.message);
+                }
+                else{
+                    $(txtPackageID).val(response.packageID);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", error);
+                alert("An error occurred while getting Pallet ID.");
+            }
+        });
+    }
+
     function ChangeForcusTextBox(curtextbox, nexttextbox){
 
         $(curtextbox).keypress(function(event) {
@@ -192,7 +214,12 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Package ID</label>
-                    <input type="text" id="txtLotID" class="form-control" />
+                    <input type="text" id="txtLotID" class="form-control pe-none" value="@ViewBag.LotID" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group" style="margin-top:33px">
+                    <button type="button" class="btn btn-primary" id="btnUpdatePackageID" onclick="UpdatePackageID('#txtLotID')"><i class="fa fa-pencil" aria-hidden="true"></i> Update Package ID</button>
                 </div>
             </div>
         </div>

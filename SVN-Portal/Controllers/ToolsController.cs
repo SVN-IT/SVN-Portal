@@ -671,6 +671,20 @@ namespace SVN_Portal.Controllers
                     printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer", selectedPrinterID);
                 }
                 ViewBag.PrinterList = printerList;
+
+                SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
+                var dataUI = sVN_Label_InfoDataPortal.GetTop1LableToday("Astro");
+                if (dataUI != null)
+                {
+                    string packageID = (Int128.Parse(dataUI.LotID) + 1).ToString();
+                    ViewBag.LotID = packageID;
+                }
+                else
+                {
+                    string packageID = DateTime.Now.ToString("yyyyMMdd") + "00001";
+                    ViewBag.LotID = packageID;
+                }
+
             }
             catch
             {
@@ -777,6 +791,41 @@ namespace SVN_Portal.Controllers
                 processResult.Message = ex.Message;
             }
             return Json(new { result = processResult.OK, palletID = requestPayload.PalletID, message = processResult.Message });
+        }
+
+        /// <summary>
+        /// Kiểm tra và cập nhật Package ID cho Astro Label
+        /// </summary>
+        /// <param name="packageID"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult UpdatePackageID(string packageID)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            try
+            {
+                var dataUI = sVN_Label_InfoDataPortal.GetTop1LablebyPackageID(packageID, "Astro");
+                if(dataUI != null)
+                {
+                    packageID = (Int128.Parse(dataUI.LotID) + 1).ToString();
+                    processResult.OK = true;
+                    return Json(new { result = processResult.OK, packageID = packageID, message = "Package ID đã được cập nhật thành công." });
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Package ID chưa được in";
+                    return Json(new { result = processResult.OK, message = processResult.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+                return Json(new { result = processResult.OK, message = processResult.Message });
+            }
+            
         }
 
         public async Task<IActionResult> GetImageBySelectedLot(string itemName, string itemCode, decimal qty, string printID)

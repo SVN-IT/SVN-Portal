@@ -137,6 +137,47 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public SVN_Label_InfoUI GetTop1LableToday(string Operation)
+        {
+            try
+            {
+                string Date = DateTime.Now.ToString("yyyyMMdd");
+                SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+                string sql = "SELECT TOP(1) * FROM SVN_Label_Info WHERE Operation = @Operation AND Date = @Date AND IsDelete = @IsDelete ORDER BY LotID DESC";
+                var param = new { Date = Date, IsDelete = false, Operation = Operation };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.QueryFirstOrDefault<SVN_Label_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public SVN_Label_InfoUI GetTop1LablebyPackageID(string LotID, string Operation)
+        {
+            try
+            {
+                SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+                string sql = "SELECT TOP(1) * FROM SVN_Label_Info WHERE Operation = @Operation AND LotID = @LotID AND IsDelete = @IsDelete ORDER BY LotID DESC";
+                var param = new { LotID = LotID, IsDelete = false, Operation = Operation };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.QueryFirstOrDefault<SVN_Label_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public int InsertBulk(List<SVN_Label_InfoUI> mrp_ProductionUIs)
         {
             int timeOut = 1000;
