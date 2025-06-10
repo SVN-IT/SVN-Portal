@@ -81,6 +81,7 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult totalDataProcessResult = new BODataProcessResult();
             totalDataProcessResult.Message = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             int getRow = 0;
+            string strDatetime = string.Empty;
             try
             {
                 string objectName = "mrp.production";
@@ -90,6 +91,7 @@ namespace ViidooDBServiceAPI.Controllers
                 productionResult = viinDataService.GetViindooDataV1(queryConfig);
 
                 getRow = productionResult.NumOfRow;
+                strDatetime = productionResult.Message;
 
                 BODataProcessResult callProcessResult = new BODataProcessResult();
                 callProcessResult = viinDataService.CallSPToUpdateResult();

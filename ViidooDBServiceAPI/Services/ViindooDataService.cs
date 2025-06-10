@@ -850,7 +850,7 @@ namespace ViidooDBServiceAPI.Services
                     IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
                     models.Timeout = 60000;
                     models.Url = serverUrl + "/xmlrpc/2/object";
-
+                    string strDatetime = string.Empty;
 
                     object[] search = new object[] { };
                     object[] domain = new object[] { };
@@ -864,6 +864,7 @@ namespace ViidooDBServiceAPI.Services
                             if (dataRequest.ListDomain[i].Contains("@write_date"))
                             {
                                 DateTime curTime = DateTime.Now;
+                                strDatetime = curTime.ToString("yyyy-MM-dd HH:mm:ss");
                                 curTime = curTime.AddHours(-7);
                                 curTime = curTime.AddMinutes(-10);
                                 dataRequest.ListDomain[i] = dataRequest.ListDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -944,6 +945,7 @@ namespace ViidooDBServiceAPI.Services
                         if(dataRequest.TableName == "mrp.production")
                         {
                             processResult.NumOfRow = ((object[])searchResult).Length;
+                            processResult.Message = strDatetime;
                         }
                     }
                     else
