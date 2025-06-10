@@ -941,6 +941,10 @@ namespace ViidooDBServiceAPI.Services
                     if (searchResult != null)
                     {
                         processResult = SwitchFunctionToInsert(searchResult, dataRequest.TableName);
+                        if(dataRequest.TableName == "mrp.production")
+                        {
+                            processResult.NumOfRow = ((object[])searchResult).Length;
+                        }
                     }
                     else
                     {
