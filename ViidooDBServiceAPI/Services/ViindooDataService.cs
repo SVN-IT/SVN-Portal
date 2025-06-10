@@ -8,6 +8,7 @@ using SVNShareLib.BaseObject;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
+using System.Data.SqlTypes;
 using System.Security.AccessControl;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -842,6 +843,7 @@ namespace ViidooDBServiceAPI.Services
         {
             BODataProcessResult processResult = new BODataProcessResult();
             processResult.DataType = dataRequest.TableName;
+            string strDatetime = string.Empty;
             try
             {
                 var connectResult = ConnectDB();
@@ -850,7 +852,6 @@ namespace ViidooDBServiceAPI.Services
                     IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
                     models.Timeout = 60000;
                     models.Url = serverUrl + "/xmlrpc/2/object";
-                    string strDatetime = string.Empty;
 
                     object[] search = new object[] { };
                     object[] domain = new object[] { };
@@ -864,9 +865,11 @@ namespace ViidooDBServiceAPI.Services
                             if (dataRequest.ListDomain[i].Contains("@write_date"))
                             {
                                 DateTime curTime = DateTime.Now;
-                                strDatetime = curTime.ToString("yyyy-MM-dd HH:mm:ss");
                                 curTime = curTime.AddHours(-7);
                                 curTime = curTime.AddMinutes(-10);
+
+                                strDatetime = curTime.ToString("yyyy-MM-dd HH:mm:ss");
+
                                 dataRequest.ListDomain[i] = dataRequest.ListDomain[i].Replace("@write_date", curTime.ToString("yyyy-MM-dd HH:mm:ss"));
                             }
                             if (dataRequest.ListDomain[i].Contains(","))
@@ -939,13 +942,14 @@ namespace ViidooDBServiceAPI.Services
                         dataRequest.TableName,
                         "search_read",
                         querydata);
+
                     if (searchResult != null)
                     {
                         processResult = SwitchFunctionToInsert(searchResult, dataRequest.TableName);
                         if(dataRequest.TableName == "mrp.production")
                         {
                             processResult.NumOfRow = ((object[])searchResult).Length;
-                            processResult.Message = strDatetime;
+                            processResult.Message = processResult.Message + " at Date_finished more than " + strDatetime;
                         }
                     }
                     else
@@ -962,6 +966,19 @@ namespace ViidooDBServiceAPI.Services
             {
                 processResult.Message = ex.Message;
             }
+
+            //Cập nhật lại domain nếu có chứa @write_date
+            if (dataRequest.ListDomain != null && dataRequest.ListDomain.Count > 0)
+            {
+                for (var i = 0; i < dataRequest.ListDomain.Count; i++)
+                {
+                    if (dataRequest.ListDomain[i].Contains(strDatetime))
+                    {
+                        dataRequest.ListDomain[i] = dataRequest.ListDomain[i].Replace(strDatetime, "@write_date");
+                    }
+                }
+            }
+
             return processResult;
         }
 
