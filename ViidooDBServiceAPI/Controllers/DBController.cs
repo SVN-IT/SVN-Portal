@@ -80,6 +80,7 @@ namespace ViidooDBServiceAPI.Controllers
         {
             BODataProcessResult totalDataProcessResult = new BODataProcessResult();
             totalDataProcessResult.Message = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            int getRow = 0;
             try
             {
                 string objectName = "mrp.production";
@@ -87,6 +88,8 @@ namespace ViidooDBServiceAPI.Controllers
 
                 BODataProcessResult productionResult = new BODataProcessResult();
                 productionResult = viinDataService.GetViindooDataV1(queryConfig);
+
+                getRow = productionResult.NumOfRow;
 
                 BODataProcessResult callProcessResult = new BODataProcessResult();
                 callProcessResult = viinDataService.CallSPToUpdateResult();
@@ -105,6 +108,7 @@ namespace ViidooDBServiceAPI.Controllers
             {
                 totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + ex.Message;
             }
+            totalDataProcessResult.NumOfRow = getRow;
             return totalDataProcessResult;
         }
 
