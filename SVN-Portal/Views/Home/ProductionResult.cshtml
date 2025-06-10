@@ -191,7 +191,7 @@
                 if (!string.IsNullOrWhiteSpace(subitem.Time))
                 {
                     var times = subitem.Time.Split('-');
-                    DateTime today = DateTime.Today;
+                    DateTime today = date;
 
                     // Chuyển đổi thành định dạng HH:mm
                     string startTime = times[0].Replace("h", ":");
@@ -317,7 +317,7 @@
                                         if (!string.IsNullOrWhiteSpace(currentTime))
                                         {
                                             var times = currentTime.Split('-');
-                                            DateTime today = DateTime.Today;
+                                            DateTime today = date;
 
                                             // Chuyển đổi thành định dạng HH:mm
                                             string startTime = times[0].Replace("h", ":");
@@ -386,6 +386,36 @@
                                                 {
                                                     status = "bg-primary";
                                                 }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                            {
+                                                status = "bg-danger";
+                                                if (item.IsProduction)
+                                                {
+                                                    alert = "blinking";
+                                                }
+                                            }
+                                            else if (subitem.Percent > 100)
+                                            {
+                                                status = "bg-primary";
+                                                if (subitem.Item == "Hourly Plan")
+                                                {
+                                                    if (item.IsProduction)
+                                                    {
+                                                        alert = "blinking-warning";
+                                                    }
+                                                }
+                                            }
+                                            else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                            {
+                                                status = "bg-warning";
+                                            }
+                                            else
+                                            {
+                                                status = "bg-primary";
                                             }
                                         }
                                     }

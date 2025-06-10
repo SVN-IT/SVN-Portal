@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
@@ -543,7 +544,7 @@ namespace SVN_Portal.Controllers
                 if (model != null)
                 {
                     strProductionResultTable = BuildProductionResultTable(model);
-                    strTargetTable = BuildAchievementCard(model);
+                    strTargetTable = BuildAchievementCard(model, date);
                     return new JsonResult(new
                     {
                         result = true,
@@ -603,7 +604,7 @@ namespace SVN_Portal.Controllers
                 if (model != null)
                 {
                     strForecase = BuildForecastInfo(model.Forecast);
-                    strTargetTable = BuildAchievementCard(model);
+                    strTargetTable = BuildAchievementCard(model, date);
 
                     return new JsonResult(new
                     {
@@ -775,15 +776,24 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private string BuildAchievementCard(QtyProdResultByOperViewModel model)
+        private string BuildAchievementCard(QtyProdResultByOperViewModel model, string date)
         {
+            DateTime currentDate = DateTime.Now;
+            try
+            {
+                currentDate = DateTime.ParseExact(date, "yyyyMMdd", null);
+            }
+            catch
+            {
+                currentDate = DateTime.Now;
+            }
             string currentTime = string.Empty;
             foreach (var subitem in model.ViewModels)
             {
                 if (!string.IsNullOrWhiteSpace(subitem.Time))
                 {
                     var times = subitem.Time.Split('-');
-                    DateTime today = DateTime.Today;
+                    DateTime today = currentDate;
 
                     // Chuyển đổi thành định dạng HH:mm
                     string startTime = times[0].Replace("h", ":");
@@ -848,7 +858,7 @@ namespace SVN_Portal.Controllers
                         if (!string.IsNullOrWhiteSpace(currentTime))
                         {
                             var times = currentTime.Split('-');
-                            DateTime today = DateTime.Today;
+                            DateTime today = currentDate;
 
                             // Chuyển đổi thành định dạng HH:mm
                             string startTime = times[0].Replace("h", ":");
@@ -917,6 +927,36 @@ namespace SVN_Portal.Controllers
                                 {
                                     status = "bg-primary";
                                 }
+                            }
+                        }
+                        else
+                        {
+                            if (item.Percent > 0 && item.Percent <= 75)
+                            {
+                                status = "bg-danger";
+                                if (model.IsProduction)
+                                {
+                                    alert = "blinking";
+                                }
+                            }
+                            else if (item.Percent > 100)
+                            {
+                                status = "bg-primary";
+                                if (item.Item == "Hourly Plan")
+                                {
+                                    if (model.IsProduction)
+                                    {
+                                        alert = "blinking-warning";
+                                    }
+                                }
+                            }
+                            else if (item.Percent > 75 && item.Percent <= 92)
+                            {
+                                status = "bg-warning";
+                            }
+                            else
+                            {
+                                status = "bg-primary";
                             }
                         }
                     }
