@@ -111,10 +111,11 @@
 
     function DeleteSerialHistory(allSerial){
         var serialList = $(allSerial).val();
+        var serachSerialID = $("#txtSearchSerialID").val();
         $.ajax({
             url: '@Url.Action("DeleteSerialHistory", "Tools")',  // Adjust the controller name if needed
             type: 'POST',
-            data: {serialList: serialList, operation: "TOAST"},
+            data: {serialList: serialList, operation: "TOAST", serachSerialID: serachSerialID},
             dataType: 'json',
             success: function (response) {
                 alert(response.message);
@@ -277,7 +278,6 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')"><i class="fa fa-trash"></i> Xóa</button>
-                            <button type="button" class="btn btn-danger" onclick="DeleteSerialHistory('#txtSerialNumberCount1')"><i class="fa fa-trash"></i> Xóa lịch sử</button>
                         </div>
                     </div>
                 </div>
@@ -290,6 +290,19 @@
                         </div>
                         <div class="col-12 col-md-8">
                             <span id="spanReport1" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Search SerialID</label>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <input id="txtSearchSerialID" type="text" class="form-control w-100" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger" onclick="DeleteSerialHistory('#txtSerialNumberCount1')"><i class="fa fa-trash"></i> Xóa lịch sử</button>
                         </div>
                     </div>
                 </div>

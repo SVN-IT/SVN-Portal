@@ -604,20 +604,28 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteSerialHistory(string serialList, string operation)
+        public IActionResult DeleteSerialHistory(string serialList, string operation, string serachSerialID)
         {
             SVN_Label_InfoDataPortal dataPortal = new SVN_Label_InfoDataPortal(connectionString);
             SVN_Label_InfoUI data = new SVN_Label_InfoUI();
             try
             {
-                if (!string.IsNullOrWhiteSpace(serialList))
+                if (!string.IsNullOrWhiteSpace(serachSerialID))
                 {
-                    data = dataPortal.ReadListBySerialNumbers(serialList);
+                    data = dataPortal.ReadListBySerialNumbers(serachSerialID);
                 }
                 else
                 {
-                    data = dataPortal.ReadFirstItem(operation);
+                    if (!string.IsNullOrWhiteSpace(serialList))
+                    {
+                        data = dataPortal.ReadListBySerialNumbers(serialList);
+                    }
+                    else
+                    {
+                        data = dataPortal.ReadFirstItem(operation);
+                    }
                 }
+
 
                 if (data == null)
                 {
