@@ -312,7 +312,7 @@
                                             status = "bg-primary";
                                         }
                                     }
-                                    else if (subitem.Item == "Hourly Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
+                                    else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
                                     {
                                         if (!string.IsNullOrWhiteSpace(currentTime))
                                         {
@@ -348,7 +348,7 @@
                                                 status = "bg-primary";
                                                 if (subitem.Percent > 100)
                                                 {
-                                                    if (subitem.Item == "Hourly Plan")
+                                                    if (subitem.Item == "H.Plan")
                                                     {
                                                         if (item.IsProduction)
                                                         {
@@ -370,7 +370,7 @@
                                                 else if (subitem.Percent > 100)
                                                 {
                                                     status = "bg-primary";
-                                                    if (subitem.Item == "Hourly Plan")
+                                                    if (subitem.Item == "H.Plan")
                                                     {
                                                         if (item.IsProduction)
                                                         {
@@ -401,7 +401,7 @@
                                             else if (subitem.Percent > 100)
                                             {
                                                 status = "bg-primary";
-                                                if (subitem.Item == "Hourly Plan")
+                                                if (subitem.Item == "H.Plan")
                                                 {
                                                     if (item.IsProduction)
                                                     {
@@ -453,7 +453,7 @@
 
                                     <div class="target-item bg-primary @alert">
                                         <div>
-                                            @if (subitem.Item == "Hourly Plan")
+                                            @if (subitem.Item == "H.Plan")
                                             {
                                                 <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
 

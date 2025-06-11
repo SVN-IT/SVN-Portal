@@ -546,6 +546,34 @@ namespace SVN_Portal.Controllers
         }
 
         /// <summary>
+        /// Lấy số lượng thùng trong Pallet 
+        /// </summary>
+        /// <param name="PalletID"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult GetCountBoxInPallet(string PalletID)
+        {
+            SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
+            try
+            {
+                List<SVN_Label_InfoUI> dataUI = new List<SVN_Label_InfoUI>();
+                dataUI = sVN_Label_InfoDataPortal.ReadListByPalletID(PalletID);
+                if(dataUI != null && dataUI.Count > 0)
+                {
+                    return Json(new { result = true, boxCount = dataUI.Count });
+                }
+                else
+                {
+                    return Json(new { result = true, boxCount = 0 });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Kiểm tra mã seri đã tồn tại
         /// </summary>
         /// <param name="newItem"></param>

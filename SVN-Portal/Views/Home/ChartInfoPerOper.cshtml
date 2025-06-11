@@ -494,7 +494,7 @@
                                                                         status = "bg-primary";
                                                                     }
                                                                 }
-                                                                else if (subitem.Item == "Hourly Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
+                                                                else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
                                                                 {
                                                                     if (!string.IsNullOrWhiteSpace(currentTime))
                                                                     {
@@ -573,7 +573,7 @@
 
                                                                 <div class="target-item bg-primary @alert">
                                                                     <div>
-                                                                        @if (subitem.Item == "Hourly Plan")
+                                                                        @if (subitem.Item == "H.Plan")
                                                                         {
                                                                             <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
 

@@ -853,7 +853,7 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
-                    else if (item.Item == "Hourly Plan" || item.Item == "UPH" || item.Item == "UPPH")
+                    else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH")
                     {
                         if (!string.IsNullOrWhiteSpace(currentTime))
                         {
@@ -942,7 +942,7 @@ namespace SVN_Portal.Controllers
                             else if (item.Percent > 100)
                             {
                                 status = "bg-primary";
-                                if (item.Item == "Hourly Plan")
+                                if (item.Item == "H.Plan")
                                 {
                                     if (model.IsProduction)
                                     {
@@ -992,7 +992,7 @@ namespace SVN_Portal.Controllers
                     }
                     sb.Append("<div class='target-item bg-primary " + alert + "'>");
                     sb.Append("<div>");
-                    if (item.Item == "Hourly Plan")
+                    if (item.Item == "H.Plan")
                     {
                         sb.Append("<strong class='f-s-26'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
