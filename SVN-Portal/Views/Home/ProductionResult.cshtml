@@ -655,6 +655,40 @@
             setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         }
         executeSequentialCalls(charIDs);
-
     });
+    function smoothScrollTo(targetY, duration) {
+            const startY = window.scrollY;
+            const change = targetY - startY;
+            const startTime = performance.now();
+
+            function animateScroll() {
+            const currentTime = performance.now();
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1); // Tính toán tiến độ
+
+            window.scrollTo(0, startY + change * progress); // Cuộn trang theo tỷ lệ
+
+            if (progress < 1) {
+                requestAnimationFrame(animateScroll); // Tiếp tục cuộn
+            }
+            }
+
+            requestAnimationFrame(animateScroll); // Bắt đầu hiệu ứng cuộn
+        }
+
+    function autoScroll() {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const windowHeight = window.innerHeight;
+
+      // Cuộn trang xuống cuối
+      smoothScrollTo(scrollHeight - windowHeight, 10000); // 10 giây để cuộn xuống
+
+      // Sau khi cuộn đến cuối, quay lại đầu trang
+      setTimeout(() => {
+        smoothScrollTo(0, 10000); // 10 giây để cuộn lên đầu
+      }, 5000); // 5 giây nghỉ giữa hai lần cuộn
+    }
+
+    // Gọi hàm autoScroll mỗi 20 giây
+    setInterval(autoScroll, 20000); // Thực hiện auto scroll mỗi 20 giây
 </script>
