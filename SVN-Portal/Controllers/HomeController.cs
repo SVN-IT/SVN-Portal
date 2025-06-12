@@ -889,7 +889,7 @@ namespace SVN_Portal.Controllers
                                 status = "bg-primary";
                                 if (item.Percent > 100)
                                 {
-                                    if (item.Item == "Hourly Plan")
+                                    if (item.Item == "H.Plan")
                                     {
                                         if (model.IsProduction)
                                         {
@@ -911,7 +911,7 @@ namespace SVN_Portal.Controllers
                                 else if (item.Percent > 100)
                                 {
                                     status = "bg-primary";
-                                    if (item.Item == "Hourly Plan")
+                                    if (item.Item == "H.Plan")
                                     {
                                         if (model.IsProduction)
                                         {
