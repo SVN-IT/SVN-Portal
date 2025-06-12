@@ -972,7 +972,7 @@ namespace ViidooDBServiceAPI.Services
             {
                 for (var i = 0; i < dataRequest.ListDomain.Count; i++)
                 {
-                    if (dataRequest.ListDomain[i].Contains(strDatetime))
+                    if (dataRequest.ListDomain[i].Contains(strDatetime) && !string.IsNullOrWhiteSpace(strDatetime))
                     {
                         dataRequest.ListDomain[i] = dataRequest.ListDomain[i].Replace(strDatetime, "@write_date");
                     }
