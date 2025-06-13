@@ -1132,7 +1132,7 @@ namespace SVN_Portal.Controllers
                 models = dataPortal.ReadListByYearMonth(year, month);
                 if (models.Count > 0)
                 {
-                    
+                    models = models.Where(x => x.Target != 0).ToList();
                 }
             }
             catch (Exception ex)
