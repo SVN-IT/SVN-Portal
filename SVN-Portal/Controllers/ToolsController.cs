@@ -295,25 +295,46 @@ namespace SVN_Portal.Controllers
                         count = 0,
                         seriNumber = seriNumber
                     };
-                    var result = await httpClientHelper.PostRequest(aPIConfiguration.GetPackageBySeriURL, dataRequest, new CancellationToken(false));
-                    if (result != null)
+
+
+                    // Lấy dữ liệu từ vindoo API
+                    //var result = await httpClientHelper.PostRequest(aPIConfiguration.GetPackageBySeriURL, dataRequest, new CancellationToken(false));
+                    //if (result != null)
+                    //{
+                    //    if (result.OK)
+                    //    {
+                    //        var dataUI = JsonConvert.DeserializeObject<List<stock_lotUI>>(result.Content.ToString());
+                    //        if (dataUI != null)
+                    //        {
+                    //            dataUI = dataUI.Select(item =>
+                    //            {
+                    //                PrintShippingViewModel viewModel = new PrintShippingViewModel();
+                    //                viewModel.lot_code = item.name;
+                    //                viewModel.package_code = result.Message;
+                    //                viewModels.Add(viewModel);
+                    //                return item;
+                    //            }).ToList();
+                    //        }
+                    //        ViewBag.PackageCode = result.Message;
+                    //    }
+                    //}
+
+                    SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
+                    var labelInfoUI = sVN_Label_InfoDataPortal.ReadByScannedSerialNumber(seriNumber);
+                    if (labelInfoUI != null)
                     {
-                        if (result.OK)
+                        var seriList = labelInfoUI.SerialNumbers.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                        if(seriList != null && seriList.Count > 0)
                         {
-                            var dataUI = JsonConvert.DeserializeObject<List<stock_lotUI>>(result.Content.ToString());
-                            if (dataUI != null)
+                            foreach (var seri in seriList)
                             {
-                                dataUI = dataUI.Select(item =>
-                                {
-                                    PrintShippingViewModel viewModel = new PrintShippingViewModel();
-                                    viewModel.lot_code = item.name;
-                                    viewModel.package_code = result.Message;
-                                    viewModels.Add(viewModel);
-                                    return item;
-                                }).ToList();
+                                PrintShippingViewModel viewModel = new PrintShippingViewModel();
+                                viewModel.lot_code = seri;
+                                viewModel.package_code = labelInfoUI.LotID;
+                                viewModels.Add(viewModel);
                             }
-                            ViewBag.PackageCode = result.Message;
                         }
+                        ViewBag.PackageCode = labelInfoUI.LotID;
                     }
                 }
 

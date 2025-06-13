@@ -137,6 +137,32 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public SVN_Label_InfoUI ReadByScannedSerialNumber(string SerialNumber)
+        {
+            try
+            {
+                
+                if (!string.IsNullOrWhiteSpace(SerialNumber))
+                {
+                    SerialNumber = "%" + SerialNumber + "%"; // Ensure that SerialNumber is treated as a wildcard search
+                }
+
+                SVN_Label_InfoUI data = new SVN_Label_InfoUI();
+                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND IsDelete = @IsDelete";
+                var param = new { SerialNumber = SerialNumber, IsDelete = false };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.QueryFirstOrDefault<SVN_Label_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public SVN_Label_InfoUI GetTop1LableToday(string Operation)
         {
             try
