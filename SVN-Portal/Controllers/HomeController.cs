@@ -1140,6 +1140,9 @@ namespace SVN_Portal.Controllers
                 
                 
             }
+
+            ViewBag.date = date;
+
             return View(models);
         }
 
