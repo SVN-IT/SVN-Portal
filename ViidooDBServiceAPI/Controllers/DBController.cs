@@ -177,6 +177,22 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        [Route("GetSeriFGAndWipByMO")]
+        [HttpPost]
+        public BODataProcessResult GetSeriFGAndWipByMO(string MOName)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetSeriFGAndWipByMO(MOName);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetDataFromViindooV3")]
         [HttpPost]
         public object GetDataFromViindooV3(ViindooDataRequest dataRequest)

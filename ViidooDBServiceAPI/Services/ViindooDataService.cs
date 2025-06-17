@@ -602,6 +602,88 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
+        public BODataProcessResult GetSeriFGAndWipByMO(string MOName)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            List<stock_move_lineUI> stock_Move_LineUIs = new List<stock_move_lineUI>();
+            List<stock_move_line_consume_relUI> consume_RelUIs = new List<stock_move_line_consume_relUI>();
+            try
+            {
+                object[] domain = new object[] { "name", "=", MOName };
+                processResult = GetViindooDataByCondition("mrp.production", domain);
+                if (processResult.OK)
+                {
+                    var productiongDataUI = convertDataService.ConverterToProductionUI(processResult.Content);
+                    if (productiongDataUI != null && productiongDataUI.Count == 1) 
+                    {
+                        JArray jArray = JArray.FromObject(productiongDataUI[0].finished_move_line_ids);
+                        var json = JsonConvert.SerializeObject(jArray);
+                        int[] finished_move_line_ids = JsonConvert.DeserializeObject<int[]>(json);
+                        domain = new object[] { "id", "in", finished_move_line_ids };
+                        BODataProcessResult processResultStockMoveLine = new BODataProcessResult();
+                        processResultStockMoveLine = GetViindooDataByCondition("stock.move.line", domain);
+                        if (processResultStockMoveLine.OK)
+                        {
+                            var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine.Content);
+                            if (stockMoveLineUI != null)
+                            {
+                                stock_Move_LineUIs.AddRange(stockMoveLineUI);
+                            }
+
+                            if (stock_Move_LineUIs.Count > 0)
+                            {
+                                foreach (var item in stock_Move_LineUIs)
+                                {
+
+                                    if (item.consume_line_ids != null)
+                                    {
+                                        JArray jArray1 = JArray.FromObject(item.consume_line_ids);
+                                        var json1 = JsonConvert.SerializeObject(jArray1);
+                                        var consume_line_ids = JsonConvert.DeserializeObject<List<int>>(json);
+                                        foreach (var subitem in consume_line_ids)
+                                        {
+                                            stock_move_line_consume_relUI dataUI = new stock_move_line_consume_relUI();
+                                            dataUI.produce_line_id = item.id;
+                                            dataUI.consume_line_id = subitem;
+                                            consume_RelUIs.Add(dataUI);
+                                        }
+                                    }
+
+                                }
+
+                                if (consume_RelUIs.Count > 0)
+                                {
+                                    int[] move_line_id = consume_RelUIs.Select(x => x.produce_line_id).ToArray();
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = "Get stock move line fail";
+                        }
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Get mrp production fail";
+                        return processResult;
+                    }
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Get mrp production fail";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         public BODataProcessResult GetLotByMODone(int product_id, int rows)
         {
             BODataProcessResult processResult = new BODataProcessResult();
