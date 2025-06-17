@@ -396,7 +396,12 @@ namespace ViidooDBServiceAPI.Services
         }
 
 
-
+        /// <summary>
+        /// Get dữ liệu từ viindoo và cập nhật vào bảng stock_move_line, stock_move_line_consume_rel trong SVNDB
+        /// Lấy theo finished_move_line_ids của bảng mrp.production
+        /// </summary>
+        /// <param name="searchResult"></param>
+        /// <returns></returns>
         private BODataProcessResult GetDataAndUpdateProductionMoveLine(object searchResult)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -475,6 +480,12 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
+        /// <summary>
+        /// Lấy thông tin package theo serial number và product ID khi scan
+        /// </summary>
+        /// <param name="serialNumber"></param>
+        /// <param name="productID"></param>
+        /// <returns></returns>
         public BODataProcessResult GetPackageBySeri(string serialNumber, int productID)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -832,6 +843,7 @@ namespace ViidooDBServiceAPI.Services
 
         /// <summary>
         /// Hàm search data từ viindoo
+        /// HÀM CHÍNH ĐANG ĐƯỢC SỬ DỤNG
         /// </summary>
         /// <param name="objectName"></param>
         /// <param name="listDomain"></param>
