@@ -719,6 +719,7 @@ namespace ViidooDBServiceAPI.Services
                                         seriFGAndWipUI.seriTP = stockLotProducingUI.name;
                                         seriFGAndWipUI.seriBTP = item.name;
                                         seriFGAndWipUI.date_finished = productiongDataUI[0].date_finished;
+                                        seriFGAndWipUI.productID = productiongDataUI[0].product_id;
                                         seriFGAndWipUIs.Add(seriFGAndWipUI);
                                     }
                                 }
@@ -875,6 +876,7 @@ namespace ViidooDBServiceAPI.Services
                                             seriFGAndWipUI.seriTP = stockLotProducingUI.name;
                                             seriFGAndWipUI.seriBTP = subitem.name;
                                             seriFGAndWipUI.date_finished = item.date_finished;
+                                            seriFGAndWipUI.productID = item.product_id;
                                             seriFGAndWipUIs.Add(seriFGAndWipUI);
                                         }
                                     }

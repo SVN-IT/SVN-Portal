@@ -13,5 +13,6 @@ namespace SVNShareLib.DTO
         public string seriTP { get; set; }
         public string seriBTP { get; set; }
         public DateTime? date_finished { get; set; }
+        public int? productID { get; set; }
     }
 }
