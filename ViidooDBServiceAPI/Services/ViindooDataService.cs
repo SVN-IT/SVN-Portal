@@ -602,6 +602,11 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
+        /// <summary>
+        /// Lấy seri FG và WIP theo tên MO
+        /// </summary>
+        /// <param name="MOName"></param>
+        /// <returns></returns>
         public BODataProcessResult GetSeriFGAndWipByMO(string MOName)
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -736,6 +741,159 @@ namespace ViidooDBServiceAPI.Services
                             processResult.OK = false;
                             processResult.Message = "Get stock move line fail";
                         }
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Get mrp production fail";
+                        return processResult;
+                    }
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Get mrp production fail";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetSeriFGAndWipByDate(string date)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            List<SeriFGAndWipUI> seriFGAndWipUIs = new List<SeriFGAndWipUI>();
+            try
+            {
+                object[] domain = new object[] { "date_finished", ">=", date };
+                processResult = GetViindooDataByCondition("mrp.production", domain);
+                if (processResult.OK)
+                {
+                    var productionDataUI = convertDataService.ConverterToProductionUI(processResult.Content);
+                    if (productionDataUI != null)
+                    {
+                        foreach (var item in productionDataUI)
+                        {
+                            List<stock_move_lineUI> stock_Move_LineUIs = new List<stock_move_lineUI>();
+                            List<stock_move_line_consume_relUI> consume_RelUIs = new List<stock_move_line_consume_relUI>();
+                            List<stock_lotUI> stockLotConsumeUI = new List<stock_lotUI>();
+                            stock_lotUI stockLotProducingUI = new stock_lotUI();
+
+                            JArray jArray = JArray.FromObject(item.finished_move_line_ids);
+                            var json = JsonConvert.SerializeObject(jArray);
+                            int[] finished_move_line_ids = JsonConvert.DeserializeObject<int[]>(json);
+                            domain = new object[] { "id", "in", finished_move_line_ids };
+                            BODataProcessResult processResultStockMoveLine = new BODataProcessResult();
+                            processResultStockMoveLine = GetViindooDataByCondition("stock.move.line", domain);
+                            if (processResultStockMoveLine.OK)
+                            {
+                                var stockMoveLineUI = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine.Content);
+                                if (stockMoveLineUI != null)
+                                {
+                                    stock_Move_LineUIs.AddRange(stockMoveLineUI);
+                                }
+
+                                if (stock_Move_LineUIs.Count > 0)
+                                {
+                                    foreach (var subitem in stock_Move_LineUIs)
+                                    {
+
+                                        if (subitem.consume_line_ids != null)
+                                        {
+                                            JArray jArray1 = JArray.FromObject(subitem.consume_line_ids);
+                                            var json1 = JsonConvert.SerializeObject(jArray1);
+                                            var consume_line_ids = JsonConvert.DeserializeObject<List<int>>(json1);
+                                            foreach (var subitem2 in consume_line_ids)
+                                            {
+                                                stock_move_line_consume_relUI dataUI = new stock_move_line_consume_relUI();
+                                                dataUI.produce_line_id = item.id;
+                                                dataUI.consume_line_id = subitem2;
+                                                consume_RelUIs.Add(dataUI);
+                                            }
+                                        }
+
+                                    }
+
+                                    // Lây các lot thuộc consume
+                                    if (consume_RelUIs.Count > 0)
+                                    {
+                                        int[] move_line_ids = consume_RelUIs.Select(x => x.consume_line_id).ToArray();
+                                        domain = new object[] { "id", "in", move_line_ids };
+                                        BODataProcessResult processResultStockMoveLine2 = new BODataProcessResult();
+                                        processResultStockMoveLine2 = GetViindooDataByCondition("stock.move.line", domain);
+                                        if (processResultStockMoveLine2.OK)
+                                        {
+                                            var stockMoveLineConsumeUI2 = convertDataService.ConverterToStockMoveLineUI(processResultStockMoveLine2.Content);
+                                            if (stockMoveLineConsumeUI2 != null && stockMoveLineConsumeUI2.Count > 0)
+                                            {
+                                                var lot_ids = stockMoveLineConsumeUI2.Select(x => x.lot_id).ToArray();
+                                                domain = new object[] { "id", "in", lot_ids };
+                                                BODataProcessResult processsStockLotConsume = new BODataProcessResult();
+                                                processsStockLotConsume = GetViindooDataByCondition("stock.lot", domain);
+                                                if (processsStockLotConsume.OK)
+                                                {
+                                                    stockLotConsumeUI = convertDataService.ConverterToStockLotUI(processsStockLotConsume.Content);
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                processResult.OK = false;
+                                                processResult.Message = "Get stock move line fail";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            processResult.OK = false;
+                                            processResult.Message = "Get stock move line fail";
+                                        }
+                                    }
+
+                                    // Lấy các lot thuộc lot_producing_id
+                                    domain = new object[] { "id", "=", item.lot_producing_id };
+                                    BODataProcessResult processsStockLotProducing = new BODataProcessResult();
+                                    processsStockLotProducing = GetViindooDataByCondition("stock.lot", domain);
+                                    if (processsStockLotProducing.OK)
+                                    {
+                                        var stockLotUI = convertDataService.ConverterToStockLotUI(processsStockLotProducing.Content);
+                                        if (stockLotUI != null && stockLotUI.Count == 1)
+                                        {
+                                            stockLotProducingUI = stockLotUI.FirstOrDefault();
+                                        }
+                                    }
+
+                                    if (stockLotConsumeUI.Count > 0 && stockLotProducingUI != null && stockLotProducingUI.id != 0)
+                                    {
+                                        foreach (var subitem in stockLotConsumeUI)
+                                        {
+                                            SeriFGAndWipUI seriFGAndWipUI = new SeriFGAndWipUI();
+                                            seriFGAndWipUI.id = item.id;
+                                            seriFGAndWipUI.name = item.name;
+                                            seriFGAndWipUI.seriTP = stockLotProducingUI.name;
+                                            seriFGAndWipUI.seriBTP = subitem.name;
+                                            seriFGAndWipUI.date_finished = item.date_finished;
+                                            seriFGAndWipUIs.Add(seriFGAndWipUI);
+                                        }
+                                    }
+
+                                    if (seriFGAndWipUIs.Count > 0)
+                                    {
+                                        processResult.OK = true;
+                                        processResult.Content = seriFGAndWipUIs;
+                                        processResult.Message = "Get seri FG and WIP success";
+                                    }
+                                    else
+                                    {
+                                        processResult.OK = false;
+                                        processResult.Message = "Get seri FG and WIP fail";
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
                     else
                     {

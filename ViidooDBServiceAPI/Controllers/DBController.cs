@@ -193,6 +193,24 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetSeriFGAndWipByDate")]
+        [HttpPost]
+        public BODataProcessResult GetSeriFGAndWipByDate()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                DateTime date = DateTime.Today.AddDays(-1);
+                string strDate = date.AddHours(-7).AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss");
+                processResult = viinDataService.GetSeriFGAndWipByDate(strDate);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetDataFromViindooV3")]
         [HttpPost]
         public object GetDataFromViindooV3(ViindooDataRequest dataRequest)
