@@ -524,13 +524,13 @@ namespace SVN_Portal.Controllers
 
                         List<SVN_Label_InfoUI> remainItems = new List<SVN_Label_InfoUI>();
 
-                        top50Item1 = dataUI.Take(50).ToList();
+                        top50Item1 = dataUI.Take(10).ToList();
                         if (top50Item1 != null && top50Item1.Count > 0)
                         {
                             remainItems = dataUI.Except(top50Item1).ToList();
                             if (remainItems != null && remainItems.Count > 0)
                             {
-                                top50Item2 = remainItems.Take(50).ToList();
+                                top50Item2 = remainItems.Take(10).ToList();
                                 top50Item3 = remainItems.Except(top50Item2).ToList();
                             }
                         }
