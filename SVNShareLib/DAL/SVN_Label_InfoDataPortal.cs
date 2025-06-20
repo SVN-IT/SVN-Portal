@@ -83,17 +83,13 @@ namespace SVNShareLib.DAL
             }
         }
 
-        public List<SVN_Label_InfoUI> ReadListByPalletID(string PalletID, string Date = "")
+        public List<SVN_Label_InfoUI> ReadListByPalletID(string PalletID)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(Date))
-                {
-                    Date = DateTime.Now.ToString("yyyyMMdd");
-                }
                 List<SVN_Label_InfoUI> data = new List<SVN_Label_InfoUI>();
-                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND Date = @date AND IsDelete = @IsDelete";
-                var param = new { PalletID = PalletID, Date = Date, IsDelete = false };
+                string sql = "SELECT * FROM SVN_Label_Info Where PalletID = @PalletID AND IsDelete = @IsDelete";
+                var param = new { PalletID = PalletID, IsDelete = false };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
@@ -107,14 +103,10 @@ namespace SVNShareLib.DAL
             }
         }
 
-        public SVN_Label_InfoUI ReadListBySerialNumbers(string SerialNumber, string Date = "")
+        public SVN_Label_InfoUI ReadListBySerialNumbers(string SerialNumber)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(Date))
-                {
-                    Date = DateTime.Now.ToString("yyyyMMdd");
-                }
 
                 if (!string.IsNullOrWhiteSpace(SerialNumber))
                 {
@@ -122,8 +114,8 @@ namespace SVNShareLib.DAL
                 }
 
                 SVN_Label_InfoUI data = new SVN_Label_InfoUI();
-                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND Date = @date AND IsDelete = @IsDelete";
-                var param = new { SerialNumber = SerialNumber, Date = Date, IsDelete = false };
+                string sql = "SELECT * FROM SVN_Label_Info Where SerialNumbers LIKE @SerialNumber AND IsDelete = @IsDelete";
+                var param = new { SerialNumber = SerialNumber, IsDelete = false };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
