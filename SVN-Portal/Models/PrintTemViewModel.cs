@@ -11,6 +11,7 @@
     public class PrintShippingViewModel
     {
         public string package_code { get; set; }
+        public string pallet_id { get; set; }
         public string lot_code { get; set; }
     }
 }

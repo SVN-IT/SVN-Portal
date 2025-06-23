@@ -60,6 +60,7 @@
                 <thead class="thead-light">
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Mã Pallet</th>
                         <th scope="col">Mã Package</th>
                         <th scope="col">Mã Lot</th>
                     </tr>
@@ -74,6 +75,10 @@
                                     int no = i + 1;
                                 }
                                 <th scope="row">@no</th>
+                                <td>
+                                    @Model[i].pallet_id
+                                    <input type="hidden" asp-for="@Model[i].pallet_id" />
+                                </td>
                                 <td>
                                     @Model[i].package_code
                                     <input type="hidden" asp-for="@Model[i].package_code" />

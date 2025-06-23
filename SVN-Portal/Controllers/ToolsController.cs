@@ -331,6 +331,7 @@ namespace SVN_Portal.Controllers
                                 PrintShippingViewModel viewModel = new PrintShippingViewModel();
                                 viewModel.lot_code = seri;
                                 viewModel.package_code = labelInfoUI.LotID;
+                                viewModel.pallet_id = labelInfoUI.PalletID;
                                 viewModels.Add(viewModel);
                             }
                         }
