@@ -74,6 +74,46 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetProductionResult")]
+        [HttpPost]
+        public BODataProcessResult GetProductionResult()
+        {
+            BODataProcessResult totalDataProcessResult = new BODataProcessResult();
+            totalDataProcessResult.Message = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            int getRow = 0;
+            string strDatetime = string.Empty;
+            try
+            {
+                string objectName = "mrp.production";
+                var queryConfig = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
+
+                BODataProcessResult productionResult = new BODataProcessResult();
+                productionResult = viinDataService.GetViindooDataV1(queryConfig);
+
+                getRow = productionResult.NumOfRow;
+                strDatetime = productionResult.Message;
+
+                BODataProcessResult callProcessResult = new BODataProcessResult();
+                callProcessResult = viinDataService.CallSPToUpdateResult();
+                if(productionResult.OK && callProcessResult.OK)
+                {
+                    totalDataProcessResult.OK = true;
+                }
+                else
+                {
+                    totalDataProcessResult.OK = false;
+                }
+
+                totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + "Get production result: " + productionResult.Message + " / " + "Call update: " + callProcessResult.Message;
+            }
+            catch (Exception ex)
+            {
+                totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + ex.Message;
+            }
+            totalDataProcessResult.NumOfRow = getRow;
+            return totalDataProcessResult;
+        }
+
         [Route("GetDataFromViindooV1")]
         [HttpPost]
         public BODataProcessResult GetDataFromViindooV1()
@@ -91,9 +131,9 @@ namespace ViidooDBServiceAPI.Controllers
                     processResults.Add(processResult);
                 }
 
-                BODataProcessResult callProcessResult = new BODataProcessResult();
-                callProcessResult = viinDataService.CallSPToUpdateResult();
-                processResults.Add(callProcessResult);
+                //BODataProcessResult callProcessResult = new BODataProcessResult();
+                //callProcessResult = viinDataService.CallSPToUpdateResult();
+                //processResults.Add(callProcessResult);
 
             }
             catch (Exception ex)
@@ -135,6 +175,40 @@ namespace ViidooDBServiceAPI.Controllers
             }
             bODataProcessResult.Content = processResults;
             return bODataProcessResult;
+        }
+
+        [Route("GetSeriFGAndWipByMO")]
+        [HttpPost]
+        public BODataProcessResult GetSeriFGAndWipByMO(string MOName)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetSeriFGAndWipByMO(MOName);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("GetSeriFGAndWipByDate")]
+        [HttpPost]
+        public BODataProcessResult GetSeriFGAndWipByDate()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                DateTime date = DateTime.Today.AddDays(-1);
+                string strDate = date.AddHours(-7).AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss");
+                processResult = viinDataService.GetSeriFGAndWipByDate(strDate);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
         }
 
         [Route("GetDataFromViindooV3")]
@@ -221,6 +295,22 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetPackageBySeri")]
+        [HttpPost]
+        public BODataProcessResult GetPackageBySeri(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetPackageBySeri(dataRequest.seriNumber, dataRequest.product_id);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetAndUploadProductionTemplateData")]
         [HttpPost]
         public BODataProcessResult GetAndUploadProductionTemplateData()
@@ -229,6 +319,22 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 processResult = dBService.GetProductTemplateData();
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("GetLotByMODone")]
+        [HttpPost]
+        public BODataProcessResult GetLotByMODone(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetLotByMODone(dataRequest.product_id, dataRequest.count);
             }
             catch (Exception ex)
             {

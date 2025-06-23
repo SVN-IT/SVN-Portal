@@ -1676,6 +1676,19 @@ namespace ViidooDBServiceAPI.Services
                             JArray objects = (JArray)item.lot_name;
                             var intTemp = (string)objects[0];
                             mrp_ProductionUI.lot_name = (string)intTemp;
+                            if(string.IsNullOrWhiteSpace(mrp_ProductionUI.lot_name))
+                            {
+                                try
+                                {
+                                    JArray object2s = (JArray)item.lot_id;
+                                    var intTemp2 = (string)objects[1];
+                                    mrp_ProductionUI.lot_name = (string)intTemp;
+                                }
+                                catch
+                                {
+
+                                }
+                            }
                         }
                         catch
                         {
@@ -1968,6 +1981,868 @@ namespace ViidooDBServiceAPI.Services
             {
                 return null;
             }
+        }
+
+        public List<viin_quantity_checkUI> ConverterToQuantityCheckUI(object searchResult)
+        {
+            List<viin_quantity_checkUI> dataUIs = new List<viin_quantity_checkUI>();
+            List<viin_quantity_check> baseData = new List<viin_quantity_check>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<viin_quantity_check>>(json);
+                foreach (var item in baseData)
+                {
+                    viin_quantity_checkUI mrp_ProductionUI = new viin_quantity_checkUI();
+                    mrp_ProductionUI.id = item.id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.point_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.point_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.point_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.user_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.user_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.user_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.team_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.team_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.team_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.type_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.type_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.type_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.product_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.product_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.product_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.origin_message_id = item.origin_message_id;
+                    mrp_ProductionUI.origin_references = item.origin_references;
+                    mrp_ProductionUI.name = item.name;
+                    mrp_ProductionUI.measure_success = item.measure_success;
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.control_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.control_date = DateTime.Parse((string)item.control_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    mrp_ProductionUI.quality_state = item.quality_state;
+                    mrp_ProductionUI.comment = item.comment;
+                    mrp_ProductionUI.measure = item.measure;
+                    mrp_ProductionUI.tolerance_min = item.tolerance_min;
+                    mrp_ProductionUI.tolerance_max = item.tolerance_max;
+                    mrp_ProductionUI.norm = item.norm;
+                    mrp_ProductionUI.quantity_to_check = item.quantity_to_check;
+                    mrp_ProductionUI.checked_quantity = item.checked_quantity;
+                    mrp_ProductionUI.checked_qty_deviation = item.checked_qty_deviation;
+                    mrp_ProductionUI.origin = item.origin;
+                    mrp_ProductionUI.x_description = item.x_description;
+
+                    if (item.picking_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.picking_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.picking_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.lot_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.lot_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.lot_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.picking_type_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.picking_type_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.picking_type_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.procurement_group_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.procurement_group_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.procurement_group_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.production_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.production_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.production_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.workorder_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.workorder_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.workorder_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.workcenter_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.workcenter_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.workcenter_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public List<stock_quant_packageUI> ConverterQuantPackageUI(object searchResult)
+        {
+            List<stock_quant_packageUI> dataUIs = new List<stock_quant_packageUI>();
+            List<stock_quant_package> baseData = new List<stock_quant_package>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<stock_quant_package>>(json);
+                foreach (var item in baseData)
+                {
+                    stock_quant_packageUI mrp_ProductionUI = new stock_quant_packageUI();
+                    mrp_ProductionUI.id = item.id;
+                    mrp_ProductionUI.name = item.name;
+                    mrp_ProductionUI.package_use = item.package_use;
+
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    if (item.package_type_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.package_type_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.package_type_id = (int)intTemp;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.pack_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.pack_date = DateTime.Parse((string)item.pack_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    dataUIs.Add(mrp_ProductionUI);
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public List<viin_quantity_alert_teamUI> ConverterToQuantityAlertUI(object searchResult)
+        {
+            List<viin_quantity_alert_teamUI> dataUIs = new List<viin_quantity_alert_teamUI>();
+            List<viin_quantity_alert_team> baseData = new List<viin_quantity_alert_team>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<viin_quantity_alert_team>>(json);
+                foreach (var item in baseData)
+                {
+                    viin_quantity_alert_teamUI mrp_ProductionUI = new viin_quantity_alert_teamUI();
+                    mrp_ProductionUI.id = item.id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.sequence != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.sequence;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.sequence = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.color != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.color;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.color = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.alias_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.alias_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.alias_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.origin_message_id = item.origin_message_id;
+                    mrp_ProductionUI.origin_references = item.origin_references;
+                    mrp_ProductionUI.name = item.name;
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public List<quality_reasonUI> ConverterToQuantityReasonUI(object searchResult)
+        {
+            List<quality_reasonUI> dataUIs = new List<quality_reasonUI>();
+            List<quality_reason> baseData = new List<quality_reason>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<quality_reason>>(json);
+                foreach (var item in baseData)
+                {
+                    quality_reasonUI mrp_ProductionUI = new quality_reasonUI();
+                    mrp_ProductionUI.id = item.id;
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.name = item.name;
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public List<mrp_unbuildUI> ConverterToMrpUnbuildUI(object searchResult)
+        {
+            List<mrp_unbuildUI> dataUIs = new List<mrp_unbuildUI>();
+            List<mrp_unbuild> baseData = new List<mrp_unbuild>();
+            try
+            {
+                JArray jArray = JArray.FromObject(searchResult);
+                var json = JsonConvert.SerializeObject(jArray);
+                baseData = JsonConvert.DeserializeObject<List<mrp_unbuild>>(json);
+                foreach (var item in baseData)
+                {
+                    mrp_unbuildUI mrp_ProductionUI = new mrp_unbuildUI();
+                    mrp_ProductionUI.id = item.id;
+                    if (item.message_main_attachment_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.message_main_attachment_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.message_main_attachment_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.create_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.create_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.create_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.write_uid != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.write_uid;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.write_uid = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.origin_message_id = item.origin_message_id;
+                    mrp_ProductionUI.origin_references = item.origin_references;
+                    mrp_ProductionUI.name = item.name;
+                    if (item.create_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.create_date = DateTime.Parse((string)item.create_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.write_date != null)
+                    {
+                        try
+                        {
+                            mrp_ProductionUI.write_date = DateTime.Parse((string)item.write_date);
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.lot_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.lot_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.lot_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.bom_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.bom_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.bom_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.mo_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.mo_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.mo_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (item.location_dest_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_dest_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_dest_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    mrp_ProductionUI.state = item.state;
+                    mrp_ProductionUI.product_qty = item.product_qty;
+
+                    dataUIs.Add(mrp_ProductionUI);
+
+                }
+                return dataUIs;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public BODataProcessResult InsertUnbuildToSVNDB(List<mrp_unbuildUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<mrp_unbuildUI> insertData = new List<mrp_unbuildUI>();
+                List<mrp_unbuildUI> existData = new List<mrp_unbuildUI>();
+                GrandDataPortal<mrp_unbuildUI> dataPortal = new GrandDataPortal<mrp_unbuildUI>("SVN_mrp_unbuild", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_mrp_unbuild]\r\n           ([id]\r\n           ,[message_main_attachment_id]\r\n           ,[product_id]\r\n           ,[company_id]\r\n           ,[product_uom_id]\r\n           ,[bom_id]\r\n           ,[mo_id]\r\n           ,[lot_id]\r\n           ,[location_id]\r\n           ,[location_dest_id]\r\n           ,[create_uid]\r\n           ,[write_uid]\r\n           ,[origin_message_id]\r\n           ,[origin_references]\r\n           ,[name]\r\n           ,[state]\r\n           ,[create_date]\r\n           ,[write_date]\r\n           ,[product_qty])\r\n     VALUES\r\n           (@id\r\n           ,@message_main_attachment_id\r\n           ,@product_id\r\n           ,@company_id\r\n           ,@product_uom_id\r\n           ,@bom_id\r\n           ,@mo_id\r\n           ,@lot_id\r\n           ,@location_id\r\n           ,@location_dest_id\r\n           ,@create_uid\r\n           ,@write_uid\r\n           ,@origin_message_id\r\n           ,@origin_references\r\n           ,@name\r\n           ,@state\r\n           ,@create_date\r\n           ,@write_date\r\n           ,@product_qty)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_mrp_unbuild]\r\nSET\r\n    message_main_attachment_id = @message_main_attachment_id,\r\n    product_id = @product_id,\r\n    company_id = @company_id,\r\n    product_uom_id = @product_uom_id,\r\n    bom_id = @bom_id,\r\n    mo_id = @mo_id,\r\n    lot_id = @lot_id,\r\n    location_id = @location_id,\r\n    location_dest_id = @location_dest_id,\r\n    create_uid = @create_uid,\r\n    write_uid = @write_uid,\r\n    origin_message_id = @origin_message_id,\r\n    origin_references = @origin_references,\r\n    name = @name,\r\n    state = @state,\r\n    create_date = @create_date,\r\n    write_date = @write_date,\r\n    product_qty = @product_qty\r\nWHERE id = @id;";
+                    var updateResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (updateResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
         }
 
         public BODataProcessResult InsertProductionTemplateToSVNDB(List<product_templateUI> dataUI)
@@ -2468,6 +3343,234 @@ namespace ViidooDBServiceAPI.Services
                 if (existData.Count > 0)
                 {
                     string sqlQuery = "UPDATE [dbo].[SVN_product_product]\r\nSET\r\n    [message_main_attachment_id] = @message_main_attachment_id,\r\n    [product_tmpl_id] = @product_tmpl_id,\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [origin_message_id] = @origin_message_id,\r\n    [origin_references] = @origin_references,\r\n    [default_code] = @default_code,\r\n    [barcode] = @barcode,\r\n    [combination_indices] = @combination_indices,\r\n    [volume] = @volume,\r\n    [weight] = @weight,\r\n    [active] = @active,\r\n    [can_image_variant_1024_be_zoomed] = @can_image_variant_1024_be_zoomed,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date\r\nWHERE\r\n    [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult InsertQuantityCheckToSVNDB(List<viin_quantity_checkUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<viin_quantity_checkUI> insertData = new List<viin_quantity_checkUI>();
+                List<viin_quantity_checkUI> existData = new List<viin_quantity_checkUI>();
+                GrandDataPortal<viin_quantity_checkUI> dataPortal = new GrandDataPortal<viin_quantity_checkUI>("SVN_viin_quality_check", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_viin_quality_check]([id],[message_main_attachment_id],[point_id],[user_id],[team_id],[company_id],[type_id],[product_id],[create_uid],[write_uid],[origin_message_id],[origin_references],[name],[measure_success],[quality_state],[comment],[measure],[tolerance_min],[tolerance_max],[norm],[control_date],[create_date],[write_date],[quantity_to_check],[checked_quantity],[checked_qty_deviation],[picking_id],[lot_id],[picking_type_id],[procurement_group_id],[origin],[production_id],[workorder_id],[workcenter_id],[x_description])VALUES(@id,@message_main_attachment_id,@point_id,@user_id,@team_id,@company_id,@type_id,@product_id,@create_uid,@write_uid,@origin_message_id,@origin_references,@name,@measure_success,@quality_state,@comment,@measure,@tolerance_min,@tolerance_max,@norm,@control_date,@create_date,@write_date,@quantity_to_check,@checked_quantity,@checked_qty_deviation,@picking_id,@lot_id,@picking_type_id,@procurement_group_id,@origin,@production_id,@workorder_id,@workcenter_id,@x_description)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_viin_quality_check]\r\nSET\r\n    [message_main_attachment_id] = @message_main_attachment_id,\r\n    [point_id] = @point_id,\r\n    [user_id] = @user_id,\r\n    [team_id] = @team_id,\r\n    [company_id] = @company_id,\r\n    [type_id] = @type_id,\r\n    [product_id] = @product_id,\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [origin_message_id] = @origin_message_id,\r\n    [origin_references] = @origin_references,\r\n    [name] = @name,\r\n    [measure_success] = @measure_success,\r\n    [quality_state] = @quality_state,\r\n    [comment] = @comment,\r\n    [measure] = @measure,\r\n    [tolerance_min] = @tolerance_min,\r\n    [tolerance_max] = @tolerance_max,\r\n    [norm] = @norm,\r\n    [control_date] = @control_date,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date,\r\n    [quantity_to_check] = @quantity_to_check,\r\n    [checked_quantity] = @checked_quantity,\r\n    [checked_qty_deviation] = @checked_qty_deviation,\r\n    [picking_id] = @picking_id,\r\n    [lot_id] = @lot_id,\r\n    [picking_type_id] = @picking_type_id,\r\n    [procurement_group_id] = @procurement_group_id,\r\n    [origin] = @origin,\r\n    [production_id] = @production_id,\r\n    [workorder_id] = @workorder_id,\r\n    [workcenter_id] = @workcenter_id,\r\n    [x_description] = @x_description\r\nWHERE\r\n    [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult InsertStockQuantPackageToSVNDB(List<stock_quant_packageUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<stock_quant_packageUI> insertData = new List<stock_quant_packageUI>();
+                List<stock_quant_packageUI> existData = new List<stock_quant_packageUI>();
+                GrandDataPortal<stock_quant_packageUI> dataPortal = new GrandDataPortal<stock_quant_packageUI>("SVN_stock_quant_package", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_stock_quant_package]\r\n           ([id]\r\n           ,[package_type_id]\r\n           ,[location_id]\r\n           ,[company_id]\r\n           ,[create_uid]\r\n           ,[write_uid]\r\n           ,[name]\r\n           ,[package_use]\r\n           ,[pack_date]\r\n           ,[create_date]\r\n           ,[write_date])\r\n     VALUES\r\n           (@id\r\n           ,@package_type_id\r\n           ,@location_id\r\n           ,@company_id\r\n           ,@create_uid\r\n           ,@write_uid\r\n           ,@name\r\n           ,@package_use\r\n           ,@pack_date\r\n           ,@create_date\r\n           ,@write_date)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_stock_quant_package]\r\n   SET [id] = @id\r\n      ,[package_type_id] = @package_type_id\r\n      ,[location_id] = @location_id\r\n      ,[company_id] = @company_id\r\n      ,[create_uid] = @create_uid\r\n      ,[write_uid] = @write_uid\r\n      ,[name] = @name\r\n      ,[package_use] = @package_use\r\n      ,[pack_date] = @pack_date\r\n      ,[create_date] = @create_date\r\n      ,[write_date] = @write_date\r\n WHERE [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult InsertQuantityAlertToSVNDB(List<viin_quantity_alert_teamUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<viin_quantity_alert_teamUI> insertData = new List<viin_quantity_alert_teamUI>();
+                List<viin_quantity_alert_teamUI> existData = new List<viin_quantity_alert_teamUI>();
+                GrandDataPortal<viin_quantity_alert_teamUI> dataPortal = new GrandDataPortal<viin_quantity_alert_teamUI>("SVN_viin_quality_alert_team", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_viin_quality_alert_team]\r\n           ([id]\r\n           ,[message_main_attachment_id]\r\n           ,[alias_id]\r\n           ,[company_id]\r\n           ,[sequence]\r\n           ,[color]\r\n           ,[create_uid]\r\n           ,[write_uid]\r\n           ,[origin_message_id]\r\n           ,[origin_references]\r\n           ,[name]\r\n           ,[create_date]\r\n           ,[write_date])\r\n     VALUES\r\n           (@id, \r\n           @message_main_attachment_id, \r\n           @alias_id, \r\n           @company_id, \r\n           @sequence, \r\n           @color, \r\n           @create_uid, \r\n           @write_uid, \r\n           @origin_message_id, \r\n           @origin_references, \r\n           @name, \r\n           @create_date, \r\n           @write_date)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_viin_quality_alert_team]\r\nSET\r\n    [message_main_attachment_id] = @message_main_attachment_id,\r\n    [alias_id] = @alias_id,\r\n    [company_id] = @company_id,\r\n    [sequence] = @sequence,\r\n    [color] = @color,\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [origin_message_id] = @origin_message_id,\r\n    [origin_references] = @origin_references,\r\n    [name] = @name,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date\r\nWHERE\r\n    [id] = @id";
+                    var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Update success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Update fail";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult InsertQuantityReasonToSVNDB(List<quality_reasonUI> dataUI)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                List<quality_reasonUI> insertData = new List<quality_reasonUI>();
+                List<quality_reasonUI> existData = new List<quality_reasonUI>();
+                GrandDataPortal<quality_reasonUI> dataPortal = new GrandDataPortal<quality_reasonUI>("SVN_quality_reason", SVNDBConfig.ConnectionString);
+                foreach (var item in dataUI)
+                {
+                    var existUI = dataPortal.GetDataByID(item.id);
+                    if (existUI != null)
+                    {
+                        existData.Add(item);
+                    }
+                    else
+                    {
+                        insertData.Add(item);
+                    }
+                }
+                if (insertData.Count > 0)
+                {
+                    string sqlQuery = "INSERT INTO [dbo].[SVN_quality_reason]\r\n           ([id]\r\n           ,[create_uid]\r\n           ,[write_uid]\r\n           ,[name]\r\n           ,[create_date]\r\n           ,[write_date])\r\n     VALUES\r\n           (@id,\r\n           @create_uid,\r\n           @write_uid,\r\n           @name,\r\n           @create_date,\r\n           @write_date)";
+                    var insertResult = dataPortal.InsertBulk(insertData, sqlQuery);
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Insert success";
+                    }
+                    else
+                    {
+                        processResult.Message = "Insert fail";
+                    }
+                }
+
+                if (existData.Count > 0)
+                {
+                    string sqlQuery = "UPDATE [dbo].[SVN_quality_reason]\r\nSET\r\n    [create_uid] = @create_uid,\r\n    [write_uid] = @write_uid,\r\n    [name] = @name,\r\n    [create_date] = @create_date,\r\n    [write_date] = @write_date\r\nWHERE\r\n    [id] = @id";
                     var insertResult = dataPortal.UpdateBulk(existData, sqlQuery);
                     if (insertResult > 0)
                     {

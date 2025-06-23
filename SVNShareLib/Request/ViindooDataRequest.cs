@@ -9,6 +9,10 @@ namespace SVNShareLib.Request
     public class ViindooDataRequest
     {
         //string test = "id,message_main_attachment_id,product_id,product_uom_id,company_id,create_uid,write_uid,origin_message_id,origin_references,name,ref,note,create_date,write_date,customer_id,supplier_id,country_state_id,equipment_id";
+        public string SigmaTableName { get; set; }
+        public string InsertQuery { get; set; }
+        public string UpdateQuery { get; set; }
+        public bool IsUpdate { get; set; }
         public string TableName { get; set; }
         public string Domain { get; set; }
         public List<string> listDomain { get; set; }
