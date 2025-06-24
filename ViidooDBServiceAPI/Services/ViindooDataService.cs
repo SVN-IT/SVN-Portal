@@ -81,6 +81,27 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
+        public BODataProcessResult InputResult(int product_id)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                object[] domain = new object[] { "product_id", "=", product_id };
+                object[] search = new object[] { domain };
+                string objectName = "mrp.production";
+                string fields = "id,name";
+                int limit = 1;
+                string order = "write_date desc";
+                processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         private BODataProcessResult SwitchFunctionToInsert(object searchResult, string objectName)
         {
             //Switch function to insert data
