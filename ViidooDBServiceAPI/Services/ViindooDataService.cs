@@ -90,7 +90,7 @@ namespace ViidooDBServiceAPI.Services
                 object[] domain = new object[] { "product_id", "=", product_id };
                 object[] search = new object[] { domain };
                 string objectName = "mrp.production";
-                string fields = "id,name";
+                string fields = "id,name,origin";
                 int limit = 1;
                 string order = "write_date desc";
                 processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
@@ -341,7 +341,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        private BODataProcessResult GetViindooDataByConditionV1(string objectName, object[] search, string strfields, int limit, string order)
+        private BODataProcessResult GetViindooDataByConditionV1(string objectName, object[] search, string strfields, int limit, string order, string method = "search_read")
         {
             BODataProcessResult processResult = new BODataProcessResult();
             processResult.DataType = objectName;
@@ -391,7 +391,7 @@ namespace ViidooDBServiceAPI.Services
                         connectResult.UserID,
                         password,
                         objectName,
-                        "search_read",
+                        method,
                         querydata);
                     if (searchResult != null)
                     {
