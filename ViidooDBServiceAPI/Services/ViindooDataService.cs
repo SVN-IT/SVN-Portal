@@ -85,6 +85,9 @@ namespace ViidooDBServiceAPI.Services
         public BODataProcessResult InputResult(int product_id)
         {
             BODataProcessResult processResult = new BODataProcessResult();
+            IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+            models.Timeout = 60000;
+            models.Url = serverUrl + "/xmlrpc/2/object";
             try
             {
                 object[] domain = new object[] { "product_id", "=", product_id };
@@ -94,6 +97,11 @@ namespace ViidooDBServiceAPI.Services
                 int limit = 1;
                 string order = "write_date desc";
                 processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
+                if(processResult.OK)
+                {
+                    var productionData = convertDataService.ConverterToProductionUI(processResult.Content);
+                }    
+
             }
             catch (Exception ex)
             {
