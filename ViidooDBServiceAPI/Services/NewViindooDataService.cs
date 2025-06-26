@@ -126,9 +126,9 @@ namespace ViidooDBServiceAPI.Services
                     new object[] { domain } 
                 };
                 string objectName = "mrp.production";
-                string fields = "id,name,origin";
+                string fields = "id,name,origin,state,production_location_id,location_dest_id,company_id";
                 int limit = 1;
-                string order = "write_date desc";
+                string order = "create_date desc";
 
                 XmlRpcStruct kwargs = new XmlRpcStruct
                 {
@@ -142,14 +142,7 @@ namespace ViidooDBServiceAPI.Services
                 {
                     var productionData = convertDataService.ConverterToProductionUI(processResult.Content);
 
-                    method = "write";
-                    search = new object[] {
-                        new int[] { productionData[0].id },  // ID của Manufacturing Order
-                        new XmlRpcStruct {
-                            { "qty_producing", qtyProducing }  // Trường cần cập nhật
-                        }
-                    };
-                    processResult = ExecuteViindooDataByConditionV1(objectName, search, null, method);
+                    
                     if (processResult.OK)
                     {
 
@@ -168,31 +161,41 @@ namespace ViidooDBServiceAPI.Services
 
                         if (processResult.OK)
                         {
-
-                            lotId = Convert.ToInt32(((object[])processResult.Content)[0].GetType().GetProperty("id").GetValue(((object[])processResult.Content)[0], null));
-                        }
-                        else
-                        {
-                            objectName = "stock.lot";
-                            method = "create";
-                            search = new object[] {
-                            new object[] {
-                                new XmlRpcStruct {
-                                    { "name", serialNumber },
-                                    { "product_id", product_id }
-                                }
-                            }
-                        };
-                            processResult = ExecuteViindooDataByConditionV1(objectName, search, null, method);
-                            if (processResult.OK)
+                            if (((object[])processResult.Content).Length > 0)
                             {
-                                lotId = Convert.ToInt32(((object[])processResult.Content)[0].GetType().GetProperty("id").GetValue(((object[])processResult.Content)[0], null));
+                                var stockLotData = convertDataService.ConverterToStockLotUI(processResult.Content);
+                                // Lấy ID của lô hàng từ kết quả
+                                lotId = stockLotData[0].id;
                             }
                             else
                             {
-                                processResult.Message = "Create stock.lot failed: " + processResult.Message;
-                                return processResult;
+                                objectName = "stock.lot";
+                                method = "create";
+                                search = new object[] {
+                                    new object[] {
+                                        new XmlRpcStruct {
+                                            { "name", serialNumber },
+                                            { "product_id", product_id }
+                                        }
+                                    }
+                                };
+                                kwargs = new XmlRpcStruct();
+
+                                processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, method);
+                                if (processResult.OK)
+                                {
+                                    lotId = ((int[])processResult.Content)[0];
+                                }
+                                else
+                                {
+                                    processResult.Message = "Create stock.lot failed: " + processResult.Message;
+                                    return processResult;
+                                }
                             }
+                        }
+                        else
+                        {
+                            return processResult; // Trả về kết quả nếu không tìm thấy lô hàng
                         }
 
                         if (lotId > 0)
@@ -205,13 +208,16 @@ namespace ViidooDBServiceAPI.Services
                                         { "product_id", product_id },
                                         { "lot_id", lotId },
                                         { "production_id", productionData[0].id },
-                                        { "qty_done", 1.0 },
+                                        { "qty_done", (double)qtyProducing },
                                         { "location_id", productionData[0].production_location_id },
-                                        { "location_dest_id", productionData[0].location_dest_id }
+                                        { "location_dest_id", productionData[0].location_dest_id },
+                                        { "company_id", 1 }
                                     }
                                 }
                             };
-                            processResult = ExecuteViindooDataByConditionV1(objectName, search, null, method);
+                            kwargs = new XmlRpcStruct();
+
+                            processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, method);
                             if (processResult.OK)
                             {
                                 processResult.Message = "Input result successfully.";
@@ -226,12 +232,23 @@ namespace ViidooDBServiceAPI.Services
                             processResult.Message = "Lot ID is not valid.";
                         }
 
+                        method = "write";
+                        search = new object[] {
+                        new int[] { productionData[0].id },  // ID của Manufacturing Order
+                            new XmlRpcStruct {
+                                { "qty_producing", qtyProducing }  // Trường cần cập nhật
+                            }
+                        };
+                        kwargs = new XmlRpcStruct();
+                        processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, method);
+
                         objectName = "mrp.production";
                         method = "button_mark_done";
                         search = new object[] {
                             new int[] { productionData[0].id }
                         };
-                        processResult = ExecuteViindooDataByConditionV1(objectName, search, null, method);
+                        kwargs = new XmlRpcStruct();
+                        processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, method);
                         if (processResult.OK)
                         {
                             processResult.Message = "Production marked as done successfully.";
