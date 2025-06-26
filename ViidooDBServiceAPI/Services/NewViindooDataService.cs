@@ -142,7 +142,17 @@ namespace ViidooDBServiceAPI.Services
                 {
                     var productionData = convertDataService.ConverterToProductionUI(processResult.Content);
 
-                    
+                    method = "write";
+                    search = new object[] {
+                        new int[] { productionData[0].id },  // ID của Manufacturing Order
+                            new XmlRpcStruct {
+                                { "qty_producing", qtyProducing }  // Trường cần cập nhật
+                            }
+                        };
+                    kwargs = new XmlRpcStruct();
+                    processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, method);
+
+
                     if (processResult.OK)
                     {
 
@@ -232,15 +242,7 @@ namespace ViidooDBServiceAPI.Services
                             processResult.Message = "Lot ID is not valid.";
                         }
 
-                        method = "write";
-                        search = new object[] {
-                        new int[] { productionData[0].id },  // ID của Manufacturing Order
-                            new XmlRpcStruct {
-                                { "qty_producing", qtyProducing }  // Trường cần cập nhật
-                            }
-                        };
-                        kwargs = new XmlRpcStruct();
-                        processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, method);
+                        
 
                         objectName = "mrp.production";
                         method = "button_mark_done";
