@@ -16,10 +16,12 @@ namespace ViidooDBServiceAPI.Controllers
         ViindooDBConfig dBConfig;
         ViindooDataService viinDataService;
         JsonRpcDataService jsonRpcDataService;
+        NewViindooDataService newViindooDataService;
         public DBController(DBService dBService,
             OdooRpcDBService odooRpcDBService,
             ViindooDataService viinDataService,
             ViindooDBConfig dBConfig,
+            NewViindooDataService newViindooDataService,
             JsonRpcDataService jsonRpcDataService)
         {
             this.dBService = dBService;
@@ -27,6 +29,7 @@ namespace ViidooDBServiceAPI.Controllers
             this.dBConfig = dBConfig;
             this.viinDataService = viinDataService;
             this.jsonRpcDataService = jsonRpcDataService;
+            this.newViindooDataService = newViindooDataService;
         }
 
         [Route("GetDataFromViindoo")]
@@ -346,12 +349,12 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("InputResult")]
         [HttpPost]
-        public BODataProcessResult InputResult(int productId)
+        public BODataProcessResult InputResult(int productId, string serialNumber, int qtyProducing)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                processResult = viinDataService.InputResult(productId);
+                processResult = newViindooDataService.InputResult(productId, serialNumber, qtyProducing);
             }
             catch (Exception ex)
             {

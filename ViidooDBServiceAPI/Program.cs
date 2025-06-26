@@ -20,6 +20,7 @@ builder.Services.AddSingleton<DBService>();
 builder.Services.AddSingleton<OdooRpcDBService>();
 builder.Services.AddSingleton<ViindooDataService>();
 builder.Services.AddSingleton<JsonRpcDataService>();
+builder.Services.AddSingleton<NewViindooDataService>();
 
 var app = builder.Build();
 
