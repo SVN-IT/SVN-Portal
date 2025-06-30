@@ -276,5 +276,55 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
+        public BODataProcessResult GetProductionOrder(int productId)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                string objectName = "mrp.production";
+                string fields = "id,name,origin,state,move_finished_ids,move_raw_ids";
+                int limit = 1;
+                string order = "create_date desc";
+                object[] domain = new object[] { "product_id", "=", productId };
+                object[] search = new object[] {
+                    new object[] { domain }
+                };
+                XmlRpcStruct kwargs = new XmlRpcStruct
+                {
+                    { "fields", fields.Split(",") },
+                    { "limit", limit },
+                    { "order", order }
+                };
+                processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        public BODataProcessResult GetStockMoveByMO(int[] move_raw_ids)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                string objectName = "stock.move";
+                string fields = "id,name,product_id,location_id,location_dest_id,state";
+
+                object[] search = new object[] {
+                    move_raw_ids,
+                    fields.Split(",").ToArray()
+                };
+                XmlRpcStruct kwargs = new XmlRpcStruct();
+                processResult = ExecuteViindooDataByConditionV1(objectName, search, kwargs, "read");
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }
