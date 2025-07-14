@@ -409,12 +409,12 @@ namespace SVN_Portal.Controllers
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
             SVN_Label_InfoDataPortal sVN_Label_InfoDataPortal = new SVN_Label_InfoDataPortal(connectionString);
 
-            //int countSerialNumbers = 0;
-            //countSerialNumbers = requestPayload.AllSeri1.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).Count();
-            //if(countSerialNumbers < 5)
-            //{
-            //    return Json(new { result = false, message = "Số serial ít hơn 5" });
-            //}
+            int countSerialNumbers = 0;
+            countSerialNumbers = requestPayload.AllSeri1.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).Count();
+            if (countSerialNumbers < 5 && requestPayload.PrinterID == "ZebraZT610_Toast_line3")
+            {
+                return Json(new { result = false, message = "Số serial ít hơn 5" });
+            }
 
             try
             {
