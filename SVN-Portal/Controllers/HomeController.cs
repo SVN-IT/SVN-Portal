@@ -52,7 +52,8 @@ namespace SVN_Portal.Controllers
                 }
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
-                List<string> opers = appConfig.OperList.Split(",").ToList();
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
                 if (models.Count > 0)
@@ -101,7 +102,8 @@ namespace SVN_Portal.Controllers
                 }
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
-                List<string> opers = appConfig.OperList.Split(",").ToList();
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
                 if (models != null && models.Count > 0)
@@ -191,8 +193,9 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
-                List<string> opers = appConfig.OperList.Split(",").ToList();
-                opers = opers.Where(x => x == oper).ToList();
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
                 if (models.Count > 0)
@@ -381,12 +384,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, Name = item.Name });
                     }
                 }
 

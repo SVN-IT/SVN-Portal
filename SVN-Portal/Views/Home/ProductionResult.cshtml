@@ -255,12 +255,18 @@
                 <div id="bigCard_@charID" class="card svn-card @disableStatus">
 
                     <div class="card-title">
+                        @{
+                            string productName = string.Empty;
+                            if (!string.IsNullOrWhiteSpace(item.Name))
+                            {
+                                productName = "(" + item.Name + ")";
+                            }
+                        }
                         <h4>
-                            @item.Operation
+                            @item.Operation @productName
                             <br />
                             <br />
                             <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
-
                         </h4>
                     </div>
                     <div class="card-body">

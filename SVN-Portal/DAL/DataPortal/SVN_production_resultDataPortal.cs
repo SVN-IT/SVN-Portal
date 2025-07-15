@@ -71,7 +71,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<string> opers, string storedProceduce, string tableName)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -109,16 +109,17 @@ namespace SVN_Portal.DAL.DataPortal
                         val4.Time = "15h10-17h30";
                         val5.Time = "18h-20h";
 
-                        viewModel.Operation = item;
+                        viewModel.Operation = item.Operation;
+                        viewModel.Name = item.Name;
 
                         //add defect by category
-                        if(quantity_ReasonUI != null && defect_RecordUI != null)
+                        if (quantity_ReasonUI != null && defect_RecordUI != null)
                         {
-                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item).Select(x =>
+                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
                             {
                                 DefectByCategoryViewModel model = new DefectByCategoryViewModel();
                                 model.category = x.name;
-                                model.value = defect_RecordUI.Where(y => y.Operation == item && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
+                                model.value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
                                 viewModel.DefectByCategoryViewModels.Add(model);
                                 return x;
                             }).ToList();
@@ -133,9 +134,9 @@ namespace SVN_Portal.DAL.DataPortal
 
                         //sai ở đây
                         //dùng linq mà list đang bị null
-                        var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == item);//Lấy ra 1 dòng target theo opearation
+                        var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == item.Operation);//Lấy ra 1 dòng target theo opearation
 
-                        var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Target");
+                        var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Target");
                         if (dataUIbyOperTarget != null) 
                         {
                             val1.Target = dataUIbyOperTarget.Time1;
@@ -153,7 +154,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 viewModel.IsProduction = true;
                             }
                         }
-                        var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Production Qty");
+                        var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Production Qty");
                         if(dataUIbyOperLine != null)
                         {
                             val1.Line = dataUIbyOperLine.Time1;
@@ -170,7 +171,7 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.Customer = dataUIbyOperLine.Customer;
                             viewModel.WC = dataUIbyOperLine.WC;
                         }
-                        var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "Man Q'ty");
+                        var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Man Q'ty");
                         if (dataUIbyOperManQty != null)
                         {
                             val1.ManQuantity = dataUIbyOperManQty.Time1;
@@ -179,7 +180,7 @@ namespace SVN_Portal.DAL.DataPortal
                             val4.ManQuantity = dataUIbyOperManQty.Time4;
                             val5.ManQuantity = dataUIbyOperManQty.Time5;
                         }
-                        var dataUIbyOperNGQty = dataUI.FirstOrDefault(x => x.Operation == item && x.Type_value == "NG_Qty");
+                        var dataUIbyOperNGQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "NG_Qty");
                         if (dataUIbyOperNGQty != null)
                         {
                             val1.NG = dataUIbyOperNGQty.Time1;
@@ -273,6 +274,7 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
                         viewModel.Operation = item.Operation;
+                        viewModel.Name = item.Name;
                         if (string.IsNullOrWhiteSpace(item.WCName))
                         {
                             item.WCName = null;

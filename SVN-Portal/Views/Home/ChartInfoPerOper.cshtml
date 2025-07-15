@@ -417,7 +417,14 @@
                                                         @item.WC
                                                     </h1>
                                                 }
-                                                <h1>@item.Operation</h1>
+                                                @{
+                                                    string productName = string.Empty;
+                                                    if (!string.IsNullOrWhiteSpace(item.Name))
+                                                    {
+                                                        productName = "(" + item.Name + ")";
+                                                    }
+                                                }
+                                                <h1>@item.Operation @productName</h1>
                                                 @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                                 <div class="row">
                                                     @* <div id="pd_@charID" class="col-6 row">

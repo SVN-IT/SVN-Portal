@@ -18,6 +18,7 @@ namespace SVN_Portal.Models
             DefectByCategoryViewModels = new List<DefectByCategoryViewModel>();
         }
         public string Operation { get; set; }
+        public string Name { get; set; }
         public string WC { get; set; }
         public string PDName { get; set; }
         public string QCName { get; set; }
