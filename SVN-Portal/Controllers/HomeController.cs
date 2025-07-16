@@ -130,7 +130,7 @@ namespace SVN_Portal.Controllers
 
                     decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
 
-                    string comparePeople = "👷‍👷‍ Checking: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
                     ViewBag.ComparePeople = comparePeople;
                 }
 
