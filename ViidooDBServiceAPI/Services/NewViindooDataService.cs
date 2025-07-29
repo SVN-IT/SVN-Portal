@@ -311,7 +311,7 @@ namespace ViidooDBServiceAPI.Services
             try
             {
                 string objectName = "stock.move";
-                string fields = "id,name,product_id,location_id,location_dest_id,state";
+                string fields = "id,qty_produced,consumption,name,show_lot_ids,product_tracking,product_id,bom_id,qty_producing,product_qty,product_uom_id,lot_producing_id,move_finished_ids,move_raw_ids,origin,date_deadline,lot_ids";
 
                 object[] search = new object[] {
                     move_raw_ids,
@@ -326,5 +326,7 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
+
     }
 }
