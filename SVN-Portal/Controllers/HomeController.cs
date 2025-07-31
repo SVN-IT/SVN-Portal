@@ -559,8 +559,8 @@ namespace SVN_Portal.Controllers
                         woRunning = model.WORunning,
                         product = model.Product,
                         customer = model.Customer,
-                        IsProduction = model.IsProduction,
-                        CanProduction = model.CanProduction
+                        isProduction = model.IsProduction,
+                        canProduction = model.CanProduction
                     });
                 }
                 else
@@ -617,7 +617,7 @@ namespace SVN_Portal.Controllers
                         forecase = strForecase,
                         targetTable = strTargetTable,
                         isProduction = model.IsProduction,
-                        CanProduction = model.CanProduction,
+                        canProduction = model.CanProduction,
                         pdmodel = JsonConvert.SerializeObject(model.ViewModels),
                         defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
                     });
