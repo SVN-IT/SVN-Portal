@@ -13,6 +13,7 @@
         public List<int> Produce_id { get; set; }
         public List<WC> WC { get; set; }
         public int ColWidth { get; set; }
+        public int StoreID { get; set; }
         public int Top_row { get; set; }
     }
 

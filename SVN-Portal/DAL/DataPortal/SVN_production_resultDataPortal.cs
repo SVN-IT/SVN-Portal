@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using SVNShareLib.DAL;
+using System.Globalization;
 
 namespace SVN_Portal.DAL.DataPortal
 {
@@ -71,7 +72,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -81,6 +82,7 @@ namespace SVN_Portal.DAL.DataPortal
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
             var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
             var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
+            var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
@@ -195,13 +197,26 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.ViewModels.Add(val4);
                         viewModel.ViewModels.Add(val5);
 
-                        if(dataUIByOper != null)
+                        DateTime result = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                        var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(result, item.StoreID);
+                        if (checkListData != null)
+                        {
+                            viewModel.CanProduction = true;
+                        }
+                        else 
+                        {
+                            viewModel.CanProduction = false;
+                        }
+
+
+                        if (dataUIByOper != null)
                         {
                             //tạo dong Daiily plan của 1 operation
-                            SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel() { 
-                                Item = "H.Plan", 
-                                Target = dataUIByOper.Daily_plan, 
-                                Current = dataUIByOper.Total_Qty, 
+                            SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel()
+                            {
+                                Item = "H.Plan",
+                                Target = dataUIByOper.Daily_plan,
+                                Current = dataUIByOper.Total_Qty,
                                 Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
                             };
                             SVN_targetViewModel UPHVM = new SVN_targetViewModel()
@@ -209,14 +224,14 @@ namespace SVN_Portal.DAL.DataPortal
                                 Item = "UPH",
                                 Target = dataUIByOper.UPH,
                                 Current = dataUIByOper.Current_UPH,
-                                Percent = dataUIByOper.UPH != 0 ?(dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100:0
+                                Percent = dataUIByOper.UPH != 0 ? (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100 : 0
                             };
                             SVN_targetViewModel UPPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPPH",
                                 Target = dataUIByOper.UPPH,
                                 Current = dataUIByOper.Current_UPPH,
-                                Percent = dataUIByOper.UPPH != 0 ?(dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100:0
+                                Percent = dataUIByOper.UPPH != 0 ? (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100 : 0
                             };
                             SVN_targetViewModel LaborVM = new SVN_targetViewModel()
                             {
@@ -230,7 +245,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 Item = "Defect",
                                 Target = dataUIByOper.Defect * 100,
                                 Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
-                                Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100:0
+                                Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
                             };
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
@@ -415,7 +430,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="storedProceduce"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName)
+        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection)
         {
             QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -426,7 +441,7 @@ namespace SVN_Portal.DAL.DataPortal
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
             var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
             var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
-
+            var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
             try
             {
                 defect_RecordUI = await defectdataportal.ReadList(date);
@@ -535,6 +550,18 @@ namespace SVN_Portal.DAL.DataPortal
                     viewModel.ViewModels.Add(val3);
                     viewModel.ViewModels.Add(val4);
                     viewModel.ViewModels.Add(val5);
+
+                    DateTime result = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                    var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(result, oper.StoreID);
+                    if (checkListData != null)
+                    {
+                        viewModel.CanProduction = true;
+                    }
+                    else
+                    {
+                        viewModel.CanProduction = false;
+                    }
+
                     try
                     {
                         var productionUIs = mrp_productionDataPortal.GetDataByProduct_ID(oper.Produce_id, oper.Top_row);

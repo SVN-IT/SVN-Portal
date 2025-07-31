@@ -251,7 +251,7 @@
                 }
             </style>
             <div class="col-lg-@appConfig.ChartCol">
-                <div id="disableCard_@charID" class="no-production d-none">Không sản xuất</div>
+                <div id="disableCard_@charID" class="no-production d-none">Chưa làm Checklist</div>
                 <div id="bigCard_@charID" class="card svn-card @disableStatus">
 
                     <div class="card-title">
@@ -616,6 +616,15 @@
                         $(`#divForecast_${charID}`).html(response.forecase);
 
                         var pdData = JSON.parse(response.pdmodel);
+
+                        if(response.CanProduction)
+                        {
+                            $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
 
                         if(response.isProduction)
                         {

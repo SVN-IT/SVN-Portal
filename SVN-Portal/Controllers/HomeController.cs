@@ -55,7 +55,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -105,7 +105,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -117,7 +117,7 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
                     }
-                    models = models.OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -197,7 +197,7 @@ namespace SVN_Portal.Controllers
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -245,12 +245,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
@@ -312,12 +312,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
@@ -384,12 +384,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, Name = item.Name });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                     }
                 }
 
@@ -462,12 +462,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
@@ -541,7 +541,7 @@ namespace SVN_Portal.Controllers
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
@@ -558,7 +558,9 @@ namespace SVN_Portal.Controllers
                         forecast = model.Forecast,
                         woRunning = model.WORunning,
                         product = model.Product,
-                        customer = model.Customer
+                        customer = model.Customer,
+                        IsProduction = model.IsProduction,
+                        CanProduction = model.CanProduction
                     });
                 }
                 else
@@ -601,7 +603,7 @@ namespace SVN_Portal.Controllers
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
@@ -615,6 +617,7 @@ namespace SVN_Portal.Controllers
                         forecase = strForecase,
                         targetTable = strTargetTable,
                         isProduction = model.IsProduction,
+                        CanProduction = model.CanProduction,
                         pdmodel = JsonConvert.SerializeObject(model.ViewModels),
                         defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
                     });
