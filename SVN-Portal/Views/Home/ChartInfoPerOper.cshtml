@@ -339,7 +339,8 @@
                         </div>
                     </div>
                     <div class="col-12 ">
-                        <div class="card svn-card">
+                        <div id="disableCard" class="no-production d-none">Chưa làm Checklist</div>
+                        <div id="bigCard" class="card svn-card">
                             <div class="card-title">
                                 <h4>@* Production result *@</h4>
                             </div>
@@ -958,6 +959,26 @@
                         $(`#tg_${charID}`).html(response.targetTable);
 
                         var pdData = JSON.parse(response.pdmodel);
+
+                        if(response.canProduction)
+                        {
+                            $(`#disableCard`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCard`).removeClass("d-none");
+                        }
+
+                        if(response.isProduction)
+                        {
+                            $(`#bigCard`).removeClass("card-disable");
+                            // $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#bigCard`).addClass("card-disable");
+                            // $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
 
                         // Build charts for this charID
                         BuildProductionChart(pdData, charID);
