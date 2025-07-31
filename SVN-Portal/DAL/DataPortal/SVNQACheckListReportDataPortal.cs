@@ -14,7 +14,7 @@ namespace SVN_Portal.DAL.DataPortal
             this.connectionString = connectionString;
         }
 
-        public async Task<List<SVN_QACheckList_Report_UI>> GetDataByDateAndOperation(DateTime date, int storeID)
+        public async Task<List<SVN_QACheckList_Report_UI>> GetDataByDateAndOperation(string date, int storeID)
         {
             List<SVN_QACheckList_Report_UI> dataUI = new List<SVN_QACheckList_Report_UI>();
             int timeOut = 1000;

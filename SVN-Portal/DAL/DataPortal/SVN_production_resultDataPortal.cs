@@ -198,8 +198,9 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.ViewModels.Add(val5);
 
                         DateTime result = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                        var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(result, item.StoreID);
-                        if (checkListData != null)
+                        string strDate = result.ToString("yyyy-MM-dd") + "  00:00:00.000";
+                        var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, item.StoreID);
+                        if (checkListData != null && checkListData.Count > 0)
                         {
                             viewModel.CanProduction = true;
                         }
@@ -552,8 +553,9 @@ namespace SVN_Portal.DAL.DataPortal
                     viewModel.ViewModels.Add(val5);
 
                     DateTime result = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                    var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(result, oper.StoreID);
-                    if (checkListData != null)
+                    string strDate = result.ToString("yyyy-MM-dd") + "  00:00:00.000";
+                    var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, oper.StoreID);
+                    if (checkListData != null && checkListData.Count > 0)
                     {
                         viewModel.CanProduction = true;
                     }
