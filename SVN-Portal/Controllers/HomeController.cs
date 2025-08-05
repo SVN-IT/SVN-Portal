@@ -548,6 +548,12 @@ namespace SVN_Portal.Controllers
                 {
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildAchievementCard(model, date);
+
+                    if (!oper.Contains("Walter"))
+                    {
+                        model.CanProduction = true;
+                    }
+
                     return new JsonResult(new
                     {
                         result = true,
@@ -604,6 +610,11 @@ namespace SVN_Portal.Controllers
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+
+                if (!oper.Contains("Walter"))
+                {
+                    model.CanProduction = true;
+                }
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)

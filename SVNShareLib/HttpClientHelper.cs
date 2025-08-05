@@ -142,6 +142,7 @@ new AuthenticationHeaderValue("Basic", Convert.ToBase64String(
                 var response = await client.PostAsync(apiUrl, data, cancellationToken).ConfigureAwait(false);
                 if (response.IsSuccessStatusCode)
                 {
+
                     await response.Content.ReadAsStringAsync().ContinueWith((Task<string> x) =>
                     {
                         result = JsonConvert.DeserializeObject<T>(x.Result);

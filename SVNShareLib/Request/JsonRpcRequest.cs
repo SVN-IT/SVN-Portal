@@ -40,7 +40,7 @@ namespace SVNShareLib.Request
 
     public class ParamsContext
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public int Cids { get; set; }
         public int Menu_Id { get; set; }
         public int Action { get; set; }
