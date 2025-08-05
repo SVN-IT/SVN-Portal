@@ -253,7 +253,7 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
-        public async Task<Dictionary<string, string>> ConsumeMaterialsByBOMAsync(Dictionary<string, string> productionOrderInfo, int uid, string sessionId, int qty_producing)
+        public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsync(Dictionary<string, string> productionOrderInfo, int uid, string sessionId, int qty_producing)
         {
             using (var client = new HttpClient())
             {
@@ -399,62 +399,62 @@ namespace ViidooDBServiceAPI.Services
                             "qty_producing",
 
                             // Object mapping key-value onchange
-                            new
+                            new Dictionary<string, object>
                             {
-                                confirm_cancel = "",
-                                show_lock = "",
-                                move_byproduct_ids = "",
-                                state = "1",
-                                check_ids = "1",
-                                reservation_state = "1",
-                                date_planned_finished = "1",
-                                is_locked = "1",
-                                qty_produced = "1",
-                                is_planned = "1",
-                                workorder_ids = "1",
-                                workorder_ids_production_state = "1",
-                                workorder_ids_qty_producing = "1",
-                                priority = "1",
-                                product_id = "1",
-                                company_id = "1",
-                                bom_id = "1",
-                                qty_producing = "1",
-                                product_qty = "1",
-                                product_uom_id = "1",
-                                date_planned_start = "1",
-                                move_finished_ids = "1",
-                                move_finished_ids_product_id = "1",
-                                move_finished_ids_product_uom_qty = "1",
-                                move_finished_ids_product_uom = "1",
-                                move_finished_ids_operation_id = "1",
-                                move_finished_ids_date_deadline = "1",
-                                move_finished_ids_picking_type_id = "1",
-                                move_finished_ids_location_id = "1",
-                                move_finished_ids_group_id = "1",
-                                move_finished_ids_state = "1",
-                                move_finished_ids_quantity_done = "1",
-                                move_finished_ids_product_packaging_id = "1",
-                                move_raw_ids = "1",
-                                move_raw_ids_product_id = "1",
-                                move_raw_ids_location_id = "1",
-                                move_raw_ids_product_uom = "1",
-                                move_raw_ids_date_deadline = "1",
-                                move_raw_ids_date = "1",
-                                move_raw_ids_picking_type_id = "1",
-                                move_raw_ids_has_tracking = "1",
-                                move_raw_ids_operation_id = "1",
-                                move_raw_ids_state = "1",
-                                move_raw_ids_product_uom_qty = "1",
-                                move_raw_ids_product_qty = "1",
-                                move_raw_ids_reserved_availability = "1",
-                                move_raw_ids_forecast_expected_date = "1",
-                                move_raw_ids_forecast_availability = "1",
-                                move_raw_ids_quantity_done = "1",
-                                move_raw_ids_lot_ids = "1",
-                                move_raw_ids_group_id = "1",
-                                picking_type_id = "1",
-                                location_src_id = "1",
-                                location_dest_id = "1"
+                                { "confirm_cancel", "" },
+                                { "show_lock", "" },
+                                { "move_byproduct_ids", "" },
+                                { "state", "1" },
+                                { "check_ids", "1" },
+                                { "reservation_state", "1" },
+                                { "date_planned_finished", "1" },
+                                { "is_locked", "1" },
+                                { "qty_produced", "1" },
+                                { "is_planned", "1" },
+                                { "workorder_ids", "1" },
+                                { "workorder_ids.production_state", "1" },
+                                { "workorder_ids.qty_producing", "1" },
+                                { "priority", "1" },
+                                { "product_id", "1" },
+                                { "company_id", "1" },
+                                { "bom_id", "1" },
+                                { "qty_producing", "1" },
+                                { "product_qty", "1" },
+                                { "product_uom_id", "1" },
+                                { "date_planned_start", "1" },
+                                { "move_finished_ids", "1" },
+                                { "move_finished_ids.product_id", "1" },
+                                { "move_finished_ids.product_uom_qty", "1" },
+                                { "move_finished_ids.product_uom", "1" },
+                                { "move_finished_ids.operation_id", "1" },
+                                { "move_finished_ids.date_deadline", "1" },
+                                { "move_finished_ids.picking_type_id", "1" },
+                                { "move_finished_ids.location_id", "1" },
+                                { "move_finished_ids.group_id", "1" },
+                                { "move_finished_ids.state", "1" },
+                                { "move_finished_ids.quantity_done", "1" },
+                                { "move_finished_ids.product_packaging_id", "1" },
+                                { "move_raw_ids", "1" },
+                                { "move_raw_ids.product_id", "1" },
+                                { "move_raw_ids.location_id", "1" },
+                                { "move_raw_ids.product_uom", "1" },
+                                { "move_raw_ids.date_deadline", "1" },
+                                { "move_raw_ids.date", "1" },
+                                { "move_raw_ids.picking_type_id", "1" },
+                                { "move_raw_ids.has_tracking", "1" },
+                                { "move_raw_ids.operation_id", "1" },
+                                { "move_raw_ids.state", "1" },
+                                { "move_raw_ids.product_uom_qty", "1" },
+                                { "move_raw_ids.product_qty", "1" },
+                                { "move_raw_ids.reserved_availability", "1" },
+                                { "move_raw_ids.forecast_expected_date", "1" },
+                                { "move_raw_ids.forecast_availability", "1" },
+                                { "move_raw_ids.quantity_done", "1" },
+                                { "move_raw_ids.lot_ids", "1" },
+                                { "move_raw_ids.group_id", "1" },
+                                { "picking_type_id", "1" },
+                                { "location_src_id", "1" },
+                                { "location_dest_id", "1" }
                             }
                         },
                         model = "mrp.production",
@@ -465,7 +465,7 @@ namespace ViidooDBServiceAPI.Services
                             {
                                 lang = "vi_VN",
                                 tz = "Asia/Ho_Chi_Minh",
-                                uid = 2,
+                                uid = uid,
                                 allowed_company_ids = new int[] { 1 },
                                 default_company_id = 1
                             }
@@ -484,7 +484,7 @@ namespace ViidooDBServiceAPI.Services
                 {
                     throw new Exception(json["error"]["message"].ToString());
                 }
-                return json["result"].ToObject<Dictionary<string, string>>();
+                return json.ToObject<Dictionary<string, object>>();
             }
         }
     }

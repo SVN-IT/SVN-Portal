@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using SVNShareLib;
 using SVNShareLib.Request;
 using ViidooDBServiceAPI.Services;
@@ -116,7 +117,22 @@ namespace ViidooDBServiceAPI.Controllers
                     var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
-                    var productionOrderConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsync(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, qty_producing);
+                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsync(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, qty_producing);
+
+                    var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+
+                    if (result != null) 
+                    {
+                        foreach (var item in result) 
+                        {
+                            var id = (int)item[1];
+                            var detail = item[2] as JObject;
+                            var date = detail?["date"]?.ToString();
+                            var date_deadline = detail?["date_deadline"]?.ToString();
+                            var productID = detail?["product_id"]?[0]?.ToString();
+                            var quantityDone = detail?["quantity_done"]?.ToString();
+                        }
+                    }
                 }
 
 
