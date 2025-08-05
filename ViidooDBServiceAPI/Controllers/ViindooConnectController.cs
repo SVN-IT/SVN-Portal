@@ -121,17 +121,50 @@ namespace ViidooDBServiceAPI.Controllers
 
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
 
+                    var moveRawList = new List<object>();
+
                     if (result != null) 
                     {
                         foreach (var item in result) 
                         {
                             var id = (int)item[1];
-                            var detail = item[2] as JObject;
-                            var date = detail?["date"]?.ToString();
-                            var date_deadline = detail?["date_deadline"]?.ToString();
-                            var productID = detail?["product_id"]?[0]?.ToString();
-                            var quantityDone = detail?["quantity_done"]?.ToString();
+                            if(id != 0)
+                            {
+                                var detail = item[2] as JObject;
+                                var date = detail?["date"]?.ToString();
+                                var date_deadline = detail?["date_deadline"]?.ToString();
+                                var quantityDone = int.Parse(detail?["quantity_done"]?.ToString());
+                                if (quantityDone != 0)
+                                {
+                                    var moveRaw = new object[]
+                                    {
+                                        1,
+                                        id,
+                                        new {
+                                            date = date,
+                                            date_deadline = date_deadline,
+                                            quantity_done = quantityDone
+                                        }
+                                    };
+                                    moveRawList.Add(moveRaw);
+                                }
+                                else 
+                                {
+                                    var moveRaw = new object[]
+                                    {
+                                        4,
+                                        id,
+                                        false
+                                    };
+                                    moveRawList.Add(moveRaw);
+                                }
+                                
+                            }
+                            
                         }
+
+                        // Danh sách thành phần tiêu hao
+                        object[] move_raw_ids = moveRawList.ToArray();
                     }
                 }
 
