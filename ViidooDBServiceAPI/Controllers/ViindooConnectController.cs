@@ -102,9 +102,9 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
-        [Route("ProductionReadByProductID")]
+        [Route("InputProductionByProductID")]
         [HttpPost]
-        public async Task<BODataProcessResult> ProductionReadByProductID(int product_id)
+        public async Task<BODataProcessResult> InputProductionByProductID(int product_id, int qty_producing)
         {
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             try
@@ -112,7 +112,11 @@ namespace ViidooDBServiceAPI.Controllers
                 bODataProcessResult = await odooAPIService.LoginAsync();
                 if (bODataProcessResult.OK)
                 {
-                    var array = await odooAPIService.ReadProductionByProductIDAsync(product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    //Lấy dữ liệu lệnh sản xuất
+                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                    // Thực hiên tiêu hao nghuyên vật liệu theo BOM
+                    var productionOrderConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsync(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, qty_producing);
                 }
 
 
