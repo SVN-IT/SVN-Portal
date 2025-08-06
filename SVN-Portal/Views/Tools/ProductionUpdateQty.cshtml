@@ -1,19 +1,41 @@
 ﻿@{
     Layout = "~/Views/Shared/_ToolsLayout.cshtml";
-    ViewData["Title"] = "Cập nhật lênh sản xuất";
+    ViewData["Title"] = "Nhập kết quả sản xuất";
 }
 <form method="post">
     <div class="row">
+        @{
+            string message = ViewBag.Message;
+        }
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <strong>Lỗi:</strong> @message
+                </div>
+            </div>
+        }
+        @* <div class="col-12">
+            <div class="form-group">
+                <label class="control-label">Mã sản phẩm</label>
+            </div>
+        </div> *@
         <div class="row col-12">
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Lệnh sản xuất</label>
-                    <input type="text" name="workOrderCode" class="form-control" value="@ViewBag.WorkOrder" />
+                    <input type="text" name="productionOrderCode" class="form-control" value="@ViewBag.WorkOrder" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Nhập số lượng</label>
+                    <input type="number" name="productionOrderQuantity" class="form-control" value="@ViewBag.Quantity" />
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="form-group" style="margin-top:33px">
-                    <button class="btn btn-success" type="submit"><i class="fa fa-filter"></i> Update số lượng</button>
+                    <button class="btn btn-success" type="submit"><i class="fa fa-pencil"></i> Xác nhận</button>
                 </div>
             </div>
         </div>

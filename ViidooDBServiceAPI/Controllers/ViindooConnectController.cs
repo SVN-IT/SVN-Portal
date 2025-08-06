@@ -103,9 +103,9 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
-        [Route("InputProductionByProductID")]
+        [Route("InputProductionByWorkOrder")]
         [HttpPost]
-        public async Task<BODataProcessResult> InputProductionByProductID(string name, int qty_producing)
+        public async Task<BODataProcessResult> InputProductionByWorkOrder(ProductDataRequest dataRequest)
         {
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             try
@@ -114,10 +114,10 @@ namespace ViidooDBServiceAPI.Controllers
                 if (bODataProcessResult.OK)
                 {
                     //Lấy dữ liệu lệnh sản xuất
-                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(name, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.seriNumber, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
-                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsync(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, qty_producing);
+                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsync(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.count);
 
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
 
@@ -178,7 +178,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                         int mrp_production_id = int.Parse(productionOrderInfo["id"]);
 
-                        var saveResult = await odooAPIService.SaveProductionOrderAsync(mrp_production_id, qty_producing, move_raw_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        var saveResult = await odooAPIService.SaveProductionOrderAsync(mrp_production_id, dataRequest.count, move_raw_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                         var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
