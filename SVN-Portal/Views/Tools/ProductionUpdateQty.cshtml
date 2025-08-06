@@ -5,14 +5,24 @@
 <form method="post">
     <div class="row">
         @{
+            string isSuccess = ViewBag.IsSuccess;
             string message = ViewBag.Message;
         }
         @if (!string.IsNullOrWhiteSpace(message))
         {
             <div class="col-12">
-                <div class="alert alert-danger">
-                    <strong>Lỗi:</strong> @message
-                </div>
+                @if (isSuccess == "OK")
+                {
+                    <div class="alert alert-success">
+                        <strong>Thành công:</strong> @message
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger">
+                        <strong>Lỗi:</strong> @message
+                    </div>
+                }
             </div>
         }
         @* <div class="col-12">

@@ -984,9 +984,22 @@ namespace SVN_Portal.Controllers
             var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderURL, dataRequest, new CancellationToken(false));
             if (result != null)
             {
+                if(result.OK)
+                {
+                    ViewBag.IsSuccess = "OK";
+                }
+                else
+                {
+                    ViewBag.IsSuccess = "NOTOK";
+                }
                 ViewBag.Message = result.Message;
             }
-            return View();
+            else
+            {
+                ViewBag.IsSuccess = "NOTOK";
+                ViewBag.Message = "Lỗi API không phản hồi";
+            }
+                return View();
             
         }
 
