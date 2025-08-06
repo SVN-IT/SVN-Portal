@@ -183,7 +183,7 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="uid"></param>
         /// <param name="sessionId"></param>
         /// <returns></returns>
-        public async Task<Dictionary<string, string>> ReadProductionByProductIDAsync(int productID, int uid, string sessionId)
+        public async Task<Dictionary<string, string>> ReadProductionByProductIDAsync(string name, int uid, string sessionId)
         {
             using (var client = new HttpClient())
             {
@@ -203,7 +203,7 @@ namespace ViidooDBServiceAPI.Services
                         },
                         kwargs = new
                         {
-                            domain = new object[] { new object[] { "product_id", "=", productID } },
+                            domain = new object[] { new object[] { "name", "ilike", name } },
                             fields = new string[]
                             {
                                 "confirm_cancel", "show_lock", "move_byproduct_ids", "state",

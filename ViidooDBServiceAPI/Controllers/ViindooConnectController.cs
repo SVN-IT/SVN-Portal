@@ -105,7 +105,7 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("InputProductionByProductID")]
         [HttpPost]
-        public async Task<BODataProcessResult> InputProductionByProductID(int product_id, int qty_producing)
+        public async Task<BODataProcessResult> InputProductionByProductID(string name, int qty_producing)
         {
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             try
@@ -114,7 +114,7 @@ namespace ViidooDBServiceAPI.Controllers
                 if (bODataProcessResult.OK)
                 {
                     //Lấy dữ liệu lệnh sản xuất
-                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(name, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
                     var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsync(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, qty_producing);
