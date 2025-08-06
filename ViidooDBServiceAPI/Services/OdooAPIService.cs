@@ -253,6 +253,15 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        /// <summary>
+        /// Hàm xử lý tiêu hao nguyên vật liệu theo BOM trong Odoo.
+        /// </summary>
+        /// <param name="productionOrderInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <param name="qty_producing"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsync(Dictionary<string, string> productionOrderInfo, int uid, string sessionId, int qty_producing)
         {
             using (var client = new HttpClient())
@@ -480,6 +489,387 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/onchange", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để đọc thông tin sản xuất bằng mã productID từ Odoo.
+        /// </summary>
+        /// <param name="productionId"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, object>> SaveProductionOrderAsync(int id, int qty_producing, object[] move_raw_ids, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 58,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { id }, // ID của mrp.production
+                            new
+                            {
+                                qty_producing = qty_producing,
+                                move_raw_ids = move_raw_ids
+                            }
+                        },
+                        model = "mrp.production",
+                        method = "write",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                default_company_id = 1
+                            }
+                        }
+                    }
+                };
+
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/write", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để đọc thông tin sản xuất bằng mã productID từ Odoo.
+        /// </summary>
+        /// <param name="productionId"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, object>> MarkDoneProductionOrderAsync(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 138,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { id } // ID của mrp.production
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                default_company_id = 1,
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        },
+                        method = "button_mark_done", // sửa key "method " -> "method"
+                        model = "mrp.production"
+                    }
+                };
+
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_button", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để xử lý backorder trong Odoo.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<Dictionary<string, object>> BackOrderOnchange(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 142,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new object[] { }, // args[0] = mảng trống
+                            new { },          // args[1] = object trống
+                            new object[] { }, // args[2] = mảng trống
+                            // args[3] = object mapping onchange fields
+                            new Dictionary<string, object>
+                            {
+                                { "show_backorder_lines", "" },
+                                { "mrp_production_backorder_line_ids", "1" },
+                                { "mrp_production_backorder_line_ids.mrp_production_id", "" },
+                                { "mrp_production_backorder_line_ids.to_backorder", "" }
+                            }
+                        },
+                        model = "mrp.production.backorder",
+                        method = "onchange",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                active_model = "mrp.production",
+                                active_id = id,
+                                active_ids = new int[] { id },
+                                default_company_id = 1,
+                                force_skip_consumption = true,
+                                button_mark_done_production_ids = new int[] { id },
+                                default_mrp_production_ids = new int[] { id },
+                                default_mrp_production_backorder_line_ids = new object[]
+                                {
+                                    new object[]
+                                    {
+                                        0,
+                                        0,
+                                        new
+                                        {
+                                            mrp_production_id = id,
+                                            to_backorder = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production.backorder/onchange", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để xử lý tạo backorder trong Odoo.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<int> BackOrderCreate(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 147,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new
+                            {
+                                mrp_production_backorder_line_ids = new object[]
+                                {
+                                    new object[]
+                                    {
+                                        0,
+                                        "virtual_6",
+                                        new
+                                        {
+                                            mrp_production_id = id,
+                                            to_backorder = true
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        model = "mrp.production.backorder",
+                        method = "create",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                active_model = "mrp.production",
+                                active_id = id,
+                                active_ids = new int[] { id },
+                                default_company_id = 1,
+                                force_skip_consumption = true,
+                                button_mark_done_production_ids = new int[] { id },
+                                default_mrp_production_ids = new int[] { id },
+                                default_mrp_production_backorder_line_ids = new object[]
+                                {
+                                    new object[]
+                                    {
+                                        0,
+                                        0,
+                                        new
+                                        {
+                                            mrp_production_id = id,
+                                            to_backorder = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production.backorder/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                var backorder_id = int.Parse(json["result"].ToString());
+                return backorder_id;
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để xử lý tạo backorder trong Odoo.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<Dictionary<string, object>> BackOrderAction(int id, int backorder_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 150,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { backorder_id } // ID của bản ghi backorder vừa tạo
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                active_model = "mrp.production",
+                                active_id = id,
+                                active_ids = new int[] { id },
+                                default_company_id = 1,
+                                force_skip_consumption = true,
+                                button_mark_done_production_ids = new int[] { id },
+                                default_mrp_production_ids = new int[] { id },
+                                default_mrp_production_backorder_line_ids = new object[]
+                                {
+                                    new object[]
+                                    {
+                                        0,
+                                        0,
+                                        new
+                                        {
+                                            mrp_production_id = id,
+                                            to_backorder = true
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        method = "action_backorder",
+                        model = "mrp.production.backorder"
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_button", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
                 if (json["error"] != null)
                 {
                     throw new Exception(json["error"]["message"].ToString());

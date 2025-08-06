@@ -1,403 +1,47 @@
 {
-  "id": 58,
+  "id": 147,
   "jsonrpc": "2.0",
   "method": "call",
   "params": {
     "args": [
-      [ 50816 ],
       {
-        "qty_producing": 1,
-        "move_raw_ids": [
+        "mrp_production_backorder_line_ids": [
           [
-            1,
-            614194,
+            0,
+            "virtual_6",
             {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 2.75
-            }
-          ],
-          [
-            1,
-            614195,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 4
-            }
-          ],
-          [
-            1,
-            614196,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.009300000000000001
-            }
-          ],
-          [
-            1,
-            614197,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "product_uom_qty": 0.5800000000000001,
-              "quantity_done": 0.0058000000000000005
-            }
-          ],
-          [
-            1,
-            614198,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.093
-            }
-          ],
-          [
-            1,
-            614199,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614200,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614201,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614202,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614203,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614204,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614205,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614206,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614207,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614208,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614209,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614210,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614211,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614212,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [ 4, 614213, false ],
-          [
-            1,
-            614214,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614215,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614216,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614217,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614218,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614219,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614220,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614221,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614222,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.25
-            }
-          ],
-          [
-            1,
-            614223,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.5
-            }
-          ],
-          [
-            1,
-            614224,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614225,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.5
-            }
-          ],
-          [
-            1,
-            614226,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614227,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614228,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614229,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1.5
-            }
-          ],
-          [
-            1,
-            614230,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 1
-            }
-          ],
-          [
-            1,
-            614231,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.01
-            }
-          ],
-          [
-            1,
-            614232,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "quantity_done": 0.01
-            }
-          ],
-          [
-            1,
-            614233,
-            {
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "product_uom_qty": 3.1300000000000003,
-              "quantity_done": 0.0313
-            }
-          ],
-          [
-            1,
-            614234,
-            {
-              "name": "NM/MO/00935",
-              "date": "2025-08-05 00:56:03",
-              "date_deadline": "2025-08-05 00:56:03",
-              "company_id": 1,
-              "product_id": 622,
-              "product_uom_qty": 100,
-              "location_id": 20,
-              "location_dest_id": 15,
-              "state": "assigned",
-              "price_unit": 0,
-              "group_id": 1657,
-              "propagate_cancel": false,
-              "warehouse_id": 2,
-              "quantity_done": 1,
-              "additional": false,
-              "operation_id": false,
-              "bom_line_id": 1360,
-              "component_standard_consumption_id": 535650
+              "mrp_production_id": 50875,
+              "to_backorder": true
             }
           ]
         ]
       }
     ],
-    "model": "mrp.production",
-    "method": "write",
+    "model": "mrp.production.backorder",
+    "method": "create",
     "kwargs": {
       "context": {
         "lang": "vi_VN",
         "tz": "Asia/Ho_Chi_Minh",
         "uid": 2,
         "allowed_company_ids": [ 1 ],
-        "default_company_id": 1
+        "active_model": "mrp.production",
+        "active_id": 50875,
+        "active_ids": [ 50875 ],
+        "default_company_id": 1,
+        "force_skip_consumption": true,
+        "button_mark_done_production_ids": [ 50875 ],
+        "default_mrp_production_ids": [ 50875 ],
+        "default_mrp_production_backorder_line_ids": [
+          [
+            0,
+            0,
+            {
+              "mrp_production_id": 50875,
+              "to_backorder": true
+            }
+          ]
+        ]
       }
     }
   }

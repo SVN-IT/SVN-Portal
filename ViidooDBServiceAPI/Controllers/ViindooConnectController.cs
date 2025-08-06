@@ -133,7 +133,17 @@ namespace ViidooDBServiceAPI.Controllers
                                 var detail = item[2] as JObject;
                                 var date = detail?["date"]?.ToString();
                                 var date_deadline = detail?["date_deadline"]?.ToString();
-                                var quantityDone = int.Parse(detail?["quantity_done"]?.ToString());
+
+                                decimal quantityDone = 0;
+                                try
+                                {
+                                    quantityDone = decimal.Parse(detail?["quantity_done"]?.ToString());
+                                }
+                                catch
+                                {
+                                    quantityDone = 0;
+                                }
+                                
                                 if (quantityDone != 0)
                                 {
                                     var moveRaw = new object[]
@@ -165,6 +175,21 @@ namespace ViidooDBServiceAPI.Controllers
 
                         // Danh sách thành phần tiêu hao
                         object[] move_raw_ids = moveRawList.ToArray();
+
+                        int mrp_production_id = int.Parse(productionOrderInfo["id"]);
+
+                        var saveResult = await odooAPIService.SaveProductionOrderAsync(mrp_production_id, qty_producing, move_raw_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = "Hoàn thành lệnh sản xuất";
                     }
                 }
 
