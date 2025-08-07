@@ -27,6 +27,15 @@ namespace SVN_Portal.Models
         public int ColWidth { get; set; }
         public bool IsProduction { get; set; }
         public bool CanProduction { get; set; }
+
+        //status checklist
+        public bool IsPDChecked { get; set; }
+        public bool IsMTChecked { get; set; }
+        public bool IsQCChecked { get; set; }
+
+        public bool IsPDConfirmed { get; set; }
+        public bool IsQCConfirmed { get; set; }
+
         public List<QtyProdResultViewModel> ViewModels { get; set; }
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
         public List<DefectByCategoryViewModel> DefectByCategoryViewModels { get; set; }

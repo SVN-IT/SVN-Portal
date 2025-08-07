@@ -557,7 +557,57 @@ namespace SVN_Portal.DAL.DataPortal
                     var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, oper.StoreID);
                     if (checkListData != null && checkListData.Count > 0)
                     {
-                        viewModel.CanProduction = true;
+                        if (checkListData[0].RestaurantStaffs.Contains("PD"))
+                        {
+                            viewModel.IsPDChecked = true;
+                        }
+                        else
+                        {
+                            viewModel.IsPDChecked = false;
+                        }
+                        if (checkListData[0].RestaurantStaffs.Contains("MT"))
+                        {
+                            viewModel.IsMTChecked = true;
+                        }
+                        else
+                        {
+                            viewModel.IsMTChecked = false;
+                        }
+                        if (checkListData[0].RestaurantStaffs.Contains("QC"))
+                        {
+                            viewModel.IsQCChecked = true;
+                        }
+                        else
+                        {
+                            viewModel.IsQCChecked = false;
+                        }
+                        if (checkListData[0].ConfirmStatus == "Y")
+                        {
+                            viewModel.IsPDConfirmed = true;
+                        }
+                        else
+                        {
+                            viewModel.IsPDConfirmed = false;
+                        }
+                        if (checkListData[0].PointBSC >= 4)
+                        {
+                            viewModel.IsQCConfirmed = true;
+                        }
+                        else
+                        {
+                            viewModel.IsQCConfirmed = false;
+                        }
+
+
+                        if (viewModel.IsPDChecked && viewModel.IsMTChecked && viewModel.IsQCChecked &&
+                            viewModel.IsPDConfirmed && viewModel.IsQCConfirmed)
+                        {
+                            viewModel.CanProduction = true;
+                        }
+                        else
+                        {
+                            viewModel.CanProduction = false;
+                        }
                     }
                     else
                     {

@@ -6,5 +6,6 @@
         public string Name { get; set; }
         public string ConfirmStatus { get; set; }
         public double PointBSC { get; set; }
+        public string RestaurantStaffs { get; set; }
     }
 }
