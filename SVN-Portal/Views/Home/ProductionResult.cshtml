@@ -262,12 +262,19 @@
                                 productName = "(" + item.Name + ")";
                             }
                         }
-                        <h4>
-                            @item.Operation @productName
-                            <br />
-                            <br />
-                            <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
-                        </h4>
+                        <div class="row">
+                            <div class="col-12">
+                                <h4>
+                                    @item.Operation @productName
+                                    <br />
+                                    <br />
+                                    <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+                                </h4>
+                            </div>
+                            <div id="checklistStatus-@charID" class="col-12">
+                                <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🟢 PD - 🔴 MT - 🟢 QC Checked | 🔴 PD - 🔴 QC Confirmed </p>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -616,6 +623,8 @@
                         $(`#divForecast_${charID}`).html(response.forecase);
 
                         var pdData = JSON.parse(response.pdmodel);
+
+                        $('#checklistStatus-' + charID).html(response.checklistStatus);
 
                         if(response.canProduction)
                         {

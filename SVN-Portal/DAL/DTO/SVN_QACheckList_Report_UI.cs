@@ -7,5 +7,6 @@
         public string ConfirmStatus { get; set; }
         public double PointBSC { get; set; }
         public string RestaurantStaffs { get; set; }
+        public DateTime CheckDate { get; set; }
     }
 }

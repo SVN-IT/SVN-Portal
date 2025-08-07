@@ -565,7 +565,7 @@ namespace SVN_Portal.DAL.DataPortal
                         {
                             viewModel.IsPDChecked = false;
                         }
-                        if (checkListData[0].RestaurantStaffs.Contains("MT"))
+                        if (checkListData[0].RestaurantStaffs.Contains("MT") || checkListData[0].RestaurantStaffs.Contains("ENG"))
                         {
                             viewModel.IsMTChecked = true;
                         }
