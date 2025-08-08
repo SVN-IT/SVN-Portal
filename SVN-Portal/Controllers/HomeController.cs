@@ -717,16 +717,16 @@ namespace SVN_Portal.Controllers
                 sb.Append(item.Time);
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.Target, 2));
+                sb.Append(Math.Round(item.Target, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.Line, 2));
+                sb.Append(Math.Round(item.Line, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.ManQuantity, 2));
+                sb.Append(Math.Round(item.ManQuantity, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.NG, 2));
+                sb.Append(Math.Round(item.NG, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("</div>");
                 sb.Append("</div>");
@@ -755,9 +755,9 @@ namespace SVN_Portal.Controllers
                     sb.Append("<div class='col-3 border table-cell text-center'><strong>" + item.Item + "</strong></div>");
                     if (item.Item == "Defect")
                     {
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + " %</div>");
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + " %</div>");
-                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, appConfig.Rounding) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, appConfig.Rounding) + " %</div>");
+                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</div>");
                         if (item.Percent > 100)
                         {
                             status = "bg-danger";
@@ -773,9 +773,9 @@ namespace SVN_Portal.Controllers
                     }
                     else
                     {
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + "</div>");
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + "</div>");
-                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, appConfig.Rounding) + "</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, appConfig.Rounding) + "</div>");
+                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</div>");
                         if (item.Percent >= 0 && item.Percent <= 75)
                         {
                             status = "bg-danger";
@@ -1071,18 +1071,18 @@ namespace SVN_Portal.Controllers
 
                     if (item.Item == "Defect")
                     {
-                        sb.Append("<span>Tar: " + Math.Round(item.Target, 2) + " %</span>");
-                        sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
+                        sb.Append("<span>Tar: " + Math.Round(item.Target, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + " %</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else
                     {
-                        sb.Append("<span>Tar " + Math.Round(item.Target, 2) + "</span>");
-                        sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
+                        sb.Append("<span>Tar " + Math.Round(item.Target, appConfig.Rounding) + "</span>");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + "</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
 
