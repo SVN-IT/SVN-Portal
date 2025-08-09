@@ -411,7 +411,7 @@
                                                 width: 100%;
                                                 }
                                             </style>
-                                            <div class="col-lg-@item.ColWidth mt-2">
+                                            <div id="smallCard_@charID" class="col-lg-@item.ColWidth mt-2">
                                                 @if(item.WC != "FG")
                                                 {
                                                     <h1>
@@ -428,6 +428,9 @@
                                                 <h1>@item.Operation @productName</h1>
                                                 @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                                 <div class="row">
+                                                    <div id="checklistStatus-@charID" class="col-12">
+                                                        <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🟢 PD - 🔴 MT - 🟢 QC Checked | 🔴 PD - 🔴 QC Confirmed </p>
+                                                    </div>
                                                     @* <div id="pd_@charID" class="col-6 row">
                                                         <div class="col-12 border table-cell text-center">
                                                             <strong>Production result: @item.Operation</strong>
@@ -960,6 +963,8 @@
 
                         var pdData = JSON.parse(response.pdmodel);
 
+                        $('#checklistStatus-' + charID).html(response.checklistStatus);
+
                         if(response.canProduction)
                         {
                             $(`#disableCard`).addClass("d-none");
@@ -971,12 +976,12 @@
 
                         if(response.isProduction)
                         {
-                            $(`#bigCard`).removeClass("card-disable");
+                            $(`#smallCard_${charID}`).removeClass("card-disable");
                             // $(`#disableCard_${charID}`).addClass("d-none");
                         }
                         else
                         {
-                            $(`#bigCard`).addClass("card-disable");
+                            $(`#smallCard_${charID}`).addClass("card-disable");
                             // $(`#disableCard_${charID}`).removeClass("d-none");
                         }
 
