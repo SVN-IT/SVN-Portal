@@ -653,7 +653,7 @@ namespace SVN_Portal.Controllers
                 string pdConfirmed = "🔴";
                 string qcConfirmed = "🔴";
 
-                if(model.IsPDChecked)
+                if (model.IsPDChecked)
                 {
                     pdChecked = "🟢";
                 }
@@ -1224,8 +1224,8 @@ namespace SVN_Portal.Controllers
             }
             catch (Exception ex)
             {
-                
-                
+
+
             }
 
             ViewBag.date = date;
@@ -1233,32 +1233,61 @@ namespace SVN_Portal.Controllers
             return View(models);
         }
 
-        public IActionResult PDResultDailyReport(DateTime date)
+        public async Task<IActionResult> PDResultDailyReport(DateTime date)
         {
-            List<SVN_production_summaryUI> models = new List<SVN_production_summaryUI>();
-            SVN_production_summaryDataPortal dataPortal = new SVN_production_summaryDataPortal(connectionString);
+            ViewBag.date = date;
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
                 if (date == DateTime.MinValue)
                 {
                     date = DateTime.Now;
                 }
-                string strdate = date.ToString("yyyyMMdd");
-                //models = dataPortal.ReadListByDate(strdate);
-                if (models.Count > 0)
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                if (models != null && models.Count > 0)
                 {
-                    models = models.Where(x => x.Target != 0).ToList();
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+
+                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                        viewModel.OperationActive = model.Operation;
+                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.CheckListOnSystem = "NG";
+                        if (model.CanProduction)
+                        {
+                            viewModel.CheckListOnSystem = "OK";
+                        }
+                        viewModels.Add(viewModel);
+                    }
                 }
+                return View(viewModels);
             }
             catch (Exception ex)
             {
-
-
+                return View(viewModels);
             }
-            ViewBag.date = date;
-            return View(models);
-        }
 
-        #endregion
+            #endregion
+        }
     }
 }
