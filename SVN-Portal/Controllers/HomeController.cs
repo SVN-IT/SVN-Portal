@@ -255,7 +255,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -322,7 +322,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 if (models != null && models.Count > 0)
                 {
@@ -394,7 +394,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -424,6 +424,8 @@ namespace SVN_Portal.Controllers
                             model.ColWidth = operInfo.ColWidth;
                         }
                     }
+
+                    models = models.OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
                 return View(models);
             }
@@ -472,7 +474,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -1194,6 +1196,32 @@ namespace SVN_Portal.Controllers
 
             ViewBag.date = date;
 
+            return View(models);
+        }
+
+        public IActionResult PDResultDailyReport(DateTime date)
+        {
+            List<SVN_production_summaryUI> models = new List<SVN_production_summaryUI>();
+            SVN_production_summaryDataPortal dataPortal = new SVN_production_summaryDataPortal(connectionString);
+            try
+            {
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                string strdate = date.ToString("yyyyMMdd");
+                //models = dataPortal.ReadListByDate(strdate);
+                if (models.Count > 0)
+                {
+                    models = models.Where(x => x.Target != 0).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            ViewBag.date = date;
             return View(models);
         }
 

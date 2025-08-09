@@ -267,13 +267,14 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
+            var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
 
             try
             {
@@ -289,6 +290,13 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val3 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
+
+                        val1.Time = "8h-10h";
+                        val2.Time = "10h10-12h";
+                        val3.Time = "13h-15h";
+                        val4.Time = "15h10-17h30";
+                        val5.Time = "18h-20h";
+
                         viewModel.Operation = item.Operation;
                         viewModel.Name = item.Name;
                         if (string.IsNullOrWhiteSpace(item.WCName))
@@ -304,16 +312,21 @@ namespace SVN_Portal.DAL.DataPortal
                         var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Target");
                         if (dataUIbyOperTarget != null)
                         {
-                            val1.Time = "8h-10h";
                             val1.Target = dataUIbyOperTarget.Time1;
-                            val2.Time = "10h10-12h";
                             val2.Target = dataUIbyOperTarget.Time2;
-                            val3.Time = "13h-15h";
                             val3.Target = dataUIbyOperTarget.Time3;
-                            val4.Time = "15h10-17h30";
                             val4.Target = dataUIbyOperTarget.Time4;
-                            val5.Time = "18h-20h";
                             val5.Target = dataUIbyOperTarget.Time5;
+
+                            if (dataUIbyOperTarget.Time1 == 0 && dataUIbyOperTarget.Time2 == 0 &&
+                                dataUIbyOperTarget.Time3 == 0 && dataUIbyOperTarget.Time4 == 0 && dataUIbyOperTarget.Time5 == 0)
+                            {
+                                viewModel.IsProduction = false;
+                            }
+                            else
+                            {
+                                viewModel.IsProduction = true;
+                            }
                         }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Production Qty");
                         if (dataUIbyOperLine != null)
@@ -354,6 +367,17 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.ViewModels.Add(val3);
                         viewModel.ViewModels.Add(val4);
                         viewModel.ViewModels.Add(val5);
+                        DateTime result = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                        string strDate = result.ToString("yyyy-MM-dd") + "  00:00:00.000";
+                        var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, item.StoreID);
+                        if (checkListData != null && checkListData.Count > 0)
+                        {
+                            viewModel.CanProduction = true;
+                        }
+                        else
+                        {
+                            viewModel.CanProduction = false;
+                        }
 
                         try
                         {
