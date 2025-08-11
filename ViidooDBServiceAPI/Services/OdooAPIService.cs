@@ -176,6 +176,122 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+
+        /// <summary>
+        /// Hàm tìm kiếm lot
+        /// </summary>
+        /// <param name="lotNumber"></param>
+        /// <param name="product_id"></param>
+        /// <param name="company_id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<JArray> LotSearchAsync(string lotNumber, int product_id, int company_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 56,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.lot",
+                        method = "name_search",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            name = lotNumber,
+                            @operator = "ilike",
+                            args = new object[]
+                            {
+                                "&",
+                                new object[] { "product_id", "=", product_id },
+                                new object[] { "company_id", "=", company_id }
+                            },
+                            limit = 8,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = 2,
+                                allowed_company_ids = new int[] { company_id },
+                                default_product_id = product_id,
+                                default_company_id = company_id
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                var resultArray = (JArray)json["result"];
+                if (resultArray.Count == 0)
+                {
+                    return null;
+                }
+                return resultArray;
+            }
+        }
+
+        public async Task<JArray> CreateLotAsync(string lotNumber, int product_id, int company_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 57,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            lotNumber
+                        },
+                        model = "stock.lot",
+                        method = "name_create",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = 2,
+                                allowed_company_ids = new int[] { company_id },
+                                default_product_id = product_id,
+                                default_company_id = company_id
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                var resultArray = (JArray)json["result"];
+                if (resultArray.Count == 0)
+                {
+                    return null;
+                }
+                return resultArray;
+            }
+        }
+
         /// <summary>
         /// Hàm API để đọc thông tin sản xuất bằng mã productID từ Odoo.
         /// </summary>
@@ -423,6 +539,319 @@ namespace ViidooDBServiceAPI.Services
                                 { "workorder_ids", "1" },
                                 { "workorder_ids.production_state", "1" },
                                 { "workorder_ids.qty_producing", "1" },
+                                { "priority", "1" },
+                                { "product_id", "1" },
+                                { "company_id", "1" },
+                                { "bom_id", "1" },
+                                { "qty_producing", "1" },
+                                { "product_qty", "1" },
+                                { "product_uom_id", "1" },
+                                { "date_planned_start", "1" },
+                                { "move_finished_ids", "1" },
+                                { "move_finished_ids.product_id", "1" },
+                                { "move_finished_ids.product_uom_qty", "1" },
+                                { "move_finished_ids.product_uom", "1" },
+                                { "move_finished_ids.operation_id", "1" },
+                                { "move_finished_ids.date_deadline", "1" },
+                                { "move_finished_ids.picking_type_id", "1" },
+                                { "move_finished_ids.location_id", "1" },
+                                { "move_finished_ids.group_id", "1" },
+                                { "move_finished_ids.state", "1" },
+                                { "move_finished_ids.quantity_done", "1" },
+                                { "move_finished_ids.product_packaging_id", "1" },
+                                { "move_raw_ids", "1" },
+                                { "move_raw_ids.product_id", "1" },
+                                { "move_raw_ids.location_id", "1" },
+                                { "move_raw_ids.product_uom", "1" },
+                                { "move_raw_ids.date_deadline", "1" },
+                                { "move_raw_ids.date", "1" },
+                                { "move_raw_ids.picking_type_id", "1" },
+                                { "move_raw_ids.has_tracking", "1" },
+                                { "move_raw_ids.operation_id", "1" },
+                                { "move_raw_ids.state", "1" },
+                                { "move_raw_ids.product_uom_qty", "1" },
+                                { "move_raw_ids.product_qty", "1" },
+                                { "move_raw_ids.reserved_availability", "1" },
+                                { "move_raw_ids.forecast_expected_date", "1" },
+                                { "move_raw_ids.forecast_availability", "1" },
+                                { "move_raw_ids.quantity_done", "1" },
+                                { "move_raw_ids.lot_ids", "1" },
+                                { "move_raw_ids.group_id", "1" },
+                                { "picking_type_id", "1" },
+                                { "location_src_id", "1" },
+                                { "location_dest_id", "1" }
+                            }
+                        },
+                        model = "mrp.production",
+                        method = "onchange",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                default_company_id = 1
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/onchange", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm xử lý tiêu hao nguyên vật liệu theo BOM trong Odoo.
+        /// Được viết 1 cách linh động hơn
+        /// </summary>
+        /// <param name="productionOrderInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <param name="qty_producing"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsyncv1(Dictionary<string, string> productionOrderInfo, int uid, string sessionId, 
+                int qty_producing, int lot_id = 0)
+        {
+            using (var client = new HttpClient())
+            {
+
+                var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] move_raw_ids = new object[] { };
+                if (str_move_ids.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    move_raw_ids = Array.ConvertAll(str_move_ids, int.Parse)
+                        .Select(id => new object[] { 4, id, false })
+                        .ToArray();
+                }
+
+                var str_check_ids = productionOrderInfo["check_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] check_ids = new object[] { };
+                if (str_check_ids.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    check_ids = Array.ConvertAll(str_check_ids, int.Parse)
+                    .Select(id => new object[] { 4, id, false })
+                    .ToArray();
+                }
+                
+                var str_workorder_ids = productionOrderInfo["workorder_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] workorder_ids = new object[] { };
+                if (str_workorder_ids.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    workorder_ids = Array.ConvertAll(str_workorder_ids, int.Parse)
+                        .Select(id => new object[] { 4, id, false })
+                        .ToArray();
+                }
+
+                //Lấy product_id
+                var arrProductID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"]);
+                var product_id = Convert.ToInt32(arrProductID[0]);
+
+                //Lấy product_tmpl_id
+                var arrProductTmplID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_tmpl_id"]);
+                var product_tmpl_id = Convert.ToInt32(arrProductTmplID[0]);
+
+                //Lấy company_id
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["company_id"]);
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                //Lấy bom_id
+                var arrBomID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["bom_id"]);
+                var bom_id = Convert.ToInt32(arrBomID[0]);
+
+                //Lấy product_uom_category_id
+                var arrProductUomCatID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_uom_category_id"]);
+                var product_uom_category_id = Convert.ToInt32(arrProductUomCatID[0]);
+
+                //Lấy product_uom_id
+                var arrProductUomID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_uom_id"]);
+                var product_uom_id = Convert.ToInt32(arrProductUomID[0]);
+
+                //Lấy move_finished_ids
+                var arrMoveFinishedID = productionOrderInfo["move_finished_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] move_finished_ids = new object[] { };
+                if(arrMoveFinishedID.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    move_finished_ids = Array.ConvertAll(arrMoveFinishedID, int.Parse)
+                        .Select(id => new object[] { 4, id, false })
+                        .ToArray();
+                }
+
+                //Lấy production_location_id
+                var arrProductLocID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["production_location_id"]);
+                var production_location_id = Convert.ToInt32(arrProductLocID[0]);
+
+                //Lấy picking_type_id
+                var arrPickingTypeID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["picking_type_id"]);
+                var picking_type_id = Convert.ToInt32(arrPickingTypeID[0]);
+
+                //Lấy location_src_id
+                var arrLocSrcID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["location_src_id"]);
+                var location_src_id = Convert.ToInt32(arrLocSrcID[0]);
+
+                //Lấy warehouse_id
+                var arrWarehouseID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["warehouse_id"]);
+                var warehouse_id = Convert.ToInt32(arrWarehouseID[0]);
+
+                //Lấy location_dest_id
+                var arrLocDescID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["location_dest_id"]);
+                var location_dest_id = Convert.ToInt32(arrLocDescID[0]);
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                // Gửi request tiêu thụ nguyên vật liệu
+                var payload = new
+                {
+                    id = 127,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { int.Parse(productionOrderInfo["id"]) }, // ID
+
+                            // Object thông tin chi tiết
+                            new
+                            {
+                                id = int.Parse(productionOrderInfo["id"]),
+                                confirm_cancel = bool.Parse(productionOrderInfo["confirm_cancel"]),
+                                show_lock = bool.Parse(productionOrderInfo["show_lock"]),
+                                move_byproduct_ids = new object[] { },
+                                state = productionOrderInfo["state"],
+                                show_serial_mass_produce = bool.Parse(productionOrderInfo["show_serial_mass_produce"]),
+                                check_ids = check_ids,
+                                check_todo = bool.Parse(productionOrderInfo["check_todo"]),
+                                reservation_state = productionOrderInfo["reservation_state"],
+                                date_planned_finished = productionOrderInfo["date_planned_finished"],
+                                is_locked = bool.Parse(productionOrderInfo["is_locked"]),
+                                qty_produced = int.Parse(productionOrderInfo["qty_produced"]),
+                                unreserve_visible = bool.Parse(productionOrderInfo["unreserve_visible"]),
+                                reserve_visible = bool.Parse(productionOrderInfo["reserve_visible"]),
+                                consumption = productionOrderInfo["consumption"],
+                                is_planned = bool.Parse(productionOrderInfo["is_planned"]),
+                                show_allocation = bool.Parse(productionOrderInfo["show_allocation"]),
+                                workorder_ids = workorder_ids,
+                                eco_count = int.Parse(productionOrderInfo["eco_count"]),
+                                scrap_count = int.Parse(productionOrderInfo["scrap_count"]),
+                                delivery_count = int.Parse(productionOrderInfo["delivery_count"]),
+                                alert_count = int.Parse(productionOrderInfo["alert_count"]),
+                                package_count = int.Parse(productionOrderInfo["package_count"]),
+                                account_moves_count = int.Parse(productionOrderInfo["account_moves_count"]),
+                                maintenance_count = int.Parse(productionOrderInfo["maintenance_count"]),
+                                document_count = int.Parse(productionOrderInfo["document_count"]),
+                                overview_progress = (object)productionOrderInfo["overview_progress"],
+                                priority = int.Parse(productionOrderInfo["priority"]),
+                                name = productionOrderInfo["name"],
+                                use_create_components_lots = bool.Parse(productionOrderInfo["use_create_components_lots"]),
+                                show_lot_ids = bool.Parse(productionOrderInfo["show_lot_ids"]),
+                                product_tracking = productionOrderInfo["product_tracking"],
+                                show_valuation = bool.Parse(productionOrderInfo["show_valuation"]),
+                                product_id = product_id,
+                                product_tmpl_id = product_tmpl_id,
+                                forecasted_issue = bool.Parse(productionOrderInfo["forecasted_issue"]),
+                                company_id = company_id,
+                                product_description_variants = (object)productionOrderInfo["product_description_variants"],
+                                bom_id = bom_id,
+                                qty_producing = qty_producing,
+                                product_qty = (object)productionOrderInfo["product_qty"],
+                                product_uom_category_id = product_uom_category_id,
+                                product_uom_id = product_uom_id,
+                                product_packaging_id = bool.Parse(productionOrderInfo["product_packaging_id"]),
+                                lot_producing_id = (lot_id == 0) ? false : (object)lot_id,
+                                date_planned_start = productionOrderInfo["date_planned_start"],
+                                delay_alert_date = bool.Parse(productionOrderInfo["delay_alert_date"]),
+                                json_popover = bool.Parse(productionOrderInfo["json_popover"]),
+                                components_availability_state = productionOrderInfo["components_availability_state"],
+                                components_availability = productionOrderInfo["components_availability"],
+                                show_final_lots = bool.Parse(productionOrderInfo["show_final_lots"]),
+                                production_location_id = production_location_id,
+                                move_finished_ids = move_finished_ids,
+                                move_raw_ids = move_raw_ids, //danh sách consume
+                                picking_type_id = picking_type_id,
+                                location_src_id = location_src_id,
+                                warehouse_id = warehouse_id,
+                                location_dest_id = location_dest_id,
+                                origin = productionOrderInfo["origin"],
+                                date_deadline = productionOrderInfo["date_deadline"]
+                            },
+
+                            // Key onchange
+                            "qty_producing",
+
+                            // Object mapping key-value onchange
+                            new Dictionary<string, object>
+                            {
+                                { "confirm_cancel", "" },
+                                { "show_lock", "" },
+                                { "move_byproduct_ids", "" },
+                                { "state", "1" },
+                                {"show_serial_mass_produce", "" },
+                                { "check_ids", "1" },
+                                { "check_todo", "" },
+                                { "reservation_state", "1" },
+                                { "date_planned_finished", "1" },
+                                { "is_locked", "1" },
+                                { "qty_produced", "1" },
+                                { "is_planned", "1" },
+                                { "workorder_ids", "1" },
+                                { "workorder_ids.consumption", "" },
+                                { "workorder_ids.company_id", "" },
+                                { "workorder_ids.is_produced", "" },
+                                { "workorder_ids.is_user_working", "" },
+                                { "workorder_ids.product_uom_id", "" },
+                                { "workorder_ids.production_state", "" },
+                                { "workorder_ids.production_bom_id", "" },
+                                { "workorder_ids.qty_producing", "1" },
+                                { "workorder_ids.time_ids", "1" },
+                                { "workorder_ids.working_state", "" },
+                                { "workorder_ids.operation_id", "1" },
+                                { "workorder_ids.name", "" },
+                                { "workorder_ids.workcenter_id", "1" },
+                                { "workorder_ids.product_id", "" },
+                                { "workorder_ids.qty_remaining", "" },
+                                { "workorder_ids.qty_produced", "1" },
+                                { "workorder_ids.finished_lot_id", "1" },
+                                { "workorder_ids.date_planned_start", "1" },
+                                { "workorder_ids.date_planned_finished", "1" },
+                                { "workorder_ids.date_start", "1" },
+                                { "workorder_ids.date_finished", "1" },
+                                { "workorder_ids.date_start", "" },
+                                { "workorder_ids.date_finished", "" },
+                                { "workorder_ids.duration_expected", "1" },
+                                { "workorder_ids.duration", "" },
+                                { "workorder_ids.state", "1" },
+                                { "workorder_ids.check_ids", "1" },
+                                { "workorder_ids.check_todo", "" },
+                                { "workorder_ids.show_json_popover", "" },
+                                { "workorder_ids.json_popover", "" },
+                                { "eco_count", "1" },
+                                { "scrap_count", "1" },
+                                { "delivery_count", "1" },
+                                { "alert_count", "1" },
+                                { "package_count", "1" },
+                                { "account_moves_count", "1" },
+                                { "maintenance_count", "1" },
+                                { "document_count", "1" },
+                                { "overview_progress", "" },
                                 { "priority", "1" },
                                 { "product_id", "1" },
                                 { "company_id", "1" },

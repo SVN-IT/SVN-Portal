@@ -10,6 +10,7 @@ namespace SVNShareLib.Request
     {
         public int product_id { get; set; }
         public string seriNumber { get; set; }
+        public string lotNumber { get; set; }
         public int count { get; set; }
 
     }

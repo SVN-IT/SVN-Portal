@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
 using SVNShareLib.Request;
@@ -103,6 +104,13 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+
+        /// <summary>
+        /// Nhập kết quả sản xuất đơn giản
+        /// Không có truy vết theo mã serial
+        /// </summary>
+        /// <param name="dataRequest"></param>
+        /// <returns></returns>
         [Route("InputProductionByWorkOrder")]
         [HttpPost]
         public async Task<BODataProcessResult> InputProductionByWorkOrder(ProductDataRequest dataRequest)
@@ -171,6 +179,147 @@ namespace ViidooDBServiceAPI.Controllers
                                 
                             }
                             
+                        }
+
+                        // Danh sách thành phần tiêu hao
+                        object[] move_raw_ids = moveRawList.ToArray();
+
+                        int mrp_production_id = int.Parse(productionOrderInfo["id"]);
+
+                        var saveResult = await odooAPIService.SaveProductionOrderAsync(mrp_production_id, dataRequest.count, move_raw_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = "Hoàn thành lệnh sản xuất";
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+
+            }
+            return bODataProcessResult;
+        }
+
+        [Route("InputProductionByWorkOrderv1")]
+        [HttpPost]
+        public async Task<BODataProcessResult> InputProductionByWorkOrderv1(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                bODataProcessResult = await odooAPIService.LoginAsync();
+                if (bODataProcessResult.OK)
+                {
+                    //Lấy dữ liệu lệnh sản xuất
+                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.seriNumber, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (productionOrderInfo == null)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.seriNumber;
+                        return bODataProcessResult;
+                    }
+
+                    var productTracking = productionOrderInfo["product_tracking"]?.ToString();
+
+                    //Lấy product_id
+                    var arrProductID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"]);
+                    var product_id = Convert.ToInt32(arrProductID[0]);
+
+                    //Lấy company_id
+                    var arrCompanyID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["company_id"]);
+                    var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+
+                    int lot_id = 0;
+                    string lot_name = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(productTracking) && productTracking == "serial")
+                    {
+                        var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        if(stockLotInfo == null)
+                        {
+                            stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        }
+
+                        if (stockLotInfo != null)
+                        {
+                            lot_id = (int)stockLotInfo.Last[0];
+                            lot_name = (string)stockLotInfo.Last[1];
+                        }
+                        else
+                        {
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = "Không tìm thấy hoặc tạo được mã lô: " + dataRequest.lotNumber;
+                            return bODataProcessResult;
+                        }
+                    }
+
+                    // Thực hiên tiêu hao nghuyên vật liệu theo BOM
+                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.count, lot_id);
+
+                    var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+
+                    var moveRawList = new List<object>();
+
+                    if (result != null)
+                    {
+                        foreach (var item in result)
+                        {
+                            var id = (int)item[1];
+                            if (id != 0)
+                            {
+                                var detail = item[2] as JObject;
+                                var date = detail?["date"]?.ToString();
+                                var date_deadline = detail?["date_deadline"]?.ToString();
+
+                                decimal quantityDone = 0;
+                                try
+                                {
+                                    quantityDone = decimal.Parse(detail?["quantity_done"]?.ToString());
+                                }
+                                catch
+                                {
+                                    quantityDone = 0;
+                                }
+
+                                if (quantityDone != 0)
+                                {
+                                    var moveRaw = new object[]
+                                    {
+                                        1,
+                                        id,
+                                        new {
+                                            date = date,
+                                            date_deadline = date_deadline,
+                                            quantity_done = quantityDone
+                                        }
+                                    };
+                                    moveRawList.Add(moveRaw);
+                                }
+                                else
+                                {
+                                    var moveRaw = new object[]
+                                    {
+                                        4,
+                                        id,
+                                        false
+                                    };
+                                    moveRawList.Add(moveRaw);
+                                }
+
+                            }
+
                         }
 
                         // Danh sách thành phần tiêu hao
