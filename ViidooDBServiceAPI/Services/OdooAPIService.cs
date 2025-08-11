@@ -832,8 +832,6 @@ namespace ViidooDBServiceAPI.Services
                                 { "workorder_ids.finished_lot_id", "1" },
                                 { "workorder_ids.date_planned_start", "1" },
                                 { "workorder_ids.date_planned_finished", "1" },
-                                { "workorder_ids.date_start", "1" },
-                                { "workorder_ids.date_finished", "1" },
                                 { "workorder_ids.date_start", "" },
                                 { "workorder_ids.date_finished", "" },
                                 { "workorder_ids.duration_expected", "1" },
@@ -954,6 +952,81 @@ namespace ViidooDBServiceAPI.Services
                                 qty_producing = qty_producing,
                                 move_raw_ids = move_raw_ids
                             }
+                        },
+                        model = "mrp.production",
+                        method = "write",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                default_company_id = 1
+                            }
+                        }
+                    }
+                };
+
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/write", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để đọc thông tin sản xuất bằng mã productID từ Odoo.
+        /// </summary>
+        /// <param name="productionId"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, object>> SaveProductionOrderAsyncv1(int id, int lot_producing_id, int qty_producing, object[] move_raw_ids, object[] workorder_ids, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var data = new Dictionary<string, object>
+                {
+                    { "qty_producing", qty_producing },
+                    { "move_raw_ids", move_raw_ids }
+                };
+
+                if (lot_producing_id != 0)
+                {
+                    data["lot_producing_id"] = lot_producing_id;
+
+                    data["workorder_ids"] = workorder_ids;
+                }
+
+                var payload = new
+                {
+                    id = 58,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { id }, // ID của mrp.production
+                            data
                         },
                         model = "mrp.production",
                         method = "write",
@@ -1147,10 +1220,15 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="sessionId"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<int> BackOrderCreate(int id, int uid, string sessionId)
+        public async Task<int> BackOrderCreate(int id, int uid, string sessionId, int lot_id = 0)
         {
             using (var client = new HttpClient())
             {
+                string @virtual = "virtual_6"; // Giá trị này có thể thay đổi tùy theo yêu cầu của bạn
+                if (lot_id != 0)
+                {
+                    @virtual = "virtual_4";
+                }
                 // Gửi request đọc dữ liệu
                 client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
                 var payload = new
@@ -1169,7 +1247,7 @@ namespace ViidooDBServiceAPI.Services
                                     new object[]
                                     {
                                         0,
-                                        "virtual_6",
+                                        @virtual,
                                         new
                                         {
                                             mrp_production_id = id,

@@ -250,8 +250,9 @@ namespace ViidooDBServiceAPI.Controllers
                         if(stockLotInfo == null)
                         {
                             stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                            stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                         }
-
+                        
                         if (stockLotInfo != null)
                         {
                             lot_id = (int)stockLotInfo.Last[0];
@@ -269,8 +270,10 @@ namespace ViidooDBServiceAPI.Controllers
                     var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.count, lot_id);
 
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+                    var workOrderResult = ((JObject)moveRawConsumeInfo["result"])["value"]["workorder_ids"] as JArray;
 
                     var moveRawList = new List<object>();
+                    var workOrderList = new List<object>();
 
                     if (result != null)
                     {
@@ -322,18 +325,83 @@ namespace ViidooDBServiceAPI.Controllers
 
                         }
 
+                        foreach (var item in workOrderResult)
+                        {
+                            var id = (int)item[1];
+                            if (id != 0)
+                            {
+                                var detail = item[2] as JObject;
+
+                                decimal qty_producing = 0;
+                                try
+                                {
+                                    qty_producing = decimal.Parse(detail?["qty_producing"]?.ToString());
+                                }
+                                catch
+                                {
+                                    qty_producing = 0;
+                                }
+
+                                decimal duration_expected = 0;
+                                try
+                                {
+                                    duration_expected = decimal.Parse(detail?["duration_expected"]?.ToString());
+                                }
+                                catch
+                                {
+                                    duration_expected = 0;
+                                }
+
+                                int finished_lot_id = 0;
+                                try
+                                {
+                                    finished_lot_id = int.Parse(detail?["finished_lot_id"][0]?.ToString());
+                                }
+                                catch
+                                {
+                                    finished_lot_id = 0;
+                                }
+
+                                if (qty_producing != 0)
+                                {
+                                    var workOrder = new object[]
+                                    {
+                                        1,
+                                        id,
+                                        new {
+                                            qty_producing = qty_producing,
+                                            duration_expected = duration_expected,
+                                            finished_lot_id = finished_lot_id
+                                        }
+                                    };
+                                    workOrderList.Add(workOrder);
+                                }
+                                else
+                                {
+                                    var workOrder = new object[]
+                                    {
+                                        4,
+                                        id,
+                                        false
+                                    };
+                                    workOrderList.Add(workOrder);
+                                }
+                            }
+                        }
+
                         // Danh sách thành phần tiêu hao
                         object[] move_raw_ids = moveRawList.ToArray();
+                        object[] work_order_ids = workOrderList.ToArray();
 
                         int mrp_production_id = int.Parse(productionOrderInfo["id"]);
 
-                        var saveResult = await odooAPIService.SaveProductionOrderAsync(mrp_production_id, dataRequest.count, move_raw_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        var saveResult = await odooAPIService.SaveProductionOrderAsyncv1(mrp_production_id, lot_id, dataRequest.count, move_raw_ids, work_order_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                         var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                         var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
-                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType, lot_id);
 
                         var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 

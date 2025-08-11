@@ -1,47 +1,35 @@
 {
+  "id": 150,
   "jsonrpc": "2.0",
-  "id": 127,
-  "result": {
-    "value": {
-      "qty_producing": 1.0,
-      "state": "progress",
-      "move_raw_ids": [
-        [ 5, 0, 0 ],
-        [
-          1,
-          747018,
-          {
-            "date": "2025-08-11 01:14:20",
-            "date_deadline": "2025-08-11 01:14:20",
-            "product_id": [ 174, "[RTE50-60001] 1/2\"X45\"X100' (375) JM LINACOUSTIC RC LINER Part# FILI0547100RJ" ],
-            "product_qty": 0.9500000000000001,
-            "product_uom_qty": 0.9494,
-            "product_uom": [ 29, "Cuộn" ],
-            "location_id": [ 20, "NM/Dự trữ" ],
-            "state": "assigned",
-            "group_id": [ 1654, "NM/MO/00934" ],
-            "picking_type_id": [ 18, "Nhà máy SX: Sản xuất" ],
-            "reserved_availability": 0.9500000000000001,
-            "has_tracking": "none",
-            "quantity_done": 0.060000000000000005,
-            "forecast_availability": 0.9500000000000001,
-            "forecast_expected_date": false,
-            "lot_ids": [ [ 5, 0, 0 ] ],
-            "operation_id": false
-          }
+  "method": "call",
+  "params": {
+    "args": [ [ 43305 ] ],
+    "kwargs": {
+      "context": {
+        "lang": "vi_VN",
+        "tz": "Asia/Ho_Chi_Minh",
+        "uid": 2,
+        "allowed_company_ids": [ 1 ],
+        "active_model": "mrp.production",
+        "active_id": 50875,
+        "active_ids": [ 50875 ],
+        "default_company_id": 1,
+        "force_skip_consumption": true,
+        "button_mark_done_production_ids": [ 50875 ],
+        "default_mrp_production_ids": [ 50875 ],
+        "default_mrp_production_backorder_line_ids": [
+          [
+            0,
+            0,
+            {
+              "mrp_production_id": 50875,
+              "to_backorder": true
+            }
+          ]
         ]
-      ],
-      "workorder_ids": [
-        [ 5, 0, 0 ],
-        [
-          1,
-          17667,
-          {
-            "production_state": "progress",
-            "qty_producing": 1.0
-          }
-        ]
-      ]
-    }
+      }
+    },
+    "method": "action_backorder",
+    "model": "mrp.production.backorder"
   }
 }
