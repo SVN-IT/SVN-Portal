@@ -14,4 +14,22 @@ namespace SVNShareLib.Request
         public int count { get; set; }
 
     }
+
+    public class InputProductDataRequest
+    {
+        public InputProductDataRequest()
+        {
+            LotScaneds = new List<LotScanedRequest>();
+        }
+        public string? WorkOrderNumber { get; set; }
+        public string? LotNumber { get; set; }
+        public int Quality { get; set; }
+        public List<LotScanedRequest> LotScaneds { get; set; }
+    }
+
+    public class LotScanedRequest
+    {
+        public int product_id { get; set; }
+        public string lotNumber { get; set; }
+    }
 }

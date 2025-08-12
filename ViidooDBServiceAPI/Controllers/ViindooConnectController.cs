@@ -214,7 +214,7 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("InputProductionByWorkOrderv1")]
         [HttpPost]
-        public async Task<BODataProcessResult> InputProductionByWorkOrderv1(ProductDataRequest dataRequest)
+        public async Task<BODataProcessResult> InputProductionByWorkOrderv1(InputProductDataRequest dataRequest)
         {
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             try
@@ -223,11 +223,11 @@ namespace ViidooDBServiceAPI.Controllers
                 if (bODataProcessResult.OK)
                 {
                     //Lấy dữ liệu lệnh sản xuất
-                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.seriNumber, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.WorkOrderNumber, bODataProcessResult.UserID, bODataProcessResult.DataType);
                     if (productionOrderInfo == null)
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.seriNumber;
+                        bODataProcessResult.Message = "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.WorkOrderNumber;
                         return bODataProcessResult;
                     }
 
@@ -261,16 +261,25 @@ namespace ViidooDBServiceAPI.Controllers
                         }
                     }
 
+                    if(stockMoveSerialInfo.Count > 0)
+                    {
+                        foreach (var item in stockMoveSerialInfo)
+                        {
+                            var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+                            var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse);
+                        }
+                    }
+
 
                     int lot_id = 0;
                     string lot_name = string.Empty;
                     if (!string.IsNullOrWhiteSpace(productTracking) && productTracking == "serial")
                     {
-                        var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.LotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                         if(stockLotInfo == null)
                         {
-                            stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                            stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                            stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.LotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                            stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.LotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                         }
                         
                         if (stockLotInfo != null)
@@ -281,7 +290,7 @@ namespace ViidooDBServiceAPI.Controllers
                         else
                         {
                             bODataProcessResult.OK = false;
-                            bODataProcessResult.Message = "Không tìm thấy hoặc tạo được mã lô: " + dataRequest.lotNumber;
+                            bODataProcessResult.Message = "Không tìm thấy hoặc tạo được mã lô: " + dataRequest.LotNumber;
                             return bODataProcessResult;
                         }
                     }
@@ -291,12 +300,12 @@ namespace ViidooDBServiceAPI.Controllers
                     if(checkLotInfo != null)
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Mã lô " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
+                        bODataProcessResult.Message = "Mã lô " + dataRequest.LotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
                         return bODataProcessResult;
                     }
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
-                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.count, lot_id);
+                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
 
                     //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
@@ -425,7 +434,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                         int mrp_production_id = int.Parse(productionOrderInfo["id"]);
 
-                        var saveResult = await odooAPIService.SaveProductionOrderAsyncv1(mrp_production_id, lot_id, dataRequest.count, move_raw_ids, work_order_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        var saveResult = await odooAPIService.SaveProductionOrderAsyncv1(mrp_production_id, lot_id, dataRequest.Quality, move_raw_ids, work_order_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
                         var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
