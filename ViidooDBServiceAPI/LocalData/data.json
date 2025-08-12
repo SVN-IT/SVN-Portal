@@ -1,35 +1,52 @@
 {
-  "id": 150,
+  "id": 373,
   "jsonrpc": "2.0",
   "method": "call",
   "params": {
-    "args": [ [ 43305 ] ],
+    "args": [
+      [ 612403 ],
+      [ "sequence", "company_id", "state", "location_id", "location_dest_id", "picking_id", "picking_type_id", "is_locked", "picking_type_entire_packs", "display_assign_serial", "from_immediate_transfer", "product_uom_category_id", "display_clear_serial", "product_id", "product_uom_qty", "product_uom", "quantity_done", "reserved_availability", "next_serial", "next_serial_count", "move_line_ids", "display_name" ]
+    ],
+    "model": "stock.move",
+    "method": "read",
     "kwargs": {
       "context": {
         "lang": "vi_VN",
         "tz": "Asia/Ho_Chi_Minh",
         "uid": 2,
         "allowed_company_ids": [ 1 ],
-        "active_model": "mrp.production",
-        "active_id": 50875,
-        "active_ids": [ 50875 ],
+        "bin_size": true,
+        "params": {
+          "id": 60606,
+          "cids": 1,
+          "menu_id": 248,
+          "action": 431,
+          "model": "mrp.production",
+          "view_type": "form"
+        },
+        "default_product_uom_qty": 0,
+        "active_model": "stock.move",
+        "active_id": 612403,
+        "active_ids": [ 612403 ],
+        "default_date": "2025-08-05 00:20:44",
+        "default_date_deadline": "2025-08-05 00:20:44",
+        "default_location_id": 20,
+        "default_location_dest_id": 15,
+        "default_warehouse_id": 2,
+        "default_state": "draft",
+        "default_raw_material_production_id": 50688,
+        "default_picking_type_id": 18,
         "default_company_id": 1,
-        "force_skip_consumption": true,
-        "button_mark_done_production_ids": [ 50875 ],
-        "default_mrp_production_ids": [ 50875 ],
-        "default_mrp_production_backorder_line_ids": [
-          [
-            0,
-            0,
-            {
-              "mrp_production_id": 50875,
-              "to_backorder": true
-            }
-          ]
-        ]
+        "show_owner": true,
+        "show_lots_m2o": true,
+        "show_lots_text": false,
+        "show_source_location": true,
+        "show_destination_location": false,
+        "show_package": true,
+        "show_reserved_quantity": true,
+        "force_manual_consumption": true,
+        "active_mo_id": 50688
       }
-    },
-    "method": "action_backorder",
-    "model": "mrp.production.backorder"
+    }
   }
 }
