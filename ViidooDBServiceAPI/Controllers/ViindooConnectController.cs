@@ -231,6 +231,9 @@ namespace ViidooDBServiceAPI.Controllers
                         return bODataProcessResult;
                     }
 
+                    var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+                    var move_ids = Array.ConvertAll(str_move_ids, int.Parse);
+
                     var productTracking = productionOrderInfo["product_tracking"]?.ToString();
 
                     //Lấy product_id
@@ -240,6 +243,9 @@ namespace ViidooDBServiceAPI.Controllers
                     //Lấy company_id
                     var arrCompanyID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["company_id"]);
                     var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                    //Get stock move
+                    var stockMoveInfo = await odooAPIService.GetStockMoveByIDAsync(move_ids, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
 
                     int lot_id = 0;

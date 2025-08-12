@@ -453,6 +453,72 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="qty_producing"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
+        public async Task<Dictionary<string, object>> GetStockMoveByIDAsync(int[] move_ids, int company_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 369,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            move_ids,
+                            new string[]
+                            {
+                                "product_id","location_id","product_uom","propagate_cancel","price_unit","company_id",
+                                "product_uom_category_id","name","allowed_operation_ids","unit_factor","date_deadline","date",
+                                "additional","picking_type_id","has_tracking","operation_id","is_done","bom_line_id","sequence",
+                                "warehouse_id","is_locked","move_lines_count","location_dest_id","state","should_consume_qty",
+                                "product_uom_qty","product_type","product_qty","reserved_availability","forecast_expected_date",
+                                "forecast_availability","quantity_done","component_standard_consumption_id","manual_consumption",
+                                "show_details_visible","lot_ids","group_id","move_line_ids"
+                            }
+                        },
+                        model = "stock.move",
+                        method = "read",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { company_id }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm xử lý tiêu hao nguyên vật liệu theo BOM trong Odoo.
+        /// </summary>
+        /// <param name="productionOrderInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <param name="qty_producing"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsync(Dictionary<string, string> productionOrderInfo, int uid, string sessionId, int qty_producing)
         {
             using (var client = new HttpClient())
