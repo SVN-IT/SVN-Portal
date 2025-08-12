@@ -453,7 +453,7 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="qty_producing"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<Dictionary<string, object>> GetStockMoveByIDAsync(int[] move_ids, int company_id, int uid, string sessionId)
+        public async Task<List<Dictionary<string, object>>> GetStockMoveByIDAsync(int[] move_ids, int company_id, int uid, string sessionId)
         {
             using (var client = new HttpClient())
             {
@@ -502,11 +502,27 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
-                if (json["error"] != null)
+                var resultArray = (JArray)json["result"];
+
+                try
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    List<Dictionary<string, object>> dictionarys = new List<Dictionary<string, object>>();
+                    for(var i =0; i < resultArray.Count; i++)
+                    {
+                        var dictionary = ((JObject)resultArray[i])
+                         .Properties()
+                         .ToDictionary(p => p.Name, p => (object)p.Value);
+
+                        dictionarys.Add(dictionary);
+                    }
+                    
+
+                    return dictionarys;
                 }
-                return json.ToObject<Dictionary<string, object>>();
+                catch (Exception ex)
+                {
+                    return null;
+                }
             }
         }
 

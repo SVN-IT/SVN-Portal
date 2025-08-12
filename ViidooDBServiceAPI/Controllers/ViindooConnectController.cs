@@ -247,6 +247,20 @@ namespace ViidooDBServiceAPI.Controllers
                     //Get stock move
                     var stockMoveInfo = await odooAPIService.GetStockMoveByIDAsync(move_ids, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
+                    //Lấy các thành phần được theo dõi theo mã lot hoặc serial
+                    List<Dictionary<string, object>> stockMoveSerialInfo = new List<Dictionary<string, object>>();
+                    if (stockMoveInfo != null)
+                    {
+                        foreach(var item in stockMoveInfo)
+                        {
+                            var token = (JToken)item["has_tracking"];
+                            if (token.Type == JTokenType.String && token?.ToString() == "serial")
+                            {
+                                stockMoveSerialInfo.Add(item);
+                            }
+                        }
+                    }
+
 
                     int lot_id = 0;
                     string lot_name = string.Empty;
