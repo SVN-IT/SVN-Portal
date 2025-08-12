@@ -176,7 +176,6 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
-
         /// <summary>
         /// Hàm tìm kiếm lot
         /// </summary>
@@ -366,6 +365,82 @@ namespace ViidooDBServiceAPI.Services
                  .ToDictionary(p => p.Name, p => p.Value.ToString());
 
                 return dictionary;
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để kiểm tra mã lot đã dc sử dụng chưa.
+        /// </summary>
+        /// <param name="lotId"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, string>> CheckUsedLotIDAsync(int lotId, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production",
+                        method = "search_read",
+                        args = new object[]
+                        {
+
+                        },
+                        kwargs = new
+                        {
+                            domain = new object[] { new object[] { "lot_producing_id", "=", lotId } },
+                            fields = new string[]
+                            {
+                                "name", "state", "product_id", "name"
+                            },
+                            order = "create_date desc",
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                allowed_company_ids = new List<int> { 1 },
+                                bin_size = true,
+                                uid = uid
+                            }
+                        }
+                    },
+                    id = 100
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                var resultArray = (JArray)json["result"];
+
+                try
+                {
+                    var dictionary = ((JObject)resultArray[0])
+                         .Properties()
+                         .ToDictionary(p => p.Name, p => p.Value.ToString());
+
+                    return dictionary;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+                    
             }
         }
 

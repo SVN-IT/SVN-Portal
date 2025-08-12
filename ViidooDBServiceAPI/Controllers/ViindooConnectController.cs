@@ -266,9 +266,19 @@ namespace ViidooDBServiceAPI.Controllers
                         }
                     }
 
+                    //Để trành không sử dụng lại mã lot đã dùng rồi
+                    var checkLotInfo = await odooAPIService.CheckUsedLotIDAsync(lot_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if(checkLotInfo != null)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Mã lô " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
+                        return bODataProcessResult;
+                    }
+
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
                     var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.count, lot_id);
 
+                    //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
                     var workOrderResult = ((JObject)moveRawConsumeInfo["result"])["value"]["workorder_ids"] as JArray;
 
