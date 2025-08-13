@@ -422,47 +422,49 @@ namespace ViidooDBServiceAPI.Controllers
 
                         }
 
-                        foreach (var item in workOrderResult)
+                        if (workOrderResult != null)
                         {
-                            var id = (int)item[1];
-                            if (id != 0)
+                            foreach (var item in workOrderResult)
                             {
-                                var detail = item[2] as JObject;
+                                var id = (int)item[1];
+                                if (id != 0)
+                                {
+                                    var detail = item[2] as JObject;
 
-                                decimal qty_producing = 0;
-                                try
-                                {
-                                    qty_producing = decimal.Parse(detail?["qty_producing"]?.ToString());
-                                }
-                                catch
-                                {
-                                    qty_producing = 0;
-                                }
-
-                                decimal duration_expected = 0;
-                                try
-                                {
-                                    duration_expected = decimal.Parse(detail?["duration_expected"]?.ToString());
-                                }
-                                catch
-                                {
-                                    duration_expected = 0;
-                                }
-
-                                int finished_lot_id = 0;
-                                try
-                                {
-                                    finished_lot_id = int.Parse(detail?["finished_lot_id"][0]?.ToString());
-                                }
-                                catch
-                                {
-                                    finished_lot_id = 0;
-                                }
-
-                                if (qty_producing != 0)
-                                {
-                                    var workOrder = new object[]
+                                    decimal qty_producing = 0;
+                                    try
                                     {
+                                        qty_producing = decimal.Parse(detail?["qty_producing"]?.ToString());
+                                    }
+                                    catch
+                                    {
+                                        qty_producing = 0;
+                                    }
+
+                                    decimal duration_expected = 0;
+                                    try
+                                    {
+                                        duration_expected = decimal.Parse(detail?["duration_expected"]?.ToString());
+                                    }
+                                    catch
+                                    {
+                                        duration_expected = 0;
+                                    }
+
+                                    int finished_lot_id = 0;
+                                    try
+                                    {
+                                        finished_lot_id = int.Parse(detail?["finished_lot_id"][0]?.ToString());
+                                    }
+                                    catch
+                                    {
+                                        finished_lot_id = 0;
+                                    }
+
+                                    if (qty_producing != 0)
+                                    {
+                                        var workOrder = new object[]
+                                        {
                                         1,
                                         id,
                                         new {
@@ -470,18 +472,19 @@ namespace ViidooDBServiceAPI.Controllers
                                             duration_expected = duration_expected,
                                             finished_lot_id = finished_lot_id
                                         }
-                                    };
-                                    workOrderList.Add(workOrder);
-                                }
-                                else
-                                {
-                                    var workOrder = new object[]
+                                        };
+                                        workOrderList.Add(workOrder);
+                                    }
+                                    else
                                     {
+                                        var workOrder = new object[]
+                                        {
                                         4,
                                         id,
                                         false
-                                    };
-                                    workOrderList.Add(workOrder);
+                                        };
+                                        workOrderList.Add(workOrder);
+                                    }
                                 }
                             }
                         }
