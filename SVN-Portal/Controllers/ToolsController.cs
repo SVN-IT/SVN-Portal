@@ -212,6 +212,7 @@ namespace SVN_Portal.Controllers
                     ProductDataRequest dataRequest = new ProductDataRequest()
                     {
                         product_id = selectedProductID,
+                        lotNumber = "",
                         count = countRows,
                         seriNumber = ""
                     };
@@ -294,6 +295,7 @@ namespace SVN_Portal.Controllers
                     {
                         product_id = productID,
                         count = 0,
+                        lotNumber = "",
                         seriNumber = seriNumber
                     };
 
@@ -977,6 +979,7 @@ namespace SVN_Portal.Controllers
             ProductDataRequest dataRequest = new ProductDataRequest()
             {
                 product_id = 0,
+                lotNumber = "",
                 count = productionOrderQuantity,
                 seriNumber = productionOrderCode
             };
