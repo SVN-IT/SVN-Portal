@@ -1,42 +1,11 @@
 {
-  "id": 669,
+  "id": 679,
   "jsonrpc": "2.0",
   "method": "call",
   "params": {
-    "args": [
-      [ 753495 ],
-      {
-        "move_line_ids": [
-          [ 4, 14761433, false ],
-          [ 4, 14761434, false ],
-          [ 4, 14761435, false ],
-          [ 4, 14761436, false ],
-          [ 4, 14761437, false ],
-          [ 4, 14761438, false ],
-          [ 4, 14761439, false ],
-          [ 4, 14761440, false ],
-          [ 4, 14761441, false ],
-          [ 4, 14761442, false ],
-          [ 4, 14761443, false ],
-          [ 4, 14761444, false ],
-          [ 4, 14761445, false ],
-          [ 4, 14761446, false ],
-          [
-            1,
-            14761447,
-            { "qty_done": 1 }
-          ]
-        ]
-      }
-    ],
-    "model": "stock.move",
-    "method": "write",
+    "args": [ [ 60915 ] ],
     "kwargs": {
       "context": {
-        "lang": "vi_VN",
-        "tz": "Asia/Ho_Chi_Minh",
-        "uid": 2,
-        "allowed_company_ids": [ 1 ],
         "params": {
           "id": 60606,
           "cids": 1,
@@ -45,29 +14,14 @@
           "model": "mrp.production",
           "view_type": "form"
         },
-        "default_product_uom_qty": 0,
-        "active_model": "stock.move",
-        "active_id": 753495,
-        "active_ids": [ 753495 ],
-        "default_date": "2025-08-12 02:32:45",
-        "default_date_deadline": "2025-08-12 02:32:45",
-        "default_location_id": 20,
-        "default_location_dest_id": 15,
-        "default_warehouse_id": 2,
-        "default_state": "draft",
-        "default_raw_material_production_id": 60915,
-        "default_picking_type_id": 18,
         "default_company_id": 1,
-        "show_owner": true,
-        "show_lots_m2o": true,
-        "show_lots_text": false,
-        "show_source_location": true,
-        "show_destination_location": false,
-        "show_package": true,
-        "show_reserved_quantity": true,
-        "force_manual_consumption": true,
-        "active_mo_id": 60915
+        "lang": "vi_VN",
+        "tz": "Asia/Ho_Chi_Minh",
+        "uid": 2,
+        "allowed_company_ids": [ 1 ]
       }
-    }
+    },
+    "method": "button_mark_done",
+    "model": "mrp.production"
   }
 }

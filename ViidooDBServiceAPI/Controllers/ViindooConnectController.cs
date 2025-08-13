@@ -263,6 +263,9 @@ namespace ViidooDBServiceAPI.Controllers
 
                     if(stockMoveSerialInfo.Count > 0)
                     {
+                        //Dữ liệu dùng để thay đổi stock move line có serial theo lệnh sản xuất
+                        List<Dictionary<string, string>> stockMoveLineSerials = new List<Dictionary<string, string>>();
+
                         foreach (var item in stockMoveSerialInfo)
                         {
                             var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
@@ -279,14 +282,48 @@ namespace ViidooDBServiceAPI.Controllers
                                 var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
                                 if(lotScaned != null)
                                 {
-                                    var isExistLot = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                                    //if (!isExistLot)
-                                    //{
-                                    //    bODataProcessResult.OK = false;
-                                    //    bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " đã được sử dụng cho sản phẩm: " + arrMarterialProductID[1];
-                                    //    return bODataProcessResult;
-                                    //}
+                                    var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    if (stockMoveLineSerial == null)
+                                    {
+                                        bODataProcessResult.OK = false;
+                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " đã được sử dụng cho sản phẩm: " + arrMarterialProductID[1];
+                                        return bODataProcessResult;
+                                    }
+
+                                    stockMoveLineSerial["move_line_ids"] = item["move_line_ids"].ToString();
+                                    stockMoveLineSerial["location_id"] = item["location_id"].ToString();
+                                    stockMoveLineSerial["location_dest_id"] = item["location_dest_id"].ToString();
+                                    stockMoveLineSerial["warehouse_id"] = item["warehouse_id"].ToString();
+                                    stockMoveLineSerial["picking_type_id"] = item["picking_type_id"].ToString();
+                                    stockMoveLineSerial["company_id"] = item["company_id"].ToString();
+                                    stockMoveLineSerial["mo_id"] = productionOrderInfo["id"].ToString();
+                                    stockMoveLineSerials.Add(stockMoveLineSerial);
                                 }
+                            }
+                        }
+
+                        if(stockMoveLineSerials.Count > 0)
+                        {
+                            //Thực hiện cập nhật stock move line theo mã lot
+                            foreach (var item in stockMoveLineSerials)
+                            {
+                                var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+
+                                //Tạo danh sách stock move line để cập nhật
+                                var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse)
+                                    .Select(id =>
+                                    {
+                                        int move_line_id = int.Parse(item["id"]);
+                                        if (id == move_line_id)
+                                        {
+                                            return new object[] { 1, id, new { qty_done = 1 } };
+                                        }
+                                        else
+                                        {
+                                            return new object[] { 4, id, false };
+                                        }
+                                    }).ToArray();
+                                var stockMoveWriteResult = await odooAPIService.SaveSerialStockMoveAsync(item, move_line_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
                             }
                         }
                     }
