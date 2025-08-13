@@ -445,6 +445,85 @@ namespace ViidooDBServiceAPI.Services
         }
 
         /// <summary>
+        /// Hàm tìm kiếm mã lot để input vào lệnh sản xuất
+        /// Check xem lệnh đã được nhập cho thành phẩm nào chưa
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="product_id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<bool> GetLotByNameAndProductIDAsync(string lot_name, int product_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.move.line",
+                        method = "search_read",
+                        args = new object[]
+                        {
+
+                        },
+                        kwargs = new
+                        {
+                            domain = new object[] { 
+                                new object[] { "lot_id.name", "=", lot_name },
+                                new object[] { "product_id", "=", product_id },
+                                new object[] { "qty_done", "=", 1 }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "move_id", "lot_id", "product_id", "qty_done"
+                            },
+                            order = "create_date desc",
+                            limit = 3,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                allowed_company_ids = new List<int> { 1 },
+                                bin_size = true,
+                                uid = uid
+                            }
+                        }
+                    },
+                    id = 100
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                var resultArray = (JArray)json["result"];
+
+                if(resultArray.Count > 1)
+                {
+                    return false; // Nhiều hơn 1 kết quả, không thể xác định duy nhất
+                }
+                else
+                {
+                    // Chỉ có một kết quả, trả về true
+                    return true;
+                }
+
+            }
+        }
+
+        /// <summary>
         /// Hàm xử lý tiêu hao nguyên vật liệu theo BOM trong Odoo.
         /// </summary>
         /// <param name="productionOrderInfo"></param>

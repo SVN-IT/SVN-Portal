@@ -267,6 +267,25 @@ namespace ViidooDBServiceAPI.Controllers
                         {
                             var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
                             var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse);
+
+                            //Lấy product_id
+                            var arrMarterialProductID = JsonConvert.DeserializeObject<object[]>(item["product_id"].ToString());
+                            var product_material_id = Convert.ToInt32(arrMarterialProductID[0]);
+
+                            if(dataRequest.LotScaneds.Count > 0)
+                            {
+                                var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
+                                if(lotScaned != null)
+                                {
+                                    var isExistLot = await odooAPIService.GetLotByNameAndProductIDAsync(lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    if (!isExistLot)
+                                    {
+                                        bODataProcessResult.OK = false;
+                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " đã được sử dụng cho sản phẩm: " + arrMarterialProductID[1];
+                                        return bODataProcessResult;
+                                    }
+                                }
+                            }
                         }
                     }
 
