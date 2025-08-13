@@ -453,7 +453,7 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="uid"></param>
         /// <param name="sessionId"></param>
         /// <returns></returns>
-        public async Task<bool> GetLotByNameAndProductIDAsync(string lot_name, int product_id, int uid, string sessionId)
+        public async Task<Dictionary<string, string>> GetLotByNameAndProductIDAsync(int move_id, string lot_name, int product_id, int uid, string sessionId)
         {
             using (var client = new HttpClient())
             {
@@ -512,12 +512,68 @@ namespace ViidooDBServiceAPI.Services
 
                 if(resultArray.Count > 1)
                 {
-                    return false; // Nhiều hơn 1 kết quả, không thể xác định duy nhất
+                    return null; // Nhiều hơn 1 kết quả, không thể xác định duy nhất
                 }
                 else
                 {
-                    // Chỉ có một kết quả, trả về true
-                    return true;
+                    // Lấy stock.move.line của lệnh sx
+                    payload = new
+                    {
+                        jsonrpc = "2.0",
+                        method = "call",
+                        @params = new
+                        {
+                            model = "stock.move.line",
+                            method = "search_read",
+                            args = new object[]
+                        {
+
+                        },
+                            kwargs = new
+                            {
+                                domain = new object[] {
+                                new object[] { "lot_id.name", "=", lot_name },
+                                new object[] { "product_id", "=", product_id },
+                                new object[] { "move_id", "=", move_id }
+                            },
+                                fields = new string[]
+                            {
+                                "id", "move_id", "lot_id", "product_id", "qty_done"
+                            },
+                                order = "create_date desc",
+                                limit = 3,
+                                context = new
+                                {
+                                    lang = "vi_VN",
+                                    tz = "Asia/Ho_Chi_Minh",
+                                    allowed_company_ids = new List<int> { 1 },
+                                    bin_size = true,
+                                    uid = uid
+                                }
+                            }
+                        },
+                        id = 100
+                    };
+                    content = new StringContent(
+                        Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                        Encoding.UTF8,
+                        "application/json"
+                    );
+                    response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
+                    responseString = await response.Content.ReadAsStringAsync();
+                    json = JObject.Parse(responseString);
+                    resultArray = (JArray)json["result"];
+                    try
+                    {
+                        var dictionary = ((JObject)resultArray[0])
+                             .Properties()
+                             .ToDictionary(p => p.Name, p => p.Value.ToString());
+                        return dictionary;
+                    }
+                    catch (Exception ex)
+                    {
+                        return null;
+                    }
                 }
 
             }
@@ -720,7 +776,7 @@ namespace ViidooDBServiceAPI.Services
                                 account_moves_count = int.Parse(productionOrderInfo["account_moves_count"]),
                                 maintenance_count = int.Parse(productionOrderInfo["maintenance_count"]),
                                 document_count = int.Parse(productionOrderInfo["document_count"]),
-                                overview_progress = int.Parse(productionOrderInfo["overview_progress"]),
+                                overview_progress = decimal.Parse(productionOrderInfo["overview_progress"]),
                                 priority = int.Parse(productionOrderInfo["priority"]),
                                 name = productionOrderInfo["name"],
                                 use_create_components_lots = bool.Parse(productionOrderInfo["use_create_components_lots"]),

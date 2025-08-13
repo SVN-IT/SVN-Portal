@@ -272,18 +272,20 @@ namespace ViidooDBServiceAPI.Controllers
                             var arrMarterialProductID = JsonConvert.DeserializeObject<object[]>(item["product_id"].ToString());
                             var product_material_id = Convert.ToInt32(arrMarterialProductID[0]);
 
+                            var move_id = int.Parse(item["id"].ToString());
+
                             if(dataRequest.LotScaneds.Count > 0)
                             {
                                 var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
                                 if(lotScaned != null)
                                 {
-                                    var isExistLot = await odooAPIService.GetLotByNameAndProductIDAsync(lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                                    if (!isExistLot)
-                                    {
-                                        bODataProcessResult.OK = false;
-                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " đã được sử dụng cho sản phẩm: " + arrMarterialProductID[1];
-                                        return bODataProcessResult;
-                                    }
+                                    var isExistLot = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    //if (!isExistLot)
+                                    //{
+                                    //    bODataProcessResult.OK = false;
+                                    //    bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " đã được sử dụng cho sản phẩm: " + arrMarterialProductID[1];
+                                    //    return bODataProcessResult;
+                                    //}
                                 }
                             }
                         }
