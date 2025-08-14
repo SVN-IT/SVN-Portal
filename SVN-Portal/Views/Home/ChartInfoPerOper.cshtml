@@ -339,13 +339,14 @@
                         </div>
                     </div>
                     <div class="col-12 ">
-                        <div class="card svn-card">
+                        <div id="disableCard" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
+                        <div id="bigCard" class="card svn-card">
                             <div class="card-title">
                                 <h4>@* Production result *@</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-4">
+                                    @* <div class="col-4">
                                         <strong id="txtWORunning">WO running: @WORunning</strong>
                                     </div>
                                     <div class="col-4">
@@ -353,7 +354,7 @@
                                     </div>
                                     <div class="col-4">
                                         <strong id="txtCustomer">Customer: @Customer</strong>
-                                    </div>
+                                    </div> *@
                                     @if(Model != null)
                                     {
                                         foreach (var item in Model)
@@ -410,16 +411,26 @@
                                                 width: 100%;
                                                 }
                                             </style>
-                                            <div class="col-lg-@item.ColWidth mt-2">
+                                            <div id="smallCard_@charID" class="col-lg-@item.ColWidth mt-2">
                                                 @if(item.WC != "FG")
                                                 {
                                                     <h1>
                                                         @item.WC
                                                     </h1>
                                                 }
-                                                <h1>@item.Operation</h1>
+                                                @{
+                                                    string productName = string.Empty;
+                                                    if (!string.IsNullOrWhiteSpace(item.Name))
+                                                    {
+                                                        productName = "(" + item.Name + ")";
+                                                    }
+                                                }
+                                                <h1>@item.Operation @productName</h1>
                                                 @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                                 <div class="row">
+                                                    <div id="checklistStatus-@charID" class="col-12">
+                                                        <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🟢 PD - 🔴 MT - 🟢 QC Checked | 🔴 PD - 🔴 QC Confirmed </p>
+                                                    </div>
                                                     @* <div id="pd_@charID" class="col-6 row">
                                                         <div class="col-12 border table-cell text-center">
                                                             <strong>Production result: @item.Operation</strong>
@@ -952,6 +963,28 @@
 
                         var pdData = JSON.parse(response.pdmodel);
 
+                        $('#checklistStatus-' + charID).html(response.checklistStatus);
+
+                        if(response.canProduction)
+                        {
+                            $(`#disableCard`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCard`).removeClass("d-none");
+                        }
+
+                        if(response.isProduction)
+                        {
+                            $(`#smallCard_${charID}`).removeClass("card-disable");
+                            // $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#smallCard_${charID}`).addClass("card-disable");
+                            // $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
+
                         // Build charts for this charID
                         BuildProductionChart(pdData, charID);
                         
@@ -964,26 +997,26 @@
                             $("#txtAchieve").text(intAchieve + " %");
                             $("#txtForecast").text(intForecast + " %");
 
-                            if(response.woRunning != null){
-                                $("#txtWORunning").text("WO running: " + response.woRunning);
-                            }
-                            else{
-                                $("#txtWORunning").text(" ");
-                            }
+                            // if(response.woRunning != null){
+                            //     $("#txtWORunning").text("WO running: " + response.woRunning);
+                            // }
+                            // else{
+                            //     $("#txtWORunning").text(" ");
+                            // }
 
-                            if(response.product != null){
-                                $("#txtProduct").text("Product: " + response.product);
-                            }
-                            else{
-                                $("#txtProduct").text(" ");
-                            }
+                            // if(response.product != null){
+                            //     $("#txtProduct").text("Product: " + response.product);
+                            // }
+                            // else{
+                            //     $("#txtProduct").text(" ");
+                            // }
 
-                            if(response.customer != null){
-                                $("#txtCustomer").text("Customer: " + response.customer);
-                            }
-                            else{
-                                $("#txtCustomer").text(" ");
-                            }
+                            // if(response.customer != null){
+                            //     $("#txtCustomer").text("Customer: " + response.customer);
+                            // }
+                            // else{
+                            //     $("#txtCustomer").text(" ");
+                            // }
 
                         }
 

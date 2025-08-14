@@ -52,9 +52,10 @@ namespace SVN_Portal.Controllers
                 }
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
-                List<string> opers = appConfig.OperList.Split(",").ToList();
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -101,9 +102,10 @@ namespace SVN_Portal.Controllers
                 }
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
-                List<string> opers = appConfig.OperList.Split(",").ToList();
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -115,7 +117,7 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
                     }
-                    models = models.OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -128,7 +130,7 @@ namespace SVN_Portal.Controllers
 
                     decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
 
-                    string comparePeople = "👷‍👷‍ Checking: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
                     ViewBag.ComparePeople = comparePeople;
                 }
 
@@ -191,10 +193,11 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
-                List<string> opers = appConfig.OperList.Split(",").ToList();
-                opers = opers.Where(x => x == oper).ToList();
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -242,17 +245,17 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -309,17 +312,17 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 if (models != null && models.Count > 0)
                 {
@@ -381,17 +384,17 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                     }
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -421,6 +424,8 @@ namespace SVN_Portal.Controllers
                             model.ColWidth = operInfo.ColWidth;
                         }
                     }
+
+                    models = models.OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
                 return View(models);
             }
@@ -459,17 +464,17 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -538,13 +543,52 @@ namespace SVN_Portal.Controllers
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+
+                string pdChecked = "🔴";
+                string mtChecked = "🔴";
+                string qcChecked = "🔴";
+                string pdConfirmed = "🔴";
+                string qcConfirmed = "🔴";
+
+                if (model.IsPDChecked)
+                {
+                    pdChecked = "🟢";
+                }
+                if (model.IsMTChecked)
+                {
+                    mtChecked = "🟢";
+                }
+                if (model.IsQCChecked)
+                {
+                    qcChecked = "🟢";
+                }
+                if (model.IsPDConfirmed)
+                {
+                    pdConfirmed = "🟢";
+                }
+                if (model.IsQCConfirmed)
+                {
+                    qcConfirmed = "🟢";
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.Append("<p style='font-size:20px' class=' text-light'>");
+                sb.Append("<strong>Checklist status</strong>: ");
+                sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                sb.Append("</p>");
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
                 {
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildAchievementCard(model, date);
+
+                    if (!oper.Contains("Walter"))
+                    {
+                        model.CanProduction = true;
+                    }
+
                     return new JsonResult(new
                     {
                         result = true,
@@ -555,7 +599,10 @@ namespace SVN_Portal.Controllers
                         forecast = model.Forecast,
                         woRunning = model.WORunning,
                         product = model.Product,
-                        customer = model.Customer
+                        customer = model.Customer,
+                        checklistStatus = sb.ToString(),
+                        isProduction = model.IsProduction,
+                        canProduction = model.CanProduction
                     });
                 }
                 else
@@ -598,7 +645,45 @@ namespace SVN_Portal.Controllers
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+
+                string pdChecked = "🔴";
+                string mtChecked = "🔴";
+                string qcChecked = "🔴";
+                string pdConfirmed = "🔴";
+                string qcConfirmed = "🔴";
+
+                if (model.IsPDChecked)
+                {
+                    pdChecked = "🟢";
+                }
+                if (model.IsMTChecked)
+                {
+                    mtChecked = "🟢";
+                }
+                if (model.IsQCChecked)
+                {
+                    qcChecked = "🟢";
+                }
+                if (model.IsPDConfirmed)
+                {
+                    pdConfirmed = "🟢";
+                }
+                if (model.IsQCConfirmed)
+                {
+                    qcConfirmed = "🟢";
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.Append("<p style='font-size:20px' class=' text-light'>");
+                sb.Append("<strong>Checklist status</strong>: ");
+                sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                sb.Append("</p>");
+
+                if (!oper.Contains("Walter"))
+                {
+                    model.CanProduction = true;
+                }
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
@@ -612,6 +697,8 @@ namespace SVN_Portal.Controllers
                         forecase = strForecase,
                         targetTable = strTargetTable,
                         isProduction = model.IsProduction,
+                        canProduction = model.CanProduction,
+                        checklistStatus = sb.ToString(),
                         pdmodel = JsonConvert.SerializeObject(model.ViewModels),
                         defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
                     });
@@ -666,16 +753,16 @@ namespace SVN_Portal.Controllers
                 sb.Append(item.Time);
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.Target, 2));
+                sb.Append(Math.Round(item.Target, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.Line, 2));
+                sb.Append(Math.Round(item.Line, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.ManQuantity, 2));
+                sb.Append(Math.Round(item.ManQuantity, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("<div class='col-12 border table-cell text-center'>");
-                sb.Append(Math.Round(item.NG, 2));
+                sb.Append(Math.Round(item.NG, appConfig.Rounding));
                 sb.Append("</div>");
                 sb.Append("</div>");
                 sb.Append("</div>");
@@ -704,9 +791,9 @@ namespace SVN_Portal.Controllers
                     sb.Append("<div class='col-3 border table-cell text-center'><strong>" + item.Item + "</strong></div>");
                     if (item.Item == "Defect")
                     {
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + " %</div>");
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + " %</div>");
-                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, appConfig.Rounding) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, appConfig.Rounding) + " %</div>");
+                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</div>");
                         if (item.Percent > 100)
                         {
                             status = "bg-danger";
@@ -722,9 +809,9 @@ namespace SVN_Portal.Controllers
                     }
                     else
                     {
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, 2) + "</div>");
-                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, 2) + "</div>");
-                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, 2) + " %</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Target, appConfig.Rounding) + "</div>");
+                        sb.Append("<div class='col-2 border table-cell text-center'>" + Math.Round(item.Current, appConfig.Rounding) + "</div>");
+                        sb.Append("<div class='col-3 border table-cell text-center'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</div>");
                         if (item.Percent >= 0 && item.Percent <= 75)
                         {
                             status = "bg-danger";
@@ -1020,18 +1107,18 @@ namespace SVN_Portal.Controllers
 
                     if (item.Item == "Defect")
                     {
-                        sb.Append("<span>Tar: " + Math.Round(item.Target, 2) + " %</span>");
-                        sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + " %</span> <br />");
+                        sb.Append("<span>Tar: " + Math.Round(item.Target, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + " %</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else
                     {
-                        sb.Append("<span>Tar " + Math.Round(item.Target, 2) + "</span>");
-                        sb.Append("<span> | Cur: " + Math.Round(item.Current, 2) + "</span> <br />");
+                        sb.Append("<span>Tar " + Math.Round(item.Target, appConfig.Rounding) + "</span>");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + "</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, 2) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
 
@@ -1137,8 +1224,8 @@ namespace SVN_Portal.Controllers
             }
             catch (Exception ex)
             {
-                
-                
+
+
             }
 
             ViewBag.date = date;
@@ -1146,6 +1233,61 @@ namespace SVN_Portal.Controllers
             return View(models);
         }
 
-        #endregion
+        public async Task<IActionResult> PDResultDailyReport(DateTime date)
+        {
+            ViewBag.date = date;
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                if (models != null && models.Count > 0)
+                {
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+
+                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                        viewModel.OperationActive = model.Operation;
+                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.CheckListOnSystem = "NG";
+                        if (model.CanProduction)
+                        {
+                            viewModel.CheckListOnSystem = "OK";
+                        }
+                        viewModels.Add(viewModel);
+                    }
+                }
+                return View(viewModels);
+            }
+            catch (Exception ex)
+            {
+                return View(viewModels);
+            }
+
+            #endregion
+        }
     }
 }

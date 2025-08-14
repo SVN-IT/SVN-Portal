@@ -12,14 +12,18 @@ builder.Services.AddSwaggerGen();
 
 ViindooDBConfig viindooDBConfig = builder.Configuration.GetSection("ViindooDBConfig").Get<ViindooDBConfig>();
 SVNDBConfig sVNDBConfig = builder.Configuration.GetSection("SVNDBConfig").Get<SVNDBConfig>();
+APIConfig aPIConfig = builder.Configuration.GetSection("APIConfig").Get<APIConfig>();
 
 builder.Services.AddSingleton(viindooDBConfig);
 builder.Services.AddSingleton(sVNDBConfig);
+builder.Services.AddSingleton(aPIConfig);
 builder.Services.AddSingleton<ConvertDataService>();
 builder.Services.AddSingleton<DBService>();
 builder.Services.AddSingleton<OdooRpcDBService>();
 builder.Services.AddSingleton<ViindooDataService>();
 builder.Services.AddSingleton<JsonRpcDataService>();
+builder.Services.AddSingleton<NewViindooDataService>();
+builder.Services.AddSingleton<OdooAPIService>();
 
 var app = builder.Build();
 

@@ -249,9 +249,22 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
+                    if (item.location_dest_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.location_dest_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.location_dest_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     mrp_ProductionUI.picking_type_id = item.picking_type_id;
                     mrp_ProductionUI.location_src_id = item.location_src_id;
-                    mrp_ProductionUI.location_dest_id = item.location_dest_id;
                     if (item.bom_id != null)
                     {
                         try
@@ -266,11 +279,37 @@ namespace ViidooDBServiceAPI.Services
                         }
 
                     }
+                    if (item.production_location_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.production_location_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.production_location_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                    if (item.company_id != null)
+                    {
+                        try
+                        {
+                            JArray objects = (JArray)item.company_id;
+                            var intTemp = (Int64)objects[0];
+                            mrp_ProductionUI.company_id = (int)intTemp;
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
                     mrp_ProductionUI.user_id = item.user_id;
-                    mrp_ProductionUI.company_id = item.company_id;
                     mrp_ProductionUI.procurement_group_id = item.procurement_group_id;
                     mrp_ProductionUI.orderpoint_id = item.orderpoint_id;
-                    mrp_ProductionUI.production_location_id = item.production_location_id;
                     mrp_ProductionUI.create_uid = item.create_uid;
                     mrp_ProductionUI.write_uid = item.write_uid;
                     mrp_ProductionUI.origin_message_id = item.origin_message_id;

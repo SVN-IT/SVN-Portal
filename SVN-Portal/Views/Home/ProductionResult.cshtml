@@ -251,17 +251,30 @@
                 }
             </style>
             <div class="col-lg-@appConfig.ChartCol">
-                <div id="disableCard_@charID" class="no-production d-none">Không sản xuất</div>
+                <div id="disableCard_@charID" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
                 <div id="bigCard_@charID" class="card svn-card @disableStatus">
 
                     <div class="card-title">
-                        <h4>
-                            @item.Operation
-                            <br />
-                            <br />
-                            <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
-
-                        </h4>
+                        @{
+                            string productName = string.Empty;
+                            if (!string.IsNullOrWhiteSpace(item.Name))
+                            {
+                                productName = "(" + item.Name + ")";
+                            }
+                        }
+                        <div class="row">
+                            <div class="col-12">
+                                <h4>
+                                    @item.Operation @productName
+                                    <br />
+                                    <br />
+                                    <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+                                </h4>
+                            </div>
+                            <div id="checklistStatus-@charID" class="col-12">
+                                <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🟢 PD - 🔴 MT - 🟢 QC Checked | 🔴 PD - 🔴 QC Confirmed </p>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -610,6 +623,17 @@
                         $(`#divForecast_${charID}`).html(response.forecase);
 
                         var pdData = JSON.parse(response.pdmodel);
+
+                        $('#checklistStatus-' + charID).html(response.checklistStatus);
+
+                        if(response.canProduction)
+                        {
+                            $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
 
                         if(response.isProduction)
                         {

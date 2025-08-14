@@ -4,6 +4,7 @@
     {
         public string ProdConnectionString { get; set; }
         public string DevConnectionString { get; set; }
+        public string CheckListConnectionString { get; set; }
         public string ProductMode { get; set; }
         public string GetConnectionString()
         {

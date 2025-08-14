@@ -1,0 +1,27 @@
+{
+  "id": 679,
+  "jsonrpc": "2.0",
+  "method": "call",
+  "params": {
+    "args": [ [ 60915 ] ],
+    "kwargs": {
+      "context": {
+        "params": {
+          "id": 60606,
+          "cids": 1,
+          "menu_id": 248,
+          "action": 431,
+          "model": "mrp.production",
+          "view_type": "form"
+        },
+        "default_company_id": 1,
+        "lang": "vi_VN",
+        "tz": "Asia/Ho_Chi_Minh",
+        "uid": 2,
+        "allowed_company_ids": [ 1 ]
+      }
+    },
+    "method": "button_mark_done",
+    "model": "mrp.production"
+  }
+}

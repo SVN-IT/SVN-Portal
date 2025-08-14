@@ -16,10 +16,12 @@ namespace ViidooDBServiceAPI.Controllers
         ViindooDBConfig dBConfig;
         ViindooDataService viinDataService;
         JsonRpcDataService jsonRpcDataService;
-        public DBController(DBService dBService, 
+        NewViindooDataService newViindooDataService;
+        public DBController(DBService dBService,
             OdooRpcDBService odooRpcDBService,
             ViindooDataService viinDataService,
             ViindooDBConfig dBConfig,
+            NewViindooDataService newViindooDataService,
             JsonRpcDataService jsonRpcDataService)
         {
             this.dBService = dBService;
@@ -27,6 +29,7 @@ namespace ViidooDBServiceAPI.Controllers
             this.dBConfig = dBConfig;
             this.viinDataService = viinDataService;
             this.jsonRpcDataService = jsonRpcDataService;
+            this.newViindooDataService = newViindooDataService;
         }
 
         [Route("GetDataFromViindoo")]
@@ -36,7 +39,8 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                switch (dataRequest.TableName) { 
+                switch (dataRequest.TableName)
+                {
                     case "stock.move.line.consume.rel":
                         processResult = dBService.GetStockMoveLineConsumeRelData();
                         break;
@@ -67,7 +71,7 @@ namespace ViidooDBServiceAPI.Controllers
                         break;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
@@ -95,7 +99,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                 BODataProcessResult callProcessResult = new BODataProcessResult();
                 callProcessResult = viinDataService.CallSPToUpdateResult();
-                if(productionResult.OK && callProcessResult.OK)
+                if (productionResult.OK && callProcessResult.OK)
                 {
                     totalDataProcessResult.OK = true;
                 }
@@ -123,7 +127,7 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 List<string> objectNames = dBConfig.ObjectList.Split(',').ToList();
-                foreach (string objectName in objectNames) 
+                foreach (string objectName in objectNames)
                 {
                     var queryConfig = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
                     BODataProcessResult processResult = new BODataProcessResult();
@@ -236,7 +240,7 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 var productionResult = viinDataService.GetViindooDataV2(dataRequest);
-                if(productionResult != null && productionResult.OK)
+                if (productionResult != null && productionResult.OK)
                 {
                     for (int i = 0; i < dataRequest.listDomain.Count; i++)
                     {
@@ -251,16 +255,16 @@ namespace ViidooDBServiceAPI.Controllers
                     dataRequest.Limit = 0;
                     dataRequest.Order = "";
                     var stockMoveResult = viinDataService.GetViindooDataV2(dataRequest);
-                    if(stockMoveResult != null && processResult.OK)
+                    if (stockMoveResult != null && processResult.OK)
                     {
                     }
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
-            return processResult;   
+            return processResult;
         }
 
         [Route("GetAndUploadProductionResultData")]
@@ -335,6 +339,22 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 processResult = viinDataService.GetLotByMODone(dataRequest.product_id, dataRequest.count);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("InputResult")]
+        [HttpPost]
+        public BODataProcessResult InputResult(int productId, string serialNumber, int qtyProducing)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = newViindooDataService.InputResult(productId, serialNumber, qtyProducing);
             }
             catch (Exception ex)
             {

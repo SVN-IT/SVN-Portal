@@ -81,6 +81,35 @@ namespace ViidooDBServiceAPI.Services
             }
             return processResult;
         }
+
+        public BODataProcessResult InputResult(int product_id)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            IOdooObject models = XmlRpcProxyGen.Create<IOdooObject>();
+            models.Timeout = 60000;
+            models.Url = serverUrl + "/xmlrpc/2/object";
+            try
+            {
+                object[] domain = new object[] { "product_id", "=", product_id };
+                object[] search = new object[] { domain };
+                string objectName = "mrp.production";
+                string fields = "id,name,origin";
+                int limit = 1;
+                string order = "write_date desc";
+                processResult = GetViindooDataByConditionV1(objectName, search, fields, limit, order);
+                if(processResult.OK)
+                {
+                    var productionData = convertDataService.ConverterToProductionUI(processResult.Content);
+                }    
+
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         private BODataProcessResult SwitchFunctionToInsert(object searchResult, string objectName)
         {
             //Switch function to insert data
@@ -320,7 +349,7 @@ namespace ViidooDBServiceAPI.Services
             return processResult;
         }
 
-        private BODataProcessResult GetViindooDataByConditionV1(string objectName, object[] search, string strfields, int limit, string order)
+        private BODataProcessResult GetViindooDataByConditionV1(string objectName, object[] search, string strfields, int limit, string order, string method = "search_read")
         {
             BODataProcessResult processResult = new BODataProcessResult();
             processResult.DataType = objectName;
@@ -370,7 +399,7 @@ namespace ViidooDBServiceAPI.Services
                         connectResult.UserID,
                         password,
                         objectName,
-                        "search_read",
+                        method,
                         querydata);
                     if (searchResult != null)
                     {
@@ -726,14 +755,18 @@ namespace ViidooDBServiceAPI.Services
 
                                 if(seriFGAndWipUIs.Count > 0)
                                 {
+                                    // Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                    SeriFGAndWipDataPortal dataPortal = new SeriFGAndWipDataPortal(SVNDBConfig.ConnectionString);
+                                    var insertResult = dataPortal.InsertBulk(seriFGAndWipUIs);
+
                                     processResult.OK = true;
                                     processResult.Content = seriFGAndWipUIs;
-                                    processResult.Message = "Get seri FG and WIP success";
+                                    processResult.Message = "Get and insert seri FG and WIP success";
                                 }
                                 else
                                 {
                                     processResult.OK = false;
-                                    processResult.Message = "Get seri FG and WIP fail";
+                                    processResult.Message = "Get and insert seri FG and WIP fail";
                                 }
                             }
                         }
@@ -766,7 +799,6 @@ namespace ViidooDBServiceAPI.Services
         public BODataProcessResult GetSeriFGAndWipByDate(string date)
         {
             BODataProcessResult processResult = new BODataProcessResult();
-            List<SeriFGAndWipUI> seriFGAndWipUIs = new List<SeriFGAndWipUI>();
             try
             {
                 object[] domain = new object[] { "date_finished", ">=", date };
@@ -778,6 +810,7 @@ namespace ViidooDBServiceAPI.Services
                     {
                         foreach (var item in productionDataUI)
                         {
+                            List<SeriFGAndWipUI> seriFGAndWipUIs = new List<SeriFGAndWipUI>();
                             List<stock_move_lineUI> stock_Move_LineUIs = new List<stock_move_lineUI>();
                             List<stock_move_line_consume_relUI> consume_RelUIs = new List<stock_move_line_consume_relUI>();
                             List<stock_lotUI> stockLotConsumeUI = new List<stock_lotUI>();
@@ -883,14 +916,19 @@ namespace ViidooDBServiceAPI.Services
 
                                     if (seriFGAndWipUIs.Count > 0)
                                     {
+                                        // Thực hiện insert dữ liệu chưa tồn tại trong SVNDB
+                                        SeriFGAndWipDataPortal dataPortal = new SeriFGAndWipDataPortal(SVNDBConfig.ConnectionString);
+                                        var insertResult = dataPortal.InsertBulk(seriFGAndWipUIs);
+
                                         processResult.OK = true;
                                         processResult.Content = seriFGAndWipUIs;
-                                        processResult.Message = "Get seri FG and WIP success";
+                                        processResult.NumOfRow = seriFGAndWipUIs.Count;
+                                        processResult.Message = "Get and insert seri FG and WIP success";
                                     }
                                     else
                                     {
                                         processResult.OK = false;
-                                        processResult.Message = "Get seri FG and WIP fail";
+                                        processResult.Message = "Get and insert seri FG and WIP fail";
                                     }
                                 }
                             }

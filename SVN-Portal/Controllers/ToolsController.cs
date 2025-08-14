@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Crmf;
 using Org.BouncyCastle.Asn1.Ocsp;
 using PrinterServices.Objects;
 using SVN_Portal.DAL.DataPortal;
@@ -211,6 +212,7 @@ namespace SVN_Portal.Controllers
                     ProductDataRequest dataRequest = new ProductDataRequest()
                     {
                         product_id = selectedProductID,
+                        lotNumber = "",
                         count = countRows,
                         seriNumber = ""
                     };
@@ -293,6 +295,7 @@ namespace SVN_Portal.Controllers
                     {
                         product_id = productID,
                         count = 0,
+                        lotNumber = "",
                         seriNumber = seriNumber
                     };
 
@@ -967,10 +970,39 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult ProductionUpdateQty(string workOrderCode)
+        public async Task<IActionResult> ProductionUpdateQty(string productionOrderCode, int productionOrderQuantity)
         {
-            ViewBag.WorkOrder = workOrderCode;
-            return View();
+            ViewBag.WorkOrder = productionOrderCode;
+            ViewBag.Quantity = productionOrderQuantity;
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+
+            ProductDataRequest dataRequest = new ProductDataRequest()
+            {
+                product_id = 0,
+                lotNumber = "",
+                count = productionOrderQuantity,
+                seriNumber = productionOrderCode
+            };
+
+            var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderURL, dataRequest, new CancellationToken(false));
+            if (result != null)
+            {
+                if(result.OK)
+                {
+                    ViewBag.IsSuccess = "OK";
+                }
+                else
+                {
+                    ViewBag.IsSuccess = "NOTOK";
+                }
+                ViewBag.Message = result.Message;
+            }
+            else
+            {
+                ViewBag.IsSuccess = "NOTOK";
+                ViewBag.Message = "Lỗi API không phản hồi";
+            }
+                return View();
             
         }
 
