@@ -61,8 +61,9 @@ body {
 }
 
 .SVN-card-img-top {
-    height: auto; /* Chiều cao tự động điều chỉnh theo tỷ lệ */
-    object-fit: cover; /* Cắt hình ảnh để lấp đầy container, giữ tỷ lệ */
+    height: 200px; /* Chiều cao tự động điều chỉnh theo tỷ lệ */
+    object-fit: contain; /* Cắt hình ảnh để lấp đầy container, giữ tỷ lệ */
+    display: block;
 }
 
 .target-container {
