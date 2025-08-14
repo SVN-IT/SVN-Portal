@@ -14,12 +14,12 @@
             <div class="col-12 col-md-3">
                 <div class="form-group">
                     <label class="control-label">Lệnh sản xuất</label>
-                    <input type="text" name="workOrderCode" class="form-control" />
+                    <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" />
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="form-group" style="margin-top:33px">
-                    <button class="btn btn-success" type="submit" asp-controller="Tools" asp-action="GetProductByWorkOrder"><i class="fa fa-pencil"></i> Tìm kiếm</button>
+                    <button class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Tìm kiếm</button>
                 </div>
             </div>
         </div>
@@ -27,6 +27,7 @@
             <div class="col-12">
                 <div class="form-group">
                     <h1 class="control-label">Lệnh sản xuất: NM/MO/00933-004</h1>
+                    <input type="hidden" name="Name" class="form-control" value="NM/MO/00933" />
                 </div>
             </div>
             <div class="col-12">
@@ -83,7 +84,7 @@
                             </td>
                             <td>
                                 <input type="hidden" class="form-control" value="170" />
-                                <input type="text" class="form-control" value="" />
+                                <input type="text" class="form-control" value="12345" />
                             </td>
                         </tr>
                         <tr>
@@ -96,7 +97,7 @@
                             </td>
                             <td>
                                 <input type="hidden" class="form-control" value="165" />
-                                <input type="text" class="form-control" value="" />
+                                <input type="text" class="form-control" value="123" />
                             </td>
                         </tr>
                     </tbody>
@@ -105,3 +106,27 @@
         </div>
     </div>
 </form>
+
+<script>
+    function GetProductByWorkOrder(txtworkOrderCode) {
+        var workOrderCode = $(txtworkOrderCode).val();
+        $.ajax({
+            url: '@Url.Action("GetProductByWorkOrder", "Tools")',  // Adjust the controller name if needed
+            type: 'POST',
+            data: {workOrderCode: workOrderCode},
+            dataType: 'json',
+            success: function (response) {
+                if(response.result == false) {
+                    alert(response.message);
+                }
+                else{
+                    $(txtPackageID).val(response.packageID);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", error);
+                alert("An error occurred while getting Pallet ID.");
+            }
+        });
+    }
+</script>

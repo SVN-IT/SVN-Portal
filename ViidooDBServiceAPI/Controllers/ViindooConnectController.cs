@@ -141,6 +141,7 @@ namespace ViidooDBServiceAPI.Controllers
                 workOrder["name"] = productionOrderInfo["name"];
                 workOrder["product_name"] = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"].ToString())[1].ToString();
                 workOrder["product_qty"] = productionOrderInfo["product_qty"];
+                workOrder["product_tracking"] = productionOrderInfo["product_tracking"];
 
 
                 List<Dictionary<string, string>> stockMoveInfoList = new List<Dictionary<string, string>>();
