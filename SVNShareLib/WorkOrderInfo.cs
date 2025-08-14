@@ -11,9 +11,9 @@ namespace SVNShareLib
         public WorkOrderInfo()
         {
             OrderInfo = new Dictionary<string, string>();
-            StockMoveInfo = new List<Dictionary<string, object>>();
+            StockMoveInfo = new List<Dictionary<string, string>>();
         }
         public Dictionary<string, string> OrderInfo { get; set; }
-        public List<Dictionary<string, object>> StockMoveInfo { get; set; }
+        public List<Dictionary<string, string>> StockMoveInfo { get; set; }
     }
 }

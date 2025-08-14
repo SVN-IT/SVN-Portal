@@ -1006,6 +1006,50 @@ namespace SVN_Portal.Controllers
             
         }
 
+        public IActionResult WorkOrderInfo()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Hàm nhập kết quả sản xuất theo Work Order
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> GetProductByWorkOrder(string workOrderCode)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = workOrderCode,
+                    LotNumber = ""
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    if (result.OK)
+                    {
+                        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
+                    }
+                    else
+                    {
+
+                    }
+                        
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
+        }
+
         public IActionResult Test()
         {
             return View();

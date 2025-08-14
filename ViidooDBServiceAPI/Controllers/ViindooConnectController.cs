@@ -136,10 +136,37 @@ namespace ViidooDBServiceAPI.Controllers
                     processResult.Message = "Không tìm thấy danh sách thành phần của lệnh sản xuất: " + dataRequest.WorkOrderNumber;
                     return processResult;
                 }
+
+                Dictionary<string, string> workOrder = new Dictionary<string, string>();
+                workOrder["name"] = productionOrderInfo["name"];
+                workOrder["product_name"] = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"].ToString())[1].ToString();
+                workOrder["product_qty"] = productionOrderInfo["product_qty"];
+
+
+                List<Dictionary<string, string>> stockMoveInfoList = new List<Dictionary<string, string>>();
+                foreach (var item in stockMoveInfo)
+                {
+                    Dictionary<string, string> stockMove = new Dictionary<string, string>();
+
+                    //Lấy product_id
+                    var arrMarterialProductID = JsonConvert.DeserializeObject<object[]>(item["product_id"].ToString());
+                    var product_name = arrMarterialProductID[1].ToString();
+
+                    var arrLocationID = JsonConvert.DeserializeObject<object[]>(item["location_id"].ToString());
+                    var location_name = arrLocationID[1].ToString();
+
+                    var has_tracking = item["has_tracking"].ToString();
+
+                    stockMove["product_name"] = product_name;
+                    stockMove["location_name"] = location_name;
+                    stockMove["has_tracking"] = has_tracking;
+                    stockMoveInfoList.Add(stockMove);
+                }
+
                 WorkOrderInfo workOrderInfo = new WorkOrderInfo
                 {
-                    OrderInfo = productionOrderInfo,
-                    StockMoveInfo = stockMoveInfo
+                    OrderInfo = workOrder,
+                    StockMoveInfo = stockMoveInfoList
                 };
                 processResult.OK = true;
                 processResult.Message = "Lấy thông tin lệnh sản xuất thành công: " + dataRequest.WorkOrderNumber;
