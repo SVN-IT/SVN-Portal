@@ -104,6 +104,55 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        [Route("GetWorkOrder")]
+        [HttpPost]
+        public async Task<BODataProcessResult> GetWorkOrder(InputProductDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = await odooAPIService.LoginAsync();
+                if(!processResult.OK)
+                {
+                    return processResult;
+                }
+                var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.WorkOrderNumber, processResult.UserID, processResult.DataType);
+                if (productionOrderInfo == null)
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không tìm thấy lệnh sản xuất: " + dataRequest.WorkOrderNumber;
+                    return processResult;
+                }
+                //Lấy move_id 
+                var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+                var move_ids = Array.ConvertAll(str_move_ids, int.Parse);
+                //Lấy company_id
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["company_id"]);
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+                var stockMoveInfo = await odooAPIService.GetStockMoveByIDAsync(move_ids, company_id, processResult.UserID, processResult.DataType);
+                if (stockMoveInfo == null || stockMoveInfo.Count == 0)
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không tìm thấy danh sách thành phần của lệnh sản xuất: " + dataRequest.WorkOrderNumber;
+                    return processResult;
+                }
+                WorkOrderInfo workOrderInfo = new WorkOrderInfo
+                {
+                    OrderInfo = productionOrderInfo,
+                    StockMoveInfo = stockMoveInfo
+                };
+                processResult.OK = true;
+                processResult.Message = "Lấy thông tin lệnh sản xuất thành công: " + dataRequest.WorkOrderNumber;
+                processResult.Content = workOrderInfo;
+            }
+            catch(Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
 
         /// <summary>
         /// Nhập kết quả sản xuất đơn giản
