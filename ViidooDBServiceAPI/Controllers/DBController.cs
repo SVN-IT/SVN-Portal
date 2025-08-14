@@ -78,6 +78,10 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        /// <summary>
+        /// Hàm đang sử dụng để lấy kết quả sản xuất trong khoảng tg 10p đến hiện tại
+        /// </summary>
+        /// <returns></returns>
         [Route("GetProductionResult")]
         [HttpPost]
         public BODataProcessResult GetProductionResult()
@@ -118,6 +122,10 @@ namespace ViidooDBServiceAPI.Controllers
             return totalDataProcessResult;
         }
 
+        /// <summary>
+        /// Hàm đang sử dụng để lấy những bảng khác trong khoảng tg 10p đến hiện tại
+        /// </summary>
+        /// <returns></returns>
         [Route("GetDataFromViindooV1")]
         [HttpPost]
         public BODataProcessResult GetDataFromViindooV1()

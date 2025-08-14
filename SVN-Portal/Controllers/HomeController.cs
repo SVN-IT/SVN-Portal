@@ -646,47 +646,47 @@ namespace SVN_Portal.Controllers
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
 
-                string pdChecked = "🔴";
-                string mtChecked = "🔴";
-                string qcChecked = "🔴";
-                string pdConfirmed = "🔴";
-                string qcConfirmed = "🔴";
-
-                if (model.IsPDChecked)
-                {
-                    pdChecked = "🟢";
-                }
-                if (model.IsMTChecked)
-                {
-                    mtChecked = "🟢";
-                }
-                if (model.IsQCChecked)
-                {
-                    qcChecked = "🟢";
-                }
-                if (model.IsPDConfirmed)
-                {
-                    pdConfirmed = "🟢";
-                }
-                if (model.IsQCConfirmed)
-                {
-                    qcConfirmed = "🟢";
-                }
-
-                StringBuilder sb = new StringBuilder();
-                sb.Append("<p style='font-size:20px' class=' text-light'>");
-                sb.Append("<strong>Checklist status</strong>: ");
-                sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
-                sb.Append("</p>");
-
-                if (!oper.Contains("Walter"))
-                {
-                    model.CanProduction = true;
-                }
-
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
                 {
+                    string pdChecked = "🔴";
+                    string mtChecked = "🔴";
+                    string qcChecked = "🔴";
+                    string pdConfirmed = "🔴";
+                    string qcConfirmed = "🔴";
+
+                    if (model.IsPDChecked)
+                    {
+                        pdChecked = "🟢";
+                    }
+                    if (model.IsMTChecked)
+                    {
+                        mtChecked = "🟢";
+                    }
+                    if (model.IsQCChecked)
+                    {
+                        qcChecked = "🟢";
+                    }
+                    if (model.IsPDConfirmed)
+                    {
+                        pdConfirmed = "🟢";
+                    }
+                    if (model.IsQCConfirmed)
+                    {
+                        qcConfirmed = "🟢";
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    sb.Append("<strong>Checklist status</strong>: ");
+                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    sb.Append("</p>");
+
+                    if (!oper.Contains("Walter"))
+                    {
+                        model.CanProduction = true;
+                    }
+
                     strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model, date);
 
