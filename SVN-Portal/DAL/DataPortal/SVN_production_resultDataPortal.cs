@@ -581,7 +581,7 @@ namespace SVN_Portal.DAL.DataPortal
                     var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, oper.StoreID);
                     if (checkListData != null && checkListData.Count > 0)
                     {
-                        if (checkListData[0].RestaurantStaffs.Contains("PD"))
+                        if (checkListData[0].RestaurantStaffs.Contains("PD checked"))
                         {
                             viewModel.IsPDChecked = true;
                         }
@@ -589,7 +589,7 @@ namespace SVN_Portal.DAL.DataPortal
                         {
                             viewModel.IsPDChecked = false;
                         }
-                        if (checkListData[0].RestaurantStaffs.Contains("MT") || checkListData[0].RestaurantStaffs.Contains("ENG"))
+                        if (checkListData[0].RestaurantStaffs.Contains("MT checked") || checkListData[0].RestaurantStaffs.Contains("ENG checked"))
                         {
                             viewModel.IsMTChecked = true;
                         }
@@ -597,7 +597,7 @@ namespace SVN_Portal.DAL.DataPortal
                         {
                             viewModel.IsMTChecked = false;
                         }
-                        if (checkListData[0].RestaurantStaffs.Contains("QC"))
+                        if (checkListData[0].RestaurantStaffs.Contains("QC checked"))
                         {
                             viewModel.IsQCChecked = true;
                         }

@@ -14,6 +14,7 @@ using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SVN_Portal.Controllers
@@ -1034,10 +1035,15 @@ namespace SVN_Portal.Controllers
                     if (result.OK)
                     {
                         WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
+                        string stringContent = BuildWorkOrderInfo(workOrderInfo);
+                        processResult.OK = true;
+                        processResult.Message = stringContent;
+                        return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                     else
                     {
-
+                        processResult.OK = false;
+                        processResult.Message = "Không có dữ liệu";
                     }
                         
                 }
@@ -1048,6 +1054,83 @@ namespace SVN_Portal.Controllers
                 processResult.Message = ex.Message;
             }
             return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
+        }
+
+        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo)
+        {
+            string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<h1 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h1>");
+            sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<h2 class=\"control-label\">Sản phẩm: " + workOrderInfo.OrderInfo["product_name"] + "</h2>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-3\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<div class=\"row\">");
+            sb.Append("<div class=\"col-2\">");
+            sb.Append("<label class=\"control-label\">Số lượng:</label>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-5\">");
+            sb.Append("<input type=\"number\" name=\"Quantity\" class=\"form-control\" />");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-5\">");
+            sb.Append("/" + workOrderInfo.OrderInfo["product_qty"]);
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            if (workOrderInfo.OrderInfo["product_tracking"] == "serial")
+            {
+                sb.Append("<div class=\"col-12 col-md-3\">");
+                sb.Append("<div class=\"form-group\">");
+                sb.Append("<div class=\"row\">");
+                sb.Append("<div class=\"col-2\">");
+                sb.Append("<label class=\"control-label\">Số seri:</label>");
+                sb.Append("</div>");
+                sb.Append("<div class=\"col-10\">");
+                sb.Append("<input type=\"text\" name=\"Serial\" class=\"form-control\" />");
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+            }
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<table class=\"table\">");
+            sb.Append("<thead>");
+            sb.Append("<tr>");
+            sb.Append("<th scope=\"col\">Sản phẩm</th>");
+            sb.Append("<th scope=\"col\">Từ</th>");
+            sb.Append("<th scope=\"col\">Số seri</th>");
+            sb.Append("</tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+            foreach (var item in workOrderInfo.StockMoveInfo)
+            {
+                sb.Append("<tr>");
+                sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
+                sb.Append("<td>" + item["location_name"] + "</td>");
+                if(item["has_tracking"] == "serial")
+                {
+                    sb.Append("<td><input type=\"text\" class=\"form-control\" /></td>");
+                }
+                else
+                {
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" /></td>");
+                    sb.Append("<td>Không áp dụng</td>");
+                }
+                sb.Append("</tr>");
+            }
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+            sb.Append("</div>");
+            return sb.ToString();
         }
 
         public IActionResult Test()

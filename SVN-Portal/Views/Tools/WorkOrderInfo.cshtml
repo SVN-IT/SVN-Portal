@@ -120,7 +120,7 @@
                     alert(response.message);
                 }
                 else{
-                    $(txtPackageID).val(response.packageID);
+                    $(`#tg_${charID}`).html(response.targetTable);
                 }
             },
             error: function (xhr, status, error) {
