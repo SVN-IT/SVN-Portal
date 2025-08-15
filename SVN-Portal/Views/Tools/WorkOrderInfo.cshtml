@@ -51,4 +51,39 @@
             }
         });
     }
+
+    function InputProductionResult(){
+        let formData = {
+            name: $('input[name="Name"]').val(),
+            quantity: $('input[name="Quantity"]').val(),
+            productTracking: $('input[name="ProductTracking"]').val(),
+            serial: $('input[name="Serial"]').val(),
+            products: []
+        };
+
+        $(".table tbody tr").each(function () {
+            let inputs = $(this).find("input");
+
+            let productItem = {
+                product_id: $(inputs[0]).val(),    // hidden
+                has_tracking: $(inputs[1]).val(), // text
+                serial_code: $(inputs[2]).val()
+            };
+
+            formData.products.push(productItem);
+        });
+
+        $.ajax({
+            url: '/Tools/InputProductionResult',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (res) {
+                console.log("Gửi thành công:", res);
+            },
+            error: function (err) {
+                console.error("Lỗi:", err);
+            }
+        });
+    }
 </script>

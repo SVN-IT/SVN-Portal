@@ -1079,7 +1079,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<label class=\"control-label\">Số lượng:</label>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-4\">");
-            sb.Append("<input type=\"number\" name=\"Quantity\" class=\"form-control\" />");
+            sb.Append("<input type=\"text\" name=\"Quantity\" class=\"form-control\" />");
             sb.Append("</div>");
             sb.Append("<div class=\"col-5\">");
             sb.Append("/" + workOrderInfo.OrderInfo["product_qty"]);
@@ -1090,6 +1090,11 @@ namespace SVN_Portal.Controllers
             if (workOrderInfo.OrderInfo["product_tracking"] == "serial")
             {
                 sb.Append("<div class=\"col-12 col-md-3\">");
+            }
+            else
+            {
+                sb.Append("<div class=\"col-12 col-md-3 d-none\">");
+            }
                 sb.Append("<div class=\"form-group\">");
                 sb.Append("<div class=\"row\">");
                 sb.Append("<div class=\"col-2\">");
@@ -1101,7 +1106,7 @@ namespace SVN_Portal.Controllers
                 sb.Append("</div>");
                 sb.Append("</div>");
                 sb.Append("</div>");
-            }
+            
             sb.Append("<div class=\"col-12\">");
             sb.Append("<table class=\"table\">");
             sb.Append("<thead>");
@@ -1129,6 +1134,11 @@ namespace SVN_Portal.Controllers
             }
             sb.Append("</tbody>");
             sb.Append("</table>");
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<div class=\"form-group\" style=\"margin-top:33px\">");
+            sb.Append("<button type=\"button\" class=\"btn btn-primary\" onclick=\"InputProductionResult()\">Xác nhận</button>");
+            sb.Append("</div>");
+            sb.Append("</div>");
             sb.Append("</div>");
             return sb.ToString();
         }
@@ -1136,6 +1146,11 @@ namespace SVN_Portal.Controllers
         public IActionResult Test()
         {
             return View();
+        }
+
+        public IActionResult InputProductionResult([FromBody] ProductionData data)
+        {
+            return Json(new { success = true });
         }
     }
 
