@@ -24,85 +24,7 @@
             </div>
         </div>
         <div id="divWorkOrder" class="row col-12">
-            <div class="col-12">
-                <div class="form-group">
-                    <h1 class="control-label">Lệnh sản xuất: NM/MO/00933-004</h1>
-                    <input type="hidden" name="Name" class="form-control" value="NM/MO/00933" />
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="form-group">
-                    <h2 class="control-label">
-                        Sản phẩm:
-                        [FG-SOL-SP-0220-00-One Section] Cozy PRODUCTION 1655 Flatbush Avenue = 1335 COVER TYPE: Baseboard (with bump-out eKits)- One Section
-                    </h2>
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-2">
-                            <label class="control-label">Số lượng</label>
-                        </div>
-                        <div class="col-5">
-                            <input type="text" name="Quality" class="form-control" />
-                        </div>
-                        <div class="col-5">
-                            /97
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-2">
-                            <label class="control-label">Số serial</label>
-                        </div>
-                        <div class="col-10">
-                            <input type="text" name="Serial" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Sản phẩm</th>
-                            <th scope="col">Từ</th>
-                            <th scope="col">Số seri</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">
-                                [WCT01-60186] Linacoustic insulation panel after cutting
-                            </th>
-                            <td>
-                                NM/Dự trữ
-                            </td>
-                            <td>
-                                <input type="hidden" class="form-control" value="170" />
-                                <input type="text" class="form-control" value="12345" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">
-                                [RMT11-60002] Metal sheet of 72” baseboard (SPCC T=1.2MM JIS G3141)
-
-                            </th>
-                            <td>
-                                NM/Dự trữ
-                            </td>
-                            <td>
-                                <input type="hidden" class="form-control" value="165" />
-                                <input type="text" class="form-control" value="123" />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            
         </div>
     </div>
 </form>
@@ -120,7 +42,7 @@
                     alert(response.message);
                 }
                 else{
-                    $(`#tg_${charID}`).html(response.targetTable);
+                    $(`#divWorkOrder`).html(response.message);
                 }
             },
             error: function (xhr, status, error) {

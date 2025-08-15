@@ -1064,6 +1064,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<div class=\"form-group\">");
             sb.Append("<h1 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
@@ -1074,10 +1075,10 @@ namespace SVN_Portal.Controllers
             sb.Append("<div class=\"col-12 col-md-3\">");
             sb.Append("<div class=\"form-group\">");
             sb.Append("<div class=\"row\">");
-            sb.Append("<div class=\"col-2\">");
+            sb.Append("<div class=\"col-3\">");
             sb.Append("<label class=\"control-label\">Số lượng:</label>");
             sb.Append("</div>");
-            sb.Append("<div class=\"col-5\">");
+            sb.Append("<div class=\"col-4\">");
             sb.Append("<input type=\"number\" name=\"Quantity\" class=\"form-control\" />");
             sb.Append("</div>");
             sb.Append("<div class=\"col-5\">");
@@ -1118,12 +1119,11 @@ namespace SVN_Portal.Controllers
                 sb.Append("<td>" + item["location_name"] + "</td>");
                 if(item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"text\" class=\"form-control\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control\" /></td>");
                 }
                 else
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" /></td>");
-                    sb.Append("<td>Không áp dụng</td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
                 }
                 sb.Append("</tr>");
             }

@@ -157,7 +157,7 @@ namespace ViidooDBServiceAPI.Controllers
                     var location_name = arrLocationID[1].ToString();
 
                     var has_tracking = item["has_tracking"].ToString();
-
+                    stockMove["product_id"] = arrMarterialProductID[0].ToString();
                     stockMove["product_name"] = product_name;
                     stockMove["location_name"] = location_name;
                     stockMove["has_tracking"] = has_tracking;
