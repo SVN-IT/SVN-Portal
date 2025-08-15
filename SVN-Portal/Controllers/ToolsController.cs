@@ -1148,9 +1148,51 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
-        public IActionResult InputProductionResult([FromBody] ProductionData data)
+        public async Task<IActionResult> InputProductionResult([FromBody] ProductionData data)
         {
-            return Json(new { success = true });
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                data.Products = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = data.Name,
+                    LotNumber = data.Serial,
+                    Quality = int.Parse(data.Quantity),
+                    LotScaneds = lotScaneds
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    if (result.OK)
+                    {
+                        processResult.OK = true;
+                        return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Không có dữ liệu";
+                    }
+
+                }
+            }
+            catch(Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { success = false, message = processResult.Message });
         }
     }
 
