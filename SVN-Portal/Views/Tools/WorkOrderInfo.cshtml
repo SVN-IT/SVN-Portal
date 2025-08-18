@@ -30,6 +30,7 @@
 </form>
 
 <script>
+    var product_tracking = "none"
     function GetProductByWorkOrder(txtworkOrderCode) {
         var workOrderCode = $(txtworkOrderCode).val();
         $.ajax({
@@ -43,6 +44,15 @@
                 }
                 else{
                     $(`#divWorkOrder`).html(response.message);
+
+                    product_tracking = response.product_tracking;
+
+                    // Focus ban đầu
+                    if (product_tracking === "serial") {
+                        $('input[name="Serial"]').focus();
+                    } else {
+                        $('input[name="Quantity"]').focus();
+                    }
                 }
             },
             error: function (xhr, status, error) {
@@ -86,4 +96,52 @@
             }
         });
     }
+
+    $(document).ready(function () {
+
+        // Bắt phím Enter
+        $(document).on('keydown', 'input', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // chặn submit form khi bấm Enter
+
+                // Nếu ô hiện tại rỗng => không cho đi tiếp
+                if (!$(this).val().trim()) {
+                    return;
+                }
+
+                let inputs = $('.serial-input'); // tất cả ô seri
+
+                // Nếu đang ở ô Quality thì nhảy sang ô seri đầu tiên
+                if ($(this).attr("name") === "Quantity") {
+                    inputs.first().focus();
+                    return;
+                }
+
+                // Nếu đang ở ô Serial (form trên đầu)
+                if ($(this).attr("name") === "Serial") {
+                    $('input[name="Quantity"]').val(1);
+                    // nhảy xuống seri đầu tiên trong bảng luôn
+                    inputs.first().focus();
+                    return;
+                }
+
+                // Nếu đang ở trong list serial-input
+                if ($(this).hasClass('serial-input')) {
+                    let idx = inputs.index(this);
+
+                    if (idx >= 0 && idx < inputs.length - 1) {
+                        // Nhảy xuống seri tiếp theo
+                        inputs.eq(idx + 1).focus();
+                    } else {
+                        // Nếu là seri cuối cùng thì quay lại ô ban đầu
+                        if (product_tracking === "serial") {
+                            $('input[name="Serial"]').focus();
+                        } else {
+                            $('input[name="Quantity"]').focus();
+                        }
+                    }
+                }
+            }
+        });
+    });
 </script>

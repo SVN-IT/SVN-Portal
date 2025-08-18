@@ -1276,7 +1276,7 @@ namespace SVN_Portal.Controllers
                         viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = "NG";
+                        viewModel.CheckListOnSystem = "OK";
                         viewModel.Remark = model.DefectByCategoryViewModels.Where(x => x.value != "0").Count() > 0 ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Where(x => x.value != "0").Select(x => $"{x.category}: {x.value}")) : string.Empty;
                         if (model.CanProduction)
                         {

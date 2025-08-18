@@ -1038,7 +1038,7 @@ namespace SVN_Portal.Controllers
                         string stringContent = BuildWorkOrderInfo(workOrderInfo);
                         processResult.OK = true;
                         processResult.Message = stringContent;
-                        return Json(new { result = processResult.OK, message = processResult.Message });
+                        return Json(new { result = processResult.OK, message = processResult.Message, product_tracking = workOrderInfo.OrderInfo["product_tracking"] });
                     }
                     else
                     {
@@ -1095,17 +1095,17 @@ namespace SVN_Portal.Controllers
             {
                 sb.Append("<div class=\"col-12 col-md-3 d-none\">");
             }
-                sb.Append("<div class=\"form-group\">");
-                sb.Append("<div class=\"row\">");
-                sb.Append("<div class=\"col-2\">");
-                sb.Append("<label class=\"control-label\">Số seri:</label>");
-                sb.Append("</div>");
-                sb.Append("<div class=\"col-10\">");
-                sb.Append("<input type=\"text\" name=\"Serial\" class=\"form-control\" />");
-                sb.Append("</div>");
-                sb.Append("</div>");
-                sb.Append("</div>");
-                sb.Append("</div>");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<div class=\"row\">");
+            sb.Append("<div class=\"col-2\">");
+            sb.Append("<label class=\"control-label\">Số seri:</label>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-10\">");
+            sb.Append("<input type=\"text\" name=\"Serial\" class=\"form-control\" />");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
             
             sb.Append("<div class=\"col-12\">");
             sb.Append("<table class=\"table\">");
@@ -1124,7 +1124,7 @@ namespace SVN_Portal.Controllers
                 sb.Append("<td>" + item["location_name"] + "</td>");
                 if(item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control serial-input\" /></td>");
                 }
                 else
                 {
