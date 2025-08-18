@@ -1266,11 +1266,11 @@ namespace SVN_Portal.Controllers
 
                         PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
                         viewModel.OperationActive = model.Operation;
-                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, 3).ToString() + "%";
-                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, 3).ToString() + "%";
-                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, 3).ToString() + "%";
-                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, 3).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, 3).ToString() + "%";
+                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.CheckListOnSystem = "NG";
                         if (model.CanProduction)
                         {

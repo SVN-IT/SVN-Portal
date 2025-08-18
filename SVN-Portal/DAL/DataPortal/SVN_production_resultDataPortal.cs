@@ -244,9 +244,9 @@ namespace SVN_Portal.DAL.DataPortal
                             SVN_targetViewModel NGVM = new SVN_targetViewModel()
                             {
                                 Item = "Defect",
-                                Target = dataUIByOper.Defect * 100,
-                                Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
-                                Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
+                                Target = Math.Round(dataUIByOper.Defect * 100, 2),
+                                Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2),
+                                Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0, 2)
                             };
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
@@ -681,9 +681,9 @@ namespace SVN_Portal.DAL.DataPortal
                         SVN_targetViewModel NGVM = new SVN_targetViewModel()
                         {
                             Item = "Defect",
-                            Target = dataUIByOper.Defect * 100,
-                            Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
-                            Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
+                            Target = Math.Round(dataUIByOper.Defect * 100, 2),
+                            Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2),
+                            Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0, 2)
                         };
                         viewModel.TargetViewModels.Add(dailyPlanVM);
                         viewModel.TargetViewModels.Add(UPHVM);
