@@ -72,7 +72,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -130,7 +130,14 @@ namespace SVN_Portal.DAL.DataPortal
                         //get 5 ng lỡn nhất
                         if(viewModel.DefectByCategoryViewModels != null && viewModel.DefectByCategoryViewModels.Count > 0)
                         {
-                            viewModel.DefectByCategoryViewModels = viewModel.DefectByCategoryViewModels.OrderByDescending(x => x.value).Take(3).ToList();
+                            if (topDefect == 0)
+                            {
+                                viewModel.DefectByCategoryViewModels = viewModel.DefectByCategoryViewModels.OrderByDescending(x => x.value).ToList();
+                            }
+                            else
+                            {
+                                viewModel.DefectByCategoryViewModels = viewModel.DefectByCategoryViewModels.OrderByDescending(x => x.value).Take(topDefect).ToList();
+                            }
                         }
 
 

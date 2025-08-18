@@ -36,13 +36,22 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col">Operation active</th>
-                                <th scope="col">Daily Plan Achieve</th>
-                                <th scope="col">UPH</th>
-                                <th scope="col">UPPH</th>
-                                <th scope="col">Labor</th>
-                                <th scope="col">Defect rate</th>
-                                <th scope="col">Check list on system</th>
+                                <th rowspan="2" scope="col">Operation active</th>
+                                <th colspan="3" scope="col">Daily Plan Achieve</th>
+                                <th rowspan="2" scope="col">UPH</th>
+                                <th rowspan="2" scope="col">UPPH</th>
+                                <th rowspan="2" scope="col">Labor</th>
+                                <th colspan="3" scope="col">Defect rate</th>
+                                <th rowspan="2" scope="col">Check list on system</th>
+                                <th rowspan="2" scope="col">Remark</th>
+                            </tr>
+                            <tr>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target rate</th>
+                                <th>Current rate</th>
+                                <th>%</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -50,12 +59,17 @@
                             {
                                 <tr>
                                     <th scope="row">@item.OperationActive</th>
+                                    <td>@item.DailyPlanTarget</td>
+                                    <td>@item.DailyPlanCurrent</td>
                                     <td>@item.DailyPlanAchieve</td>
                                     <td>@item.UPH</td>
                                     <td>@item.UPPH</td>
                                     <td>@item.Labor</td>
+                                    <td>@item.DefectTargetRate</td>
+                                    <td>@item.DefectCurrentRate</td>
                                     <td>@item.DefectRate</td>
                                     <td>@item.CheckListOnSystem</td>
+                                    <td>@item.Remark</td>
                                 </tr>
                             }
                         </tbody>

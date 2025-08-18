@@ -10,6 +10,7 @@ using SVNShareLib.DTO;
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -55,7 +56,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -105,7 +106,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -197,7 +198,7 @@ namespace SVN_Portal.Controllers
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -1251,7 +1252,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
                 if (models != null && models.Count > 0)
                 {
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
@@ -1266,12 +1267,17 @@ namespace SVN_Portal.Controllers
 
                         PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
                         viewModel.OperationActive = model.Operation;
+                        viewModel.DailyPlanTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding).ToString();
                         viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.CheckListOnSystem = "NG";
+                        viewModel.Remark = "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Select(x => $"{x.category}: {x.value}"));
                         if (model.CanProduction)
                         {
                             viewModel.CheckListOnSystem = "OK";
