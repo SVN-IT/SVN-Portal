@@ -31,8 +31,20 @@
 
 <script>
     var product_tracking = "none"
+
+    // Hiện loader
+    function showLoader() {
+        $("#app-loader").css("display", "flex");
+    }
+
+    // Ẩn loader
+    function hideLoader() {
+        $("#app-loader").css("display", "none");
+    }
+
     function GetProductByWorkOrder(txtworkOrderCode) {
         var workOrderCode = $(txtworkOrderCode).val();
+        showLoader();
         $.ajax({
             url: '@Url.Action("GetProductByWorkOrder", "Tools")',  // Adjust the controller name if needed
             type: 'POST',
@@ -58,6 +70,9 @@
             error: function (xhr, status, error) {
                 console.error("AJAX error:", error);
                 alert("An error occurred while getting Pallet ID.");
+            },
+            complete: function () {
+                hideLoader();
             }
         });
     }
@@ -70,7 +85,7 @@
             serial: $('input[name="Serial"]').val(),
             products: []
         };
-
+        showLoader();
         $(".table tbody tr").each(function () {
             let inputs = $(this).find("input");
 
@@ -94,6 +109,9 @@
             },
             error: function (err) {
                 console.error("Lỗi:", err);
+            },
+            complete: function () {
+                hideLoader();
             }
         });
     }
