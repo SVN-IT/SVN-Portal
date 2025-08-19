@@ -90,6 +90,7 @@
             data: JSON.stringify(formData),
             success: function (res) {
                 console.log("Gửi thành công:", res);
+                GetProductByWorkOrder('#txtWorkOrderCode');
             },
             error: function (err) {
                 console.error("Lỗi:", err);
@@ -172,12 +173,13 @@
                                     // Nhảy xuống serial-input tiếp theo
                                     inputs.eq(idx + 1).focus();
                                 } else {
-                                    // Nếu là serial cuối cùng thì quay lại ô ban đầu
-                                    if (product_tracking === "serial") {
-                                        $('input[name="Serial"]').focus();
-                                    } else {
-                                        $('input[name="Quantity"]').focus();
-                                    }
+                                    // // Nếu là serial cuối cùng thì quay lại ô ban đầu
+                                    // if (product_tracking === "serial") {
+                                    //     $('input[name="Serial"]').focus();
+                                    // } else {
+                                    //     $('input[name="Quantity"]').focus();
+                                    // }
+                                    InputProductionResult();
                                 }
                             } else {
                                 alert(res.message);
