@@ -1194,6 +1194,8 @@ namespace SVN_Portal.Controllers
             sb.Append("</tr>");
             sb.Append("</thead>");
             sb.Append("<tbody>");
+
+            workOrderInfo.StockMoveInfo = workOrderInfo.StockMoveInfo.OrderByDescending(x => x["has_tracking"]).ToList();
             foreach (var item in workOrderInfo.StockMoveInfo)
             {
                 sb.Append("<tr>");
