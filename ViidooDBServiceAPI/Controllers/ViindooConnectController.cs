@@ -142,6 +142,7 @@ namespace ViidooDBServiceAPI.Controllers
                 workOrder["product_name"] = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"].ToString())[1].ToString();
                 workOrder["product_qty"] = productionOrderInfo["product_qty"];
                 workOrder["product_tracking"] = productionOrderInfo["product_tracking"];
+                workOrder["product_id"] = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"].ToString())[0].ToString();
 
 
                 List<Dictionary<string, string>> stockMoveInfoList = new List<Dictionary<string, string>>();
@@ -359,7 +360,7 @@ namespace ViidooDBServiceAPI.Controllers
                                 var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
                                 if(lotScaned != null)
                                 {
-                                    var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                                     if (stockMoveLineSerial == null)
                                     {
                                         bODataProcessResult.OK = false;
@@ -594,6 +595,104 @@ namespace ViidooDBServiceAPI.Controllers
                 bODataProcessResult.OK = false;
                 bODataProcessResult.Message = ex.Message;
 
+            }
+            return bODataProcessResult;
+        }
+
+        /// <summary>
+        /// Check mã lot thành phẩm có tồn tại ko
+        /// </summary>
+        /// <param name="dataRequest"></param>
+        /// <returns></returns>
+        [Route("SearchSerialLotFG")]
+        [HttpPost]
+        public async Task<BODataProcessResult> SearchSerialLotFG(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                int lot_id = 0;
+                string lot_name = string.Empty;
+                bODataProcessResult = await odooAPIService.LoginAsync();
+                if (bODataProcessResult.OK)
+                {
+                    //Kiểm tra mã lot thành phẩm có tồn tại không
+                    var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, dataRequest.product_id, 1, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (stockLotInfo == null)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Không tìm thấy mã lot: " + dataRequest.lotNumber;
+                        return bODataProcessResult;
+                    }
+                    if (stockLotInfo == null)
+                    {
+                        stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.lotNumber, dataRequest.product_id, 1, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, dataRequest.product_id, 1, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    }
+
+                    if (stockLotInfo != null)
+                    {
+                        lot_id = (int)stockLotInfo.Last[0];
+                        lot_name = (string)stockLotInfo.Last[1];
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Không tìm thấy hoặc tạo được mã lô: " + dataRequest.lotNumber;
+                        return bODataProcessResult;
+                    }
+
+                    //Để trành không sử dụng lại mã lot đã dùng rồi
+                    var checkLotInfo = await odooAPIService.CheckUsedLotIDAsync(lot_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (checkLotInfo != null)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Mã lô " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
+                        return bODataProcessResult;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+            }
+            return bODataProcessResult;
+        }
+
+        /// <summary>
+        /// Kiểm tra mã lot của các thành phần đã được sử dụng chưa
+        /// </summary>
+        /// <param name="dataRequest"></param>
+        /// <returns></returns>
+        [Route("GetUsedLotForComponemt")]
+        [HttpPost]
+        public async Task<BODataProcessResult> GetUsedLotForComponemt(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                bODataProcessResult = await odooAPIService.LoginAsync();
+                if (bODataProcessResult.OK)
+                {
+                    var result = await odooAPIService.GetUsedLotForComponemtAsync(dataRequest.seriNumber, dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (result != null && result.Count > 0)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất: " + result["reference"];
+                        bODataProcessResult.Content = result;
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " chưa được sử dụng";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
             }
             return bODataProcessResult;
         }

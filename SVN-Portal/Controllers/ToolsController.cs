@@ -1056,6 +1056,82 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
         }
 
+        /// <summary>
+        /// Hàm kiểm tra số seri đã được dùng cho lệnh sản xuất khác chưa
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CheckLotSerialFG(string serial, string masterMOName, string productID)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                ProductDataRequest dataRequest = new ProductDataRequest()
+                {
+                    lotNumber = serial,
+                    seriNumber = "",
+                    product_id = int.Parse(productID)
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/SearchSerialLotFG", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    processResult.OK = result.OK;
+                    processResult.Message = result.Message;
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không có dữ liệu";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message });
+        }
+
+        /// <summary>
+        /// Hàm kiểm tra số seri đã dùng để tiêu hao cho lệnh sản xuất khác chưa
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CheckLotSerialComponemt(string serial, string productId, string masterMOName)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                ProductDataRequest dataRequest = new ProductDataRequest()
+                {
+                    lotNumber = serial,
+                    seriNumber = masterMOName,
+                    product_id = int.Parse(productId)
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    processResult.OK = result.OK;
+                    processResult.Message = result.Message;
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không có dữ liệu";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message });
+        }
+
         private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo)
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
@@ -1064,6 +1140,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<div class=\"form-group\">");
             sb.Append("<h1 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
             sb.Append("</div>");
             sb.Append("</div>");
@@ -1124,11 +1201,11 @@ namespace SVN_Portal.Controllers
                 sb.Append("<td>" + item["location_name"] + "</td>");
                 if(item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control serial-input\" /></td>");
                 }
                 else
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
                 }
                 sb.Append("</tr>");
             }

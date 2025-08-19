@@ -117,30 +117,80 @@
                     return;
                 }
 
+                var masterMOName = $('input[name="Name"]').val();
+                var productID = $('input[name="ProductID"]').val();
+
                 // Nếu đang ở ô Serial (form trên đầu)
                 if ($(this).attr("name") === "Serial") {
-                    $('input[name="Quantity"]').val(1);
-                    // nhảy xuống seri đầu tiên trong bảng luôn
-                    inputs.first().focus();
+                    let serialValue = $(this).val().trim();
+
+                    // Gọi AJAX để kiểm tra
+                    $.ajax({
+                        url: '/Tools/CheckLotSerialFG', // API check
+                        type: 'POST',
+                        data: { serial: serialValue, masterMOName: masterMOName, productID: productID },
+                        success: function (res) {
+                            if (res.result) {
+                                // Nếu pass -> set Quality = 1 rồi đi tiếp
+                                $('input[name="Quantity"]').val(1);
+                                inputs.first().focus();
+                            } else {
+                                alert(res.message);
+                                $('input[name="Serial"]').val('');
+                                $('input[name="Serial"]').focus();
+                            }
+                        },
+                        error: function () {
+                            alert("Lỗi khi gọi server!");
+                            $('input[name="Serial"]').val('');
+                            $('input[name="Serial"]').focus();
+                        }
+                    });
                     return;
                 }
 
                 // Nếu đang ở trong list serial-input
                 if ($(this).hasClass('serial-input')) {
+                    let $this = $(this);
                     let idx = inputs.index(this);
+                    let serialCValue = $this.val().trim();
 
-                    if (idx >= 0 && idx < inputs.length - 1) {
-                        // Nhảy xuống seri tiếp theo
-                        inputs.eq(idx + 1).focus();
-                    } else {
-                        // Nếu là seri cuối cùng thì quay lại ô ban đầu
-                        if (product_tracking === "serial") {
-                            $('input[name="Serial"]').focus();
-                        } else {
-                            $('input[name="Quantity"]').focus();
+                    // lấy product-id đi kèm (ở cùng <td>)
+                    let productId = $this.closest('td').find('.product-id').val();
+
+                    $.ajax({
+                        url: '/Tools/CheckLotSerialComponemt', // API riêng cho serial-input
+                        type: 'POST',
+                        data: {
+                            serial: serialCValue,
+                            productId: productId,
+                            masterMOName: masterMOName
+                        },
+                        success: function (res) {
+                            if (res.result) {
+                                if (idx >= 0 && idx < inputs.length - 1) {
+                                    // Nhảy xuống serial-input tiếp theo
+                                    inputs.eq(idx + 1).focus();
+                                } else {
+                                    // Nếu là serial cuối cùng thì quay lại ô ban đầu
+                                    if (product_tracking === "serial") {
+                                        $('input[name="Serial"]').focus();
+                                    } else {
+                                        $('input[name="Quantity"]').focus();
+                                    }
+                                }
+                            } else {
+                                alert(res.message);
+                                $this.val('').focus();
+                            }
+                        },
+                        error: function () {
+                            alert("Lỗi khi gọi server (serial-input)!");
+                            $this.val('').focus();
                         }
-                    }
+                    });
                 }
+
             }
         });
     });

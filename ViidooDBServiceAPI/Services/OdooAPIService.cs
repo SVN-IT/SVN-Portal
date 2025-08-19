@@ -453,12 +453,50 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="uid"></param>
         /// <param name="sessionId"></param>
         /// <returns></returns>
-        public async Task<Dictionary<string, string>> GetLotByNameAndProductIDAsync(int move_id, string lot_name, int product_id, int uid, string sessionId)
+        public async Task<Dictionary<string, string>> GetLotByNameAndProductIDAsync(int move_id, string mo_name, string lot_name, int product_id, int uid, string sessionId)
         {
             using (var client = new HttpClient())
             {
                 // Gửi request đọc dữ liệu
                 client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                //var payload = new
+                //{
+                //    jsonrpc = "2.0",
+                //    method = "call",
+                //    @params = new
+                //    {
+                //        model = "stock.move.line",
+                //        method = "search_read",
+                //        args = new object[]
+                //        {
+
+                //        },
+                //        kwargs = new
+                //        {
+                //            domain = new object[] { 
+                //                new object[] { "lot_id.name", "=", lot_name },
+                //                new object[] { "product_id", "=", product_id },
+                //                new object[] { "qty_done", "=", 1 }
+                //            },
+                //            fields = new string[]
+                //            {
+                //                "id", "move_id", "lot_id", "product_id", "qty_done"
+                //            },
+                //            order = "create_date desc",
+                //            limit = 3,
+                //            context = new
+                //            {
+                //                lang = "vi_VN",
+                //                tz = "Asia/Ho_Chi_Minh",
+                //                allowed_company_ids = new List<int> { 1 },
+                //                bin_size = true,
+                //                uid = uid
+                //            }
+                //        }
+                //    },
+                //    id = 100
+                //};
+
                 var payload = new
                 {
                     jsonrpc = "2.0",
@@ -473,14 +511,15 @@ namespace ViidooDBServiceAPI.Services
                         },
                         kwargs = new
                         {
-                            domain = new object[] { 
+                            domain = new object[] {
                                 new object[] { "lot_id.name", "=", lot_name },
-                                new object[] { "product_id", "=", product_id },
-                                new object[] { "qty_done", "=", 1 }
+                                new object[] { "reference", "ilike", mo_name },
+                                new object[] { "qty_done", "!=", 0 },
+                                new object[] { "product_id", "=", product_id }
                             },
                             fields = new string[]
                             {
-                                "id", "move_id", "lot_id", "product_id", "qty_done"
+                                "id", "move_id", "lot_id", "product_id", "qty_done", "workorder_id", "production_id", "reference"
                             },
                             order = "create_date desc",
                             limit = 3,
@@ -510,7 +549,7 @@ namespace ViidooDBServiceAPI.Services
 
                 var resultArray = (JArray)json["result"];
 
-                if(resultArray.Count == 0 || resultArray.Count > 1)
+                if(resultArray.Count != 0) /*|| resultArray.Count > 1*/
                 {
                     return null; // Nhiều hơn 1 kết quả, không thể xác định duy nhất
                 }
@@ -574,6 +613,92 @@ namespace ViidooDBServiceAPI.Services
                     {
                         return null;
                     }
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Hàm tìm kiếm mã lot để input vào lệnh sản xuất
+        /// Check xem lệnh đã được nhập cho thành phẩm nào chưa
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="product_id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, string>> GetUsedLotForComponemtAsync(string mo_name, string lot_name, int product_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.move.line",
+                        method = "search_read",
+                        args = new object[]
+                        {
+
+                        },
+                        kwargs = new
+                        {
+                            domain = new object[] {
+                                new object[] { "lot_id.name", "=", lot_name },
+                                new object[] { "reference", "ilike", mo_name },
+                                new object[] { "qty_done", "!=", 0 },
+                                new object[] { "product_id", "=", product_id }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "move_id", "lot_id", "product_id", "qty_done", "workorder_id", "production_id", "reference"
+                            },
+                            order = "create_date desc",
+                            limit = 3,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                allowed_company_ids = new List<int> { 1 },
+                                bin_size = true,
+                                uid = uid
+                            }
+                        }
+                    },
+                    id = 100
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                var resultArray = (JArray)json["result"];
+
+                if (resultArray.Count == 0)
+                {
+                    return null; // Nhiều hơn 1 kết quả, không thể xác định duy nhất
+                }
+                try
+                {
+                    var dictionary = ((JObject)resultArray[0])
+                         .Properties()
+                         .ToDictionary(p => p.Name, p => p.Value.ToString());
+                    return dictionary;
+                }
+                catch (Exception ex)
+                {
+                    return null;
                 }
 
             }
