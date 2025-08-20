@@ -84,6 +84,7 @@
                     } else {
                         if ($('#checkScanCode').is(':checked')) {
                             $('#modalInputQuantityCode').modal('show');
+                            $('input[name="txtInputQuantityCode"]').val('');
                             $('input[name="txtInputQuantityCode"]').focus();
                         } else {
                             $('input[name="Quantity"]').focus();
@@ -162,9 +163,9 @@
                         data: { serial: serialScanQuantityCode },
                         success: function (res) {
                             if (res.result) {
-                                $('input[name="Quantity"]').focus();
-                                $('input[name="Quantity"]').val(res.quantity);
                                 $('#modalInputQuantityCode').modal('hide');
+                                $('input[name="Quantity"]').val(res.quantity);
+                                $('input[name="Quantity"]').focus();
                             } else {
                                 alert(res.message);
                                 $('input[name="txtInputQuantityCode"]').val('');
