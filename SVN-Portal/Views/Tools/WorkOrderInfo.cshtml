@@ -165,7 +165,10 @@
                             if (res.result) {
                                 $('#modalInputQuantityCode').modal('hide');
                                 $('input[name="Quantity"]').val(res.quantity);
-                                $('input[name="Quantity"]').focus();
+                                $('input[name="Quantity"]').focus().trigger({
+                                    type: 'keydown',
+                                    key: 'Enter'
+                                });
                             } else {
                                 alert(res.message);
                                 $('input[name="txtInputQuantityCode"]').val('');
