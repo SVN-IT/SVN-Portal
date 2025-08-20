@@ -1132,6 +1132,33 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message });
         }
 
+        /// <summary>
+        /// Kiểm tra để nhập số lượng sản phẩm theo mã seri
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CheckScanQuantitySerial(string serial)
+        {
+            SVN_Scan_Code_InfoDataPortal dataPortal = new SVN_Scan_Code_InfoDataPortal(connectionString);
+            try
+            {
+                var dataUI = await dataPortal.ReadByCode(serial);
+                if (dataUI != null)
+                {
+                    return Json(new { result = true, message = "Tìm thấy mã serial", quantity = dataUI.SelectedQuantity });
+                }
+                else
+                {
+                    return Json(new { result = false, message = "Không tìm thấy mã serial" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = false, message = ex.Message });
+            }
+        }
+
         private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo)
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];

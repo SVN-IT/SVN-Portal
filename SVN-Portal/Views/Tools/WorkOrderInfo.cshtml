@@ -82,7 +82,12 @@
                     if (product_tracking === "serial") {
                         $('input[name="Serial"]').focus();
                     } else {
-                        $('input[name="Quantity"]').focus();
+                        if ($('#checkScanCode').is(':checked')) {
+                            $('#modalInputQuantityCode').modal('show');
+                            $('input[name="txtInputQuantityCode"]').focus();
+                        } else {
+                            $('input[name="Quantity"]').focus();
+                        }
                     }
                 }
             },
@@ -136,9 +141,6 @@
     }
 
     $(document).ready(function () {
-
-        $('#modalInputQuantityCode').modal('show');
-
         // Bắt phím Enter
         $(document).on('keydown', 'input', function (e) {
             if (e.key === "Enter") {
@@ -151,9 +153,41 @@
 
                 let inputs = $('.serial-input'); // tất cả ô seri
 
+                if ($(this).attr("name") === "txtInputQuantityCode") {
+                    let serialScanQuantityCode = $(this).val().trim();
+                    // Gọi AJAX để kiểm tra
+                    $.ajax({
+                        url: '/Tools/CheckScanQuantitySerial', // API check
+                        type: 'POST',
+                        data: { serial: serialScanQuantityCode },
+                        success: function (res) {
+                            if (res.result) {
+                                $('input[name="Quantity"]').focus();
+                                $('input[name="Quantity"]').val(res.quantity);
+                                $('#modalInputQuantityCode').modal('hide');
+                            } else {
+                                alert(res.message);
+                                $('input[name="txtInputQuantityCode"]').val('');
+                                $('input[name="txtInputQuantityCode"]').focus();
+                            }
+                        },
+                        error: function () {
+                            alert("Lỗi khi gọi server!");
+                            $('input[name="txtInputQuantityCode"]').val('');
+                            $('input[name="txtInputQuantityCode"]').focus();
+                        }
+                    });
+                    return;
+                }
+
                 // Nếu đang ở ô Quality thì nhảy sang ô seri đầu tiên
                 if ($(this).attr("name") === "Quantity") {
-                    inputs.first().focus();
+                    if(inputs.length > 0){
+                        inputs.first().focus();
+                    }
+                    else{
+                        InputProductionResult();
+                    }
                     return;
                 }
 
@@ -173,7 +207,12 @@
                             if (res.result) {
                                 // Nếu pass -> set Quality = 1 rồi đi tiếp
                                 $('input[name="Quantity"]').val(1);
-                                inputs.first().focus();
+                                if(inputs.length > 0){
+                                    inputs.first().focus();
+                                }
+                                else{
+                                    InputProductionResult();
+                                }
                             } else {
                                 alert(res.message);
                                 $('input[name="Serial"]').val('');

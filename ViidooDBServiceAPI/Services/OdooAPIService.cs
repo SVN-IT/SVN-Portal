@@ -1267,7 +1267,7 @@ namespace ViidooDBServiceAPI.Services
                                 check_ids = check_ids,
                                 check_todo = (object)productionOrderInfo["check_todo"],
                                 reservation_state = (object)productionOrderInfo["reservation_state"],
-                                date_planned_finished = (object)productionOrderInfo["date_planned_finished"],
+                                date_planned_finished = (productionOrderInfo["date_planned_finished"] == "False") ? false :(object) productionOrderInfo["date_planned_finished"],
                                 is_locked = (object)productionOrderInfo["is_locked"],
                                 qty_produced = (object)productionOrderInfo["qty_produced"],
                                 unreserve_visible = (object)productionOrderInfo["unreserve_visible"],
@@ -1303,8 +1303,8 @@ namespace ViidooDBServiceAPI.Services
                                 product_uom_id = product_uom_id,
                                 product_packaging_id = (object)productionOrderInfo["product_packaging_id"],
                                 lot_producing_id = (lot_id == 0) ? false : (object)lot_id,
-                                date_planned_start = (object)productionOrderInfo["date_planned_start"],
-                                delay_alert_date = (object)productionOrderInfo["delay_alert_date"],
+                                date_planned_start = (productionOrderInfo["date_planned_start"] == "False") ? false :(object) productionOrderInfo["date_planned_start"],
+                                delay_alert_date = (productionOrderInfo["delay_alert_date"] == "False") ? false : (object)productionOrderInfo["delay_alert_date"],
                                 json_popover = (object)productionOrderInfo["json_popover"],
                                 components_availability_state = (object)productionOrderInfo["components_availability_state"],
                                 components_availability = (object)productionOrderInfo["components_availability"],
@@ -1317,7 +1317,7 @@ namespace ViidooDBServiceAPI.Services
                                 warehouse_id = warehouse_id,
                                 location_dest_id = location_dest_id,
                                 origin = (object)productionOrderInfo["origin"],
-                                date_deadline = (object)productionOrderInfo["date_deadline"]
+                                date_deadline = (productionOrderInfo["date_deadline"] == "False") ? false : (object)productionOrderInfo["date_deadline"]
                             },
 
                             // Key onchange
