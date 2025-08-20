@@ -118,7 +118,7 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
                     }
-                    models = models.OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
