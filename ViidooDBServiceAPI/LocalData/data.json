@@ -1,27 +1,58 @@
 {
-  "id": 679,
+  "id": 676,
   "jsonrpc": "2.0",
   "method": "call",
   "params": {
-    "args": [ [ 60915 ] ],
+    "args": [
+      [],
+      {},
+      [],
+      {
+        "mrp_production_ids": "1",
+        "consumption": "",
+        "mrp_production_count": "",
+        "mrp_consumption_warning_line_ids": "1",
+        "mrp_consumption_warning_line_ids.mrp_production_id": "1",
+        "mrp_consumption_warning_line_ids.consumption": "1",
+        "mrp_consumption_warning_line_ids.product_id": "1",
+        "mrp_consumption_warning_line_ids.product_uom_id": "",
+        "mrp_consumption_warning_line_ids.product_expected_qty_uom": "",
+        "mrp_consumption_warning_line_ids.product_consumed_qty_uom": ""
+      }
+    ],
+    "model": "mrp.consumption.warning",
+    "method": "onchange",
     "kwargs": {
       "context": {
-        "params": {
-          "id": 60606,
-          "cids": 1,
-          "menu_id": 248,
-          "action": 431,
-          "model": "mrp.production",
-          "view_type": "form"
-        },
-        "default_company_id": 1,
         "lang": "vi_VN",
         "tz": "Asia/Ho_Chi_Minh",
         "uid": 2,
-        "allowed_company_ids": [ 1 ]
+        "allowed_company_ids": [ 1 ],
+        "active_model": "mrp.production",
+        "force_skip_consumption": true,
+        "button_mark_done_production_ids": [ 69514 ],
+        "skip_consumption": false,
+        "skip_backorder": false,
+        "mo_ids_to_backorder": null,
+        "active_id": 69506,
+        "active_ids": [ 69506 ],
+        "form_view_ref": false,
+        "default_mrp_production_ids": [ 69514 ],
+        "default_mrp_consumption_warning_line_ids": [
+          [
+            0,
+            0,
+            {
+              "mrp_production_id": 69514,
+              "product_id": 16,
+              "consumption": "warning",
+              "product_uom_id": 27,
+              "product_consumed_qty_uom": 0.0031000000000000003,
+              "product_expected_qty_uom": 0.0030000000000000005
+            }
+          ]
+        ]
       }
-    },
-    "method": "button_mark_done",
-    "model": "mrp.production"
+    }
   }
 }
