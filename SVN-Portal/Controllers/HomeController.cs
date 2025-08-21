@@ -1321,11 +1321,10 @@ namespace SVN_Portal.Controllers
                         return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
                     }
                 }
-                return RedirectToAction("PDResultDailyReport");
             }
             catch (Exception ex)
             {
-                return RedirectToAction("PDResultDailyReport");
+                return Json(new { ok = false, message = ex.Message }); 
             }
         }
 
