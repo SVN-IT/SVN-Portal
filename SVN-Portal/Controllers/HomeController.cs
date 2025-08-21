@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.DAL.DataPortal;
@@ -1236,6 +1237,73 @@ namespace SVN_Portal.Controllers
         public async Task<IActionResult> PDResultDailyReport(DateTime date)
         {
             ViewBag.date = date;
+            List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            try
+            {
+                viewModels = await GetPDResultDailyData(date);
+                return View(viewModels);
+            }
+            catch (Exception ex)
+            {
+                return View(viewModels);
+            }
+        }
+
+        public async Task<IActionResult> ExportPDResultDaily(DateTime date)
+        {
+            try
+            {
+                var viewModels = await GetPDResultDailyData(date);
+                if (viewModels == null || viewModels.Count == 0)
+                {
+                    return RedirectToAction("PDResultDailyReport");
+                }
+                using(var workbook = new XmlWriterTraceListener("PDResultDailyReport.xlsx"))
+                {
+                    using (var package = new XLWorkbook())
+                    {
+                        var worksheet = package.Worksheets.Add("PD Result Daily Report");
+                        worksheet.Cell(1, 1).Value = "Operation";
+                        worksheet.Cell(1, 2).Value = "Daily Plan Target";
+                        worksheet.Cell(1, 3).Value = "Daily Plan Current";
+                        worksheet.Cell(1, 4).Value = "Daily Plan Achieve";
+                        worksheet.Cell(1, 5).Value = "UPH";
+                        worksheet.Cell(1, 6).Value = "UPPH";
+                        worksheet.Cell(1, 7).Value = "Labor";
+                        worksheet.Cell(1, 8).Value = "Defect Target Rate";
+                        worksheet.Cell(1, 9).Value = "Defect Current Rate";
+                        worksheet.Cell(1, 10).Value = "Defect Rate";
+                        worksheet.Cell(1, 11).Value = "Check List On System";
+                        worksheet.Cell(1, 12).Value = "Remark";
+                        int row = 4;
+                        foreach (var item in viewModels)
+                        {
+                            worksheet.Cell(row, 1).Value = item.OperationActive;
+                            worksheet.Cell(row, 2).Value = item.DailyPlanTarget;
+                            worksheet.Cell(row, 3).Value = item.DailyPlanCurrent;
+                            worksheet.Cell(row, 4).Value = item.DailyPlanAchieve;
+                            worksheet.Cell(row, 5).Value = item.UPH;
+                            worksheet.Cell(row, 6).Value = item.UPPH;
+                            worksheet.Cell(row, 7).Value = item.Labor;
+                            worksheet.Cell(row, 8).Value = item.DefectTargetRate;
+                            worksheet.Cell(row, 9).Value = item.DefectCurrentRate;
+                            worksheet.Cell(row, 10).Value = item.DefectRate;
+                            worksheet.Cell(row, 11).Value = item.CheckListOnSystem;
+                            worksheet.Cell(row, 12).Value = item.Remark;
+                            row++;
+                        }
+                    }
+                }
+                return RedirectToAction("PDResultDailyReport");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("PDResultDailyReport");
+            }
+        }
+
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime date)
+        {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
@@ -1284,15 +1352,18 @@ namespace SVN_Portal.Controllers
                         }
                         viewModels.Add(viewModel);
                     }
+                    return viewModels;
                 }
-                return View(viewModels);
+                else
+                {
+                    return null;
+                }
             }
-            catch (Exception ex)
+            catch
             {
-                return View(viewModels);
+                return null;
             }
-
-            #endregion
         }
+        #endregion
     }
 }
