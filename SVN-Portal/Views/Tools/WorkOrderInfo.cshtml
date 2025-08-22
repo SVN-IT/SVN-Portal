@@ -38,7 +38,7 @@
             </div>
             <div class="col-12 col-md-3">
                 <div class="form-group" style="margin-top:33px">
-                    <button class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Tìm kiếm</button>
+                    <button id="btnSearch" class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Tìm kiếm</button>
                 </div>
             </div>
         </div>
@@ -142,6 +142,8 @@
     }
 
     $(document).ready(function () {
+        $('input[name="workOrderCode"]').focus();
+
         // Bắt phím Enter
         $(document).on('keydown', 'input', function (e) {
             if (e.key === "Enter") {
@@ -153,6 +155,10 @@
                 }
 
                 let inputs = $('.serial-input'); // tất cả ô seri
+
+                if ($(this).attr("name") === "workOrderCode") {
+                    $('#btnSearch').trigger('click');
+                }
 
                 if ($(this).attr("name") === "txtInputQuantityCode") {
                     let serialScanQuantityCode = $(this).val().trim();

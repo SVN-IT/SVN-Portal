@@ -911,7 +911,12 @@ namespace SVN_Portal.Controllers
                     DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                     DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                     DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) || (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now))
+
+                    DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) || 
+                        (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now) || 
+                        (startRelaxNoonTime <= DateTime.Now && endRelaxNoonTime >= DateTime.Now))
                     {
                         currentTime = subitem.Time;
                     }
@@ -980,7 +985,12 @@ namespace SVN_Portal.Controllers
                             DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                             DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                            if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) || (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now))
+                            DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                            if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) || 
+                                (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now) || 
+                                (startRelaxNoonTime <= DateTime.Now && endRelaxNoonTime >= DateTime.Now))
                             {
                                 status = "bg-primary";
                                 if (item.Percent > 100)
