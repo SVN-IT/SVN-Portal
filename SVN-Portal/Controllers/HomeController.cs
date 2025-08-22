@@ -1154,13 +1154,21 @@ namespace SVN_Portal.Controllers
                     else
                     {
                         sb.Append("<span>Tar " + Math.Round(item.Target, appConfig.Rounding) + "</span>");
-                        sb.Append("<span> | Rate: ");
-                        sb.Append("<strong class='rate-box " + status + "'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
-                        sb.Append("</span> <br />");
+                        sb.Append("<span> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + "</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Cur: " + Math.Round(item.Current, appConfig.Rounding) + " </strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
+                    //else
+                    //{
+                    //    sb.Append("<span>Tar " + Math.Round(item.Target, appConfig.Rounding) + "</span>");
+                    //    sb.Append("<span> | Rate: ");
+                    //    sb.Append("<strong class='rate-box " + status + "'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
+                    //    sb.Append("</span> <br />");
+                    //    sb.Append("<span>");
+                    //    sb.Append("<strong class='f-s-23'>Cur: " + Math.Round(item.Current, appConfig.Rounding) + " </strong>");
+                    //    sb.Append("</span>");
+                    //}
 
                     sb.Append("</div>");
                     sb.Append("</div>");
