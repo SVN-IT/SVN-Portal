@@ -83,6 +83,15 @@ namespace SVN_Portal.DAL.DataPortal
             var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
             var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
             var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
+            DateTime currentDate = DateTime.Now;
+            try
+            {
+                currentDate = DateTime.ParseExact(date, "yyyyMMdd", null);
+            }
+            catch
+            {
+                currentDate = DateTime.Now;
+            }
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
@@ -219,27 +228,94 @@ namespace SVN_Portal.DAL.DataPortal
 
                         if (dataUIByOper != null)
                         {
+                            double HPlanTarget = dataUIByOper.Daily_plan;
+                            double UPHCurrent = dataUIByOper.Current_UPH;
+                            double UPPHCurrent = dataUIByOper.Current_UPPH;
+                            double workingTime = 0;
+
+                            //Lấy ra các section có target
+                            var listSection = viewModel.ViewModels.Where(x => x.Target != 0);
+                            var minSection = listSection.FirstOrDefault() != null ? listSection.FirstOrDefault().Time : "";
+                            var maxSection = listSection.LastOrDefault() != null ? listSection.LastOrDefault().Time : "";
+
+                            if (!string.IsNullOrWhiteSpace(minSection) &&
+                                !string.IsNullOrWhiteSpace(maxSection) &&
+                                currentDate.Date == DateTime.Now.Date)
+                            {
+                                DateTime curDateTime = DateTime.Now;
+                                DateTime today = currentDate;
+                                var minTimes = minSection.Split('-');
+
+                                // Chuyển đổi thành định dạng HH:mm
+                                string startTime = minTimes[0].Replace("h", ":");
+                                if (startTime.Last() == ':')
+                                {
+                                    startTime = startTime + "00";
+                                }
+                                if (startTime.Length == 4)
+                                {
+                                    startTime = "0" + startTime;
+                                }
+                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                                var maxTimes = maxSection.Split('-');
+                                // Chuyển đổi thành định dạng HH:mm
+                                string endTime = maxTimes[1].Replace("h", ":");
+                                if (endTime.Last() == ':')
+                                {
+                                    endTime = endTime + "00";
+                                }
+                                if (endTime.Length == 4)
+                                {
+                                    endTime = "0" + endTime;
+                                }
+                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                if (curDateTime < startDatetime)
+                                {
+                                    workingTime = 0;
+                                }
+                                else if (startDatetime < curDateTime && curDateTime < endDatetime)
+                                {
+                                    // Lấy hiệu 2 thời điểm
+                                    TimeSpan diff = curDateTime - startDatetime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                }
+                                else if (endDatetime < curDateTime)
+                                {
+                                    // Lấy hiệu 2 thời điểm
+                                    TimeSpan diff = endDatetime - startDatetime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                }
+
+                                // Tính Current UPH và UPPH
+                                var uph = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
+                                UPHCurrent = Math.Round(dataUIByOper.Total_Qty / workingTime, 2);
+                                UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
+                                // Target by Hour
+                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                            }
+
                             //tạo dong Daiily plan của 1 operation
                             SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel()
                             {
                                 Item = "H.Plan",
-                                Target = dataUIByOper.Daily_plan,
+                                Target = HPlanTarget,
                                 Current = dataUIByOper.Total_Qty,
-                                Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
+                                Percent = HPlanTarget != 0 ? (dataUIByOper.Total_Qty / HPlanTarget) * 100 : 0
                             };
                             SVN_targetViewModel UPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPH",
                                 Target = dataUIByOper.UPH,
-                                Current = dataUIByOper.Current_UPH,
-                                Percent = dataUIByOper.UPH != 0 ? (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100 : 0
+                                Current = UPHCurrent,
+                                Percent = dataUIByOper.UPH != 0 ? (UPHCurrent / dataUIByOper.UPH) * 100 : 0
                             };
                             SVN_targetViewModel UPPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPPH",
                                 Target = dataUIByOper.UPPH,
-                                Current = dataUIByOper.Current_UPPH,
-                                Percent = dataUIByOper.UPPH != 0 ? (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100 : 0
+                                Current = UPPHCurrent,
+                                Percent = dataUIByOper.UPPH != 0 ? (UPPHCurrent / dataUIByOper.UPPH) * 100 : 0
                             };
                             SVN_targetViewModel LaborVM = new SVN_targetViewModel()
                             {
@@ -261,6 +337,7 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.TargetViewModels.Add(LaborVM);
                             viewModel.TargetViewModels.Add(NGVM);
                             viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
+                            viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime))*100, 2);
                         }   
 
                         viewModels.Add(viewModel);
@@ -282,7 +359,15 @@ namespace SVN_Portal.DAL.DataPortal
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
             var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
-
+            DateTime currentDate = DateTime.Now;
+            try
+            {
+                currentDate = DateTime.ParseExact(date, "yyyyMMdd", null);
+            }
+            catch
+            {
+                currentDate = DateTime.Now;
+            }
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
@@ -399,27 +484,94 @@ namespace SVN_Portal.DAL.DataPortal
 
                         if (dataUIByOper != null)
                         {
+                            double HPlanTarget = dataUIByOper.Daily_plan;
+                            double UPHCurrent = dataUIByOper.Current_UPH;
+                            double UPPHCurrent = dataUIByOper.Current_UPPH;
+                            double workingTime = 0;
+
+                            //Lấy ra các section có target
+                            var listSection = viewModel.ViewModels.Where(x => x.Target != 0);
+                            var minSection = listSection.FirstOrDefault() != null ? listSection.FirstOrDefault().Time : "";
+                            var maxSection = listSection.LastOrDefault() != null ? listSection.LastOrDefault().Time : "";
+
+                            if (!string.IsNullOrWhiteSpace(minSection) &&
+                                !string.IsNullOrWhiteSpace(maxSection) &&
+                                currentDate.Date == DateTime.Now.Date)
+                            {
+                                DateTime curDateTime = DateTime.Now;
+                                DateTime today = currentDate;
+                                var minTimes = minSection.Split('-');
+
+                                // Chuyển đổi thành định dạng HH:mm
+                                string startTime = minTimes[0].Replace("h", ":");
+                                if (startTime.Last() == ':')
+                                {
+                                    startTime = startTime + "00";
+                                }
+                                if (startTime.Length == 4)
+                                {
+                                    startTime = "0" + startTime;
+                                }
+                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                                var maxTimes = maxSection.Split('-');
+                                // Chuyển đổi thành định dạng HH:mm
+                                string endTime = maxTimes[1].Replace("h", ":");
+                                if (endTime.Last() == ':')
+                                {
+                                    endTime = endTime + "00";
+                                }
+                                if (endTime.Length == 4)
+                                {
+                                    endTime = "0" + endTime;
+                                }
+                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                if (curDateTime < startDatetime)
+                                {
+                                    workingTime = 0;
+                                }
+                                else if (startDatetime < curDateTime && curDateTime < endDatetime)
+                                {
+                                    // Lấy hiệu 2 thời điểm
+                                    TimeSpan diff = curDateTime - startDatetime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                }
+                                else if (endDatetime < curDateTime)
+                                {
+                                    // Lấy hiệu 2 thời điểm
+                                    TimeSpan diff = endDatetime - startDatetime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                }
+
+                                // Tính Current UPH và UPPH
+                                var uph = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
+                                UPHCurrent = Math.Round(dataUIByOper.Total_Qty / workingTime, 2);
+                                UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
+                                // Target by Hour
+                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                            }
+
                             //tạo dong Daiily plan của 1 operation
                             SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel()
                             {
                                 Item = "H.Plan",
-                                Target = dataUIByOper.Daily_plan,
+                                Target = HPlanTarget,
                                 Current = dataUIByOper.Total_Qty,
-                                Percent = dataUIByOper.Daily_plan != 0 ? (dataUIByOper.Total_Qty / dataUIByOper.Daily_plan) * 100 : 0
+                                Percent = HPlanTarget != 0 ? (dataUIByOper.Total_Qty / HPlanTarget) * 100 : 0
                             };
                             SVN_targetViewModel UPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPH",
                                 Target = dataUIByOper.UPH,
-                                Current = dataUIByOper.Current_UPH,
-                                Percent = dataUIByOper.UPH != 0 ? (dataUIByOper.Current_UPH / dataUIByOper.UPH) * 100 : 0
+                                Current = UPHCurrent,
+                                Percent = dataUIByOper.UPH != 0 ? (UPHCurrent / dataUIByOper.UPH) * 100 : 0
                             };
                             SVN_targetViewModel UPPHVM = new SVN_targetViewModel()
                             {
                                 Item = "UPPH",
                                 Target = dataUIByOper.UPPH,
-                                Current = dataUIByOper.Current_UPPH,
-                                Percent = dataUIByOper.UPPH != 0 ? (dataUIByOper.Current_UPPH / dataUIByOper.UPPH) * 100 : 0
+                                Current = UPPHCurrent,
+                                Percent = dataUIByOper.UPPH != 0 ? (UPPHCurrent / dataUIByOper.UPPH) * 100 : 0
                             };
                             SVN_targetViewModel LaborVM = new SVN_targetViewModel()
                             {
@@ -441,6 +593,7 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.TargetViewModels.Add(LaborVM);
                             viewModel.TargetViewModels.Add(NGVM);
                             viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
+                            viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime)) * 100, 2);
                         }
 
                         viewModels.Add(viewModel);
@@ -774,6 +927,7 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.TargetViewModels.Add(LaborVM);
                         viewModel.TargetViewModels.Add(NGVM);
                         viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
+                        viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime))*100, 2);
                     }
                 }
                 return viewModel;

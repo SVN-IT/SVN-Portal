@@ -579,10 +579,7 @@ namespace SVN_Portal.Controllers
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    sb.Append("<p style='font-size:20px' class=' text-light'>");
-                    sb.Append("<strong>Checklist status</strong>: ");
-                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
-                    sb.Append("</p>");
+                    
 
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildAchievementCard(model, date);
@@ -590,6 +587,13 @@ namespace SVN_Portal.Controllers
                     if (!oper.Contains("Walter"))
                     {
                         model.CanProduction = true;
+                    }
+                    else
+                    {
+                        sb.Append("<p style='font-size:20px' class=' text-light'>");
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                        sb.Append("</p>");
                     }
 
                     return new JsonResult(new
@@ -681,17 +685,21 @@ namespace SVN_Portal.Controllers
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    sb.Append("<p style='font-size:20px' class=' text-light'>");
-                    sb.Append("<strong>Checklist status</strong>: ");
-                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
-                    sb.Append("</p>");
+                    
 
                     if (!oper.Contains("Walter"))
                     {
                         model.CanProduction = true;
                     }
+                    else
+                    {
+                        sb.Append("<p style='font-size:20px' class=' text-light'>");
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                        sb.Append("</p>");
+                    }
 
-                    strForecase = BuildForecastInfo(model.Forecast);
+                        strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model, date);
 
                     return new JsonResult(new
