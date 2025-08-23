@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using SVNShareLib.DAL;
 using System.Globalization;
+using SVN_Portal.Services.ObjectClasses;
 
 namespace SVN_Portal.DAL.DataPortal
 {
@@ -233,21 +234,18 @@ namespace SVN_Portal.DAL.DataPortal
                             double UPPHCurrent = dataUIByOper.Current_UPPH;
                             double workingTime = 0;
 
-                            //Lấy ra các section có target
-                            var listSection = viewModel.ViewModels.Where(x => x.Target != 0);
-                            var minSection = listSection.FirstOrDefault() != null ? listSection.FirstOrDefault().Time : "";
-                            var maxSection = listSection.LastOrDefault() != null ? listSection.LastOrDefault().Time : "";
-
-                            if (!string.IsNullOrWhiteSpace(minSection) &&
-                                !string.IsNullOrWhiteSpace(maxSection) &&
-                                currentDate.Date == DateTime.Now.Date)
+                            //Lấy ra list section có target
+                            DateTime curDateTime = DateTime.Now;
+                            DateTime today = currentDate;
+                            double gapTime = 0; // Khoảng thời gian trống gữa các ca
+                            List<SectionTime> sectionTimes = new List<SectionTime>();
+                            var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
+                            listSection = listSection.Select(x =>
                             {
-                                DateTime curDateTime = DateTime.Now;
-                                DateTime today = currentDate;
-                                var minTimes = minSection.Split('-');
+                                var times = x.Time.Split('-');
 
                                 // Chuyển đổi thành định dạng HH:mm
-                                string startTime = minTimes[0].Replace("h", ":");
+                                string startTime = times[0].Replace("h", ":");
                                 if (startTime.Last() == ':')
                                 {
                                     startTime = startTime + "00";
@@ -258,9 +256,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                                var maxTimes = maxSection.Split('-');
-                                // Chuyển đổi thành định dạng HH:mm
-                                string endTime = maxTimes[1].Replace("h", ":");
+                                string endTime = times[1].Replace("h", ":");
                                 if (endTime.Last() == ':')
                                 {
                                     endTime = endTime + "00";
@@ -270,6 +266,26 @@ namespace SVN_Portal.DAL.DataPortal
                                     endTime = "0" + endTime;
                                 }
                                 DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                                SectionTime sectionTime = new SectionTime();
+                                sectionTime.StartTime = startDatetime;
+                                sectionTime.EndTime = endDatetime;
+                                sectionTimes.Add(sectionTime);
+                                return x;
+                            }).ToList();
+
+                            sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                            gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
+
+                            var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
+                            var maxEndSection = sectionTimes.LastOrDefault() != null ? sectionTimes.LastOrDefault().EndTime : DateTime.MinValue;
+
+                            if (minStartSection != DateTime.MinValue &&
+                                maxEndSection != DateTime.MinValue)
+                            {
+                                DateTime startDatetime = minStartSection;
+                                DateTime endDatetime = maxEndSection;
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -278,18 +294,17 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     // Lấy hiệu 2 thời điểm
                                     TimeSpan diff = curDateTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
                                     // Lấy hiệu 2 thời điểm
                                     TimeSpan diff = endDatetime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
                                 }
 
                                 // Tính Current UPH và UPPH
-                                var uph = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
-                                UPHCurrent = Math.Round(dataUIByOper.Total_Qty / workingTime, 2);
+                                UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
                                 HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
@@ -489,21 +504,18 @@ namespace SVN_Portal.DAL.DataPortal
                             double UPPHCurrent = dataUIByOper.Current_UPPH;
                             double workingTime = 0;
 
-                            //Lấy ra các section có target
-                            var listSection = viewModel.ViewModels.Where(x => x.Target != 0);
-                            var minSection = listSection.FirstOrDefault() != null ? listSection.FirstOrDefault().Time : "";
-                            var maxSection = listSection.LastOrDefault() != null ? listSection.LastOrDefault().Time : "";
-
-                            if (!string.IsNullOrWhiteSpace(minSection) &&
-                                !string.IsNullOrWhiteSpace(maxSection) &&
-                                currentDate.Date == DateTime.Now.Date)
+                            //Lấy ra list section có target
+                            DateTime curDateTime = DateTime.Now;
+                            DateTime today = currentDate;
+                            double gapTime = 0; // Khoảng thời gian trống gữa các ca
+                            List<SectionTime> sectionTimes = new List<SectionTime>();
+                            var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
+                            listSection = listSection.Select(x =>
                             {
-                                DateTime curDateTime = DateTime.Now;
-                                DateTime today = currentDate;
-                                var minTimes = minSection.Split('-');
+                                var times = x.Time.Split('-');
 
                                 // Chuyển đổi thành định dạng HH:mm
-                                string startTime = minTimes[0].Replace("h", ":");
+                                string startTime = times[0].Replace("h", ":");
                                 if (startTime.Last() == ':')
                                 {
                                     startTime = startTime + "00";
@@ -514,9 +526,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                                var maxTimes = maxSection.Split('-');
-                                // Chuyển đổi thành định dạng HH:mm
-                                string endTime = maxTimes[1].Replace("h", ":");
+                                string endTime = times[1].Replace("h", ":");
                                 if (endTime.Last() == ':')
                                 {
                                     endTime = endTime + "00";
@@ -526,6 +536,26 @@ namespace SVN_Portal.DAL.DataPortal
                                     endTime = "0" + endTime;
                                 }
                                 DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                                SectionTime sectionTime = new SectionTime();
+                                sectionTime.StartTime = startDatetime;
+                                sectionTime.EndTime = endDatetime;
+                                sectionTimes.Add(sectionTime);
+                                return x;
+                            }).ToList();
+
+                            sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                            gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
+
+                            var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
+                            var maxEndSection = sectionTimes.LastOrDefault() != null ? sectionTimes.LastOrDefault().EndTime : DateTime.MinValue;
+
+                            if (minStartSection != DateTime.MinValue &&
+                                maxEndSection != DateTime.MinValue)
+                            {
+                                DateTime startDatetime = minStartSection;
+                                DateTime endDatetime = maxEndSection;
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -534,18 +564,17 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     // Lấy hiệu 2 thời điểm
                                     TimeSpan diff = curDateTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
                                     // Lấy hiệu 2 thời điểm
                                     TimeSpan diff = endDatetime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
                                 }
 
                                 // Tính Current UPH và UPPH
-                                var uph = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
-                                UPHCurrent = Math.Round(dataUIByOper.Total_Qty / workingTime, 2);
+                                UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
                                 HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
@@ -823,21 +852,18 @@ namespace SVN_Portal.DAL.DataPortal
                         double UPPHCurrent = dataUIByOper.Current_UPPH;
                         double workingTime = 0;
 
-                        //Lấy ra các section có target
-                        var listSection = viewModel.ViewModels.Where(x => x.Target != 0);
-                        var minSection = listSection.FirstOrDefault() != null ? listSection.FirstOrDefault().Time : "";
-                        var maxSection = listSection.LastOrDefault() != null ? listSection.LastOrDefault().Time : "";
-
-                        if (!string.IsNullOrWhiteSpace(minSection) && 
-                            !string.IsNullOrWhiteSpace(maxSection) && 
-                            currentDate.Date == DateTime.Now.Date)
+                        //Lấy ra list section có target
+                        DateTime curDateTime = DateTime.Now;
+                        DateTime today = currentDate;
+                        double gapTime = 0; // Khoảng thời gian trống gữa các ca
+                        List<SectionTime> sectionTimes = new List<SectionTime>();
+                        var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
+                        listSection = listSection.Select(x =>
                         {
-                            DateTime curDateTime = DateTime.Now;
-                            DateTime today = currentDate;
-                            var minTimes = minSection.Split('-');
+                            var times = x.Time.Split('-');
 
                             // Chuyển đổi thành định dạng HH:mm
-                            string startTime = minTimes[0].Replace("h", ":");
+                            string startTime = times[0].Replace("h", ":");
                             if (startTime.Last() == ':')
                             {
                                 startTime = startTime + "00";
@@ -848,9 +874,7 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                            var maxTimes = maxSection.Split('-');
-                            // Chuyển đổi thành định dạng HH:mm
-                            string endTime = maxTimes[1].Replace("h", ":");
+                            string endTime = times[1].Replace("h", ":");
                             if (endTime.Last() == ':')
                             {
                                 endTime = endTime + "00";
@@ -860,6 +884,26 @@ namespace SVN_Portal.DAL.DataPortal
                                 endTime = "0" + endTime;
                             }
                             DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                            SectionTime sectionTime = new SectionTime();
+                            sectionTime.StartTime = startDatetime;
+                            sectionTime.EndTime = endDatetime;
+                            sectionTimes.Add(sectionTime);
+                            return x;
+                        }).ToList();
+
+                        sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
+
+                        var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
+                        var maxEndSection = sectionTimes.LastOrDefault() != null ? sectionTimes.LastOrDefault().EndTime : DateTime.MinValue;
+
+                        if (minStartSection != DateTime.MinValue &&
+                            maxEndSection != DateTime.MinValue)
+                        {
+                            DateTime startDatetime = minStartSection;
+                            DateTime endDatetime = maxEndSection;
                             if(curDateTime < startDatetime)
                             {
                                 workingTime = 0;
@@ -868,18 +912,17 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 // Lấy hiệu 2 thời điểm
                                 TimeSpan diff = curDateTime - startDatetime;
-                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
                             }
                             else if (endDatetime < curDateTime)
                             {
                                 // Lấy hiệu 2 thời điểm
                                 TimeSpan diff = endDatetime - startDatetime;
-                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2);
+                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
                             }
 
                             // Tính Current UPH và UPPH
-                            var uph = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
-                            UPHCurrent = Math.Round(dataUIByOper.Total_Qty / workingTime, 2);
+                            UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                             UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                             // Target by Hour
                             HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
@@ -936,6 +979,89 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 return null;
             }
+        }
+
+        public static TimeSpan GetTotalGap(List<SectionTime> times)
+        {
+            if (times == null || times.Count < 2)
+                return TimeSpan.Zero;
+
+            // Sắp xếp theo StartTime để chắc chắn đúng thứ tự
+            var ordered = times.OrderBy(t => t.StartTime).ToList();
+
+            TimeSpan totalGap = TimeSpan.Zero;
+
+            for (int i = 0; i < ordered.Count - 1; i++)
+            {
+                var gap = ordered[i + 1].StartTime - ordered[i].EndTime;
+
+                if (gap > TimeSpan.Zero) // chỉ tính khi có khoảng trống thật
+                {
+                    totalGap += gap;
+                }
+            }
+
+            return totalGap;
+        }
+
+        public static TimeSpan GetTotalGapv1(List<SectionTime> times, DateTime currentTime)
+        {
+            if (times == null || times.Count < 2)
+                return TimeSpan.Zero;
+
+            // Sắp xếp theo StartTime
+            var ordered = times.OrderBy(t => t.StartTime).ToList();
+
+            DateTime minStart = ordered.First().StartTime;
+            DateTime maxEnd = ordered.Max(t => t.EndTime);
+
+            TimeSpan totalGap = TimeSpan.Zero;
+
+            // Nếu currentTime <= minStart: chưa có gì xảy ra → 0
+            if (currentTime <= minStart)
+                return TimeSpan.Zero;
+
+            // Nếu currentTime >= maxEnd: tính toàn bộ gap
+            if (currentTime >= maxEnd)
+            {
+                for (int i = 0; i < ordered.Count - 1; i++)
+                {
+                    var gap = ordered[i + 1].StartTime - ordered[i].EndTime;
+                    if (gap > TimeSpan.Zero)
+                        totalGap += gap;
+                }
+                return totalGap;
+            }
+
+            // Nếu currentTime nằm trong khoảng [minStart, maxEnd]
+            for (int i = 0; i < ordered.Count - 1; i++)
+            {
+                var end = ordered[i].EndTime;
+                var nextStart = ordered[i + 1].StartTime;
+
+                if (currentTime <= end)
+                {
+                    // Vẫn đang trong ca này => chưa có gap nào xảy ra
+                    break;
+                }
+                else if (currentTime > end && currentTime <= nextStart)
+                {
+                    // currentTime nằm giữa end và nextStart => gap tính tới currentTime
+                    var gap = currentTime - end;
+                    if (gap > TimeSpan.Zero)
+                        totalGap += gap;
+                    break;
+                }
+                else
+                {
+                    // currentTime đã qua nextStart => cộng toàn bộ gap này
+                    var gap = nextStart - end;
+                    if (gap > TimeSpan.Zero)
+                        totalGap += gap;
+                }
+            }
+
+            return totalGap;
         }
     }
 }
