@@ -17,6 +17,7 @@ namespace SVN_Portal.Models
             ProductionUIs = new List<mrp_productionUI>();
             DefectByCategoryViewModels = new List<DefectByCategoryViewModel>();
         }
+        public string MasterOperation { get; set; }
         public string Operation { get; set; }
         public string Name { get; set; }
         public string WC { get; set; }

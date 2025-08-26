@@ -121,6 +121,7 @@ namespace SVN_Portal.DAL.DataPortal
                         val4.Time = "15h10-17h30";
                         val5.Time = "18h-20h";
 
+                        viewModel.MasterOperation = item.MasterOperation;
                         viewModel.Operation = item.Operation;
                         viewModel.Name = item.Name;
 

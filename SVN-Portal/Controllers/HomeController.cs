@@ -129,8 +129,10 @@ namespace SVN_Portal.Controllers
 
                 if (compareUI != null && compareUI.Count > 0)
                 {
+                    
                     int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
-                    int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    int arrangeQty = ArrangingNumber(models);
 
                     decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
 
@@ -1246,6 +1248,69 @@ namespace SVN_Portal.Controllers
             sb.Append("<h4 class='mt-3 text-center'>" + Forecast + " %</h4>");
             sb.Append("<h3 class='mt-3 text-center'>Forecast Achievement</h3>");
             return sb.ToString();
+        }
+
+        private int ArrangingNumber(List<QtyProdResultByOperViewModel> viewModels)
+        {
+            int number = 0;
+            DateTime curDatetine = DateTime.Now;
+            List<string> sessionTimes = new List<string>()
+            {
+                "8h-10h",
+                "10h-12h",
+                "13h-15h",
+                "15h10-17h30",
+                "18h-20h"
+            };
+            foreach (var item in sessionTimes) 
+            {
+
+                var times = item.Split('-');
+                DateTime today = curDatetine;
+                // Chuyển đổi thành định dạng HH:mm
+                string startTime = times[0].Replace("h", ":");
+                if (startTime.Last() == ':')
+                {
+                    startTime = startTime + "00";
+                }
+                if (startTime.Length == 4)
+                {
+                    startTime = "0" + startTime;
+                }
+                string endTime = times[1].Replace("h", ":");
+                if (endTime.Last() == ':')
+                {
+                    endTime = endTime + "00";
+                }
+                if (endTime.Length == 4)
+                {
+                    endTime = "0" + endTime;
+                }
+                // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                {
+                    var viewModel = viewModels.Select(x =>
+                    {
+                        var model = x.ViewModels.FirstOrDefault(y => y.Time == item && y.Line != 0);
+                        if (model != null)
+                            number = number + int.Parse(model.ManQuantity.ToString());
+                        return x;
+                    }).ToList();
+                    //foreach (var x  in viewModels)
+                    //{
+                    //    var model = x.ViewModels.FirstOrDefault(y => y.Time == item && y.Target != 0);
+                    //    if (model != null)
+                    //        number =+int.Parse(model.ManQuantity.ToString());
+                    //}
+                }
+            }
+            return number;
         }
 
         public IActionResult Privacy()
