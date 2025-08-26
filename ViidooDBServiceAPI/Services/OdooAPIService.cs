@@ -4,6 +4,8 @@ using System.Text;
 using System;
 using System.Net;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -102,6 +104,8 @@ namespace ViidooDBServiceAPI.Services
 
         }
 
+
+        #region Lệnh sản xuất
         /// <summary>
         /// Hàm API để đọc thông tin sản xuất từ Odoo.
         /// </summary>
@@ -1910,5 +1914,143 @@ namespace ViidooDBServiceAPI.Services
                 return json.ToObject<Dictionary<string, object>>();
             }
         }
+        #endregion
+
+        #region Nhân viên
+
+        /// <summary>
+        /// Lấy ra danh sách mã nhân viên
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<Dictionary<string, string>>> GetEmployeeCategory(int uid, string sessionId)
+        {
+            List<Dictionary<string, string>> dictionaries = new List<Dictionary<string, string>>();
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    id = 101,
+                    @params = new
+                    {
+                        model = "hr.employee.category",
+                        method = "search_read",
+                        args = new object[]
+                        {
+                            new object[] { }, // domain rỗng => lấy tất cả
+                            new string[] { "id", "display_name" }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/hr.employee.category/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                var resultArray = (JArray)json["result"];
+                foreach (var item in resultArray)
+                {
+                    var dictionary = ((JObject)item)
+                     .Properties()
+                     .ToDictionary(p => p.Name, p => p.Value.ToString());
+                    dictionaries.Add(dictionary);
+                }
+
+                return dictionaries;
+            }
+        }
+
+        /// <summary>
+        /// Lấy ra danh sách nhân viên
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<List<Dictionary<string, string>>> GetEmployeeInfomation(int uid, string sessionId)
+        {
+            List<Dictionary<string, string>> dictionaries = new List<Dictionary<string, string>>();
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 11,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "hr.employee",
+                        method = "web_search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            limit = 0,
+                            offset = 0,
+                            order = "",
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = 2,
+                                allowed_company_ids = new int[] { 1 },
+                                bin_size = true,
+                                chat_icon = true
+                            },
+                            count_limit = 10001,
+                            domain = new object[] { },
+                            fields = new string[]
+                            {
+                                "id", "name", "work_phone", "work_email", "job_title", "category_ids"
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/hr.employee.category/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                var resultArray = (JArray)json["result"]["records"];
+                foreach (var item in resultArray)
+                {
+                    var dictionary = ((JObject)item)
+                     .Properties()
+                     .ToDictionary(p => p.Name, p => p.Value.ToString());
+                    dictionaries.Add(dictionary);
+                }
+
+                return dictionaries;
+            }
+        }
+
+        #endregion
     }
 }
