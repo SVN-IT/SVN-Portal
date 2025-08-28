@@ -618,12 +618,12 @@ namespace ViidooDBServiceAPI.Controllers
                 {
                     //Kiểm tra mã lot thành phẩm có tồn tại không
                     var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.lotNumber, dataRequest.product_id, 1, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                    if (stockLotInfo == null)
-                    {
-                        bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Không tìm thấy mã lot: " + dataRequest.lotNumber;
-                        return bODataProcessResult;
-                    }
+                    //if (stockLotInfo == null)
+                    //{
+                    //    bODataProcessResult.OK = false;
+                    //    bODataProcessResult.Message = "Không tìm thấy mã lot: " + dataRequest.lotNumber;
+                    //    return bODataProcessResult;
+                    //}
                     if (stockLotInfo == null)
                     {
                         stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.lotNumber, dataRequest.product_id, 1, bODataProcessResult.UserID, bODataProcessResult.DataType);
