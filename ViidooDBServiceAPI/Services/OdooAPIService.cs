@@ -1626,7 +1626,8 @@ namespace ViidooDBServiceAPI.Services
                                 lang = "vi_VN",
                                 tz = "Asia/Ho_Chi_Minh",
                                 uid = uid,
-                                allowed_company_ids = new int[] { 1 }
+                                allowed_company_ids = new int[] { 1 },
+                                produce_all = true
                             }
                         },
                         method = "button_mark_done", // sửa key "method " -> "method"
