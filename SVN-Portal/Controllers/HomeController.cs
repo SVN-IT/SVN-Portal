@@ -1257,14 +1257,13 @@ namespace SVN_Portal.Controllers
             List<string> sessionTimes = new List<string>()
             {
                 "8h-10h",
-                "10h-12h",
+                "10h10-11h30",
                 "13h-15h",
                 "15h10-17h30",
                 "18h-20h"
             };
             foreach (var item in sessionTimes) 
             {
-
                 var times = item.Split('-');
                 DateTime today = curDatetine;
                 // Chuyển đổi thành định dạng HH:mm
@@ -1302,11 +1301,11 @@ namespace SVN_Portal.Controllers
                             number = number + int.Parse(model.ManQuantity.ToString());
                         return x;
                     }).ToList();
-                    //foreach (var x  in viewModels)
+                    //foreach (var x in viewModels)
                     //{
-                    //    var model = x.ViewModels.FirstOrDefault(y => y.Time == item && y.Target != 0);
+                    //    var model = x.ViewModels.FirstOrDefault(y => y.Time == item && y.Line != 0);
                     //    if (model != null)
-                    //        number =+int.Parse(model.ManQuantity.ToString());
+                    //        number = number + int.Parse(model.ManQuantity.ToString());
                     //}
                 }
             }
