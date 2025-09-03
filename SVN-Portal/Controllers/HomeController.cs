@@ -590,13 +590,10 @@ namespace SVN_Portal.Controllers
                     {
                         model.CanProduction = true;
                     }
-                    else
-                    {
-                        sb.Append("<p style='font-size:20px' class=' text-light'>");
-                        sb.Append("<strong>Checklist status</strong>: ");
-                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
-                        sb.Append("</p>");
-                    }
+                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    sb.Append("<strong>Checklist status</strong>: ");
+                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    sb.Append("</p>");
 
                     return new JsonResult(new
                     {
@@ -693,15 +690,12 @@ namespace SVN_Portal.Controllers
                     {
                         model.CanProduction = true;
                     }
-                    else
-                    {
-                        sb.Append("<p style='font-size:20px' class=' text-light'>");
-                        sb.Append("<strong>Checklist status</strong>: ");
-                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
-                        sb.Append("</p>");
-                    }
+                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    sb.Append("<strong>Checklist status</strong>: ");
+                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    sb.Append("</p>");
 
-                        strForecase = BuildForecastInfo(model.Forecast);
+                    strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model, date);
 
                     return new JsonResult(new
@@ -1258,7 +1252,7 @@ namespace SVN_Portal.Controllers
             {
                 "8h-10h",
                 "10h10-11h30",
-                "13h-15h",
+                "12h30-15h",
                 "15h10-17h30",
                 "18h-20h"
             };
