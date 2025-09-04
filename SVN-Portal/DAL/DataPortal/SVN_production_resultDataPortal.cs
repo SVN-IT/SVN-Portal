@@ -85,6 +85,7 @@ namespace SVN_Portal.DAL.DataPortal
             var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
             var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
+            var svn_equipment_StatusDataPortal = new SVN_Equipment_Status_UpdateDataPortal(connectionString);
             DateTime currentDate = DateTime.Now;
             try
             {
@@ -286,6 +287,12 @@ namespace SVN_Portal.DAL.DataPortal
                             if (minStartSection != DateTime.MinValue &&
                                 maxEndSection != DateTime.MinValue)
                             {
+                                double Duration = 0;
+                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
+                                if (equipmentStatus != null) 
+                                {
+                                    Duration = equipmentStatus.Duration;
+                                }
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
@@ -305,7 +312,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = curDateTime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
@@ -319,7 +326,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = endDatetime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -393,6 +400,7 @@ namespace SVN_Portal.DAL.DataPortal
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
             var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
+            var svn_equipment_StatusDataPortal = new SVN_Equipment_Status_UpdateDataPortal(connectionString);
             DateTime currentDate = DateTime.Now;
             try
             {
@@ -573,6 +581,12 @@ namespace SVN_Portal.DAL.DataPortal
                             if (minStartSection != DateTime.MinValue &&
                                 maxEndSection != DateTime.MinValue)
                             {
+                                double Duration = 0;
+                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
+                                if (equipmentStatus != null)
+                                {
+                                    Duration = equipmentStatus.Duration;
+                                }
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
@@ -592,7 +606,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = curDateTime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
@@ -606,7 +620,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = endDatetime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -701,6 +715,7 @@ namespace SVN_Portal.DAL.DataPortal
             var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
             var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
             var svnqachecklistreportdataportal = new SVNQACheckListReportDataPortal(checkListConnection);
+            var svn_equipment_StatusDataPortal = new SVN_Equipment_Status_UpdateDataPortal(connectionString);
             try
             {
                 defect_RecordUI = await defectdataportal.ReadList(date);
@@ -938,6 +953,12 @@ namespace SVN_Portal.DAL.DataPortal
                         if (minStartSection != DateTime.MinValue &&
                             maxEndSection != DateTime.MinValue)
                         {
+                            double Duration = 0;
+                            var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.Operation, date);
+                            if (equipmentStatus != null)
+                            {
+                                Duration = equipmentStatus.Duration;
+                            }
                             DateTime finishedTime = curDateTime;
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
@@ -958,7 +979,7 @@ namespace SVN_Portal.DAL.DataPortal
 
                                 gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                 TimeSpan diff = finishedTime - startDatetime;
-                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
+                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                             }
                             else if (endDatetime < curDateTime)
                             {
@@ -973,7 +994,7 @@ namespace SVN_Portal.DAL.DataPortal
 
                                 gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                 TimeSpan diff = finishedTime - startDatetime;
-                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime;
+                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                             }
 
                             // Tính Current UPH và UPPH
