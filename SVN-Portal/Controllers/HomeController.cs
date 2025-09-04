@@ -251,12 +251,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
@@ -318,12 +318,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
@@ -390,12 +390,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                     }
                 }
 
@@ -470,12 +470,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Produce_id = wc.Produce_id, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
+                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", Produce_id = new List<int>(), ColWidth = item.ColWidth, StoreID = item.StoreID });
+                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth, StoreID = item.StoreID });
                     }
                 }
 
@@ -543,7 +543,6 @@ namespace SVN_Portal.Controllers
                         var wcInfo = operInfo.WC.FirstOrDefault(x => x.WCName == wc);
                         if (wcInfo != null)
                         {
-                            operInfo.Produce_id = wcInfo.Produce_id;
                             operInfo.Top_row = wcInfo.Top_row;
                         }
                     }
