@@ -47,6 +47,7 @@ namespace SVN_Portal.Models
         public string WORunning { get; set; }
         public string Product { get; set; }
         public string Customer { get; set; }
+        public double Duration { get; set; }
 
         public QtyProdResultByOperViewModel GetData(string operation)
         {
