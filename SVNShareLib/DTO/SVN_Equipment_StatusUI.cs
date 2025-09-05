@@ -11,7 +11,9 @@ namespace SVNShareLib.DTO
         public int id { get; set; }
         public string Name { get; set; }
         public string Operation { get; set; }
+        public string StartTime { get; set; } 
         public double Duration { get; set; }
+        public double TotalDuration { get; set; }
         public string DateTime { get; set; }
     }
 }

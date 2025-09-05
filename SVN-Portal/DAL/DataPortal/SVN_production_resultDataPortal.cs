@@ -291,7 +291,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
                                 if (equipmentStatus != null) 
                                 {
-                                    Duration = equipmentStatus.Duration;
+                                    Duration = equipmentStatus.TotalDuration;
                                 }
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
@@ -585,7 +585,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
                                 if (equipmentStatus != null)
                                 {
-                                    Duration = equipmentStatus.Duration;
+                                    Duration = equipmentStatus.TotalDuration;
                                 }
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
@@ -957,7 +957,7 @@ namespace SVN_Portal.DAL.DataPortal
                             var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.Operation, date);
                             if (equipmentStatus != null)
                             {
-                                Duration = equipmentStatus.Duration;
+                                Duration = equipmentStatus.TotalDuration;
                             }
                             DateTime finishedTime = curDateTime;
                             DateTime startDatetime = minStartSection;
