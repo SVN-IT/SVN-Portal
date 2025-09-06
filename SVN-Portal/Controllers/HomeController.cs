@@ -242,43 +242,40 @@ namespace SVN_Portal.Controllers
                 }
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
-
-                List<OperInfo> opers = new List<OperInfo>();
-
-                foreach (var item in operInfoConfig.OperInfo)
-                {
-                    if (item.WC != null && item.WC.Count > 0)
-                    {
-                        foreach (var wc in item.WC)
-                        {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, StoreID = item.StoreID });
-                        }
-                    }
-                    else
-                    {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth, StoreID = item.StoreID });
-                    }
-                }
-
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
-                if (models.Count > 0)
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
                         }
-                        if (operInfo != null)
-                        {
-                            model.ColWidth = operInfo.ColWidth;
-                        }
                     }
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
+
+                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
+                var compareUI = await compareDataPortal.ReadList(strdate);
+
+                if (compareUI != null && compareUI.Count > 0)
+                {
+
+                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
+                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    int arrangeQty = ArrangingNumber(models);
+
+                    decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
+
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    ViewBag.ComparePeople = comparePeople;
+                }
+
                 return View(models);
             }
             catch (Exception ex)
