@@ -5,6 +5,8 @@
 
     DateTime date = ViewBag.date;
     ViewData["Title"] = "Production Result Daily";
+    string jsonData = string.Empty;
+    jsonData = JsonConvert.SerializeObject(Model);
 }
 
 <div class="row">
@@ -129,6 +131,8 @@
             }],
             "graphs": [{
                 "balloonText": "Target: [[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "Target: [[value]]",
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
@@ -137,7 +141,9 @@
                 "valueAxis": "v1",
                 "fillColors": "#FFCE56"
             }, {
-                "balloonText": "Current: [[value]]",
+                "balloonText": "Actual: [[value]]",
+                "legendValueText": "Actual: [[value]]",
+                "labelText": "Actual: [[value]]",
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
@@ -147,7 +153,6 @@
                 "fillColors": "#36A2EB"
             }, {
                 "id": "g2",
-                "balloonText": "% Achieve: [[value]]",
                 "classNameField": "bulletClass",
                 "bullet": "line",
                 "lineThickness": 1,
@@ -157,14 +162,14 @@
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
-                "balloonText": "[[value]] %",
-                "legendValueText": "[[value]] %",
+                "balloonText": "Achieve: [[value]] %",
+                "legendValueText": "Achieve: [[value]] %",
                 "bullet": "round",
                 "bulletBorderColor": "#006600",
                 "bulletBorderThickness": 1,
                 "bulletBorderAlpha": 1,
                 "dashLengthField": "dashLength",
-                "labelText": "[[value]] %",
+                "labelText": "Achieve: [[value]] %",
                 "labelPosition": "top",
                 "lineColor": "#FF0000"
             }],
@@ -197,7 +202,6 @@
                 "title": "%"
             }],
             "graphs": [{
-                "balloonText": "UPH %: [[value]]",
                 "classNameField": "bulletClass",
                 "bullet": "line",
                 "lineThickness": 2,
@@ -218,13 +222,24 @@
                 "labelPosition": "top",
                 "fillColors": "#4BC0C0"
             }, {
-                "balloonText": "UPPH %: [[value]]",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 2,
                 "type": "line",
                 "title": "UPPH %",
                 "valueField": "upph",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
+                "balloonText": "UPPH: [[value]] %",
+                "legendValueText": "UPPH: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "UPPH: [[value]] %",
+                "labelPosition": "bottom",
                 "fillColors": "#9966FF"
             }],
             "categoryField": "operation",
@@ -256,13 +271,24 @@
                 "title": "Labor %"
             }],
             "graphs": [{
-                "balloonText": "Labor %: [[value]]",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 2,
                 "type": "line",
                 "title": "Labor %",
                 "valueField": "labor",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
+                "balloonText": "Labor: [[value]] %",
+                "legendValueText": "Labor: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "Labor: [[value]] %",
+                "labelPosition": "top",
                 "fillColors": "#FF9F40"
             }],
             "categoryField": "operation",
@@ -294,20 +320,42 @@
                 "title": "Defect %"
             }],
             "graphs": [{
-                "balloonText": "Target: [[value]]",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 2,
                 "type": "line",
                 "title": "Defect Target",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
+                "balloonText": "Target: [[value]] %",
+                "legendValueText": "Target: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "Target: [[value]] %",
+                "labelPosition": "top",
                 "valueField": "defectTarget",
                 "fillColors": "#FF6384"
             }, {
-                "balloonText": "Current: [[value]]",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 2,
                 "type": "line",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
+                "balloonText": "Current: [[value]] %",
+                "legendValueText": "Current: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "Current: [[value]] %",
+                "labelPosition": "bottom",
                 "title": "Defect Current",
                 "valueField": "defectCurrent",
                 "fillColors": "#36A2EB"
