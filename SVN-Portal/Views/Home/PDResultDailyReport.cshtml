@@ -7,13 +7,14 @@
     ViewData["Title"] = "Production Result Daily";
     string jsonData = string.Empty;
     jsonData = JsonConvert.SerializeObject(Model);
+    string abc = "abc";
 }
 
 <div class="row">
     <div class="col-lg-12">
         <form method="post">
             <div class="form-group row">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                     <div class="row">
                         <div class="col-6">
                             <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
@@ -100,11 +101,24 @@
 
     <script>
         // Data chung
-        var chartData = [
-            { operation: "POP", target: 1633, current: 1657, achieve: 101.47, uph: 101.45, upph: 101.46, labor: 100, defectTarget: 1, defectCurrent: 0 },
-            { operation: "Injection", target: 1381, current: 1410, achieve: 102.1, uph: 102.11, upph: 102.11, labor: 100, defectTarget: 1, defectCurrent: 0.35 },
-            { operation: "Walter", target: 1159, current: 1396, achieve: 120.45, uph: 120.31, upph: 117.93, labor: 100, defectTarget: 2, defectCurrent: 0.24 }
-        ];
+        var chartData = @Html.Raw(jsonData);
+
+        chartData = chartData.map(function(item) {
+            return {
+                OperationActive: item.OperationActive,
+                DailyPlanTarget: parseFloat(item.DailyPlanTarget),
+                DailyPlanCurrent: parseFloat(item.DailyPlanCurrent),
+                DailyPlanAchieve: parseFloat((item.DailyPlanAchieve || "0").replace("%","")),
+                UPH: parseFloat((item.UPH || "0").replace("%","")),
+                UPPH: parseFloat((item.UPPH || "0").replace("%","")),
+                Labor: parseFloat((item.Labor || "0").replace("%","")),
+                DefectTargetRate: parseFloat((item.DefectTargetRate || "0").replace("%","")),
+                DefectCurrentRate: parseFloat((item.DefectCurrentRate || "0").replace("%","")),
+                DefectRate: parseFloat((item.DefectRate || "0").replace("%","")),
+                CheckListOnSystem: item.CheckListOnSystem,
+                Remark: item.Remark
+            };
+        });
 
         // 1. Daily Plan Achieve
         AmCharts.makeChart("dailyPlanChart", {
@@ -137,7 +151,7 @@
                 "lineAlpha": 0.2,
                 "type": "column",
                 "title": "Target",
-                "valueField": "target",
+                "valueField": "DailyPlanTarget",
                 "valueAxis": "v1",
                 "fillColors": "#FFCE56"
             }, {
@@ -148,7 +162,7 @@
                 "lineAlpha": 0.2,
                 "type": "column",
                 "title": "Current",
-                "valueField": "current",
+                "valueField": "DailyPlanCurrent",
                 "valueAxis": "v1",
                 "fillColors": "#36A2EB"
             }, {
@@ -158,7 +172,7 @@
                 "lineThickness": 1,
                 "type": "line",
                 "title": "%Achieve",
-                "valueField": "achieve",
+                "valueField": "DailyPlanAchieve",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
@@ -173,7 +187,7 @@
                 "labelPosition": "top",
                 "lineColor": "#FF0000"
             }],
-            "categoryField": "operation",
+            "categoryField": "OperationActive",
             "categoryAxis": {
                 "gridPosition": "start"
             },
@@ -207,7 +221,7 @@
                 "lineThickness": 2,
                 "type": "line",
                 "title": "UPH %",
-                "valueField": "uph",
+                "valueField": "UPH",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
@@ -227,7 +241,7 @@
                 "lineThickness": 2,
                 "type": "line",
                 "title": "UPPH %",
-                "valueField": "upph",
+                "valueField": "UPPH",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
@@ -242,7 +256,7 @@
                 "labelPosition": "bottom",
                 "fillColors": "#9966FF"
             }],
-            "categoryField": "operation",
+            "categoryField": "OperationActive",
             "categoryAxis": {
                 "gridPosition": "start"
             },
@@ -276,7 +290,7 @@
                 "lineThickness": 2,
                 "type": "line",
                 "title": "Labor %",
-                "valueField": "labor",
+                "valueField": "Labor",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
@@ -291,7 +305,7 @@
                 "labelPosition": "top",
                 "fillColors": "#FF9F40"
             }],
-            "categoryField": "operation",
+            "categoryField": "OperationActive",
             "categoryAxis": {
                 "gridPosition": "start"
             },
@@ -337,7 +351,7 @@
                 "dashLengthField": "dashLength",
                 "labelText": "Target: [[value]] %",
                 "labelPosition": "top",
-                "valueField": "defectTarget",
+                "valueField": "DefectTargetRate",
                 "fillColors": "#FF6384"
             }, {
                 "classNameField": "bulletClass",
@@ -357,10 +371,10 @@
                 "labelText": "Current: [[value]] %",
                 "labelPosition": "bottom",
                 "title": "Defect Current",
-                "valueField": "defectCurrent",
+                "valueField": "DefectCurrentRate",
                 "fillColors": "#36A2EB"
             }],
-            "categoryField": "operation",
+            "categoryField": "OperationActive",
             "categoryAxis": {
                 "gridPosition": "start"
             },
