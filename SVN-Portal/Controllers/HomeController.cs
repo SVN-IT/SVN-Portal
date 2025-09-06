@@ -260,6 +260,8 @@ namespace SVN_Portal.Controllers
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                 }
 
+                QtyProdResultByOperViewModel summaryProdResultModel = new QtyProdResultByOperViewModel();
+
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
                 var compareUI = await compareDataPortal.ReadList(strdate);
 
