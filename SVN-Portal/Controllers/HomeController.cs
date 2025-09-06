@@ -1485,8 +1485,55 @@ namespace SVN_Portal.Controllers
                         {
                             viewModel.CheckListOnSystem = "OK";
                         }
+                        //viewModels.Add(viewModel);
+                    }
+
+                    List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
+                    foreach (var oper in operations)
+                    {
+                        var totalPlan = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
+                        var totalPlanCurrent = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
+                        var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
+
+                        var totalUPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
+                        var totalUPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
+                        var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
+
+                        var totalUPPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
+                        var totalUPPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
+                        var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
+
+                        var totalLabor = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
+                        var totalLaborTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
+                        var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
+
+                        var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
+                        var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                        var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                        viewModel.OperationActive = oper;
+                        viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProduction) ? "OK" : "NG";
+
+                        var remarkList = models.Where(x => x.MasterOperation == oper)
+                                        .SelectMany(x => x.DefectByCategoryViewModels.Where(y => y.value != "0")
+                                                                                     .Select(y => $"{y.category}: {y.value}"))
+                                                                                     .ToList();
+                        viewModel.Remark = remarkList.Any()
+                                            ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
+                                            : string.Empty;
                         viewModels.Add(viewModel);
                     }
+
                     return viewModels;
                 }
                 else

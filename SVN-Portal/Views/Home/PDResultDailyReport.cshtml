@@ -84,5 +84,245 @@
             </div>
         </div>
     </div>
+    <h2>Daily Plan Achieve</h2>
+    <div id="dailyPlanChart" style="width:100%;height:400px;"></div>
 
+    <h2>UPH & UPPH (%)</h2>
+    <div id="uphChart" style="width:100%;height:400px;"></div>
+
+    <h2>Labor (%)</h2>
+    <div id="laborChart" style="width:100%;height:400px;"></div>
+
+    <h2>Defect Rate</h2>
+    <div id="defectChart" style="width:100%;height:400px;"></div>
+
+    <script>
+        // Data chung
+        var chartData = [
+            { operation: "POP", target: 1633, current: 1657, achieve: 101.47, uph: 101.45, upph: 101.46, labor: 100, defectTarget: 1, defectCurrent: 0 },
+            { operation: "Injection", target: 1381, current: 1410, achieve: 102.1, uph: 102.11, upph: 102.11, labor: 100, defectTarget: 1, defectCurrent: 0.35 },
+            { operation: "Walter", target: 1159, current: 1396, achieve: 120.45, uph: 120.31, upph: 117.93, labor: 100, defectTarget: 2, defectCurrent: 0.24 }
+        ];
+
+        // 1. Daily Plan Achieve
+        AmCharts.makeChart("dailyPlanChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "title": "Qty"
+            }, {
+                "id": "v2",
+                "position": "right",
+                "title": "% Achieve",
+                "axisAlpha": 0,
+                "gridAlpha": 0
+            }],
+            "graphs": [{
+                "balloonText": "Target: [[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Target",
+                "valueField": "target",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }, {
+                "balloonText": "Current: [[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Current",
+                "valueField": "current",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }, {
+                "id": "g2",
+                "balloonText": "% Achieve: [[value]]",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 1,
+                "type": "line",
+                "title": "%Achieve",
+                "valueField": "achieve",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "[[value]] %",
+                "legendValueText": "[[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "[[value]] %",
+                "labelPosition": "top",
+                "lineColor": "#FF0000"
+            }],
+            "categoryField": "operation",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+
+        // 2. UPH & UPPH
+        AmCharts.makeChart("uphChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "title": "%"
+            }],
+            "graphs": [{
+                "balloonText": "UPH %: [[value]]",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 2,
+                "type": "line",
+                "title": "UPH %",
+                "valueField": "uph",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "UPH: [[value]] %",
+                "legendValueText": "UPH: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "UPH: [[value]] %",
+                "labelPosition": "top",
+                "fillColors": "#4BC0C0"
+            }, {
+                "balloonText": "UPPH %: [[value]]",
+                "type": "line",
+                "title": "UPPH %",
+                "valueField": "upph",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "fillColors": "#9966FF"
+            }],
+            "categoryField": "operation",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+
+        // 3. Labor %
+        AmCharts.makeChart("laborChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "title": "Labor %"
+            }],
+            "graphs": [{
+                "balloonText": "Labor %: [[value]]",
+                "type": "line",
+                "title": "Labor %",
+                "valueField": "labor",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "fillColors": "#FF9F40"
+            }],
+            "categoryField": "operation",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+
+        // 4. Defect Rate
+        AmCharts.makeChart("defectChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "title": "Defect %"
+            }],
+            "graphs": [{
+                "balloonText": "Target: [[value]]",
+                "type": "line",
+                "title": "Defect Target",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "valueField": "defectTarget",
+                "fillColors": "#FF6384"
+            }, {
+                "balloonText": "Current: [[value]]",
+                "type": "line",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "title": "Defect Current",
+                "valueField": "defectCurrent",
+                "fillColors": "#36A2EB"
+            }],
+            "categoryField": "operation",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+    </script>
 </div>
