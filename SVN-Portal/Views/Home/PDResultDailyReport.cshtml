@@ -223,10 +223,11 @@
             bullet: "round",
             bulletSize: 6,
             lineThickness: 2,
-            type: "line"
+            balloonText: "[[value]]",
+            type: "smoothedLine"
           };
         });
-        AmCharts.makeChart("uphChart", {
+        var chart = AmCharts.makeChart("uphChart", {
           "type": "serial",
           "theme": "light",
           "startDuration": 0,
@@ -251,9 +252,21 @@
             "color": "#FFFFFF"
           },
           "chartCursor": {
-            "cursorPosition": "mouse"
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
           }
         });
+
+        // Auto hover 5s một lần
+        var currentIndex = 0;
+        setInterval(function () {
+          if (chart.dataProvider.length > 0) {
+            chart.chartCursor.showCursorAt(chart.dataProvider[currentIndex].date);
+            currentIndex = (currentIndex + 1) % chart.dataProvider.length;
+          }
+        }, 5000);
 
         var chartUPPHData = @Html.Raw(jsonUPPHData);
         var upphkeys = Object.keys(chartUPPHData[0]).filter(k => k !== "date");
@@ -265,7 +278,7 @@
             bullet: "round",
             bulletSize: 6,
             lineThickness: 2,
-            type: "line"
+            type: "smoothedLine"
           };
         });
         AmCharts.makeChart("upphChart", {
@@ -307,7 +320,7 @@
             bullet: "round",
             bulletSize: 6,
             lineThickness: 2,
-            type: "line"
+            type: "smoothedLine"
           };
         });
         AmCharts.makeChart("laborChart", {
@@ -346,7 +359,7 @@
             id: "g" + i,
             title: k,
             valueField: k,
-            bullet: "round",
+            bullet: "smoothedLine",
             bulletSize: 6,
             lineThickness: 2,
             type: "line"
