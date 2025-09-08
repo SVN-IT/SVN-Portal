@@ -1511,6 +1511,9 @@ namespace SVN_Portal.Controllers
                         Remark = string.Join("; ", g.Where(x => !string.IsNullOrEmpty(x.Remark)).Select(x => x.Remark))
                     }).ToList();
 
+                    grouped = grouped
+                    .OrderBy(x => DateTime.ParseExact(x.Datetime, "yyyyMMdd", null))
+                    .ToList();
                     string strUPHData = GetUPHDataByDayByDay(grouped);
                     ViewBag.strUPHData = strUPHData;
                     string strUPPHData = GetUPPHDataByDayByDay(grouped);

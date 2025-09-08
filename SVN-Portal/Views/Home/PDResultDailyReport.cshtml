@@ -214,7 +214,7 @@
 
         // Data chung
         var chartUPHData = @Html.Raw(jsonUPHData);
-        var uphkeys = Object.keys(chartUPHData[0]).filter(k => k !== "date");
+        var uphkeys = [...new Set([].concat(...chartUPHData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
         var uphgraphs = uphkeys.map(function(k, i) {
           return {
             id: "g" + i,
