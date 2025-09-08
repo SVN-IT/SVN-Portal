@@ -360,7 +360,8 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = endDatetime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -692,7 +693,9 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = endDatetime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -755,6 +758,72 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 return null;
             }
+        }
+
+        public async Task<List<QtyProdResultByOperViewModel>> GetDataForReport(DateTime fromdate, DateTime todate, List<OperInfo> opers)
+        {
+            List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
+            List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
+            List<SVN_Defect_recordUI> defect_RecordUI = new List<SVN_Defect_recordUI>();
+            var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
+            var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
+            try
+            {
+                targetDataUI = await targetdataportal.ReadListTargetFromToDate(fromdate, todate);//lấy dữ liệu target từ csdl
+                defect_RecordUI = await defectdataportal.ReadListFromToDate(fromdate, todate);
+                if(targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    foreach (var item in targetDataUI)
+                    {
+                        QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
+                        var oper = opers.FirstOrDefault(x => x.Operation == item.Operation);
+                        if (oper != null)
+                        {
+                            viewModel.MasterOperation = oper.MasterOperation;
+                        }
+                        viewModel.Operation = item.Operation;
+                        viewModel.WorkTime = item.Date_time;
+                        //tạo dong Daiily plan của 1 operation
+                        SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel();
+                        dailyPlanVM.Item = "H.Plan";
+                        dailyPlanVM.Target = item.Daily_plan;
+                        dailyPlanVM.Current = item.Total_Qty;
+                        dailyPlanVM.Percent = dailyPlanVM.Target != 0 ? (dailyPlanVM.Current / dailyPlanVM.Target) * 100 : 0;
+                        SVN_targetViewModel UPHVM = new SVN_targetViewModel();
+                        UPHVM.Item = "UPH";
+                        UPHVM.Target = item.UPH;
+                        UPHVM.Current = item.Current_UPH;
+                        UPHVM.Percent = item.UPH != 0 ? (item.Current_UPH / item.UPH) * 100 : 0;
+                        SVN_targetViewModel UPPHVM = new SVN_targetViewModel();
+                        UPPHVM.Item = "UPPH";
+                        UPPHVM.Target = item.UPPH;
+                        UPPHVM.Current = item.Current_UPPH;
+                        UPPHVM.Percent = item.UPPH != 0 ? (item.Current_UPPH / item.UPPH) * 100 : 0;
+                        SVN_targetViewModel LaborVM = new SVN_targetViewModel();
+                        LaborVM.Item = "Labor";
+                        LaborVM.Target = item.Labor;
+                        LaborVM.Current = item.MaxLabor;
+                        LaborVM.Percent = item.Labor != 0 ? (item.MaxLabor / item.Labor) * 100 : 0;
+                        SVN_targetViewModel NGVM = new SVN_targetViewModel();
+                        NGVM.Item = "Defect";
+                        NGVM.Target = item.Defect * 100;
+                        NGVM.Current = item.Total_Qty != 0 ? (item.Total_NG_Qty / item.Total_Qty) * 100 : 0;
+                        NGVM.Percent = item.Total_Qty != 0 && item.Defect != 0 ? (item.Total_NG_Qty / item.Total_Qty / item.Defect) * 100 : 0;
+                        viewModel.TargetViewModels.Add(dailyPlanVM);
+                        viewModel.TargetViewModels.Add(UPHVM);
+                        viewModel.TargetViewModels.Add(UPPHVM);
+                        viewModel.TargetViewModels.Add(LaborVM);
+                        viewModel.TargetViewModels.Add(NGVM);
+
+                        viewModels.Add(viewModel);
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+            return viewModels;
         }
 
         public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
@@ -985,7 +1054,9 @@ namespace SVN_Portal.DAL.DataPortal
                                     //TimeSpan diff = endDatetime - startDatetime;
                                     gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                     TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -1359,7 +1430,9 @@ namespace SVN_Portal.DAL.DataPortal
 
                                 gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
                                 TimeSpan diff = finishedTime - startDatetime;
-                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                             }
 
                             // Tính Current UPH và UPPH

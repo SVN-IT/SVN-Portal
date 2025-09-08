@@ -1345,13 +1345,12 @@ namespace SVN_Portal.Controllers
             return View(models);
         }
 
-        public async Task<IActionResult> PDResultDailyReport(DateTime date)
+        public async Task<IActionResult> PDResultDailyReport(DateTime fromdate, DateTime todate)
         {
-            ViewBag.date = date;
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyData(date);
+                viewModels = await GetPDResultDailyData(fromdate, todate);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -1360,11 +1359,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDaily(DateTime date)
+        public async Task<IActionResult> ExportPDResultDaily(DateTime fromdate, DateTime todate)
         {
             try
             {
-                var viewModels = await GetPDResultDailyData(date);
+                var viewModels = await GetPDResultDailyData(fromdate, todate);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -1437,38 +1436,32 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime date)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime fromdate, DateTime todate)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            List<PDResultDailyViewModel> dailyViewModels = new List<PDResultDailyViewModel>();
             try
             {
-                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
-                string strdate = "20241220";
-                string tableName = "SVN_Production_result_Viindoo";
-                if (date == DateTime.MinValue)
+                if (fromdate == DateTime.MinValue)
                 {
-                    date = DateTime.Now;
+                    fromdate = DateTime.Now.Date.AddDays(-1);
                 }
-                ViewBag.date = date;
-                strdate = date.ToString("yyyyMMdd");
-                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                if(todate == DateTime.MinValue)
+                {
+                    todate = DateTime.Now.Date.AddDays(-1);
+                }
+                ViewBag.FromDate = fromdate;
+                ViewBag.ToDate = todate;
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
+                models = await dataPortal.GetDataForReport(fromdate, todate, opers);
                 if (models != null && models.Count > 0)
                 {
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
                     foreach (var model in models)
                     {
-                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        if (userInfo != null)
-                        {
-                            model.PDName = userInfo.PDName;
-                            model.QCName = userInfo.QCName;
-                        }
-
                         PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                        viewModel.MasterOperation = model.MasterOperation;
                         viewModel.OperationActive = model.Operation;
                         viewModel.DailyPlanTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding).ToString();
                         viewModel.DailyPlanCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding).ToString();
@@ -1485,9 +1478,50 @@ namespace SVN_Portal.Controllers
                         {
                             viewModel.CheckListOnSystem = "OK";
                         }
-                        //viewModels.Add(viewModel);
+                        viewModel.Datetime = model.WorkTime;
+                        dailyViewModels.Add(viewModel);
                     }
 
+                    // sum dữ liệu theo master oper và date_time
+                    var grouped = dailyViewModels
+                    .GroupBy(x => new { x.MasterOperation, x.Datetime })
+                    .Select(g => new PDResultDailyViewModel
+                    {
+
+                        MasterOperation = g.Key.MasterOperation,
+                        OperationActive = g.Key.MasterOperation,
+                        Datetime = g.Key.Datetime,
+
+                        DailyPlanTarget = g.Sum(x => double.TryParse(x.DailyPlanTarget, out var v) ? v : 0).ToString("N0"),
+                        DailyPlanCurrent = g.Sum(x => double.TryParse(x.DailyPlanCurrent, out var v) ? v : 0).ToString("N0"),
+                        DailyPlanAchieve = g.Sum(x => double.TryParse(x.DailyPlanTarget, out var v) ? v : 0) == 0
+                        ? "0%"
+                        : ((g.Sum(x => double.TryParse(x.DailyPlanCurrent, out var v2) ? v2 : 0) /
+                            g.Sum(x => double.TryParse(x.DailyPlanTarget, out var v3) ? v3 : 0)) * 100).ToString("0.##") + "%",
+
+                        UPH = g.Average(x => double.TryParse(x.UPH?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        UPPH = g.Average(x => double.TryParse(x.UPPH?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        Labor = g.Average(x => double.TryParse(x.Labor?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+
+                        DefectTargetRate = g.Average(x => double.TryParse(x.DefectTargetRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        DefectCurrentRate = g.Average(x => double.TryParse(x.DefectCurrentRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        DefectRate = g.Average(x => double.TryParse(x.DefectRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+
+                        CheckListOnSystem = g.All(x => x.CheckListOnSystem == "OK") ? "OK" : "NG",
+                        Remark = string.Join("; ", g.Where(x => !string.IsNullOrEmpty(x.Remark)).Select(x => x.Remark))
+                    }).ToList();
+
+                    string strUPHData = GetUPHDataByDayByDay(grouped);
+                    ViewBag.strUPHData = strUPHData;
+                    string strUPPHData = GetUPPHDataByDayByDay(grouped);
+                    ViewBag.strUPPHData = strUPPHData;
+                    string strLaborData = GetLaborDataByDayByDay(grouped);
+                    ViewBag.strLaborData = strLaborData;
+                    string strDefectRateData = GetDefectRateDataByDayByDay(grouped);
+                    ViewBag.strDefectRateData = strDefectRateData;
+
+
+                    // sum dữ liệu theo master oper
                     List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
                     foreach (var oper in operations)
                     {
@@ -1545,6 +1579,74 @@ namespace SVN_Portal.Controllers
             {
                 return null;
             }
+        }
+
+        public string GetUPHDataByDayByDay(List<PDResultDailyViewModel> grouped)
+        {
+            var chartData = grouped
+                .GroupBy(x => x.Datetime)
+                .Select(g => {
+                    var dict = new Dictionary<string, object>();
+                    dict["date"] = g.Key;
+                    foreach (var item in g)
+                    {
+                        dict[item.OperationActive] = item.UPH;
+                    }
+                    return dict;
+                })
+                .ToList();
+            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+        }
+
+        public string GetUPPHDataByDayByDay(List<PDResultDailyViewModel> grouped)
+        {
+            var chartData = grouped
+                .GroupBy(x => x.Datetime)
+                .Select(g => {
+                    var dict = new Dictionary<string, object>();
+                    dict["date"] = g.Key;
+                    foreach (var item in g)
+                    {
+                        dict[item.OperationActive] = item.UPPH;
+                    }
+                    return dict;
+                })
+                .ToList();
+            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+        }
+
+        public string GetLaborDataByDayByDay(List<PDResultDailyViewModel> grouped)
+        {
+            var chartData = grouped
+                .GroupBy(x => x.Datetime)
+                .Select(g => {
+                    var dict = new Dictionary<string, object>();
+                    dict["date"] = g.Key;
+                    foreach (var item in g)
+                    {
+                        dict[item.OperationActive] = item.Labor;
+                    }
+                    return dict;
+                })
+                .ToList();
+            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+        }
+
+        public string GetDefectRateDataByDayByDay(List<PDResultDailyViewModel> grouped)
+        {
+            var chartData = grouped
+                .GroupBy(x => x.Datetime)
+                .Select(g => {
+                    var dict = new Dictionary<string, object>();
+                    dict["date"] = g.Key;
+                    foreach (var item in g)
+                    {
+                        dict[item.OperationActive] = item.DefectRate;
+                    }
+                    return dict;
+                })
+                .ToList();
+            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
         }
         #endregion
     }

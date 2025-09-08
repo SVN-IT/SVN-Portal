@@ -4,6 +4,7 @@ namespace SVN_Portal.Models
 {
     public class PDResultDailyViewModel
     {
+        public string MasterOperation { get; set; }
         public string OperationActive { get; set; }
         public string MonthlyPlanAchieve { get; set; }
         public string DailyPlanTarget { get; set; }
@@ -17,5 +18,6 @@ namespace SVN_Portal.Models
         public string DefectRate { get; set; }
         public string CheckListOnSystem { get; set; }
         public string Remark { get; set; }
+        public string Datetime { get; set; }
     }
 }

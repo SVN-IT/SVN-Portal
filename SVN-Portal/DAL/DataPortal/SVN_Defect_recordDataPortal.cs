@@ -37,6 +37,29 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<List<SVN_Defect_recordUI>> ReadListFromToDate(DateTime fromDate, DateTime toDate)
+        {
+            List<SVN_Defect_recordUI> dataUI = new List<SVN_Defect_recordUI>();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString)) 
+                {
+                    string sql = string.Empty;
+                    var param = new object();
+                    sql = "select * from SVN_Defect_Record WHERE CONVERT(date, INSDatetime, 112) BETWEEN @fromDate AND @toDate";
+                    param = new { fromDate = fromDate, toDate = toDate };
+                    var data = await conn.QueryAsync<SVN_Defect_recordUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    dataUI = data.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
     }
 }

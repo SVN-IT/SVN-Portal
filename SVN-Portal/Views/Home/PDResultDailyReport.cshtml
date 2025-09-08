@@ -3,7 +3,8 @@
 @model IEnumerable<PDResultDailyViewModel>
 @{
 
-    DateTime date = ViewBag.date;
+    DateTime fromdate = ViewBag.FromDate;
+    DateTime todate = ViewBag.ToDate;
     ViewData["Title"] = "Production Result Daily";
     string jsonData = string.Empty;
     jsonData = JsonConvert.SerializeObject(Model);
@@ -16,15 +17,18 @@
             <div class="form-group row">
                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                     <div class="row">
-                        <div class="col-6">
-                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="fromdate" value="@fromdate.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
-                        <div class="col-3">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="todate" value="@todate.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
                             <button type="submit" asp-action="PDResultDailyReport" class="btn btn-primary">
                                 Search
                             </button>
                         </div>
-                        <div class="col-3">
+                        <div class="col-12 col-sm-6 col-md-3">
                             <button type="submit" asp-action="ExportPDResultDaily" class="btn btn-success">
                                 Export excel
                             </button>
@@ -63,22 +67,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(var item in Model)
+                            @if (Model != null && Model.Count() > 0)
                             {
-                                <tr>
-                                    <th scope="row">@item.OperationActive</th>
-                                    <td>@item.DailyPlanTarget</td>
-                                    <td>@item.DailyPlanCurrent</td>
-                                    <td>@item.DailyPlanAchieve</td>
-                                    <td>@item.UPH</td>
-                                    <td>@item.UPPH</td>
-                                    <td>@item.Labor</td>
-                                    <td>@item.DefectTargetRate</td>
-                                    <td>@item.DefectCurrentRate</td>
-                                    <td>@item.DefectRate</td>
-                                    <td>@item.CheckListOnSystem</td>
-                                    <td>@item.Remark</td>
-                                </tr>
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.OperationActive</th>
+                                        <td>@item.DailyPlanTarget</td>
+                                        <td>@item.DailyPlanCurrent</td>
+                                        <td>@item.DailyPlanAchieve</td>
+                                        <td>@item.UPH</td>
+                                        <td>@item.UPPH</td>
+                                        <td>@item.Labor</td>
+                                        <td>@item.DefectTargetRate</td>
+                                        <td>@item.DefectCurrentRate</td>
+                                        <td>@item.DefectRate</td>
+                                        <td>@item.CheckListOnSystem</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>
