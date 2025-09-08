@@ -340,13 +340,17 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (productionUI != null)
                                     {
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        // Lấy hiệu 2 thời điểm
+                                        //TimeSpan diff = curDateTime - startDatetime;
+                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                        TimeSpan diff = finishedTime - startDatetime;
+                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
                                     }
 
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = curDateTime - startDatetime;
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
@@ -354,14 +358,18 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (productionUI != null)
                                     {
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        // Lấy hiệu 2 thời điểm
+                                        //TimeSpan diff = endDatetime - startDatetime;
+                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                        TimeSpan diff = finishedTime - startDatetime;
+                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
                                     }
 
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = endDatetime - startDatetime;
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -1050,13 +1058,17 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (productionUI != null)
                                     {
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        // Lấy hiệu 2 thời điểm
+                                        //TimeSpan diff = curDateTime - startDatetime;
+                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                        TimeSpan diff = finishedTime - startDatetime;
+                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
                                     }
 
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = curDateTime - startDatetime;
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
@@ -1064,15 +1076,19 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (productionUI != null)
                                     {
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        // Lấy hiệu 2 thời điểm
+                                        //TimeSpan diff = endDatetime - startDatetime;
+                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                        TimeSpan diff = finishedTime - startDatetime;
+                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
                                     }
 
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = endDatetime - startDatetime;
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-
-                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -1424,14 +1440,19 @@ namespace SVN_Portal.DAL.DataPortal
                                 if(productionUI != null)
                                 {
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                    // Lấy hiệu 2 thời điểm
+                                    //TimeSpan diff = curDateTime - startDatetime;
+
+                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    TimeSpan diff = finishedTime - startDatetime;
+                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                }
+                                else
+                                {
+                                    workingTime = 0;
                                 }
 
-                                // Lấy hiệu 2 thời điểm
-                                //TimeSpan diff = curDateTime - startDatetime;
-
-                                gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                TimeSpan diff = finishedTime - startDatetime;
-                                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                
                             }
                             else if (endDatetime < curDateTime)
                             {
@@ -1439,16 +1460,20 @@ namespace SVN_Portal.DAL.DataPortal
                                 if (productionUI != null)
                                 {
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                    // Lấy hiệu 2 thời điểm
+                                    //TimeSpan diff = endDatetime - startDatetime;
+
+                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    TimeSpan diff = finishedTime - startDatetime;
+                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                }
+                                else
+                                {
+                                    workingTime = 0;
                                 }
 
-                                // Lấy hiệu 2 thời điểm
-                                //TimeSpan diff = endDatetime - startDatetime;
-
-                                gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                TimeSpan diff = finishedTime - startDatetime;
-                                //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-
-                                workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                             }
 
                             // Tính Current UPH và UPPH
@@ -1456,6 +1481,9 @@ namespace SVN_Portal.DAL.DataPortal
                             UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                             // Target by Hour
                             HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+
+                            viewModel.CurWorkingTime = workingTime;
+                            viewModel.CurDuration = Duration;
                         }
 
                         //tạo dong Daiily plan của 1 operation
