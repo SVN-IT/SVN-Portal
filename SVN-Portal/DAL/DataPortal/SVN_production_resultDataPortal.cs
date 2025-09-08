@@ -783,57 +783,55 @@ namespace SVN_Portal.DAL.DataPortal
                         if (oper != null)
                         {
                             viewModel.MasterOperation = oper.MasterOperation;
-                        }
-                        viewModel.Operation = item.Operation;
-                        viewModel.WorkTime = item.Date_time;
-                        //tạo dong Daiily plan của 1 operation
-                        SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel();
-                        dailyPlanVM.Item = "H.Plan";
-                        dailyPlanVM.Target = item.Daily_plan;
-                        dailyPlanVM.Current = item.Total_Qty;
-                        dailyPlanVM.Percent = dailyPlanVM.Target != 0 ? (dailyPlanVM.Current / dailyPlanVM.Target) * 100 : 0;
-                        SVN_targetViewModel UPHVM = new SVN_targetViewModel();
-                        UPHVM.Item = "UPH";
-                        UPHVM.Target = item.UPH;
-                        UPHVM.Current = item.Current_UPH;
-                        UPHVM.Percent = item.UPH != 0 ? (item.Current_UPH / item.UPH) * 100 : 0;
-                        SVN_targetViewModel UPPHVM = new SVN_targetViewModel();
-                        UPPHVM.Item = "UPPH";
-                        UPPHVM.Target = item.UPPH;
-                        UPPHVM.Current = item.Current_UPPH;
-                        UPPHVM.Percent = item.UPPH != 0 ? (item.Current_UPPH / item.UPPH) * 100 : 0;
-                        SVN_targetViewModel LaborVM = new SVN_targetViewModel();
-                        LaborVM.Item = "Labor";
-                        LaborVM.Target = item.Labor;
-                        LaborVM.Current = item.MaxLabor;
-                        LaborVM.Percent = item.Labor != 0 ? (item.MaxLabor / item.Labor) * 100 : 0;
-                        SVN_targetViewModel NGVM = new SVN_targetViewModel();
-                        NGVM.Item = "Defect";
-                        NGVM.Target = item.Defect * 100;
-                        NGVM.Current = item.Total_Qty != 0 ? (item.Total_NG_Qty / item.Total_Qty) * 100 : 0;
-                        NGVM.Percent = item.Total_Qty != 0 && item.Defect != 0 ? (item.Total_NG_Qty / item.Total_Qty / item.Defect) * 100 : 0;
-                        viewModel.TargetViewModels.Add(dailyPlanVM);
-                        viewModel.TargetViewModels.Add(UPHVM);
-                        viewModel.TargetViewModels.Add(UPPHVM);
-                        viewModel.TargetViewModels.Add(LaborVM);
-                        viewModel.TargetViewModels.Add(NGVM);
+                            viewModel.Operation = item.Operation;
+                            viewModel.WorkTime = item.Date_time;
+                            //tạo dong Daiily plan của 1 operation
+                            SVN_targetViewModel dailyPlanVM = new SVN_targetViewModel();
+                            dailyPlanVM.Item = "H.Plan";
+                            dailyPlanVM.Target = item.Daily_plan;
+                            dailyPlanVM.Current = item.Total_Qty;
+                            dailyPlanVM.Percent = dailyPlanVM.Target != 0 ? (dailyPlanVM.Current / dailyPlanVM.Target) * 100 : 0;
+                            SVN_targetViewModel UPHVM = new SVN_targetViewModel();
+                            UPHVM.Item = "UPH";
+                            UPHVM.Target = item.UPH;
+                            UPHVM.Current = item.Current_UPH;
+                            UPHVM.Percent = item.UPH != 0 ? (item.Current_UPH / item.UPH) * 100 : 0;
+                            SVN_targetViewModel UPPHVM = new SVN_targetViewModel();
+                            UPPHVM.Item = "UPPH";
+                            UPPHVM.Target = item.UPPH;
+                            UPPHVM.Current = item.Current_UPPH;
+                            UPPHVM.Percent = item.UPPH != 0 ? (item.Current_UPPH / item.UPPH) * 100 : 0;
+                            SVN_targetViewModel LaborVM = new SVN_targetViewModel();
+                            LaborVM.Item = "Labor";
+                            LaborVM.Target = item.Labor;
+                            LaborVM.Current = item.MaxLabor;
+                            LaborVM.Percent = item.Labor != 0 ? (item.MaxLabor / item.Labor) * 100 : 0;
+                            SVN_targetViewModel NGVM = new SVN_targetViewModel();
+                            NGVM.Item = "Defect";
+                            NGVM.Target = item.Defect * 100;
+                            NGVM.Current = item.Total_Qty != 0 ? (item.Total_NG_Qty / item.Total_Qty) * 100 : 0;
+                            NGVM.Percent = item.Total_Qty != 0 && item.Defect != 0 ? (item.Total_NG_Qty / item.Total_Qty / item.Defect) * 100 : 0;
+                            viewModel.TargetViewModels.Add(dailyPlanVM);
+                            viewModel.TargetViewModels.Add(UPHVM);
+                            viewModel.TargetViewModels.Add(UPPHVM);
+                            viewModel.TargetViewModels.Add(LaborVM);
+                            viewModel.TargetViewModels.Add(NGVM);
 
-                        //add defect by category
-                        if (quantity_ReasonUI != null && defect_RecordUI != null)
-                        {
-                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
+                            //add defect by category
+                            if (quantity_ReasonUI != null && defect_RecordUI != null)
                             {
-                                DefectByCategoryViewModel model = new DefectByCategoryViewModel();
-                                model.category = x.name;
-                                model.value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
-                                viewModel.DefectByCategoryViewModels.Add(model);
-                                return x;
-                            }).ToList();
+                                var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
+                                {
+                                    DefectByCategoryViewModel model = new DefectByCategoryViewModel();
+                                    model.category = x.name;
+                                    model.value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
+                                    viewModel.DefectByCategoryViewModels.Add(model);
+                                    return x;
+                                }).ToList();
+                            }
+
+                            viewModels.Add(viewModel);
                         }
-
-                        viewModels.Add(viewModel);
-
-                        
                     }
                 }
             }
