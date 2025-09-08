@@ -779,7 +779,7 @@ namespace SVN_Portal.DAL.DataPortal
                     foreach (var item in targetDataUI)
                     {
                         QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
-                        var oper = opers.FirstOrDefault(x => x.Operation == item.Operation);
+                        var oper = opers.FirstOrDefault(x => x.Operation == item.Operation && x.WCType == "FG");
                         if (oper != null)
                         {
                             viewModel.MasterOperation = oper.MasterOperation;

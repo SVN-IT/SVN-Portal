@@ -10,6 +10,7 @@
         public string Name { get; set; }
         public string MasterOperation { get; set; }
         public string WCName { get; set; }
+        public string WCType { get; set; }
         public List<int> Produce_id { get; set; }
         public List<WC> WC { get; set; }
         public int ColWidth { get; set; }
