@@ -1445,12 +1445,33 @@ namespace SVN_Portal.Controllers
             {
                 if (fromdate == DateTime.MinValue)
                 {
-                    fromdate = DateTime.Now.Date.AddDays(-1);
+                    fromdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 }
                 if(todate == DateTime.MinValue)
                 {
-                    todate = DateTime.Now.Date.AddDays(-1);
+                    todate = DateTime.Now.Date.AddDays(-1).AddHours(23).AddMinutes(59);
                 }
+
+                if(fromdate.Date > DateTime.Now.Date)
+                {
+                    fromdate = DateTime.Now.Date;
+                }
+
+                if (todate.Date > DateTime.Now.Date)
+                {
+                    todate = DateTime.Now.Date.AddHours(23).AddMinutes(59);
+                }
+
+                if (fromdate.Date > todate.Date)
+                {
+                    fromdate = todate;
+                    todate = todate.Date.AddHours(23).AddMinutes(59);
+                }
+                else if (fromdate.Date == todate.Date)
+                {
+                    todate = todate.Date.AddHours(23).AddMinutes(59);
+                }
+
                 ViewBag.FromDate = fromdate;
                 ViewBag.ToDate = todate;
                 List<OperInfo> opers = operInfoConfig.OperInfo;
