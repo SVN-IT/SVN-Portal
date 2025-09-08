@@ -1584,69 +1584,145 @@ namespace SVN_Portal.Controllers
         public string GetUPHDataByDayByDay(List<PDResultDailyViewModel> grouped)
         {
             var chartData = grouped
-                .GroupBy(x => x.Datetime)
-                .Select(g => {
-                    var dict = new Dictionary<string, object>();
-                    dict["date"] = g.Key;
-                    foreach (var item in g)
+            .GroupBy(x => x.Datetime)
+            .Select(g =>
+            {
+                var dict = new Dictionary<string, object>();
+
+                // Nếu g.Key đang là string kiểu "20250911"
+                DateTime dt;
+                if (DateTime.TryParseExact(g.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out dt))
+                {
+                    dict["date"] = dt.ToString("dd/MM/yyyy"); // đổi format
+                }
+                else
+                {
+                    dict["date"] = g.Key; // fallback
+                }
+                foreach (var item in g)
+                {
+                    double value;
+                    if (double.TryParse(item.UPH.Replace("%", ""), out value))
                     {
-                        dict[item.OperationActive] = item.UPH;
+                        dict[item.OperationActive] = value;
                     }
-                    return dict;
-                })
-                .ToList();
-            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+                    else
+                    {
+                        dict[item.OperationActive] = 0;
+                    }
+                }
+                return dict;
+            })
+            .ToList();
+            return JsonConvert.SerializeObject(chartData);
         }
 
         public string GetUPPHDataByDayByDay(List<PDResultDailyViewModel> grouped)
         {
             var chartData = grouped
                 .GroupBy(x => x.Datetime)
-                .Select(g => {
+                .Select(g =>
+                {
                     var dict = new Dictionary<string, object>();
-                    dict["date"] = g.Key;
+
+                    // Nếu g.Key đang là string kiểu "20250911"
+                    DateTime dt;
+                    if (DateTime.TryParseExact(g.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out dt))
+                    {
+                        dict["date"] = dt.ToString("dd/MM/yyyy"); // đổi format
+                    }
+                    else
+                    {
+                        dict["date"] = g.Key; // fallback
+                    }
                     foreach (var item in g)
                     {
-                        dict[item.OperationActive] = item.UPPH;
+                        double value;
+                        if (double.TryParse(item.UPPH.Replace("%", ""), out value))
+                        {
+                            dict[item.OperationActive] = value;
+                        }
+                        else
+                        {
+                            dict[item.OperationActive] = 0;
+                        }
                     }
                     return dict;
                 })
                 .ToList();
-            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+            return JsonConvert.SerializeObject(chartData);
         }
 
         public string GetLaborDataByDayByDay(List<PDResultDailyViewModel> grouped)
         {
             var chartData = grouped
                 .GroupBy(x => x.Datetime)
-                .Select(g => {
+                .Select(g =>
+                {
                     var dict = new Dictionary<string, object>();
-                    dict["date"] = g.Key;
+
+                    // Nếu g.Key đang là string kiểu "20250911"
+                    DateTime dt;
+                    if (DateTime.TryParseExact(g.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out dt))
+                    {
+                        dict["date"] = dt.ToString("dd/MM/yyyy"); // đổi format
+                    }
+                    else
+                    {
+                        dict["date"] = g.Key; // fallback
+                    }
                     foreach (var item in g)
                     {
-                        dict[item.OperationActive] = item.Labor;
+                        double value;
+                        if (double.TryParse(item.Labor.Replace("%", ""), out value))
+                        {
+                            dict[item.OperationActive] = value;
+                        }
+                        else
+                        {
+                            dict[item.OperationActive] = 0;
+                        }
                     }
                     return dict;
                 })
                 .ToList();
-            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+            return JsonConvert.SerializeObject(chartData);
         }
 
         public string GetDefectRateDataByDayByDay(List<PDResultDailyViewModel> grouped)
         {
             var chartData = grouped
                 .GroupBy(x => x.Datetime)
-                .Select(g => {
+                .Select(g =>
+                {
                     var dict = new Dictionary<string, object>();
-                    dict["date"] = g.Key;
+
+                    // Nếu g.Key đang là string kiểu "20250911"
+                    DateTime dt;
+                    if (DateTime.TryParseExact(g.Key, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out dt))
+                    {
+                        dict["date"] = dt.ToString("dd/MM/yyyy"); // đổi format
+                    }
+                    else
+                    {
+                        dict["date"] = g.Key; // fallback
+                    }
                     foreach (var item in g)
                     {
-                        dict[item.OperationActive] = item.DefectRate;
+                        double value;
+                        if (double.TryParse(item.DefectRate.Replace("%", ""), out value))
+                        {
+                            dict[item.OperationActive] = value;
+                        }
+                        else
+                        {
+                            dict[item.OperationActive] = 0;
+                        }
                     }
                     return dict;
                 })
                 .ToList();
-            return JsonConvert.SerializeObject(chartData, Formatting.Indented);
+            return JsonConvert.SerializeObject(chartData);
         }
         #endregion
     }

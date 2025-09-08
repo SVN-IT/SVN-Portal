@@ -8,7 +8,10 @@
     ViewData["Title"] = "Production Result Daily";
     string jsonData = string.Empty;
     jsonData = JsonConvert.SerializeObject(Model);
-    string abc = "abc";
+    string jsonUPHData = ViewBag.strUPHData;
+    string jsonUPPHData = ViewBag.strUPPHData;
+    string jsonLaborData = ViewBag.strLaborData;
+    string jsonDefectRateData = ViewBag.strDefectRateData;
 }
 
 <div class="row">
@@ -97,8 +100,11 @@
     <h2>Daily Plan Achieve</h2>
     <div id="dailyPlanChart" style="width:100%;height:400px;"></div>
 
-    <h2>UPH & UPPH (%)</h2>
+    <h2>UPH (%)</h2>
     <div id="uphChart" style="width:100%;height:400px;"></div>
+
+    <h2>UPPH (%)</h2>
+    <div id="upphChart" style="width:100%;height:400px;"></div>
 
     <h2>Labor (%)</h2>
     <div id="laborChart" style="width:100%;height:400px;"></div>
@@ -107,7 +113,6 @@
     <div id="defectChart" style="width:100%;height:400px;"></div>
 
     <script>
-        // Data chung
         var chartData = @Html.Raw(jsonData);
 
         chartData = chartData.map(function(item) {
@@ -207,191 +212,177 @@
             }
         });
 
-        // 2. UPH & UPPH
+        // Data chung
+        var chartUPHData = @Html.Raw(jsonUPHData);
+        var uphkeys = Object.keys(chartUPHData[0]).filter(k => k !== "date");
+        var uphgraphs = uphkeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            type: "line"
+          };
+        });
         AmCharts.makeChart("uphChart", {
-            "type": "serial",
-            "theme": "light",
-            "dataProvider": chartData,
-
-            "addClassNames": true,
-            "startDuration": 0,
-            "color": "#FFFFFF",
-            "fontSize": 20,
-            "marginLeft": 0,
-
-            "valueAxes": [{
-                "title": "%"
-            }],
-            "graphs": [{
-                "classNameField": "bulletClass",
-                "bullet": "line",
-                "lineThickness": 2,
-                "type": "line",
-                "title": "UPH %",
-                "valueField": "UPH",
-                "valueAxis": "v2",
-                "showBalloon": true,
-                "animationPlayed": false,
-                "balloonText": "UPH: [[value]] %",
-                "legendValueText": "UPH: [[value]] %",
-                "bullet": "round",
-                "bulletBorderColor": "#006600",
-                "bulletBorderThickness": 1,
-                "bulletBorderAlpha": 1,
-                "dashLengthField": "dashLength",
-                "labelText": "UPH: [[value]] %",
-                "labelPosition": "top",
-                "fillColors": "#4BC0C0"
-            }, {
-                "classNameField": "bulletClass",
-                "bullet": "line",
-                "lineThickness": 2,
-                "type": "line",
-                "title": "UPPH %",
-                "valueField": "UPPH",
-                "valueAxis": "v2",
-                "showBalloon": true,
-                "animationPlayed": false,
-                "balloonText": "UPPH: [[value]] %",
-                "legendValueText": "UPPH: [[value]] %",
-                "bullet": "round",
-                "bulletBorderColor": "#006600",
-                "bulletBorderThickness": 1,
-                "bulletBorderAlpha": 1,
-                "dashLengthField": "dashLength",
-                "labelText": "UPPH: [[value]] %",
-                "labelPosition": "bottom",
-                "fillColors": "#9966FF"
-            }],
-            "categoryField": "OperationActive",
-            "categoryAxis": {
-                "gridPosition": "start"
-            },
-            "legend": {
-                "bulletType": "round",
-                "equalWidths": false,
-                "valueWidth": 120,
-                "useGraphSettings": true,
-                "color": "#FFFFFF"
-            }
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 20,
+          "marginLeft": 0,
+          "dataProvider": chartUPHData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start"
+          },
+          "valueAxes": [{
+            "title": "UPH (%)"
+          }],
+          "graphs": uphgraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "cursorPosition": "mouse"
+          },
+          "chartScrollbar": {}
         });
 
-        // 3. Labor %
+        var chartUPPHData = @Html.Raw(jsonUPPHData);
+        var upphkeys = Object.keys(chartUPPHData[0]).filter(k => k !== "date");
+        var upphgraphs = upphkeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            type: "line"
+          };
+        });
+        AmCharts.makeChart("upphChart", {
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 20,
+          "marginLeft": 0,
+          "dataProvider": chartUPPHData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start"
+          },
+          "valueAxes": [{
+            "title": "UPH (%)"
+          }],
+          "graphs": upphgraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "cursorPosition": "mouse"
+          },
+          "chartScrollbar": {}
+        });
+
+        var chartLaborData = @Html.Raw(jsonLaborData);
+        var laborkeys = Object.keys(chartLaborData[0]).filter(k => k !== "date");
+        var laborgraphs = laborkeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            type: "line"
+          };
+        });
         AmCharts.makeChart("laborChart", {
-            "type": "serial",
-            "theme": "light",
-            "dataProvider": chartData,
-
-            "addClassNames": true,
-            "startDuration": 0,
-            "color": "#FFFFFF",
-            "fontSize": 20,
-            "marginLeft": 0,
-
-            "valueAxes": [{
-                "title": "Labor %"
-            }],
-            "graphs": [{
-                "classNameField": "bulletClass",
-                "bullet": "line",
-                "lineThickness": 2,
-                "type": "line",
-                "title": "Labor %",
-                "valueField": "Labor",
-                "valueAxis": "v2",
-                "showBalloon": true,
-                "animationPlayed": false,
-                "balloonText": "Labor: [[value]] %",
-                "legendValueText": "Labor: [[value]] %",
-                "bullet": "round",
-                "bulletBorderColor": "#006600",
-                "bulletBorderThickness": 1,
-                "bulletBorderAlpha": 1,
-                "dashLengthField": "dashLength",
-                "labelText": "Labor: [[value]] %",
-                "labelPosition": "top",
-                "fillColors": "#FF9F40"
-            }],
-            "categoryField": "OperationActive",
-            "categoryAxis": {
-                "gridPosition": "start"
-            },
-            "legend": {
-                "bulletType": "round",
-                "equalWidths": false,
-                "valueWidth": 120,
-                "useGraphSettings": true,
-                "color": "#FFFFFF"
-            }
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 20,
+          "marginLeft": 0,
+          "dataProvider": chartLaborData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start"
+          },
+          "valueAxes": [{
+            "title": "UPH (%)"
+          }],
+          "graphs": laborgraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "cursorPosition": "mouse"
+          },
+          "chartScrollbar": {}
         });
 
-        // 4. Defect Rate
+        var chartDefectRateData = @Html.Raw(jsonDefectRateData);
+        var defectratekeys = Object.keys(chartDefectRateData[0]).filter(k => k !== "date");
+        var defectrategraphs = defectratekeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            type: "line"
+          };
+        });
         AmCharts.makeChart("defectChart", {
-            "type": "serial",
-            "theme": "light",
-            "dataProvider": chartData,
-
-            "addClassNames": true,
-            "startDuration": 0,
-            "color": "#FFFFFF",
-            "fontSize": 20,
-            "marginLeft": 0,
-
-            "valueAxes": [{
-                "title": "Defect %"
-            }],
-            "graphs": [{
-                "classNameField": "bulletClass",
-                "bullet": "line",
-                "lineThickness": 2,
-                "type": "line",
-                "title": "Defect Target",
-                "valueAxis": "v2",
-                "showBalloon": true,
-                "animationPlayed": false,
-                "balloonText": "Target: [[value]] %",
-                "legendValueText": "Target: [[value]] %",
-                "bullet": "round",
-                "bulletBorderColor": "#006600",
-                "bulletBorderThickness": 1,
-                "bulletBorderAlpha": 1,
-                "dashLengthField": "dashLength",
-                "labelText": "Target: [[value]] %",
-                "labelPosition": "top",
-                "valueField": "DefectTargetRate",
-                "fillColors": "#FF6384"
-            }, {
-                "classNameField": "bulletClass",
-                "bullet": "line",
-                "lineThickness": 2,
-                "type": "line",
-                "valueAxis": "v2",
-                "showBalloon": true,
-                "animationPlayed": false,
-                "balloonText": "Current: [[value]] %",
-                "legendValueText": "Current: [[value]] %",
-                "bullet": "round",
-                "bulletBorderColor": "#006600",
-                "bulletBorderThickness": 1,
-                "bulletBorderAlpha": 1,
-                "dashLengthField": "dashLength",
-                "labelText": "Current: [[value]] %",
-                "labelPosition": "bottom",
-                "title": "Defect Current",
-                "valueField": "DefectCurrentRate",
-                "fillColors": "#36A2EB"
-            }],
-            "categoryField": "OperationActive",
-            "categoryAxis": {
-                "gridPosition": "start"
-            },
-            "legend": {
-                "bulletType": "round",
-                "equalWidths": false,
-                "valueWidth": 120,
-                "useGraphSettings": true,
-                "color": "#FFFFFF"
-            }
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 20,
+          "marginLeft": 0,
+          "dataProvider": chartDefectRateData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start"
+          },
+          "valueAxes": [{
+            "title": "UPH (%)"
+          }],
+          "graphs": defectrategraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "cursorPosition": "mouse"
+          },
+          "chartScrollbar": {}
         });
     </script>
 </div>
