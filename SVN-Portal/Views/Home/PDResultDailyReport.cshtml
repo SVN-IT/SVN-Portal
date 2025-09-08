@@ -146,7 +146,7 @@
             "addClassNames": true,
             "startDuration": 0,
             "color": "#FFFFFF",
-            "fontSize": 20,
+            "fontSize": 16,
             "marginLeft": 0,
 
             "valueAxes": [{
@@ -237,7 +237,7 @@
           "theme": "light",
           "startDuration": 0,
           "color": "#FFFFFF",
-          "fontSize": 20,
+          "fontSize": 16,
           "marginLeft": 0,
           "dataProvider": chartUPHData,
           "categoryField": "date",
@@ -284,7 +284,7 @@
           "theme": "light",
           "startDuration": 0,
           "color": "#FFFFFF",
-          "fontSize": 20,
+          "fontSize": 16,
           "marginLeft": 0,
           "dataProvider": chartUPPHData,
           "categoryField": "date",
@@ -331,7 +331,7 @@
           "theme": "light",
           "startDuration": 0,
           "color": "#FFFFFF",
-          "fontSize": 20,
+          "fontSize": 16,
           "marginLeft": 0,
           "dataProvider": chartLaborData,
           "categoryField": "date",
@@ -366,11 +366,11 @@
             id: "g" + i,
             title: k,
             valueField: k,
-            bullet: "smoothedLine",
+            bullet: "round",
             bulletSize: 6,
             lineThickness: 2,
             balloonText: "[[value]]",
-            type: "line"
+            type: "smoothedLine"
           };
         });
         var defectratechart = AmCharts.makeChart("defectChart", {
@@ -378,7 +378,7 @@
           "theme": "light",
           "startDuration": 0,
           "color": "#FFFFFF",
-          "fontSize": 20,
+          "fontSize": 16,
           "marginLeft": 0,
           "dataProvider": chartDefectRateData,
           "categoryField": "date",
