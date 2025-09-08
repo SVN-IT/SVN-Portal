@@ -227,7 +227,7 @@
             type: "smoothedLine"
           };
         });
-        var chart = AmCharts.makeChart("uphChart", {
+        var uphchart = AmCharts.makeChart("uphChart", {
           "type": "serial",
           "theme": "light",
           "startDuration": 0,
@@ -259,17 +259,8 @@
           }
         });
 
-        // Auto hover 5s một lần
-        var currentIndex = 0;
-        setInterval(function () {
-          if (chart.dataProvider.length > 0) {
-            chart.chartCursor.showCursorAt(chart.dataProvider[currentIndex].date);
-            currentIndex = (currentIndex + 1) % chart.dataProvider.length;
-          }
-        }, 5000);
-
         var chartUPPHData = @Html.Raw(jsonUPPHData);
-        var upphkeys = Object.keys(chartUPPHData[0]).filter(k => k !== "date");
+        var upphkeys = [...new Set([].concat(...chartUPPHData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
         var upphgraphs = upphkeys.map(function(k, i) {
           return {
             id: "g" + i,
@@ -278,10 +269,11 @@
             bullet: "round",
             bulletSize: 6,
             lineThickness: 2,
+            balloonText: "[[value]]",
             type: "smoothedLine"
           };
         });
-        AmCharts.makeChart("upphChart", {
+        var upphchart = AmCharts.makeChart("upphChart", {
           "type": "serial",
           "theme": "light",
           "startDuration": 0,
@@ -306,12 +298,15 @@
             "color": "#FFFFFF"
           },
           "chartCursor": {
-            "cursorPosition": "mouse"
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
           }
         });
 
         var chartLaborData = @Html.Raw(jsonLaborData);
-        var laborkeys = Object.keys(chartLaborData[0]).filter(k => k !== "date");
+        var laborkeys = [...new Set([].concat(...chartLaborData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
         var laborgraphs = laborkeys.map(function(k, i) {
           return {
             id: "g" + i,
@@ -320,10 +315,11 @@
             bullet: "round",
             bulletSize: 6,
             lineThickness: 2,
+            balloonText: "[[value]]",
             type: "smoothedLine"
           };
         });
-        AmCharts.makeChart("laborChart", {
+        var laborchart = AmCharts.makeChart("laborChart", {
           "type": "serial",
           "theme": "light",
           "startDuration": 0,
@@ -348,12 +344,15 @@
             "color": "#FFFFFF"
           },
           "chartCursor": {
-            "cursorPosition": "mouse"
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
           }
         });
 
         var chartDefectRateData = @Html.Raw(jsonDefectRateData);
-        var defectratekeys = Object.keys(chartDefectRateData[0]).filter(k => k !== "date");
+        var defectratekeys = [...new Set([].concat(...chartDefectRateData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
         var defectrategraphs = defectratekeys.map(function(k, i) {
           return {
             id: "g" + i,
@@ -362,10 +361,11 @@
             bullet: "smoothedLine",
             bulletSize: 6,
             lineThickness: 2,
+            balloonText: "[[value]]",
             type: "line"
           };
         });
-        AmCharts.makeChart("defectChart", {
+        var defectratechart = AmCharts.makeChart("defectChart", {
           "type": "serial",
           "theme": "light",
           "startDuration": 0,
@@ -390,8 +390,35 @@
             "color": "#FFFFFF"
           },
           "chartCursor": {
-            "cursorPosition": "mouse"
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
           }
         });
+
+        // Auto hover 5s một lần
+        var currentIndex = 0;
+        var currentIndex1 = 0;
+        var currentIndex2 = 0;
+        var currentIndex3 = 0;
+        setInterval(function () {
+          if (uphchart.dataProvider.length > 0) {
+            uphchart.chartCursor.showCursorAt(uphchart.dataProvider[currentIndex].date);
+            currentIndex = (currentIndex + 1) % uphchart.dataProvider.length;
+          }
+          if (upphchart.dataProvider.length > 0) {
+            upphchart.chartCursor.showCursorAt(upphchart.dataProvider[currentIndex1].date);
+            currentIndex1 = (currentIndex1 + 1) % upphchart.dataProvider.length;
+          }
+          if (laborchart.dataProvider.length > 0) {
+            laborchart.chartCursor.showCursorAt(laborchart.dataProvider[currentIndex2].date);
+            currentIndex2 = (currentIndex2 + 1) % laborchart.dataProvider.length;
+          }
+          if (defectratechart.dataProvider.length > 0) {
+            defectratechart.chartCursor.showCursorAt(defectratechart.dataProvider[currentIndex3].date);
+            currentIndex3 = (currentIndex3 + 1) % defectratechart.dataProvider.length;
+          }
+        }, 5000);
     </script>
 </div>
