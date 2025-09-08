@@ -765,13 +765,16 @@ namespace SVN_Portal.DAL.DataPortal
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
             List<SVN_Defect_recordUI> defect_RecordUI = new List<SVN_Defect_recordUI>();
+            List<SVN_quantity_reasonUI> quantity_ReasonUI = new List<SVN_quantity_reasonUI>();
             var targetdataportal = new SVN_TargetDataPortal(connectionString); // gọi dataportal để sử dụng
             var defectdataportal = new SVN_Defect_recordDataPortal(connectionString);
+            var quntityreasondataportal = new SVN_quantity_reasonDataPortal(connectionString);
             try
             {
                 targetDataUI = await targetdataportal.ReadListTargetFromToDate(fromdate, todate);//lấy dữ liệu target từ csdl
                 defect_RecordUI = await defectdataportal.ReadListFromToDate(fromdate, todate);
-                if(targetDataUI != null && targetDataUI.Count > 0)
+                quantity_ReasonUI = await quntityreasondataportal.ReadList();
+                if (targetDataUI != null && targetDataUI.Count > 0)
                 {
                     foreach (var item in targetDataUI)
                     {
@@ -815,7 +818,22 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.TargetViewModels.Add(LaborVM);
                         viewModel.TargetViewModels.Add(NGVM);
 
+                        //add defect by category
+                        if (quantity_ReasonUI != null && defect_RecordUI != null)
+                        {
+                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
+                            {
+                                DefectByCategoryViewModel model = new DefectByCategoryViewModel();
+                                model.category = x.name;
+                                model.value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
+                                viewModel.DefectByCategoryViewModels.Add(model);
+                                return x;
+                            }).ToList();
+                        }
+
                         viewModels.Add(viewModel);
+
+                        
                     }
                 }
             }

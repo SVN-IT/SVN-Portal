@@ -1561,10 +1561,14 @@ namespace SVN_Portal.Controllers
                         viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
                         viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProduction) ? "OK" : "NG";
 
-                        var remarkList = models.Where(x => x.MasterOperation == oper)
-                                        .SelectMany(x => x.DefectByCategoryViewModels.Where(y => y.value != "0")
-                                                                                     .Select(y => $"{y.category}: {y.value}"))
-                                                                                     .ToList();
+                        var remarkList = models
+                            .Where(x => x.MasterOperation == oper)
+                            .SelectMany(x => x.DefectByCategoryViewModels
+                                .Where(y => y.value != "0")
+                                .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
+                            .GroupBy(x => x.category)
+                            .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
+                            .ToList();
                         viewModel.Remark = remarkList.Any()
                                             ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
                                             : string.Empty;
