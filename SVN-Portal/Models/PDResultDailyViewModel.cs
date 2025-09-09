@@ -19,5 +19,8 @@ namespace SVN_Portal.Models
         public string CheckListOnSystem { get; set; }
         public string Remark { get; set; }
         public string Datetime { get; set; }
+        public double DefectTarget { get; set; }
+        public double DefectCurrent { get; set; }
+        public double QuantityResultCurrent { get; set; }
     }
 }

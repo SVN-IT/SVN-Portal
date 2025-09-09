@@ -816,9 +816,12 @@ namespace SVN_Portal.DAL.DataPortal
                             LaborVM.Percent = item.Labor != 0 ? (item.MaxLabor / item.Labor) * 100 : 0;
                             SVN_targetViewModel NGVM = new SVN_targetViewModel();
                             NGVM.Item = "Defect";
-                            NGVM.Target = item.Defect * 100;
-                            NGVM.Current = item.Total_Qty != 0 ? (item.Total_NG_Qty / item.Total_Qty) * 100 : 0;
-                            NGVM.Percent = item.Total_Qty != 0 && item.Defect != 0 ? (item.Total_NG_Qty / item.Total_Qty / item.Defect) * 100 : 0;
+                            //NGVM.Target = item.Defect * 100;
+                            //NGVM.Current = item.Total_Qty != 0 ? (item.Total_NG_Qty / item.Total_Qty) * 100 : 0;
+                            //NGVM.Percent = item.Total_Qty != 0 && item.Defect != 0 ? (item.Total_NG_Qty / item.Total_Qty / item.Defect) * 100 : 0;
+                            NGVM.Target = item.Defect;
+                            NGVM.Current = item.Total_NG_Qty;
+                            NGVM.Percent = item.Total_Qty != 0 && item.Defect != 0 ? (item.Total_NG_Qty / item.Total_Qty / item.Defect) : 0;
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
                             viewModel.TargetViewModels.Add(UPPHVM);

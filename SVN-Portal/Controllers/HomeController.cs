@@ -1500,9 +1500,18 @@ namespace SVN_Portal.Controllers
                         viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        //viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
+                        //viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
+                        //viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+
+                        viewModel.DefectTarget = model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0;
+                        viewModel.DefectCurrent = model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0;
+                        viewModel.QuantityResultCurrent = model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0;
+
+
+                        viewModel.DefectTargetRate = Math.Round(viewModel.DefectTarget * 100, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectCurrentRate = Math.Round(viewModel.QuantityResultCurrent != 0? (viewModel.DefectCurrent / viewModel.QuantityResultCurrent) * 100 : 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(viewModel.DefectTarget != 0 && viewModel.QuantityResultCurrent != 0 ? (viewModel.DefectCurrent / viewModel.QuantityResultCurrent / viewModel.DefectTarget) * 100 : 0, appConfig.Rounding).ToString() + "%";
                         viewModel.CheckListOnSystem = "OK";
                         viewModel.Remark = model.DefectByCategoryViewModels.Where(x => x.value != "0").Count() > 0 ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Where(x => x.value != "0").Select(x => $"{x.category}: {x.value}")) : string.Empty;
                         if (model.CanProduction)
@@ -1534,14 +1543,28 @@ namespace SVN_Portal.Controllers
                         UPPH = g.Average(x => double.TryParse(x.UPPH?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
                         Labor = g.Average(x => double.TryParse(x.Labor?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
 
-                        DefectTargetRate = g.Average(x => double.TryParse(x.DefectTargetRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
-                        DefectCurrentRate = g.Average(x => double.TryParse(x.DefectCurrentRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
-                        DefectRate = g.Average(x => double.TryParse(x.DefectRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        DefectTarget = g.Sum(x => x.DefectTarget),
+                        DefectCurrent = g.Sum(x => x.DefectCurrent),
+                        QuantityResultCurrent = g.Sum(x => x.QuantityResultCurrent),
 
-                        CheckListOnSystem = g.All(x => x.CheckListOnSystem == "OK") ? "OK" : "NG",
+                        //DefectTargetRate = g.Sum(x => double.TryParse(x.DefectTargetRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        //DefectCurrentRate = g.Sum(x => double.TryParse(x.DefectCurrentRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+                        //DefectRate = g.Sum(x => double.TryParse(x.DefectRate?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
+
+                        //CheckListOnSystem = g.All(x => x.CheckListOnSystem == "OK") ? "OK" : "NG",
                         Remark = string.Join("; ", g.Where(x => !string.IsNullOrEmpty(x.Remark)).Select(x => x.Remark))
                     }).ToList();
 
+                    foreach (var item in grouped)
+                    {
+                        var defectTarget = item.DefectTarget;
+                        var defectCurrent = item.QuantityResultCurrent != 0 ? (item.DefectCurrent / item.QuantityResultCurrent) : 0;
+                        var defectRate = item.DefectTarget != 0 ?(defectCurrent / item.DefectTarget) : 0;
+
+                        item.DefectTargetRate = Math.Round(defectTarget * 100, appConfig.Rounding).ToString() + "%";
+                        item.DefectCurrentRate = Math.Round(defectCurrent * 100, appConfig.Rounding).ToString() + "%";
+                        item.DefectRate = Math.Round(defectRate * 100, appConfig.Rounding).ToString() + "%";
+                    }
                     grouped = grouped
                     .OrderBy(x => DateTime.ParseExact(x.Datetime, "yyyyMMdd", null))
                     .ToList();
@@ -1578,6 +1601,10 @@ namespace SVN_Portal.Controllers
                         var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
                         var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
                         var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                        totalDefectTarget = totalDefectTarget * 100;
+                        totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
+                        totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
 
                         PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
                         viewModel.OperationActive = oper;
