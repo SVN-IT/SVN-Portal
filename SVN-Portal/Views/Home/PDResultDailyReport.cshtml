@@ -114,7 +114,7 @@
         <div id="laborChart" style="width:100%;height:400px;"></div>
     </div>
     <div class="col-12 col-md-6">
-        <h2>Defect Rate</h2>
+        <h2>Defect (%)</h2>
         <div id="defectChart" style="width:100%;height:400px;"></div>
     </div>
     <script>
@@ -151,8 +151,8 @@
 
             "valueAxes": [{
                 "id": "v1",
-                "position": "left",
-                "title": "Qty"
+                "position": "left"
+                // "title": "Qty"
             }, {
                 "id": "v2",
                 "position": "right",
@@ -161,9 +161,9 @@
                 "gridAlpha": 0
             }],
             "graphs": [{
-                "balloonText": "Target: [[value]]",
+                "balloonText": "[[value]]",
                 "legendValueText": "Target: [[value]]",
-                "labelText": "Target: [[value]]",
+                "labelText": "[[value]]",
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
@@ -172,9 +172,9 @@
                 "valueAxis": "v1",
                 "fillColors": "#FFCE56"
             }, {
-                "balloonText": "Actual: [[value]]",
+                "balloonText": "[[value]]",
                 "legendValueText": "Actual: [[value]]",
-                "labelText": "Actual: [[value]]",
+                "labelText": "[[value]]",
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
@@ -193,14 +193,14 @@
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
-                "balloonText": "Achieve: [[value]] %",
+                "balloonText": "[[value]] %",
                 "legendValueText": "Achieve: [[value]] %",
                 "bullet": "round",
                 "bulletBorderColor": "#006600",
                 "bulletBorderThickness": 1,
                 "bulletBorderAlpha": 1,
                 "dashLengthField": "dashLength",
-                "labelText": "Achieve: [[value]] %",
+                "labelText": "[[value]] %",
                 "labelPosition": "top",
                 "lineColor": "#FF0000"
             }],
@@ -246,9 +246,9 @@
             "gridPosition": "start",
             "labelRotation": 45
           },
-          "valueAxes": [{
-            "title": "UPH (%)"
-          }],
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
           "graphs": uphgraphs,
           "legend": {
             "bulletType": "round",
@@ -293,9 +293,9 @@
             "gridPosition": "start",
             "labelRotation": 45
           },
-          "valueAxes": [{
-            "title": "UPH (%)"
-          }],
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
           "graphs": upphgraphs,
           "legend": {
             "bulletType": "round",
@@ -340,9 +340,9 @@
             "gridPosition": "start",
             "labelRotation": 45
           },
-          "valueAxes": [{
-            "title": "UPH (%)"
-          }],
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
           "graphs": laborgraphs,
           "legend": {
             "bulletType": "round",
@@ -387,9 +387,9 @@
             "gridPosition": "start",
             "labelRotation": 45
           },
-          "valueAxes": [{
-            "title": "UPH (%)"
-          }],
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
           "graphs": defectrategraphs,
           "legend": {
             "bulletType": "round",
