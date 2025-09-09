@@ -832,7 +832,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     DefectByCategoryViewModel model = new DefectByCategoryViewModel();
                                     model.category = x.name;
-                                    model.value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG).ToString();
+                                    model.value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code && y.INSDatetime == item.Date_time).Sum(y => y.Qty_NG).ToString();
                                     viewModel.DefectByCategoryViewModels.Add(model);
                                     return x;
                                 }).ToList();
