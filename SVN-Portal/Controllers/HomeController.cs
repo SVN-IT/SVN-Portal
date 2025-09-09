@@ -1547,7 +1547,7 @@ namespace SVN_Portal.Controllers
                         UPPH = g.Average(x => double.TryParse(x.UPPH?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
                         Labor = g.Average(x => double.TryParse(x.Labor?.Replace("%", ""), out var v) ? v : 0).ToString("0.##") + "%",
 
-                        DefectTarget = g.Sum(x => x.DefectTarget),
+                        DefectTarget = g.Average(x => x.DefectTarget),
                         DefectCurrent = g.Sum(x => x.DefectCurrent),
                         QuantityResultCurrent = g.Sum(x => x.QuantityResultCurrent),
 
@@ -1603,7 +1603,7 @@ namespace SVN_Portal.Controllers
                         var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
 
                         var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
-                        var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                        var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
                         var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
 
                         totalDefectTarget = totalDefectTarget * 100;
