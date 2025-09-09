@@ -591,6 +591,10 @@ namespace SVN_Portal.Controllers
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
                     sb.Append("<strong>Checklist status</strong>: ");
                     sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    sb.Append(" | <strong>Actual WorkingTime</strong>: ");
+                    sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
+                    sb.Append(" | <strong>Downtime</strong>: ");
+                    sb.Append(Math.Round(model.CurDuration, appConfig.Rounding) + " h");
                     sb.Append("</p>");
 
                     return new JsonResult(new
@@ -693,7 +697,7 @@ namespace SVN_Portal.Controllers
                     sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
                     sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
-                    sb.Append(" | <strong>Actual Downtime</strong>: ");
+                    sb.Append(" | <strong>Downtime</strong>: ");
                     sb.Append(Math.Round(model.CurDuration, appConfig.Rounding) + " h");
                     sb.Append("</p>");
                     //sb.Append("<p style='font-size:20px' class=' text-light'>");
