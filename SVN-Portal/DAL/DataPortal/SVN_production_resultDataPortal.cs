@@ -322,7 +322,8 @@ namespace SVN_Portal.DAL.DataPortal
                                 maxEndSection != DateTime.MinValue)
                             {
                                 double Duration = 0;
-                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
+                                DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.MasterOperation, datetime);
                                 if (equipmentStatus != null) 
                                 {
                                     Duration = equipmentStatus.TotalDuration;
@@ -330,6 +331,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
+
+                                if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                                {
+                                    Duration = 0;
+                                }
+
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -663,7 +671,8 @@ namespace SVN_Portal.DAL.DataPortal
                                 maxEndSection != DateTime.MinValue)
                             {
                                 double Duration = 0;
-                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
+                                DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.MasterOperation, datetime);
                                 if (equipmentStatus != null)
                                 {
                                     Duration = equipmentStatus.TotalDuration;
@@ -671,6 +680,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
+
+                                if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                                {
+                                    Duration = 0;
+                                }
+
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -681,13 +697,17 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (productionUI != null)
                                     {
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        // Lấy hiệu 2 thời điểm
+                                        //TimeSpan diff = curDateTime - startDatetime;
+                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                        TimeSpan diff = finishedTime - startDatetime;
+                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
                                     }
 
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = curDateTime - startDatetime;
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
@@ -695,15 +715,19 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (productionUI != null)
                                     {
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        // Lấy hiệu 2 thời điểm
+                                        //TimeSpan diff = endDatetime - startDatetime;
+                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                        TimeSpan diff = finishedTime - startDatetime;
+                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
                                     }
 
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = endDatetime - startDatetime;
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-
-                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
                                 }
 
                                 // Tính Current UPH và UPPH
@@ -1043,7 +1067,8 @@ namespace SVN_Portal.DAL.DataPortal
                                 maxEndSection != DateTime.MinValue)
                             {
                                 double Duration = 0;
-                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.Operation, date);
+                                DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                                var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(item.MasterOperation, datetime);
                                 if (equipmentStatus != null)
                                 {
                                     Duration = equipmentStatus.TotalDuration;
@@ -1051,6 +1076,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
+
+                                if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                                {
+                                    Duration = 0;
+                                }
+
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -1425,7 +1457,8 @@ namespace SVN_Portal.DAL.DataPortal
                             maxEndSection != DateTime.MinValue)
                         {
                             double Duration = 0;
-                            var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.Operation, date);
+                            DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                            var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.MasterOperation, datetime);
                             if (equipmentStatus != null)
                             {
                                 Duration = equipmentStatus.TotalDuration;
@@ -1433,6 +1466,23 @@ namespace SVN_Portal.DAL.DataPortal
                             DateTime finishedTime = curDateTime;
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
+
+                            if(equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) && 
+                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                            {
+                                Duration = 0;
+
+                                //Tính toán số giây để đếm ngược 
+                                TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                int totalSeconds = (int)duration.TotalSeconds;
+
+                                if(equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                {
+                                    viewModel.EndDownTime = endTime;
+                                }
+                            }
+
                             if(curDateTime < startDatetime)
                             {
                                 workingTime = 0;
@@ -1486,7 +1536,7 @@ namespace SVN_Portal.DAL.DataPortal
                             HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
 
                             viewModel.CurWorkingTime = workingTime;
-                            viewModel.CurDuration = Duration;
+                            viewModel.TotalDuration = Duration;
                         }
 
                         //tạo dong Daiily plan của 1 operation

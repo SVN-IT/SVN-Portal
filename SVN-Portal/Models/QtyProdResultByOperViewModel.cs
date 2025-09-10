@@ -50,7 +50,8 @@ namespace SVN_Portal.Models
         public double Duration { get; set; }
         public string WorkTime { get; set; }
         public double CurWorkingTime { get; set; }
-        public double CurDuration { get; set; }
+        public double TotalDuration { get; set; }
+        public DateTime EndDownTime { get; set; }
         public QtyProdResultByOperViewModel GetData(string operation)
         {
             QtyProdResultByOperViewModel Model = new QtyProdResultByOperViewModel();

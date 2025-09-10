@@ -14,6 +14,6 @@ namespace SVNShareLib.DTO
         public string StartTime { get; set; } 
         public double Duration { get; set; }
         public double TotalDuration { get; set; }
-        public string DateTime { get; set; }
+        public DateTime DateTime { get; set; }
     }
 }

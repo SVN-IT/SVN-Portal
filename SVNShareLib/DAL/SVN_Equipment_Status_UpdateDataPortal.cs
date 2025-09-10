@@ -18,7 +18,7 @@ namespace SVNShareLib.DAL
             this.connectionString = connectionString;
         }
 
-        public SVN_Equipment_StatusUI GetEquipmentStatusByOeration(string operation, string datetime)
+        public SVN_Equipment_StatusUI GetEquipmentStatusByOeration(string operation, DateTime datetime)
         {
             SVN_Equipment_StatusUI dataUI = new SVN_Equipment_StatusUI();
             try
