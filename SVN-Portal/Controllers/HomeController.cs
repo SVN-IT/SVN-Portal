@@ -121,7 +121,7 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
                     }
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -258,7 +258,7 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
                     }
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
                     
                     // sum dữ liệu theo master oper
                     List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
@@ -299,7 +299,7 @@ namespace SVN_Portal.Controllers
                         viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProduction) ? "OK" : "NG";
+                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
 
                         var remarkList = models
                             .Where(x => x.MasterOperation == oper)
@@ -486,7 +486,7 @@ namespace SVN_Portal.Controllers
                         }
                     }
 
-                    models = models.OrderByDescending(x => x.CanProduction).OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
                 }
                 return View(models);
             }
@@ -640,10 +640,10 @@ namespace SVN_Portal.Controllers
                     strProductionResultTable = BuildProductionResultTable(model);
                     strTargetTable = BuildAchievementCard(model, date);
 
-                    if (!oper.Contains("Walter"))
-                    {
-                        model.CanProduction = true;
-                    }
+                    //if (!oper.Contains("Walter"))
+                    //{
+                    //    model.CanProductionByCheclist = true;
+                    //}
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
                     sb.Append("<strong>Checklist status</strong>: ");
                     sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
@@ -652,6 +652,11 @@ namespace SVN_Portal.Controllers
                     sb.Append(" | <strong>Downtime</strong>: ");
                     sb.Append(Math.Round(model.TotalDuration, appConfig.Rounding) + " h");
                     sb.Append("</p>");
+                    string downTimeStatus = string.Empty;
+                    if (!model.CanProductionByDowntime)
+                    {
+                        downTimeStatus = "Máy đang bảo trì, dự kiến kết thúc: " + model.EndDownTime.ToString("dd/MM/yyyy HH:mm");
+                    }
 
                     return new JsonResult(new
                     {
@@ -666,7 +671,9 @@ namespace SVN_Portal.Controllers
                         customer = model.Customer,
                         checklistStatus = sb.ToString(),
                         isProduction = model.IsProduction,
-                        canProduction = model.CanProduction
+                        canProductionByDowntime = model.CanProductionByDowntime,
+                        downTimeStatus = downTimeStatus,
+                        canProduction = model.CanProductionByCheclist
                     });
                 }
                 else
@@ -744,10 +751,10 @@ namespace SVN_Portal.Controllers
                     StringBuilder sb = new StringBuilder();
                     
 
-                    if (!oper.Contains("Walter"))
-                    {
-                        model.CanProduction = true;
-                    }
+                    //if (!oper.Contains("Walter"))
+                    //{
+                    //    model.CanProductionByCheclist = true;
+                    //}
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
                     sb.Append("<strong>Checklist status</strong>: ");
                     sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
@@ -762,6 +769,11 @@ namespace SVN_Portal.Controllers
                     //sb.Append(" |  <strong>Current Duration</strong>: ");
                     //sb.Append(Math.Round(model.CurDuration, appConfig.Rounding) + " h");
                     //sb.Append("</p>");
+                    string downTimeStatus = string.Empty;
+                    if(!model.CanProductionByDowntime)
+                    {
+                        downTimeStatus = "Máy đang bảo trì, dự kiến kết thúc: " + model.EndDownTime.ToString("dd/MM/yyyy HH:mm");
+                    }
 
                     strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model, date);
@@ -772,7 +784,9 @@ namespace SVN_Portal.Controllers
                         forecase = strForecase,
                         targetTable = strTargetTable,
                         isProduction = model.IsProduction,
-                        canProduction = model.CanProduction,
+                        canProduction = model.CanProductionByCheclist,
+                        canProductionByDowntime = model.CanProductionByDowntime,
+                        downTimeStatus = downTimeStatus,
                         checklistStatus = sb.ToString(),
                         pdmodel = JsonConvert.SerializeObject(model.ViewModels),
                         defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
@@ -1574,7 +1588,7 @@ namespace SVN_Portal.Controllers
                         viewModel.DefectRate = Math.Round(viewModel.DefectTarget != 0 && viewModel.QuantityResultCurrent != 0 ? (viewModel.DefectCurrent / viewModel.QuantityResultCurrent / viewModel.DefectTarget) * 100 : 0, appConfig.Rounding).ToString() + "%";
                         viewModel.CheckListOnSystem = "OK";
                         viewModel.Remark = model.DefectByCategoryViewModels.Where(x => x.value != "0").Count() > 0 ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Where(x => x.value != "0").Select(x => $"{x.category}: {x.value}")) : string.Empty;
-                        if (model.CanProduction)
+                        if (model.CanProductionByCheclist)
                         {
                             viewModel.CheckListOnSystem = "OK";
                         }
@@ -1677,7 +1691,7 @@ namespace SVN_Portal.Controllers
                         viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
                         viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProduction) ? "OK" : "NG";
+                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
 
                         var remarkList = models
                             .Where(x => x.MasterOperation == oper)

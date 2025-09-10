@@ -254,6 +254,7 @@
             </style>
             <div class="col-lg-@appConfig.ChartCol">
                 <div id="disableCard_@charID" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
+                <div id="disableCardDowntime_@charID" class="no-production-by-downtime d-none"></div>
                 <div id="bigCard_@charID" class="card svn-card @disableStatus">
 
                     <div class="card-title">
@@ -635,6 +636,16 @@
                         else
                         {
                             $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
+
+                        if(response.canProductionByDowntime)
+                        {
+                            $(`#disableCardDowntime_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCardDowntime_${charID}`).removeClass("d-none");
+                            $(`#disableCardDowntime_${charID}`).html(response.downTimeStatus);
                         }
 
                         if(response.isProduction)

@@ -27,7 +27,8 @@ namespace SVN_Portal.Models
         public string QCURL { get; set; }
         public int ColWidth { get; set; }
         public bool IsProduction { get; set; }
-        public bool CanProduction { get; set; }
+        public bool CanProductionByCheclist { get; set; }
+        public bool CanProductionByDowntime { get; set; }
 
         //status checklist
         public bool IsPDChecked { get; set; }

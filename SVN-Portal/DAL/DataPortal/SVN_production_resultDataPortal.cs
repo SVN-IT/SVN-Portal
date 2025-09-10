@@ -256,11 +256,11 @@ namespace SVN_Portal.DAL.DataPortal
                         var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, item.StoreID);
                         if (checkListData != null && checkListData.Count > 0)
                         {
-                            viewModel.CanProduction = true;
+                            viewModel.CanProductionByCheclist = true;
                         }
                         else 
                         {
-                            viewModel.CanProduction = false;
+                            viewModel.CanProductionByCheclist = false;
                         }
 
 
@@ -336,6 +336,19 @@ namespace SVN_Portal.DAL.DataPortal
                                 startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                 {
                                     Duration = 0;
+                                }
+                                else
+                                {
+                                    //Tính toán số giây để đếm ngược 
+                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                    int totalSeconds = (int)duration.TotalSeconds;
+
+                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    {
+                                        viewModel.EndDownTime = endTime;
+                                        viewModel.CanProductionByDowntime = false;
+                                    }
                                 }
 
                                 if (curDateTime < startDatetime)
@@ -605,11 +618,11 @@ namespace SVN_Portal.DAL.DataPortal
                         var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, item.StoreID);
                         if (checkListData != null && checkListData.Count > 0)
                         {
-                            viewModel.CanProduction = true;
+                            viewModel.CanProductionByCheclist = true;
                         }
                         else
                         {
-                            viewModel.CanProduction = false;
+                            viewModel.CanProductionByCheclist = false;
                         }
 
 
@@ -685,6 +698,19 @@ namespace SVN_Portal.DAL.DataPortal
                                 startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                 {
                                     Duration = 0;
+                                }
+                                else
+                                {
+                                    //Tính toán số giây để đếm ngược 
+                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                    int totalSeconds = (int)duration.TotalSeconds;
+
+                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    {
+                                        viewModel.EndDownTime = endTime;
+                                        viewModel.CanProductionByDowntime = false;
+                                    }
                                 }
 
                                 if (curDateTime < startDatetime)
@@ -991,11 +1017,11 @@ namespace SVN_Portal.DAL.DataPortal
                         var checkListData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(strDate, item.StoreID);
                         if (checkListData != null && checkListData.Count > 0)
                         {
-                            viewModel.CanProduction = true;
+                            viewModel.CanProductionByCheclist = true;
                         }
                         else
                         {
-                            viewModel.CanProduction = false;
+                            viewModel.CanProductionByCheclist = false;
                         }
 
                         try
@@ -1081,6 +1107,19 @@ namespace SVN_Portal.DAL.DataPortal
                                 startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                 {
                                     Duration = 0;
+                                }
+                                else
+                                {
+                                    //Tính toán số giây để đếm ngược 
+                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                    int totalSeconds = (int)duration.TotalSeconds;
+
+                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    {
+                                        viewModel.EndDownTime = endTime;
+                                        viewModel.CanProductionByDowntime = false;
+                                    }
                                 }
 
                                 if (curDateTime < startDatetime)
@@ -1378,16 +1417,16 @@ namespace SVN_Portal.DAL.DataPortal
                         if (viewModel.IsPDChecked && viewModel.IsMTChecked && viewModel.IsQCChecked &&
                             viewModel.IsPDConfirmed && viewModel.IsQCConfirmed)
                         {
-                            viewModel.CanProduction = true;
+                            viewModel.CanProductionByCheclist = true;
                         }
                         else
                         {
-                            viewModel.CanProduction = false;
+                            viewModel.CanProductionByCheclist = false;
                         }
                     }
                     else
                     {
-                        viewModel.CanProduction = false;
+                        viewModel.CanProductionByCheclist = false;
                     }
 
                     try
@@ -1467,30 +1506,34 @@ namespace SVN_Portal.DAL.DataPortal
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
 
-                            if(equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) && 
+                            viewModel.CanProductionByDowntime = true;
+                            if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) && 
                                 startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                             {
                                 Duration = 0;
-
+                            }
+                            else
+                            {
                                 //Tính toán số giây để đếm ngược 
                                 TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
                                 DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
                                 int totalSeconds = (int)duration.TotalSeconds;
 
-                                if(equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
                                 {
                                     viewModel.EndDownTime = endTime;
+                                    viewModel.CanProductionByDowntime = false;
                                 }
                             }
 
-                            if(curDateTime < startDatetime)
+                            if (curDateTime < startDatetime)
                             {
                                 workingTime = 0;
                             }
-                            else if(startDatetime < curDateTime && curDateTime < endDatetime)
+                            else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
                                 var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime);
-                                if(productionUI != null)
+                                if (productionUI != null)
                                 {
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
                                     // Lấy hiệu 2 thời điểm
@@ -1505,7 +1548,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     workingTime = 0;
                                 }
 
-                                
+
                             }
                             else if (endDatetime < curDateTime)
                             {

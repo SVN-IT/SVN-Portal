@@ -214,6 +214,20 @@ body {
     font-weight: bold;
     z-index: 1; /* Đảm bảo nằm trên các phần tử khác */
 }
+.no-production-by-downtime {
+    /*text-decoration: line-through;*/
+    font-size: 40px;
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Đặt vào giữa và xoay */
+    color: #FFFFFF;
+    font-weight: bold;
+    z-index: 1; /* Đảm bảo nằm trên các phần tử khác */
+}
 
 .pe-none {
     pointer-events: none;
