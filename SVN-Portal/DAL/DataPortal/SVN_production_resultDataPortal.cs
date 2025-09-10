@@ -332,24 +332,28 @@ namespace SVN_Portal.DAL.DataPortal
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
 
-                                if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
-                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                                if(equipmentStatus != null)
                                 {
-                                    Duration = 0;
-                                }
-                                else
-                                {
-                                    //Tính toán số giây để đếm ngược 
-                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
-                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
-                                    int totalSeconds = (int)duration.TotalSeconds;
-
-                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                        startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                     {
-                                        viewModel.EndDownTime = endTime;
-                                        viewModel.CanProductionByDowntime = false;
+                                        Duration = 0;
+                                    }
+                                    else
+                                    {
+                                        //Tính toán số giây để đếm ngược 
+                                        TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                        DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                        int totalSeconds = (int)duration.TotalSeconds;
+
+                                        if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                        {
+                                            viewModel.EndDownTime = endTime;
+                                            viewModel.CanProductionByDowntime = false;
+                                        }
                                     }
                                 }
+                                
 
                                 if (curDateTime < startDatetime)
                                 {
@@ -694,22 +698,25 @@ namespace SVN_Portal.DAL.DataPortal
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
 
-                                if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
-                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                                if (equipmentStatus != null)
                                 {
-                                    Duration = 0;
-                                }
-                                else
-                                {
-                                    //Tính toán số giây để đếm ngược 
-                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
-                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
-                                    int totalSeconds = (int)duration.TotalSeconds;
-
-                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                        startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                     {
-                                        viewModel.EndDownTime = endTime;
-                                        viewModel.CanProductionByDowntime = false;
+                                        Duration = 0;
+                                    }
+                                    else
+                                    {
+                                        //Tính toán số giây để đếm ngược 
+                                        TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                        DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                        int totalSeconds = (int)duration.TotalSeconds;
+
+                                        if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                        {
+                                            viewModel.EndDownTime = endTime;
+                                            viewModel.CanProductionByDowntime = false;
+                                        }
                                     }
                                 }
 
@@ -1103,22 +1110,25 @@ namespace SVN_Portal.DAL.DataPortal
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
 
-                                if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
-                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                                if (equipmentStatus != null)
                                 {
-                                    Duration = 0;
-                                }
-                                else
-                                {
-                                    //Tính toán số giây để đếm ngược 
-                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
-                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
-                                    int totalSeconds = (int)duration.TotalSeconds;
-
-                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                        startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                     {
-                                        viewModel.EndDownTime = endTime;
-                                        viewModel.CanProductionByDowntime = false;
+                                        Duration = 0;
+                                    }
+                                    else
+                                    {
+                                        //Tính toán số giây để đếm ngược 
+                                        TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                        DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                        int totalSeconds = (int)duration.TotalSeconds;
+
+                                        if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                        {
+                                            viewModel.EndDownTime = endTime;
+                                            viewModel.CanProductionByDowntime = false;
+                                        }
                                     }
                                 }
 
@@ -1507,22 +1517,25 @@ namespace SVN_Portal.DAL.DataPortal
                             DateTime endDatetime = maxEndSection;
 
                             viewModel.CanProductionByDowntime = true;
-                            if (equipmentStatus != null && !string.IsNullOrWhiteSpace(equipmentStatus.StartTime) && 
-                                startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                            if (equipmentStatus != null)
                             {
-                                Duration = 0;
-                            }
-                            else
-                            {
-                                //Tính toán số giây để đếm ngược 
-                                TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
-                                DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
-                                int totalSeconds = (int)duration.TotalSeconds;
-
-                                if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                                    startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
                                 {
-                                    viewModel.EndDownTime = endTime;
-                                    viewModel.CanProductionByDowntime = false;
+                                    Duration = 0;
+                                }
+                                else
+                                {
+                                    //Tính toán số giây để đếm ngược 
+                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                                    int totalSeconds = (int)duration.TotalSeconds;
+
+                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                                    {
+                                        viewModel.EndDownTime = endTime;
+                                        viewModel.CanProductionByDowntime = false;
+                                    }
                                 }
                             }
 
