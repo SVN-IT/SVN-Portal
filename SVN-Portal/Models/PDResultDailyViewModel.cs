@@ -22,5 +22,11 @@ namespace SVN_Portal.Models
         public double DefectTarget { get; set; }
         public double DefectCurrent { get; set; }
         public double QuantityResultCurrent { get; set; }
+        public string UPHCurrent { get; set; }
+        public string UPHTarget { get; set; }
+        public string UPPHCurrent { get; set; }
+        public string UPPHTarget { get; set; }
+        public string LaborCurrent { get; set; }
+        public string LaborTarget { get; set; }
     }
 }

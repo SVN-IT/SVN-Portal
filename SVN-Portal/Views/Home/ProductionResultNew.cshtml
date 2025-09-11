@@ -40,78 +40,63 @@
     <div class="col-lg-12">
         <div class="card svn-card">
             <div class="card-title">
-                <h4>Production Result Daily</h4>
+                <h2>Project Summary</h2>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" scope="col">Operation active</th>
-                                <th colspan="3" scope="col">Daily Plan Achieve</th>
-                                <th rowspan="2" scope="col">UPH</th>
-                                <th rowspan="2" scope="col">UPPH</th>
-                                <th rowspan="2" scope="col">Labor</th>
-                                <th colspan="3" scope="col">Defect rate</th>
-                                @* <th rowspan="2" scope="col">Check list on system</th> *@
-                                <th rowspan="2" scope="col">Remark</th>
-                            </tr>
-                            <tr>
-                                <th>Target</th>
-                                <th>Current</th>
-                                <th>%</th>
-                                <th>Target rate</th>
-                                <th>Current rate</th>
-                                <th>%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null && Model.Count() > 0)
-                            {
-                                foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <th scope="row">@item.OperationActive</th>
-                                        <td>@item.DailyPlanTarget</td>
-                                        <td>@item.DailyPlanCurrent</td>
-                                        <td>@item.DailyPlanAchieve</td>
-                                        <td>@item.UPH</td>
-                                        <td>@item.UPPH</td>
-                                        <td>@item.Labor</td>
-                                        <td>@item.DefectTargetRate</td>
-                                        <td>@item.DefectCurrentRate</td>
-                                        <td>@item.DefectRate</td>
-                                        @* <td>@item.CheckListOnSystem</td> *@
-                                        <td>@item.Remark</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+                <div class="row" style="width:100%;height:200px;">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-12 col-md-4">
+                            <h1><strong>@item.OperationActive</strong></h1>
+                            <br />
+                            <h2><strong>Daily Plan Achieve: </strong> <strong>@item.DailyPlanAchieve</strong></h2>
+                            <h5><strong>Defect Rate: </strong> <strong>@item.DefectRate</strong></h5>
+                        </div>
+                        
+                    }
                 </div>
-
             </div>
         </div>
     </div>
-    <div class="col-12">
-        <h2>Daily Plan Achieve</h2>
-        <div id="dailyPlanChart" style="width:100%;height:400px;"></div>
+    <div class="col-12 col-md-6">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>UPH</h2>
+            </div>
+            <div class="card-body">
+                <div id="uphChart" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
     </div>
     <div class="col-12 col-md-6">
-        <h2>UPH (%)</h2>
-        <div id="uphChart" style="width:100%;height:400px;"></div>
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>UPPH</h2>
+            </div>
+            <div class="card-body">
+                <div id="upphChart" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-md-6">
-        <h2>UPPH (%)</h2>
-        <div id="upphChart" style="width:100%;height:400px;"></div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Daily Plan</h2>
+            </div>
+            <div class="card-body">
+                <div id="dailyPlanChart" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-md-6">
-        <h2>Labor (%)</h2>
-        <div id="laborChart" style="width:100%;height:400px;"></div>
-    </div>
-    <div class="col-12 col-md-6">
-        <h2>Defect (%)</h2>
-        <div id="defectChart" style="width:100%;height:400px;"></div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Labor</h2>
+            </div>
+            <div class="card-body">
+                <div id="laborChart" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
     </div>
     <script>
         var chartData = @Html.Raw(jsonData)
@@ -126,6 +111,7 @@
         chartData = chartData.map(function(item) {
             return {
                 OperationActive: item.OperationActive,
+                OperationLine: `${item.OperationActive}\nLine: ${item.DailyPlanCurrent}`,
                 DailyPlanTarget: safeParse(item.DailyPlanTarget),
                 DailyPlanCurrent: safeParse(item.DailyPlanCurrent),
                 DailyPlanAchieve: safeParse(item.DailyPlanAchieve),
@@ -136,6 +122,12 @@
                 DefectCurrentRate: safeParse(item.DefectCurrentRate),
                 DefectRate: safeParse(item.DefectRate),
                 CheckListOnSystem: item.CheckListOnSystem,
+                UPHTarget:safeParse(item.UPHTarget),
+                UPPHTarget:safeParse(item.UPPHTarget),
+                LaborTarget:safeParse(item.LaborTarget),
+                UPHCurrent:safeParse(item.UPHCurrent),
+                UPPHCurrent:safeParse(item.UPPHCurrent),
+                LaborCurrent:safeParse(item.LaborCurrent),
                 Remark: item.Remark
             };
         });
@@ -156,28 +148,11 @@
                 "id": "v1",
                 "position": "left"
                 // "title": "Qty"
-            }, {
-                "id": "v2",
-                "position": "right",
-                "title": "% Achieve",
-                "axisAlpha": 0,
-                "gridAlpha": 0
             }],
             "graphs": [{
                 "balloonText": "[[value]]",
-                "legendValueText": "Target: [[value]]",
-                "labelText": "[[value]]",
-                "fillAlphas": 0.7,
-                "lineAlpha": 0.2,
-                "type": "column",
-                "title": "Target",
-                "valueField": "DailyPlanTarget",
-                "valueAxis": "v1",
-                "fillColors": "#FFCE56"
-            }, {
-                "balloonText": "[[value]]",
                 "legendValueText": "Actual: [[value]]",
-                "labelText": "[[value]]",
+                // "labelText": "[[value]]",
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
@@ -189,10 +164,89 @@
                 "id": "g2",
                 "classNameField": "bulletClass",
                 "bullet": "line",
+                "lineThickness": 2,
+                "type": "line",
+                "title": "%Achieve",
+                "valueField": "DailyPlanTarget",
+                "valueAxis": "v1",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "[[value]]",
+                "legendValueText": "Achieve: [[value]]",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "[[value]]",
+                "labelPosition": "top",
+                "lineColor": "#FF0000"
+            }],
+            "categoryField": "OperationLine",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+
+        AmCharts.makeChart("uphChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 16,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left"
+                // "title": "Qty"
+            }, {
+                "id": "v2",
+                "position": "right",
+                "title": "Rate %",
+                "axisAlpha": 0,
+                "gridAlpha": 0
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Target",
+                "valueField": "UPHTarget",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }, {
+                "balloonText": "[[value]]",
+                "legendValueText": "Actual: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Current",
+                "valueField": "UPHCurrent",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }, {
+                "id": "g2",
+                "classNameField": "bulletClass",
+                "bullet": "line",
                 "lineThickness": 1,
                 "type": "line",
                 "title": "%Achieve",
-                "valueField": "DailyPlanAchieve",
+                "valueField": "UPH",
                 "valueAxis": "v2",
                 "showBalloon": true,
                 "animationPlayed": false,
@@ -220,6 +274,161 @@
             }
         });
 
-        
+        AmCharts.makeChart("upphChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 16,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left"
+                // "title": "Qty"
+            }, {
+                "id": "v2",
+                "position": "right",
+                "title": "Rate %",
+                "axisAlpha": 0,
+                "gridAlpha": 0
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Target",
+                "valueField": "UPPHTarget",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }, {
+                "balloonText": "[[value]]",
+                "legendValueText": "Actual: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Current",
+                "valueField": "UPPHCurrent",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }, {
+                "id": "g2",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 1,
+                "type": "line",
+                "title": "%Achieve",
+                "valueField": "UPPH",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "[[value]] %",
+                "legendValueText": "Achieve: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "[[value]] %",
+                "labelPosition": "top",
+                "lineColor": "#FF0000"
+            }],
+            "categoryField": "OperationActive",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+        AmCharts.makeChart("laborChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 16,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left"
+                // "title": "Qty"
+            }, {
+                "id": "v2",
+                "position": "right",
+                "title": "Rate %",
+                "axisAlpha": 0,
+                "gridAlpha": 0
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Target",
+                "valueField": "LaborTarget",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }, {
+                "balloonText": "[[value]]",
+                "legendValueText": "Actual: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Current",
+                "valueField": "LaborCurrent",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }, {
+                "id": "g2",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 1,
+                "type": "line",
+                "title": "%Achieve",
+                "valueField": "Labor",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "[[value]] %",
+                "legendValueText": "Achieve: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "[[value]] %",
+                "labelPosition": "top",
+                "lineColor": "#FF0000"
+            }],
+            "categoryField": "OperationActive",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
     </script>
 </div>

@@ -312,6 +312,12 @@ namespace SVN_Portal.Controllers
                         viewModel.Remark = remarkList.Any()
                                             ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
                                             : string.Empty;
+                        viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
+                        viewModel.UPPHTarget = Math.Round(totalUPPHTarget, appConfig.Rounding).ToString();
+                        viewModel.LaborTarget = Math.Round(totalLaborTarget, appConfig.Rounding).ToString();
+                        viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
+                        viewModel.UPPHCurrent = Math.Round(totalUPPH, appConfig.Rounding).ToString();
+                        viewModel.LaborCurrent = Math.Round(totalLabor, appConfig.Rounding).ToString();
                         pdResultviewModels.Add(viewModel);
                     }
                 }
