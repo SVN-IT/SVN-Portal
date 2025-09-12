@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
+using SVN_Portal.Services.ObjectClasses;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System;
@@ -970,7 +972,9 @@ namespace SVN_Portal.Controllers
                 currentDate = DateTime.Now;
             }
             string currentTime = string.Empty;
-            foreach (var subitem in model.ViewModels)
+            List<SectionTime> sectionTimes = new List<SectionTime>();
+            var listSection = model.ViewModels.Where(x => x.Target != 0).ToList();
+            foreach (var subitem in listSection)
             {
                 if (!string.IsNullOrWhiteSpace(subitem.Time))
                 {
@@ -1012,8 +1016,20 @@ namespace SVN_Portal.Controllers
                     {
                         currentTime = subitem.Time;
                     }
+
+                    SectionTime sectionTime = new SectionTime();
+                    sectionTime.StartTime = startDatetime;
+                    sectionTime.EndTime = endDatetime;
+                    sectionTimes.Add(sectionTime);
                 }
             }
+
+            sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+            //gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
+
+            var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
+            var maxEndSection = sectionTimes.LastOrDefault() != null ? sectionTimes.LastOrDefault().EndTime : DateTime.MinValue;
 
             StringBuilder sb = new StringBuilder();
             if ((!string.IsNullOrWhiteSpace(model.WC) && model.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(model.Operation))
@@ -1188,6 +1204,13 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
+
+                    if(minStartSection > DateTime.Now)
+                    {
+                        status = status = "bg-primary";
+                        alert = string.Empty;
+                    }
+
                     sb.Append("<div class='target-item bg-primary " + alert + "'>");
                     sb.Append("<div>");
                     if (item.Item == "H.Plan")
