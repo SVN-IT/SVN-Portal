@@ -801,9 +801,13 @@ namespace SVN_Portal.DAL.DataPortal
                             };
                             SVN_targetViewModel NGVM = new SVN_targetViewModel();
                             NGVM.Item = "Defect";
-                            NGVM.Target = Math.Round(dataUIByOper.Defect * 100, 2);
-                            NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
-                            NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
+                            //NGVM.Target = Math.Round(dataUIByOper.Defect * 100, 2);
+                            //NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
+                            //NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
+
+                            NGVM.Target = dataUIByOper.Defect;
+                            NGVM.Current = dataUIByOper.Total_NG_Qty;
+                            NGVM.Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) : 0;
 
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);

@@ -14,57 +14,46 @@
 }
 <script>
     function BuildDefectPieChart(dataParam, chartID) {
-        var chart = AmCharts.makeChart(chartID, {
-            "type": "pie",
-            "addClassNames": true,
-            "startDuration": 0,
-            // "classNameField": "class",
-            "dataProvider": dataParam,
-            "valueField": "value",
-            "categoryField": "category",
-            "labelRadius": 10,  // Adjust label radius
-            "radius": "42%",
-            "innerRadius": "60%",
-            "labelText": "", //[[category]]
-            "labelColorField": "color",
-            "labelFontSize": 14,
-            "labelColor": "#FFFFFF",
-            // "export": {
-            //     "enabled": true
-            // },
-            "labelPosition": "outside",
-            "fontSize": 14,
-            "fontColor": "#FFFFFF",
-            "animationPlayed": false,
-            "color": "#FFFFFF",
-            "colors": ["#4680ff", "#0ca6dc", "#6845fb"],
-            "allLabels": [{
-                "text": "106%",          // số hiển thị giữa donut
-                "align": "center",
-                "bold": true,
-                "size": 26,
-                "color": "#FFFFFF",
-                "x": "50%",
-                "y": "50%",
-                "xOffset": -20,  // chỉnh tay để căn giữa theo X
-                "yOffset": 0     // chỉnh tay để căn giữa theo Y
-            }],
-            // Configure legend
-            "legend": {
-                "enabled": false,                        // Bật legend
-                "position": "bottom",                   // Đặt legend ở dưới biểu đồ
-                "marginTop": 10,                        // Khoảng cách trên cùng của legend
-                "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
-                "labelWidth": 150,                      // Độ rộng của nhãn trong legend
-                "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
-                "fontSize": 14,                         // Kích thước font chữ của legend
-                "color": "#FFFFFF",                     // Màu chữ của legend
-                "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
-                "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
-                "markerLabelGap": 10,
-                "valueAlign": "left"
-            }
-        });
+    var chart = AmCharts.makeChart(chartID, {
+    "type": "pie",
+    "addClassNames": true,
+    "startDuration": 0,
+    // "classNameField": "class",
+    "dataProvider": dataParam,
+    "valueField": "value",
+    "categoryField": "category",
+    "labelRadius": 10,  // Adjust label radius
+    "radius": "42%",
+    "innerRadius": "60%",
+    "labelText": "", //[[category]]
+    "labelColorField": "color",
+    "labelFontSize": 14,
+    "labelColor": "#FFFFFF",
+    // "export": {
+    //     "enabled": true
+    // },
+    "labelPosition": "outside",
+    "fontSize": 14,
+    "fontColor": "#FFFFFF",
+    "animationPlayed": false,
+    "color": "#FFFFFF",
+    "colors": ["#4680ff", "#0ca6dc", "#6845fb"],
+    // Configure legend
+    "legend": {
+    "enabled": false,                        // Bật legend
+    "position": "bottom",                   // Đặt legend ở dưới biểu đồ
+    "marginTop": 10,                        // Khoảng cách trên cùng của legend
+    "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
+    "labelWidth": 150,                      // Độ rộng của nhãn trong legend
+    "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
+    "fontSize": 14,                         // Kích thước font chữ của legend
+    "color": "#FFFFFF",                     // Màu chữ của legend
+    "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
+    "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
+    "markerLabelGap": 10,
+    "valueAlign": "left"
+    }
+    });
     }
 
 </script>
@@ -104,6 +93,7 @@
                             viewModels.Add(new DefectByCategoryViewModel { category = item.OperationActive + "1", value = Math.Round(remain, 2).ToString() });
                         }
                         int colIndex = 4;
+                        string status = string.Empty;
                         if (Model.Count() >= 6)
                         {
                             colIndex = 2;
@@ -130,11 +120,29 @@
                                 <div class="col-12 col-md-6">
                                     <h1><strong>@item.OperationActive</strong></h1>
                                     <h2><strong>Plan Achieve: </strong> <strong>@item.DailyPlanAchieve</strong></h2>
-                                    <h5><strong>Defect Rate: </strong> <strong>@item.DefectRate</strong></h5>
+                                    @if(double.Parse(item.DefectRate.Replace("%", "")) > 100)
+                                    {
+                                        status = "bg-danger";
+                                    }
+                                    else if (double.Parse(item.DefectRate.Replace("%", "")) > 75 && double.Parse(item.DefectRate.Replace("%", "")) <= 100)
+                                    {
+                                        status = "bg-warning";
+                                    }
+                                    else
+                                    {
+                                        status = "bg-primary";
+                                    }
+                                    <h5><strong>Defect Rate: </strong> <strong class="rate-box @status">@item.DefectRate</strong></h5>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div id="pieChart_@item.OperationActive" style="width:100%;height:150px;"></div>
+                                    <div style="position: absolute; top: 50%; left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        font-size: 16px; font-weight: bold; color: #FFFFFF;">
+                                        @item.DailyPlanAchieve
+                                    </div>
                                 </div>
+                                
                             </div>
                         </div>
                         <script>
@@ -254,7 +262,7 @@
                 "bullet": "line",
                 "lineThickness": 2,
                 "type": "line",
-                "title": "%Achieve",
+                "title": "Target",
                 "valueField": "DailyPlanTarget",
                 "valueAxis": "v1",
                 "showBalloon": true,
