@@ -1439,7 +1439,6 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
-                var data = GetPDResultDailyDataV0(date).Result;
                 int year = date.Year;
                 int month = date.Month;
                 models = dataPortal.ReadListByYearMonth(year, month);
