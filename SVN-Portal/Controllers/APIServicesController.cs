@@ -103,7 +103,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
+                models = await dataPortal.SummaryDatav2(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
                 if (models != null && models.Count > 0)
                 {
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
