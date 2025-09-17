@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib;
@@ -61,10 +62,10 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime date)
+        public async Task<List<SVN_target>> GetPDResultDailyDataV0(DateTime date)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
-            List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            List<SVN_target> viewModels = new List<SVN_target>();
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -92,23 +93,22 @@ namespace SVN_Portal.Controllers
                             model.QCName = userInfo.QCName;
                         }
 
-                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
-                        viewModel.OperationActive = model.Operation;
-                        viewModel.DailyPlanTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = "OK";
-                        viewModel.Remark = model.DefectByCategoryViewModels.Where(x => x.value != "0").Count() > 0 ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Where(x => x.value != "0").Select(x => $"{x.category}: {x.value}")) : string.Empty;
-                        if (model.CanProductionByCheclist)
-                        {
-                            viewModel.CheckListOnSystem = "OK";
-                        }
+                        SVN_target viewModel = new SVN_target();
+                        viewModel.Operation = model.Operation;
+                        viewModel.Daily_plan = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding);
+                        viewModel.Total_Qty = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding);
+                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Target ?? 0, appConfig.Rounding);
+                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Target ?? 0, appConfig.Rounding);
+                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Target ?? 0, appConfig.Rounding);
+                        viewModel.Date_time = strdate;
+                        viewModel.MaxLabor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Current ?? 0, appConfig.Rounding);
+                        viewModel.Current_UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Current ?? 0, appConfig.Rounding);
+                        viewModel.Current_UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Current ?? 0, appConfig.Rounding);
+                        viewModel.Defect = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding);
+                        viewModel.Total_NG_Qty = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding);
+                        viewModel.WC = model.WC;
+                        viewModel.Workingtime = Math.Round(model.CurWorkingTime, appConfig.Rounding);
+
                         viewModels.Add(viewModel);
                     }
                     return viewModels;
