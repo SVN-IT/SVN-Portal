@@ -402,6 +402,9 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
                                 HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+
+                                viewModel.CurWorkingTime = workingTime;
+                                viewModel.TotalDuration = Duration;
                             }
 
                             //tạo dong Daiily plan của 1 operation
