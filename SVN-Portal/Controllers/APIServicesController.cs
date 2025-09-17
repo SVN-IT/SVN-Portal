@@ -36,12 +36,35 @@ namespace SVN_Portal.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                var data = await GetPDResultDailyDataV0(DateTime.Now);
+                var date = DateTime.Now;
+                var strDate = date.ToString("yyyyMMdd");
+                var data = await GetPDResultDailyDataV0(date);
                 if(data != null && data.Count > 0)
                 {
-                    processResult.OK = true;
-                    processResult.Content = data;
-                    processResult.Message = "Lấy dữ liệu thành công";
+                    var targetDataPortal = new SVN_TargetDataPortal(connectionString);
+                    var exitData = await targetDataPortal.ReadListTargetByDate(strDate);
+                    var deleteResult = 0;
+                    var insertResult = 0;
+                    if (exitData != null && exitData.Count > 0)
+                    {
+                        deleteResult = targetDataPortal.Delete(strDate);
+                    }
+
+                    if(exitData == null || exitData.Count == 0 || deleteResult > 0)
+                    {
+                        insertResult = targetDataPortal.InsertBulk(data);
+                    }
+
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Cập nhật dữ liệu thành công";
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Cập nhật dữ liệu không thành công";
+                    }
                 }
                 else
                 {
