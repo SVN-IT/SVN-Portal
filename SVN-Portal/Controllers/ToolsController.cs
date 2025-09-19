@@ -1034,8 +1034,9 @@ namespace SVN_Portal.Controllers
                 {
                     if (result.OK)
                     {
+                        string previousWorkOrderName = TempData.Peek("WorkOrderName") as string;
                         WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
-                        string stringContent = BuildWorkOrderInfo(workOrderInfo);
+                        string stringContent = BuildWorkOrderInfo(workOrderInfo, previousWorkOrderName);
                         processResult.OK = true;
                         processResult.Message = stringContent;
                         return Json(new { result = processResult.OK, message = processResult.Message, product_tracking = workOrderInfo.OrderInfo["product_tracking"] });
@@ -1159,12 +1160,27 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo)
+        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName)
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             StringBuilder sb = new StringBuilder();
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
+            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
+            {
+                if(workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
+                {
+                    sb.Append("<div class=\"alert alert-success\" role=\"alert\">");
+                    sb.Append("Nhập kết quả sản xuất thành công");
+                    sb.Append("</div>");
+                }
+                else
+                {
+                    sb.Append("<div class=\"alert alert-warning\" role=\"alert\">");
+                    sb.Append("Nhập kết quả không thành công, yêu cầu check lại hệ thống MES");
+                    sb.Append("</div>");
+                } 
+            }
             sb.Append("<h1 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
@@ -1281,6 +1297,8 @@ namespace SVN_Portal.Controllers
                 var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
                 if (result != null)
                 {
+                    TempData["WorkOrderName"] = data.Name;
+                    TempData.Keep("WorkOrderName");
                     if (result.OK)
                     {
                         processResult.OK = true;
