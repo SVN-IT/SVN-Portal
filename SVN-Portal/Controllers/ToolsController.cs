@@ -1171,18 +1171,19 @@ namespace SVN_Portal.Controllers
                 if(workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
                 {
                     sb.Append("<div class=\"alert alert-success\" role=\"alert\">");
-                    sb.Append("Nhập kết quả sản xuất thành công");
+                    sb.Append("Lệnh " + previousWorkOrderName + " nhập kết quả sản xuất thành công");
                     sb.Append("</div>");
                 }
                 else
                 {
                     sb.Append("<div class=\"alert alert-warning\" role=\"alert\">");
-                    sb.Append("Nhập kết quả không thành công, yêu cầu check lại hệ thống MES");
+                    sb.Append("Lệnh " + previousWorkOrderName + " nhập kết quả không thành công, yêu cầu check lại hệ thống MES");
                     sb.Append("</div>");
                 } 
             }
             sb.Append("<h1 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["name"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
             sb.Append("</div>");
@@ -1297,7 +1298,8 @@ namespace SVN_Portal.Controllers
                 var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
                 if (result != null)
                 {
-                    TempData["WorkOrderName"] = data.Name;
+                    TempData.Remove("WorkOrderName");
+                    TempData["WorkOrderName"] = data.SubName;
                     TempData.Keep("WorkOrderName");
                     if (result.OK)
                     {

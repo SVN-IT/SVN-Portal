@@ -5859,9 +5859,12 @@ tbody tr td:last-child {
   color: #4680ff;
 }
 .alert-success {
-  background-color: #93ede9;
+    /*background-color: #93ede9;
   border-color: #93ede9;
-  color: #26dad2;
+  color: #26dad2;*/
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
 }
 .alert-warning {
   background-color: #ffeacd;
