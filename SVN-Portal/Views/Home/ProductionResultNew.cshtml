@@ -12,6 +12,7 @@
     string jsonLaborData = string.Empty;
     string jsonDefectRateData = string.Empty;
 }
+<link href="~/css/responsivescreen.css" rel="stylesheet" />
 <script>
     function BuildDefectPieChart(dataParam, chartID) {
     var chart = AmCharts.makeChart(chartID, {
@@ -82,7 +83,7 @@
                 <h2>Project Summary</h2>
             </div>
             <div class="card-body">
-                <div class="row" style="width:100%;height:200px;">
+                <div class="row donut-chart-card">
                     @foreach (var item in Model)
                     {
                         List<DefectByCategoryViewModel> viewModels = new List<DefectByCategoryViewModel>();
@@ -135,10 +136,8 @@
                                     <h5><strong>Defect Rate: </strong> <strong class="rate-box @status">@item.DefectRate</strong></h5>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <div id="pieChart_@item.OperationActive" style="width:100%;height:150px;"></div>
-                                    <div style="position: absolute; top: 50%; left: 50%;
-                                        transform: translate(-50%, -50%);
-                                        font-size: 16px; font-weight: bold; color: #FFFFFF;">
+                                    <div id="pieChart_@item.OperationActive" class="donut-chart-contain"></div>
+                                    <div class="donut-chart-sum-text">
                                         @item.DailyPlanAchieve
                                     </div>
                                 </div>
@@ -160,7 +159,7 @@
                 <h2>UPH</h2>
             </div>
             <div class="card-body">
-                <div id="uphChart" style="width:100%;height:400px;"></div>
+                <div id="uphChart" class="col-chart-contain"></div>
             </div>
         </div>
     </div>
@@ -170,7 +169,7 @@
                 <h2>UPPH</h2>
             </div>
             <div class="card-body">
-                <div id="upphChart" style="width:100%;height:400px;"></div>
+                <div id="upphChart" class="col-chart-contain"></div>
             </div>
         </div>
     </div>
@@ -180,7 +179,7 @@
                 <h2>Daily Plan</h2>
             </div>
             <div class="card-body">
-                <div id="dailyPlanChart" style="width:100%;height:400px;"></div>
+                <div id="dailyPlanChart" class="col-chart-contain"></div>
             </div>
         </div>
     </div>
@@ -190,7 +189,7 @@
                 <h2>Labor</h2>
             </div>
             <div class="card-body">
-                <div id="laborChart" style="width:100%;height:400px;"></div>
+                <div id="laborChart" class="col-chart-contain"></div>
             </div>
         </div>
     </div>
