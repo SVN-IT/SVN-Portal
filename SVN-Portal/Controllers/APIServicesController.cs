@@ -134,6 +134,7 @@ namespace SVN_Portal.Controllers
 
                         viewModels.Add(viewModel);
                     }
+                    viewModels = viewModels.Where(x => x.Daily_plan > 0).ToList();
                     return viewModels;
                 }
                 else
