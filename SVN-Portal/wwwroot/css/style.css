@@ -71,6 +71,12 @@
 
 */
 
+.time-count {
+    font-size: 72px;
+    color: #007bff;
+    font-weight: 700;
+}
+
 .preloader {
   width: 100%;
   height: 100%;

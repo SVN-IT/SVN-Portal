@@ -141,7 +141,7 @@
                                         @item.DailyPlanAchieve
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                         <script>
@@ -190,6 +190,38 @@
             </div>
             <div class="card-body">
                 <div id="laborChart" class="col-chart-contain"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Defect</h2>
+            </div>
+            <div class="card-body">
+                <div class="col-chart-contain">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Opearation</th>
+                                <th>Defect</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count() > 0)
+                            {
+                                var operationsDefect = Model.Where(x => !string.IsNullOrWhiteSpace(x.Remark)).ToList();
+                                foreach (var item in operationsDefect)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.OperationActive</th>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

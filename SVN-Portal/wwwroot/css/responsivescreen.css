@@ -17,13 +17,6 @@
     font-weight: bold;
     color: #FFFFFF;
 }
-
-.time-count {
-    font-size: 72px;
-    color: #007bff;
-    font-weight: 700;
-}
-
 .col-chart-contain {
     width: 100%;
     height: 400px;
@@ -77,5 +70,6 @@
     .col-chart-contain {
         width: 100%;
         height: 190px;
+        font-size:12px
     }
 }
