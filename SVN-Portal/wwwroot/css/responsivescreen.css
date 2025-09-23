@@ -22,6 +22,10 @@
     height: 400px;
 }
 
+.table td, .table th {
+     padding: 0.0rem!important; 
+}
+
 @media (max-width: 1980px) {
     h1 {
         font-size: 1em !important;
