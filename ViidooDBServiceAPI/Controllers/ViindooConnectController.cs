@@ -696,5 +696,47 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return bODataProcessResult;
         }
+
+        /// <summary>
+        /// Lấy thông tin sản phẩm theo mã
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        [Route("GetProductItemByCode")]
+        [HttpGet]
+        public async Task<BODataProcessResult> GetProductItemByCode(string code)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                bODataProcessResult = await odooAPIService.LoginAsync();
+                if(bODataProcessResult.OK)
+                {
+                    var result = await odooAPIService.GetProductItemByCode(code, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (result != null && result.Count > 0)
+                    {
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = "Lấy thông tin sản phẩm" + code + " thành công";
+                        bODataProcessResult.Content = result["x_quantity_per_code"];
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Không tìm thấy sản phẩm có mã: " + code;
+                    }
+                }
+                else
+                {
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Đăng nhập thất bại";
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+            }
+            return bODataProcessResult;
+        }
     }
 }

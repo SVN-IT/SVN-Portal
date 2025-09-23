@@ -2052,6 +2052,70 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        /// <summary>
+        /// Hàm API để đọc thông tin sản phẩm bằng mã sản phẩm từ Odoo.
+        /// </summary>
+        /// <param name="defaultCode"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<Dictionary<string, string>> GetProductItemByCode(string defaultCode, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 1,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.template",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "default_code", "=", defaultCode }  // tìm theo default_code
+                            },
+                            fields = new string[]
+                            {
+                                "id","name","default_code","x_quantity_per_code"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = 2,
+                                allowed_company_ids = new int[] { 1 },
+                                bin_size = true
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                var resultArray = (JArray)json["result"];
+                var result = resultArray[0].ToObject<Dictionary<string, string>>();
+                return result;
+            }
+        }
+
         #endregion
     }
 }
