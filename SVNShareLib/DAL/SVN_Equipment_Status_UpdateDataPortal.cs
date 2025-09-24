@@ -37,5 +37,30 @@ namespace SVNShareLib.DAL
                 return null;
             }
         }
+
+        public async Task<List<SVN_Calc_Run_Duration_UI>> GetCalDuration(string date, string operation, string storedProceduce = "Calc_Run_Duration")
+        {
+            List<SVN_Calc_Run_Duration_UI> dataUI = new List<SVN_Calc_Run_Duration_UI>();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    //Gọi thủ tục tính toán kết quả theo tarhet
+                    string storedProcedure = storedProceduce;
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("WorkDate", date);
+                    parameters.Add("Operation", operation);
+
+                    var datas = await conn.QueryAsync<SVN_Calc_Run_Duration_UI>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+                    return datas.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

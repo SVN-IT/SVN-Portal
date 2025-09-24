@@ -1879,37 +1879,39 @@ namespace SVN_Portal.DAL.DataPortal
                         {
                             double Duration = 0;
                             DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                            var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.MasterOperation, datetime);
+                            //var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.MasterOperation, datetime);
+                            var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), oper.MasterOperation);
                             if (equipmentStatus != null)
                             {
-                                Duration = equipmentStatus.TotalDuration;
+                                //Duration = equipmentStatus.TotalDuration;
+                                Duration = equipmentStatus.Select(x => x.DurationHours).Sum();
                             }
                             DateTime finishedTime = curDateTime;
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
 
                             viewModel.CanProductionByDowntime = true;
-                            if (equipmentStatus != null)
-                            {
-                                if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
-                                    startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
-                                {
-                                    Duration = 0;
-                                }
-                                else
-                                {
-                                    //Tính toán số giây để đếm ngược 
-                                    TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
-                                    DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
-                                    int totalSeconds = (int)duration.TotalSeconds;
+                            //if (equipmentStatus != null)
+                            //{
+                            //    if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&
+                            //        startDatetime >= DateTime.Parse(equipmentStatus.StartTime))
+                            //    {
+                            //        Duration = 0;
+                            //    }
+                            //    else
+                            //    {
+                            //        //Tính toán số giây để đếm ngược 
+                            //        TimeSpan duration = TimeSpan.FromHours(equipmentStatus.Duration);
+                            //        DateTime endTime = DateTime.Parse(equipmentStatus.StartTime).Add(duration);
+                            //        int totalSeconds = (int)duration.TotalSeconds;
 
-                                    if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
-                                    {
-                                        viewModel.EndDownTime = endTime;
-                                        viewModel.CanProductionByDowntime = false;
-                                    }
-                                }
-                            }
+                            //        if (equipmentStatus.Duration > 0 && endTime <= endDatetime)
+                            //        {
+                            //            viewModel.EndDownTime = endTime;
+                            //            viewModel.CanProductionByDowntime = false;
+                            //        }
+                            //    }
+                            //}
 
                             if (curDateTime < startDatetime)
                             {
