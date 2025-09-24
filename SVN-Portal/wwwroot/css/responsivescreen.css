@@ -13,13 +13,13 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 16px;
+    font-size: 22px;
     font-weight: bold;
     color: #FFFFFF;
 }
 .col-chart-contain {
     width: 100%;
-    height: 400px;
+    height: 350px;
 }
 
 .table td, .table th {
