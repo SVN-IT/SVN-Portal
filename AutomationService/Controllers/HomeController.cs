@@ -27,68 +27,59 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
 
-        // 1. Mở Selenium để login Xiaomi
         var options = new ChromeOptions();
         options.AddArgument("--disable-blink-features=AutomationControlled");
+        options.AddArgument("--start-maximized");
 
-        string serviceToken = null;
-        string userId = null;
+        using var driver = new ChromeDriver(options);
 
-        using (var driver = new ChromeDriver(options))
-        {
-            driver.Navigate().GoToUrl("https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio");
-            Console.WriteLine("👉 Hãy login bằng tài khoản Xiaomi trong cửa sổ Chrome...");
+        // 1. Mở trang login
+        driver.Navigate().GoToUrl("https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio");
 
-            // Chờ user login thành công
-            bool loggedIn = false;
-            while (!loggedIn)
-            {
-                var cookies = driver.Manage().Cookies.AllCookies;
+        Console.WriteLine("👉 Đăng nhập Xiaomi trên Chrome...");
+        Console.WriteLine("👉 Sau khi đăng nhập thành công, nhấn ENTER để tiếp tục.");
 
-                var tokenCookie = cookies.FirstOrDefault(c => c.Name == "serviceToken");
-                var userIdCookie = cookies.FirstOrDefault(c => c.Name == "userId");
+        // 2. Lấy toàn bộ cookie
+        var cookieHeader = BuildCookieHeader(driver.Manage().Cookies);
 
-                if (tokenCookie != null && userIdCookie != null)
-                {
-                    serviceToken = tokenCookie.Value;
-                    userId = userIdCookie.Value;
-                    loggedIn = true;
-                }
-                else
-                {
-                    await Task.Delay(2000);
-                }
-            }
+        Console.WriteLine("✅ CookieHeader:");
+        Console.WriteLine(cookieHeader);
 
-            Console.WriteLine("✅ Login thành công!");
-            Console.WriteLine($"serviceToken = {serviceToken}");
-            Console.WriteLine($"userId = {userId}");
-        }
+        // 3. Gọi API
+        string region = "sg"; // hoặc "cn", "de", "ru"
+        var devices = await GetDeviceList(cookieHeader, region);
 
-        // 2. Tạo API client
-        var api = new XiaomiApi(serviceToken, userId);
-
-        // 3. Lấy danh sách device
-        var devices = await api.GetDeviceList();
-        Console.WriteLine("Danh sách thiết bị:");
+        Console.WriteLine("✅ Device List:");
         Console.WriteLine(devices);
 
-        // TODO: Parse JSON để lấy did & model của đèn
-        string did = "YOUR_DEVICE_DID";       // thay bằng did từ devices
-        string model = "yeelink.light.color1"; // ví dụ model đèn Yeelight
-
-        // 4. Bật đèn
-        var res1 = await api.ToggleLight(did, model, true);
-        Console.WriteLine("Bật đèn: " + res1);
-
-        // 5. Đổi màu đèn sang đỏ
-        var res2 = await api.SetColor(did, model, 255, 0, 0);
-        Console.WriteLine("Đổi màu: " + res2);
-
-        // 6. Tắt đèn
-        var res3 = await api.ToggleLight(did, model, false);
-        Console.WriteLine("Tắt đèn: " + res3);
         return View();
+    }
+
+    public static string BuildCookieHeader(ICookieJar cookies)
+    {
+        // lấy tất cả cookie, không lọc
+        var list = cookies.AllCookies
+            .Select(c => $"{c.Name}={c.Value}");
+        return string.Join("; ", list);
+    }
+
+    public static async Task<string> GetDeviceList(string cookieHeader, string region = "sg")
+    {
+        var url = $"https://{region}.api.io.mi.com/app/home/device_list";
+
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
+        client.DefaultRequestHeaders.Add("User-Agent", "MiHome/6.0.701 (iPhone; iOS 16.0; Scale/3.00)");
+
+        var res = await client.PostAsync(url, new StringContent("{}", Encoding.UTF8, "application/json"));
+        var body = await res.Content.ReadAsStringAsync();
+
+        if (!res.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"❌ Error {res.StatusCode}: {body}");
+        }
+
+        return body;
     }
 
     public IActionResult Privacy()
