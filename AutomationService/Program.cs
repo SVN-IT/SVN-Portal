@@ -19,7 +19,7 @@ builder.Services.AddSingleton(aPIConfiguration);
 
 builder.Services.AddSingleton<APIService>();
 
-builder.Services.AddHostedService<TimedHostedService>();
+//builder.Services.AddHostedService<TimedHostedService>();
 
 var app = builder.Build();
 
