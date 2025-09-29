@@ -1007,6 +1007,7 @@ namespace SVN_Portal.Controllers
             
         }
 
+        #region Nhập kết quả sản xuất
         public IActionResult WorkOrderInfo()
         {
             return View();
@@ -1320,6 +1321,196 @@ namespace SVN_Portal.Controllers
             }
             return Json(new { success = false, message = processResult.Message });
         }
+
+        #endregion
+
+        #region Check Item tồn tại trong Bom
+
+        public IActionResult CheckBOMFollowOrder()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Hàm nhập kết quả sản xuất theo Work Order
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> GetProductByWorkOrderV1(string workOrderCode)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = workOrderCode,
+                    LotNumber = ""
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    if (result.OK)
+                    {
+                        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
+                        string stringContent = BuildWorkOrderInfoV1(workOrderInfo);
+                        processResult.OK = true;
+                        processResult.Message = stringContent;
+                        return Json(new { result = processResult.OK, message = processResult.Message, product_tracking = workOrderInfo.OrderInfo["product_tracking"] });
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Không có dữ liệu";
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
+        }
+
+        private string BuildWorkOrderInfoV1(WorkOrderInfo workOrderInfo)
+        {
+            string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<div class=\"col-9\">");
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<h3 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h3>");
+            sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["name"] + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<h4 class=\"control-label\">Sản phẩm: " + workOrderInfo.OrderInfo["product_name"] + "</h4>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-3\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<div class=\"row\">");
+            sb.Append("<div class=\"col-3 d-none\">");
+            sb.Append("<label class=\"control-label\">Số lượng:</label>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-4 d-none\">");
+            sb.Append("<input type=\"text\" name=\"Quantity\" class=\"form-control\" />");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-5 d-none\">");
+            sb.Append("/" + workOrderInfo.OrderInfo["product_qty"]);
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-3 d-none\">");
+            sb.Append("<div class=\"form-group\">");
+            sb.Append("<div class=\"row\">");
+            sb.Append("<div class=\"col-2\">");
+            sb.Append("<label class=\"control-label\">Số seri:</label>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-10\">");
+            sb.Append("<input type=\"text\" name=\"Serial\" class=\"form-control\" />");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+
+            sb.Append("<div class=\"col-12\">");
+            sb.Append("<table class=\"table\">");
+            sb.Append("<thead>");
+            sb.Append("<tr>");
+            sb.Append("<th scope=\"col\">Sản phẩm</th>");
+            sb.Append("<th scope=\"col\">Từ</th>");
+            sb.Append("<th scope=\"col\">Số seri</th>");
+            sb.Append("</tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+
+            workOrderInfo.StockMoveInfo = workOrderInfo.StockMoveInfo.OrderByDescending(x => x["has_tracking"]).ToList();
+            foreach (var item in workOrderInfo.StockMoveInfo)
+            {
+                sb.Append("<tr>");
+                sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
+                sb.Append("<td>" + item["location_name"] + "</td>");
+                sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
+                sb.Append("</tr>");
+            }
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Kiểm tra Mã có tồn tại trong BOM của workorder không
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <param name="wipcode"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> CheckItemFollowBOM(string workOrderCode, string wipcode)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = workOrderCode,
+                    LotNumber = ""
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    if (result.OK)
+                    {
+                        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
+                        if(workOrderInfo != null && workOrderInfo.StockMoveInfo != null && workOrderInfo.StockMoveInfo.Count > 0)
+                        {
+                            var exitsData = workOrderInfo.StockMoveInfo.FirstOrDefault(x => x["product_name"].Contains(wipcode));
+                            if(exitsData != null)
+                            {
+                                processResult.OK = true;
+                                processResult.Message = "Khớp";
+                            }
+                            else
+                            {
+                                processResult.OK = false;
+                                processResult.Message = "Không khớp";
+                            }
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = "Không có dữ liệu";
+                        }
+                            
+                        return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Không có dữ liệu";
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
+        }
+
+        #endregion
     }
 
     public class PrintRequest
