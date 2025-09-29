@@ -1380,9 +1380,13 @@ namespace SVN_Portal.Controllers
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             StringBuilder sb = new StringBuilder();
             sb.Append("<div class=\"col-9\">");
+            sb.Append("<div class=\"card svn-card\">");
+            sb.Append("<div class=\"card-title\">");
+            sb.Append("</div>");
+            sb.Append("<div class=\"card-body\">");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
-            sb.Append("<h3 class=\"control-label\">Lệnh sản xuất: " + workOrderInfo.OrderInfo["name"] + "</h3>");
+            sb.Append("<h3 class=\"control-label\">Lệnh sản xuất: " + masterWorkOrder + "</h3>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["name"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
@@ -1426,9 +1430,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<table class=\"table\">");
             sb.Append("<thead>");
             sb.Append("<tr>");
-            sb.Append("<th scope=\"col\">Sản phẩm</th>");
-            sb.Append("<th scope=\"col\">Từ</th>");
-            sb.Append("<th scope=\"col\">Số seri</th>");
+            sb.Append("<th scope=\"col\">Thành phần</th>");
             sb.Append("</tr>");
             sb.Append("</thead>");
             sb.Append("<tbody>");
@@ -1438,12 +1440,22 @@ namespace SVN_Portal.Controllers
             {
                 sb.Append("<tr>");
                 sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
-                sb.Append("<td>" + item["location_name"] + "</td>");
-                sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
                 sb.Append("</tr>");
             }
             sb.Append("</tbody>");
             sb.Append("</table>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-3\">");
+            sb.Append("<div class=\"card svn-card\">");
+            sb.Append("<div class=\"card-title\">");
+            sb.Append("</div>");
+            sb.Append("<div class=\"card-body\">");
+            sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
+            sb.Append("</div>");
+            sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
             return sb.ToString();

@@ -2,6 +2,17 @@
     Layout = "~/Views/Shared/_ToolsLayout.cshtml";
     ViewData["Title"] = "Nhập kết quả sản xuất";
 }
+<style>
+    .box-square {
+        width: 100%; /* chiếm hết chiều ngang phần tử cha */
+        aspect-ratio: 1 / 1; /* đảm bảo luôn vuông (width : height = 1:1) */
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+</style>
 <form method="post">
     <div class="row">
         <div class="col-12 col-md-6">
@@ -87,7 +98,16 @@
             data: {workOrderCode: workOrderCode, wipcode: wipcode},
             success: function (res) {
                 console.log("Gửi thành công:", res);
-                
+                if(res.result == false){
+                    $("#divResultLight").removeClass("bg-light");
+                    $("#divResultLight").removeClass("bg-success");
+                    $("#divResultLight").addClass("bg-danger");
+                }
+                else{
+                    $("#divResultLight").removeClass("bg-light");
+                    $("#divResultLight").removeClass("bg-danger");
+                    $("#divResultLight").addClass("bg-success");
+                }
             },
             error: function (err) {
                 console.error("Lỗi:", err);

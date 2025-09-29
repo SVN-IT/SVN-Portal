@@ -5430,7 +5430,7 @@ thead tr th {
   font-weight: 500;
 }
 thead tr th:last-child {
-  text-align: right;
+  text-align: left;
 }
 tbody tr th {
     color: white;
@@ -5442,7 +5442,7 @@ tbody tr td {
     color: white;
 }
 tbody tr td:last-child {
-  text-align: right;
+  text-align: left;
 }
 .table > tbody > tr > td,
 .table > tbody > tr > th,
