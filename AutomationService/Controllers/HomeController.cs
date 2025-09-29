@@ -27,30 +27,40 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
 
-        var options = new ChromeOptions();
-        options.AddArgument("--disable-blink-features=AutomationControlled");
-        options.AddArgument("--start-maximized");
+        //var options = new ChromeOptions();
+        //options.AddArgument("--disable-blink-features=AutomationControlled");
+        //options.AddArgument("--start-maximized");
 
-        using var driver = new ChromeDriver(options);
+        //using var driver = new ChromeDriver(options);
 
-        // 1. Mở trang login
-        driver.Navigate().GoToUrl("https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio");
+        //// 1. Mở trang login
+        //driver.Navigate().GoToUrl("https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio");
 
-        Console.WriteLine("👉 Đăng nhập Xiaomi trên Chrome...");
-        Console.WriteLine("👉 Sau khi đăng nhập thành công, nhấn ENTER để tiếp tục.");
+        //Console.WriteLine("👉 Đăng nhập Xiaomi trên Chrome...");
+        //Console.WriteLine("👉 Sau khi đăng nhập thành công, nhấn ENTER để tiếp tục.");
 
-        // 2. Lấy toàn bộ cookie
-        var cookieHeader = BuildCookieHeader(driver.Manage().Cookies);
+        //// 2. Lấy toàn bộ cookie
+        //var cookieHeader = BuildCookieHeader(driver.Manage().Cookies);
 
-        Console.WriteLine("✅ CookieHeader:");
-        Console.WriteLine(cookieHeader);
+        //Console.WriteLine("✅ CookieHeader:");
+        //Console.WriteLine(cookieHeader);
 
-        // 3. Gọi API
-        string region = "sg"; // hoặc "cn", "de", "ru"
-        var devices = await GetDeviceList(cookieHeader, region);
+        //// 3. Gọi API
+        //string region = "sg"; // hoặc "cn", "de", "ru"
+        //var devices = await GetDeviceList(cookieHeader, region);
 
-        Console.WriteLine("✅ Device List:");
-        Console.WriteLine(devices);
+        //Console.WriteLine("✅ Device List:");
+        //Console.WriteLine(devices);
+
+        var client = new XiaomiCloudClient();
+        bool ok = await client.LoginAsync("datp1044@gmail.com", "Halo_1234");
+
+        if (ok)
+        {
+            var devices = await client.GetDeviceList("sg"); // hoặc "cn", "us", "de", "ru", "in"
+            Console.WriteLine("Devices:");
+            Console.WriteLine(devices);
+        }
 
         return View();
     }
@@ -130,50 +140,155 @@ public class HomeController : Controller
     }
 }
 
-class XiaomiApi
+public class XiaomiCloudClient
 {
-    private readonly HttpClient _client;
+    private readonly HttpClient _http;
+    private string _userId;
+    private string _serviceToken;
+    private string _ssecurity;
 
-    public XiaomiApi(string serviceToken, string userId)
+    public XiaomiCloudClient()
     {
-        _client = new HttpClient();
-        _client.DefaultRequestHeaders.Add("Cookie", $"userId={userId}; serviceToken={serviceToken};");
-    }
-
-    public async Task<string> GetDeviceList()
-    {
-        var url = "https://api.io.mi.com/app/home/device_list";
-        var body = "{}";
-        var res = await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
-        return await res.Content.ReadAsStringAsync();
-    }
-
-    public async Task<string> ToggleLight(string did, string model, bool on)
-    {
-        var url = "https://api.io.mi.com/app/control/dev";
-        var body = JsonSerializer.Serialize(new
+        _http = new HttpClient(new HttpClientHandler
         {
-            did,
-            model,
-            method = "set_power",
-            @params = new object[] { on ? "on" : "off", "smooth", 500 }
+            AllowAutoRedirect = true,
+            UseCookies = false
         });
-        var res = await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
-        return await res.Content.ReadAsStringAsync();
     }
 
-    public async Task<string> SetColor(string did, string model, int r, int g, int b)
+    /// <summary>
+    /// Login vào Xiaomi Cloud
+    /// </summary>
+    public async Task<bool> LoginAsync(string username, string password)
     {
-        int rgb = (r << 16) + (g << 8) + b;
-        var url = "https://api.io.mi.com/app/control/dev";
-        var body = JsonSerializer.Serialize(new
+        // 1. Lấy _sign
+        var loginPage = await _http.GetStringAsync("https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio");
+
+        // Tìm _sign trong input hidden
+        var signMatch = Regex.Match(loginPage, @"name=""_sign"" value=""(?<val>[^""]+)""");
+        if (!signMatch.Success)
         {
-            did,
-            model,
-            method = "set_rgb",
-            @params = new object[] { rgb }
+            Console.WriteLine("❌ Không tìm thấy _sign trong login page");
+            return false;
+        }
+        var _sign = signMatch.Groups["val"].Value;
+
+        // 2. Gửi login
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            {"_json", "true"},
+            {"_sign", _sign},
+            {"sid", "xiaomiio"},
+            {"hash", Convert.ToBase64String(Encoding.UTF8.GetBytes(password))}, // password hash tạm
+            {"user", username}
         });
-        var res = await _client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
-        return await res.Content.ReadAsStringAsync();
+
+        var res = await _http.PostAsync("https://account.xiaomi.com/pass/serviceLoginAuth2", content);
+        var body = await res.Content.ReadAsStringAsync();
+        body = body.Replace("&&&START&&&", ""); // Xiaomi trả về JSON kèm prefix
+
+        using var doc = JsonDocument.Parse(body);
+        var root = doc.RootElement;
+
+        if (root.TryGetProperty("ssecurity", out var sec))
+        {
+            _ssecurity = sec.GetString();
+            _userId = root.GetProperty("userId").GetString();
+        }
+        else
+        {
+            Console.WriteLine("❌ Login thất bại: " + body);
+            return false;
+        }
+
+        var location = root.GetProperty("location").GetString();
+
+        // 3. Lấy serviceToken từ redirect
+        var res2 = await _http.GetAsync(location);
+        if (!res2.Headers.Contains("Set-Cookie"))
+        {
+            Console.WriteLine("❌ Không lấy được serviceToken");
+            return false;
+        }
+
+        foreach (var cookie in res2.Headers.GetValues("Set-Cookie"))
+        {
+            if (cookie.StartsWith("serviceToken"))
+            {
+                _serviceToken = cookie.Split(';')[0].Split('=')[1];
+            }
+        }
+
+        Console.WriteLine($"✅ Login thành công, userId={_userId}");
+        return true;
     }
+
+    /// <summary>
+    /// Gọi API Cloud, có ký bằng ssecurity
+    /// </summary>
+    public async Task<string> CallApiAsync(string path, string data = "{}", string region = "sg")
+    {
+        if (string.IsNullOrEmpty(_serviceToken) || string.IsNullOrEmpty(_ssecurity))
+            throw new InvalidOperationException("Chưa login!");
+
+        string url = $"https://{region}.api.io.mi.com/app{path}";
+        string nonce = CreateNonce();
+        string signedNonce = SignedNonce(_ssecurity, nonce);
+        string signature = GenSignature(path, signedNonce, nonce, data);
+
+        var body = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            {"data", data},
+            {"rc4_hash__", ""},
+            {"signature", signature},
+            {"_nonce", nonce}
+        });
+
+        var req = new HttpRequestMessage(HttpMethod.Post, url);
+        req.Content = body;
+        req.Headers.Add("Cookie", $"userId={_userId}; serviceToken={_serviceToken}");
+        req.Headers.Add("User-Agent", "Android-7.1.1-1.0.0-ONEPLUS A3010-136-0-MIUI/1.0.0 App/xiaomi.smarthome/6.0.103");
+
+        var res = await _http.SendAsync(req);
+        var resBody = await res.Content.ReadAsStringAsync();
+        return resBody;
+    }
+
+    /// <summary>
+    /// Lấy danh sách thiết bị
+    /// </summary>
+    public Task<string> GetDeviceList(string region = "sg")
+    {
+        return CallApiAsync("/home/device_list", "{}", region);
+    }
+
+    #region Helpers
+    private static string CreateNonce()
+    {
+        var rnd = new byte[12];
+        RandomNumberGenerator.Fill(rnd);
+        long ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
+        var nonce = new byte[16];
+        Array.Copy(rnd, nonce, 12);
+        Array.Copy(BitConverter.GetBytes(ts), 0, nonce, 12, 4);
+        return Convert.ToBase64String(nonce);
+    }
+
+    private static string SignedNonce(string ssecurity, string nonce)
+    {
+        var sec = Convert.FromBase64String(ssecurity);
+        var non = Convert.FromBase64String(nonce);
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(sec.Concat(non).ToArray());
+        return Convert.ToBase64String(hash);
+    }
+
+    private static string GenSignature(string path, string signedNonce, string nonce, string data)
+    {
+        string s = $"{path}&{signedNonce}&{nonce}&{data}";
+        using var hmac = new HMACSHA256(Convert.FromBase64String(signedNonce));
+        var sig = hmac.ComputeHash(Encoding.UTF8.GetBytes(s));
+        return Convert.ToBase64String(sig);
+    }
+    #endregion
 }
