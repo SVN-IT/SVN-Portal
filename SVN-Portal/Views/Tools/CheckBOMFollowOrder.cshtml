@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_ToolsLayout.cshtml";
-    ViewData["Title"] = "Nhập kết quả sản xuất";
+    ViewData["Title"] = "Kiểm tra thành phần trong lệnh sản xuất";
 }
 <style>
     .box-square {
@@ -37,7 +37,8 @@
             </div>
         </div>
         <div class="col-12 col-md-6">
-            <h4>Phím 2 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
+            <h4>Phím 1 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
+            <h4>Phím 2 (Bàn phím số) - Nhập mã thành phần</h4>
             <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
             <h4>Phím 4 (Bàn phím số) - Mở trang scan</h4>
             <h4>Phím F5 - Reset lại trang web</h4>
@@ -108,6 +109,7 @@
                     $("#divResultLight").removeClass("bg-danger");
                     $("#divResultLight").addClass("bg-success");
                 }
+                $('input[name="wIPCode"]').val("");
             },
             error: function (err) {
                 console.error("Lỗi:", err);
@@ -146,10 +148,16 @@
 
         document.addEventListener("keydown", function (e) {
             // Để forcus name=workOrderCode
-            if(e.code === "Numpad2"){
+            if(e.code === "Numpad1"){
                 e.preventDefault();
                 $('input[name="workOrderCode"]').val("");
                 $('input[name="workOrderCode"]').focus();
+            }
+
+            if(e.code === "Numpad2"){
+                e.preventDefault();
+                $('input[name="wIPCode"]').val("");
+                $('input[name="wIPCode"]').focus();
             }
 
             // Mở trang máy in
