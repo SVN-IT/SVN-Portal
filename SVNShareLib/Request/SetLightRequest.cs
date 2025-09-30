@@ -17,6 +17,6 @@ namespace SVNShareLib.Request
         public int Port { get; set; }
         public int Brightness { get; set; }
         public bool Power { get; set; }
-        public Color Color { get; set; }
+        public string Color { get; set; }
     }
 }

@@ -38,8 +38,8 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 YeelightService service = new YeelightService(setLightRequest.IP, setLightRequest.Port);
-                setLightRequest.Color = Color.Green;
-                await service.SetColor(setLightRequest.Color);
+                var color = Color.FromName(setLightRequest.Color);
+                await service.SetColor(color);
                 processResult.OK = true;
                 processResult.Message = "Set power success";
             }

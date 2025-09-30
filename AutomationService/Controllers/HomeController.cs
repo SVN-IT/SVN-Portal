@@ -9,6 +9,9 @@ using System.Text.RegularExpressions;
 using System.Text.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using SVNShareLib.Request;
+using System.Drawing;
+using SVNShareLib;
 
 namespace AutomationService.Controllers;
 
@@ -27,28 +30,23 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
 
-        SetPower(true);
+        return View();
+    }
+    [HttpPost]
+    public async Task<IActionResult> Index(string abc)
+    {
+        string BaseURL = "https://localhost:7272/"; //http://10.10.99.10:8101/ https://localhost:7272/
+        string GetAndUploadProductionResultDataURL = "api/YeelightService/SetColor";
 
-        // Đổi sang màu đỏ
-        SetColor(255, 0, 0);
-
-        // Tăng độ sáng lên 80%
-        SetBrightness(80);
-
-        // Tắt đèn sau 3 giây
-        System.Threading.Thread.Sleep(3000);
-        SetPower(false);
-
-        //var client = new XiaomiCloudClient();
-        //bool ok = await client.LoginAsync("datp1044@gmail.com", "Halo_1234");
-
-        //if (ok)
-        //{
-        //    var devices = await client.GetDeviceList("sg"); // hoặc "cn", "us", "de", "ru", "in"
-        //    Console.WriteLine("Devices:");
-        //    Console.WriteLine(devices);
-        //}
-
+        SetLightRequest setLightRequest = new SetLightRequest()
+        {
+            IP = "192.168.2.203",
+            Port = 55443,
+            Color = Color.Red.Name
+        };
+        HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(BaseURL, 1000);
+        BODataProcessResult bODataProcessResult = new BODataProcessResult();
+        var result = await httpClientHelper.PostRequest(GetAndUploadProductionResultDataURL, setLightRequest, new CancellationToken(false));
         return View();
     }
 
