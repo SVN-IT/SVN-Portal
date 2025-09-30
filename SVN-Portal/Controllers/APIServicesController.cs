@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.EMMA;
+using Microsoft.AspNetCore.Mvc;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
@@ -27,6 +28,119 @@ namespace SVN_Portal.Controllers
             connectionString = dBConfiguration.GetConnectionString();
             this.qCInfoConfig = qCInfoConfig;
             this.operInfoConfig = operInfoConfig;
+        }
+
+        [Route("GetDataByDateAndOperation")]
+        [HttpGet]
+        public async Task<BODataProcessResult> GetDataByDateAndOperation(string operation)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVNQACheckListReportDataPortal dataPortal = new SVNQACheckListReportDataPortal(dBConfiguration.CheckListConnectionString);
+            string date = DateTime.Now.ToString("yyyy-MM-dd") + "  00:00:00.000";
+            try
+            {
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var oper = opers.FirstOrDefault(x => x.MasterOperation == operation);
+                if (oper != null)
+                {
+                    var checkListData = await dataPortal.GetDataByDateAndOperation(date, oper.StoreID);
+                    if (checkListData != null && checkListData.Count > 0) 
+                    {
+                        bool IsPDChecked = false;
+                        bool IsMTChecked = false;
+                        bool IsQCChecked = false;
+                        bool IsPDConfirmed = false;
+                        bool IsQCConfirmed = false;
+                        if (checkListData[0].RestaurantStaffs.Contains("PD checked"))
+                        {
+                            IsPDChecked = true;
+                        }
+                        else
+                        {
+                            IsPDChecked = false;
+                        }
+                        if (checkListData[0].RestaurantStaffs.Contains("MT checked") || checkListData[0].RestaurantStaffs.Contains("ENG checked"))
+                        {
+                            IsMTChecked = true;
+                        }
+                        else
+                        {
+                            IsMTChecked = false;
+                        }
+                        if (checkListData[0].RestaurantStaffs.Contains("QC checked"))
+                        {
+                            IsQCChecked = true;
+                        }
+                        else
+                        {
+                            IsQCChecked = false;
+                        }
+                        if (checkListData[0].ConfirmStatus == "Y")
+                        {
+                            IsPDConfirmed = true;
+                        }
+                        else
+                        {
+                            IsPDConfirmed = false;
+                        }
+                        if (checkListData[0].PointBSC >= 4)
+                        {
+                            IsQCConfirmed = true;
+                        }
+                        else
+                        {
+                            IsQCConfirmed = false;
+                        }
+
+                        string pdChecked = "🔴";
+                        string mtChecked = "🔴";
+                        string qcChecked = "🔴";
+                        string pdConfirmed = "🔴";
+                        string qcConfirmed = "🔴";
+
+                        if (IsPDChecked)
+                        {
+                            pdChecked = "🟢";
+                        }
+                        if (IsMTChecked)
+                        {
+                            mtChecked = "🟢";
+                        }
+                        if (IsQCChecked)
+                        {
+                            qcChecked = "🟢";
+                        }
+                        if (IsPDConfirmed)
+                        {
+                            pdConfirmed = "🟢";
+                        }
+                        if (IsQCConfirmed)
+                        {
+                            qcConfirmed = "🟢";
+                        }
+
+                        string message = "Checklist status: " + pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed";
+
+                        processResult.OK = true;
+                        processResult.Message = message;
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Get data fail";
+                    }
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Get store fail";
+                }
+            }
+            catch (Exception ex) 
+            { 
+                processResult.Message = ex.Message;
+            }   
+            return processResult;
         }
 
         [Route("GetPDResultRealtime")]
