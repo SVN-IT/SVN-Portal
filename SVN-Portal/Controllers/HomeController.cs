@@ -329,21 +329,22 @@ namespace SVN_Portal.Controllers
                 List<string> statusList = new List<string>();
                 foreach(var item in pdResultviewModels)
                 {
-                    string warning = "⚠️";
-                    string error = "❌";
+                    string warning = " ⚠️ ";
+                    string error = " ❌ ";
                     string issue = "❗";
+                    string status = item.OperationActive + ": ";
 
-                    if(double.Parse(item.DailyPlanAchieve.Replace("%", "")) >= 0 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 75)
+                    if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) >= 0 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 75)
                     {
-
+                        status = status + "Daily plan " + error + item.DailyPlanAchieve;
                     }
                     else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 100)
                     {
-                        
+                        status = status + "Daily plan " + warning + item.DailyPlanAchieve;
                     }
                     else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 75 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 92)
                     {
-                        
+                        status = status + "Daily plan " + warning + item.DailyPlanAchieve;
                     }
                     else
                     {
@@ -352,15 +353,15 @@ namespace SVN_Portal.Controllers
 
                     if (double.Parse(item.UPH.Replace("%", "")) >= 0 && double.Parse(item.UPH.Replace("%", "")) <= 75)
                     {
-
+                        status = status + " UPH " + error + item.UPH;
                     }
                     else if (double.Parse(item.UPH.Replace("%", "")) > 100)
                     {
-
+                        status = status + " UPH " + warning + item.UPH;
                     }
                     else if (double.Parse(item.UPH.Replace("%", "")) > 75 && double.Parse(item.UPH.Replace("%", "")) <= 92)
                     {
-
+                        status = status + " UPH " + warning + item.UPH;
                     }
                     else
                     {
@@ -369,15 +370,15 @@ namespace SVN_Portal.Controllers
 
                     if (double.Parse(item.UPPH.Replace("%", "")) >= 0 && double.Parse(item.UPPH.Replace("%", "")) <= 75)
                     {
-
+                        status = status + " UPPH " + error + item.UPPH;
                     }
                     else if (double.Parse(item.UPPH.Replace("%", "")) > 100)
                     {
-
+                        status = status + " UPPH " + warning + item.UPPH;
                     }
                     else if (double.Parse(item.UPPH.Replace("%", "")) > 75 && double.Parse(item.UPPH.Replace("%", "")) <= 92)
                     {
-
+                        status = status + " UPPH " + warning + item.UPPH;
                     }
                     else
                     {
@@ -386,19 +387,21 @@ namespace SVN_Portal.Controllers
 
                     if (double.Parse(item.DefectRate.Replace("%", "")) > 100)
                     {
-                        
+                        status = status + " Defect " + error + item.DefectRate;
                     }
                     else if (double.Parse(item.DefectRate.Replace("%", "")) > 75 && double.Parse(item.DefectRate.Replace("%", "")) <= 100)
                     {
-                        
+                        status = status + " Defect " + warning + item.DefectRate;
                     }
                     else
                     {
                         
                     }
+
+                    statusList.Add(status);
                 }
 
-
+                ViewBag.StatusList = statusList;
 
                 return View(pdResultviewModels);
             }
