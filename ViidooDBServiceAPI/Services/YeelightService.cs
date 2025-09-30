@@ -19,23 +19,11 @@ namespace ViidooDBServiceAPI.Services
             using (TcpClient client = new TcpClient())
             {
                 client.Connect(ip, port);
-                //NetworkStream stream = client.GetStream();
-                //byte[] data = Encoding.UTF8.GetBytes(command + "\r\n");
-                //stream.Write(data, 0, data.Length);
-                //stream.Close();
-                //client.Close();
-                using (NetworkStream stream = client.GetStream())
-                {
-                    // Gửi lệnh
-                    byte[] data = Encoding.UTF8.GetBytes(command + "\r\n");
-                    stream.Write(data, 0, data.Length);
-                    stream.Flush();
-
-                    // Đọc phản hồi từ đèn
-                    byte[] buffer = new byte[4096];
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                }
+                NetworkStream stream = client.GetStream();
+                byte[] data = Encoding.UTF8.GetBytes(command + "\r\n");
+                stream.Write(data, 0, data.Length);
+                stream.Close();
+                client.Close();
             }
         }
 
