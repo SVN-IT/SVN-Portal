@@ -1471,6 +1471,9 @@ namespace SVN_Portal.Controllers
         {
             BODataProcessResult processResult = new BODataProcessResult();
             HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            SetLightRequest setLightRequest = new SetLightRequest();
+            setLightRequest.IP = "192.168.2.203";
+            setLightRequest.Port = 55443;
             try
             {
                 InputProductDataRequest dataRequest = new InputProductDataRequest()
@@ -1489,17 +1492,24 @@ namespace SVN_Portal.Controllers
                             var exitsData = workOrderInfo.StockMoveInfo.FirstOrDefault(x => x["product_name"].Contains(wipcode));
                             if(exitsData != null)
                             {
+                                setLightRequest.Color = "Green";
+                                await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
+
                                 processResult.OK = true;
                                 processResult.Message = "Khớp";
                             }
                             else
                             {
+                                setLightRequest.Color = "Red";
+                                await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
                                 processResult.OK = false;
                                 processResult.Message = "Không khớp";
                             }
                         }
                         else
                         {
+                            setLightRequest.Color = "Red";
+                            await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
                             processResult.OK = false;
                             processResult.Message = "Không có dữ liệu";
                         }
@@ -1508,6 +1518,8 @@ namespace SVN_Portal.Controllers
                     }
                     else
                     {
+                        setLightRequest.Color = "Red";
+                        await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
                         processResult.OK = false;
                         processResult.Message = "Không có dữ liệu";
                     }
@@ -1516,6 +1528,8 @@ namespace SVN_Portal.Controllers
             }
             catch (Exception ex)
             {
+                setLightRequest.Color = "Red";
+                await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
                 processResult.OK = false;
                 processResult.Message = ex.Message;
             }
