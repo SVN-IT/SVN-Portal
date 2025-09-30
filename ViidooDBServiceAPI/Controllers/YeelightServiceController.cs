@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVNShareLib;
 using SVNShareLib.Request;
+using System.Drawing;
+using System.Threading.Tasks;
 using ViidooDBServiceAPI.Services;
 
 namespace ViidooDBServiceAPI.Controllers
@@ -11,13 +13,13 @@ namespace ViidooDBServiceAPI.Controllers
     {
         [Route("SetPower")]
         [HttpPost]
-        public BODataProcessResult SetPower(SetLightRequest setLightRequest)
+        public async Task<BODataProcessResult> SetPower(SetLightRequest setLightRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
                 YeelightService service = new YeelightService(setLightRequest.IP, setLightRequest.Port);
-                service.SetPower(setLightRequest.Power);
+                await service.SetPower(setLightRequest.Power);
                 processResult.OK = true;
                 processResult.Message = "Set power success";
             }
@@ -30,13 +32,14 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("SetColor")]
         [HttpPost]
-        public BODataProcessResult SetColor(SetLightRequest setLightRequest)
+        public async Task<BODataProcessResult> SetColor(SetLightRequest setLightRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
                 YeelightService service = new YeelightService(setLightRequest.IP, setLightRequest.Port);
-                service.SetColor(setLightRequest.Color);
+                setLightRequest.Color = Color.Green;
+                await service.SetColor(setLightRequest.Color);
                 processResult.OK = true;
                 processResult.Message = "Set power success";
             }
@@ -49,13 +52,13 @@ namespace ViidooDBServiceAPI.Controllers
 
         [Route("SetBrightness")]
         [HttpPost]
-        public BODataProcessResult SetBrightness(SetLightRequest setLightRequest)
+        public async Task<BODataProcessResult> SetBrightness(SetLightRequest setLightRequest)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
                 YeelightService service = new YeelightService(setLightRequest.IP, setLightRequest.Port);
-                service.SetBrightness(setLightRequest.Brightness);
+                await service.SetBrightness(setLightRequest.Brightness);
                 processResult.OK = true;
                 processResult.Message = "Set power success";
             }

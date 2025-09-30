@@ -4,8 +4,8 @@ using Org.BouncyCastle.Asn1.Crmf;
 using SVNShareLib;
 using SVNShareLib.Request;
 
-string BaseURL = "http://10.10.99.10:8101/"; //http://10.10.99.10:8101/ https://localhost:7272/
-string GetAndUploadProductionResultDataURL = "api/DB/GetAndUploadProductionResultDataXMLRPC";
+string BaseURL = "https://localhost:7272/"; //http://10.10.99.10:8101/ https://localhost:7272/
+string GetAndUploadProductionResultDataURL = "api/YeelightService/SetColor";
 string GetDataFromViindooV1URL = "api/DB/GetLotByMODone"; //api/DB/GetDataFromViindooV1
 string GetDataFromViindooV3URL = "api/DB/GetDataFromViindooV3";
 
