@@ -27,40 +27,27 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
 
-        //var options = new ChromeOptions();
-        //options.AddArgument("--disable-blink-features=AutomationControlled");
-        //options.AddArgument("--start-maximized");
+        SetPower(true);
 
-        //using var driver = new ChromeDriver(options);
+        // Đổi sang màu đỏ
+        SetColor(255, 0, 0);
 
-        //// 1. Mở trang login
-        //driver.Navigate().GoToUrl("https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio");
+        // Tăng độ sáng lên 80%
+        SetBrightness(80);
 
-        //Console.WriteLine("👉 Đăng nhập Xiaomi trên Chrome...");
-        //Console.WriteLine("👉 Sau khi đăng nhập thành công, nhấn ENTER để tiếp tục.");
+        // Tắt đèn sau 3 giây
+        System.Threading.Thread.Sleep(3000);
+        SetPower(false);
 
-        //// 2. Lấy toàn bộ cookie
-        //var cookieHeader = BuildCookieHeader(driver.Manage().Cookies);
+        //var client = new XiaomiCloudClient();
+        //bool ok = await client.LoginAsync("datp1044@gmail.com", "Halo_1234");
 
-        //Console.WriteLine("✅ CookieHeader:");
-        //Console.WriteLine(cookieHeader);
-
-        //// 3. Gọi API
-        //string region = "sg"; // hoặc "cn", "de", "ru"
-        //var devices = await GetDeviceList(cookieHeader, region);
-
-        //Console.WriteLine("✅ Device List:");
-        //Console.WriteLine(devices);
-
-        var client = new XiaomiCloudClient();
-        bool ok = await client.LoginAsync("datp1044@gmail.com", "Halo_1234");
-
-        if (ok)
-        {
-            var devices = await client.GetDeviceList("sg"); // hoặc "cn", "us", "de", "ru", "in"
-            Console.WriteLine("Devices:");
-            Console.WriteLine(devices);
-        }
+        //if (ok)
+        //{
+        //    var devices = await client.GetDeviceList("sg"); // hoặc "cn", "us", "de", "ru", "in"
+        //    Console.WriteLine("Devices:");
+        //    Console.WriteLine(devices);
+        //}
 
         return View();
     }
