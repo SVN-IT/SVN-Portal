@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -324,23 +326,79 @@ namespace SVN_Portal.Controllers
                     }
                 }
 
-                QtyProdResultByOperViewModel summaryProdResultModel = new QtyProdResultByOperViewModel();
-
-                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
-                var compareUI = await compareDataPortal.ReadList(strdate);
-
-                if (compareUI != null && compareUI.Count > 0)
+                List<string> statusList = new List<string>();
+                foreach(var item in pdResultviewModels)
                 {
+                    string warning = "⚠️";
+                    string error = "❌";
+                    string issue = "❗";
 
-                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
-                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
-                    int arrangeQty = ArrangingNumber(models);
+                    if(double.Parse(item.DailyPlanAchieve.Replace("%", "")) >= 0 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 75)
+                    {
 
-                    decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
+                    }
+                    else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 100)
+                    {
+                        
+                    }
+                    else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 75 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 92)
+                    {
+                        
+                    }
+                    else
+                    {
 
-                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
-                    ViewBag.ComparePeople = comparePeople;
+                    }
+
+                    if (double.Parse(item.UPH.Replace("%", "")) >= 0 && double.Parse(item.UPH.Replace("%", "")) <= 75)
+                    {
+
+                    }
+                    else if (double.Parse(item.UPH.Replace("%", "")) > 100)
+                    {
+
+                    }
+                    else if (double.Parse(item.UPH.Replace("%", "")) > 75 && double.Parse(item.UPH.Replace("%", "")) <= 92)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.UPPH.Replace("%", "")) >= 0 && double.Parse(item.UPPH.Replace("%", "")) <= 75)
+                    {
+
+                    }
+                    else if (double.Parse(item.UPPH.Replace("%", "")) > 100)
+                    {
+
+                    }
+                    else if (double.Parse(item.UPPH.Replace("%", "")) > 75 && double.Parse(item.UPPH.Replace("%", "")) <= 92)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.DefectRate.Replace("%", "")) > 100)
+                    {
+                        
+                    }
+                    else if (double.Parse(item.DefectRate.Replace("%", "")) > 75 && double.Parse(item.DefectRate.Replace("%", "")) <= 100)
+                    {
+                        
+                    }
+                    else
+                    {
+                        
+                    }
                 }
+
+
 
                 return View(pdResultviewModels);
             }
