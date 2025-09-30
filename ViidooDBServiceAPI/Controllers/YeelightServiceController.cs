@@ -50,6 +50,46 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("SetBlinkColor")]
+        [HttpPost]
+        public async Task<BODataProcessResult> SetBlinkColor(SetLightRequest setLightRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                YeelightService service = new YeelightService(setLightRequest.IP, setLightRequest.Port);
+                var color = Color.FromName(setLightRequest.Color);
+                await service.Blink(color, 0, 500);
+                processResult.OK = true;
+                processResult.Message = "Set power success";
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("StopBlink")]
+        [HttpPost]
+        public async Task<BODataProcessResult> StopBlink(SetLightRequest setLightRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                YeelightService service = new YeelightService(setLightRequest.IP, setLightRequest.Port);
+                var color = Color.FromName(setLightRequest.Color);
+                await service.StopBlink();
+                processResult.OK = true;
+                processResult.Message = "Set power success";
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("SetBrightness")]
         [HttpPost]
         public async Task<BODataProcessResult> SetBrightness(SetLightRequest setLightRequest)

@@ -118,7 +118,7 @@ namespace ViidooDBServiceAPI.Services
         /// <summary>
         /// Dừng nhấp nháy
         /// </summary>
-        public async Task Stop()
+        public async Task StopBlink()
         {
             await SendCommand("stop_cf", null);
         }
