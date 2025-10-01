@@ -11,6 +11,7 @@
     string jsonUPPHData = string.Empty;
     string jsonLaborData = string.Empty;
     string jsonDefectRateData = string.Empty;
+    List<string> listStatus = ViewBag.StatusList;
 }
 <link href="~/css/responsivescreen.css" rel="stylesheet" />
 <script>
@@ -231,7 +232,26 @@
                 <h2>Thông báo</h2>
             </div>
             <div class="card-body">
-                <div class="col-chart-contain"></div>
+                <div class="col-chart-contain">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nội dung thông báo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (listStatus != null && listStatus.Count() > 0)
+                            {
+                                foreach (var item in listStatus)
+                                {
+                                    <tr>
+                                        <th scope="row">@item</th>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

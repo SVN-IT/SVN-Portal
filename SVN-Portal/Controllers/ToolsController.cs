@@ -14,6 +14,7 @@ using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
+using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -1492,7 +1493,7 @@ namespace SVN_Portal.Controllers
                             var exitsData = workOrderInfo.StockMoveInfo.FirstOrDefault(x => x["product_name"].Contains(wipcode));
                             if(exitsData != null)
                             {
-                                setLightRequest.Color = "Green";
+                                setLightRequest.Color = Color.Green.Name;
                                 await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
 
                                 processResult.OK = true;
