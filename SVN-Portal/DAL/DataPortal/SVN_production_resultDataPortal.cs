@@ -1653,6 +1653,7 @@ namespace SVN_Portal.DAL.DataPortal
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
+                viewModel.CanProductionByDowntime = true;
                 if (dataUI.Count > 0)
                 {
                     QtyProdResultViewModel val1 = new QtyProdResultViewModel();
@@ -1668,7 +1669,7 @@ namespace SVN_Portal.DAL.DataPortal
                     val5.Time = "18h-20h";
 
                     viewModel.Operation = oper.Operation;
-                    viewModel.CanProductionByDowntime = true;
+                    
                     //add defect by category
                     if (quantity_ReasonUI != null && defect_RecordUI != null)
                     {
