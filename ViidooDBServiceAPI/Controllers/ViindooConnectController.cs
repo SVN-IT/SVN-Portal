@@ -361,10 +361,10 @@ namespace ViidooDBServiceAPI.Controllers
                                 if(lotScaned != null)
                                 {
                                     var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                                    if (stockMoveLineSerial != null)
+                                    if (stockMoveLineSerial == null)
                                     {
                                         bODataProcessResult.OK = false;
-                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " đã được sử dụng cho sản phẩm: " + arrMarterialProductID[1];
+                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy " ;
                                         return bODataProcessResult;
                                     }
 

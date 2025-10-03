@@ -463,43 +463,6 @@ namespace ViidooDBServiceAPI.Services
             {
                 // Gửi request đọc dữ liệu
                 client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
-                //var payload = new
-                //{
-                //    jsonrpc = "2.0",
-                //    method = "call",
-                //    @params = new
-                //    {
-                //        model = "stock.move.line",
-                //        method = "search_read",
-                //        args = new object[]
-                //        {
-
-                //        },
-                //        kwargs = new
-                //        {
-                //            domain = new object[] { 
-                //                new object[] { "lot_id.name", "=", lot_name },
-                //                new object[] { "product_id", "=", product_id },
-                //                new object[] { "qty_done", "=", 1 }
-                //            },
-                //            fields = new string[]
-                //            {
-                //                "id", "move_id", "lot_id", "product_id", "qty_done"
-                //            },
-                //            order = "create_date desc",
-                //            limit = 3,
-                //            context = new
-                //            {
-                //                lang = "vi_VN",
-                //                tz = "Asia/Ho_Chi_Minh",
-                //                allowed_company_ids = new List<int> { 1 },
-                //                bin_size = true,
-                //                uid = uid
-                //            }
-                //        }
-                //    },
-                //    id = 100
-                //};
 
                 var payload = new
                 {
