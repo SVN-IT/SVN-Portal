@@ -347,7 +347,7 @@ namespace ViidooDBServiceAPI.Controllers
                         foreach (var item in stockMoveSerialInfo)
                         {
                             var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
-                            var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse);
+                            //var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse);
 
                             //Lấy product_id
                             var arrMarterialProductID = JsonConvert.DeserializeObject<object[]>(item["product_id"].ToString());

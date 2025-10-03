@@ -1311,7 +1311,15 @@ namespace SVN_Portal.Controllers
                     else
                     {
                         processResult.OK = false;
-                        processResult.Message = "Không có dữ liệu";
+                        if (!string.IsNullOrWhiteSpace(result.Message))
+                        {
+                            processResult.Message = result.Message;
+                        }
+                        else
+                        {
+                            processResult.Message = "Không có dữ liệu";
+                        }
+                            
                     }
 
                 }

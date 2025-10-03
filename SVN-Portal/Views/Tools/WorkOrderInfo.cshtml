@@ -139,8 +139,14 @@
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function (res) {
-                console.log("Gửi thành công:", res);
-                GetProductByWorkOrder('#txtWorkOrderCode');
+                if(res.result) {
+                    console.log("Gửi thành công:", res);
+                    GetProductByWorkOrder('#txtWorkOrderCode');
+                }
+                else{
+                    alert(res.message);
+                }
+                
             },
             error: function (err) {
                 console.error("Lỗi:", err);
