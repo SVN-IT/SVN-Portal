@@ -841,7 +841,14 @@ namespace SVN_Portal.Controllers
                     string downTimeStatus = string.Empty;
                     if(!model.CanProductionByDowntime)
                     {
-                        downTimeStatus = "Máy đang bảo trì, dự kiến kết thúc: " + model.EndDownTime.ToString("dd/MM/yyyy HH:mm");
+                        if(model.EndDownTime == DateTime.MinValue)
+                        {
+                            downTimeStatus = "Máy đang bảo trì";
+                        }
+                        else
+                        {
+                            downTimeStatus = "Máy đang bảo trì, dự kiến kết thúc: " + model.EndDownTime.ToString("dd/MM/yyyy HH:mm");
+                        }
                     }
 
                     strForecase = BuildForecastInfo(model.Forecast);

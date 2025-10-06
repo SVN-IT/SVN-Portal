@@ -1898,6 +1898,30 @@ namespace SVN_Portal.DAL.DataPortal
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
 
+                            var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetEquipmentStatusUpdateDetail(oper.MasterOperation);
+                            if(equipmentStatusDetail != null && !string.IsNullOrWhiteSpace(equipmentStatusDetail.State) && equipmentStatusDetail.State != "Run")
+                            {
+                                if(startDatetime >= equipmentStatusDetail.FromTime)
+                                {
+                                    Duration = 0;
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
+                                    {
+                                        TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
+                                        DateTime endTime = equipmentStatusDetail.FromTime.Add(duration);
+                                        int totalSeconds = (int)duration.TotalSeconds;
+
+                                        if (endTime <= endDatetime)
+                                        {
+                                            viewModel.EndDownTime = endTime;
+                                            viewModel.CanProductionByDowntime = false;
+                                        }
+                                    }
+                                    
+                                }
+                            }
                             //if (equipmentStatus != null)
                             //{
                             //    if (!string.IsNullOrWhiteSpace(equipmentStatus.StartTime) &&

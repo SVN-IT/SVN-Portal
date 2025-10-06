@@ -1,4 +1,5 @@
-﻿using Lextm.SharpSnmpLib.Messaging;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using Lextm.SharpSnmpLib.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -27,9 +28,11 @@ namespace SVN_Portal.Controllers
         ToolsHelper toolsHelper;
         APIConfiguration aPIConfiguration;
         TOASTLabelConfiguration labelConfiguration;
+        OperInfoConfig operInfoConfig;
         public ToolsController(DBConfiguration dBConfiguration, 
             ToolsHelper toolsHelper, 
-            APIConfiguration aPIConfiguration, 
+            APIConfiguration aPIConfiguration,
+            OperInfoConfig operInfoConfig,
             TOASTLabelConfiguration labelConfiguration)
         {
             this.dBConfiguration = dBConfiguration;
@@ -37,6 +40,7 @@ namespace SVN_Portal.Controllers
             this.toolsHelper = toolsHelper;
             this.aPIConfiguration = aPIConfiguration;
             this.labelConfiguration = labelConfiguration;
+            this.operInfoConfig = operInfoConfig;
         }
         public IActionResult Index()
         {
@@ -1009,8 +1013,13 @@ namespace SVN_Portal.Controllers
         }
 
         #region Nhập kết quả sản xuất
-        public IActionResult WorkOrderInfo()
+        public IActionResult WorkOrderInfo(string workOrder)
         {
+            if(!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
             return View();
         }
 
@@ -1305,8 +1314,45 @@ namespace SVN_Portal.Controllers
                     TempData.Keep("WorkOrderName");
                     if (result.OK)
                     {
+                        string operation = "";
+                        InputProductDataRequest dataWORequest = new InputProductDataRequest()
+                        {
+                            WorkOrderNumber = data.Name.Split("-")[0],
+                            LotNumber = ""
+                        };
+                        var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                        if (woResult != null) 
+                        {
+                            if (woResult.OK) 
+                            {
+                                WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
+                                if(workOrderInfo.OrderInfo["name"] == data.Name)
+                                {
+                                    processResult.OK = false;
+                                    processResult.Message = "Lệnh sản xuất nhập thất bại";
+                                    return Json(new { result = processResult.OK, message = processResult.Message });
+                                }
+                                List<OperInfo> opers = operInfoConfig.OperInfo;
+                                var currentOper = opers.Where(x => x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
+                                if (currentOper != null)
+                                {
+                                    operation = currentOper.MasterOperation;
+                                }
+                            }
+                            else
+                            {
+                                return Json(new { result = woResult.OK, message = woResult.Message });
+                            }
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
+                            return Json(new { result = processResult.OK, message = processResult.Message });
+                        }
+
                         processResult.OK = true;
-                        return Json(new { result = processResult.OK, message = processResult.Message });
+                        return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
                     }
                     else
                     {

@@ -62,5 +62,31 @@ namespace SVNShareLib.DAL
                 return null;
             }
         }
+
+        /// <summary>
+        /// Ghét thời gian để đếm ngược
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="fromTime"></param>
+        /// <returns></returns>
+        public async Task<SVN_Equipment_Status_Update_Detail_UI> GetEquipmentStatusUpdateDetail(string operation)
+        {
+            SVN_Equipment_Status_Update_Detail_UI dataUI = new SVN_Equipment_Status_Update_Detail_UI();
+            int timeOut = 1000;
+            try
+            {
+                string sql = "select TOP(1) * from SVN_Equipment_Status_Update_Detail where Operation = @operation order by FromTime desc";
+                var param = new { operation = operation };
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = await connection.QueryFirstOrDefaultAsync<SVN_Equipment_Status_Update_Detail_UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

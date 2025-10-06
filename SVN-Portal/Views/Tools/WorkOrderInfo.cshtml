@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_ToolsLayout.cshtml";
     ViewData["Title"] = "Nhập kết quả sản xuất";
+    string masterWorkOrder = ViewBag.MasterWorkOrder as string ?? "";
 }
 <form method="post">
     <div class="row">
@@ -34,7 +35,7 @@
                 <div class="col-12 col-md-6">
                     <div class="form-group">
                         <label class="control-label">Lệnh sản xuất</label>
-                        <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" />
+                        <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" value="@masterWorkOrder" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -141,7 +142,12 @@
             success: function (res) {
                 if(res.result) {
                     console.log("Gửi thành công:", res);
-                    GetProductByWorkOrder('#txtWorkOrderCode');
+                    if(res.operation == "POP"){
+                        window.location.href = "http://10.10.99.10:8102/Utils/Whoopnew/WALTER?workOrder=" + res.workorder
+                    }
+                    else{
+                        GetProductByWorkOrder('#txtWorkOrderCode');
+                    }
                 }
                 else{
                     alert(res.message);
