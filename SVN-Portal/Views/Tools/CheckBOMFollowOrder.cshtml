@@ -108,6 +108,32 @@
                     $("#divResultLight").removeClass("bg-light");
                     $("#divResultLight").removeClass("bg-danger");
                     $("#divResultLight").addClass("bg-success");
+
+                    $("table tbody tr").each(function () {
+                        let $th = $(this).find("th");
+                        let $td = $(this).find("td");
+
+                        if ($th.text().includes(wipcode)) {
+                            $td.text("✅");
+                        }
+                    });
+
+                    // --- Sắp xếp lại: đưa những dòng có ✅ lên đầu ---
+                    let $rows = $("table tbody tr");
+
+                    // Sort: kiểm tra td có chứa ✅ không
+                    $rows.sort(function (a, b) {
+                        let aHas = $(a).find("td").text().includes("✅");
+                        let bHas = $(b).find("td").text().includes("✅");
+
+                        // Nếu a có ✅ mà b không có → a lên trước
+                        if (aHas && !bHas) return -1;
+                        if (!aHas && bHas) return 1;
+                        return 0;
+                    });
+
+                    // Gắn lại vào tbody
+                    $("table tbody").html($rows);
                 }
                 $('input[name="wIPCode"]').val("");
             },

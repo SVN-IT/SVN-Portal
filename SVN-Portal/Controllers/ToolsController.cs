@@ -1486,6 +1486,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<thead>");
             sb.Append("<tr>");
             sb.Append("<th scope=\"col\">Thành phần</th>");
+            sb.Append("<th scope=\"col\">Trạng thái</th>");
             sb.Append("</tr>");
             sb.Append("</thead>");
             sb.Append("<tbody>");
@@ -1495,6 +1496,7 @@ namespace SVN_Portal.Controllers
             {
                 sb.Append("<tr>");
                 sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
+                sb.Append("<td></td>");
                 sb.Append("</tr>");
             }
             sb.Append("</tbody>");
