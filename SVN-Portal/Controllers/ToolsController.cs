@@ -1398,6 +1398,8 @@ namespace SVN_Portal.Controllers
             HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
             try
             {
+                TempData.Remove("CorrectItems");
+
                 InputProductDataRequest dataRequest = new InputProductDataRequest()
                 {
                     WorkOrderNumber = workOrderCode,
@@ -1432,9 +1434,21 @@ namespace SVN_Portal.Controllers
 
         private string BuildWorkOrderInfoV1(WorkOrderInfo workOrderInfo)
         {
+            List<string> correctItems = new List<string>();
+
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             StringBuilder sb = new StringBuilder();
-            sb.Append("<div class=\"col-9\">");
+            sb.Append("<div class=\"col-3\">");
+            sb.Append("<div class=\"card svn-card\">");
+            sb.Append("<div class=\"card-title\">");
+            sb.Append("</div>");
+            sb.Append("<div class=\"card-body\">");
+            sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-9\">");
             sb.Append("<div class=\"card svn-card\">");
             sb.Append("<div class=\"card-title\">");
             sb.Append("</div>");
@@ -1494,27 +1508,22 @@ namespace SVN_Portal.Controllers
             workOrderInfo.StockMoveInfo = workOrderInfo.StockMoveInfo.OrderByDescending(x => x["has_tracking"]).ToList();
             foreach (var item in workOrderInfo.StockMoveInfo)
             {
+                correctItems.Add(item["product_name"]);
                 sb.Append("<tr>");
                 sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
                 sb.Append("<td></td>");
                 sb.Append("</tr>");
             }
+            TempData["CorrectItems"] = string.Join("|", correctItems);
+            TempData.Keep("CorrectItems");
+
             sb.Append("</tbody>");
             sb.Append("</table>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
-            sb.Append("<div class=\"col-3\">");
-            sb.Append("<div class=\"card svn-card\">");
-            sb.Append("<div class=\"card-title\">");
-            sb.Append("</div>");
-            sb.Append("<div class=\"card-body\">");
-            sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
-            sb.Append("</div>");
-            sb.Append("</div>");
-            sb.Append("</div>");
-            sb.Append("</div>");
+            
             return sb.ToString();
         }
 
@@ -1533,60 +1542,37 @@ namespace SVN_Portal.Controllers
             setLightRequest.Port = 55443;
             try
             {
-                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                string correctItems = TempData.Peek("CorrectItems") as string;
+                List<string> correctItemList = new List<string>();
+                if (!string.IsNullOrWhiteSpace(correctItems))
                 {
-                    WorkOrderNumber = workOrderCode,
-                    LotNumber = ""
-                };
-                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
-                if (result != null)
+                    correctItemList = correctItems.Split('|').ToList();
+                }
+                else
                 {
-                    if (result.OK)
-                    {
-                        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
-                        if(workOrderInfo != null && workOrderInfo.StockMoveInfo != null && workOrderInfo.StockMoveInfo.Count > 0)
-                        {
-                            var exitsData = workOrderInfo.StockMoveInfo.FirstOrDefault(x => x["product_name"].Contains(wipcode));
-                            if(exitsData != null)
-                            {
-                                setLightRequest.Color = Color.Green.Name;
-                                await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
+                    correctItemList = new List<string>();
+                }
+                var exitsData = correctItemList.FirstOrDefault(x => x.Contains(wipcode));
+                if (exitsData != null)
+                {
+                    //setLightRequest.Color = Color.Green.Name;
+                    //await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
 
-                                processResult.OK = true;
-                                processResult.Message = "Khớp";
-                            }
-                            else
-                            {
-                                setLightRequest.Color = "Red";
-                                await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
-                                processResult.OK = false;
-                                processResult.Message = "Không khớp";
-                            }
-                        }
-                        else
-                        {
-                            setLightRequest.Color = "Red";
-                            await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
-                            processResult.OK = false;
-                            processResult.Message = "Không có dữ liệu";
-                        }
-                            
-                        return Json(new { result = processResult.OK, message = processResult.Message });
-                    }
-                    else
-                    {
-                        setLightRequest.Color = "Red";
-                        await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
-                        processResult.OK = false;
-                        processResult.Message = "Không có dữ liệu";
-                    }
-
+                    processResult.OK = true;
+                    processResult.Message = "Khớp";
+                }
+                else
+                {
+                    //setLightRequest.Color = "Red";
+                    //await httpClientHelper.PostRequest("api/YeelightService/SetBlinkColor", setLightRequest, new CancellationToken(false));
+                    processResult.OK = false;
+                    processResult.Message = "Không khớp";
                 }
             }
             catch (Exception ex)
             {
-                setLightRequest.Color = "Red";
-                await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
+                //setLightRequest.Color = "Red";
+                //await httpClientHelper.PostRequest("api/YeelightService/SetColor", setLightRequest, new CancellationToken(false));
                 processResult.OK = false;
                 processResult.Message = ex.Message;
             }

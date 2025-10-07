@@ -36,14 +36,17 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-6 d-none">
             <h4>Phím 1 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
             <h4>Phím 2 (Bàn phím số) - Nhập mã thành phần</h4>
-            <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
-            <h4>Phím 4 (Bàn phím số) - Mở trang scan</h4>
+            @* <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
+            <h4>Phím 4 (Bàn phím số) - Mở trang scan</h4> *@
             <h4>Phím F5 - Reset lại trang web</h4>
         </div>
-        <div id="divWorkOrder" class="row col-12">
+        <div class="col-12">
+            <div id="divWorkOrder" class="row">
+
+            </div>
         </div>
     </div>
 </form>
@@ -186,17 +189,17 @@
                 $('input[name="wIPCode"]').focus();
             }
 
-            // Mở trang máy in
-            if(e.code === "Numpad3"){
-                e.preventDefault();
-                window.location.href = "http://10.10.99.10:8102/Utils/Whoop/WHOOP";
-            }
+            // // Mở trang máy in
+            // if(e.code === "Numpad3"){
+            //     e.preventDefault();
+            //     window.location.href = "http://10.10.99.10:8102/Utils/Whoop/WHOOP";
+            // }
 
-            // Mở trang scan
-            if(e.code === "Numpad4"){
-                e.preventDefault();
-                window.location.href = "http://10.10.99.10:8102/utils/scantocheck/whoop#";
-            }
+            // // Mở trang scan
+            // if(e.code === "Numpad4"){
+            //     e.preventDefault();
+            //     window.location.href = "http://10.10.99.10:8102/utils/scantocheck/whoop#";
+            // }
         });
     });
 </script>
