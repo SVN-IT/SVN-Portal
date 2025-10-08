@@ -1962,6 +1962,99 @@ namespace SVN_Portal.Controllers
         }
 
 
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime date)
+        {
+            ViewBag.date = date;
+            List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            try
+            {
+                viewModels = await GetPDResultDailyDataV0(date);
+                return View(viewModels);
+            }
+            catch (Exception ex)
+            {
+                return View(viewModels);
+            }
+        }
+
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime date)
+        {
+            try
+            {
+                var viewModels = await GetPDResultDailyDataV0(date);
+                if (viewModels == null || viewModels.Count == 0)
+                {
+                    return RedirectToAction("PDResultDailyReport");
+                }
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("PD Result Daily Report");
+                    worksheet.Cell(1, 1).Value = "Production Result Daily";
+                    worksheet.Cell(2, 1).Value = "Operation active";
+                    worksheet.Cell(2, 2).Value = "Monthly Plan Achieve";
+                    worksheet.Cell(2, 6).Value = "Daily Plan Achieve";
+                    worksheet.Cell(2, 9).Value = "UPH";
+                    worksheet.Cell(2, 10).Value = "UPPH";
+                    worksheet.Cell(2, 11).Value = "Labor";
+                    worksheet.Cell(2, 12).Value = "Defect Target Rate";
+                    worksheet.Cell(2, 15).Value = "Check list on system";
+                    worksheet.Cell(2, 16).Value = "Remark";
+                    worksheet.Cell(3, 2).Value = "ERP WO #";
+                    worksheet.Cell(3, 3).Value = "Plan";
+                    worksheet.Cell(3, 4).Value = "Done";
+                    worksheet.Cell(3, 5).Value = "%";
+                    worksheet.Cell(3, 6).Value = "Target";
+                    worksheet.Cell(3, 7).Value = "Current";
+                    worksheet.Cell(3, 8).Value = "%";
+                    worksheet.Cell(3, 12).Value = "Target";
+                    worksheet.Cell(3, 13).Value = "Current";
+                    worksheet.Cell(3, 14).Value = "%";
+
+                    worksheet.Range(1, 1, 1, 16).Merge();
+                    worksheet.Range(2, 1, 3, 1).Merge();
+                    worksheet.Range(2, 2, 2, 5).Merge();
+                    worksheet.Range(2, 6, 2, 8).Merge();
+                    worksheet.Range(2, 9, 3, 9).Merge();
+                    worksheet.Range(2, 10, 3, 10).Merge();
+                    worksheet.Range(2, 11, 3, 11).Merge();
+                    worksheet.Range(2, 12, 2, 14).Merge();
+                    worksheet.Range(2, 15, 3, 15).Merge();
+                    worksheet.Range(2, 16, 3, 16).Merge();
+
+                    int row = 4;
+                    foreach (var item in viewModels)
+                    {
+                        worksheet.Cell(row, 1).Value = item.OperationActive;
+                        worksheet.Cell(row, 6).Value = item.DailyPlanTarget;
+                        worksheet.Cell(row, 7).Value = item.DailyPlanCurrent;
+                        worksheet.Cell(row, 8).Value = item.DailyPlanAchieve;
+                        worksheet.Cell(row, 9).Value = item.UPH;
+                        worksheet.Cell(row, 10).Value = item.UPPH;
+                        worksheet.Cell(row, 11).Value = item.Labor;
+                        worksheet.Cell(row, 12).Value = item.DefectTargetRate;
+                        worksheet.Cell(row, 13).Value = item.DefectCurrentRate;
+                        worksheet.Cell(row, 14).Value = item.DefectRate;
+                        worksheet.Cell(row, 15).Value = item.CheckListOnSystem;
+                        worksheet.Cell(row, 16).Value = item.Remark;
+                        row++;
+                    }
+
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        string fileName = "PDResultDailyReport" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+                        workbook.SaveAs(stream);
+                        //Return xlsx Excel File  
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { ok = false, message = ex.Message });
+            }
+        }
+
+
         /// <summary>
         /// Hàm lấy dữ liệu sản xuất thời gian thực
         /// </summary>
