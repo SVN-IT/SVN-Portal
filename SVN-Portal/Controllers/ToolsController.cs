@@ -1023,6 +1023,16 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
+        public IActionResult WorkOrderInfoV1(string workOrder)
+        {
+            if (!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
+            return View();
+        }
+
         /// <summary>
         /// Hàm nhập kết quả sản xuất theo Work Order
         /// </summary>

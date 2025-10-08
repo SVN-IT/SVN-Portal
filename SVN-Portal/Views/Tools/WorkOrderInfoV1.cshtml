@@ -53,7 +53,6 @@
             <h4>Phím F5 - Reset lại trang web</h4>
         </div>
         <div id="divWorkOrder" class="row col-12">
-            
         </div>
     </div>
 </form>
@@ -142,18 +141,17 @@
             success: function (res) {
                 if(res.result) {
                     console.log("Gửi thành công:", res);
-                    // if(res.operation == "Walter"){
-                    //     window.location.href = "http://10.10.99.10:8102/Utils/Whoopnew/WALTER?workOrder=" + res.workorder
-                    // }
-                    // else{
-                    //     GetProductByWorkOrder('#txtWorkOrderCode');
-                    // }
-                    GetProductByWorkOrder('#txtWorkOrderCode');
+                    if(res.operation == "POP"){
+                        window.location.href = "http://10.10.99.10:8102/Utils/Whoopnew/WALTER?workOrder=" + res.workorder
+                    }
+                    else{
+                        GetProductByWorkOrder('#txtWorkOrderCode');
+                    }
                 }
                 else{
                     alert(res.message);
                 }
-                
+
             },
             error: function (err) {
                 console.error("Lỗi:", err);
