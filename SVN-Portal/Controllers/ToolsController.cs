@@ -1023,13 +1023,14 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
-        public IActionResult WorkOrderInfoV1(string workOrder)
+        public IActionResult WorkOrderInfoV1(string workOrder, string operation)
         {
             if (!string.IsNullOrWhiteSpace(workOrder))
             {
                 workOrder = workOrder.Replace("%2f", "/");
             }
             ViewBag.MasterWorkOrder = workOrder;
+            ViewBag.Operation = operation;
             return View();
         }
 

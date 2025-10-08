@@ -2,6 +2,7 @@
     Layout = "~/Views/Shared/_ToolsLayout.cshtml";
     ViewData["Title"] = "Nhập kết quả sản xuất";
     string masterWorkOrder = ViewBag.MasterWorkOrder as string ?? "";
+    string operation = ViewBag.Operation as string ?? "";
 }
 <form method="post">
     <div class="row">
@@ -164,6 +165,14 @@
 
     $(document).ready(function () {
         $('input[name="workOrderCode"]').focus();
+
+        //sử lý logic chuyền walter
+        var operation = "@operation";
+        if(operation == "Walter" && $('#txtWorkOrderCode').val() != ""){
+            document.getElementById('checkScanCode').checked = true;
+            $('input[name="workOrderCode"]').focus();
+            $('#btnSearch').trigger('click');
+        }
 
         // Bắt phím Enter
         $(document).on('keydown', 'input', function (e) {
