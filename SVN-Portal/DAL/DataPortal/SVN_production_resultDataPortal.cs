@@ -1907,6 +1907,10 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else
                                 {
+                                    if(equipmentStatusDetail.State != "Run")
+                                    {
+                                        viewModel.CanProductionByDowntime = false;
+                                    }
                                     if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
                                     {
                                         TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
@@ -1916,7 +1920,6 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (endTime <= endDatetime)
                                         {
                                             viewModel.EndDownTime = endTime;
-                                            viewModel.CanProductionByDowntime = false;
                                         }
                                     }
                                     
