@@ -75,7 +75,7 @@
         var workOrderCode = $(txtworkOrderCode).val();
         showLoader();
         $.ajax({
-            url: '@Url.Action("GetProductByWorkOrder", "Tools")',  // Adjust the controller name if needed
+            url: '@Url.Action("GetProductByWorkOrderV2", "Tools")',  // Adjust the controller name if needed
             type: 'POST',
             data: {workOrderCode: workOrderCode},
             dataType: 'json',
@@ -96,6 +96,7 @@
                             $('#modalInputQuantityCode').modal('show');
                             $('input[name="txtInputQuantityCode"]').val('');
                             $('input[name="txtInputQuantityCode"]').focus();
+                            $('input[name="txtInputQuantityCode"]').val(response.itemCode);
                         } else {
                             $('input[name="Quantity"]').focus();
                         }
@@ -135,7 +136,7 @@
         });
 
         $.ajax({
-            url: '/Tools/InputProductionResult',
+            url: '/Tools/InputProductionResultV1',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formData),

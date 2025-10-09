@@ -1,5 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Lextm.SharpSnmpLib.Messaging;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -1080,6 +1082,65 @@ namespace SVN_Portal.Controllers
         }
 
         /// <summary>
+        /// Hàm nhập kết quả sản xuất theo Work Order
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> GetProductByWorkOrderV2(string workOrderCode)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = workOrderCode,
+                    LotNumber = ""
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    if (result.OK)
+                    {
+                        if (result.Content == null)
+                        {
+                            processResult.OK = false;
+                            processResult.Message = "Lệnh sản xuất nhập thất bại";
+                            return Json(new { result = processResult.OK, message = processResult.Message });
+                        }
+                        string previousWorkOrderName = TempData.Peek("WorkOrderName") as string;
+                        string itemCode = "";
+                        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
+                        List<OperInfo> opers = operInfoConfig.OperInfo;
+                        var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
+                        if (currentOper != null)
+                        {
+                            itemCode = currentOper.Operation.Split("-").Count() > 1 ? currentOper.Operation.Split("-")[1] : "";
+                        }
+
+                        string stringContent = BuildWorkOrderInfo(workOrderInfo, previousWorkOrderName);
+                        processResult.OK = true;
+                        processResult.Message = stringContent;
+                        return Json(new { result = processResult.OK, message = processResult.Message, product_tracking = workOrderInfo.OrderInfo["product_tracking"], itemCode = itemCode });
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Không có dữ liệu";
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
+        }
+
+        /// <summary>
         /// Hàm kiểm tra số seri đã được dùng cho lệnh sản xuất khác chưa
         /// </summary>
         /// <param name="workOrderCode"></param>
@@ -1382,6 +1443,107 @@ namespace SVN_Portal.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { success = false, message = processResult.Message });
+        }
+
+        public async Task<IActionResult> InputProductionResultV1([FromBody] ProductionData data)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                data.Products = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = data.Name,
+                    LotNumber = data.Serial,
+                    Quality = int.Parse(data.Quantity),
+                    LotScaneds = lotScaneds
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    TempData.Remove("WorkOrderName");
+                    TempData["WorkOrderName"] = data.SubName;
+                    TempData.Keep("WorkOrderName");
+                    if (result.OK)
+                    {
+                        string operation = "";
+                        InputProductDataRequest dataWORequest = new InputProductDataRequest()
+                        {
+                            WorkOrderNumber = data.Name.Split("-")[0],
+                            LotNumber = ""
+                        };
+                        var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                        if (woResult != null)
+                        {
+                            if (woResult.OK)
+                            {
+                                if(woResult.Content == null)
+                                {
+                                    processResult.OK = false;
+                                    processResult.Message = "Lệnh sản xuất nhập thất bại";
+                                    return Json(new { result = processResult.OK, message = processResult.Message });
+                                }
+                                WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
+                                if (workOrderInfo.OrderInfo["name"] == data.Name)
+                                {
+                                    processResult.OK = false;
+                                    processResult.Message = "Lệnh sản xuất nhập thất bại";
+                                    return Json(new { result = processResult.OK, message = processResult.Message });
+                                }
+                                List<OperInfo> opers = operInfoConfig.OperInfo;
+                                var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
+                                if (currentOper != null)
+                                {
+                                    operation = currentOper.MasterOperation;
+                                }
+                            }
+                            else
+                            {
+                                return Json(new { result = woResult.OK, message = woResult.Message });
+                            }
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
+                            return Json(new { result = processResult.OK, message = processResult.Message });
+                        }
+
+                        processResult.OK = true;
+                        return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        if (!string.IsNullOrWhiteSpace(result.Message))
+                        {
+                            processResult.Message = result.Message;
+                        }
+                        else
+                        {
+                            processResult.Message = "Không có dữ liệu";
+                        }
+
+                    }
+
+                }
+            }
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
