@@ -1331,36 +1331,36 @@ namespace SVN_Portal.Controllers
                             WorkOrderNumber = data.Name.Split("-")[0],
                             LotNumber = ""
                         };
-                        var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
-                        if (woResult != null) 
-                        {
-                            if (woResult.OK) 
-                            {
-                                WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
-                                if(workOrderInfo.OrderInfo["name"] == data.Name)
-                                {
-                                    processResult.OK = false;
-                                    processResult.Message = "Lệnh sản xuất nhập thất bại";
-                                    return Json(new { result = processResult.OK, message = processResult.Message });
-                                }
-                                List<OperInfo> opers = operInfoConfig.OperInfo;
-                                var currentOper = opers.Where(x => x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
-                                if (currentOper != null)
-                                {
-                                    operation = currentOper.MasterOperation;
-                                }
-                            }
-                            else
-                            {
-                                return Json(new { result = woResult.OK, message = woResult.Message });
-                            }
-                        }
-                        else
-                        {
-                            processResult.OK = false;
-                            processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
-                            return Json(new { result = processResult.OK, message = processResult.Message });
-                        }
+                        //var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                        //if (woResult != null) 
+                        //{
+                        //    if (woResult.OK) 
+                        //    {
+                        //        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
+                        //        if(workOrderInfo.OrderInfo["name"] == data.Name)
+                        //        {
+                        //            processResult.OK = false;
+                        //            processResult.Message = "Lệnh sản xuất nhập thất bại";
+                        //            return Json(new { result = processResult.OK, message = processResult.Message });
+                        //        }
+                        //        List<OperInfo> opers = operInfoConfig.OperInfo;
+                        //        var currentOper = opers.Where(x => x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
+                        //        if (currentOper != null)
+                        //        {
+                        //            operation = currentOper.MasterOperation;
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        return Json(new { result = woResult.OK, message = woResult.Message });
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    processResult.OK = false;
+                        //    processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
+                        //    return Json(new { result = processResult.OK, message = processResult.Message });
+                        //}
 
                         processResult.OK = true;
                         return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
