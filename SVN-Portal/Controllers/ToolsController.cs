@@ -1475,6 +1475,8 @@ namespace SVN_Portal.Controllers
                     return y;
                 }).ToList();
 
+                InputProductDataRequest dataRequest = new InputProductDataRequest();
+
                 int quatity = int.Parse(data.Quantity);
 
                 //Lấy ra số lượng còn lại
@@ -1493,16 +1495,16 @@ namespace SVN_Portal.Controllers
                     if(quatity > remainQty)
                     {
                         quatity = remainQty;
+                        dataRequest.IsLastOrder = true;
                     }
                 }
 
-                InputProductDataRequest dataRequest = new InputProductDataRequest()
-                {
-                    WorkOrderNumber = data.Name,
-                    LotNumber = data.Serial,
-                    Quality = quatity,
-                    LotScaneds = lotScaneds
-                };
+                dataRequest.WorkOrderNumber = data.Name;
+                dataRequest.LotNumber = data.Serial;
+                dataRequest.Quality = quatity;
+                dataRequest.LotScaneds = lotScaneds;
+
+
                 var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
                 if (result != null)
                 {

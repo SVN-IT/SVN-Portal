@@ -579,9 +579,14 @@ namespace ViidooDBServiceAPI.Controllers
 
                         var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
-                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType, lot_id);
+                        if (!dataRequest.IsLastOrder)
+                        {
+                            var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType, lot_id);
 
-                        var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                            var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        }
+
+                        
 
                         bODataProcessResult.OK = true;
                         bODataProcessResult.Message = "Hoàn thành lệnh sản xuất";

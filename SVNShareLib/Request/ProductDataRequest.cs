@@ -24,6 +24,7 @@ namespace SVNShareLib.Request
         public string? WorkOrderNumber { get; set; }
         public string? LotNumber { get; set; }
         public int Quality { get; set; }
+        public bool IsLastOrder { get; set; }
         public List<LotScanedRequest> LotScaneds { get; set; }
     }
 
