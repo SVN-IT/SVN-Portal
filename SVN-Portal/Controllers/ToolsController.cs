@@ -1112,6 +1112,14 @@ namespace SVN_Portal.Controllers
                         string previousWorkOrderName = TempData.Peek("WorkOrderName") as string;
                         string itemCode = "";
                         WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(result.Content.ToString());
+
+                        //Lưu số lượng sản xuất còn lại
+                        TempData.Remove("RemainQty");
+                        TempData["RemainQty"] = workOrderInfo.OrderInfo["product_qty"] as string;
+                        TempData.Keep("RemainQty");
+
+
+
                         List<OperInfo> opers = operInfoConfig.OperInfo;
                         var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
                         if (currentOper != null)
@@ -1466,11 +1474,33 @@ namespace SVN_Portal.Controllers
                     lotScaneds.Add(lotScaned);
                     return y;
                 }).ToList();
+
+                int quatity = int.Parse(data.Quantity);
+
+                //Lấy ra số lượng còn lại
+                var strRemainQty = TempData.Peek("RemainQty") as string;
+                if (!string.IsNullOrWhiteSpace(strRemainQty))
+                {
+                    int remainQty = 0;
+                    try
+                    {
+                        remainQty = int.Parse(strRemainQty);
+                    }
+                    catch
+                    {
+
+                    }
+                    if(quatity > remainQty)
+                    {
+                        quatity = remainQty;
+                    }
+                }
+
                 InputProductDataRequest dataRequest = new InputProductDataRequest()
                 {
                     WorkOrderNumber = data.Name,
                     LotNumber = data.Serial,
-                    Quality = int.Parse(data.Quantity),
+                    Quality = quatity,
                     LotScaneds = lotScaneds
                 };
                 var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
