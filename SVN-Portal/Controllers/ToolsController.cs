@@ -1492,7 +1492,7 @@ namespace SVN_Portal.Controllers
                     {
 
                     }
-                    if(quatity > remainQty)
+                    if(quatity >= remainQty)
                     {
                         quatity = remainQty;
                         dataRequest.IsLastOrder = true;
