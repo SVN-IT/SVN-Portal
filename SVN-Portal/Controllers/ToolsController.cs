@@ -25,13 +25,15 @@ namespace SVN_Portal.Controllers
 {
     public class ToolsController : Controller
     {
+        private readonly ILogger<ToolsController> _logger;
         DBConfiguration dBConfiguration;
         string connectionString;
         ToolsHelper toolsHelper;
         APIConfiguration aPIConfiguration;
         TOASTLabelConfiguration labelConfiguration;
         OperInfoConfig operInfoConfig;
-        public ToolsController(DBConfiguration dBConfiguration, 
+        public ToolsController(DBConfiguration dBConfiguration,
+            ILogger<ToolsController> logger,
             ToolsHelper toolsHelper, 
             APIConfiguration aPIConfiguration,
             OperInfoConfig operInfoConfig,
@@ -43,6 +45,7 @@ namespace SVN_Portal.Controllers
             this.aPIConfiguration = aPIConfiguration;
             this.labelConfiguration = labelConfiguration;
             this.operInfoConfig = operInfoConfig;
+            _logger = logger;
         }
         public IActionResult Index()
         {
@@ -1528,6 +1531,9 @@ namespace SVN_Portal.Controllers
                                 {
                                     processResult.OK = false;
                                     processResult.Message = "Lệnh sản xuất nhập thất bại";
+
+                                    _logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+
                                     return Json(new { result = processResult.OK, message = processResult.Message });
                                 }
                                 WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
@@ -1535,6 +1541,9 @@ namespace SVN_Portal.Controllers
                                 {
                                     processResult.OK = false;
                                     processResult.Message = "Lệnh sản xuất nhập thất bại";
+
+                                    _logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+
                                     return Json(new { result = processResult.OK, message = processResult.Message });
                                 }
                                 List<OperInfo> opers = operInfoConfig.OperInfo;
@@ -1553,10 +1562,16 @@ namespace SVN_Portal.Controllers
                         {
                             processResult.OK = false;
                             processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
+
+                            _logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+
                             return Json(new { result = processResult.OK, message = processResult.Message });
                         }
 
                         processResult.OK = true;
+
+                        _logger.LogInformation("Lệnh sản xuất " + data.Name + " nhập thành công: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm"));
+
                         return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
                     }
                     else
@@ -1578,6 +1593,9 @@ namespace SVN_Portal.Controllers
             catch (Exception ex)
             {
                 processResult.Message = ex.Message;
+
+
+                _logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
             }
             return Json(new { success = false, message = processResult.Message });
         }
