@@ -514,12 +514,12 @@ namespace SVN_Portal.Controllers
                     {
                         foreach (var wc in item.WC)
                         {
-                            opers.Add(new OperInfo { Operation = item.Operation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
+                            opers.Add(new OperInfo { Operation = item.Operation, MasterOperation = item.MasterOperation, WCName = wc.WCName, Top_row = wc.Top_row, ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                         }
                     }
                     else
                     {
-                        opers.Add(new OperInfo { Operation = item.Operation, WCName = "", ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
+                        opers.Add(new OperInfo { Operation = item.Operation, MasterOperation = item.MasterOperation, WCName = "", ColWidth = item.ColWidth, Name = item.Name, StoreID = item.StoreID });
                     }
                 }
 

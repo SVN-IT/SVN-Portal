@@ -1674,7 +1674,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
                                 Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
                             };
-
+                            viewModel.MasterOperation = item.MasterOperation;
                             //Tính lại Current UPH khi operation là POP
                             if (viewModel.MasterOperation.Contains("POP"))
                             {

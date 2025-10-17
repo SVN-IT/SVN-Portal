@@ -1541,7 +1541,7 @@ namespace SVN_Portal.Controllers
                                     return Json(new { result = processResult.OK, message = processResult.Message });
                                 }
                                 WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
-                                if (workOrderInfo.OrderInfo["name"] == data.SubName)
+                                if (workOrderInfo.OrderInfo["name"] == data.SubName && dataRequest.IsLastOrder == false)
                                 {
                                     processResult.OK = false;
                                     processResult.Message = "Lệnh đã được nhập trước đó";
