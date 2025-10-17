@@ -1545,7 +1545,7 @@ namespace SVN_Portal.Controllers
                                 {
                                     processResult.OK = false;
                                     processResult.Message = "Lệnh đã được nhập trước đó";
-                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message + "Lệnh đã được nhập trước đó");
+                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
                                     //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
                                     return Json(new { result = processResult.OK, message = processResult.Message });
