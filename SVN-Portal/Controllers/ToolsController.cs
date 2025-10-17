@@ -1533,19 +1533,19 @@ namespace SVN_Portal.Controllers
                                 if(woResult.Content == null)
                                 {
                                     processResult.OK = false;
-                                    processResult.Message = "Lệnh sản xuất nhập thất bại";
-                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                                    processResult.Message = "Lệnh sản xuất nhập thất bại, kiểm tra MES";
+                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
                                     //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
                                     return Json(new { result = processResult.OK, message = processResult.Message });
                                 }
                                 WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
-                                if (workOrderInfo.OrderInfo["name"] == data.Name)
+                                if (workOrderInfo.OrderInfo["name"] == data.SubName)
                                 {
                                     processResult.OK = false;
-                                    processResult.Message = "Lệnh sản xuất nhập thất bại";
-                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                                    processResult.Message = "Lệnh đã được nhập trước đó";
+                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message + "Lệnh đã được nhập trước đó");
                                     //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
                                     return Json(new { result = processResult.OK, message = processResult.Message });
@@ -1566,7 +1566,7 @@ namespace SVN_Portal.Controllers
                         {
                             processResult.OK = false;
                             processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
-                            logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                            logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
                             //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
                             return Json(new { result = processResult.OK, message = processResult.Message });
@@ -1574,7 +1574,7 @@ namespace SVN_Portal.Controllers
 
                         processResult.OK = true;
 
-                        logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Info, "Lệnh sản xuất " + data.Name + " nhập thành công: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm"));
+                        logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Info, "Lệnh sản xuất " + data.SubName + " nhập thành công: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm"));
                         //_logger.LogInformation("Lệnh sản xuất " + data.Name + " nhập thành công: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm"));
 
                         return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
