@@ -46,7 +46,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-6 d-none">
             <h4>Phím 1 (Bàn phím số) - ✅ Quét số serial để nhập số lượng</h4>
             <h4>Phím 2 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
             <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
@@ -316,33 +316,33 @@
         });
 
         document.addEventListener("keydown", function (e) {
-            // Để check/uncheck id=checkScanCode
-            if (e.code === "Numpad1") {
-                let checkbox = $("#checkScanCode");
-                checkbox.prop("checked", !checkbox.prop("checked"));
+            // // Để check/uncheck id=checkScanCode
+            // if (e.code === "Numpad1") {
+            //     let checkbox = $("#checkScanCode");
+            //     checkbox.prop("checked", !checkbox.prop("checked"));
 
-                if ($(e.target).is("input, textarea")) {
-                    e.preventDefault(); // chặn nhập số 1
-                }
-            }
-            // Để forcus name=workOrderCode
-            if(e.code === "Numpad2"){
-                e.preventDefault();
-                $('input[name="workOrderCode"]').val("");
-                $('input[name="workOrderCode"]').focus();
-            }
+            //     if ($(e.target).is("input, textarea")) {
+            //         e.preventDefault(); // chặn nhập số 1
+            //     }
+            // }
+            // // Để forcus name=workOrderCode
+            // if(e.code === "Numpad2"){
+            //     e.preventDefault();
+            //     $('input[name="workOrderCode"]').val("");
+            //     $('input[name="workOrderCode"]').focus();
+            // }
 
-            // Mở trang máy in
-            if(e.code === "Numpad3"){
-                e.preventDefault();
-                window.location.href = "http://10.10.99.10:8102/Utils/Whoop/WHOOP";
-            }
+            // // Mở trang máy in
+            // if(e.code === "Numpad3"){
+            //     e.preventDefault();
+            //     window.location.href = "http://10.10.99.10:8102/Utils/Whoop/WHOOP";
+            // }
 
-            // Mở trang scan
-            if(e.code === "Numpad4"){
-                e.preventDefault();
-                window.location.href = "http://10.10.99.10:8102/utils/scantocheck/whoop#";
-            }
+            // // Mở trang scan
+            // if(e.code === "Numpad4"){
+            //     e.preventDefault();
+            //     window.location.href = "http://10.10.99.10:8102/utils/scantocheck/whoop#";
+            // }
         });
     });
 </script>
