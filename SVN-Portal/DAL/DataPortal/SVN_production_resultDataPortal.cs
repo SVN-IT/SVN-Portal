@@ -362,9 +362,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
@@ -380,9 +387,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
@@ -442,6 +456,13 @@ namespace SVN_Portal.DAL.DataPortal
                             NGVM.Target = Math.Round(dataUIByOper.Defect * 100, 2);
                             NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
                             NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
+
+                            //Tính lại Current UPH khi operation là POP
+                            if (viewModel.MasterOperation.Contains("POP"))
+                            {
+                                UPHVM.Current = UPPHVM.Current * LaborVM.Current;
+                                UPHVM.Percent = UPHVM.Target != 0 ? (UPHVM.Current / UPHVM.Target) * 100 : 0;
+                            }
 
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
@@ -731,9 +752,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
@@ -749,9 +777,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
@@ -813,6 +848,13 @@ namespace SVN_Portal.DAL.DataPortal
                             NGVM.Target = dataUIByOper.Defect;
                             NGVM.Current = dataUIByOper.Total_NG_Qty;
                             NGVM.Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) : 0;
+
+                            //Tính lại Current UPH khi operation là POP
+                            if (viewModel.MasterOperation.Contains("POP"))
+                            {
+                                UPHVM.Current = UPPHVM.Current * LaborVM.Current;
+                                UPHVM.Percent = UPHVM.Target != 0 ? (UPHVM.Current / UPHVM.Target) * 100 : 0;
+                            }
 
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
@@ -1101,9 +1143,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
@@ -1119,9 +1168,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
@@ -1181,6 +1237,13 @@ namespace SVN_Portal.DAL.DataPortal
                             NGVM.Target = Math.Round(dataUIByOper.Defect, 2);
                             NGVM.Current = Math.Round(dataUIByOper.Total_NG_Qty, 2);
                             //NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
+
+                            //Tính lại Current UPH khi operation là POP
+                            if (viewModel.MasterOperation.Contains("POP"))
+                            {
+                                UPHVM.Current = UPPHVM.Current * LaborVM.Current;
+                                UPHVM.Percent = UPHVM.Target != 0 ? (UPHVM.Current / UPHVM.Target) * 100 : 0;
+                            }
 
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
@@ -1517,9 +1580,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
@@ -1535,9 +1605,16 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
                                     var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
-                                    if (productionUI != null)
+                                    if (firstProductionUI != null && productionUI != null)
                                     {
+                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                        if (firstProductionUI.name != productionUI.name)
+                                        {
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        }
+
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
@@ -1597,6 +1674,14 @@ namespace SVN_Portal.DAL.DataPortal
                                 Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
                                 Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
                             };
+
+                            //Tính lại Current UPH khi operation là POP
+                            if (viewModel.MasterOperation.Contains("POP"))
+                            {
+                                UPHVM.Current = UPPHVM.Current * LaborVM.Current;
+                                UPHVM.Percent = UPHVM.Target != 0 ? (UPHVM.Current / UPHVM.Target) * 100 : 0;
+                            }
+
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
                             viewModel.TargetViewModels.Add(UPPHVM);
@@ -1953,9 +2038,16 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
+                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, curDateTime);
                                 var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime);
-                                if (productionUI != null)
+                                if (firstProductionUI != null && productionUI != null)
                                 {
+                                    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    if (firstProductionUI.name != productionUI.name)
+                                    {
+                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                    }
+
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
                                     // Lấy hiệu 2 thời điểm
                                     //TimeSpan diff = curDateTime - startDatetime;
@@ -1973,9 +2065,16 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             else if (endDatetime < curDateTime)
                             {
+                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, endDatetime);
                                 var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, endDatetime);
-                                if (productionUI != null)
+                                if (firstProductionUI != null && productionUI != null)
                                 {
+                                    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    if(firstProductionUI.name != productionUI.name)
+                                    {
+                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                    }
+
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
                                     // Lấy hiệu 2 thời điểm
                                     //TimeSpan diff = endDatetime - startDatetime;
@@ -2037,6 +2136,14 @@ namespace SVN_Portal.DAL.DataPortal
                         NGVM.Target = Math.Round(dataUIByOper.Defect * 100, 2);
                         NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
                         NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
+
+                        viewModel.MasterOperation = oper.MasterOperation;
+                        //Tính lại Current UPH khi operation là POP
+                        if (viewModel.MasterOperation.Contains("POP"))
+                        {
+                            UPHVM.Current = UPPHVM.Current * LaborVM.Current;
+                            UPHVM.Percent = UPHVM.Target != 0 ? (UPHVM.Current / UPHVM.Target) * 100 : 0;
+                        }
 
                         viewModel.TargetViewModels.Add(dailyPlanVM);
                         viewModel.TargetViewModels.Add(UPHVM);
