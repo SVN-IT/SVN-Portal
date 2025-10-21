@@ -370,6 +370,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
@@ -395,6 +396,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
@@ -760,6 +762,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
@@ -785,6 +788,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
@@ -1151,6 +1155,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
@@ -1176,6 +1181,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
@@ -1588,6 +1594,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
@@ -1613,6 +1620,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (firstProductionUI.name != productionUI.name)
                                         {
                                             startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
                                         finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
@@ -2046,6 +2054,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (firstProductionUI.name != productionUI.name)
                                     {
                                         startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        startDatetime = GetStartTime(sectionTimes, startDatetime);
                                     }
 
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
@@ -2073,6 +2082,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     if(firstProductionUI.name != productionUI.name)
                                     {
                                         startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        startDatetime = GetStartTime(sectionTimes, startDatetime);
                                     }
 
                                     finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
@@ -2183,6 +2193,23 @@ namespace SVN_Portal.DAL.DataPortal
             }
 
             return totalGap;
+        }
+
+        public static DateTime GetStartTime(List<SectionTime> times, DateTime firstInput)
+        {
+            DateTime startTime = firstInput;
+            if(times != null && times.Count > 0)
+            {
+                if(firstInput > times[0].StartTime && firstInput < times[0].EndTime)
+                {
+                    startTime = firstInput;
+                }
+                else
+                {
+                    startTime = times[0].StartTime;
+                }
+            }
+            return startTime;
         }
 
         public static TimeSpan GetTotalGapv1(List<SectionTime> times, DateTime currentTime)
