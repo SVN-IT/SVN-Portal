@@ -1,0 +1,512 @@
+﻿@using Newtonsoft.Json
+@{
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Print Toast Label";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+<script>
+
+    var isExitsInDB = false;
+
+    function CheckSerialNumberInDB(oneSerial, reportSerial) {
+        var newItem = $(oneSerial).val();
+        if (newItem.length == 13) {
+            $.ajax({
+                url: '@Url.Action("GetRecordBySerialID", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: {newItem: newItem},
+                dataType: 'json',
+                success: function (response) {
+
+                    if(response.ok == true){
+                        isExitsInDB = true;
+                    }
+                    else{
+                        isExitsInDB = false;
+                        $(reportSerial).text(newItem + response.message);
+                        $(oneSerial).val('');
+                        $(oneSerial).focus();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        }
+        
+    }
+
+
+    function GetSerialNumber(oneSerial, allSerial, countSerial, reportSerial){
+        var newItem = $(oneSerial).val();
+
+        CheckSerialNumberInDB(oneSerial, reportSerial);
+
+        if(newItem.length == 13 && isExitsInDB){
+            var series = $(allSerial).val();
+            if(series == ''){
+                $(allSerial).val(newItem + ',');
+                $(countSerial).val('1');
+            }
+            else{
+                var arr = series.split(',');
+                arr = arr.filter(function (el) {
+                    return el != '';
+                });
+                var isExits = false;
+                var isMatched = false;
+                for(var i = 0; i < arr.length; i++){
+                    var prefix = arr[i].slice(0, -4);
+                    var number = arr[i].slice(-4);
+
+                    var prefix1 = newItem.slice(0, -4);
+                    var number1 = newItem.slice(-4);
+                    if(prefix1 == prefix){
+                        isMatched = true;
+                        if(number1 == number){
+                            isExits = true;
+                            $(reportSerial).text(newItem + ' đã tồn tại');
+                            break;
+                        }
+                    }
+                }
+
+                var limitSeri = 5;
+                if ($('#chkbApplyPrint150').is(':checked')) {
+                    limitSeri = 50;
+                } 
+                else {
+                    limitSeri = 5;
+                }
+
+                if(isExits == false && isMatched == true && arr.length < limitSeri){
+                    $(allSerial).val($(allSerial).val() + newItem + ',');
+                    $(reportSerial).text('');
+                }
+                else if(isExits == false && isMatched == true && arr.length >= limitSeri){
+                    $(reportSerial).text('Đã đủ số lượng serial number');
+                }
+                series = $(allSerial).val();
+                arr = series.split(',');
+                arr = arr.filter(function (el) {
+                    return el != '';
+                });
+                var strCount = String(arr.length);
+                $(countSerial).val(strCount);
+            }
+            $(oneSerial).val('');
+            $(oneSerial).focus();
+        }
+    }
+
+    function ClearSerial(allSerial, countSerial, reportSerial){
+        $(allSerial).val('');
+        $(countSerial).val('');
+        $(reportSerial).text('');
+        $("#txtNewSeri1").forcus();
+    }
+
+    function DeleteSerialHistory(allSerial){
+        var serialList = $(allSerial).val();
+        var serachSerialID = $("#txtSearchSerialID").val();
+        $.ajax({
+            url: '@Url.Action("DeleteSerialHistory", "Tools")',  // Adjust the controller name if needed
+            type: 'POST',
+            data: {serialList: serialList, operation: "TOAST", serachSerialID: serachSerialID},
+            dataType: 'json',
+            success: function (response) {
+                alert(response.message);
+
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", error);
+                alert("An error occurred while printing.");
+            }
+        });
+    }
+
+    function GetCountBoxInPallet(){
+        var PalletID = $("#txtPalletID").val();
+        $.ajax({
+            url: '@Url.Action("GetCountBoxInPallet", "Tools")',  // Adjust the controller name if needed
+            type: 'POST',
+            data: {PalletID: PalletID},
+            dataType: 'json',
+            success: function (response) {
+                if(response.result){
+                    $("#strBoxCount").text(response.boxCount)
+                }
+                else{
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", error);
+                alert("An error occurred while printing.");
+            }
+        });
+    }
+
+    function ChangeForcusTextBox(curtextbox, nexttextbox){
+        
+        $(curtextbox).keypress(function(event) {
+            if (event.which === 13) { // phím Enter có mã là 13
+            $(nexttextbox).focus();
+            }
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group float-end" style="margin-top:33px">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalPrintPallet" onclick="GetCountBoxInPallet()"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Xác nhận xong Pallet</button>
+                    <button type="button" class="btn btn-warning d-none" id="printStartNewPallet"><i class="fa fa-check-circle-o" aria-hidden="true"></i> Bắt đầu Pallet mới</button>
+                    <div class="modal fade" id="modalPrintPallet" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-dark" id="exampleModalLabel">Xác nhận kết thúc Pallet</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label class="control-label text-dark">Xác nhận in và kết thúc Pallet</label>
+                                        </br>
+                                        <label class="control-label text-dark">Pallet hiện tại có <strong id="strBoxCount"></strong> thùng</label>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" id="printConfirmPallet">Xác nhận</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Chọn máy in</label>
+                    <select id="selectedPrinterID" class="form-control" name="selectedPrinterID" data-live-search="true" asp-items="@ViewBag.PrinterList">
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Số lượng bản</label>
+                    <input type="number" id="copiesInput" name="copies" class="form-control" value="1" />
+                    @* <input type="text" id="txtPalletID" /> *@
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group" style="margin-top:33px">
+                    <button type="button" class="btn btn-primary" id="printButton"><i class="fa fa-print"></i> In</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Pallet ID</label>
+                    <input id="txtPalletID" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3 d-none">
+                <div class="form-group">
+                    <label class="control-label">Toast Part Number</label>
+                    <input id="txtToastPartNumber" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtToastPartNumber', '#txtModelNumber')" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-none">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Model Number</label>
+                    <input id="txtModelNumber" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtModelNumber', '#txtPartDesc')" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-none">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Part Desc</label>
+                    <input id="txtPartDesc" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtPartDesc', '#txtToastPONumber')" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-none">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Toast PO Number</label>
+                    <input id="txtToastPONumber" type="text" class="form-control" onkeypress="ChangeForcusTextBox('#txtToastPONumber', '#txtQuantity')" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-none">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Số lượng</label>
+                    <input type="number" id="txtQuantity" class="form-control" onkeypress="ChangeForcusTextBox('#txtQuantity', '#txtLotID')" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">LotID</label>
+                    <input type="text" id="txtLotID" class="form-control" onkeypress="ChangeForcusTextBox('#txtLotID', '#txtToastPartNumber')" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 d-none">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="chkbApplyPrint150">
+                    <label class="form-check-label" for="chkbApplyPrint150">
+                        Print 150 seri
+                  </label>
+                </div>
+            </div>
+            <div class="col-12 d-none">
+                <label class="control-label">Serial Number</label>
+            </div>
+            <div id="divSeriNumber1" class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">New Seri Number</label>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <input id="txtNewSeri1" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri1', '#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber1', '#txtSerialNumberCount1', '#spanReport1')"><i class="fa fa-trash"></i> Xóa</button>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="txtSeriNumber1" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
+                <div class="form-group">
+                    <label class="control-label">Serial Number Count</label>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <input id="txtSerialNumberCount1" type="text" class="form-control w-100 pe-none" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <span id="spanReport1" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Search SerialID</label>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <input id="txtSearchSerialID" type="text" class="form-control w-100" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger" onclick="DeleteSerialHistory('#txtSerialNumberCount1')"><i class="fa fa-trash"></i> Xóa lịch sử</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divSeriNumber2" class="col-12 col-md-3 d-none">
+                <div class="form-group">
+                    <label class="control-label">New Seri Number</label>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <input id="txtNewSeri2" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri2', '#txtSeriNumber2', '#txtSerialNumberCount2', '#spanReport2')" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber2', '#txtSerialNumberCount2', '#spanReport2')"><i class="fa fa-trash"></i> Xóa</button>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="txtSeriNumber2" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
+                <div class="form-group">
+                    <label class="control-label">Serial Number Count</label>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <input id="txtSerialNumberCount2" type="text" class="form-control w-100 pe-none" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <span id="spanReport2" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divSeriNumber3" class="col-12 col-md-3 d-none">
+                <div class="form-group">
+                    <label class="control-label">New Seri Number</label>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <input id="txtNewSeri3" type="text" class="form-control w-100" oninput="GetSerialNumber('#txtNewSeri3', '#txtSeriNumber3', '#txtSerialNumberCount3', '#spanReport3')" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <button type="button" class="btn btn-danger" onclick="ClearSerial('#txtSeriNumber3', '#txtSerialNumberCount3', '#spanReport3')"><i class="fa fa-trash"></i> Xóa</button>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="txtSeriNumber3" class="w-100 pe-none" rows="5" placeholder="Nhập số seri"></textarea>
+                <div class="form-group">
+                    <label class="control-label">Serial Number Count</label>
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <input id="txtSerialNumberCount3" type="text" class="form-control w-100 pe-none" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <span id="spanReport3" class="fs-4 text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // $(document).ready(function () {
+    //     $('#selectedProductID').select2({
+    //         placeholder: "Select an option",
+    //         allowClear: true
+    //     });
+    // });
+
+    $(document).ready(function() {
+
+        $('#selectedPrinterID').selectpicker();
+
+        $('#txtToastPartNumber').focus();
+
+        $("#printButton").click(function () {
+            var partNumber = $("#txtToastPartNumber").val();
+            var modelNumber = $("#txtModelNumber").val();
+            var toastPONumber = $("#txtToastPONumber").val();
+            var quantity = $("#txtQuantity").val();
+            var lotID = $("#txtLotID").val();
+            var partDesc = $("#txtPartDesc").val();
+            var print150Seri = $('#chkbApplyPrint150').is(':checked');
+            var allSeri1 = $("#txtSeriNumber1").val();
+            var allSeri2 = $("#txtSeriNumber2").val();
+            var allSeri3 = $("#txtSeriNumber3").val();
+            var copies = parseInt($("#copiesInput").val(), 10);
+            var palletIDVal = $("#txtPalletID").val();
+
+            var selectPrinterID = document.getElementById("selectedPrinterID").value;
+
+            // Wrap the values in a single object that matches the PrintRequest class
+            var requestPayload = {
+                PartNumber: partNumber, // case-sensitive; property name must match
+                ModelNumber: modelNumber,
+                ToastPONumber: toastPONumber,
+                Quantity: quantity,
+                LotID: lotID,
+                PartDesc: partDesc,
+                Print150Seri: print150Seri,
+                AllSeri1: allSeri1,
+                AllSeri2: allSeri2,
+                AllSeri3: allSeri3,
+                Copies: copies,
+                PrinterID: selectPrinterID,
+                PalletID: palletIDVal
+            };
+
+            $.ajax({
+                url: '@Url.Action("PrintToastLabelAJAX", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: JSON.stringify(requestPayload),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    $("#txtPalletID").val(response.palletID);
+                    if(response.result == false) {
+                        alert(response.message);
+                    } 
+                    else{
+                        $("#txtNewSeri1").focus();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        });
+
+        $('#chkbApplyPrint150').on('change', function() {
+          if ($(this).is(':checked')) {
+            // Checkbox được chọn, thực hiện hành động
+            $('#divSeriNumber2').removeClass('d-none');
+            $('#divSeriNumber3').removeClass('d-none');
+          } else {
+            // Checkbox không được chọn, không làm gì
+            $('#divSeriNumber2').addClass('d-none');
+            $('#divSeriNumber3').addClass('d-none');
+          }
+        });
+
+        $("#printConfirmPallet").click(function () {
+            var partNumber = $("#txtToastPartNumber").val();
+            var modelNumber = $("#txtModelNumber").val();
+            var toastPONumber = $("#txtToastPONumber").val();
+            var quantity = $("#txtQuantity").val();
+            var lotID = $("#txtLotID").val();
+            var partDesc = $("#txtPartDesc").val();
+            var print150Seri = $('#chkbApplyPrint150').is(':checked');
+            var allSeri1 = $("#txtSeriNumber1").val();
+            var allSeri2 = $("#txtSeriNumber2").val();
+            var allSeri3 = $("#txtSeriNumber3").val();
+            var copies = parseInt($("#copiesInput").val(), 10);
+            var palletIDVal = $("#txtPalletID").val();
+
+            var selectPrinterID = document.getElementById("selectedPrinterID").value;
+
+            // Wrap the values in a single object that matches the PrintRequest class
+            var requestPayload = {
+                PartNumber: partNumber, // case-sensitive; property name must match
+                ModelNumber: modelNumber,
+                ToastPONumber: toastPONumber,
+                Quantity: quantity,
+                LotID: lotID,
+                PartDesc: partDesc,
+                Print150Seri: print150Seri,
+                AllSeri1: allSeri1,
+                AllSeri2: allSeri2,
+                AllSeri3: allSeri3,
+                Copies: copies,
+                PrinterID: selectPrinterID,
+                PalletID: palletIDVal
+            };
+
+            $.ajax({
+                url: '@Url.Action("PrintPalletLabelAJAX", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: JSON.stringify(requestPayload),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    if(response.result == false) {
+                        alert(response.message);
+                    }
+                    else{
+                        $('#printStartNewPallet').removeClass('d-none');
+                        $("#txtNewSeri1").focus();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        });
+
+        $("#printStartNewPallet").click(function () {
+            $("#txtPalletID").val('');
+            $('#printStartNewPallet').addClass('d-none');
+            $("#txtNewSeri1").focus();
+        });
+    });
+</script>

@@ -27,13 +27,12 @@ body {
 }
 
 .svn-card {
-    /*background: #ffffff none repeat scroll 0 0 !important;*/ /*#332c61 #0e1213*/
-    /*color: white !important;*/
-    height: 90%;
+    background: #181f29 none repeat scroll 0 0 !important; /*#332c61 #0e1213*/
+    color: white !important;
 }
 
 .svn-layout {
-    /*background-color: #1c2222 !important;*/ /*#584ca3*/
+    background-color: #141414 !important; /*#584ca3*/
 }
 
 .svn-border {
@@ -52,12 +51,185 @@ body {
     overflow: auto;
 }
 
+.svn-small-card {
+    height: 320px!important;
+}
+
 .image-container {
     height: 200px;
     overflow: hidden; /* Ẩn phần thừa */
 }
 
 .SVN-card-img-top {
-    height: auto; /* Chiều cao tự động điều chỉnh theo tỷ lệ */
-    object-fit: cover; /* Cắt hình ảnh để lấp đầy container, giữ tỷ lệ */
+    height: 200px; /* Chiều cao tự động điều chỉnh theo tỷ lệ */
+    object-fit: contain; /* Cắt hình ảnh để lấp đầy container, giữ tỷ lệ */
+    display: block;
 }
+
+.target-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.target-item {
+    flex: 1 1 15%;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height:150px;
+}
+
+.bg-dailyPlan {
+    background-color: #3b82f6 !important;
+}
+.bg-uph {
+    background-color: #10b981 !important;
+}
+.bg-upph {
+    background-color: #6366f1 !important;
+}
+.bg-labor {
+    background-color: #f59e0b !important;
+}
+.bg-defect {
+    background-color: #ef4444 !important;
+}
+
+.text-dailyPlan {
+    color: #3b82f6 !important;
+}
+
+.text-uph {
+    color: #10b981 !important;
+}
+
+.text-upph {
+    color: #6366f1 !important;
+}
+
+.text-labor {
+    color: #f59e0b !important;
+}
+
+.text-defect {
+    color: #ef4444 !important;
+}
+
+.rate-box {
+    padding-right: 5px;
+    padding-left: 5px;
+    border: 1px solid;
+    border-radius: 50px;
+}
+
+.blinking {
+    /*border: 5px solid rgba(255, 0, 0, 0.6) !important;*/
+    animation: blinkBorder 2s infinite; /* Thêm animation cho viền nhấp nháy */
+}
+
+@keyframes blinkBorder {
+    0% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    25% {
+        border: 10px solid #FF5733;
+        box-shadow: 0 0 10px #FF5733;
+    }
+
+    50% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    75% {
+        border: 10px solid #FF5733;
+        box-shadow: 0 0 10px #FF5733;
+    }
+
+    100% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+}
+
+.blinking-warning {
+    /*border: 5px solid rgba(255, 0, 0, 0.6) !important;*/
+    animation: blinkWarning 2s infinite; /* Thêm animation cho viền nhấp nháy */
+}
+
+@keyframes blinkWarning {
+    0% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    25% {
+        border: 10px solid rgba(248, 246, 0, 0.72);
+        box-shadow: 0 0 10px rgba(248, 246, 0, 0.72);
+    }
+
+    50% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    75% {
+        border: 10px solid rgba(248, 246, 0, 0.72);
+        box-shadow: 0 0 10px rgba(248, 246, 0, 0.72);
+    }
+
+    100% {
+        border: 10px solid transparent;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+}
+
+
+
+.card-disable {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.no-production {
+    /*text-decoration: line-through;*/
+    font-size: 40px;
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+    transform: rotate(-45deg); /* Nghiêng góc 45 độ */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg); /* Đặt vào giữa và xoay */
+    color: #FFFFFF;
+    font-weight: bold;
+    z-index: 1; /* Đảm bảo nằm trên các phần tử khác */
+}
+.no-production-by-downtime {
+    /*text-decoration: line-through;*/
+    font-size: 40px;
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Đặt vào giữa và xoay */
+    color: #FFFFFF;
+    font-weight: bold;
+    z-index: 1; /* Đảm bảo nằm trên các phần tử khác */
+}
+
+.pe-none {
+    pointer-events: none;
+}
+

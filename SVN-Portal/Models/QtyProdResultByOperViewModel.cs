@@ -1,4 +1,5 @@
-﻿using SVNShareLib.DTO;
+﻿using SVN_Portal.DAL.DTO;
+using SVNShareLib.DTO;
 using System.Collections.Generic;
 
 namespace SVN_Portal.Models
@@ -14,16 +15,32 @@ namespace SVN_Portal.Models
             ViewModels = new List<QtyProdResultViewModel>();
             TargetViewModels = new List<SVN_targetViewModel>();// khai báo kiểu này giup list ko bọ null
             ProductionUIs = new List<mrp_productionUI>();
+            DefectByCategoryViewModels = new List<DefectByCategoryViewModel>();
         }
+        public string MasterOperation { get; set; }
         public string Operation { get; set; }
+        public string Name { get; set; }
         public string WC { get; set; }
         public string PDName { get; set; }
         public string QCName { get; set; }
         public string PDURL { get; set; }
         public string QCURL { get; set; }
         public int ColWidth { get; set; }
+        public bool IsProduction { get; set; }
+        public bool CanProductionByCheclist { get; set; }
+        public bool CanProductionByDowntime { get; set; }
+
+        //status checklist
+        public bool IsPDChecked { get; set; }
+        public bool IsMTChecked { get; set; }
+        public bool IsQCChecked { get; set; }
+
+        public bool IsPDConfirmed { get; set; }
+        public bool IsQCConfirmed { get; set; }
+
         public List<QtyProdResultViewModel> ViewModels { get; set; }
         public List<SVN_targetViewModel> TargetViewModels { get; set; } //Bởi vì dữ liệu tổng hợp sẽ là nhiều dong nên khai báo dang list
+        public List<DefectByCategoryViewModel> DefectByCategoryViewModels { get; set; }
         public List<mrp_productionUI> ProductionUIs { get; set; }
         public double Est { get; set; }
         public double Achieve { get; set; }
@@ -31,7 +48,11 @@ namespace SVN_Portal.Models
         public string WORunning { get; set; }
         public string Product { get; set; }
         public string Customer { get; set; }
-
+        public double Duration { get; set; }
+        public string WorkTime { get; set; }
+        public double CurWorkingTime { get; set; }
+        public double TotalDuration { get; set; }
+        public DateTime EndDownTime { get; set; }
         public QtyProdResultByOperViewModel GetData(string operation)
         {
             QtyProdResultByOperViewModel Model = new QtyProdResultByOperViewModel();

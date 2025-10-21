@@ -26,6 +26,7 @@
     <!--stickey kit -->
     <script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
     <script src="~/lib/sticky-kit-master/dist/sticky-kit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Amchart -->
     <script src="~/lib/chart-amchart/amcharts.js"></script>
     <script src="~/lib/chart-amchart/serial.js"></script>
@@ -268,13 +269,13 @@
                         </li> *@
                     </ul>
                 </div>
-                <span id="datetime" style="font-size: 72px; color: #007bff; font-weight: 700;"></span>
+                <span id="datetime" class="time-count"></span>
             </nav>
         </div>
         <!-- End header header -->
         <!-- Left Sidebar  -->
         @{
-            List<string> operList = appConfig.OperList.Split(",").ToList();
+            List<string> operList = appConfig.MasterOperList.Split(",").ToList();
         }
         <div class="left-sidebar">
             <!-- Sidebar scroll-->
@@ -304,6 +305,15 @@
                                 }
                             </ul>
                         </li>
+                        <li>
+                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-book" aria-hidden="true"></i><span class="hide-menu">Report <span class="label label-rouded label-primary pull-right">3</span></span></a>
+                            <ul aria-expanded="false" class="collapse">
+                                <li><a asp-controller="Home" asp-action="PDResultByMonthReport">Production Result by Month</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultDailyReportV0">Production Result Daily</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultDailyReport">Production Result Daily New</a></li>
+                            </ul>
+                        </li>
+                        <li class="d-none"><a asp-controller="Home" asp-action="AutomationTrackingPerOper"><i class="fa fa-bar-chart" aria-hidden="true"></i><span class="hide-menu">AutomationTrackingPerOper</span></a></li>
                         @* <li>
                             <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">1</span></span></a>
                             <ul aria-expanded="false" class="collapse">
@@ -318,7 +328,7 @@
         </div>
         <!-- End Left Sidebar  -->
         <!-- Page wrapper  -->
-        <div class="page-wrapper">
+        <div class="page-wrapper svn-layout">
             <!-- Bread crumb -->
            <div class="row page-titles">
                 <div class="col-md-5 align-self-center">

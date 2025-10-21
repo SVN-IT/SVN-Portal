@@ -16,10 +16,12 @@ namespace ViidooDBServiceAPI.Controllers
         ViindooDBConfig dBConfig;
         ViindooDataService viinDataService;
         JsonRpcDataService jsonRpcDataService;
-        public DBController(DBService dBService, 
+        NewViindooDataService newViindooDataService;
+        public DBController(DBService dBService,
             OdooRpcDBService odooRpcDBService,
             ViindooDataService viinDataService,
             ViindooDBConfig dBConfig,
+            NewViindooDataService newViindooDataService,
             JsonRpcDataService jsonRpcDataService)
         {
             this.dBService = dBService;
@@ -27,6 +29,7 @@ namespace ViidooDBServiceAPI.Controllers
             this.dBConfig = dBConfig;
             this.viinDataService = viinDataService;
             this.jsonRpcDataService = jsonRpcDataService;
+            this.newViindooDataService = newViindooDataService;
         }
 
         [Route("GetDataFromViindoo")]
@@ -36,7 +39,8 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             try
             {
-                switch (dataRequest.TableName) { 
+                switch (dataRequest.TableName)
+                {
                     case "stock.move.line.consume.rel":
                         processResult = dBService.GetStockMoveLineConsumeRelData();
                         break;
@@ -67,13 +71,61 @@ namespace ViidooDBServiceAPI.Controllers
                         break;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
             return processResult;
         }
 
+        /// <summary>
+        /// Hàm đang sử dụng để lấy kết quả sản xuất trong khoảng tg 10p đến hiện tại
+        /// </summary>
+        /// <returns></returns>
+        [Route("GetProductionResult")]
+        [HttpPost]
+        public BODataProcessResult GetProductionResult()
+        {
+            BODataProcessResult totalDataProcessResult = new BODataProcessResult();
+            totalDataProcessResult.Message = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            int getRow = 0;
+            string strDatetime = string.Empty;
+            try
+            {
+                string objectName = "mrp.production";
+                var queryConfig = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
+
+                BODataProcessResult productionResult = new BODataProcessResult();
+                productionResult = viinDataService.GetViindooDataV1(queryConfig);
+
+                getRow = productionResult.NumOfRow;
+                strDatetime = productionResult.Message;
+
+                BODataProcessResult callProcessResult = new BODataProcessResult();
+                callProcessResult = viinDataService.CallSPToUpdateResult();
+                if (productionResult.OK && callProcessResult.OK)
+                {
+                    totalDataProcessResult.OK = true;
+                }
+                else
+                {
+                    totalDataProcessResult.OK = false;
+                }
+
+                totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + "Get production result: " + productionResult.Message + " / " + "Call update: " + callProcessResult.Message;
+            }
+            catch (Exception ex)
+            {
+                totalDataProcessResult.Message = totalDataProcessResult.Message + " / " + ex.Message;
+            }
+            totalDataProcessResult.NumOfRow = getRow;
+            return totalDataProcessResult;
+        }
+
+        /// <summary>
+        /// Hàm đang sử dụng để lấy những bảng khác trong khoảng tg 10p đến hiện tại
+        /// </summary>
+        /// <returns></returns>
         [Route("GetDataFromViindooV1")]
         [HttpPost]
         public BODataProcessResult GetDataFromViindooV1()
@@ -83,7 +135,7 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 List<string> objectNames = dBConfig.ObjectList.Split(',').ToList();
-                foreach (string objectName in objectNames) 
+                foreach (string objectName in objectNames)
                 {
                     var queryConfig = dBConfig.QueryConfig.FirstOrDefault(x => x.TableName == objectName);
                     BODataProcessResult processResult = new BODataProcessResult();
@@ -91,9 +143,9 @@ namespace ViidooDBServiceAPI.Controllers
                     processResults.Add(processResult);
                 }
 
-                BODataProcessResult callProcessResult = new BODataProcessResult();
-                callProcessResult = viinDataService.CallSPToUpdateResult();
-                processResults.Add(callProcessResult);
+                //BODataProcessResult callProcessResult = new BODataProcessResult();
+                //callProcessResult = viinDataService.CallSPToUpdateResult();
+                //processResults.Add(callProcessResult);
 
             }
             catch (Exception ex)
@@ -137,6 +189,40 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        [Route("GetSeriFGAndWipByMO")]
+        [HttpPost]
+        public BODataProcessResult GetSeriFGAndWipByMO(string MOName)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetSeriFGAndWipByMO(MOName);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("GetSeriFGAndWipByDate")]
+        [HttpPost]
+        public BODataProcessResult GetSeriFGAndWipByDate()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                DateTime date = DateTime.Today.AddDays(-1);
+                string strDate = date.AddHours(-7).AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss");
+                processResult = viinDataService.GetSeriFGAndWipByDate(strDate);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetDataFromViindooV3")]
         [HttpPost]
         public object GetDataFromViindooV3(ViindooDataRequest dataRequest)
@@ -162,7 +248,7 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 var productionResult = viinDataService.GetViindooDataV2(dataRequest);
-                if(productionResult != null && productionResult.OK)
+                if (productionResult != null && productionResult.OK)
                 {
                     for (int i = 0; i < dataRequest.listDomain.Count; i++)
                     {
@@ -177,16 +263,16 @@ namespace ViidooDBServiceAPI.Controllers
                     dataRequest.Limit = 0;
                     dataRequest.Order = "";
                     var stockMoveResult = viinDataService.GetViindooDataV2(dataRequest);
-                    if(stockMoveResult != null && processResult.OK)
+                    if (stockMoveResult != null && processResult.OK)
                     {
                     }
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
-            return processResult;   
+            return processResult;
         }
 
         [Route("GetAndUploadProductionResultData")]
@@ -221,6 +307,22 @@ namespace ViidooDBServiceAPI.Controllers
             return processResult;
         }
 
+        [Route("GetPackageBySeri")]
+        [HttpPost]
+        public BODataProcessResult GetPackageBySeri(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetPackageBySeri(dataRequest.seriNumber, dataRequest.product_id);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetAndUploadProductionTemplateData")]
         [HttpPost]
         public BODataProcessResult GetAndUploadProductionTemplateData()
@@ -229,6 +331,38 @@ namespace ViidooDBServiceAPI.Controllers
             try
             {
                 processResult = dBService.GetProductTemplateData();
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("GetLotByMODone")]
+        [HttpPost]
+        public BODataProcessResult GetLotByMODone(ProductDataRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = viinDataService.GetLotByMODone(dataRequest.product_id, dataRequest.count);
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("InputResult")]
+        [HttpPost]
+        public BODataProcessResult InputResult(int productId, string serialNumber, int qtyProducing)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = newViindooDataService.InputResult(productId, serialNumber, qtyProducing);
             }
             catch (Exception ex)
             {

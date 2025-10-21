@@ -44,7 +44,7 @@
 </head>
 <body>
     <!-- Preloader - style you can find in spinners.css -->
-    <div class="preloader">
+    <div id="app-loader" class="preloader">
         <svg class="circular" viewBox="25 25 50 50">
             <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" />
         </svg>
@@ -96,11 +96,16 @@
                         <li class="nav-devider"></li>
                         <li class="nav-label"></li>
                         <li>
-                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">3</span></span></a>
+                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">8</span></span></a>
                             <ul aria-expanded="false" class="collapse">
                                 <li><a asp-controller="Tools" asp-action="PrinterManager">Quản lý máy in</a></li>
                                 <li><a asp-controller="Tools" asp-action="PrintTem">In tem</a></li>
+                                <li><a asp-controller="Tools" asp-action="PrintShippingLabelBySeriNumber">In Shipping Label</a></li>
+                                <li><a asp-controller="Tools" asp-action="PrintAstroLabel">Print Astro Label</a></li>
+                                <li><a asp-controller="Tools" asp-action="PrintToastLabel">Print Toast Label</a></li>
                                 <li><a asp-controller="Tools" asp-action="ProductionUpdateQty">Update số lượng</a></li>
+                                <li><a asp-controller="Tools" asp-action="WorkOrderInfo">Lệnh sản xuất</a></li>
+                                <li><a asp-controller="Tools" asp-action="CheckBOMFollowOrder">Kiểm tra thành phần</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -111,7 +116,7 @@
         </div>
         <!-- End Left Sidebar  -->
         <!-- Page wrapper  -->
-        <div class="page-wrapper">
+        <div class="page-wrapper svn-layout">
             <!-- Bread crumb -->
             <div class="row page-titles">
                 <div class="col-md-5 align-self-center">

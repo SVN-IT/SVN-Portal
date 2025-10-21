@@ -1,0 +1,64 @@
+{
+  "id": 806,
+  "jsonrpc": "2.0",
+  "method": "call",
+  "params": {
+    "args": [
+      {
+        "mrp_production_ids": [
+          [
+            6,
+            false,
+            [ 69800 ]
+          ]
+        ],
+        "mrp_consumption_warning_line_ids": [
+          [
+            0,
+            "virtual_8",
+            {
+              "mrp_production_id": 69800,
+              "consumption": "warning",
+              "product_id": 170,
+              "product_uom_id": 28,
+              "product_expected_qty_uom": 0.16666666666666666,
+              "product_consumed_qty_uom": 0
+            }
+          ]
+        ]
+      }
+    ],
+    "model": "mrp.consumption.warning",
+    "method": "create",
+    "kwargs": {
+      "context": {
+        "lang": "vi_VN",
+        "tz": "Asia/Ho_Chi_Minh",
+        "uid": 2,
+        "allowed_company_ids": [ 1 ],
+        "active_model": "mrp.production",
+        "active_id": 69800,
+        "active_ids": [ 69800 ],
+        "default_company_id": 1,
+        "force_skip_consumption": true,
+        "button_mark_done_production_ids": [ 69800 ],
+        "default_mrp_production_ids": [ 69800 ],
+        "default_mrp_consumption_warning_line_ids": [
+          [
+            0,
+            0,
+            {
+              "mrp_production_id": 69800,
+              "product_id": 170,
+              "consumption": "warning",
+              "product_uom_id": 28,
+              "product_consumed_qty_uom": 0,
+              "product_expected_qty_uom": 0.16666666666666666
+            }
+          ]
+        ],
+        "form_view_ref": false
+      }
+    }
+  }
+}

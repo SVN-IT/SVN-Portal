@@ -43,14 +43,82 @@ namespace SVNShareLib.DAL
         {
             try
             {
-                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'progress'";
+                DateTime today = DateTime.Today.Date.AddHours(-7);
+
+                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1 WHERE product_id IN @product_id AND state = 'confirmed' AND date_planned_start >= @today";
                 sql = sql.Replace("#countRow", countRow.ToString());
-                var param = new { product_id = product_id };
+                var param = new { product_id = product_id, today = today };
                 int timeOut = 1000;
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
                     var data = connection.Query<mrp_productionUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     return data.ToList();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Lấy về lệnh sản xuất mới nhất đã hoàn thành trong khoảng thời gian
+        /// </summary>
+        /// <param name="product_id"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="countRow"></param>
+        /// <returns></returns>
+        public mrp_productionUI GetDataByProduct_IDInSection(List<int> product_id, DateTime startTime, DateTime endTime, int countRow = 1)
+        {
+            mrp_productionUI dataUI = new mrp_productionUI();
+            try
+            {
+                DateTime startTime1 = startTime.AddHours(-7);
+                DateTime endTime1 = endTime.AddHours(-7);
+                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1" + 
+                    " WHERE product_id IN @product_id AND state = 'done' AND date_finished >= @startTime AND date_finished <= @endTime" +
+                    " ORDER BY date_finished DESC";
+                sql = sql.Replace("#countRow", countRow.ToString());
+                var param = new { product_id = product_id, startTime = startTime1, endTime = endTime1 };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = connection.QueryFirstOrDefault<mrp_productionUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Lấy về lệnh sản xuất đầu tiên đã hoàn thành trong khoảng thời gian
+        /// </summary>
+        /// <param name="product_id"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="countRow"></param>
+        /// <returns></returns>
+        public mrp_productionUI GetDataByProduct_IDFirstInSection(List<int> product_id, DateTime startTime, DateTime endTime, int countRow = 1)
+        {
+            mrp_productionUI dataUI = new mrp_productionUI();
+            try
+            {
+                DateTime startTime1 = startTime.AddHours(-7);
+                DateTime endTime1 = endTime.AddHours(-7);
+                string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1" +
+                    " WHERE product_id IN @product_id AND state = 'done' AND date_finished >= @startTime AND date_finished <= @endTime" +
+                    " ORDER BY date_finished";
+                sql = sql.Replace("#countRow", countRow.ToString());
+                var param = new { product_id = product_id, startTime = startTime1, endTime = endTime1 };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = connection.QueryFirstOrDefault<mrp_productionUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
                 }
             }
             catch

@@ -1,0 +1,433 @@
+﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
+@model IEnumerable<PDResultDailyViewModel>
+@{
+
+    DateTime fromdate = ViewBag.FromDate;
+    DateTime todate = ViewBag.ToDate;
+    ViewData["Title"] = "Production Result Daily";
+    string jsonData = string.Empty;
+    jsonData = JsonConvert.SerializeObject(Model);
+    string jsonUPHData = ViewBag.strUPHData;
+    string jsonUPPHData = ViewBag.strUPPHData;
+    string jsonLaborData = ViewBag.strLaborData;
+    string jsonDefectRateData = ViewBag.strDefectRateData;
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="fromdate" value="@fromdate.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="todate" value="@todate.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <button type="submit" asp-action="PDResultDailyReport" class="btn btn-primary">
+                                Search
+                            </button>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <button type="submit" asp-action="ExportPDResultDaily" class="btn btn-success">
+                                Export excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h4>Production Result Summary</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" scope="col">Operation active</th>
+                                <th colspan="3" scope="col">Daily Plan Achieve</th>
+                                <th rowspan="2" scope="col">UPH</th>
+                                <th rowspan="2" scope="col">UPPH</th>
+                                <th rowspan="2" scope="col">Labor</th>
+                                <th colspan="3" scope="col">Defect rate</th>
+                                @* <th rowspan="2" scope="col">Check list on system</th> *@
+                                <th rowspan="2" scope="col">Remark</th>
+                            </tr>
+                            <tr>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target rate</th>
+                                <th>Current rate</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count() > 0)
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.OperationActive</th>
+                                        <td>@item.DailyPlanTarget</td>
+                                        <td>@item.DailyPlanCurrent</td>
+                                        <td>@item.DailyPlanAchieve</td>
+                                        <td>@item.UPH</td>
+                                        <td>@item.UPPH</td>
+                                        <td>@item.Labor</td>
+                                        <td>@item.DefectTargetRate</td>
+                                        <td>@item.DefectCurrentRate</td>
+                                        <td>@item.DefectRate</td>
+                                        @* <td>@item.CheckListOnSystem</td> *@
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <h2>Daily Plan Achieve</h2>
+        <div id="dailyPlanChart" style="width:100%;height:400px;"></div>
+    </div>
+    <div class="col-12 col-md-6">
+        <h2>UPH (%)</h2>
+        <div id="uphChart" style="width:100%;height:400px;"></div>
+    </div>
+    <div class="col-12 col-md-6">
+        <h2>UPPH (%)</h2>
+        <div id="upphChart" style="width:100%;height:400px;"></div>
+    </div>
+    <div class="col-12 col-md-6">
+        <h2>Labor (%)</h2>
+        <div id="laborChart" style="width:100%;height:400px;"></div>
+    </div>
+    <div class="col-12 col-md-6">
+        <h2>Defect (%)</h2>
+        <div id="defectChart" style="width:100%;height:400px;"></div>
+    </div>
+    <script>
+        var chartData = @Html.Raw(jsonData);
+
+        chartData = chartData.map(function(item) {
+            return {
+                OperationActive: item.OperationActive,
+                DailyPlanTarget: parseFloat(item.DailyPlanTarget),
+                DailyPlanCurrent: parseFloat(item.DailyPlanCurrent),
+                DailyPlanAchieve: parseFloat((item.DailyPlanAchieve || "0").replace("%","")),
+                UPH: parseFloat((item.UPH || "0").replace("%","")),
+                UPPH: parseFloat((item.UPPH || "0").replace("%","")),
+                Labor: parseFloat((item.Labor || "0").replace("%","")),
+                DefectTargetRate: parseFloat((item.DefectTargetRate || "0").replace("%","")),
+                DefectCurrentRate: parseFloat((item.DefectCurrentRate || "0").replace("%","")),
+                DefectRate: parseFloat((item.DefectRate || "0").replace("%","")),
+                CheckListOnSystem: item.CheckListOnSystem,
+                Remark: item.Remark
+            };
+        });
+
+        // 1. Daily Plan Achieve
+        AmCharts.makeChart("dailyPlanChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": chartData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 16,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left"
+                // "title": "Qty"
+            }, {
+                "id": "v2",
+                "position": "right",
+                "title": "% Achieve",
+                "axisAlpha": 0,
+                "gridAlpha": 0
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Target",
+                "valueField": "DailyPlanTarget",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }, {
+                "balloonText": "[[value]]",
+                "legendValueText": "Actual: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Current",
+                "valueField": "DailyPlanCurrent",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }, {
+                "id": "g2",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 1,
+                "type": "line",
+                "title": "%Achieve",
+                "valueField": "DailyPlanAchieve",
+                "valueAxis": "v2",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "[[value]] %",
+                "legendValueText": "Achieve: [[value]] %",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "[[value]] %",
+                "labelPosition": "top",
+                "lineColor": "#FF0000"
+            }],
+            "categoryField": "OperationActive",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 120,
+                "useGraphSettings": true,
+                "color": "#FFFFFF"
+            }
+        });
+
+        // Data chung
+        var chartUPHData = @Html.Raw(jsonUPHData);
+        var uphkeys = [...new Set([].concat(...chartUPHData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
+        var uphgraphs = uphkeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            balloonText: "[[value]]",
+            type: "smoothedLine"
+          };
+        });
+        var uphchart = AmCharts.makeChart("uphChart", {
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 16,
+          "marginLeft": 0,
+          "dataProvider": chartUPHData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start",
+            "labelRotation": 45
+          },
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
+          "graphs": uphgraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
+          }
+        });
+
+        var chartUPPHData = @Html.Raw(jsonUPPHData);
+        var upphkeys = [...new Set([].concat(...chartUPPHData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
+        var upphgraphs = upphkeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            balloonText: "[[value]]",
+            type: "smoothedLine"
+          };
+        });
+        var upphchart = AmCharts.makeChart("upphChart", {
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 16,
+          "marginLeft": 0,
+          "dataProvider": chartUPPHData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start",
+            "labelRotation": 45
+          },
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
+          "graphs": upphgraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
+          }
+        });
+
+        var chartLaborData = @Html.Raw(jsonLaborData);
+        var laborkeys = [...new Set([].concat(...chartLaborData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
+        var laborgraphs = laborkeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            balloonText: "[[value]]",
+            type: "smoothedLine"
+          };
+        });
+        var laborchart = AmCharts.makeChart("laborChart", {
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 16,
+          "marginLeft": 0,
+          "dataProvider": chartLaborData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start",
+            "labelRotation": 45
+          },
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
+          "graphs": laborgraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
+          }
+        });
+
+        var chartDefectRateData = @Html.Raw(jsonDefectRateData);
+        var defectratekeys = [...new Set([].concat(...chartDefectRateData.map(obj => Object.keys(obj))))].filter(k => k !== "date");
+        var defectrategraphs = defectratekeys.map(function(k, i) {
+          return {
+            id: "g" + i,
+            title: k,
+            valueField: k,
+            bullet: "round",
+            bulletSize: 6,
+            lineThickness: 2,
+            balloonText: "[[value]]",
+            type: "smoothedLine"
+          };
+        });
+        var defectratechart = AmCharts.makeChart("defectChart", {
+          "type": "serial",
+          "theme": "light",
+          "startDuration": 0,
+          "color": "#FFFFFF",
+          "fontSize": 16,
+          "marginLeft": 0,
+          "dataProvider": chartDefectRateData,
+          "categoryField": "date",
+          "categoryAxis": {
+            "parseDates": false,
+            "gridPosition": "start",
+            "labelRotation": 45
+          },
+          // "valueAxes": [{
+          //   "title": "UPH (%)"
+          // }],
+          "graphs": defectrategraphs,
+          "legend": {
+            "bulletType": "round",
+            "equalWidths": false,
+            "valueWidth": 120,
+            "useGraphSettings": true,
+            "color": "#FFFFFF"
+          },
+          "chartCursor": {
+            "enabled": true,
+            "cursorPosition": "mouse",
+            "categoryBalloonEnabled": true,
+            "oneBalloonOnly": false
+          }
+        });
+
+        // Auto hover 5s một lần
+        var currentIndex = 0;
+        var currentIndex1 = 0;
+        var currentIndex2 = 0;
+        var currentIndex3 = 0;
+        setInterval(function () {
+          if (uphchart.dataProvider.length > 0) {
+            uphchart.chartCursor.showCursorAt(uphchart.dataProvider[currentIndex].date);
+            currentIndex = (currentIndex + 1) % uphchart.dataProvider.length;
+          }
+          if (upphchart.dataProvider.length > 0) {
+            upphchart.chartCursor.showCursorAt(upphchart.dataProvider[currentIndex1].date);
+            currentIndex1 = (currentIndex1 + 1) % upphchart.dataProvider.length;
+          }
+          if (laborchart.dataProvider.length > 0) {
+            laborchart.chartCursor.showCursorAt(laborchart.dataProvider[currentIndex2].date);
+            currentIndex2 = (currentIndex2 + 1) % laborchart.dataProvider.length;
+          }
+          if (defectratechart.dataProvider.length > 0) {
+            defectratechart.chartCursor.showCursorAt(defectratechart.dataProvider[currentIndex3].date);
+            currentIndex3 = (currentIndex3 + 1) % defectratechart.dataProvider.length;
+          }
+        }, 5000);
+    </script>
+</div>

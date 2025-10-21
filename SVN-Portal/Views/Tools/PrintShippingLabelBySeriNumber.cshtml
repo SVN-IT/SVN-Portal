@@ -1,0 +1,166 @@
+﻿@model List<PrintShippingViewModel>
+@using Newtonsoft.Json;
+@{
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Print Shipping Label";
+}
+@* <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script> *@
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+
+<form method="post">
+    <div class="row">
+        <div class="row col-12">
+            <div class="col-12 col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Số Seri</label>
+                    <input id="txtSeriNumber" type="text" name="seriNumber" class="form-control" value="@ViewBag.SeriNumber" />
+                    <input type="hidden" name="productID" class="form-control" value="@ViewBag.ProductID" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="form-group" style="margin-top:33px">
+                    <button class="btn btn-success" type="submit"><i class="fa fa-filter"></i> Tìm kiếm</button>
+                </div>
+            </div>
+        </div>
+        @if (Model != null && Model.Count() > 0)
+        {
+            <div class="row col-12">
+                <div class="col-12 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Nhập date code</label>
+                        <input type="text" id="txtDateCode" name="dateCode" class="form-control" placeholder="25/18" value="@ViewBag.DateCode" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Chọn máy in</label>
+                        <select id="selectedPrinterID" class="form-control" name="selectedPrinterID" data-live-search="true" asp-items="@ViewBag.PrinterList">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">Số lượng bản</label>
+                        <input type="number" id="copiesInput" name="copies" class="form-control" value="1" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="form-group" style="margin-top:33px">
+                        <button type="button" class="btn btn-primary" id="printButton"><i class="fa fa-print"></i> In</button>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="col-12">
+            <table class="table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">No</th>
+                        <th scope="col">Mã Pallet</th>
+                        <th scope="col">Mã Package</th>
+                        <th scope="col">Mã Lot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count() > 0)
+                    {
+                        for (int i = 0; i < Model.Count(); i++)
+                        {
+                            <tr>
+                                @{
+                                    int no = i + 1;
+                                }
+                                <th scope="row">@no</th>
+                                <td>
+                                    @Model[i].pallet_id
+                                    <input type="hidden" asp-for="@Model[i].pallet_id" />
+                                </td>
+                                <td>
+                                    @Model[i].package_code
+                                    <input type="hidden" asp-for="@Model[i].package_code" />
+                                </td>
+                                <td>
+                                    @Model[i].lot_code
+                                    <input type="hidden" asp-for="@Model[i].lot_code" />
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center">Không có dữ liệu</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+<script>
+    // $(document).ready(function () {
+    //     $('#selectedProductID').select2({
+    //         placeholder: "Select an option",
+    //         allowClear: true
+    //     });
+    // });
+
+    $(document).ready(function() {
+
+        $('#selectedPrinterID').selectpicker();
+
+
+
+        $("#printButton").click(function () {
+            var printModels = @Html.Raw(JsonConvert.SerializeObject(Model));
+            var copies = parseInt($("#copiesInput").val(), 10);
+            var dateCode = $("#txtDateCode").val();
+
+            var selectPrinterID = document.getElementById("selectedPrinterID").value;
+
+            // Wrap the values in a single object that matches the PrintRequest class
+            var requestPayload = {
+                ViewModels: printModels, // case-sensitive; property name must match
+                Copies: copies,
+                PrinterID: selectPrinterID,
+                DateCode: dateCode
+            };
+
+            $.ajax({
+                url: '@Url.Action("PrintShippingLabel", "Tools")',  // Adjust the controller name if needed
+                type: 'POST',
+                data: JSON.stringify(requestPayload),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    alert(response.message);
+                    $('#txtSeriNumber').val('');
+                    $('#txtSeriNumber').focus();
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    alert("An error occurred while printing.");
+                }
+            });
+        });
+
+
+        $('#txtSeriNumber').focus();
+        if ($('#txtDateCode').length) {
+            // Nếu tồn tại, focus vào textbox
+            $('#txtDateCode').focus();
+        }
+
+        $('#txtDateCode').on('keydown', function(event) {
+            // Kiểm tra nếu phím nhấn là Enter (keyCode 13)
+            if (event.shiftKey) {
+                // Nếu có, click vào nút btnPrint
+                $('#printButton').click();
+            }
+        });
+    });
+</script>

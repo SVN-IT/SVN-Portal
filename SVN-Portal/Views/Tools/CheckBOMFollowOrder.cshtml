@@ -1,0 +1,205 @@
+﻿@{
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Kiểm tra thành phần trong lệnh sản xuất";
+}
+<style>
+    .box-square {
+        width: 100%; /* chiếm hết chiều ngang phần tử cha */
+        aspect-ratio: 1 / 1; /* đảm bảo luôn vuông (width : height = 1:1) */
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+</style>
+<form method="post">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Lệnh sản xuất</label>
+                        <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group" style="margin-top:33px">
+                        <button id="btnSearch" class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Tìm kiếm</button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Mã NVL/WIP</label>
+                        <input id="txtWIPCode" type="text" name="wIPCode" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 d-none">
+            <h4>Phím 1 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
+            <h4>Phím 2 (Bàn phím số) - Nhập mã thành phần</h4>
+            @* <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
+            <h4>Phím 4 (Bàn phím số) - Mở trang scan</h4> *@
+            <h4>Phím F5 - Reset lại trang web</h4>
+        </div>
+        <div class="col-12">
+            <div id="divWorkOrder" class="row">
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    var product_tracking = "none"
+
+    // Hiện loader
+    function showLoader() {
+        $("#app-loader").css("display", "flex");
+    }
+
+    // Ẩn loader
+    function hideLoader() {
+        $("#app-loader").css("display", "none");
+    }
+
+    function GetProductByWorkOrder(txtworkOrderCode) {
+        var workOrderCode = $(txtworkOrderCode).val();
+        showLoader();
+        $.ajax({
+            url: '@Url.Action("GetProductByWorkOrderV1", "Tools")',  // Adjust the controller name if needed
+            type: 'POST',
+            data: {workOrderCode: workOrderCode},
+            dataType: 'json',
+            success: function (response) {
+                if(response.result == false) {
+                    alert(response.message);
+                }
+                else{
+                    $('input[name="wIPCode"]').focus();
+                    $(`#divWorkOrder`).html(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", error);
+                alert("An error occurred while getting Pallet ID.");
+            },
+            complete: function () {
+                hideLoader();
+            }
+        });
+    }
+
+    function CheckItemFollowBOM(){
+        showLoader();
+        var workOrderCode = $("#txtWorkOrderCode").val();
+        var wipcode = $("#txtWIPCode").val();
+        $.ajax({
+            url: '/Tools/CheckItemFollowBOM',
+            type: 'POST',
+            dataType: 'json',
+            data: {workOrderCode: workOrderCode, wipcode: wipcode},
+            success: function (res) {
+                console.log("Gửi thành công:", res);
+                if(res.result == false){
+                    $("#divResultLight").removeClass("bg-light");
+                    $("#divResultLight").removeClass("bg-success");
+                    $("#divResultLight").addClass("bg-danger");
+                }
+                else{
+                    $("#divResultLight").removeClass("bg-light");
+                    $("#divResultLight").removeClass("bg-danger");
+                    $("#divResultLight").addClass("bg-success");
+
+                    $("table tbody tr").each(function () {
+                        let $th = $(this).find("th");
+                        let $td = $(this).find("td");
+
+                        if ($th.text().includes(wipcode)) {
+                            $td.text("✅");
+                        }
+                    });
+
+                    // --- Sắp xếp lại: đưa những dòng có ✅ lên đầu ---
+                    let $rows = $("table tbody tr");
+
+                    // Sort: kiểm tra td có chứa ✅ không
+                    $rows.sort(function (a, b) {
+                        let aHas = $(a).find("td").text().includes("✅");
+                        let bHas = $(b).find("td").text().includes("✅");
+
+                        // Nếu a có ✅ mà b không có → a lên trước
+                        if (aHas && !bHas) return -1;
+                        if (!aHas && bHas) return 1;
+                        return 0;
+                    });
+
+                    // Gắn lại vào tbody
+                    $("table tbody").html($rows);
+                }
+                $('input[name="wIPCode"]').val("");
+            },
+            error: function (err) {
+                console.error("Lỗi:", err);
+            },
+            complete: function () {
+                hideLoader();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('input[name="workOrderCode"]').focus();
+
+        // Bắt phím Enter
+        $(document).on('keydown', 'input', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // chặn submit form khi bấm Enter
+
+                // Nếu ô hiện tại rỗng => không cho đi tiếp
+                if (!$(this).val().trim()) {
+                    return;
+                }
+
+                if ($(this).attr("name") === "workOrderCode") {
+                    $('#btnSearch').trigger('click');
+                }
+
+                // Nếu đang ở ô Quality thì nhảy sang ô seri đầu tiên
+                if ($(this).attr("name") === "wIPCode") {
+                    CheckItemFollowBOM();
+                    return;
+                }
+
+            }
+        });
+
+        document.addEventListener("keydown", function (e) {
+            // Để forcus name=workOrderCode
+            if(e.code === "Numpad1"){
+                e.preventDefault();
+                $('input[name="workOrderCode"]').val("");
+                $('input[name="workOrderCode"]').focus();
+            }
+
+            if(e.code === "Numpad2"){
+                e.preventDefault();
+                $('input[name="wIPCode"]').val("");
+                $('input[name="wIPCode"]').focus();
+            }
+
+            // // Mở trang máy in
+            // if(e.code === "Numpad3"){
+            //     e.preventDefault();
+            //     window.location.href = "http://10.10.99.10:8102/Utils/Whoop/WHOOP";
+            // }
+
+            // // Mở trang scan
+            // if(e.code === "Numpad4"){
+            //     e.preventDefault();
+            //     window.location.href = "http://10.10.99.10:8102/utils/scantocheck/whoop#";
+            // }
+        });
+    });
+</script>

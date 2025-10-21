@@ -4,5 +4,6 @@
     {
         public int id { get; set; }
         public string product_name { get; set; }
+        public string default_code { get; set; }
     }
 }

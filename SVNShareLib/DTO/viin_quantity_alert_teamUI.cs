@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SVNShareLib.DTO
+{
+    public class viin_quantity_alert_teamUI
+    {
+        public int id { get; set; }
+        public int? message_main_attachment_id { get; set; }
+        public int alias_id { get; set; }
+        public int? company_id { get; set; }
+        public int? sequence { get; set; }
+        public int? color { get; set; }
+        public int? create_uid { get; set; }
+        public int? write_uid { get; set; }
+        public string origin_message_id { get; set; }
+        public string origin_references { get; set; }
+        public string name { get; set; }
+        public DateTime? create_date { get; set; }
+        public DateTime? write_date { get; set; }
+    }
+}
