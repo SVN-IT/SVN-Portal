@@ -354,7 +354,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                         foreach (var item in stockMoveSerialInfo)
                         {
-                            var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+                            var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",").ToList();
                             //var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse);
 
                             //Lấy product_id
@@ -368,14 +368,14 @@ namespace ViidooDBServiceAPI.Controllers
                                 var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
                                 if(lotScaned != null)
                                 {
-                                    var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    var stockMoveLineSerial = await odooAPIService.GetStockMoveLineByLotNameAsync(lotScaned.lotNumber, product_material_id, str_move_line_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    //var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                                     if (stockMoveLineSerial == null)
                                     {
                                         bODataProcessResult.OK = false;
                                         bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy " ;
                                         return bODataProcessResult;
                                     }
-
                                     stockMoveLineSerial["move_line_ids"] = item["move_line_ids"].ToString();
                                     stockMoveLineSerial["location_id"] = item["location_id"].ToString();
                                     stockMoveLineSerial["location_dest_id"] = item["location_dest_id"].ToString();

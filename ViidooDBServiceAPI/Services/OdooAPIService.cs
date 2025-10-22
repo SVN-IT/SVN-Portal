@@ -6,6 +6,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Collections.Generic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -540,8 +541,7 @@ namespace ViidooDBServiceAPI.Services
                                 domain = new object[] {
                                 new object[] { "lot_id.name", "=", lot_name },
                                 new object[] { "product_id", "=", product_id },
-                                new object[] { "qty_done", "=", 0 }
-                                //new object[] { "move_id", "=", move_id }
+                                new object[] { "move_id", "=", move_id }
                             },
                                 fields = new string[]
                             {
@@ -583,6 +583,104 @@ namespace ViidooDBServiceAPI.Services
                     }
                 }
 
+            }
+        }
+
+        /// <summary>
+        /// Chuyền vào mã lot
+        /// lấy ra danh sách stock.move.line đang tồn tại
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="product_id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, string>> GetStockMoveLineByLotNameAsync(string lot_name, int product_id, List<string> stockMoveLine, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.move.line",
+                        method = "search_read",
+                        args = new object[]
+                        {
+                        },
+                        kwargs = new
+                        {
+                            domain = new object[] {
+                                new object[] { "lot_id.name", "=", lot_name },
+                                new object[] { "product_id", "=", product_id }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "move_id", "lot_id", "product_id", "qty_done"
+                            },
+                            order = "create_date desc",
+                            limit = 0,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                allowed_company_ids = new List<int> { 1 },
+                                bin_size = true,
+                                uid = uid
+                            }
+                        }
+                    },
+                    id = 100
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                var resultArray = (JArray)json["result"];
+                try
+                {
+                    List<string> ids = resultArray
+                                .Select(x => x["id"]?.ToString())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                                .ToList();
+
+                    object[] move_id = resultArray.Select(x => x["move_id"]).ToArray();
+                    object[] lot_id = resultArray.Select(x => x["lot_id"]).ToArray();
+                    object[] product_ids = resultArray.Select(x => x["product_id"]).ToArray();
+                    List<string> qty_done = resultArray.Select(x => x["qty_done"]?.ToString())
+                                            .Where(x => !string.IsNullOrEmpty(x))
+                                            .ToList();
+
+                    var selectedID = ids.FirstOrDefault(x => stockMoveLine.Contains(x));
+                    if (!string.IsNullOrWhiteSpace(selectedID))
+                    {
+                        int index = ids.IndexOf(selectedID);
+
+                        Dictionary<string, string> dictionary = new Dictionary<string, string>();
+                        dictionary["id"] = selectedID;
+                        dictionary["move_id"] = move_id[index].ToString();
+                        dictionary["lot_id"] = lot_id[index].ToString();
+                        dictionary["product_id"] = product_ids[index].ToString();
+                        dictionary["qty_done"] = qty_done[index].ToString();
+                        return dictionary;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
             }
         }
 
@@ -1231,7 +1329,7 @@ namespace ViidooDBServiceAPI.Services
                                 show_lock = (object)productionOrderInfo["show_lock"],
                                 move_byproduct_ids = new object[] { },
                                 state = (object)productionOrderInfo["state"],
-                                show_serial_mass_produce = (object)productionOrderInfo["show_serial_mass_produce"],
+                                show_serial_mass_produce = (productionOrderInfo["product_tracking"] == "serial") ? "False" :"True",
                                 check_ids = check_ids,
                                 check_todo = (object)productionOrderInfo["check_todo"],
                                 reservation_state = (object)productionOrderInfo["reservation_state"],
@@ -1402,6 +1500,9 @@ namespace ViidooDBServiceAPI.Services
                         }
                     }
                 };
+
+                var jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+
                 var content = new StringContent(
                     Newtonsoft.Json.JsonConvert.SerializeObject(payload),
                     Encoding.UTF8,
