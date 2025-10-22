@@ -1073,9 +1073,13 @@ namespace SVN_Portal.Controllers
                     else
                     {
                         processResult.OK = false;
-                        processResult.Message = "Không có dữ liệu";
+                        processResult.Message = result.Message;
                     }
-                        
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không có dữ liệu";
                 }
             }
             catch (Exception ex)

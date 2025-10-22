@@ -540,7 +540,8 @@ namespace ViidooDBServiceAPI.Services
                                 domain = new object[] {
                                 new object[] { "lot_id.name", "=", lot_name },
                                 new object[] { "product_id", "=", product_id },
-                                new object[] { "move_id", "=", move_id }
+                                new object[] { "qty_done", "=", 0 }
+                                //new object[] { "move_id", "=", move_id }
                             },
                                 fields = new string[]
                             {

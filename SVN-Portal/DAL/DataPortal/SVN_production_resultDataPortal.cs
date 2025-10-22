@@ -137,7 +137,7 @@ namespace SVN_Portal.DAL.DataPortal
                 dataUI = await ReadList(date, tableName);
 
 
-                if (dataUI.Count > 0) 
+                if (dataUI != null && dataUI.Count > 0) 
                 {
                     //Lấy Data có WC = null hoặc WC contain FG
                     dataUI = dataUI.Where(x => string.IsNullOrWhiteSpace(x.WC) || x.WC.Contains("FG")).ToList();

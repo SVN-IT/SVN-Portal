@@ -123,6 +123,14 @@ namespace ViidooDBServiceAPI.Controllers
                     processResult.Message = "Không tìm thấy lệnh sản xuất: " + dataRequest.WorkOrderNumber;
                     return processResult;
                 }
+
+                if (int.Parse(productionOrderInfo["qty_producing"]) != 0)
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Lệnh: " + productionOrderInfo["name"] + " đã hoàn thành";
+                    return processResult;
+                }
+
                 //Lấy move_id 
                 var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
                 var move_ids = Array.ConvertAll(str_move_ids, int.Parse);
