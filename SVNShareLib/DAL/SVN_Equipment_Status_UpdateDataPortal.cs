@@ -88,5 +88,25 @@ namespace SVNShareLib.DAL
                 return null;
             }
         }
+
+        public async Task<SVN_Downtime_InfoUI> GetDowntimeInfo(string operation)
+        {
+            SVN_Downtime_InfoUI dataUI = new SVN_Downtime_InfoUI();
+            int timeOut = 1000;
+            try
+            {
+                string sql = "select TOP(1) * from SVN_Downtime_Info where Operation = @operation order by Datetime desc";
+                var param = new { operation = operation };
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = await connection.QueryFirstOrDefaultAsync<SVN_Downtime_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using SVNShareLib.DAL;
 using System.Globalization;
 using SVN_Portal.Services.ObjectClasses;
+using DocumentFormat.OpenXml.Drawing;
 
 namespace SVN_Portal.DAL.DataPortal
 {
@@ -324,7 +325,7 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 double Duration = 0;
                                 DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.MasterOperation);
+                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.Operation);
                                 if (equipmentStatus != null)
                                 {
                                     //Duration = equipmentStatus.TotalDuration;
@@ -717,7 +718,7 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 double Duration = 0;
                                 DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.MasterOperation);
+                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.Operation);
                                 if (equipmentStatus != null)
                                 {
                                     //Duration = equipmentStatus.TotalDuration;
@@ -1107,7 +1108,7 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 double Duration = 0;
                                 DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.MasterOperation);
+                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.Operation);
                                 if (equipmentStatus != null)
                                 {
                                     //Duration = equipmentStatus.TotalDuration;
@@ -1548,7 +1549,7 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 double Duration = 0;
                                 DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.MasterOperation);
+                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.Operation);
                                 if (equipmentStatus != null)
                                 {
                                     //Duration = equipmentStatus.TotalDuration;
@@ -1981,7 +1982,7 @@ namespace SVN_Portal.DAL.DataPortal
                             double Duration = 0;
                             DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
                             //var equipmentStatus = svn_equipment_StatusDataPortal.GetEquipmentStatusByOeration(oper.MasterOperation, datetime);
-                            var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), oper.MasterOperation);
+                            var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), oper.Operation);
                             if (equipmentStatus != null)
                             {
                                 //Duration = equipmentStatus.TotalDuration;
@@ -1991,10 +1992,10 @@ namespace SVN_Portal.DAL.DataPortal
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
 
-                            var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetEquipmentStatusUpdateDetail(oper.MasterOperation);
+                            var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetDowntimeInfo(oper.Operation);
                             if(equipmentStatusDetail != null && !string.IsNullOrWhiteSpace(equipmentStatusDetail.State) && equipmentStatusDetail.State != "Run")
                             {
-                                if(startDatetime >= equipmentStatusDetail.FromTime)
+                                if(startDatetime >= equipmentStatusDetail.Datetime)
                                 {
                                     Duration = 0;
                                 }
@@ -2006,9 +2007,10 @@ namespace SVN_Portal.DAL.DataPortal
                                     }
                                     if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
                                     {
-                                        TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
-                                        DateTime endTime = equipmentStatusDetail.FromTime.Add(duration);
-                                        int totalSeconds = (int)duration.TotalSeconds;
+                                        //TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
+                                        DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                        DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                        //int totalSeconds = (int)duration.TotalSeconds;
 
                                         if (endTime <= endDatetime)
                                         {
