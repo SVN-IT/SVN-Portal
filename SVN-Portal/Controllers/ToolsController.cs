@@ -1041,6 +1041,16 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
+        public IActionResult WorkOrderInfoWIPWalter(string workOrder)
+        {
+            if (!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
+            return View();
+        }
+
         /// <summary>
         /// Hàm nhập kết quả sản xuất theo Work Order
         /// </summary>
@@ -1605,6 +1615,112 @@ namespace SVN_Portal.Controllers
 
 
                 _logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+            }
+            return Json(new { success = false, message = processResult.Message });
+        }
+
+        /// <summary>
+        /// Nhập WIP cho Walter
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> InputProductionResultWIPWalter([FromBody] ProductionData data)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                data.Products = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+
+                if(int.Parse(data.Quantity) > 20)
+                {
+                    data.Quantity = 20.ToString();
+                }
+
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = data.Name,
+                    LotNumber = data.Serial,
+                    Quality = int.Parse(data.Quantity),
+                    LotScaneds = lotScaneds
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    TempData.Remove("WorkOrderName");
+                    TempData["WorkOrderName"] = data.SubName;
+                    TempData.Keep("WorkOrderName");
+                    if (result.OK)
+                    {
+                        string operation = "";
+                        InputProductDataRequest dataWORequest = new InputProductDataRequest()
+                        {
+                            WorkOrderNumber = data.Name.Split("-")[0],
+                            LotNumber = ""
+                        };
+                        //var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                        //if (woResult != null) 
+                        //{
+                        //    if (woResult.OK) 
+                        //    {
+                        //        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
+                        //        if(workOrderInfo.OrderInfo["name"] == data.Name)
+                        //        {
+                        //            processResult.OK = false;
+                        //            processResult.Message = "Lệnh sản xuất nhập thất bại";
+                        //            return Json(new { result = processResult.OK, message = processResult.Message });
+                        //        }
+                        //        List<OperInfo> opers = operInfoConfig.OperInfo;
+                        //        var currentOper = opers.Where(x => x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
+                        //        if (currentOper != null)
+                        //        {
+                        //            operation = currentOper.MasterOperation;
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        return Json(new { result = woResult.OK, message = woResult.Message });
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    processResult.OK = false;
+                        //    processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
+                        //    return Json(new { result = processResult.OK, message = processResult.Message });
+                        //}
+
+                        processResult.OK = true;
+                        return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        if (!string.IsNullOrWhiteSpace(result.Message))
+                        {
+                            processResult.Message = result.Message;
+                        }
+                        else
+                        {
+                            processResult.Message = "Không có dữ liệu";
+                        }
+
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
             }
             return Json(new { success = false, message = processResult.Message });
         }
