@@ -449,7 +449,7 @@ namespace ViidooDBServiceAPI.Controllers
                     }
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
-                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
+                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv2(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
 
                     //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;

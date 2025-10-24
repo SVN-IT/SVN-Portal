@@ -1520,6 +1520,484 @@ namespace ViidooDBServiceAPI.Services
         }
 
         /// <summary>
+        /// Sử lí trường hợp cảnh báo tiêu thụ và không cảnh báo tiêu thụ
+        /// Nếu có thế :))))
+        /// </summary>
+        /// <param name="productionOrderInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <param name="qty_producing"></param>
+        /// <param name="lot_id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsyncv2(Dictionary<string, string> productionOrderInfo, int uid, string sessionId,
+                int qty_producing, int lot_id = 0)
+        {
+            using (var client = new HttpClient())
+            {
+                var setting = new Dictionary<string, object>
+                            {
+                                { "confirm_cancel", "" },
+                                { "show_lock", "" },
+                                { "move_byproduct_ids", "" },
+                                { "state", "1" },
+                                {"show_serial_mass_produce", "" },
+                                { "check_ids", "1" },
+                                { "check_todo", "" },
+                                { "reservation_state", "1" },
+                                { "date_planned_finished", "1" },
+                                { "is_locked", "1" },
+                                { "qty_produced", "1" },
+                                { "is_planned", "1" },
+                                { "workorder_ids", "1" },
+                                { "workorder_ids.consumption", "" },
+                                { "workorder_ids.company_id", "" },
+                                { "workorder_ids.is_produced", "" },
+                                { "workorder_ids.is_user_working", "" },
+                                { "workorder_ids.product_uom_id", "" },
+                                { "workorder_ids.production_state", "" },
+                                { "workorder_ids.production_bom_id", "" },
+                                { "workorder_ids.qty_producing", "1" },
+                                { "workorder_ids.time_ids", "1" },
+                                { "workorder_ids.working_state", "" },
+                                { "workorder_ids.operation_id", "1" },
+                                { "workorder_ids.name", "" },
+                                { "workorder_ids.workcenter_id", "1" },
+                                { "workorder_ids.product_id", "" },
+                                { "workorder_ids.qty_remaining", "" },
+                                { "workorder_ids.qty_produced", "1" },
+                                { "workorder_ids.finished_lot_id", "1" },
+                                { "workorder_ids.date_planned_start", "1" },
+                                { "workorder_ids.date_planned_finished", "1" },
+                                { "workorder_ids.date_start", "" },
+                                { "workorder_ids.date_finished", "" },
+                                { "workorder_ids.duration_expected", "1" },
+                                { "workorder_ids.duration", "" },
+                                { "workorder_ids.state", "1" },
+                                { "workorder_ids.check_ids", "1" },
+                                { "workorder_ids.check_todo", "" },
+                                { "workorder_ids.show_json_popover", "" },
+                                { "workorder_ids.json_popover", "" },
+                                { "eco_count", "1" },
+                                { "scrap_count", "1" },
+                                { "delivery_count", "1" },
+                                { "alert_count", "1" },
+                                { "package_count", "1" },
+                                { "account_moves_count", "1" },
+                                { "maintenance_count", "1" },
+                                { "document_count", "1" },
+                                { "overview_progress", "" },
+                                { "priority", "1" },
+                                { "product_id", "1" },
+                                { "company_id", "1" },
+                                { "bom_id", "1" },
+                                { "qty_producing", "1" },
+                                { "product_qty", "1" },
+                                { "product_uom_id", "1" },
+                                { "date_planned_start", "1" },
+                                { "move_finished_ids", "1" },
+                                { "move_finished_ids.product_id", "1" },
+                                { "move_finished_ids.product_uom_qty", "1" },
+                                { "move_finished_ids.product_uom", "1" },
+                                { "move_finished_ids.operation_id", "1" },
+                                { "move_finished_ids.date_deadline", "1" },
+                                { "move_finished_ids.picking_type_id", "1" },
+                                { "move_finished_ids.location_id", "1" },
+                                { "move_finished_ids.group_id", "1" },
+                                { "move_finished_ids.state", "1" },
+                                { "move_finished_ids.quantity_done", "1" },
+                                { "move_finished_ids.product_packaging_id", "1" },
+                                { "move_raw_ids", "1" },
+                                { "move_raw_ids.product_id", "1" },
+                                { "move_raw_ids.location_id", "1" },
+                                { "move_raw_ids.product_uom", "1" },
+                                { "move_raw_ids.date_deadline", "1" },
+                                { "move_raw_ids.date", "1" },
+                                { "move_raw_ids.picking_type_id", "1" },
+                                { "move_raw_ids.has_tracking", "1" },
+                                { "move_raw_ids.operation_id", "1" },
+                                { "move_raw_ids.state", "1" },
+                                { "move_raw_ids.product_uom_qty", "1" },
+                                { "move_raw_ids.product_qty", "1" },
+                                { "move_raw_ids.reserved_availability", "1" },
+                                { "move_raw_ids.forecast_expected_date", "1" },
+                                { "move_raw_ids.forecast_availability", "1" },
+                                { "move_raw_ids.quantity_done", "1" },
+                                { "move_raw_ids.lot_ids", "1" },
+                                { "move_raw_ids.group_id", "1" },
+                                { "picking_type_id", "1" },
+                                { "location_src_id", "1" },
+                                { "location_dest_id", "1" }
+                            }
+
+                string onchangeField = "qty_producing";
+                if (productionOrderInfo["product_tracking"] == "serial")
+                {
+                    productionOrderInfo["state"] = "progress";
+                    onchangeField = "lot_producing_id";
+                    qty_producing = 0;
+                }
+
+                var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] move_raw_ids = new object[] { };
+                if (str_move_ids.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    move_raw_ids = Array.ConvertAll(str_move_ids, int.Parse)
+                        .Select(id => new object[] { 4, id, false })
+                        .ToArray();
+                }
+
+                var str_check_ids = productionOrderInfo["check_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] check_ids = new object[] { };
+                if (str_check_ids.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    check_ids = Array.ConvertAll(str_check_ids, int.Parse)
+                    .Select(id => new object[] { 4, id, false })
+                    .ToArray();
+                }
+
+                var str_workorder_ids = productionOrderInfo["workorder_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] workorder_ids = new object[] { };
+                if (str_workorder_ids.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    workorder_ids = Array.ConvertAll(str_workorder_ids, int.Parse)
+                        .Select(id => new object[] { 4, id, false })
+                        .ToArray();
+                }
+
+                //Lấy product_id
+                var arrProductID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"]);
+                var product_id = Convert.ToInt32(arrProductID[0]);
+
+                //Lấy product_tmpl_id
+                var arrProductTmplID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_tmpl_id"]);
+                var product_tmpl_id = Convert.ToInt32(arrProductTmplID[0]);
+
+                //Lấy company_id
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["company_id"]);
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                //Lấy bom_id
+                var arrBomID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["bom_id"]);
+                var bom_id = Convert.ToInt32(arrBomID[0]);
+
+                //Lấy product_uom_category_id
+                var arrProductUomCatID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_uom_category_id"]);
+                var product_uom_category_id = Convert.ToInt32(arrProductUomCatID[0]);
+
+                //Lấy product_uom_id
+                var arrProductUomID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_uom_id"]);
+                var product_uom_id = Convert.ToInt32(arrProductUomID[0]);
+
+                //Lấy move_finished_ids
+                var arrMoveFinishedID = productionOrderInfo["move_finished_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Replace("[", "").Replace("]", "").Split(",");
+                object[] move_finished_ids = new object[] { };
+                if (arrMoveFinishedID.Where(x => !string.IsNullOrWhiteSpace(x)).Count() > 0)
+                {
+                    // Chuyển đổi chuỗi ID thành mảng object
+                    move_finished_ids = Array.ConvertAll(arrMoveFinishedID, int.Parse)
+                        .Select(id => new object[] { 4, id, false })
+                        .ToArray();
+                }
+
+                //Lấy production_location_id
+                var arrProductLocID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["production_location_id"]);
+                var production_location_id = Convert.ToInt32(arrProductLocID[0]);
+
+                //Lấy picking_type_id
+                var arrPickingTypeID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["picking_type_id"]);
+                var picking_type_id = Convert.ToInt32(arrPickingTypeID[0]);
+
+                //Lấy location_src_id
+                var arrLocSrcID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["location_src_id"]);
+                var location_src_id = Convert.ToInt32(arrLocSrcID[0]);
+
+                //Lấy warehouse_id
+                var arrWarehouseID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["warehouse_id"]);
+                var warehouse_id = Convert.ToInt32(arrWarehouseID[0]);
+
+                //Lấy location_dest_id
+                var arrLocDescID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["location_dest_id"]);
+                var location_dest_id = Convert.ToInt32(arrLocDescID[0]);
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                // Gửi request tiêu thụ nguyên vật liệu
+                var payload = new
+                {
+                    id = 81,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            // 1️⃣ ID của MO
+                            new int[] { int.Parse(productionOrderInfo["id"]) },
+
+                            // 2️⃣ Toàn bộ thông tin chi tiết MO
+                            new
+                            {
+                                id = (object)productionOrderInfo["id"],
+                                confirm_cancel = (productionOrderInfo["confirm_cancel"] == "False") ? false : true,
+                                show_lock = (productionOrderInfo["show_lock"] == "False") ? false : true,
+                                move_byproduct_ids = new object[] { },
+                                state = (object)productionOrderInfo["state"],
+                                show_serial_mass_produce = (productionOrderInfo["product_tracking"] == "serial") ? false :true,
+                                check_ids = check_ids,
+                                check_todo = (productionOrderInfo["check_todo"] == "False") ? false : true,
+                                reservation_state = (object)productionOrderInfo["reservation_state"],
+                                date_planned_finished = (productionOrderInfo["date_planned_finished"] == "False") ? false :(object) productionOrderInfo["date_planned_finished"],
+                                is_locked = (productionOrderInfo["is_locked"] == "False") ? false : true,
+                                qty_produced = (object)productionOrderInfo["qty_produced"],
+                                unreserve_visible = (productionOrderInfo["unreserve_visible"] == "False") ? false : true,
+                                reserve_visible = (productionOrderInfo["reserve_visible"] == "False") ? false : true,
+                                consumption = (object)productionOrderInfo["consumption"],
+                                is_planned = (productionOrderInfo["is_planned"] == "False") ? false : true,
+                                show_allocation = (productionOrderInfo["show_allocation"] == "False") ? false : true,
+                                workorder_ids = workorder_ids,
+                                eco_count = (object)productionOrderInfo["eco_count"],
+                                scrap_count = (object)productionOrderInfo["scrap_count"],
+                                delivery_count = (object)productionOrderInfo["delivery_count"],
+                                alert_count = (object)productionOrderInfo["alert_count"],
+                                package_count = (object)productionOrderInfo["package_count"],
+                                account_moves_count = (object)productionOrderInfo["account_moves_count"],
+                                maintenance_count = (object)productionOrderInfo["maintenance_count"],
+                                document_count = (object)productionOrderInfo["document_count"],
+                                overview_progress = (object)productionOrderInfo["overview_progress"],
+                                priority = (object)productionOrderInfo["priority"],
+                                name = (object)productionOrderInfo["name"],
+                                use_create_components_lots = (productionOrderInfo["use_create_components_lots"] == "False") ? false : true,
+                                show_lot_ids = (productionOrderInfo["show_lot_ids"] == "False") ? false : true,
+                                product_tracking = (object)productionOrderInfo["product_tracking"],
+                                show_valuation = (productionOrderInfo["show_valuation"] == "False") ? false : true,
+                                product_id = product_id,
+                                product_tmpl_id = product_tmpl_id,
+                                forecasted_issue = (productionOrderInfo["forecasted_issue"] == "False") ? false : true,
+                                company_id = company_id,
+                                product_description_variants = (object)productionOrderInfo["product_description_variants"],
+                                bom_id = bom_id,
+                                qty_producing = qty_producing,
+                                product_qty = (object)productionOrderInfo["product_qty"],
+                                product_uom_category_id = product_uom_category_id,
+                                product_uom_id = product_uom_id,
+                                product_packaging_id = (productionOrderInfo["product_packaging_id"] == "False") ? false :(object) productionOrderInfo["product_packaging_id"],
+                                lot_producing_id = (lot_id == 0) ? false : (object)lot_id,
+                                date_planned_start = (productionOrderInfo["date_planned_start"] == "False") ? false :(object) productionOrderInfo["date_planned_start"],
+                                delay_alert_date = (productionOrderInfo["delay_alert_date"] == "False") ? false : (object)productionOrderInfo["delay_alert_date"],
+                                json_popover = (object)productionOrderInfo["json_popover"],
+                                components_availability_state = (object)productionOrderInfo["components_availability_state"],
+                                components_availability = (object)productionOrderInfo["components_availability"],
+                                date_deadline = (productionOrderInfo["date_deadline"] == "False") ? false : (object)productionOrderInfo["date_deadline"],
+                                show_final_lots = (productionOrderInfo["show_final_lots"] == "False") ? false : true,
+                                production_location_id = production_location_id,
+                                move_finished_ids = move_finished_ids,
+                                move_raw_ids = move_raw_ids,
+                                picking_type_id = picking_type_id,
+                                location_src_id = location_src_id,
+                                warehouse_id = warehouse_id,
+                                location_dest_id = location_dest_id,
+                                origin = (object)productionOrderInfo["origin"]
+                            },
+
+                            // 3️⃣ Field onchange
+                            onchangeField,
+
+                            // 4️⃣ Mapping onchange fields
+                            new Dictionary<string, object>
+                            {
+                                { "confirm_cancel", "" },
+                                { "show_lock", "" },
+                                { "move_byproduct_ids", "" },
+                                { "state", "1" },
+                                { "show_serial_mass_produce", "" },
+                                { "check_ids", "1" },
+                                { "check_todo", "" },
+                                { "reservation_state", "1" },
+                                { "date_planned_finished", "1" },
+                                { "is_locked", "1" },
+                                { "qty_produced", "1" },
+                                { "is_planned", "1" },
+                                { "workorder_ids", "1" },
+                                { "workorder_ids.consumption", "" },
+                                { "workorder_ids.company_id", "" },
+                                { "workorder_ids.is_produced", "" },
+                                { "workorder_ids.is_user_working", "" },
+                                { "workorder_ids.product_uom_id", "" },
+                                { "workorder_ids.production_state", "1" },
+                                { "workorder_ids.production_bom_id", "" },
+                                { "workorder_ids.qty_producing", "1" },
+                                { "workorder_ids.time_ids", "1" },
+                                { "workorder_ids.working_state", "" },
+                                { "workorder_ids.operation_id", "1" },
+                                { "workorder_ids.name", "" },
+                                { "workorder_ids.workcenter_id", "1" },
+                                { "workorder_ids.product_id", "" },
+                                { "workorder_ids.qty_remaining", "" },
+                                { "workorder_ids.qty_produced", "1" },
+                                { "workorder_ids.finished_lot_id", "1" },
+                                { "workorder_ids.date_planned_start", "1" },
+                                { "workorder_ids.date_planned_finished", "1" },
+                                { "workorder_ids.date_start", "" },
+                                { "workorder_ids.date_finished", "" },
+                                { "workorder_ids.duration_expected", "1" },
+                                { "workorder_ids.duration", "" },
+                                { "workorder_ids.state", "1" },
+                                { "workorder_ids.check_ids", "1" },
+                                { "workorder_ids.check_todo", "" },
+                                { "workorder_ids.show_json_popover", "" },
+                                { "workorder_ids.json_popover", "" },
+                                { "eco_count", "" },
+                                { "scrap_count", "" },
+                                { "delivery_count", "" },
+                                { "alert_count", "" },
+                                { "package_count", "" },
+                                { "account_moves_count", "" },
+                                { "maintenance_count", "" },
+                                { "document_count", "" },
+                                { "overview_progress", "" },
+                                { "priority", "1" },
+                                { "name", "" },
+                                { "id", "" },
+                                { "use_create_components_lots", "" },
+                                { "show_lot_ids", "" },
+                                { "product_tracking", "" },
+                                { "show_valuation", "" },
+                                { "product_id", "1" },
+                                { "product_tmpl_id", "" },
+                                { "forecasted_issue", "" },
+                                { "company_id", "1" },
+                                { "product_description_variants", "" },
+                                { "bom_id", "1" },
+                                { "qty_producing", "1" },
+                                { "product_qty", "1" },
+                                { "product_uom_category_id", "" },
+                                { "product_uom_id", "1" },
+                                { "product_packaging_id", "1" },
+                                { "lot_producing_id", "1" },
+                                { "date_planned_start", "1" },
+                                { "delay_alert_date", "" },
+                                { "json_popover", "" },
+                                { "components_availability_state", "" },
+                                { "components_availability", "" },
+                                { "date_deadline", "" },
+                                { "show_final_lots", "" },
+                                { "production_location_id", "" },
+                                { "move_finished_ids", "1" },
+                                { "move_finished_ids.product_id", "1" },
+                                { "move_finished_ids.product_uom_qty", "1" },
+                                { "move_finished_ids.product_uom", "1" },
+                                { "move_finished_ids.operation_id", "1" },
+                                { "move_finished_ids.byproduct_id", "" },
+                                { "move_finished_ids.name", "" },
+                                { "move_finished_ids.date_deadline", "1" },
+                                { "move_finished_ids.picking_type_id", "1" },
+                                { "move_finished_ids.location_id", "1" },
+                                { "move_finished_ids.location_dest_id", "" },
+                                { "move_finished_ids.company_id", "" },
+                                { "move_finished_ids.warehouse_id", "" },
+                                { "move_finished_ids.origin", "" },
+                                { "move_finished_ids.group_id", "1" },
+                                { "move_finished_ids.propagate_cancel", "" },
+                                { "move_finished_ids.move_dest_ids", "" },
+                                { "move_finished_ids.state", "1" },
+                                { "move_finished_ids.product_uom_category_id", "" },
+                                { "move_finished_ids.allowed_operation_ids", "" },
+                                { "move_finished_ids.quantity_done", "1" },
+                                { "move_finished_ids.product_packaging_id", "1" },
+                                { "move_finished_ids.cost_share", "" },
+                                { "move_raw_ids", "1" },
+                                { "move_raw_ids.product_id", "1" },
+                                { "move_raw_ids.location_id", "1" },
+                                { "move_raw_ids.product_uom", "1" },
+                                { "move_raw_ids.propagate_cancel", "" },
+                                { "move_raw_ids.price_unit", "" },
+                                { "move_raw_ids.company_id", "" },
+                                { "move_raw_ids.product_uom_category_id", "" },
+                                { "move_raw_ids.name", "" },
+                                { "move_raw_ids.allowed_operation_ids", "" },
+                                { "move_raw_ids.unit_factor", "" },
+                                { "move_raw_ids.date_deadline", "1" },
+                                { "move_raw_ids.date", "1" },
+                                { "move_raw_ids.additional", "" },
+                                { "move_raw_ids.picking_type_id", "1" },
+                                { "move_raw_ids.has_tracking", "1" },
+                                { "move_raw_ids.operation_id", "1" },
+                                { "move_raw_ids.is_done", "" },
+                                { "move_raw_ids.bom_line_id", "" },
+                                { "move_raw_ids.sequence", "" },
+                                { "move_raw_ids.warehouse_id", "" },
+                                { "move_raw_ids.is_locked", "" },
+                                { "move_raw_ids.move_lines_count", "" },
+                                { "move_raw_ids.location_dest_id", "" },
+                                { "move_raw_ids.state", "1" },
+                                { "move_raw_ids.should_consume_qty", "" },
+                                { "move_raw_ids.product_uom_qty", "1" },
+                                { "move_raw_ids.product_type", "" },
+                                { "move_raw_ids.product_qty", "1" },
+                                { "move_raw_ids.reserved_availability", "1" },
+                                { "move_raw_ids.forecast_expected_date", "1" },
+                                { "move_raw_ids.forecast_availability", "1" },
+                                { "move_raw_ids.quantity_done", "1" },
+                                { "move_raw_ids.component_standard_consumption_id", "" },
+                                { "move_raw_ids.manual_consumption", "" },
+                                { "move_raw_ids.show_details_visible", "" },
+                                { "move_raw_ids.lot_ids", "1" },
+                                { "move_raw_ids.group_id", "1" },
+                                { "picking_type_id", "1" },
+                                { "location_src_id", "1" },
+                                { "warehouse_id", "" },
+                                { "location_dest_id", "1" },
+                                { "origin", "" }
+                            }
+                        },
+                        model = "mrp.production",
+                        method = "onchange",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = 2,
+                                allowed_company_ids = new int[] { 1 },
+                                active_model = "mrp.production",
+                                force_skip_consumption = true,
+                                button_mark_done_production_ids = (object?)null,
+                                //active_id = 88703,
+                                //active_ids = new int[] { 88703 },
+                                skip_backorder = false,
+                                mo_ids_to_backorder = (object?)null,
+                                default_product_id = product_id,
+                                default_company_id = 1
+                            }
+                        }
+                    }
+                };
+
+                var jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/onchange", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
         /// Hàm API để đọc thông tin sản xuất bằng mã productID từ Odoo.
         /// </summary>
         /// <param name="productionId"></param>
