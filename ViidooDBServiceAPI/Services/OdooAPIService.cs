@@ -1531,7 +1531,7 @@ namespace ViidooDBServiceAPI.Services
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsyncv2(Dictionary<string, string> productionOrderInfo, int uid, string sessionId,
-                int qty_producing, int lot_id = 0)
+                int qty_producing, int lot_id = 0, int tryCount = 0)
         {
             using (var client = new HttpClient())
             {
@@ -1631,7 +1631,7 @@ namespace ViidooDBServiceAPI.Services
                 };
 
                 string onchangeField = "qty_producing";
-                if (productionOrderInfo["product_tracking"] == "serial")
+                if (productionOrderInfo["product_tracking"] == "serial" && (tryCount == 0 || tryCount == 2))
                 {
                     productionOrderInfo["state"] = "progress";
                     onchangeField = "lot_producing_id";

@@ -449,7 +449,27 @@ namespace ViidooDBServiceAPI.Controllers
                     }
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
-                    var moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv2(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
+                    Dictionary<string, object> moveRawConsumeInfo = new Dictionary<string, object>();
+                    if(productionOrderInfo["product_tracking"] != "serial")
+                    {
+                        moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
+                    }
+                    else
+                    {
+                        //Xử lý tiêu hao nvl theo mã serial tiêu hao theo qty_produce hoặc lot_producing_id
+                        for (int i = 0; i < 4; i++)
+                        {
+                            moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv2(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id, i);
+                            var move_raw_ids = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+                            if (move_raw_ids != null && move_raw_ids.Count > 0)
+                            {
+                                break;
+                            }
+                        }    
+                    }
+
+                    
+                    
 
                     //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
@@ -598,6 +618,11 @@ namespace ViidooDBServiceAPI.Controllers
 
                         bODataProcessResult.OK = true;
                         bODataProcessResult.Message = "Hoàn thành lệnh sản xuất";
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Lỗi không tiêu hao được nguyên vật liệu";
                     }
                 }
 
