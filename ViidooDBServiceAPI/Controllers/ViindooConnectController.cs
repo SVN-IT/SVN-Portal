@@ -366,16 +366,49 @@ namespace ViidooDBServiceAPI.Controllers
                             if(dataRequest.LotScaneds.Count > 0)
                             {
                                 var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
-                                if(lotScaned != null)
+                                int lot_id_info = 0;
+                                if (lotScaned != null)
                                 {
-                                    var stockMoveLineSerial = await odooAPIService.GetStockMoveLineByLotNameAsync(lotScaned.lotNumber, product_material_id, str_move_line_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                                    //var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                                    if (stockMoveLineSerial == null)
+                                    //Bước cần thay đổi theo cách mới để lấy stock move line theo mã lot
+                                    //B1: Lấy ra stock move line đầu tiên trong danh sách thuộc stock move - checked
+                                    Dictionary<string, string> firstStockMoveLine = new Dictionary<string, string>();
+                                    if (str_move_line_ids != null && str_move_line_ids.Count > 0)
+                                    {
+                                        firstStockMoveLine = await odooAPIService.GetStockMoveLineByID(Convert.ToInt32(str_move_line_ids[0]), Convert.ToInt32(productionOrderInfo["id"]), item, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                                        //B2: Tìm kiếm lot id theo lot name - checked
+                                        lot_id_info = await odooAPIService.GetLotInfo(lotScaned.lotNumber, Convert.ToInt32(productionOrderInfo["id"]), item, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                        if(lot_id_info == 0)
+                                        {
+                                            bODataProcessResult.OK = false;
+                                            bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy ";
+                                            return bODataProcessResult;
+                                        }
+
+                                    }
+                                    else
                                     {
                                         bODataProcessResult.OK = false;
-                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy " ;
+                                        bODataProcessResult.Message = "Thành phần " + arrMarterialProductID[1].ToString() + " Chưa có số serial nào. ";
                                         return bODataProcessResult;
                                     }
+                                    //var stockMoveLineSerial = await odooAPIService.GetStockMoveLineByLotNameAsync(lotScaned.lotNumber, product_material_id, str_move_line_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    ////var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                    //if (stockMoveLineSerial == null)
+                                    //{
+                                    //    bODataProcessResult.OK = false;
+                                    //    bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy " ;
+                                    //    return bODataProcessResult;
+                                    //}
+
+                                    var stockMoveLineSerial = firstStockMoveLine;
+                                    if(stockMoveLineSerial == null || stockMoveLineSerial.Count == 0)
+                                    {
+                                        bODataProcessResult.OK = false;
+                                        bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy ";
+                                        return bODataProcessResult;
+                                    }
+                                    stockMoveLineSerial["lot_id"] = lot_id_info.ToString();
                                     stockMoveLineSerial["move_line_ids"] = item["move_line_ids"].ToString();
                                     stockMoveLineSerial["location_id"] = item["location_id"].ToString();
                                     stockMoveLineSerial["location_dest_id"] = item["location_dest_id"].ToString();
@@ -388,7 +421,8 @@ namespace ViidooDBServiceAPI.Controllers
                             }
                         }
 
-                        if(stockMoveLineSerials.Count > 0)
+                        //B3: Lưu stock move lại
+                        if (stockMoveLineSerials.Count > 0)
                         {
                             //Thực hiện cập nhật stock move line theo mã lot
                             foreach (var item in stockMoveLineSerials)
@@ -402,7 +436,7 @@ namespace ViidooDBServiceAPI.Controllers
                                         int move_line_id = int.Parse(item["id"]);
                                         if (id == move_line_id)
                                         {
-                                            return new object[] { 1, id, new { qty_done = 1 } };
+                                            return new object[] { 1, id, new { lot_id = int.Parse(item["lot_id"]), qty_done = 1 } };
                                         }
                                         else
                                         {
@@ -467,9 +501,6 @@ namespace ViidooDBServiceAPI.Controllers
                             }
                         }    
                     }
-
-                    
-                    
 
                     //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
                     var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
