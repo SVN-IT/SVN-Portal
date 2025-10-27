@@ -51,7 +51,11 @@
             }
         }
     }
-    var defectJsonData = JsonConvert.SerializeObject(defectModel.ViewModels);
+    string defectJsonData = string.Empty;
+    if (defectModel != null && defectModel.ViewModels != null)
+    {
+        defectJsonData = JsonConvert.SerializeObject(defectModel.ViewModels);
+    }
 
     int All = 0;
     int Run = 0;
@@ -479,6 +483,10 @@
                                     {
                                         charID = "chartdiv" + item.Operation + item.WC;
                                         charID = charID.Replace("-", "");
+                                        if (charID.Contains("(SM)"))
+                                        {
+                                            charID = charID.Replace("(SM)", "");
+                                        }
                                     }
                                     string jsonData = string.Empty;
                                     jsonData = JsonConvert.SerializeObject(item.ViewModels);

@@ -524,6 +524,17 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
 
+                if (oper.Contains("SM"))
+                {
+                    ViewBag.NextCompany = "SVN";
+                    ViewBag.CompanyCode = "SM";
+                }
+                else if (oper.Contains("SVN"))
+                {
+                    ViewBag.NextCompany = "SM";
+                    ViewBag.CompanyCode = "SVN";
+                }
+
                 List<OperInfo> opers = new List<OperInfo>();
                 var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
                 foreach (var item in singleOper)

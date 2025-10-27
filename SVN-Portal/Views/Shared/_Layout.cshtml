@@ -57,7 +57,7 @@
             <nav class="navbar top-navbar navbar-expand-md navbar-light">
                 <!-- Logo -->
                 <div class="navbar-header">
-                    <a class="navbar-brand" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="@ViewBag.NextCompany">
+                    <a class="navbar-brand" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="@ViewBag.CompanyCode">
                         <!-- Logo icon -->
                         <b><img src="~/images/logo.png" alt="homepage" class="dark-logo" /></b>
                         <!--End Logo icon -->
@@ -73,22 +73,34 @@
                         <li class="nav-item"> <a class="nav-link nav-toggler hidden-md-up text-muted  " href="javascript:void(0)"><i class="mdi mdi-menu"></i></a> </li>
                         <li class="nav-item m-l-10"> <a class="nav-link sidebartoggler hidden-sm-down text-muted  " href="javascript:void(0)"><i class="ti-menu"></i></a> </li>
                         <!-- Search -->
-                       @*  <li class="nav-item hidden-sm-down search-box">
+                        @* <li class="nav-item hidden-sm-down search-box">
                             <a class="nav-link hidden-sm-down text-muted  " href="javascript:void(0)"><i class="ti-search"></i></a>
                             <form class="app-search">
                                 <input type="text" class="form-control" placeholder="Search here"> <a class="srh-btn"><i class="ti-close"></i></a>
                             </form>
                         </li> *@
+                        @{
+                            string flagIcon = "vn";
+                            if (!string.IsNullOrWhiteSpace(ViewBag.CompanyCode) && ViewBag.CompanyCode == "SM")
+                            {
+                                flagIcon = "cn";
+                            }
+                            else if (!string.IsNullOrWhiteSpace(ViewBag.CompanyCode) && ViewBag.CompanyCode == "SVN")
+                            {
+                                flagIcon = "vn";
+                            }
+                        }
                         <!-- Language -->
-                     @*    <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-muted  " href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="flag-icon flag-icon-us"></i></a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-muted  " href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="flag-icon flag-icon-@flagIcon"></i></a>
                             <div class="dropdown-menu animated zoomIn">
-                                <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-ca"></i> Canada</a>
-                                <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr"></i> French</a>
-                                <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-cn"></i> China</a>
-                                <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de"></i> Dutch</a>
+                                @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-ca"></i> Canada</a>
+                                <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr"></i> French</a> *@
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SM"><i class="flag-icon flag-icon-cn"></i> China</a>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SVN"><i class="flag-icon flag-icon-vn"></i> Vietnam</a>
+                                @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de"></i> Dutch</a> *@
                             </div>
-                        </li> *@
+                        </li>
                         <!-- Messages -->
                         @* <li class="nav-item dropdown mega-dropdown">
                             <a class="nav-link dropdown-toggle text-muted  " href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-th-large"></i></a>
