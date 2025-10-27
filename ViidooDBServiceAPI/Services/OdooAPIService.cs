@@ -1531,7 +1531,7 @@ namespace ViidooDBServiceAPI.Services
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public async Task<Dictionary<string, object>> ConsumeMaterialsByBOMAsyncv2(Dictionary<string, string> productionOrderInfo, int uid, string sessionId,
-                int qty_producing, int lot_id = 0)
+                int qty_producing, int lot_id = 0, int tryCount = 0)
         {
             using (var client = new HttpClient())
             {
@@ -1631,7 +1631,7 @@ namespace ViidooDBServiceAPI.Services
                 };
 
                 string onchangeField = "qty_producing";
-                if (productionOrderInfo["product_tracking"] == "serial")
+                if (productionOrderInfo["product_tracking"] == "serial" && (tryCount == 0 || tryCount == 2))
                 {
                     productionOrderInfo["state"] = "progress";
                     onchangeField = "lot_producing_id";
@@ -2457,6 +2457,195 @@ namespace ViidooDBServiceAPI.Services
                     throw new Exception(json["error"]["message"].ToString());
                 }
                 return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Lấy thông tin của stockMoveLine đầu tiên trong danh sách
+        /// Bước thực hiện tiêu hao thành phần của lSX quản lý theo mã serial
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="stockMoveInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, string>> GetStockMoveLineByID(int id, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                int move_id = int.Parse(stockMoveInfo["id"].ToString());
+
+                var arrProductUomID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["product_uom"].ToString());
+                var product_uom_id = Convert.ToInt32(arrProductUomID[0]);
+
+                var arrProductID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["product_id"].ToString());
+                var product_id = Convert.ToInt32(arrProductID[0]);
+
+                var arrLocationID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["location_id"].ToString());
+                var location_id = Convert.ToInt32(arrLocationID[0]);
+
+                var arrLocationDestID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["location_dest_id"].ToString());
+                var location_dest_id = Convert.ToInt32(arrLocationDestID[0]);
+
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["company_id"].ToString());
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 127,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[]
+                            {
+                                id
+                            },
+                            new string[]
+                            {
+                                "company_id","picking_id","move_id","product_uom_category_id","product_id",
+                                "package_level_id","location_id","location_dest_id","package_id","result_package_id",
+                                "lot_id","lot_name","can_create_equipment","reserved_uom_qty","state","is_locked",
+                                "picking_code","qty_done","product_uom_id"
+                            }
+                        },
+                        model = "stock.move.line",
+                        method = "read",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { company_id },
+                                active_model = "stock.move",
+                                active_id = move_id,
+                                active_ids = new int[] { move_id },
+                                show_owner = true,
+                                show_lots_m2o = true,
+                                show_lots_text = false,
+                                show_source_location = true,
+                                show_destination_location = false,
+                                show_package = true,
+                                show_reserved_quantity = true,
+                                force_manual_consumption = true,
+                                active_mo_id = mo_id,
+                                tree_view_ref = "stock.view_stock_move_line_operation_tree",
+                                form_view_ref = "stock.view_move_line_mobile_form",
+                                default_product_uom_id = product_uom_id,
+                                //default_picking_id = false,
+                                default_move_id = move_id,
+                                default_product_id = product_id,
+                                default_location_id = location_id,
+                                default_location_dest_id = location_dest_id,
+                                default_company_id = company_id
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+
+                var resultArray = (JArray)json["result"];
+
+                try
+                {
+                    var dictionary = ((JObject)resultArray[0])
+                         .Properties()
+                         .ToDictionary(p => p.Name, p => p.Value.ToString());
+
+                    return dictionary;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+        }
+
+        public async Task<int> GetLotInfo(string lot_name, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                var arrProductID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["product_id"].ToString());
+                var product_id = Convert.ToInt32(arrProductID[0]);
+
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["company_id"].ToString());
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 130,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.lot",
+                        method = "name_search",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            name = lot_name,
+                            @operator = "ilike",
+                            args = new object[]
+                            {
+                                "&",
+                                new object[] { "product_id", "=", product_id },
+                                new object[] { "company_id", "=", company_id }
+                            },
+                            limit = 8,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { company_id },
+                                active_mo_id = mo_id,
+                                //active_picking_id = false,
+                                default_company_id = company_id,
+                                default_product_id = product_id
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync();
+                //var resultArray = (JArray)json["result"];
+                try
+                {
+                    dynamic data = JsonConvert.DeserializeObject(json);
+                    int lotId = data.result[0][0];
+                    string lotName = data.result[0][1];
+
+                    return lotId;
+                }
+                catch (Exception ex)
+                {
+                    return 0;
+                }
             }
         }
         #endregion
