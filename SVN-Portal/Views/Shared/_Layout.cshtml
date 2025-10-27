@@ -57,7 +57,7 @@
             <nav class="navbar top-navbar navbar-expand-md navbar-light">
                 <!-- Logo -->
                 <div class="navbar-header">
-                    <a class="navbar-brand" asp-controller="Home" asp-action="ProductionResult">
+                    <a class="navbar-brand" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="@ViewBag.NextCompany">
                         <!-- Logo icon -->
                         <b><img src="~/images/logo.png" alt="homepage" class="dark-logo" /></b>
                         <!--End Logo icon -->
@@ -275,7 +275,16 @@
         <!-- End header header -->
         <!-- Left Sidebar  -->
         @{
+            string companyCode = ViewBag.CompanyCode;
             List<string> operList = appConfig.MasterOperList.Split(",").ToList();
+            if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+            {
+                operList = operList.Where(x => x.Contains("SM")).ToList();
+            }
+            else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+            {
+                operList = operList.Where(x => !x.Contains("SM")).ToList();
+            }
         }
         <div class="left-sidebar">
             <!-- Sidebar scroll-->

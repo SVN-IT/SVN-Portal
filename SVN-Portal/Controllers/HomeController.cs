@@ -96,11 +96,15 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResult(DateTime date)
+        public async Task<IActionResult> ProductionResult(DateTime date, string companyCode)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
             {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -112,7 +116,21 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
-                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                }
+
+                    var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {

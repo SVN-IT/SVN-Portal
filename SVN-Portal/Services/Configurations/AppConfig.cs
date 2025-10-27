@@ -9,6 +9,7 @@
         public int ChartCol { get; set; }
         public int Rounding { get; set; }
         public string ShowSingleChart { get; set; }
+        public string DefaultCompany { get; set; }
 
     }
 }
