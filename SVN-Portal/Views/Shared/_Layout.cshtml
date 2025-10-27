@@ -329,9 +329,9 @@
                         <li>
                             <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-book" aria-hidden="true"></i><span class="hide-menu">Report <span class="label label-rouded label-primary pull-right">3</span></span></a>
                             <ul aria-expanded="false" class="collapse">
-                                <li><a asp-controller="Home" asp-action="PDResultByMonthReport">Production Result by Month</a></li>
-                                <li><a asp-controller="Home" asp-action="PDResultDailyReportV0">Production Result Daily</a></li>
-                                <li><a asp-controller="Home" asp-action="PDResultDailyReport">Production Result Daily New</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultByMonthReport" asp-route-companyCode="@ViewBag.CompanyCode">Production Result by Month</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultDailyReportV0" asp-route-companyCode="@ViewBag.CompanyCode">Production Result Daily</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultDailyReport" asp-route-companyCode="@ViewBag.CompanyCode">Production Result Daily New</a></li>
                             </ul>
                         </li>
                         <li class="d-none"><a asp-controller="Home" asp-action="AutomationTrackingPerOper"><i class="fa fa-bar-chart" aria-hidden="true"></i><span class="hide-menu">AutomationTrackingPerOper</span></a></li>

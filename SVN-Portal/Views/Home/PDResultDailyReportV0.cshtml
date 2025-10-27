@@ -17,12 +17,12 @@
                             <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
                         <div class="col-3">
-                            <button type="submit" asp-action="PDResultDailyReportV0" class="btn btn-primary">
+                            <button type="submit" asp-action="PDResultDailyReportV0" asp-route-companyCode="@ViewBag.CompanyCode" class="btn btn-primary">
                                 Search
                             </button>
                         </div>
                         <div class="col-3">
-                            <button type="submit" asp-action="ExportPDResultDailyV0" class="btn btn-success">
+                            <button type="submit" asp-action="ExportPDResultDailyV0" asp-route-companyCode="@ViewBag.CompanyCode" class="btn btn-success">
                                 Export excel
                             </button>
                         </div>

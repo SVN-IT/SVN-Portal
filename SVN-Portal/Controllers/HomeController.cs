@@ -1526,12 +1526,27 @@ namespace SVN_Portal.Controllers
         }
 
         #region report
-        public IActionResult PDResultByMonthReport(DateTime date)
+        public IActionResult PDResultByMonthReport(DateTime date, string companyCode)
         {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
             List<SVN_production_summaryUI> models = new List<SVN_production_summaryUI>();
             SVN_production_summaryDataPortal dataPortal = new SVN_production_summaryDataPortal(connectionString);
             try
             {
+                if (companyCode == "SM")
+                {
+                    ViewBag.NextCompany = "SVN";
+                    ViewBag.CompanyCode = "SM";
+                }
+                else if (companyCode == "SVN")
+                {
+                    ViewBag.NextCompany = "SM";
+                    ViewBag.CompanyCode = "SVN";
+                }
+
                 if (date == DateTime.MinValue)
                 {
                     date = DateTime.Now;
@@ -1555,12 +1570,12 @@ namespace SVN_Portal.Controllers
             return View(models);
         }
 
-        public async Task<IActionResult> PDResultDailyReport(DateTime fromdate, DateTime todate)
+        public async Task<IActionResult> PDResultDailyReport(DateTime fromdate, DateTime todate, string companyCode)
         {
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyData(fromdate, todate);
+                viewModels = await GetPDResultDailyData(fromdate, todate, companyCode);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -1569,11 +1584,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDaily(DateTime fromdate, DateTime todate)
+        public async Task<IActionResult> ExportPDResultDaily(DateTime fromdate, DateTime todate, string companyCode)
         {
             try
             {
-                var viewModels = await GetPDResultDailyData(fromdate, todate);
+                var viewModels = await GetPDResultDailyData(fromdate, todate, companyCode);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -1646,8 +1661,12 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime fromdate, DateTime todate)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime fromdate, DateTime todate, string companyCode)
         {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             List<PDResultDailyViewModel> dailyViewModels = new List<PDResultDailyViewModel>();
@@ -1685,6 +1704,20 @@ namespace SVN_Portal.Controllers
                 ViewBag.FromDate = fromdate;
                 ViewBag.ToDate = todate;
                 List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    ViewBag.CompanyCode = "SM";
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                    ViewBag.CompanyCode = "SVN";
+                }
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.GetDataForReport(fromdate, todate, opers);
                 if (models != null && models.Count > 0)
@@ -1991,13 +2024,13 @@ namespace SVN_Portal.Controllers
         }
 
 
-        public async Task<IActionResult> PDResultDailyReportV0(DateTime date)
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime date, string companyCode)
         {
             ViewBag.date = date;
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyDataV0(date);
+                viewModels = await GetPDResultDailyDataV0(date, companyCode);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -2006,11 +2039,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDailyV0(DateTime date)
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime date, string companyCode)
         {
             try
             {
-                var viewModels = await GetPDResultDailyDataV0(date);
+                var viewModels = await GetPDResultDailyDataV0(date, companyCode);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -2089,8 +2122,12 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime date)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime date, string companyCode)
         {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
@@ -2106,6 +2143,20 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    ViewBag.CompanyCode = "SM";
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                    ViewBag.CompanyCode = "SVN";
+                }
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
                 if (models != null && models.Count > 0)
