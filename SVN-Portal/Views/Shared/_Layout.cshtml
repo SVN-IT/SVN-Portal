@@ -80,24 +80,24 @@
                             </form>
                         </li> *@
                         @{
-                            string flagIcon = "vn";
+                            string flagIcon = "SVN";
                             if (!string.IsNullOrWhiteSpace(ViewBag.CompanyCode) && ViewBag.CompanyCode == "SM")
                             {
-                                flagIcon = "cn";
+                                flagIcon = "SM";
                             }
                             else if (!string.IsNullOrWhiteSpace(ViewBag.CompanyCode) && ViewBag.CompanyCode == "SVN")
                             {
-                                flagIcon = "vn";
+                                flagIcon = "SVN";
                             }
                         }
                         <!-- Language -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-muted  " href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="flag-icon flag-icon-@flagIcon"></i></a>
+                            <a class="nav-link dropdown-toggle text-muted  " href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> @* <i class="flag-icon flag-icon-flagIcon"></i> *@ @flagIcon</a>
                             <div class="dropdown-menu animated zoomIn">
                                 @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-ca"></i> Canada</a>
                                 <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr"></i> French</a> *@
-                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SM"><i class="flag-icon flag-icon-cn"></i> China</a>
-                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SVN"><i class="flag-icon flag-icon-vn"></i> Vietnam</a>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SM">@* <i class="flag-icon flag-icon-cn"></i> *@ SM</a>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SVN">@* <i class="flag-icon flag-icon-vn"></i> *@ SVN</a>
                                 @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de"></i> Dutch</a> *@
                             </div>
                         </li>
