@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
 using SVNShareLib.Request;
+using SVNShareLib.Utils;
 using ViidooDBServiceAPI.Services;
 
 namespace ViidooDBServiceAPI.Controllers
@@ -13,11 +14,13 @@ namespace ViidooDBServiceAPI.Controllers
     {
         ViindooDBConfig dbConfig;
         OdooAPIService odooAPIService;
+        SVNDBConfig svnDBConfig;
 
-        public ViindooConnectController(ViindooDBConfig dbConfig, OdooAPIService odooAPIService)
+        public ViindooConnectController(ViindooDBConfig dbConfig, OdooAPIService odooAPIService, SVNDBConfig svnDBConfig)
         {
             this.dbConfig = dbConfig;
             this.odooAPIService = odooAPIService;
+            this.svnDBConfig = svnDBConfig;
         }
         [Route("ProductionRead")]
         [HttpPost]
@@ -302,6 +305,7 @@ namespace ViidooDBServiceAPI.Controllers
         [HttpPost]
         public async Task<BODataProcessResult> InputProductionByWorkOrderv1(InputProductDataRequest dataRequest)
         {
+            LogService logger = new LogService(svnDBConfig.ConnectionString);
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             try
             {
@@ -312,10 +316,12 @@ namespace ViidooDBServiceAPI.Controllers
                     var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.WorkOrderNumber, bODataProcessResult.UserID, bODataProcessResult.DataType);
                     if (productionOrderInfo == null)
                     {
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.WorkOrderNumber);
                         bODataProcessResult.OK = false;
                         bODataProcessResult.Message = "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.WorkOrderNumber;
                         return bODataProcessResult;
                     }
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Bắt đầu thực hiện lệnh sản xuất: " + productionOrderInfo["name"]);
 
                     var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
                     var move_ids = Array.ConvertAll(str_move_ids, int.Parse);
@@ -369,6 +375,7 @@ namespace ViidooDBServiceAPI.Controllers
                                 int lot_id_info = 0;
                                 if (lotScaned != null)
                                 {
+                                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Xử lý thành phần có mã serial: " + lotScaned.lotNumber + " và mã nguyên liệu là: " + arrMarterialProductID[1] + " cho lsx: " + productionOrderInfo["name"]);
                                     //Bước cần thay đổi theo cách mới để lấy stock move line theo mã lot
                                     //B1: Lấy ra stock move line đầu tiên trong danh sách thuộc stock move - checked
                                     Dictionary<string, string> firstStockMoveLine = new Dictionary<string, string>();
@@ -380,6 +387,7 @@ namespace ViidooDBServiceAPI.Controllers
                                         lot_id_info = await odooAPIService.GetLotInfo(lotScaned.lotNumber, Convert.ToInt32(productionOrderInfo["id"]), item, bODataProcessResult.UserID, bODataProcessResult.DataType);
                                         if(lot_id_info == 0)
                                         {
+                                            logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot " + lotScaned.lotNumber + " không tìm thấy cho lsx: " + productionOrderInfo["name"]);
                                             bODataProcessResult.OK = false;
                                             bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy ";
                                             return bODataProcessResult;
@@ -388,6 +396,7 @@ namespace ViidooDBServiceAPI.Controllers
                                     }
                                     else
                                     {
+                                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Thành phần " + arrMarterialProductID[1].ToString() + " Chưa có số serial nào co lsx: " + productionOrderInfo["name"]);
                                         bODataProcessResult.OK = false;
                                         bODataProcessResult.Message = "Thành phần " + arrMarterialProductID[1].ToString() + " Chưa có số serial nào. ";
                                         return bODataProcessResult;
@@ -404,6 +413,7 @@ namespace ViidooDBServiceAPI.Controllers
                                     var stockMoveLineSerial = firstStockMoveLine;
                                     if(stockMoveLineSerial == null || stockMoveLineSerial.Count == 0)
                                     {
+                                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot " + lotScaned.lotNumber + " không tìm thấy cho lệnh sx: " + productionOrderInfo["name"]);
                                         bODataProcessResult.OK = false;
                                         bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy ";
                                         return bODataProcessResult;
@@ -444,6 +454,14 @@ namespace ViidooDBServiceAPI.Controllers
                                         }
                                     }).ToArray();
                                 var stockMoveWriteResult = await odooAPIService.SaveSerialStockMoveAsync(item, move_line_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                if (stockMoveWriteResult == null || stockMoveWriteResult["result"].ToString() != "True")
+                                {
+                                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot id" + item["lot_id"] + " không tiêu hao thành công cho thành phần product id: " + item["product_id"] + " lsx: " + productionOrderInfo["name"]);
+                                    bODataProcessResult.OK = false;
+                                    bODataProcessResult.Message = "Mã lot id" + item["lot_id"] + " không tiêu hao thành công cho thành phần product id: " + item["product_id"];
+                                    return bODataProcessResult;
+                                }
+                                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Mã lot id" + item["lot_id"] + " tiêu hao thành công cho thành phần product id: " + item["product_id"] + " lsx: " + productionOrderInfo["name"]);
                             }
                         }
                     }
@@ -467,6 +485,7 @@ namespace ViidooDBServiceAPI.Controllers
                         }
                         else
                         {
+                            logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot " + dataRequest.LotNumber + " không tìm thấy để nhập cho lệnh sản xuất: " + productionOrderInfo["name"]);
                             bODataProcessResult.OK = false;
                             bODataProcessResult.Message = "Không tìm thấy hoặc tạo được mã lô: " + dataRequest.LotNumber;
                             return bODataProcessResult;
@@ -477,10 +496,12 @@ namespace ViidooDBServiceAPI.Controllers
                     var checkLotInfo = await odooAPIService.CheckUsedLotIDAsync(lot_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                     if(checkLotInfo != null)
                     {
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lô " + dataRequest.LotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"]);
                         bODataProcessResult.OK = false;
                         bODataProcessResult.Message = "Mã lô " + dataRequest.LotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
                         return bODataProcessResult;
                     }
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Mã lot " + dataRequest.LotNumber + " được chuẩn bị để tiêu hao cho cho lệnh sản xuất " + productionOrderInfo["name"]);
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
                     Dictionary<string, object> moveRawConsumeInfo = new Dictionary<string, object>();
@@ -511,6 +532,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                     if (result != null)
                     {
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Tiêu hao NVL thành công cho lệnh sản xuất " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
                         foreach (var item in result)
                         {
                             var id = (int)item[1];
@@ -633,6 +655,14 @@ namespace ViidooDBServiceAPI.Controllers
                         int mrp_production_id = int.Parse(productionOrderInfo["id"]);
 
                         var saveResult = await odooAPIService.SaveProductionOrderAsyncv1(mrp_production_id, lot_id, dataRequest.Quality, move_raw_ids, work_order_ids, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        if(saveResult == null || saveResult["result"].ToString() != "True")
+                        {
+                            logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Lỗi không lưu được lệnh sản xuất " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = "Lỗi không lưu được lệnh sản xuất ";
+                            return bODataProcessResult;
+                        }
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Lưu lệnh sản xuất thành công " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber: ""));
 
                         var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
@@ -649,9 +679,11 @@ namespace ViidooDBServiceAPI.Controllers
 
                         bODataProcessResult.OK = true;
                         bODataProcessResult.Message = "Hoàn thành lệnh sản xuất";
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Hoàn thành lệnh sản xuất " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
                     }
                     else
                     {
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Tiêu hao NVL thất bại cho lệnh sản xuất " + productionOrderInfo["name"]);
                         bODataProcessResult.OK = false;
                         bODataProcessResult.Message = "Lỗi không tiêu hao được nguyên vật liệu";
                     }
