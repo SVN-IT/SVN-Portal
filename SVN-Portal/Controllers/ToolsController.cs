@@ -1405,7 +1405,7 @@ namespace SVN_Portal.Controllers
                     Quality = int.Parse(data.Quantity),
                     LotScaneds = lotScaneds
                 };
-                var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
+                var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
                 if (result != null)
                 {
                     TempData.Remove("WorkOrderName");
@@ -1525,7 +1525,7 @@ namespace SVN_Portal.Controllers
                 dataRequest.LotScaneds = lotScaneds;
 
 
-                var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
+                var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
                 if (result != null)
                 {
                     TempData.Remove("WorkOrderName");
@@ -1654,7 +1654,7 @@ namespace SVN_Portal.Controllers
                     Quality = int.Parse(data.Quantity),
                     LotScaneds = lotScaneds
                 };
-                var result = await httpClientHelper.PostRequest("api/ViindooConnect/InputProductionByWorkOrderv1", dataRequest, new CancellationToken(false));
+                var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
                 if (result != null)
                 {
                     TempData.Remove("WorkOrderName");

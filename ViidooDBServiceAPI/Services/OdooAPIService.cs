@@ -2648,6 +2648,140 @@ namespace ViidooDBServiceAPI.Services
                 }
             }
         }
+
+        /// <summary>
+        /// Trong trường hợp không giữ phần
+        /// tạo 1 stockmoveline mới để tiêu hao
+        /// Gán lot id vào stockmoveline mới tạo
+        /// và gán stockmoveline mới vào move_id của stockmove
+        /// </summary>
+        /// <param name="mo_id"></param>
+        /// <param name="stockMoveInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, object>> CreateLotComponentForMO(int lot_id, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                var id = Convert.ToInt32(stockMoveInfo["id"].ToString());
+
+                var arrLocationID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["location_id"].ToString());
+                var location_id = Convert.ToInt32(arrLocationID[0]);
+
+                var arrLocationDestID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["location_dest_id"].ToString());
+                var location_dest_id = Convert.ToInt32(arrLocationDestID[0]);
+
+                var arrProductID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["product_id"].ToString());
+                var product_id = Convert.ToInt32(arrProductID[0]);
+
+                var arrWarehouseID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["warehouse_id"].ToString());
+                var warehouse_id = Convert.ToInt32(arrWarehouseID[0]);
+
+                var arrPickingTypeID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["picking_type_id"].ToString());
+                var picking_type_id = Convert.ToInt32(arrPickingTypeID[0]);
+
+                var arrProductUomID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["product_uom"].ToString());
+                var product_uom_id = Convert.ToInt32(arrProductUomID[0]);
+
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(stockMoveInfo["company_id"].ToString());
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                string update_date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 349,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { id }, // danh sách id của stock.move cần ghi
+                            new
+                            {
+                                move_line_ids = new object[]
+                                {
+                                    new object[]
+                                    {
+                                        0, "virtual_3", // flag tạo bản ghi mới
+                                        new
+                                        {
+                                            company_id = company_id,
+                                            picking_id = (int?)null,
+                                            move_id = id,
+                                            product_id = product_id,
+                                            package_level_id = (int?)null,
+                                            location_id = location_id,
+                                            location_dest_id = location_dest_id,
+                                            package_id = (int?)null,
+                                            result_package_id = (int?)null,
+                                            lot_id = lot_id,
+                                            lot_name = (string?)null,
+                                            can_create_equipment = false,
+                                            qty_done = 1,
+                                            product_uom_id = product_uom_id
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        model = "stock.move",
+                        method = "write",
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { company_id },
+                                default_product_uom_qty = 0,
+                                active_model = "stock.move",
+                                active_id = id,
+                                active_ids = new int[] { id },
+                                default_date = update_date,
+                                default_date_deadline = update_date,
+                                default_location_id = location_id,
+                                default_location_dest_id = location_dest_id,
+                                default_warehouse_id = warehouse_id,
+                                default_state = "draft",
+                                default_raw_material_production_id = mo_id,
+                                default_picking_type_id = picking_type_id,
+                                default_company_id = company_id,
+                                show_owner = true,
+                                show_lots_m2o = true,
+                                show_lots_text = false,
+                                show_source_location = true,
+                                show_destination_location = false,
+                                show_package = true,
+                                show_reserved_quantity = true,
+                                force_manual_consumption = true,
+                                active_mo_id = mo_id
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/write", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                {
+                    throw new Exception(json["error"]["message"].ToString());
+                }
+                return json.ToObject<Dictionary<string, object>>();
+            }
+        }
         #endregion
 
         #region Nhân viên

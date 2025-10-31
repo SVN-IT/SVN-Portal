@@ -48,12 +48,14 @@ namespace SVNShareLib.Utils
             QACheckList,
             DefectManagement,
             SVNPortal,
-            SigmaCloudPortal
+            SigmaCloudPortal,
+            SVNAPI
         }
 
         public enum LogAction
         {
-            AutoInputProduction
+            AutoInputProduction,
+            InputProduction
         }
 
         public enum LogType
