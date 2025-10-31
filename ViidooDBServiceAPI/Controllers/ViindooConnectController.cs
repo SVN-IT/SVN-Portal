@@ -801,15 +801,17 @@ namespace ViidooDBServiceAPI.Controllers
                                             var createResult = await odooAPIService.CreateLotComponentForMO(lot_id_info, Convert.ToInt32(productionOrderInfo["id"]), item, bODataProcessResult.UserID, bODataProcessResult.DataType);
                                             if (createResult == null || createResult["result"].ToString() != "True")
                                             {
-                                                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Lỗi không tiêu hao mã lot " + lotScaned.lotNumber + " cho NVL" + " cho lsx: " + productionOrderInfo["name"]);
+                                                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Lỗi không tiêu hao mã lot " + lotScaned.lotNumber + " cho NVL" + item["product_id"] + " cho lsx: " + productionOrderInfo["name"]);
                                                 bODataProcessResult.OK = false;
                                                 bODataProcessResult.Message = "Lỗi không tạo được stock move line cho mã lot " + lotScaned.lotNumber;
                                                 return bODataProcessResult;
                                             }
+                                            firstStockMoveLine["is_created_stock_move_line"] = "True";
                                         }
                                         else
                                         {
                                             firstStockMoveLine = await odooAPIService.GetStockMoveLineByID(Convert.ToInt32(str_move_line_ids[0]), Convert.ToInt32(productionOrderInfo["id"]), item, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                            firstStockMoveLine["is_created_stock_move_line"] = "False";
                                         }
                                             
                                     }
@@ -857,6 +859,11 @@ namespace ViidooDBServiceAPI.Controllers
                             //Thực hiện cập nhật stock move line theo mã lot
                             foreach (var item in stockMoveLineSerials)
                             {
+                                if(item.ContainsKey("is_created_stock_move_line") && item["is_created_stock_move_line"] == "True")
+                                {
+                                    //Nếu là mới tạo thì bỏ qua không cần cập nhật nữa
+                                    continue;
+                                }
                                 var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
 
                                 //Tạo danh sách stock move line để cập nhật
