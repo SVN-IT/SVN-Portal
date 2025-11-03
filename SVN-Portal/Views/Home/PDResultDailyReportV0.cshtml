@@ -43,7 +43,7 @@
                             <tr>
                                 <th rowspan="2" scope="col">Operation active</th>
                                 <th colspan="3" scope="col">Daily Plan Achieve</th>
-                                <th rowspan="2" scope="col">UPH</th>
+                                <th colspan="3" scope="col">UPH</th>
                                 <th rowspan="2" scope="col">UPPH</th>
                                 <th rowspan="2" scope="col">Labor</th>
                                 <th colspan="3" scope="col">Defect rate</th>
@@ -51,6 +51,9 @@
                                 <th rowspan="2" scope="col">Remark</th>
                             </tr>
                             <tr>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
                                 <th>Target</th>
                                 <th>Current</th>
                                 <th>%</th>
@@ -67,6 +70,8 @@
                                     <td>@item.DailyPlanTarget</td>
                                     <td>@item.DailyPlanCurrent</td>
                                     <td>@item.DailyPlanAchieve</td>
+                                    <td>@item.UPHTarget</td>
+                                    <td>@item.UPHCurrent</td>
                                     <td>@item.UPH</td>
                                     <td>@item.UPPH</td>
                                     <td>@item.Labor</td>

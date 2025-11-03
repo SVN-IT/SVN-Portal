@@ -2096,6 +2096,10 @@ namespace SVN_Portal.Controllers
                         viewModel.DailyPlanTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding).ToString();
                         viewModel.DailyPlanCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding).ToString();
                         viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+
+                        viewModel.UPHTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Target ?? 0, appConfig.Rounding).ToString();
+                        viewModel.UPHCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Current ?? 0, appConfig.Rounding).ToString();
+
                         viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
                         viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
