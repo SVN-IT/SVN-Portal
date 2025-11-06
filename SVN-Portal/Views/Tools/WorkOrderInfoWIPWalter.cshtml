@@ -111,7 +111,15 @@
         });
     }
 
+    let isRunning = false;
+
     function InputProductionResult(){
+        if (isRunning) {
+            console.warn("Đang chạy rồi, bỏ qua...");
+            return;
+        }
+        isRunning = true;
+
         let formData = {
             name: $('input[name="Name"]').val(),
             subName: $('input[name="SubName"]').val(),
@@ -158,6 +166,7 @@
                 console.error("Lỗi:", err);
             },
             complete: function () {
+                isRunning = false;
                 hideLoader();
             }
         });

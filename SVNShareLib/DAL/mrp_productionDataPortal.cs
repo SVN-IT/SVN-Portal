@@ -69,13 +69,13 @@ namespace SVNShareLib.DAL
         /// <param name="endTime"></param>
         /// <param name="countRow"></param>
         /// <returns></returns>
-        public mrp_productionUI GetDataByProduct_IDInSection(List<int> product_id, DateTime startTime, DateTime endTime, int countRow = 1)
+        public mrp_productionUI GetDataByProduct_IDInSection(List<int> product_id, DateTime startTime, DateTime endTime, int hours, int countRow = 1)
         {
             mrp_productionUI dataUI = new mrp_productionUI();
             try
             {
-                DateTime startTime1 = startTime.AddHours(-7);
-                DateTime endTime1 = endTime.AddHours(-7);
+                DateTime startTime1 = startTime.AddHours(-hours);
+                DateTime endTime1 = endTime.AddHours(-hours);
                 string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1" + 
                     " WHERE product_id IN @product_id AND state = 'done' AND date_finished >= @startTime AND date_finished <= @endTime" +
                     " ORDER BY date_finished DESC";
@@ -102,13 +102,13 @@ namespace SVNShareLib.DAL
         /// <param name="endTime"></param>
         /// <param name="countRow"></param>
         /// <returns></returns>
-        public mrp_productionUI GetDataByProduct_IDFirstInSection(List<int> product_id, DateTime startTime, DateTime endTime, int countRow = 1)
+        public mrp_productionUI GetDataByProduct_IDFirstInSection(List<int> product_id, DateTime startTime, DateTime endTime, int hours, int countRow = 1)
         {
             mrp_productionUI dataUI = new mrp_productionUI();
             try
             {
-                DateTime startTime1 = startTime.AddHours(-7);
-                DateTime endTime1 = endTime.AddHours(-7);
+                DateTime startTime1 = startTime.AddHours(-hours);
+                DateTime endTime1 = endTime.AddHours(-hours);
                 string sql = "SELECT TOP(#countRow) * FROM SVN_mrp_production_1" +
                     " WHERE product_id IN @product_id AND state = 'done' AND date_finished >= @startTime AND date_finished <= @endTime" +
                     " ORDER BY date_finished";

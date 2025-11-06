@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -63,7 +64,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -117,12 +118,16 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
 
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+
                 //Xử lý lọc dữ liệu sản xuất theo công ty
                 ViewBag.CompanyCode = companyCode;
                 if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
                 {
                     opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
                     ViewBag.NextCompany = "SVN";
+                    hours = 8;
                 }
                 else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
                 {
@@ -130,8 +135,13 @@ namespace SVN_Portal.Controllers
                     ViewBag.NextCompany = "SM";
                 }
 
-                    var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
+
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -225,7 +235,7 @@ namespace SVN_Portal.Controllers
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -268,7 +278,7 @@ namespace SVN_Portal.Controllers
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -470,7 +480,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 7);
 
                 if (models != null && models.Count > 0)
                 {
@@ -552,8 +562,18 @@ namespace SVN_Portal.Controllers
                     }
                 }
 
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, hours);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -633,7 +653,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 7);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -701,7 +721,18 @@ namespace SVN_Portal.Controllers
                     }
                 }
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, hours);
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
                 {
@@ -813,8 +844,20 @@ namespace SVN_Portal.Controllers
                         operInfo.WCName = wc;
                     }
                 }
+
+                int hours = 7;
+                try
+                {
+                    var strHours = TempData.Peek("Hours") as string;
+                    hours = int.Parse(strHours);
+                }
+                catch
+                {
+
+                }
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, hours);
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
@@ -2157,8 +2200,18 @@ namespace SVN_Portal.Controllers
                     ViewBag.CompanyCode = "SVN";
                 }
 
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0, hours);
                 if (models != null && models.Count > 0)
                 {
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();

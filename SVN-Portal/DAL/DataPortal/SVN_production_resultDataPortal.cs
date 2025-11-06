@@ -108,7 +108,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -356,25 +356,24 @@ namespace SVN_Portal.DAL.DataPortal
                                 //    }
                                 //}
 
-
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -389,18 +388,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -414,7 +413,6 @@ namespace SVN_Portal.DAL.DataPortal
                                     }
 
                                 }
-
                                 // Tính Current UPH và UPPH
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
@@ -498,7 +496,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="checkListConnection"></param>
         /// <param name="topDefect"></param>
         /// <returns></returns>
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryDataV1(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryDataV1(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -755,18 +753,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -781,18 +779,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -891,7 +889,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="checkListConnection"></param>
         /// <param name="topDefect"></param>
         /// <returns></returns>
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryDatav2(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryDatav2(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1148,18 +1146,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -1174,18 +1172,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -1357,7 +1355,7 @@ namespace SVN_Portal.DAL.DataPortal
             return viewModels;
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1587,18 +1585,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = curDateTime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -1613,18 +1611,18 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime);
+                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
                                     if (firstProductionUI != null && productionUI != null)
                                     {
                                         //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                         if (firstProductionUI.name != productionUI.name)
                                         {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                             startDatetime = GetStartTime(sectionTimes, startDatetime);
                                         }
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
                                         // Lấy hiệu 2 thời điểm
                                         //TimeSpan diff = endDatetime - startDatetime;
                                         gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
@@ -1719,7 +1717,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="storedProceduce"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, int hours)
         {
             DateTime currentDate = DateTime.Now;
             try
@@ -2048,18 +2046,18 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
-                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, curDateTime);
-                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime);
+                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, curDateTime, hours);
+                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime, hours);
                                 if (firstProductionUI != null && productionUI != null)
                                 {
                                     //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                     if (firstProductionUI.name != productionUI.name)
                                     {
-                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                         startDatetime = GetStartTime(sectionTimes, startDatetime);
                                     }
 
-                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
                                     // Lấy hiệu 2 thời điểm
                                     //TimeSpan diff = curDateTime - startDatetime;
 
@@ -2076,18 +2074,18 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             else if (endDatetime < curDateTime)
                             {
-                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, endDatetime);
-                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, endDatetime);
+                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, endDatetime, hours);
+                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, endDatetime, hours);
                                 if (firstProductionUI != null && productionUI != null)
                                 {
                                     //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
                                     if(firstProductionUI.name != productionUI.name)
                                     {
-                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
                                         startDatetime = GetStartTime(sectionTimes, startDatetime);
                                     }
 
-                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
+                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
                                     // Lấy hiệu 2 thời điểm
                                     //TimeSpan diff = endDatetime - startDatetime;
 
