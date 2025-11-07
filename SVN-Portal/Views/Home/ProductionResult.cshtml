@@ -275,7 +275,11 @@
                                     @item.Operation @productName
                                     <br />
                                     <br />
-                                    <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+                                    @{
+                                        string techName = !string.IsNullOrWhiteSpace(item.TechName) ? " - " + item.TechName : "";
+
+                                    }
+                                    <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName  techName</p>
                                 </h4>
                             </div>
                             <div id="checklistStatus-@charID" class="col-12">

@@ -74,6 +74,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                 }
@@ -151,6 +152,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
@@ -245,6 +247,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                 }
@@ -288,6 +291,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
@@ -493,6 +497,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                         if (operInfo != null)
                         {
@@ -595,8 +600,10 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                             model.PDURL = userInfo.PDURL;
                             model.QCURL = userInfo.QCURL;
+                            model.TechURL = userInfo.TechURL;
                         }
                         if (operInfo != null)
                         {
@@ -675,8 +682,10 @@ namespace SVN_Portal.Controllers
                         {
                             item.PDName = userInfo.PDName;
                             item.QCName = userInfo.QCName;
+                            item.TechName = userInfo.TechName;
                             item.PDURL = userInfo.PDURL;
                             item.QCURL = userInfo.QCURL;
+                            item.TechURL = userInfo.TechURL;
                         }
                         if (operInfo != null)
                         {
@@ -2222,6 +2231,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
 
                         PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
