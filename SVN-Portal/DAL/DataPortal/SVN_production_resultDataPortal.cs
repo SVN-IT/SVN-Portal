@@ -153,7 +153,7 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                         val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
+                        val2.Time = "10h-11h30";
                         val3.Time = "12h30-15h";
                         val4.Time = "15h10-17h30";
                         val5.Time = "18h-20h";
@@ -544,7 +544,7 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                         val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
+                        val2.Time = "10h-11h30";
                         val3.Time = "12h30-15h";
                         val4.Time = "15h10-17h30";
                         val5.Time = "18h-20h";
@@ -934,7 +934,7 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                         val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
+                        val2.Time = "10h-11h30";
                         val3.Time = "12h30-15h";
                         val4.Time = "15h10-17h30";
                         val5.Time = "18h-20h";
@@ -1389,7 +1389,7 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                         val1.Time = "8h-10h";
-                        val2.Time = "10h10-12h";
+                        val2.Time = "10h-12h";
                         val3.Time = "13h-15h";
                         val4.Time = "15h10-17h30";
                         val5.Time = "18h-20h";
@@ -1755,7 +1755,7 @@ namespace SVN_Portal.DAL.DataPortal
                     QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                     val1.Time = "8h-10h";
-                    val2.Time = "10h10-11h30";
+                    val2.Time = "10h-11h30";
                     val3.Time = "12h30-15h";
                     val4.Time = "15h10-17h30";
                     val5.Time = "18h-20h";
