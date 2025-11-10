@@ -726,6 +726,12 @@ namespace ViidooDBServiceAPI.Controllers
                         bODataProcessResult.Message = "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.WorkOrderNumber;
                         return bODataProcessResult;
                     }
+                    int remainingQty = int.Parse(productionOrderInfo["product_qty"]);
+                    if (dataRequest.Quality >= remainingQty)
+                    {
+                        dataRequest.IsLastOrder = true;
+                    }
+
                     logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Bắt đầu thực hiện lệnh sản xuất: " + productionOrderInfo["name"]);
 
                     var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
