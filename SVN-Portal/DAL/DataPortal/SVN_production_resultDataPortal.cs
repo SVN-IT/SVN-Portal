@@ -2048,60 +2048,69 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
-                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, curDateTime);
-                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime);
-                                if (firstProductionUI != null && productionUI != null)
+                                if(oper.Operation == "POP" || oper.Operation == "Injection_POP" || oper.Operation == "Injection_Toast")
                                 {
-                                    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                    if (firstProductionUI.name != productionUI.name)
-                                    {
-                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
-                                        startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                    }
-
-                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = curDateTime - startDatetime;
-
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection, 
+                                        curDateTime, sectionTimes, gapTime, Duration);
                                 }
                                 else
                                 {
-                                    workingTime = 0;
+                                    //11/11/2025: Tính toán downtime theo cách khác
+                                    var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                    var svnActDowntime = await downtimeDataPortal.ReadList();
+                                    if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                    {
+                                        var downtimeByOper = svnActDowntime.FirstOrDefault(x => oper.Operation.Contains(x.OperationName) &&
+                                        x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                        if (downtimeByOper != null)
+                                        {
+                                            workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime, 
+                                                minStartSection, curDateTime, sectionTimes, gapTime, Duration);
+                                        }
+                                        else
+                                        {
+                                            workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
+                                                curDateTime, sectionTimes, gapTime, 0);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
+                                    }
                                 }
-
-
                             }
                             else if (endDatetime < curDateTime)
                             {
-                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, endDatetime);
-                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, endDatetime);
-                                if (firstProductionUI != null && productionUI != null)
+                                if(oper.Operation == "POP" || oper.Operation == "Injection_POP" || oper.Operation == "Injection_Toast")
                                 {
-                                    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                    if(firstProductionUI.name != productionUI.name)
-                                    {
-                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
-                                        startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                    }
-
-                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : endDatetime;
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = endDatetime - startDatetime;
-
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-
-                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        endDatetime, sectionTimes, gapTime, Duration);
                                 }
                                 else
                                 {
-                                    workingTime = 0;
+                                    //11/11/2025: Tính toán downtime theo cách khác
+                                    var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                    var svnActDowntime = await downtimeDataPortal.ReadList();
+                                    if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                    {
+                                        var downtimeByOper = svnActDowntime.FirstOrDefault(x => oper.Operation.Contains(x.OperationName) &&
+                                        x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                        if (downtimeByOper != null)
+                                        {
+                                            workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
+                                                minStartSection, endDatetime, sectionTimes, gapTime, Duration);
+                                        }
+                                        else
+                                        {
+                                            workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
+                                                endDatetime, sectionTimes, gapTime, 0);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        workingTime = 0;
+                                    }
                                 }
-
                             }
 
                             // Tính Current UPH và UPPH
@@ -2197,7 +2206,7 @@ namespace SVN_Portal.DAL.DataPortal
             return totalGap;
         }
 
-        public static DateTime GetStartTime(List<SectionTime> times, DateTime firstInput)
+        private static DateTime GetStartTime(List<SectionTime> times, DateTime firstInput)
         {
             DateTime startTime = firstInput;
             if(times != null && times.Count > 0)
@@ -2214,7 +2223,7 @@ namespace SVN_Portal.DAL.DataPortal
             return startTime;
         }
 
-        public static TimeSpan GetTotalGapv1(List<SectionTime> times, DateTime currentTime)
+        private static TimeSpan GetTotalGapv1(List<SectionTime> times, DateTime currentTime)
         {
             if (times == null || times.Count < 2)
                 return TimeSpan.Zero;
@@ -2272,6 +2281,52 @@ namespace SVN_Portal.DAL.DataPortal
             }
 
             return totalGap;
+        }
+
+        private double CalculateWorkingTime(List<int> product_id, DateTime startDatetime, DateTime finishedTime, 
+            DateTime minStartSection, DateTime curDateTime,
+            List<SectionTime> sectionTimes, double gapTime, double Duration)
+        {
+            double workingTime = 0;
+            var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
+            var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(product_id, startDatetime, curDateTime);
+            var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(product_id, startDatetime, curDateTime);
+            if (firstProductionUI != null && productionUI != null)
+            {
+                //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                if (firstProductionUI.name != productionUI.name)
+                {
+                    startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(7) : minStartSection;
+                    startDatetime = GetStartTime(sectionTimes, startDatetime);
+                }
+
+                finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                // Lấy hiệu 2 thời điểm
+                //TimeSpan diff = curDateTime - startDatetime;
+
+                gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                TimeSpan diff = finishedTime - startDatetime;
+                workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+            }
+            else
+            {
+                workingTime = 0;
+            }
+            return workingTime;
+        }
+
+        private double CalculateWorkingTimeNewRules(SVN_ACT_downtimeUI downtimeByOper, DateTime startDatetime, DateTime finishedTime, DateTime minStartSection, DateTime curDateTime,
+            List<SectionTime> sectionTimes, double gapTime, double Duration)
+        {
+            double workingTime = 0;
+            startDatetime = downtimeByOper.adjusted_first_finish_date_time != null ? downtimeByOper.adjusted_first_finish_date_time.Value : minStartSection;
+            startDatetime = GetStartTime(sectionTimes, startDatetime);
+            finishedTime = downtimeByOper.last_finish_date_time != null ? downtimeByOper.last_finish_date_time.Value : curDateTime;
+            gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+            TimeSpan rawWorkingTime = finishedTime - startDatetime;
+            Duration = downtimeByOper.TongDowntime;
+            workingTime = Math.Round(rawWorkingTime.TotalMinutes / 60.0, 2) - gapTime - Duration;
+            return workingTime;
         }
     }
 }
