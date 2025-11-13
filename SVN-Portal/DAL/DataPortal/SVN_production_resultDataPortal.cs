@@ -9,6 +9,7 @@ using SVNShareLib.DAL;
 using System.Globalization;
 using SVN_Portal.Services.ObjectClasses;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace SVN_Portal.DAL.DataPortal
 {
@@ -362,55 +363,59 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, curDateTime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = curDateTime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, endDatetime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = endDatetime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = endDatetime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
                                 // Tính Current UPH và UPPH
@@ -753,56 +758,60 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, curDateTime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = curDateTime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, endDatetime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = endDatetime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
 
-                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = endDatetime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                    //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
 
@@ -1146,55 +1155,59 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, curDateTime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = curDateTime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, endDatetime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = endDatetime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = endDatetime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
 
@@ -1585,56 +1598,60 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, curDateTime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = curDateTime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, curDateTime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
-                                    var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
-                                    if (firstProductionUI != null && productionUI != null)
-                                    {
-                                        //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                        if (firstProductionUI.name != productionUI.name)
-                                        {
-                                            startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                            startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                        }
+                                    workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, endDatetime, sectionTimes, gapTime, Duration);
 
-                                        finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
-                                        // Lấy hiệu 2 thời điểm
-                                        //TimeSpan diff = endDatetime - startDatetime;
-                                        gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                        TimeSpan diff = finishedTime - startDatetime;
-                                        //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(item.Produce_id, startDatetime, endDatetime, hours);
+                                    //if (firstProductionUI != null && productionUI != null)
+                                    //{
+                                    //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                    //    if (firstProductionUI.name != productionUI.name)
+                                    //    {
+                                    //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                    //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                    //    }
 
-                                        workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = endDatetime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                    //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
                                 }
 
@@ -2046,59 +2063,63 @@ namespace SVN_Portal.DAL.DataPortal
                             }
                             else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
-                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, curDateTime, hours);
-                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime, hours);
-                                if (firstProductionUI != null && productionUI != null)
-                                {
-                                    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                    if (firstProductionUI.name != productionUI.name)
-                                    {
-                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                        startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                    }
+                                workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, curDateTime, sectionTimes, gapTime, Duration);
 
-                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = curDateTime - startDatetime;
+                                //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, curDateTime, hours);
+                                //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, curDateTime, hours);
+                                //if (firstProductionUI != null && productionUI != null)
+                                //{
+                                //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                //    if (firstProductionUI.name != productionUI.name)
+                                //    {
+                                //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                //    }
 
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
-                                }
-                                else
-                                {
-                                    workingTime = 0;
-                                }
+                                //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                //    // Lấy hiệu 2 thời điểm
+                                //    //TimeSpan diff = curDateTime - startDatetime;
+
+                                //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                //    TimeSpan diff = finishedTime - startDatetime;
+                                //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                //}
+                                //else
+                                //{
+                                //    workingTime = 0;
+                                //}
 
 
                             }
                             else if (endDatetime < curDateTime)
                             {
-                                var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, endDatetime, hours);
-                                var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, endDatetime, hours);
-                                if (firstProductionUI != null && productionUI != null)
-                                {
-                                    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
-                                    if(firstProductionUI.name != productionUI.name)
-                                    {
-                                        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
-                                        startDatetime = GetStartTime(sectionTimes, startDatetime);
-                                    }
+                                workingTime = CalculateWorkingTime(startDatetime, finishedTime, minStartSection, endDatetime, sectionTimes, gapTime, Duration);
 
-                                    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
-                                    // Lấy hiệu 2 thời điểm
-                                    //TimeSpan diff = endDatetime - startDatetime;
+                                //var firstProductionUI = mrp_productionDataPortal.GetDataByProduct_IDFirstInSection(oper.Produce_id, startDatetime, endDatetime, hours);
+                                //var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(oper.Produce_id, startDatetime, endDatetime, hours);
+                                //if (firstProductionUI != null && productionUI != null)
+                                //{
+                                //    //Nếu lệnh đầu và lênh khác nhau thì thay đổi starttime bằng thời gian nhập lệnh đầu tiên
+                                //    if(firstProductionUI.name != productionUI.name)
+                                //    {
+                                //        startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+                                //        startDatetime = GetStartTime(sectionTimes, startDatetime);
+                                //    }
 
-                                    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
-                                    TimeSpan diff = finishedTime - startDatetime;
-                                    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
+                                //    // Lấy hiệu 2 thời điểm
+                                //    //TimeSpan diff = endDatetime - startDatetime;
 
-                                    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
-                                }
-                                else
-                                {
-                                    workingTime = 0;
-                                }
+                                //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                //    TimeSpan diff = finishedTime - startDatetime;
+                                //    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+
+                                //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                //}
+                                //else
+                                //{
+                                //    workingTime = 0;
+                                //}
 
                             }
 
@@ -2270,6 +2291,25 @@ namespace SVN_Portal.DAL.DataPortal
             }
 
             return totalGap;
+        }
+
+        private double CalculateWorkingTime(DateTime startDatetime, DateTime finishedTime, DateTime minStartSection, DateTime curDateTime, 
+            List<SectionTime> sectionTimes, double gapTime, double Duration)
+        {
+            double workingTime = 0;
+            //startDatetime = firstProductionUI.date_finished != null ? firstProductionUI.date_finished.Value.AddHours(hours) : minStartSection;
+            startDatetime = minStartSection;
+            startDatetime = GetStartTime(sectionTimes, startDatetime);
+
+            //finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+            finishedTime = curDateTime;
+            // Lấy hiệu 2 thời điểm
+            //TimeSpan diff = curDateTime - startDatetime;
+
+            gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+            TimeSpan diff = finishedTime - startDatetime;
+            workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+            return workingTime;
         }
     }
 }
