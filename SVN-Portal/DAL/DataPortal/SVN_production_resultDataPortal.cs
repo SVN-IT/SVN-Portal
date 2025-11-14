@@ -376,7 +376,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -410,7 +410,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -783,7 +783,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -817,7 +817,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -1190,7 +1190,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -1224,7 +1224,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -1644,7 +1644,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -1678,7 +1678,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         if (svnActDowntime != null && svnActDowntime.Count > 0)
                                         {
                                             var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                            x.WorkDate == curDateTime.Date);
                                             if (downtimeByOper != null)
                                             {
                                                 workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
@@ -2119,7 +2119,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (svnActDowntime != null && svnActDowntime.Count > 0)
                                     {
                                         var downtimeByOper = svnActDowntime.FirstOrDefault(x => oper.Operation.Contains(x.OperationName) &&
-                                        x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                        x.WorkDate == curDateTime.Date);
                                         if (downtimeByOper != null)
                                         {
                                             workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime, 
@@ -2152,7 +2152,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     if (svnActDowntime != null && svnActDowntime.Count > 0)
                                     {
                                         var downtimeByOper = svnActDowntime.FirstOrDefault(x => oper.Operation.Contains(x.OperationName) &&
-                                        x.WorkDate == curDateTime.ToString("yyyy-MM-dd"));
+                                        x.WorkDate == curDateTime.Date);
                                         if (downtimeByOper != null)
                                         {
                                             workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
