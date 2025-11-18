@@ -399,34 +399,35 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
                                     {
-                                        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            endDatetime, sectionTimes, gapTime, Duration);
+                                        //workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //    endDatetime, sectionTimes, gapTime, Duration);
                                     }
                                     else
                                     {
                                         //11/11/2025: Tính toán downtime theo cách khác
-                                        var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
-                                        var svnActDowntime = await downtimeDataPortal.ReadList();
-                                        if (svnActDowntime != null && svnActDowntime.Count > 0)
-                                        {
-                                            var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.Date);
-                                            if (downtimeByOper != null)
-                                            {
-                                                workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
-                                                    minStartSection, endDatetime, sectionTimes, gapTime, Duration);
-                                            }
-                                            else
-                                            {
-                                                workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                                    endDatetime, sectionTimes, gapTime, 0);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            workingTime = 0;
-                                        }
+                                        //var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                        //var svnActDowntime = await downtimeDataPortal.ReadList();
+                                        //if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                        //{
+                                        //    var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
+                                        //    x.WorkDate == curDateTime.Date);
+                                        //    if (downtimeByOper != null)
+                                        //    {
+                                        //        workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
+                                        //            minStartSection, endDatetime, sectionTimes, gapTime, Duration);
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //            endDatetime, sectionTimes, gapTime, 0);
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    workingTime = 0;
+                                        //}
                                     }
+                                    workingTime = dataUIByOper.Workingtime;
 
                                 }
 
@@ -806,34 +807,35 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
                                     {
-                                        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            endDatetime, sectionTimes, gapTime, Duration);
+                                        //workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //    endDatetime, sectionTimes, gapTime, Duration);
                                     }
                                     else
                                     {
                                         //11/11/2025: Tính toán downtime theo cách khác
-                                        var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
-                                        var svnActDowntime = await downtimeDataPortal.ReadList();
-                                        if (svnActDowntime != null && svnActDowntime.Count > 0)
-                                        {
-                                            var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.Date);
-                                            if (downtimeByOper != null)
-                                            {
-                                                workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
-                                                    minStartSection, endDatetime, sectionTimes, gapTime, Duration);
-                                            }
-                                            else
-                                            {
-                                                workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                                    endDatetime, sectionTimes, gapTime, 0);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            workingTime = 0;
-                                        }
+                                        //var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                        //var svnActDowntime = await downtimeDataPortal.ReadList();
+                                        //if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                        //{
+                                        //    var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
+                                        //    x.WorkDate == curDateTime.Date);
+                                        //    if (downtimeByOper != null)
+                                        //    {
+                                        //        workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
+                                        //            minStartSection, endDatetime, sectionTimes, gapTime, Duration);
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //            endDatetime, sectionTimes, gapTime, 0);
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    workingTime = 0;
+                                        //}
                                     }
+                                    workingTime = dataUIByOper.Workingtime;
 
                                 }
 
@@ -1213,34 +1215,35 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
                                     {
-                                        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            endDatetime, sectionTimes, gapTime, Duration);
+                                        //workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //    endDatetime, sectionTimes, gapTime, Duration);
                                     }
                                     else
                                     {
                                         //11/11/2025: Tính toán downtime theo cách khác
-                                        var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
-                                        var svnActDowntime = await downtimeDataPortal.ReadList();
-                                        if (svnActDowntime != null && svnActDowntime.Count > 0)
-                                        {
-                                            var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.Date);
-                                            if (downtimeByOper != null)
-                                            {
-                                                workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
-                                                    minStartSection, endDatetime, sectionTimes, gapTime, Duration);
-                                            }
-                                            else
-                                            {
-                                                workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                                    endDatetime, sectionTimes, gapTime, 0);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            workingTime = 0;
-                                        }
+                                        //var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                        //var svnActDowntime = await downtimeDataPortal.ReadList();
+                                        //if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                        //{
+                                        //    var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
+                                        //    x.WorkDate == curDateTime.Date);
+                                        //    if (downtimeByOper != null)
+                                        //    {
+                                        //        workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
+                                        //            minStartSection, endDatetime, sectionTimes, gapTime, Duration);
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //            endDatetime, sectionTimes, gapTime, 0);
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    workingTime = 0;
+                                        //}
                                     }
+                                    workingTime = dataUIByOper.Workingtime;
 
                                 }
 
@@ -1667,34 +1670,35 @@ namespace SVN_Portal.DAL.DataPortal
                                 {
                                     if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
                                     {
-                                        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            endDatetime, sectionTimes, gapTime, Duration);
+                                        //workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //    endDatetime, sectionTimes, gapTime, Duration);
                                     }
                                     else
                                     {
                                         //11/11/2025: Tính toán downtime theo cách khác
-                                        var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
-                                        var svnActDowntime = await downtimeDataPortal.ReadList();
-                                        if (svnActDowntime != null && svnActDowntime.Count > 0)
-                                        {
-                                            var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
-                                            x.WorkDate == curDateTime.Date);
-                                            if (downtimeByOper != null)
-                                            {
-                                                workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
-                                                    minStartSection, endDatetime, sectionTimes, gapTime, Duration);
-                                            }
-                                            else
-                                            {
-                                                workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                                    endDatetime, sectionTimes, gapTime, 0);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            workingTime = 0;
-                                        }
+                                        //var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                        //var svnActDowntime = await downtimeDataPortal.ReadList();
+                                        //if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                        //{
+                                        //    var downtimeByOper = svnActDowntime.FirstOrDefault(x => item.Operation.Contains(x.OperationName) &&
+                                        //    x.WorkDate == curDateTime.Date);
+                                        //    if (downtimeByOper != null)
+                                        //    {
+                                        //        workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
+                                        //            minStartSection, endDatetime, sectionTimes, gapTime, Duration);
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                        //            endDatetime, sectionTimes, gapTime, 0);
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    workingTime = 0;
+                                        //}
                                     }
+                                    workingTime = dataUIByOper.Workingtime;
 
                                 }
 
@@ -2141,34 +2145,35 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 if(oper.Operation == "POP" || oper.Operation == "Injection_POP" || oper.Operation == "Injection_Toast")
                                 {
-                                    workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
-                                        endDatetime, sectionTimes, gapTime, Duration);
+                                    //workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
+                                    //    endDatetime, sectionTimes, gapTime, Duration);
                                 }
                                 else
                                 {
                                     //11/11/2025: Tính toán downtime theo cách khác
-                                    var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
-                                    var svnActDowntime = await downtimeDataPortal.ReadList();
-                                    if (svnActDowntime != null && svnActDowntime.Count > 0)
-                                    {
-                                        var downtimeByOper = svnActDowntime.FirstOrDefault(x => oper.Operation.Contains(x.OperationName) &&
-                                        x.WorkDate == curDateTime.Date);
-                                        if (downtimeByOper != null)
-                                        {
-                                            workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
-                                                minStartSection, endDatetime, sectionTimes, gapTime, Duration);
-                                        }
-                                        else
-                                        {
-                                            workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
-                                                endDatetime, sectionTimes, gapTime, 0);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        workingTime = 0;
-                                    }
+                                    //var downtimeDataPortal = new SVN_ACT_downtimeDataPortal(connectionString);
+                                    //var svnActDowntime = await downtimeDataPortal.ReadList();
+                                    //if (svnActDowntime != null && svnActDowntime.Count > 0)
+                                    //{
+                                    //    var downtimeByOper = svnActDowntime.FirstOrDefault(x => oper.Operation.Contains(x.OperationName) &&
+                                    //    x.WorkDate == curDateTime.Date);
+                                    //    if (downtimeByOper != null)
+                                    //    {
+                                    //        workingTime = CalculateWorkingTimeNewRules(downtimeByOper, startDatetime, finishedTime,
+                                    //            minStartSection, endDatetime, sectionTimes, gapTime, Duration);
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
+                                    //            endDatetime, sectionTimes, gapTime, 0);
+                                    //    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
                                 }
+                                workingTime = dataUIByOper.Workingtime;
                             }
 
                             // Tính Current UPH và UPPH
