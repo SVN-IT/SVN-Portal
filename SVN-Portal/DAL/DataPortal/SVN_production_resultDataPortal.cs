@@ -427,7 +427,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime;
+                                    workingTime = dataUIByOper.Workingtime - Duration;
 
                                 }
 
@@ -835,7 +835,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime;
+                                    workingTime = dataUIByOper.Workingtime - Duration;
 
                                 }
 
@@ -1243,7 +1243,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime;
+                                    workingTime = dataUIByOper.Workingtime - Duration;
 
                                 }
 
@@ -1698,7 +1698,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime;
+                                    workingTime = dataUIByOper.Workingtime - Duration;
 
                                 }
 
@@ -2173,7 +2173,7 @@ namespace SVN_Portal.DAL.DataPortal
                                     //    workingTime = 0;
                                     //}
                                 }
-                                workingTime = dataUIByOper.Workingtime;
+                                workingTime = dataUIByOper.Workingtime - Duration;
                             }
 
                             // Tính Current UPH và UPPH
