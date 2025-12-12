@@ -8,6 +8,7 @@
     {
         public string Operation { get; set; }
         public string Name { get; set; }
+        public double Price { get; set; }
         public string MasterOperation { get; set; }
         public string WCName { get; set; }
         public string WCType { get; set; }

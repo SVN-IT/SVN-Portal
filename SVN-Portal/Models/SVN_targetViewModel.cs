@@ -7,5 +7,7 @@
         public double Current { get; set; }
         public double Percent { get; set; }
         public double Est { get; set; }
+        public double TargetRevenue { get; set; }
+        public double ActualRevenue { get; set; }
     }
 }

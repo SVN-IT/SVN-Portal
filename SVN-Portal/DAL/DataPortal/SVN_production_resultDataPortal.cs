@@ -900,6 +900,10 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPHVM.Percent = UPHVM.Target != 0 ? (UPHVM.Current / UPHVM.Target) * 100 : 0;
                             }
 
+                            //2025/12/12: tính toán doanh thu cho từng operation
+                            dailyPlanVM.TargetRevenue = dailyPlanVM.Target * item.Price;
+                            dailyPlanVM.ActualRevenue = dailyPlanVM.Current * item.Price;
+
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
                             viewModel.TargetViewModels.Add(UPPHVM);

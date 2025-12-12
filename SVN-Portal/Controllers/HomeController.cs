@@ -236,6 +236,10 @@ namespace SVN_Portal.Controllers
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+            var cost = await appSettingDataPortal.GetCostPerDay();
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -248,7 +252,10 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                //Thay đổi đọc setting từ csdl
+                List<OperInfo> opers = operInfo.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
@@ -322,8 +329,29 @@ namespace SVN_Portal.Controllers
                         viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
                         viewModel.UPPHCurrent = Math.Round(totalUPPH, appConfig.Rounding).ToString();
                         viewModel.LaborCurrent = Math.Round(totalLabor, appConfig.Rounding).ToString();
+
+                        //2025/12/12: Tính toán doanh thu cho từng công đoạn
+                        var totalTargetRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.TargetRevenue ?? 0);
+                        var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
+                        var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
+
+                        viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString();
+                        viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString();
+                        viewModel.RevenueRate = Math.Round(totalRevenueRate, appConfig.Rounding).ToString() + "%";
+
                         pdResultviewModels.Add(viewModel);
                     }
+
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    var costAndRevenueInfo = "Cost: " + cost.ToString("N0")
+                        + " | R.Target: " + grandTotalTargetRevenue.ToString("N0")
+                        + " /R.Actual: " + grandTotalActualRevenue.ToString("N0")
+                        + " /R.Rate: " + grandTotalRevenueRate.ToString() + "%";
+                    ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
                 }
 
                 List<string> statusList = new List<string>();
