@@ -335,8 +335,8 @@ namespace SVN_Portal.Controllers
                         var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
                         var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
 
-                        viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString();
-                        viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString();
+                        viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString("N0");
+                        viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString("N0");
                         viewModel.RevenueRate = Math.Round(totalRevenueRate, appConfig.Rounding).ToString() + "%";
 
                         pdResultviewModels.Add(viewModel);
@@ -347,10 +347,10 @@ namespace SVN_Portal.Controllers
                     var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
                     var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
 
-                    var costAndRevenueInfo = "Cost: " + cost.ToString("N0")
-                        + " | R.Target: " + grandTotalTargetRevenue.ToString("N0")
-                        + " /R.Actual: " + grandTotalActualRevenue.ToString("N0")
-                        + " /R.Rate: " + grandTotalRevenueRate.ToString() + "%";
+                    var costAndRevenueInfo = "💸: " + cost.ToString("N0")
+                        + " | 💰Target: " + grandTotalTargetRevenue.ToString("N0")
+                        + " /💰Actual: " + grandTotalActualRevenue.ToString("N0")
+                        + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
                     ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
                 }
 

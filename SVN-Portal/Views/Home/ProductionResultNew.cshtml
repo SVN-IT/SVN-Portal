@@ -76,7 +76,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                    <h1 class="float-end"><strong>@ViewBag.CostAndRevenueInfo</strong></h1>
+                    <h1 style="float:right"><strong>@ViewBag.CostAndRevenueInfo</strong></h1>
                 </div>
             </div>
         </form>
@@ -139,7 +139,7 @@
                                     }
                                     <h5><strong>Defect Rate: </strong> <strong class="rate-box @status">@item.DefectRate</strong></h5>
                                     <br/>
-                                    <h2><strong>R.Target: </strong> <strong>@item.TargetRevenue</strong> | <strong>R.Actual: </strong> <strong>@item.ActualRevenue</strong> | <strong>R.Actual: </strong> <strong>@item.RevenueRate</strong></h2>
+                                    <h2><strong>💰Target: </strong> <strong>@item.TargetRevenue</strong> | <strong>💰Actual: </strong> <strong>@item.ActualRevenue</strong> | <strong>💰Rate: </strong> <strong>@item.RevenueRate</strong></h2>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div id="pieChart_@item.OperationActive" class="donut-chart-contain"></div>
