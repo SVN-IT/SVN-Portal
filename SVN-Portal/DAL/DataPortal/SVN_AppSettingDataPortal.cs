@@ -73,5 +73,51 @@ namespace SVN_Portal.DAL.DataPortal
                 return cost;
             }
         }
+
+        public async Task<string> GetLocalCompanyCode()
+        {
+            string companyCode = "SVN";
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("LocalCompanyCode");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    companyCode = appSetting.Value;
+                }
+                return companyCode;
+            }
+            catch
+            {
+                return companyCode;
+            }
+        }
+
+        public async Task<string> GetCurrencyInfoByCode(string code)
+        {
+            List<CurrencyInfo> operCurrencyInfo = new List<CurrencyInfo>();
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("CurrencyInfo");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    operCurrencyInfo = System.Text.Json.JsonSerializer.Deserialize<List<CurrencyInfo>>(appSetting.Value);
+                }
+
+                if(operCurrencyInfo != null && operCurrencyInfo.Count > 0)
+                {
+                    var currency = operCurrencyInfo.Where(c => c.Code.ToLower() == code.ToLower()).FirstOrDefault();
+                    if (currency != null)
+                    {
+                        return currency.Currency;
+                    }
+                }
+
+                return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
     }
 }

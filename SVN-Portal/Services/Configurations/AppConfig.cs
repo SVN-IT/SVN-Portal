@@ -11,4 +11,10 @@
         public string ShowSingleChart { get; set; }
 
     }
+
+    public class CurrencyInfo
+    {
+        public string Code { get; set; }
+        public string Currency { get; set; }
+    }
 }

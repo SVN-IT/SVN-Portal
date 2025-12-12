@@ -6,11 +6,13 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.ObjectClasses;
+using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System;
@@ -31,11 +33,13 @@ namespace SVN_Portal.Controllers
         string connectionString;
         QCInfoConfig qCInfoConfig;
         OperInfoConfig operInfoConfig;
+        APIConfiguration aPIConfiguration;
 
         public HomeController(ILogger<HomeController> logger,
             AppConfig appConfig,
             DBConfiguration dBConfiguration,
             OperInfoConfig operInfoConfig,
+            APIConfiguration aPIConfiguration,
             QCInfoConfig qCInfoConfig)
         {
             _logger = logger;
@@ -44,6 +48,7 @@ namespace SVN_Portal.Controllers
             connectionString = dBConfiguration.GetConnectionString();
             this.qCInfoConfig = qCInfoConfig;
             this.operInfoConfig = operInfoConfig;
+            this.aPIConfiguration = aPIConfiguration;
         }
 
         public async Task<IActionResult> Index(DateTime date)
@@ -240,6 +245,9 @@ namespace SVN_Portal.Controllers
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             var operInfo = await appSettingDataPortal.GetOperInfoConfig();
             var cost = await appSettingDataPortal.GetCostPerDay();
+            var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
+            var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
+            var finalCurrency = "USD";
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -334,6 +342,47 @@ namespace SVN_Portal.Controllers
                         var totalTargetRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.TargetRevenue ?? 0);
                         var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
                         var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
+                        
+                        var targetRResult = await GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency);
+                        if (targetRResult != null)
+                        {
+                            try
+                            {
+                                totalTargetRevenue = (double)targetRResult.Content;
+                            }
+                            catch 
+                            { 
+                            
+                            }
+                            if (targetRResult.OK)
+                            {
+                                finalCurrency = localCurrency;
+                            }
+                            else 
+                            { 
+                                finalCurrency = "USD"; 
+                            }
+                        }
+                        var actualRResult = await GetAmountByCurrency(totalActualRevenue, "USD", localCurrency);
+                        if (actualRResult != null)
+                        {
+                            try
+                            {
+                                totalActualRevenue = (double)actualRResult.Content;
+                            }
+                            catch
+                            {
+
+                            }
+                            if (actualRResult.OK)
+                            {
+                                finalCurrency = localCurrency;
+                            }
+                            else
+                            {
+                                finalCurrency = "USD";
+                            }
+                        }
 
                         viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString("N0");
                         viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString("N0");
@@ -347,11 +396,22 @@ namespace SVN_Portal.Controllers
                     var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
                     var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
 
-                    var costAndRevenueInfo = "💸: " + cost.ToString("N0")
-                        + " | 💰Target: " + grandTotalTargetRevenue.ToString("N0")
-                        + " /💰Actual: " + grandTotalActualRevenue.ToString("N0")
+                    var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
+                    try
+                    {
+                        cost = (double)finalCostResult.Content;
+                    }
+                    catch
+                    {
+
+                    }
+
+                    var costAndRevenueInfo = "💸: " + cost.ToString("N0") + " " + finalCurrency
+                        + " | 💰Target: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰Actual: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
                         + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
                     ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
+                    ViewBag.LocalCurrency = finalCurrency;
                 }
 
                 List<string> statusList = new List<string>();
@@ -2158,6 +2218,36 @@ namespace SVN_Portal.Controllers
             {
                 return null;
             }
+        }
+        #endregion
+
+        #region privatelogic
+        private async Task<BODataProcessResult> GetAmountByCurrency(double amount, string fromCurrency, string toCurrency)
+        {
+            BODataProcessResult dataProcessResult = new BODataProcessResult();
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    string url = aPIConfiguration.ChangeCurrencyURL;
+                    url = url.Replace("fromCurrency", fromCurrency);
+                    var response = await client.GetStringAsync(url);
+
+                    var json = JObject.Parse(response);
+                    double rate = (double)json["rates"][toCurrency];
+
+                    dataProcessResult.OK = true;
+                    dataProcessResult.Message = "Change currency from " + fromCurrency + " to " + toCurrency + " OK";
+                    dataProcessResult.Content = amount * rate;
+                }
+            }
+            catch (Exception ex)
+            {
+                dataProcessResult.OK = false;
+                dataProcessResult.Message = ex.Message;
+                dataProcessResult.Content = amount;
+            }
+            return dataProcessResult;
         }
         #endregion
     }
