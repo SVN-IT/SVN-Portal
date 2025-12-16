@@ -771,12 +771,12 @@ namespace SVN_Portal.DAL.DataPortal
 
                                 if (curDateTime < startDatetime)
                                 {
-                                    workingTime = 0;
+                                    //workingTime = 0;
                                 }
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
-                                    workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                    //workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                    //        curDateTime, sectionTimes, gapTime, Duration);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -843,9 +843,10 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime - Duration;
+                                    //workingTime = dataUIByOper.Workingtime - Duration;
 
                                 }
+                                workingTime = dataUIByOper.Workingtime - Duration;
 
                                 // Tính Current UPH và UPPH
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
