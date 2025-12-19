@@ -1214,122 +1214,122 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
-                    //else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH")
-                    //{
-                    //    if (!string.IsNullOrWhiteSpace(currentTime))
-                    //    {
-                    //        var times = currentTime.Split('-');
-                    //        DateTime today = currentDate;
+                    else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH")
+                    {
+                        if (!string.IsNullOrWhiteSpace(currentTime))
+                        {
+                            var times = currentTime.Split('-');
+                            DateTime today = currentDate;
 
-                    //        // Chuyển đổi thành định dạng HH:mm
-                    //        string startTime = times[0].Replace("h", ":");
-                    //        if (startTime.Last() == ':')
-                    //        {
-                    //            startTime = startTime + "00";
-                    //        }
-                    //        if (startTime.Length == 4)
-                    //        {
-                    //            startTime = "0" + startTime;
-                    //        }
+                            // Chuyển đổi thành định dạng HH:mm
+                            string startTime = times[0].Replace("h", ":");
+                            if (startTime.Last() == ':')
+                            {
+                                startTime = startTime + "00";
+                            }
+                            if (startTime.Length == 4)
+                            {
+                                startTime = "0" + startTime;
+                            }
 
-                    //        string endTime = times[1].Replace("h", ":");
-                    //        if (endTime.Last() == ':')
-                    //        {
-                    //            endTime = endTime + "00";
-                    //        }
-                    //        if (endTime.Length == 4)
-                    //        {
-                    //            endTime = "0" + endTime;
-                    //        }
+                            string endTime = times[1].Replace("h", ":");
+                            if (endTime.Last() == ':')
+                            {
+                                endTime = endTime + "00";
+                            }
+                            if (endTime.Length == 4)
+                            {
+                                endTime = "0" + endTime;
+                            }
 
-                    //        // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
-                    //        DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    //        DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                    //        DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    //        DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "11:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                    //        DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    //        DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                    //        if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) || 
-                    //            (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now) || 
-                    //            (startRelaxNoonTime <= DateTime.Now && endRelaxNoonTime >= DateTime.Now))
-                    //        {
-                    //            status = "bg-primary";
-                    //            if (item.Percent > 100)
-                    //            {
-                    //                if (item.Item == "H.Plan")
-                    //                {
-                    //                    if (model.IsProduction)
-                    //                    {
-                    //                        alert = "blinking-warning";
-                    //                    }
-                    //                }
-                    //            }
-                    //        }
-                    //        else
-                    //        {
-                    //            if (item.Percent > 0 && item.Percent <= 75)
-                    //            {
-                    //                status = "bg-danger";
-                    //                if (model.IsProduction)
-                    //                {
-                    //                    alert = "blinking";
-                    //                }
-                    //            }
-                    //            else if (item.Percent > 100)
-                    //            {
-                    //                status = "bg-primary";
-                    //                if (item.Item == "H.Plan")
-                    //                {
-                    //                    if (model.IsProduction)
-                    //                    {
-                    //                        alert = "blinking-warning";
-                    //                    }
-                    //                }
-                    //            }
-                    //            else if (item.Percent > 75 && item.Percent <= 92)
-                    //            {
-                    //                status = "bg-warning";
-                    //            }
-                    //            else
-                    //            {
-                    //                status = "bg-primary";
-                    //            }
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        if (item.Percent > 0 && item.Percent <= 75)
-                    //        {
-                    //            status = "bg-danger";
-                    //            if (model.IsProduction)
-                    //            {
-                    //                alert = "blinking";
-                    //            }
-                    //        }
-                    //        else if (item.Percent > 100)
-                    //        {
-                    //            status = "bg-primary";
-                    //            if (item.Item == "H.Plan")
-                    //            {
-                    //                if (model.IsProduction)
-                    //                {
-                    //                    alert = "blinking-warning";
-                    //                }
-                    //            }
-                    //        }
-                    //        else if (item.Percent > 75 && item.Percent <= 92)
-                    //        {
-                    //            status = "bg-warning";
-                    //        }
-                    //        else
-                    //        {
-                    //            status = "bg-primary";
-                    //        }
-                    //    }
-                    //}
+                            if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) ||
+                                (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now) ||
+                                (startRelaxNoonTime <= DateTime.Now && endRelaxNoonTime >= DateTime.Now))
+                            {
+                                status = "bg-primary";
+                                if (item.Percent > 100)
+                                {
+                                    if (item.Item == "H.Plan")
+                                    {
+                                        if (model.IsProduction)
+                                        {
+                                            alert = "blinking-warning";
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (item.Percent > 0 && item.Percent <= 75)
+                                {
+                                    status = "bg-danger";
+                                    if (model.IsProduction)
+                                    {
+                                        alert = "blinking";
+                                    }
+                                }
+                                else if (item.Percent > 100)
+                                {
+                                    status = "bg-primary";
+                                    if (item.Item == "H.Plan")
+                                    {
+                                        if (model.IsProduction)
+                                        {
+                                            alert = "blinking-warning";
+                                        }
+                                    }
+                                }
+                                else if (item.Percent > 75 && item.Percent <= 92)
+                                {
+                                    status = "bg-warning";
+                                }
+                                else
+                                {
+                                    status = "bg-primary";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (item.Percent > 0 && item.Percent <= 75)
+                            {
+                                status = "bg-danger";
+                                if (model.IsProduction)
+                                {
+                                    alert = "blinking";
+                                }
+                            }
+                            else if (item.Percent > 100)
+                            {
+                                status = "bg-primary";
+                                if (item.Item == "H.Plan")
+                                {
+                                    if (model.IsProduction)
+                                    {
+                                        alert = "blinking-warning";
+                                    }
+                                }
+                            }
+                            else if (item.Percent > 75 && item.Percent <= 92)
+                            {
+                                status = "bg-warning";
+                            }
+                            else
+                            {
+                                status = "bg-primary";
+                            }
+                        }
+                    }
                     else
                     {
                         if (item.Percent >= 0 && item.Percent <= 75)

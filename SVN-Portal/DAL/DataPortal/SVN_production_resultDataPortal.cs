@@ -306,6 +306,12 @@ namespace SVN_Portal.DAL.DataPortal
                                 }
                                 DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
+                                //2025-12-19: Lấy target output theo ca hiện tại
+                                if (currentDate >= startDatetime && currentDate <= endDatetime)
+                                {
+                                    HPlanTarget = x.Target;
+                                }
+
                                 SectionTime sectionTime = new SectionTime();
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
@@ -431,7 +437,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime - Duration;
+                                    workingTime = dataUIByOper.Workingtime; // - Duration
 
                                 }
 
@@ -439,7 +445,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
-                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                                //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
 
                                 viewModel.CurWorkingTime = workingTime;
                                 viewModel.TotalDuration = Duration;
@@ -723,6 +729,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
                                 sectionTimes.Add(sectionTime);
+
+                                //2025-12-19: Lấy target output theo ca hiện tại
+                                if (currentDate >= startDatetime && currentDate <= endDatetime)
+                                {
+                                    HPlanTarget = x.Target;
+                                }
+
                                 return x;
                             }).ToList();
 
@@ -846,13 +859,13 @@ namespace SVN_Portal.DAL.DataPortal
                                     //workingTime = dataUIByOper.Workingtime - Duration;
 
                                 }
-                                workingTime = dataUIByOper.Workingtime - Duration;
+                                workingTime = dataUIByOper.Workingtime; // - Duration
 
                                 // Tính Current UPH và UPPH
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
-                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                                //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
                             }
 
                             //tạo dong Daiily plan của 1 operation
@@ -1137,6 +1150,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
                                 sectionTimes.Add(sectionTime);
+
+                                //2025-12-19: Lấy target output theo ca hiện tại
+                                if (currentDate >= startDatetime && currentDate <= endDatetime)
+                                {
+                                    HPlanTarget = x.Target;
+                                }
+
                                 return x;
                             }).ToList();
 
@@ -1260,7 +1280,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime - Duration;
+                                    workingTime = dataUIByOper.Workingtime; // - Duration
 
                                 }
 
@@ -1268,7 +1288,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
-                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                                //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
 
                                 viewModel.CurWorkingTime = workingTime;
                                 viewModel.TotalDuration = Duration;
@@ -1598,6 +1618,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
                                 sectionTimes.Add(sectionTime);
+
+                                //2025-12-19: Lấy target output theo ca hiện tại
+                                if (currentDate >= startDatetime && currentDate <= endDatetime)
+                                {
+                                    HPlanTarget = x.Target;
+                                }
+
                                 return x;
                             }).ToList();
 
@@ -1719,7 +1746,7 @@ namespace SVN_Portal.DAL.DataPortal
                                         //    workingTime = 0;
                                         //}
                                     }
-                                    workingTime = dataUIByOper.Workingtime - Duration;
+                                    workingTime = dataUIByOper.Workingtime; // - Duration
 
                                 }
 
@@ -1727,7 +1754,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
-                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                                //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
                             }
 
                             //tạo dong Daiily plan của 1 operation
@@ -2049,6 +2076,13 @@ namespace SVN_Portal.DAL.DataPortal
                             sectionTime.StartTime = startDatetime;
                             sectionTime.EndTime = endDatetime;
                             sectionTimes.Add(sectionTime);
+
+                            //2025-12-19: Lấy target output theo ca hiện tại
+                            if (currentDate >= startDatetime && currentDate <= endDatetime)
+                            {
+                                HPlanTarget = x.Target;
+                            }
+
                             return x;
                         }).ToList();
 
@@ -2198,14 +2232,14 @@ namespace SVN_Portal.DAL.DataPortal
                                     //    workingTime = 0;
                                     //}
                                 }
-                                workingTime = dataUIByOper.Workingtime - Duration;
+                                workingTime = dataUIByOper.Workingtime; // - Duration
                             }
 
                             // Tính Current UPH và UPPH
                             UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                             UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                             // Target by Hour
-                            HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                            //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
 
                             viewModel.CurWorkingTime = workingTime;
                             viewModel.TotalDuration = Duration;
@@ -2415,7 +2449,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
             gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
             TimeSpan diff = finishedTime - startDatetime;
-            workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+            workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime; // - Duration
             return workingTime;
         }
 
