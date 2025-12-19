@@ -2078,9 +2078,10 @@ namespace SVN_Portal.DAL.DataPortal
                             sectionTimes.Add(sectionTime);
 
                             //2025-12-19: Lấy target output theo ca hiện tại
-                            if (currentDate >= startDatetime && currentDate <= endDatetime)
+                            var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
+                            if (currentDate >= minStartSection && currentDate <= endDatetime)
                             {
-                                HPlanTarget = x.Target;
+                                HPlanTarget = HPlanTarget + x.Target;
                             }
 
                             return x;

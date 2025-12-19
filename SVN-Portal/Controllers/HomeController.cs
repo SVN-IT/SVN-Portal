@@ -406,9 +406,9 @@ namespace SVN_Portal.Controllers
 
                     }
 
-                    var costAndRevenueInfo = "💸: " + cost.ToString("N0") + " " + finalCurrency
-                        + " | 💰Target: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
-                        + " /💰Actual: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
+                    var costAndRevenueInfo = "💸FN Cost: " + cost.ToString("N0") + " " + finalCurrency
+                        + " | 💰PMC WO: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰PD Output: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
                         + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
                     ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
                     ViewBag.LocalCurrency = finalCurrency;

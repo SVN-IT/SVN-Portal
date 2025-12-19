@@ -2,7 +2,7 @@
   {
     "Operation": "POP",
     "Name": "",
-    "Price": 2.84,
+    "Price": 1.59,
     "MasterOperation": "POP",
     "WCType": "FG",
     "WC": [
@@ -243,7 +243,7 @@
   {
     "Operation": "Toast-FG-TRO-CE-0001-00",
     "Name": "Dock",
-    "Price": 43.41,
+    "Price": 15.39,
     "MasterOperation": "Toast",
     "WCType": "FG",
     "WC": [
@@ -260,7 +260,7 @@
   {
     "Operation": "Toast-FG-TRO-CE-0002-00",
     "Name": "Case Dark Grey",
-    "Price": 1.47,
+    "Price": 0.52,
     "MasterOperation": "Toast",
     "WCType": "FG",
     "WC": [
@@ -277,7 +277,7 @@
   {
     "Operation": "Toast-FG-TRO-CE-0003-00",
     "Name": "Case White",
-    "Price": 2.9,
+    "Price": 1.75,
     "MasterOperation": "Toast",
     "WCType": "FG",
     "WC": [
@@ -566,7 +566,7 @@
   {
     "Operation": "Walter-810114363119",
     "Name": "",
-    "Price": 11.74,
+    "Price": 3.06,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -583,7 +583,7 @@
   {
     "Operation": "Walter-810114363140",
     "Name": "",
-    "Price": 11.74,
+    "Price": 3.06,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -600,7 +600,7 @@
   {
     "Operation": "Walter-810114363171",
     "Name": "",
-    "Price": 10.12,
+    "Price": 2.83,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -702,7 +702,7 @@
   {
     "Operation": "Walter-810114362525",
     "Name": "",
-    "Price": 11.32,
+    "Price": 3.00,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -719,7 +719,7 @@
   {
     "Operation": "Walter-810114362464",
     "Name": "",
-    "Price": 11.34,
+    "Price": 3.01,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -736,7 +736,7 @@
   {
     "Operation": "Walter-810114362471",
     "Name": "",
-    "Price": 11.34,
+    "Price": 3.01,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -753,7 +753,7 @@
   {
     "Operation": "Walter-810114362488",
     "Name": "",
-    "Price": 11.58,
+    "Price": 3.04,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -770,7 +770,7 @@
   {
     "Operation": "Walter-810114362457",
     "Name": "",
-    "Price": 11.58,
+    "Price": 3.04,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -787,7 +787,7 @@
   {
     "Operation": "Walter-810114364055",
     "Name": "",
-    "Price": 11.74,
+    "Price": 3.06,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -804,7 +804,7 @@
   {
     "Operation": "Walter-810114364062",
     "Name": "",
-    "Price": 10.12,
+    "Price": 2.83,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -821,7 +821,7 @@
   {
     "Operation": "Walter-810114362808",
     "Name": "",
-    "Price": 9.88,
+    "Price": 2.78,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -838,7 +838,7 @@
   {
     "Operation": "Walter-810114362815",
     "Name": "",
-    "Price": 9.91,
+    "Price": 2.80,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -855,7 +855,7 @@
   {
     "Operation": "Walter-810114362822",
     "Name": "",
-    "Price": 9.91,
+    "Price": 2.80,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -872,7 +872,7 @@
   {
     "Operation": "Walter-810114362839",
     "Name": "",
-    "Price": 10.05,
+    "Price": 2.83,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -889,7 +889,7 @@
   {
     "Operation": "Walter-810114362846",
     "Name": "",
-    "Price": 10.07,
+    "Price": 2.83,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -906,7 +906,7 @@
   {
     "Operation": "Walter-810114362853",
     "Name": "",
-    "Price": 10.07,
+    "Price": 2.83,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -923,7 +923,7 @@
   {
     "Operation": "Walter-810114362761",
     "Name": "",
-    "Price": 9.82,
+    "Price": 2.79,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -940,7 +940,7 @@
   {
     "Operation": "Walter-810114362785",
     "Name": "",
-    "Price": 9.82,
+    "Price": 2.79,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -957,7 +957,7 @@
   {
     "Operation": "Walter-810114362792",
     "Name": "",
-    "Price": 9.82,
+    "Price": 2.79,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -974,7 +974,7 @@
   {
     "Operation": "Walter-810114363249",
     "Name": "",
-    "Price": 10.04,
+    "Price": 2.82,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1008,7 +1008,7 @@
   {
     "Operation": "Walter-810114363201",
     "Name": "",
-    "Price": 10.12,
+    "Price": 2.83,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1025,7 +1025,7 @@
   {
     "Operation": "Walter-810114363133",
     "Name": "",
-    "Price": 11.49,
+    "Price": 3.03,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1059,7 +1059,7 @@
   {
     "Operation": "Walter-810114362655",
     "Name": "",
-    "Price": 9.85,
+    "Price": 2.79,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1076,7 +1076,7 @@
   {
     "Operation": "Walter-810114362662",
     "Name": "",
-    "Price": 9.91,
+    "Price": 2.80,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1110,7 +1110,7 @@
   {
     "Operation": "Walter-810114362709",
     "Name": "",
-    "Price": 9.83,
+    "Price": 2.79,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1127,7 +1127,7 @@
   {
     "Operation": "Walter-810114363195",
     "Name": "",
-    "Price": 10.07,
+    "Price": 2.82,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1144,7 +1144,7 @@
   {
     "Operation": "Walter-810114362556",
     "Name": "",
-    "Price": 11.75,
+    "Price": 3.06,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1178,7 +1178,7 @@
   {
     "Operation": "Walter-810114362495",
     "Name": "",
-    "Price": 13.72,
+    "Price": 3.35,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1212,7 +1212,7 @@
   {
     "Operation": "Walter-810114362679",
     "Name": "",
-    "Price": 13.03,
+    "Price": 3.25,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1246,7 +1246,7 @@
   {
     "Operation": "Walter-810114363232",
     "Name": "",
-    "Price": 10.02,
+    "Price": 2.82,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1263,7 +1263,7 @@
   {
     "Operation": "Walter-810114363157",
     "Name": "",
-    "Price": 13.88,
+    "Price": 3.37,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1280,7 +1280,7 @@
   {
     "Operation": "Walter-810114363218",
     "Name": "",
-    "Price": 13.25,
+    "Price": 3.28,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1416,7 +1416,7 @@
   {
     "Operation": "Walter-810114362747",
     "Name": "",
-    "Price": 16.87,
+    "Price": 3.74,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1450,7 +1450,7 @@
   {
     "Operation": "Walter-810114362563",
     "Name": "",
-    "Price": 17.35,
+    "Price": 3.86,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1484,7 +1484,7 @@
   {
     "Operation": "Walter-810114362730",
     "Name": "",
-    "Price": 10.85,
+    "Price": 2.94,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1535,7 +1535,7 @@
   {
     "Operation": "Walter-810114362716",
     "Name": "",
-    "Price": 10.52,
+    "Price": 2.89,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1569,7 +1569,7 @@
   {
     "Operation": "Walter-810114362549",
     "Name": "",
-    "Price": 14.07,
+    "Price": 3.40,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
@@ -1603,7 +1603,7 @@
   {
     "Operation": "Walter-810114362723",
     "Name": "",
-    "Price": 13.59,
+    "Price": 3.33,
     "MasterOperation": "Walter",
     "WCType": "FG",
     "WC": [
