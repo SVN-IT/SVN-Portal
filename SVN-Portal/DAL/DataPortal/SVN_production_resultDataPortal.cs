@@ -864,7 +864,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
-                                //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
                             }
 
                             //tạo dong Daiily plan của 1 operation
