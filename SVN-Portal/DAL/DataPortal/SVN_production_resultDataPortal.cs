@@ -315,11 +315,14 @@ namespace SVN_Portal.DAL.DataPortal
                                 SectionTime sectionTime = new SectionTime();
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
+                                sectionTime.Target = x.Target;
                                 sectionTimes.Add(sectionTime);
                                 return x;
                             }).ToList();
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                            HPlanTarget = GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
 
                             //gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
 
@@ -728,18 +731,14 @@ namespace SVN_Portal.DAL.DataPortal
                                 SectionTime sectionTime = new SectionTime();
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
+                                sectionTime.Target = x.Target;
                                 sectionTimes.Add(sectionTime);
-
-                                //2025-12-19: Lấy target output theo ca hiện tại
-                                if (currentDate >= startDatetime && currentDate <= endDatetime)
-                                {
-                                    HPlanTarget = x.Target;
-                                }
-
                                 return x;
                             }).ToList();
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                            HPlanTarget = GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
 
                             //gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
 
@@ -1149,18 +1148,14 @@ namespace SVN_Portal.DAL.DataPortal
                                 SectionTime sectionTime = new SectionTime();
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
+                                sectionTime.Target = x.Target;
                                 sectionTimes.Add(sectionTime);
-
-                                //2025-12-19: Lấy target output theo ca hiện tại
-                                if (currentDate >= startDatetime && currentDate <= endDatetime)
-                                {
-                                    HPlanTarget = x.Target;
-                                }
-
                                 return x;
                             }).ToList();
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                            HPlanTarget = GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
 
                             //gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
 
@@ -1617,18 +1612,14 @@ namespace SVN_Portal.DAL.DataPortal
                                 SectionTime sectionTime = new SectionTime();
                                 sectionTime.StartTime = startDatetime;
                                 sectionTime.EndTime = endDatetime;
+                                sectionTime.Target = x.Target;
                                 sectionTimes.Add(sectionTime);
-
-                                //2025-12-19: Lấy target output theo ca hiện tại
-                                if (currentDate >= startDatetime && currentDate <= endDatetime)
-                                {
-                                    HPlanTarget = x.Target;
-                                }
-
                                 return x;
                             }).ToList();
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                            HPlanTarget = GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
 
                             //gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2); // Tính khoảng thời gian trống giữa các ca
 
@@ -2075,19 +2066,14 @@ namespace SVN_Portal.DAL.DataPortal
                             SectionTime sectionTime = new SectionTime();
                             sectionTime.StartTime = startDatetime;
                             sectionTime.EndTime = endDatetime;
+                            sectionTime.Target = x.Target;
                             sectionTimes.Add(sectionTime);
-
-                            //2025-12-19: Lấy target output theo ca hiện tại
-                            var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
-                            if (currentDate >= minStartSection && currentDate <= endDatetime)
-                            {
-                                HPlanTarget = HPlanTarget + x.Target;
-                            }
-
                             return x;
                         }).ToList();
 
                         sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
+
+                        HPlanTarget = GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
 
                         /*gapTime = Math.Round(GetTotalGapv1(sectionTimes, curDateTime).TotalMinutes / 60.0, 2);*/ // Tính khoảng thời gian trống giữa các ca
 
@@ -2467,6 +2453,16 @@ namespace SVN_Portal.DAL.DataPortal
             Duration = downtimeByOper.TongDowntime;
             workingTime = Math.Round(rawWorkingTime.TotalMinutes / 60.0, 2) - gapTime - Duration;
             return workingTime;
+        }
+
+        private double GetTotalTargetUntilNow(List<SectionTime> sections, DateTime now)
+        {
+            return sections
+                .Where(s =>
+                    s.EndTime <= now ||                // đã kết thúc
+                    (s.StartTime <= now && now <= s.EndTime) // đang diễn ra
+                )
+                .Sum(s => s.Target);
         }
     }
 }
