@@ -241,6 +241,7 @@ namespace SVN_Portal.Controllers
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+            List<CostDailyViewModel> costDailyViewModels = new List<CostDailyViewModel>();
 
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             var operInfo = await appSettingDataPortal.GetOperInfoConfig();
@@ -268,128 +269,7 @@ namespace SVN_Portal.Controllers
                 models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
-                    foreach (var model in models)
-                    {
-                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        if (userInfo != null)
-                        {
-                            model.PDName = userInfo.PDName;
-                            model.QCName = userInfo.QCName;
-                        }
-                    }
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
-                    
-                    // sum dữ liệu theo master oper
-                    List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
-                    foreach (var oper in operations)
-                    {
-                        var totalPlan = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
-                        var totalPlanCurrent = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
-                        var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
-
-                        var totalUPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
-                        var totalUPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
-                        var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
-
-                        var totalUPPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
-                        var totalUPPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
-                        var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
-
-                        var totalLabor = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
-                        var totalLaborTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
-                        var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
-
-                        var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
-                        var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
-                        var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
-
-                        totalDefectTarget = totalDefectTarget * 100;
-                        totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
-                        totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
-
-                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
-                        viewModel.OperationActive = oper;
-                        viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
-
-                        var remarkList = models
-                            .Where(x => x.MasterOperation == oper)
-                            .SelectMany(x => x.DefectByCategoryViewModels
-                                .Where(y => y.value != "0")
-                                .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
-                            .GroupBy(x => x.category)
-                            .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
-                            .ToList();
-                        viewModel.Remark = remarkList.Any()
-                                            ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
-                                            : string.Empty;
-                        viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
-                        viewModel.UPPHTarget = Math.Round(totalUPPHTarget, appConfig.Rounding).ToString();
-                        viewModel.LaborTarget = Math.Round(totalLaborTarget, appConfig.Rounding).ToString();
-                        viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
-                        viewModel.UPPHCurrent = Math.Round(totalUPPH, appConfig.Rounding).ToString();
-                        viewModel.LaborCurrent = Math.Round(totalLabor, appConfig.Rounding).ToString();
-
-                        //2025/12/12: Tính toán doanh thu cho từng công đoạn
-                        var totalTargetRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.TargetRevenue ?? 0);
-                        var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
-                        var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
-                        
-                        var targetRResult = await GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency);
-                        if (targetRResult != null)
-                        {
-                            try
-                            {
-                                totalTargetRevenue = (double)targetRResult.Content;
-                            }
-                            catch 
-                            { 
-                            
-                            }
-                            if (targetRResult.OK)
-                            {
-                                finalCurrency = localCurrency;
-                            }
-                            else 
-                            { 
-                                finalCurrency = "USD"; 
-                            }
-                        }
-                        var actualRResult = await GetAmountByCurrency(totalActualRevenue, "USD", localCurrency);
-                        if (actualRResult != null)
-                        {
-                            try
-                            {
-                                totalActualRevenue = (double)actualRResult.Content;
-                            }
-                            catch
-                            {
-
-                            }
-                            if (actualRResult.OK)
-                            {
-                                finalCurrency = localCurrency;
-                            }
-                            else
-                            {
-                                finalCurrency = "USD";
-                            }
-                        }
-
-                        viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString("N0");
-                        viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString("N0");
-                        viewModel.RevenueRate = Math.Round(totalRevenueRate, appConfig.Rounding).ToString() + "%";
-
-                        pdResultviewModels.Add(viewModel);
-                    }
+                    pdResultviewModels = await GetPDResultDailyViewModel(models, localCurrency, finalCurrency);
 
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
@@ -406,6 +286,15 @@ namespace SVN_Portal.Controllers
 
                     }
 
+                    CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
+                    costDailyViewModel1.Currency = finalCurrency;
+                    costDailyViewModel1.Cost = cost;
+                    costDailyViewModel1.Date = strdate;
+                    costDailyViewModel1.TargetRevenue = grandTotalTargetRevenue;
+                    costDailyViewModel1.ActualRevenue = grandTotalActualRevenue;
+                    costDailyViewModel1.RevenueRate = grandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel1);
+
                     var costAndRevenueInfo = "💸FN Cost: " + cost.ToString("N0") + " " + finalCurrency
                         + " | 💰PMC WO: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
                         + " /💰PD Output: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
@@ -413,6 +302,38 @@ namespace SVN_Portal.Controllers
                     ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
                     ViewBag.LocalCurrency = finalCurrency;
                 }
+
+                // 21/12/2025: tính tri phí doanh thu của ngày hôm trc
+                var yesterday = date.AddDays(-1);
+                string stryesterday = yesterday.ToString("yyyyMMdd");
+                List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+
+                while(previousmodels == null || previousmodels.Count == 0)
+                {
+                    yesterday = yesterday.AddDays(-1);
+                    stryesterday = yesterday.ToString("yyyyMMdd");
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                }
+                if(previousmodels != null && previousmodels.Count > 0)
+                {
+                    var previouspdResultviewModels = await GetPDResultDailyViewModel(previousmodels, localCurrency, finalCurrency);
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var previousgrandTotalRevenueRate = Math.Round(previousgrandTotalTargetRevenue == 0 ? 0 : (previousgrandTotalActualRevenue / previousgrandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    CostDailyViewModel costDailyViewModel2 = new CostDailyViewModel();
+                    costDailyViewModel2.Currency = finalCurrency;
+                    costDailyViewModel2.Cost = cost;
+                    costDailyViewModel2.Date = stryesterday;
+                    costDailyViewModel2.TargetRevenue = previousgrandTotalTargetRevenue;
+                    costDailyViewModel2.ActualRevenue = previousgrandTotalActualRevenue;
+                    costDailyViewModel2.RevenueRate = previousgrandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel2);
+                }
+
+                costDailyViewModels = costDailyViewModels.OrderBy(x => x.Date).ToList();
 
                 List<string> statusList = new List<string>();
                 foreach(var item in pdResultviewModels)
@@ -2248,6 +2169,134 @@ namespace SVN_Portal.Controllers
                 dataProcessResult.Content = amount;
             }
             return dataProcessResult;
+        }
+
+        private async Task<List<PDResultDailyViewModel>> GetPDResultDailyViewModel(List<QtyProdResultByOperViewModel> models, string localCurrency, string finalCurrency)
+        {
+            List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+            foreach (var model in models)
+            {
+                var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                if (userInfo != null)
+                {
+                    model.PDName = userInfo.PDName;
+                    model.QCName = userInfo.QCName;
+                }
+            }
+            models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+            // sum dữ liệu theo master oper
+            List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
+            foreach (var oper in operations)
+            {
+                var totalPlan = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
+                var totalPlanCurrent = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
+                var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
+
+                var totalUPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
+                var totalUPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
+                var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
+
+                var totalUPPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
+                var totalUPPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
+                var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
+
+                var totalLabor = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
+                var totalLaborTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
+                var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
+
+                var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
+                var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                totalDefectTarget = totalDefectTarget * 100;
+                totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
+                totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                viewModel.OperationActive = oper;
+                viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
+                viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
+                viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
+                viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
+                viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
+                viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
+                viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
+                viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
+                viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
+                viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
+
+                var remarkList = models
+                    .Where(x => x.MasterOperation == oper)
+                    .SelectMany(x => x.DefectByCategoryViewModels
+                        .Where(y => y.value != "0")
+                        .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
+                    .GroupBy(x => x.category)
+                    .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
+                    .ToList();
+                viewModel.Remark = remarkList.Any()
+                                    ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
+                                    : string.Empty;
+                viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
+                viewModel.UPPHTarget = Math.Round(totalUPPHTarget, appConfig.Rounding).ToString();
+                viewModel.LaborTarget = Math.Round(totalLaborTarget, appConfig.Rounding).ToString();
+                viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
+                viewModel.UPPHCurrent = Math.Round(totalUPPH, appConfig.Rounding).ToString();
+                viewModel.LaborCurrent = Math.Round(totalLabor, appConfig.Rounding).ToString();
+
+                //2025/12/12: Tính toán doanh thu cho từng công đoạn
+                var totalTargetRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.TargetRevenue ?? 0);
+                var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
+                var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
+
+                var targetRResult = await GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency);
+                if (targetRResult != null)
+                {
+                    try
+                    {
+                        totalTargetRevenue = (double)targetRResult.Content;
+                    }
+                    catch
+                    {
+
+                    }
+                    if (targetRResult.OK)
+                    {
+                        finalCurrency = localCurrency;
+                    }
+                    else
+                    {
+                        finalCurrency = "USD";
+                    }
+                }
+                var actualRResult = await GetAmountByCurrency(totalActualRevenue, "USD", localCurrency);
+                if (actualRResult != null)
+                {
+                    try
+                    {
+                        totalActualRevenue = (double)actualRResult.Content;
+                    }
+                    catch
+                    {
+
+                    }
+                    if (actualRResult.OK)
+                    {
+                        finalCurrency = localCurrency;
+                    }
+                    else
+                    {
+                        finalCurrency = "USD";
+                    }
+                }
+
+                viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString("N0");
+                viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString("N0");
+                viewModel.RevenueRate = Math.Round(totalRevenueRate, appConfig.Rounding).ToString() + "%";
+
+                pdResultviewModels.Add(viewModel);
+            }
+            return pdResultviewModels;
         }
         #endregion
     }
