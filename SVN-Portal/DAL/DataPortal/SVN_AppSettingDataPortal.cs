@@ -74,6 +74,41 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<double> GetCostInYear()
+        {
+            double cost = 0;
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("YearCost");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    cost = Convert.ToDouble(appSetting.Value);
+                }
+                return cost;
+            }
+            catch
+            {
+                return cost;
+            }
+        }
+        public async Task<string> GetStartDate()
+        {
+            string companyStartDate = string.Empty;
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("CompanyStartDate");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    companyStartDate = appSetting.Value;
+                }
+                return companyStartDate;
+            }
+            catch
+            {
+                return companyStartDate;
+            }
+        }
+
         public async Task<string> GetLocalCompanyCode()
         {
             string companyCode = "SVN";

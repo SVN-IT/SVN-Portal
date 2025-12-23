@@ -269,7 +269,7 @@ namespace SVN_Portal.Controllers
                 models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
-                    pdResultviewModels = await GetPDResultDailyViewModel(models, localCurrency, finalCurrency);
+                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, out finalCurrency);
 
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
@@ -279,7 +279,7 @@ namespace SVN_Portal.Controllers
                     var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
                     try
                     {
-                        cost = (double)finalCostResult.Content;
+                        cost = Math.Round((double)finalCostResult.Content, 0);
                     }
                     catch
                     {
@@ -317,7 +317,7 @@ namespace SVN_Portal.Controllers
                 }
                 if(previousmodels != null && previousmodels.Count > 0)
                 {
-                    var previouspdResultviewModels = await GetPDResultDailyViewModel(previousmodels, localCurrency, finalCurrency);
+                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, out finalCurrency);
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
                     var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
@@ -334,6 +334,59 @@ namespace SVN_Portal.Controllers
                 }
 
                 costDailyViewModels = costDailyViewModels.OrderBy(x => x.Date).ToList();
+                ViewBag.CostDaily = costDailyViewModels;
+
+                //23/12/2025: Tính toán Cost và doanh thu theo năm
+                //Lấy cost của 1 năm được nhập bởi PMC
+                var yearCost = await appSettingDataPortal.GetCostInYear();
+                var svnTargetDataPortal = new SVN_TargetDataPortal(connectionString);
+                string companyStartDate = await appSettingDataPortal.GetStartDate();
+                string currentDate = date.ToString("yyyyMMdd");
+
+                //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
+                var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
+                if(yearlyTarget != null)
+                {
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig);
+                    if(costYearlyResult != null)
+                    {
+                        var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
+                        double yearlyCostValue = 0;
+                        try
+                        {
+                            yearlyCostValue = (double)finalYearlyCostResult.Content;
+                        }
+                        catch
+                        {
+                        }
+                        var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
+                        var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
+                        double yearlyTargetRevenue = 0;
+                        double yearlyActualRevenue = 0;
+                        try
+                        {
+                            yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                        }
+                        catch
+                        {
+                        }
+                        var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
+                        var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
+                            + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
+                            + " /💰PD Yearly Output: " + yearlyActualRevenue.ToString("N0") + " " + finalCurrency
+                            + " /💰Yearly Rate: " + yearlyRevenueRate.ToString() + "%";
+                        ViewBag.CostAndRevenueYearlyInfo = costAndRevenueYearlyInfo;
+                    }
+                }
+
+
 
                 List<string> statusList = new List<string>();
                 foreach(var item in pdResultviewModels)
@@ -2171,8 +2224,9 @@ namespace SVN_Portal.Controllers
             return dataProcessResult;
         }
 
-        private async Task<List<PDResultDailyViewModel>> GetPDResultDailyViewModel(List<QtyProdResultByOperViewModel> models, string localCurrency, string finalCurrency)
+        private List<PDResultDailyViewModel> GetPDResultDailyViewModel(List<QtyProdResultByOperViewModel> models, string localCurrency, out string finalCurrency)
         {
+            bool callCurrencyAPI = false;
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
             foreach (var model in models)
             {
@@ -2249,7 +2303,7 @@ namespace SVN_Portal.Controllers
                 var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
                 var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
 
-                var targetRResult = await GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency);
+                var targetRResult = GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency).GetAwaiter().GetResult();
                 if (targetRResult != null)
                 {
                     try
@@ -2262,14 +2316,16 @@ namespace SVN_Portal.Controllers
                     }
                     if (targetRResult.OK)
                     {
-                        finalCurrency = localCurrency;
+                        callCurrencyAPI = true;
+                        //finalCurrency = localCurrency;
                     }
                     else
                     {
-                        finalCurrency = "USD";
+                        callCurrencyAPI = false;
+                        //finalCurrency = "USD";
                     }
                 }
-                var actualRResult = await GetAmountByCurrency(totalActualRevenue, "USD", localCurrency);
+                var actualRResult = GetAmountByCurrency(totalActualRevenue, "USD", localCurrency).GetAwaiter().GetResult();
                 if (actualRResult != null)
                 {
                     try
@@ -2282,11 +2338,13 @@ namespace SVN_Portal.Controllers
                     }
                     if (actualRResult.OK)
                     {
-                        finalCurrency = localCurrency;
+                        callCurrencyAPI = true;
+                        //finalCurrency = localCurrency;
                     }
                     else
                     {
-                        finalCurrency = "USD";
+                        callCurrencyAPI = false;
+                        //finalCurrency = "USD";
                     }
                 }
 
@@ -2296,7 +2354,39 @@ namespace SVN_Portal.Controllers
 
                 pdResultviewModels.Add(viewModel);
             }
+            if(callCurrencyAPI == false)
+            {
+                finalCurrency = "USD";
+            }
+            else
+            {
+                finalCurrency = localCurrency;
+            }    
+                
             return pdResultviewModels;
+        }
+
+        //Hàm tính tri phí, doanh thu theo năm
+        private CostDailyViewModel GetCostPerYear(List<SVN_target> sVN_Targets, OperInfoConfig operInfoConfig)
+        {
+            CostDailyViewModel costDailyViewModel = new CostDailyViewModel();
+            foreach(var item in operInfoConfig.OperInfo)
+            {
+                var dataByOper = sVN_Targets.Where(x => x.Operation == item.Operation).ToList();
+                if(dataByOper != null)
+                {
+                    var sumTargetQtyByOper = dataByOper.Sum(x => x.Daily_plan);
+                    var sumActualQtyByOper = dataByOper.Sum(x => x.Total_Qty);
+
+                    var sumTargetRevenueByOper = sumTargetQtyByOper * item.Price;
+                    var sumActualRevenueByOper = sumActualQtyByOper * item.Price;
+
+                    costDailyViewModel.TargetRevenue = costDailyViewModel.TargetRevenue + sumTargetRevenueByOper;
+                    costDailyViewModel.ActualRevenue = costDailyViewModel.ActualRevenue + sumActualRevenueByOper;
+                }
+            }
+            costDailyViewModel.RevenueRate = costDailyViewModel.TargetRevenue == 0 ? 0 : (costDailyViewModel.ActualRevenue / costDailyViewModel.TargetRevenue) * 100;
+            return costDailyViewModel;
         }
         #endregion
     }
