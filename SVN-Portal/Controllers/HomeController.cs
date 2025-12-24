@@ -380,8 +380,8 @@ namespace SVN_Portal.Controllers
                         var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
                         var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
                             + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
-                            + " /💰PD Yearly Output: " + yearlyActualRevenue.ToString("N0") + " " + finalCurrency
-                            + " /💰Yearly Rate: " + yearlyRevenueRate.ToString() + "%";
+                            + " |💰PD Yearly Output: " + yearlyActualRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD/PMC Rate: " + yearlyRevenueRate.ToString() + "%";
                         ViewBag.CostAndRevenueYearlyInfo = costAndRevenueYearlyInfo;
                     }
                 }
