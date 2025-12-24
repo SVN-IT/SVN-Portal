@@ -289,7 +289,7 @@ namespace SVN_Portal.Controllers
                     CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
                     costDailyViewModel1.Currency = finalCurrency;
                     costDailyViewModel1.Cost = cost;
-                    costDailyViewModel1.Date = strdate;
+                    costDailyViewModel1.Date = date.ToString("dd/MM/yyyy");
                     costDailyViewModel1.TargetRevenue = grandTotalTargetRevenue;
                     costDailyViewModel1.ActualRevenue = grandTotalActualRevenue;
                     costDailyViewModel1.RevenueRate = grandTotalRevenueRate;
@@ -326,7 +326,7 @@ namespace SVN_Portal.Controllers
                     CostDailyViewModel costDailyViewModel2 = new CostDailyViewModel();
                     costDailyViewModel2.Currency = finalCurrency;
                     costDailyViewModel2.Cost = cost;
-                    costDailyViewModel2.Date = stryesterday;
+                    costDailyViewModel2.Date = yesterday.ToString("dd/MM/yyyy");
                     costDailyViewModel2.TargetRevenue = previousgrandTotalTargetRevenue;
                     costDailyViewModel2.ActualRevenue = previousgrandTotalActualRevenue;
                     costDailyViewModel2.RevenueRate = previousgrandTotalRevenueRate;
