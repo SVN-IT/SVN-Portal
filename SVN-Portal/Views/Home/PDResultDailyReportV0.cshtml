@@ -3,7 +3,9 @@
 @model IEnumerable<PDResultDailyViewModel>
 @{
 
-    DateTime date = ViewBag.date;
+    DateTime fromdate = ViewBag.FromDate;
+    DateTime todate = ViewBag.ToDate;
+    string itemType = ViewBag.ItemType;
     ViewData["Title"] = "Production Result Daily";
 }
 
@@ -13,15 +15,21 @@
             <div class="form-group row">
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="row">
-                        <div class="col-6">
-                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="fromdate" value="@fromdate.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
-                        <div class="col-3">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="todate" value="@todate.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-2">
+                            <input type="text" name="itemType" value="@itemType" placeholder="ALL or WIP or FG" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-2">
                             <button type="submit" asp-action="PDResultDailyReportV0" class="btn btn-primary">
                                 Search
                             </button>
                         </div>
-                        <div class="col-3">
+                        <div class="col-12 col-sm-6 col-md-2">
                             <button type="submit" asp-action="ExportPDResultDailyV0" class="btn btn-success">
                                 Export excel
                             </button>

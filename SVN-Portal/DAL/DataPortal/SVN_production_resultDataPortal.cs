@@ -1375,7 +1375,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> GetDataForReport(DateTime fromdate, DateTime todate, List<OperInfo> opers)
+        public async Task<List<QtyProdResultByOperViewModel>> GetDataForReport(DateTime fromdate, DateTime todate, List<OperInfo> opers, string itemType)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
@@ -1394,8 +1394,18 @@ namespace SVN_Portal.DAL.DataPortal
                     foreach (var item in targetDataUI)
                     {
                         QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
-                        var oper = opers.FirstOrDefault(x => x.Operation == item.Operation && x.WCType == "FG");
-                        if (oper != null)
+
+                        OperInfo oper = new OperInfo();
+                        if(!string.IsNullOrWhiteSpace(itemType) && (itemType == "FG" || itemType == "WIP"))
+                        {
+                            oper = opers.FirstOrDefault(x => x.Operation == item.Operation && x.WCType == itemType);
+                        }
+                        else
+                        {
+                            oper = opers.FirstOrDefault(x => x.Operation == item.Operation);
+                        }
+
+                        if (oper != null && !string.IsNullOrWhiteSpace(oper.Operation))
                         {
                             viewModel.MasterOperation = oper.MasterOperation;
                             viewModel.Operation = item.Operation;

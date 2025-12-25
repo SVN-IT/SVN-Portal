@@ -1730,7 +1730,7 @@ namespace SVN_Portal.Controllers
                 ViewBag.ToDate = todate;
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.GetDataForReport(fromdate, todate, opers);
+                models = await dataPortal.GetDataForReport(fromdate, todate, opers, "FG");
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -2035,13 +2035,12 @@ namespace SVN_Portal.Controllers
         }
 
 
-        public async Task<IActionResult> PDResultDailyReportV0(DateTime date)
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string itemType = "FG")
         {
-            ViewBag.date = date;
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyDataV0(date);
+                viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -2050,11 +2049,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDailyV0(DateTime date)
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string itemType = "FG")
         {
             try
             {
-                var viewModels = await GetPDResultDailyDataV0(date);
+                var viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -2138,60 +2137,115 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime date)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime fromdate, DateTime todate, string itemType)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            List<PDResultDailyViewModel> dailyViewModels = new List<PDResultDailyViewModel>();
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
-                if (date == DateTime.MinValue)
+
+                if (fromdate == DateTime.MinValue)
                 {
-                    date = DateTime.Now;
+                    fromdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 }
-                ViewBag.date = date;
-                strdate = date.ToString("yyyyMMdd");
+                if (todate == DateTime.MinValue)
+                {
+                    todate = DateTime.Now.Date.AddDays(-1).AddHours(23).AddMinutes(59);
+                }
+
+                if (fromdate.Date > DateTime.Now.Date)
+                {
+                    fromdate = DateTime.Now.Date;
+                }
+
+                if (todate.Date > DateTime.Now.Date)
+                {
+                    todate = DateTime.Now.Date.AddHours(23).AddMinutes(59);
+                }
+
+                if (fromdate.Date > todate.Date)
+                {
+                    fromdate = todate;
+                    todate = todate.Date.AddHours(23).AddMinutes(59);
+                }
+                else if (fromdate.Date == todate.Date)
+                {
+                    todate = todate.Date.AddHours(23).AddMinutes(59);
+                }
+
+                ViewBag.FromDate = fromdate;
+                ViewBag.ToDate = todate;
+                ViewBag.ItemType = itemType;
+
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
+                //models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
+                models = await dataPortal.GetDataForReport(fromdate, todate, opers, itemType);
                 if (models != null && models.Count > 0)
                 {
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
-                    foreach (var model in models)
+                    //models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+                    // sum dữ liệu theo master oper
+                    List<string> operations = models.Select(x => x.Operation).Distinct().ToList();
+                    foreach (var oper in operations)
                     {
-                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        if (userInfo != null)
-                        {
-                            model.PDName = userInfo.PDName;
-                            model.QCName = userInfo.QCName;
-                        }
+                        var totalPlan = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
+                        var totalPlanCurrent = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
+                        var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
+
+                        var totalUPH = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
+                        var totalUPHTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
+                        var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
+
+                        var totalUPPH = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
+                        var totalUPPHTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
+                        var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
+
+                        var totalLabor = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
+                        var totalLaborTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
+                        var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
+
+                        var totalDefect = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
+                        var totalDefectTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                        var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                        totalDefectTarget = totalDefectTarget * 100;
+                        totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
+                        totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
 
                         PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
-                        viewModel.OperationActive = model.Operation;
-                        viewModel.DailyPlanTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                        viewModel.OperationActive = oper;
+                        viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
+                        viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
+                        viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
+                        //viewModel.CheckListOnSystem = models.Where(x => x.Operation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
 
-                        viewModel.UPHTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Target ?? 0, appConfig.Rounding).ToString();
-                        viewModel.UPHCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Current ?? 0, appConfig.Rounding).ToString();
-
-                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = "OK";
-                        viewModel.Remark = model.DefectByCategoryViewModels.Where(x => x.value != "0").Count() > 0 ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Where(x => x.value != "0").Select(x => $"{x.category}: {x.value}")) : string.Empty;
-                        if (model.CanProductionByCheclist)
-                        {
-                            viewModel.CheckListOnSystem = "OK";
-                        }
+                        var remarkList = models
+                            .Where(x => x.Operation == oper)
+                            .SelectMany(x => x.DefectByCategoryViewModels
+                                .Where(y => y.value != "0")
+                                .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
+                            .GroupBy(x => x.category)
+                            .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
+                            .ToList();
+                        viewModel.Remark = remarkList.Any()
+                                            ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
+                                            : string.Empty;
                         viewModels.Add(viewModel);
                     }
+
                     return viewModels;
                 }
                 else
