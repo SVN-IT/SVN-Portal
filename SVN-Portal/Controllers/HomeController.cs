@@ -1135,8 +1135,8 @@ namespace SVN_Portal.Controllers
                     // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
                     DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                     DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "11:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
                     DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                     DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
@@ -1534,8 +1534,8 @@ namespace SVN_Portal.Controllers
                 // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
                 DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "11:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
