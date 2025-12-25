@@ -452,6 +452,13 @@ namespace SVN_Portal.DAL.DataPortal
 
                                 viewModel.CurWorkingTime = workingTime;
                                 viewModel.TotalDuration = Duration;
+
+                                //Tính toán chỉ số OEE
+                                var availability = workingTime + Duration != 0 ? (workingTime / (workingTime + Duration)) : 0;
+                                var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
+                                var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
+
+                                viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                             }
 
                             //tạo dong Daiily plan của 1 operation
@@ -489,6 +496,10 @@ namespace SVN_Portal.DAL.DataPortal
                             NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
                             NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
 
+                            SVN_targetViewModel OEEVM = new SVN_targetViewModel();
+                            OEEVM.Item = "OEE";
+                            OEEVM.Current = viewModel.OEE;
+
                             //Tính lại Current UPH khi operation là POP
                             if (viewModel.MasterOperation.Contains("POP"))
                             {
@@ -499,8 +510,9 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
                             viewModel.TargetViewModels.Add(UPPHVM);
-                            viewModel.TargetViewModels.Add(LaborVM);
+                            //viewModel.TargetViewModels.Add(LaborVM);
                             viewModel.TargetViewModels.Add(NGVM);
+                            viewModel.TargetViewModels.Add(OEEVM);
                             viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
                             viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime))*100, 2);
                         }   
@@ -1287,6 +1299,13 @@ namespace SVN_Portal.DAL.DataPortal
 
                                 viewModel.CurWorkingTime = workingTime;
                                 viewModel.TotalDuration = Duration;
+
+                                //Tính toán chỉ số OEE
+                                var availability = workingTime + Duration != 0 ? (workingTime / (workingTime + Duration)) : 0;
+                                var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
+                                var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
+
+                                viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                             }
 
                             //tạo dong Daiily plan của 1 operation
@@ -1324,6 +1343,10 @@ namespace SVN_Portal.DAL.DataPortal
                             NGVM.Current = Math.Round(dataUIByOper.Total_NG_Qty, 2);
                             //NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
 
+                            SVN_targetViewModel OEEVM = new SVN_targetViewModel();
+                            OEEVM.Item = "OEE";
+                            OEEVM.Current = viewModel.OEE;
+
                             //Tính lại Current UPH khi operation là POP
                             if (viewModel.MasterOperation.Contains("POP"))
                             {
@@ -1334,8 +1357,9 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
                             viewModel.TargetViewModels.Add(UPPHVM);
-                            viewModel.TargetViewModels.Add(LaborVM);
+                            //viewModel.TargetViewModels.Add(LaborVM);
                             viewModel.TargetViewModels.Add(NGVM);
+                            viewModel.TargetViewModels.Add(OEEVM);
                             viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
                             viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime)) * 100, 2);
                         }
@@ -1746,6 +1770,13 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
                                 //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+
+                                //Tính toán chỉ số OEE
+                                var availability = workingTime + Duration != 0 ? (workingTime / (workingTime + Duration)) : 0;
+                                var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
+                                var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
+
+                                viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                             }
 
                             //tạo dong Daiily plan của 1 operation
@@ -1784,6 +1815,11 @@ namespace SVN_Portal.DAL.DataPortal
                                 Current = dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0,
                                 Percent = dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty / dataUIByOper.Defect) * 100 : 0
                             };
+
+                            SVN_targetViewModel OEEVM = new SVN_targetViewModel();
+                            OEEVM.Item = "OEE";
+                            OEEVM.Current = viewModel.OEE;
+
                             viewModel.MasterOperation = item.MasterOperation;
                             //Tính lại Current UPH khi operation là POP
                             if (viewModel.MasterOperation.Contains("POP"))
@@ -1795,8 +1831,9 @@ namespace SVN_Portal.DAL.DataPortal
                             viewModel.TargetViewModels.Add(dailyPlanVM);
                             viewModel.TargetViewModels.Add(UPHVM);
                             viewModel.TargetViewModels.Add(UPPHVM);
-                            viewModel.TargetViewModels.Add(LaborVM);
+                            //viewModel.TargetViewModels.Add(LaborVM);
                             viewModel.TargetViewModels.Add(NGVM);
+                            viewModel.TargetViewModels.Add(OEEVM);
                             viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
                             viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime)) * 100, 2);
                         }
@@ -2230,6 +2267,13 @@ namespace SVN_Portal.DAL.DataPortal
 
                             viewModel.CurWorkingTime = workingTime;
                             viewModel.TotalDuration = Duration;
+
+                            //Tính toán chỉ số OEE
+                            var availability = workingTime + Duration != 0 ? (workingTime / (workingTime + Duration)) : 0;
+                            var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
+                            var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
+
+                            viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                         }
 
                         //tạo dong Daiily plan của 1 operation
@@ -2266,6 +2310,10 @@ namespace SVN_Portal.DAL.DataPortal
                         NGVM.Target = Math.Round(dataUIByOper.Defect * 100, 2);
                         NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
                         NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
+                        
+                        SVN_targetViewModel OEEVM = new SVN_targetViewModel();
+                        OEEVM.Item = "OEE";
+                        OEEVM.Current = viewModel.OEE;
 
                         viewModel.MasterOperation = oper.MasterOperation;
                         //Tính lại Current UPH khi operation là POP
@@ -2278,8 +2326,9 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModel.TargetViewModels.Add(dailyPlanVM);
                         viewModel.TargetViewModels.Add(UPHVM);
                         viewModel.TargetViewModels.Add(UPPHVM);
-                        viewModel.TargetViewModels.Add(LaborVM);
+                        //viewModel.TargetViewModels.Add(LaborVM);
                         viewModel.TargetViewModels.Add(NGVM);
+                        viewModel.TargetViewModels.Add(OEEVM);
                         viewModel.Est = ((dataUIByOper.Current_UPH * 8.5) / dataUIByOper.Daily_plan) * 100;
                         viewModel.Forecast = Math.Round(((UPHVM.Current * dataUIByOper.Workingtime) / (UPHVM.Target * dataUIByOper.Workingtime))*100, 2);
                     }

@@ -328,7 +328,7 @@
                                             status = "bg-primary";
                                         }
                                     }
-                                    else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
+                                    else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH" || subitem.Item == "OEE")
                                     {
                                         if (!string.IsNullOrWhiteSpace(currentTime))
                                         {
@@ -493,19 +493,31 @@
 
                                                 <br>
                                             }
+                                            else if (subitem.Item == "OEE")
+                                            {
+                                                <strong class="f-s-26">🎯 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
                                             else if (subitem.Item == "Defect")
                                             {
                                                 <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
 
                                                 <br>
                                             }
-                                        
+
                                             @if (subitem.Item == "Defect")
                                             {
                                                 <span>Tar: @Math.Round(subitem.Target, 2) %</span>
                                                 <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
                                                 <span>
                                                     <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
+                                                </span>
+                                            }
+                                            else if (subitem.Item == "OEE")
+                                            {
+                                                <span>
+                                                    <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Current, 2) %</strong>
                                                 </span>
                                             }
                                             else

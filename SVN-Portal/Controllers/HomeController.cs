@@ -1188,7 +1188,7 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
-                    else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH")
+                    else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH" || item.Item == "OEE")
                     {
                         if (!string.IsNullOrWhiteSpace(currentTime))
                         {
@@ -1363,6 +1363,11 @@ namespace SVN_Portal.Controllers
                         sb.Append("<strong class='f-s-26'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
+                    if (item.Item == "OEE")
+                    {
+                        sb.Append("<strong class='f-s-26'>🎯 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
                     if (item.Item == "Defect")
                     {
                         sb.Append("<strong class='f-s-26'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
@@ -1394,6 +1399,12 @@ namespace SVN_Portal.Controllers
                         sb.Append("</span> <br />");
                         sb.Append("<span>");
                         sb.Append("<strong class='f-s-23'>Cur: " + Math.Round(item.Current, appConfig.Rounding) + " %</strong>");
+                        sb.Append("</span>");
+                    }
+                    else if(item.Item == "OEE")
+                    {
+                        sb.Append("<span>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Current, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else
