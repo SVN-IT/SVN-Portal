@@ -516,8 +516,11 @@
                                             }
                                             else if (subitem.Item == "OEE")
                                             {
+                                                <span>A: @Math.Round(subitem.Availability, 2)</span>
+                                                <span> | P: @Math.Round(subitem.Performance, 2)</span>
+                                                <span> | Q: @Math.Round(subitem.Quality, 2)</span> <br />
                                                 <span>
-                                                    <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Current, 2) %</strong>
+                                                    <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.OEE, 2) %</strong>
                                                 </span>
                                             }
                                             else

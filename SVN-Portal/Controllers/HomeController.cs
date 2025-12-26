@@ -1403,8 +1403,11 @@ namespace SVN_Portal.Controllers
                     }
                     else if(item.Item == "OEE")
                     {
+                        sb.Append("<span>A: " + Math.Round(item.Availability, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span> | P: " + Math.Round(item.Performance, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span> | Q: " + Math.Round(item.Quality, appConfig.Rounding) + " %</span> <br />");
                         sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Current, appConfig.Rounding) + " %</strong>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.OEE, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else

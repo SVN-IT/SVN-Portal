@@ -458,6 +458,9 @@ namespace SVN_Portal.DAL.DataPortal
                                 var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
                                 var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
 
+                                viewModel.Availability = Math.Round(availability * 100, 2);
+                                viewModel.Performance = Math.Round(performance * 100, 2);
+                                viewModel.Quality = Math.Round(quality * 100, 2);
                                 viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                             }
 
@@ -498,7 +501,10 @@ namespace SVN_Portal.DAL.DataPortal
 
                             SVN_targetViewModel OEEVM = new SVN_targetViewModel();
                             OEEVM.Item = "OEE";
-                            OEEVM.Current = viewModel.OEE;
+                            OEEVM.Availability = viewModel.Availability;
+                            OEEVM.Performance = viewModel.Performance;
+                            OEEVM.Quality = viewModel.Quality;
+                            OEEVM.OEE = viewModel.OEE;
 
                             //Tính lại Current UPH khi operation là POP
                             if (viewModel.MasterOperation.Contains("POP"))
@@ -1305,6 +1311,9 @@ namespace SVN_Portal.DAL.DataPortal
                                 var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
                                 var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
 
+                                viewModel.Availability = Math.Round(availability * 100, 2);
+                                viewModel.Performance = Math.Round(performance * 100, 2);
+                                viewModel.Quality = Math.Round(quality * 100, 2);
                                 viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                             }
 
@@ -1345,7 +1354,10 @@ namespace SVN_Portal.DAL.DataPortal
 
                             SVN_targetViewModel OEEVM = new SVN_targetViewModel();
                             OEEVM.Item = "OEE";
-                            OEEVM.Current = viewModel.OEE;
+                            OEEVM.Availability = viewModel.Availability;
+                            OEEVM.Performance = viewModel.Performance;
+                            OEEVM.Quality = viewModel.Quality;
+                            OEEVM.OEE = viewModel.OEE;
 
                             //Tính lại Current UPH khi operation là POP
                             if (viewModel.MasterOperation.Contains("POP"))
@@ -1786,6 +1798,9 @@ namespace SVN_Portal.DAL.DataPortal
                                 var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
                                 var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
 
+                                viewModel.Availability = Math.Round(availability * 100, 2);
+                                viewModel.Performance = Math.Round(performance * 100, 2);
+                                viewModel.Quality = Math.Round(quality * 100, 2);
                                 viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                             }
 
@@ -1828,7 +1843,10 @@ namespace SVN_Portal.DAL.DataPortal
 
                             SVN_targetViewModel OEEVM = new SVN_targetViewModel();
                             OEEVM.Item = "OEE";
-                            OEEVM.Current = viewModel.OEE;
+                            OEEVM.Availability = viewModel.Availability;
+                            OEEVM.Performance = viewModel.Performance;
+                            OEEVM.Quality = viewModel.Quality;
+                            OEEVM.OEE = viewModel.OEE;
 
                             viewModel.MasterOperation = item.MasterOperation;
                             //Tính lại Current UPH khi operation là POP
@@ -2283,6 +2301,9 @@ namespace SVN_Portal.DAL.DataPortal
                             var performance = dataUIByOper.UPH != 0 && workingTime != 0 ? ((UPHCurrent) / dataUIByOper.UPH) : 0;
                             var quality = dataUIByOper.Total_Qty != 0 ? ((dataUIByOper.Total_Qty - dataUIByOper.Total_NG_Qty) / dataUIByOper.Total_Qty) : 0;
 
+                            viewModel.Availability = Math.Round(availability * 100, 2);
+                            viewModel.Performance = Math.Round(performance * 100, 2);
+                            viewModel.Quality = Math.Round(quality * 100, 2);
                             viewModel.OEE = Math.Round((availability * performance * quality) * 100, 2);
                         }
 
@@ -2320,10 +2341,13 @@ namespace SVN_Portal.DAL.DataPortal
                         NGVM.Target = Math.Round(dataUIByOper.Defect * 100, 2);
                         NGVM.Current = Math.Round(dataUIByOper.Total_Qty != 0 ? (dataUIByOper.Total_NG_Qty / dataUIByOper.Total_Qty) * 100 : 0, 2);
                         NGVM.Percent = Math.Round(dataUIByOper.Total_Qty != 0 && dataUIByOper.Defect != 0 ? (NGVM.Current / NGVM.Target) * 100 : 0, 2);
-                        
+
                         SVN_targetViewModel OEEVM = new SVN_targetViewModel();
                         OEEVM.Item = "OEE";
-                        OEEVM.Current = viewModel.OEE;
+                        OEEVM.Availability = viewModel.Availability;
+                        OEEVM.Performance = viewModel.Performance;
+                        OEEVM.Quality = viewModel.Quality;
+                        OEEVM.OEE = viewModel.OEE;
 
                         viewModel.MasterOperation = oper.MasterOperation;
                         //Tính lại Current UPH khi operation là POP
