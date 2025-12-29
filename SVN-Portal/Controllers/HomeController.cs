@@ -2399,6 +2399,8 @@ namespace SVN_Portal.Controllers
                     yesterdayPDOutputVM.Key = "PD Output";
                     yesterdayPDOutputVM.Value = previousgrandTotalActualRevenue;
                     costRevenueViewModels.Add(yesterdayPDOutputVM);
+
+                    ViewBag.Yesterday = yesterday.ToString("dd/MM/yyyy");
                 }
 
                 costDailyViewModels = costDailyViewModels.OrderBy(x => x.Date).ToList();

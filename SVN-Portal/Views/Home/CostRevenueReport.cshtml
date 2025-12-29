@@ -38,7 +38,7 @@
     <div class="col-12 col-md-4">
         <div class="card svn-card">
             <div class="card-title">
-                <h2>Cost/Revenue Yesterday (@ViewBag.LocalCurrency)</h2>
+                <h2>Cost/Revenue @ViewBag.Yesterday (@ViewBag.LocalCurrency)</h2>
             </div>
             <div class="card-body">
                 <div id="costRevenueYesterdayChart" class="col-chart-cost-contain"></div>
@@ -48,7 +48,7 @@
     <div class="col-12 col-md-4">
         <div class="card svn-card">
             <div class="card-title">
-                <h2>Cost/Revenue Today (@ViewBag.LocalCurrency)</h2>
+                <h2>Cost/Revenue @date.ToString("dd/MM/yyyy") (@ViewBag.LocalCurrency)</h2>
             </div>
             <div class="card-body">
                 <div id="costRevenueTodayChart" class="col-chart-cost-contain"></div>
@@ -84,6 +84,7 @@
             "valueAxes": [{
                 "id": "v1",
                 "position": "left",
+                "labelsEnabled": false,
                 "minimum": 0
                 // "title": "Qty"
             }],
@@ -94,10 +95,10 @@
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
-                "title": "PMC WO",
+                "title": "Money",
                 "valueField": "Value",
                 "valueAxis": "v1",
-                "fillColors": "#FFCE56"
+                "fillColors": "#36A2EB"
             }],
             "categoryField": "Key",
             "categoryAxis": {
@@ -129,6 +130,7 @@
             "valueAxes": [{
                 "id": "v1",
                 "position": "left",
+                "labelsEnabled": false,
                 "minimum": 0
                 // "title": "Qty"
             }],
@@ -139,10 +141,10 @@
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
-                "title": "PMC WO",
+                "title": "Money",
                 "valueField": "Value",
                 "valueAxis": "v1",
-                "fillColors": "#FFCE56"
+                "fillColors": "#36A2EB"
             }],
             "categoryField": "Key",
             "categoryAxis": {
@@ -174,6 +176,7 @@
             "valueAxes": [{
                 "id": "v1",
                 "position": "left",
+                "labelsEnabled": false,
                 "minimum": 0
                 // "title": "Qty"
             }],
@@ -184,10 +187,10 @@
                 "fillAlphas": 0.7,
                 "lineAlpha": 0.2,
                 "type": "column",
-                "title": "PMC WO",
+                "title": "Money",
                 "valueField": "Value",
                 "valueAxis": "v1",
-                "fillColors": "#FFCE56"
+                "fillColors": "#36A2EB"
             }],
             "categoryField": "Key",
             "categoryAxis": {
