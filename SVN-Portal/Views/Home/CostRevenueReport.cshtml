@@ -1,0 +1,208 @@
+﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
+@model IEnumerable<CostRevenueViewModel>
+@{
+    // Layout = "~/Views/Shared/_NewLayout.cshtml";
+    DateTime date = ViewBag.Date;
+    ViewData["Title"] = "Cost/Revenue Report";
+
+    List<CostRevenueViewModel> yestardayVM = Model.Where(x => x.Time == "Yesterday").ToList();
+    List<CostRevenueViewModel> todayVM = Model.Where(x => x.Time == "Today").ToList();
+    List<CostRevenueViewModel> yearlyVM = Model.Where(x => x.Time == "Yearly").ToList();
+
+    string jsonYestardayData = JsonConvert.SerializeObject(yestardayVM);
+    string jsonTodayData = JsonConvert.SerializeObject(todayVM);
+    string jsonYearlyData = JsonConvert.SerializeObject(yearlyVM);
+
+}
+<link href="~/css/responsivescreen.css" rel="stylesheet" />
+<div class="row">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <button type="submit" asp-action="CostRevenueReport" class="btn btn-primary">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Cost/Revenue Yesterday (@ViewBag.LocalCurrency)</h2>
+            </div>
+            <div class="card-body">
+                <div id="costRevenueYesterdayChart" class="col-chart-cost-contain"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Cost/Revenue Today (@ViewBag.LocalCurrency)</h2>
+            </div>
+            <div class="card-body">
+                <div id="costRevenueTodayChart" class="col-chart-cost-contain"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Cost/Revenue @date.Year.ToString() (@ViewBag.LocalCurrency)</h2>
+            </div>
+            <div class="card-body">
+                <div id="costRevenueYearChart" class="col-chart-cost-contain"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var jsonYestardayData = @Html.Raw(jsonYestardayData);
+        var jsonTodayData = @Html.Raw(jsonTodayData);
+        var jsonYearlyData = @Html.Raw(jsonYearlyData);
+
+        AmCharts.makeChart("costRevenueYesterdayChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonYestardayData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 12,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "PMC WO",
+                "valueField": "Value",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }],
+            "categoryField": "Key",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+
+        AmCharts.makeChart("costRevenueTodayChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonTodayData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 12,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "PMC WO",
+                "valueField": "Value",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }],
+            "categoryField": "Key",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+
+        AmCharts.makeChart("costRevenueYearChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonYearlyData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 12,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "PMC WO",
+                "valueField": "Value",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }],
+            "categoryField": "Key",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+    </script>
+</div>

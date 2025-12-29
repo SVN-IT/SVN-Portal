@@ -22,6 +22,11 @@
     height: 350px;
 }
 
+.col-chart-cost-contain {
+    width: 100%;
+    height: 600px;
+}
+
 .table td, .table th {
      padding: 0.0rem!important; 
 }
@@ -77,5 +82,11 @@
         width: 100%;
         height: 180px;
         font-size:12px
+    }
+
+    .col-chart-cost-contain {
+        width: 100%;
+        height: 350px;
+        font-size: 12px
     }
 }
