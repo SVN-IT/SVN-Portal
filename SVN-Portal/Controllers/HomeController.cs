@@ -2474,6 +2474,17 @@ namespace SVN_Portal.Controllers
                         yearlyPDOutputVM.Key = "PD Output";
                         yearlyPDOutputVM.Value = yearlyActualRevenue;
                         costRevenueViewModels.Add(yearlyPDOutputVM);
+
+                        //Lấy top 3 có doanh thu cao nhất và top 3 có doanh thu thấp nhất
+                        if(costYearlyResult.CostYearlyPerOpers != null)
+                        {
+                            var top3HighRevenue = costYearlyResult.CostYearlyPerOpers.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
+                            var top3LowRevenue = costYearlyResult.CostYearlyPerOpers.OrderBy(x => x.ActualRevenue).Take(5).ToList();
+
+                            ViewBag.Top3HighRevenue = top3HighRevenue;
+                            ViewBag.Top3LowRevenue = top3LowRevenue;
+                        }
+                        
                     }
                 }
 
@@ -2739,7 +2750,7 @@ namespace SVN_Portal.Controllers
         }
 
         //Hàm tính tri phí, doanh thu theo năm
-        private CostDailyViewModel GetCostPerYear(List<SVN_target> sVN_Targets, OperInfoConfig operInfoConfig)
+        private CostDailyViewModel GetCostPerYear(List<SVN_target> sVN_Targets, OperInfoConfig operInfoConfig, string localCurrency = "VND")
         {
             CostDailyViewModel costDailyViewModel = new CostDailyViewModel();
             foreach(var item in operInfoConfig.OperInfo)
@@ -2755,6 +2766,33 @@ namespace SVN_Portal.Controllers
 
                     costDailyViewModel.TargetRevenue = costDailyViewModel.TargetRevenue + sumTargetRevenueByOper;
                     costDailyViewModel.ActualRevenue = costDailyViewModel.ActualRevenue + sumActualRevenueByOper;
+
+                    CostYearlyPerOperViewModel costYearlyPerOperViewModel = new CostYearlyPerOperViewModel();
+                    costYearlyPerOperViewModel.Operation = item.Operation;
+
+                    var yearlyTargetRevenueResult = GetAmountByCurrency(sumTargetRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
+                    var yearlyActualRevenueResult = GetAmountByCurrency(sumActualRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
+                    double yearlyTargetRevenue = 0;
+                    double yearlyActualRevenue = 0;
+                    try
+                    {
+                        yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                    }
+                    catch
+                    {
+                    }
+                    try
+                    {
+                        yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                    }
+                    catch
+                    {
+                    }
+
+                    costYearlyPerOperViewModel.TargetRevenue = yearlyTargetRevenue;
+                    costYearlyPerOperViewModel.ActualRevenue = yearlyActualRevenue;
+
+                    costDailyViewModel.CostYearlyPerOpers.Add(costYearlyPerOperViewModel);
                 }
             }
             costDailyViewModel.RevenueRate = costDailyViewModel.TargetRevenue == 0 ? 0 : (costDailyViewModel.ActualRevenue / costDailyViewModel.TargetRevenue) * 100;

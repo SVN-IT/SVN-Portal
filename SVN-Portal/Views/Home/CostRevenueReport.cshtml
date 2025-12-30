@@ -14,6 +14,8 @@
     string jsonTodayData = JsonConvert.SerializeObject(todayVM);
     string jsonYearlyData = JsonConvert.SerializeObject(yearlyVM);
 
+    List<CostYearlyPerOperViewModel> top3HighRevenue = ViewBag.Top3HighRevenue;
+    List<CostYearlyPerOperViewModel> top3LowRevenue = ViewBag.Top3LowRevenue;
 }
 <link href="~/css/responsivescreen.css" rel="stylesheet" />
 <div class="row">
@@ -62,6 +64,68 @@
             </div>
             <div class="card-body">
                 <div id="costRevenueYearChart" class="col-chart-cost-contain"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Top 5 High Revenue @date.Year.ToString() (@ViewBag.LocalCurrency)</h2>
+            </div>
+            <div class="card-body">
+                <div class="col-chart-contain">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Operation</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (top3HighRevenue != null && top3HighRevenue.Count() > 0)
+                            {
+                                foreach (var item in top3HighRevenue)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.Operation</th>
+                                        <th scope="row">@item.ActualRevenue.ToString("N0")</th>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>Top 5 Low Revenue @date.Year.ToString() (@ViewBag.LocalCurrency)</h2>
+            </div>
+            <div class="card-body">
+                <div class="col-chart-contain">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Operation</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (top3LowRevenue != null && top3LowRevenue.Count() > 0)
+                            {
+                                foreach (var item in top3LowRevenue)
+                                {
+                                    <tr>
+                                        <th scope="row">@item.Operation</th>
+                                        <th scope="row">@item.ActualRevenue.ToString("N0")</th>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
