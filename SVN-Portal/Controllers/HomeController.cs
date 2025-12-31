@@ -2487,13 +2487,18 @@ namespace SVN_Portal.Controllers
                         costRevenueViewModels.Add(yearlyPDOutputVM);
 
                         //Lấy top 3 có doanh thu cao nhất và top 3 có doanh thu thấp nhất
-                        if(costYearlyResult.CostYearlyPerOpers != null)
+                        
+                        if (costYearlyResult.CostYearlyPerOpers != null)
                         {
-                            var top3HighRevenue = costYearlyResult.CostYearlyPerOpers.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
-                            var top3LowRevenue = costYearlyResult.CostYearlyPerOpers.OrderBy(x => x.ActualRevenue).Take(5).ToList();
+                            var itemHaveRevenue = costYearlyResult.CostYearlyPerOpers.Where(x => x.ActualRevenue > 0).ToList();
+                            if(itemHaveRevenue != null)
+                            {
+                                var top3HighRevenue = itemHaveRevenue.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
+                                var top3LowRevenue = itemHaveRevenue.OrderBy(x => x.ActualRevenue).Take(5).ToList();
 
-                            ViewBag.Top3HighRevenue = top3HighRevenue;
-                            ViewBag.Top3LowRevenue = top3LowRevenue;
+                                ViewBag.Top3HighRevenue = top3HighRevenue;
+                                ViewBag.Top3LowRevenue = top3LowRevenue;
+                            }
                         }
                         
                     }
