@@ -127,6 +127,24 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<double> GetVNDRate()
+        {
+            double rate = 26152.137911;
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("VNDRate");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    rate = double.Parse(appSetting.Value);
+                }
+                return rate;
+            }
+            catch
+            {
+                return rate;
+            }
+        }
+
         public async Task<string> GetCurrencyInfoByCode(string code)
         {
             List<CurrencyInfo> operCurrencyInfo = new List<CurrencyInfo>();

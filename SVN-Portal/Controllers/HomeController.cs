@@ -248,6 +248,7 @@ namespace SVN_Portal.Controllers
             var cost = await appSettingDataPortal.GetCostPerDay();
             var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
             var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
+            var vndRate = await appSettingDataPortal.GetVNDRate();
             var finalCurrency = "USD";
             try
             {
@@ -269,22 +270,23 @@ namespace SVN_Portal.Controllers
                 models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
-                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, out finalCurrency);
+                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
 
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
                     var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
                     var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
 
-                    var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
-                    try
-                    {
-                        cost = Math.Round((double)finalCostResult.Content, 0);
-                    }
-                    catch
-                    {
+                    //var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
+                    //try
+                    //{
+                    //    cost = Math.Round((double)finalCostResult.Content, 0);
+                    //}
+                    //catch
+                    //{
 
-                    }
+                    //}
+                    cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
 
                     CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
                     costDailyViewModel1.Currency = finalCurrency;
@@ -317,7 +319,7 @@ namespace SVN_Portal.Controllers
                 }
                 if(previousmodels != null && previousmodels.Count > 0)
                 {
-                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, out finalCurrency);
+                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, vndRate, out finalCurrency);
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
                     var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
@@ -347,36 +349,39 @@ namespace SVN_Portal.Controllers
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if(yearlyTarget != null)
                 {
-                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig);
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig, localCurrency, vndRate);
                     if(costYearlyResult != null)
                     {
-                        var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
-                        double yearlyCostValue = 0;
-                        try
-                        {
-                            yearlyCostValue = (double)finalYearlyCostResult.Content;
-                        }
-                        catch
-                        {
-                        }
-                        var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
-                        var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
-                        double yearlyTargetRevenue = 0;
-                        double yearlyActualRevenue = 0;
-                        try
-                        {
-                            yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
-                        }
-                        catch
-                        {
-                        }
+                        //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
+                        //double yearlyCostValue = 0;
+                        //try
+                        //{
+                        //    yearlyCostValue = (double)finalYearlyCostResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
+                        //var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
+                        //double yearlyTargetRevenue = 0;
+                        //double yearlyActualRevenue = 0;
+                        //try
+                        //{
+                        //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //try
+                        //{
+                        //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        var yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        var yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
+                        var yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
                         var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
                         var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
                             + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
@@ -2274,7 +2279,9 @@ namespace SVN_Portal.Controllers
             var cost = await appSettingDataPortal.GetCostPerDay();
             var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
             var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
+            var vndRate = await appSettingDataPortal.GetVNDRate();
             var finalCurrency = "USD";
+            
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -2295,22 +2302,23 @@ namespace SVN_Portal.Controllers
                 models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
-                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, out finalCurrency);
+                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
 
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
                     var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
                     var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
 
-                    var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
-                    try
-                    {
-                        cost = Math.Round((double)finalCostResult.Content, 0);
-                    }
-                    catch
-                    {
+                    //var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
+                    //try
+                    //{
+                    //    cost = Math.Round((double)finalCostResult.Content, 0);
+                    //}
+                    //catch
+                    //{
 
-                    }
+                    //}
+                    cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
 
                     CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
                     costDailyViewModel1.Currency = finalCurrency;
@@ -2326,7 +2334,7 @@ namespace SVN_Portal.Controllers
                         + " /💰PD Output: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
                         + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
                     ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
-                    ViewBag.LocalCurrency = finalCurrency;
+                    //ViewBag.LocalCurrency = finalCurrency;
 
                     CostRevenueViewModel todayCostVM = new CostRevenueViewModel();
                     todayCostVM.Time = "Today";
@@ -2364,7 +2372,7 @@ namespace SVN_Portal.Controllers
                 }
                 if (previousmodels != null && previousmodels.Count > 0)
                 {
-                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, out finalCurrency);
+                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, vndRate, out finalCurrency);
                     //Tính tổng danh thu trên ngày của tất cả operation
                     var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
                     var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
@@ -2417,36 +2425,39 @@ namespace SVN_Portal.Controllers
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if (yearlyTarget != null)
                 {
-                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig);
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig, localCurrency, vndRate);
                     if (costYearlyResult != null)
                     {
-                        var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
-                        double yearlyCostValue = 0;
-                        try
-                        {
-                            yearlyCostValue = (double)finalYearlyCostResult.Content;
-                        }
-                        catch
-                        {
-                        }
-                        var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
-                        var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
-                        double yearlyTargetRevenue = 0;
-                        double yearlyActualRevenue = 0;
-                        try
-                        {
-                            yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
-                        }
-                        catch
-                        {
-                        }
+                        //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
+                        //double yearlyCostValue = 0;
+                        //try
+                        //{
+                        //    yearlyCostValue = (double)finalYearlyCostResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
+                        //var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
+                        //double yearlyTargetRevenue = 0;
+                        //double yearlyActualRevenue = 0;
+                        //try
+                        //{
+                        //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //try
+                        //{
+                        //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
+                        double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
                         var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
                         var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
                             + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
@@ -2566,6 +2577,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 ViewBag.StatusList = statusList;
+                ViewBag.LocalCurrency = finalCurrency;
 
                 return View(costRevenueViewModels);
             }
@@ -2607,7 +2619,7 @@ namespace SVN_Portal.Controllers
             return dataProcessResult;
         }
 
-        private List<PDResultDailyViewModel> GetPDResultDailyViewModel(List<QtyProdResultByOperViewModel> models, string localCurrency, out string finalCurrency)
+        private List<PDResultDailyViewModel> GetPDResultDailyViewModel(List<QtyProdResultByOperViewModel> models, string localCurrency, double vndRate, out string finalCurrency)
         {
             bool callCurrencyAPI = false;
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
@@ -2686,50 +2698,54 @@ namespace SVN_Portal.Controllers
                 var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
                 var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
 
-                var targetRResult = GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency).GetAwaiter().GetResult();
-                if (targetRResult != null)
-                {
-                    try
-                    {
-                        totalTargetRevenue = (double)targetRResult.Content;
-                    }
-                    catch
-                    {
+                //var targetRResult = GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency).GetAwaiter().GetResult();
+                //if (targetRResult != null)
+                //{
+                //    try
+                //    {
+                //        totalTargetRevenue = (double)targetRResult.Content;
+                //    }
+                //    catch
+                //    {
 
-                    }
-                    if (targetRResult.OK)
-                    {
-                        callCurrencyAPI = true;
-                        //finalCurrency = localCurrency;
-                    }
-                    else
-                    {
-                        callCurrencyAPI = false;
-                        //finalCurrency = "USD";
-                    }
-                }
-                var actualRResult = GetAmountByCurrency(totalActualRevenue, "USD", localCurrency).GetAwaiter().GetResult();
-                if (actualRResult != null)
-                {
-                    try
-                    {
-                        totalActualRevenue = (double)actualRResult.Content;
-                    }
-                    catch
-                    {
+                //    }
+                //    if (targetRResult.OK)
+                //    {
+                //        callCurrencyAPI = true;
+                //        //finalCurrency = localCurrency;
+                //    }
+                //    else
+                //    {
+                //        callCurrencyAPI = false;
+                //        //finalCurrency = "USD";
+                //    }
+                //}
+                //var actualRResult = GetAmountByCurrency(totalActualRevenue, "USD", localCurrency).GetAwaiter().GetResult();
+                //if (actualRResult != null)
+                //{
+                //    try
+                //    {
+                //        totalActualRevenue = (double)actualRResult.Content;
+                //    }
+                //    catch
+                //    {
 
-                    }
-                    if (actualRResult.OK)
-                    {
-                        callCurrencyAPI = true;
-                        //finalCurrency = localCurrency;
-                    }
-                    else
-                    {
-                        callCurrencyAPI = false;
-                        //finalCurrency = "USD";
-                    }
-                }
+                //    }
+                //    if (actualRResult.OK)
+                //    {
+                //        callCurrencyAPI = true;
+                //        //finalCurrency = localCurrency;
+                //    }
+                //    else
+                //    {
+                //        callCurrencyAPI = false;
+                //        //finalCurrency = "USD";
+                //    }
+                //}
+
+                totalTargetRevenue = localCurrency == "VND" ? Math.Round(totalTargetRevenue * vndRate, 0) : totalTargetRevenue;
+                totalActualRevenue = localCurrency == "VND" ? Math.Round(totalActualRevenue * vndRate, 0) : totalActualRevenue;
+
 
                 viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString("N0");
                 viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString("N0");
@@ -2737,20 +2753,22 @@ namespace SVN_Portal.Controllers
 
                 pdResultviewModels.Add(viewModel);
             }
-            if(callCurrencyAPI == false)
-            {
-                finalCurrency = "USD";
-            }
-            else
-            {
-                finalCurrency = localCurrency;
-            }    
-                
+            //if(callCurrencyAPI == false)
+            //{
+            //    finalCurrency = "USD";
+            //}
+            //else
+            //{
+            //    finalCurrency = localCurrency;
+            //}
+
+            finalCurrency = localCurrency;
+
             return pdResultviewModels;
         }
 
         //Hàm tính tri phí, doanh thu theo năm
-        private CostDailyViewModel GetCostPerYear(List<SVN_target> sVN_Targets, OperInfoConfig operInfoConfig, string localCurrency = "VND")
+        private CostDailyViewModel GetCostPerYear(List<SVN_target> sVN_Targets, OperInfoConfig operInfoConfig, string localCurrency = "VND", double SVNRate = 26152.137911)
         {
             CostDailyViewModel costDailyViewModel = new CostDailyViewModel();
             foreach(var item in operInfoConfig.OperInfo)
@@ -2770,24 +2788,26 @@ namespace SVN_Portal.Controllers
                     CostYearlyPerOperViewModel costYearlyPerOperViewModel = new CostYearlyPerOperViewModel();
                     costYearlyPerOperViewModel.Operation = item.Operation;
 
-                    var yearlyTargetRevenueResult = GetAmountByCurrency(sumTargetRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
-                    var yearlyActualRevenueResult = GetAmountByCurrency(sumActualRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
-                    double yearlyTargetRevenue = 0;
-                    double yearlyActualRevenue = 0;
-                    try
-                    {
-                        yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
-                    }
-                    catch
-                    {
-                    }
-                    try
-                    {
-                        yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
-                    }
-                    catch
-                    {
-                    }
+                    //var yearlyTargetRevenueResult = GetAmountByCurrency(sumTargetRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
+                    //var yearlyActualRevenueResult = GetAmountByCurrency(sumActualRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
+                    //double yearlyTargetRevenue = 0;
+                    //double yearlyActualRevenue = 0;
+                    //try
+                    //{
+                    //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                    //}
+                    //catch
+                    //{
+                    //}
+                    //try
+                    //{
+                    //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                    //}
+                    //catch
+                    //{
+                    //}
+                    double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(sumTargetRevenueByOper * SVNRate, 0) : sumTargetRevenueByOper;
+                    double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(sumActualRevenueByOper * SVNRate, 0) : sumActualRevenueByOper;
 
                     costYearlyPerOperViewModel.TargetRevenue = yearlyTargetRevenue;
                     costYearlyPerOperViewModel.ActualRevenue = yearlyActualRevenue;
