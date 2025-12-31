@@ -2281,7 +2281,7 @@ namespace SVN_Portal.Controllers
             var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
             var vndRate = await appSettingDataPortal.GetVNDRate();
             var finalCurrency = "USD";
-            
+            cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -2318,7 +2318,7 @@ namespace SVN_Portal.Controllers
                     //{
 
                     //}
-                    cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
+                    //cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
 
                     CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
                     costDailyViewModel1.Currency = finalCurrency;
