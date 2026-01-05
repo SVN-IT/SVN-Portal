@@ -21,5 +21,7 @@
         public double Cost { get; set; }
         public double TargetRevenue { get; set; }
         public double ActualRevenue { get; set; }
+        public double TargetOutput { get; set; }
+        public double ActualOutput { get; set; }
     }
 }

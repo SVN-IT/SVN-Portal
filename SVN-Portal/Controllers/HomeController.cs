@@ -2431,7 +2431,7 @@ namespace SVN_Portal.Controllers
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if (yearlyTarget != null)
                 {
-                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig, localCurrency, vndRate);
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfo, localCurrency, vndRate);
                     if (costYearlyResult != null)
                     {
                         //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
@@ -2785,7 +2785,7 @@ namespace SVN_Portal.Controllers
             foreach(var item in operInfoConfig.OperInfo)
             {
                 var dataByOper = sVN_Targets.Where(x => x.Operation == item.Operation).ToList();
-                if(dataByOper != null)
+                if(dataByOper != null && dataByOper.Count > 0)
                 {
                     var sumTargetQtyByOper = dataByOper.Sum(x => x.Daily_plan);
                     var sumActualQtyByOper = dataByOper.Sum(x => x.Total_Qty);
@@ -2798,6 +2798,8 @@ namespace SVN_Portal.Controllers
 
                     CostYearlyPerOperViewModel costYearlyPerOperViewModel = new CostYearlyPerOperViewModel();
                     costYearlyPerOperViewModel.Operation = item.Operation;
+                    costYearlyPerOperViewModel.TargetOutput = sumTargetQtyByOper;
+                    costYearlyPerOperViewModel.ActualOutput = sumActualQtyByOper;
 
                     //var yearlyTargetRevenueResult = GetAmountByCurrency(sumTargetRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
                     //var yearlyActualRevenueResult = GetAmountByCurrency(sumActualRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
