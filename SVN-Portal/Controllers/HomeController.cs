@@ -2421,6 +2421,12 @@ namespace SVN_Portal.Controllers
                 string companyStartDate = await appSettingDataPortal.GetStartDate();
                 string currentDate = date.ToString("yyyyMMdd");
 
+                DateTime startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                if(date.Year > startDate.Year)
+                {
+                    companyStartDate = date.Year.ToString() + "0101";
+                }
+
                 //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if (yearlyTarget != null)
