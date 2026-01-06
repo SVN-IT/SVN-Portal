@@ -2499,11 +2499,28 @@ namespace SVN_Portal.Controllers
                             var itemHaveRevenue = costYearlyResult.CostYearlyPerOpers.Where(x => x.ActualRevenue > 0).ToList();
                             if(itemHaveRevenue != null)
                             {
-                                var top3HighRevenue = itemHaveRevenue.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
-                                var top3LowRevenue = itemHaveRevenue.OrderBy(x => x.ActualRevenue).Take(5).ToList();
+                                //var top3HighRevenue = itemHaveRevenue.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
+                                //var top3LowRevenue = itemHaveRevenue.OrderBy(x => x.ActualRevenue).Take(5).OrderByDescending(x => x.ActualRevenue).ToList();
 
-                                ViewBag.Top3HighRevenue = top3HighRevenue;
-                                ViewBag.Top3LowRevenue = top3LowRevenue;
+                                //ViewBag.Top3HighRevenue = top3HighRevenue;
+                                //ViewBag.Top3LowRevenue = top3LowRevenue;
+
+                                var topHigh = itemHaveRevenue
+                                .OrderByDescending(x => x.ActualRevenue)
+                                .Take(5)
+                                .ToList();
+
+                                var highKeys = new HashSet<string>(topHigh.Select(x => x.Operation));
+
+                                var topLow = itemHaveRevenue
+                                    .Where(x => !highKeys.Contains(x.Operation))
+                                    .OrderBy(x => x.ActualRevenue)
+                                    .Take(5)
+                                    .OrderByDescending(x => x.ActualRevenue)
+                                    .ToList();
+
+                                ViewBag.Top3HighRevenue = topHigh;
+                                ViewBag.Top3LowRevenue = topLow;
                             }
                         }
                         
