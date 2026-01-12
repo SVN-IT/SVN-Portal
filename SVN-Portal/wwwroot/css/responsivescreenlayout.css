@@ -1,0 +1,12 @@
+﻿@media (max-width: 768px) {
+    .sub-header-layout {
+        height: 50px !important
+    }
+
+    .time-count {
+        font-size: 18px!important;
+        color: #007bff;
+        font-weight: 700;
+        width:180px;
+    }
+}
