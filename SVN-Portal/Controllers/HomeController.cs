@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -131,6 +132,15 @@ namespace SVN_Portal.Controllers
                         }
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -3217,6 +3227,25 @@ namespace SVN_Portal.Controllers
             costDailyViewModel.RevenueRate = costDailyViewModel.TargetRevenue == 0 ? 0 : (costDailyViewModel.ActualRevenue / costDailyViewModel.TargetRevenue) * 100;
             return costDailyViewModel;
         }
+
+        /// <summary>
+        /// convert time
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        private TimeSpan GetStartTime(string time)
+        {
+            var part = time.Split('-')[0];   // "10h10"
+            var arr = part.Split('h');
+
+            int hour = int.Parse(arr[0]);
+            int minute = arr.Length > 1 && arr[1] != ""
+                ? int.Parse(arr[1])
+                : 0;
+
+            return new TimeSpan(hour, minute, 0);
+        }
+
         #endregion
     }
 }
