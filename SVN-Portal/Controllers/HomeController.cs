@@ -2427,6 +2427,11 @@ namespace SVN_Portal.Controllers
                     companyStartDate = date.Year.ToString() + "0101";
                 }
 
+                //Tính yearcost từ thời điểm đầu tiên đến hiện tại
+                startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                int totalDays = (date.Date - startDate.Date).Days;
+                yearCost = cost * totalDays;
+
                 //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if (yearlyTarget != null)
@@ -2461,7 +2466,8 @@ namespace SVN_Portal.Controllers
                         //catch
                         //{
                         //}
-                        double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        //double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        double yearlyCostValue = yearCost;
                         double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
                         double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
                         var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
@@ -2772,6 +2778,8 @@ namespace SVN_Portal.Controllers
                 //23/12/2025: Tính toán Cost và doanh thu theo năm
                 //Lấy cost của 1 năm được nhập bởi PMC
                 var yearCost = await appSettingDataPortal.GetCostInYear();
+                
+
                 var svnTargetDataPortal = new SVN_TargetDataPortal(connectionString);
                 string companyStartDate = await appSettingDataPortal.GetStartDate();
                 string currentDate = date.ToString("yyyyMMdd");
@@ -2781,6 +2789,11 @@ namespace SVN_Portal.Controllers
                 {
                     companyStartDate = date.Year.ToString() + "0101";
                 }
+
+                //Tính yearcost từ thời điểm đầu tiên đến hiện tại
+                startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                int totalDays = (date.Date - startDate.Date).Days;
+                yearCost = cost * totalDays;
 
                 //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
@@ -2816,7 +2829,8 @@ namespace SVN_Portal.Controllers
                         //catch
                         //{
                         //}
-                        double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        //double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        double yearlyCostValue = yearCost;
                         double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
                         double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
                         var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);

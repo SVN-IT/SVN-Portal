@@ -19,6 +19,7 @@ namespace SVN_Portal.Models
         }
         public string MasterOperation { get; set; }
         public string Operation { get; set; }
+        public string Line { get; set; }
         public string Name { get; set; }
         public string WC { get; set; }
         public string PDName { get; set; }

@@ -211,6 +211,12 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 viewModel.IsProduction = true;
                             }
+
+                            //Thêm thông tin line nếu có vào operationName
+                            if (!string.IsNullOrWhiteSpace(dataUIbyOperTarget.Product))
+                            {
+                                viewModel.Line = "line " + dataUIbyOperTarget.Product.Replace(".0", "");
+                            }
                         }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Production Qty");
                         if(dataUIbyOperLine != null)
@@ -651,6 +657,12 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 viewModel.IsProduction = true;
                             }
+
+                            //Thêm thông tin line nếu có vào operationName
+                            if (!string.IsNullOrWhiteSpace(dataUIbyOperTarget.Product))
+                            {
+                                viewModel.Line = "line " + dataUIbyOperTarget.Product.Replace(".0", "");
+                            }
                         }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Production Qty");
                         if (dataUIbyOperLine != null)
@@ -1067,6 +1079,12 @@ namespace SVN_Portal.DAL.DataPortal
                             else
                             {
                                 viewModel.IsProduction = true;
+                            }
+
+                            //Thêm thông tin line nếu có vào operationName
+                            if (!string.IsNullOrWhiteSpace(dataUIbyOperTarget.Product))
+                            {
+                                viewModel.Line = "line " + dataUIbyOperTarget.Product.Replace(".0", "");
                             }
                         }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Production Qty");
@@ -1552,6 +1570,12 @@ namespace SVN_Portal.DAL.DataPortal
                             {
                                 viewModel.IsProduction = true;
                             }
+
+                            //Thêm thông tin line nếu có vào operationName
+                            if (!string.IsNullOrWhiteSpace(dataUIbyOperTarget.Product))
+                            {
+                                viewModel.Line = "line " + dataUIbyOperTarget.Product.Replace(".0", "");
+                            }
                         }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.WC == item.WCName && x.Type_value == "Production Qty");
                         if (dataUIbyOperLine != null)
@@ -1975,6 +1999,12 @@ namespace SVN_Portal.DAL.DataPortal
                         else
                         {
                             viewModel.IsProduction = true;
+                        }
+
+                        //Thêm thông tin line nếu có vào operationName
+                        if (!string.IsNullOrWhiteSpace(dataUIbyOperTarget.Product))
+                        {
+                            viewModel.Line = "line " + dataUIbyOperTarget.Product.Replace(".0", "");
                         }
                     }
                     var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName && x.Type_value == "Production Qty");
