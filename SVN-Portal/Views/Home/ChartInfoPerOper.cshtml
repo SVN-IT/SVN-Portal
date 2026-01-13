@@ -501,8 +501,22 @@
                                             {
                                                 productName = "(" + item.Name + ")";
                                             }
+
+                                            string textHeaderColor = string.Empty;
+                                            if (item.Line == "line 1")
+                                            {
+                                                textHeaderColor = "text-primary";
+                                            }
+                                            else if (item.Line == "line 2")
+                                            {
+                                                textHeaderColor = "text-warning";
+                                            }
+                                            else
+                                            {
+                                                textHeaderColor = "text-light";
+                                            }
                                         }
-                                        <h1>@item.Operation @productName</h1>
+                                        <h1 class="@textHeaderColor">@item.Operation @productName - (@item.Line)</h1>
                                         @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                         <div class="row">
                                             <div id="checklistStatus-@charID" class="col-12">

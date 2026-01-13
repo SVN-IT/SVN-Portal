@@ -632,7 +632,16 @@ namespace SVN_Portal.Controllers
                         }
                     }
 
-                    models = models.OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
                 }
                 return View(models);
             }
