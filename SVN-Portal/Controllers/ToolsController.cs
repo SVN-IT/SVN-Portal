@@ -204,7 +204,7 @@ namespace SVN_Portal.Controllers
                         item_code ="[" + product.default_code + "] ";
                     }    
 
-                    if(product.product_name.Contains("vi_VN"))
+                    if(!string.IsNullOrWhiteSpace(product.product_name) && product.product_name.Contains("vi_VN"))
                     {
                         Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(product.product_name);
                         product.product_name = item_code + dictionary["vi_VN"];
