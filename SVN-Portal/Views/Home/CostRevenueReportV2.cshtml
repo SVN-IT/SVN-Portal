@@ -37,53 +37,57 @@
             </div>
         </form>
     </div>
-    <div class="col-12 col-md-4">
-        <div class="card svn-card">
-            <div class="card-title">
-                <h2>Cost/Revenue @ViewBag.Yesterday (@ViewBag.LocalCurrency)</h2>
+    <div class="col-12 col-md-6">
+        <div class="row">
+            <div class="col-12 col-md-4">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cost/Revenue @ViewBag.Yesterday (@ViewBag.LocalCurrency)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="costRevenueYesterdayChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div id="costRevenueYesterdayChart" class="col-chart-cost-contain-v2"></div>
+            <div class="col-12 col-md-4">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cost/Revenue @date.ToString("dd/MM/yyyy") (@ViewBag.LocalCurrency)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="costRevenueTodayChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-4">
-        <div class="card svn-card">
-            <div class="card-title">
-                <h2>Cost/Revenue @date.ToString("dd/MM/yyyy") (@ViewBag.LocalCurrency)</h2>
+            <div class="col-12 col-md-4">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cost/Revenue @date.Year.ToString() (@ViewBag.LocalCurrency)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="costRevenueYearChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div id="costRevenueTodayChart" class="col-chart-cost-contain-v2"></div>
+            <div class="col-12 col-md-6">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cash Inflow vs Outflow</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="cashFlowChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-4">
-        <div class="card svn-card">
-            <div class="card-title">
-                <h2>Cost/Revenue @date.Year.ToString() (@ViewBag.LocalCurrency)</h2>
-            </div>
-            <div class="card-body">
-                <div id="costRevenueYearChart" class="col-chart-cost-contain-v2"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-3">
-        <div class="card svn-card">
-            <div class="card-title">
-                <h2>Cash Inflow vs Outflow</h2>
-            </div>
-            <div class="card-body">
-                <div id="cashFlowChart" class="col-chart-cost-contain-v2"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-3">
-        <div class="card svn-card">
-            <div class="card-title">
-                <h2>Cash Forecast</h2>
-            </div>
-            <div class="card-body">
-                <div id="cashForecastChart" class="col-chart-cost-contain-v2"></div>
+            <div class="col-12 col-md-6">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cash Forecast</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="cashForecastChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
