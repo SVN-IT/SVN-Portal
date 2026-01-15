@@ -36,6 +36,10 @@
      padding: 0.0rem!important; 
 }
 
+.svn-b-card {
+    height: 100%!important;
+}
+
 
 
 @media (max-width: 1980px) {
