@@ -51,6 +51,11 @@
             }
         }
     }
+    if (defectModel == null)
+    {
+        defectModel = new QtyProdResultByOperViewModel();
+        defectModel.ViewModels = new List<QtyProdResultViewModel>();
+    }
     var defectJsonData = JsonConvert.SerializeObject(defectModel.ViewModels);
 
     int All = 0;
