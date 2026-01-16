@@ -646,6 +646,7 @@ namespace SVN_Portal.Controllers
 
                     models = models
                     .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.Line)
                     .ThenBy(x => x.ViewModels
                         .Where(i => i.Target != 0)
                         .Select(i => GetStartTime(i.Time))
