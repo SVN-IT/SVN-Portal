@@ -532,6 +532,14 @@ namespace SVN_Portal.DAL.DataPortal
                         viewModels.Add(viewModel);
                     }
                 }
+
+                //Order lại dữ liệu trả về giống với target của PMC
+                //viewModels = viewModels.Where(x => x.IsProduction).ToList();
+                //viewModels = viewModels
+                //    .OrderBy(a => targetDataUI.FindIndex(b => b.Operation == a.Operation))
+                //    .ToList();
+
+
                 return viewModels;
             }
             catch(Exception ex)
