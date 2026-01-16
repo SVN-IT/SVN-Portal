@@ -568,7 +568,7 @@ namespace SVN_Portal.Controllers
         /// <param name="date"></param>
         /// <param name="oper"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string oper)
+        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
@@ -580,8 +580,11 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
+                var operLineList = operline.Split("-").ToList();
+                var oper = operLineList[0];
+                var line = operLineList.Count > 1 ? operLineList[1] : "";
                 ViewBag.date = date;
-                ViewBag.oper = oper;
+                ViewBag.oper = operline;
                 strdate = date.ToString("yyyyMMdd");
 
                 List<OperInfo> opers = new List<OperInfo>();
@@ -603,6 +606,12 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+
+                //Lọc dữ liệu lấy dc theo line
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    models = models.Where(x => x.Line == line).ToList();
+                }
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -649,7 +658,7 @@ namespace SVN_Portal.Controllers
             catch (Exception ex)
             {
                 QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
-                var data = model.GetData(oper);
+                var data = model.GetData(operline);
                 models = new List<QtyProdResultByOperViewModel> { data };
                 return View(models);
 
