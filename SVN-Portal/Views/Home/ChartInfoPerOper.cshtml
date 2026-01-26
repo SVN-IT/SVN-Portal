@@ -82,6 +82,11 @@
 
     bool isInSetup = ViewBag.IsInSetup;
     string setupNote = ViewBag.SetupNote;
+    string inSetupFontSize = ViewBag.InSetupFontSize;
+    if (string.IsNullOrWhiteSpace(inSetupFontSize))
+    {
+        inSetupFontSize = "75px";
+    }
 }
 <script>
     function BuildProductionChart(dataParam, chartID){
@@ -843,9 +848,9 @@
                     <span>
                         @setupNote
                     </span>
-                        <span>
+                    <span>
                         @setupNote
-                        </span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -860,7 +865,7 @@
     .inSetupStatus{
         height: 60vh;
         text-align: center;
-        font-size: 75px;
+        font-size: @inSetupFontSize;
         position: relative;
         top: 35%;
         font-weight: 700 !important;

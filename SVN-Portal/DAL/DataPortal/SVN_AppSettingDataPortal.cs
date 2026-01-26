@@ -226,5 +226,23 @@ namespace SVN_Portal.DAL.DataPortal
                 return strValue;
             }
         }
+
+        public async Task<string> GetInSetupStatusFontSize()
+        {
+            string strValue = string.Empty;
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("InSetupStatusFontSize");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    strValue = appSetting.Value;
+                }
+                return strValue;
+            }
+            catch
+            {
+                return strValue;
+            }
+        }
     }
 }

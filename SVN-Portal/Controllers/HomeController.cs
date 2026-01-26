@@ -577,10 +577,12 @@ namespace SVN_Portal.Controllers
             //Check xem truyền có đang setup hay không
             var operSetupInProcess = appSettingDataPortal.GetOperationSetupInProcess().Result.Split(",").FirstOrDefault(x => x == operline);
             var setupNote = await appSettingDataPortal.GetOperationInSetupStatus();
+            var inSetupFontSize = await appSettingDataPortal.GetInSetupStatusFontSize();
             if (!string.IsNullOrWhiteSpace(operSetupInProcess))
             {
                 ViewBag.IsInSetup = true;
                 ViewBag.SetupNote = setupNote;
+                ViewBag.InSetupFontSize = inSetupFontSize;
                 return View(models);
             }
             else
