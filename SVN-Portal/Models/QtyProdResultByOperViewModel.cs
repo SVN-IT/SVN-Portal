@@ -136,4 +136,13 @@ namespace SVN_Portal.Models
             return viewModels;
         }
     }
+
+    public class QtyPDByOperVMPerSlide
+    {
+        public QtyPDByOperVMPerSlide()
+        {
+            OperViewModels = new List<QtyProdResultByOperViewModel>();
+        }
+        public List<QtyProdResultByOperViewModel> OperViewModels { get; set; }
+    }
 }

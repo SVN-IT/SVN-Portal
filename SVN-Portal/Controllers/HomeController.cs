@@ -184,6 +184,7 @@ namespace SVN_Portal.Controllers
         /// <returns></returns>
         public async Task<IActionResult> ProductionResultV1(DateTime date)
         {
+            List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
             {
@@ -224,6 +225,20 @@ namespace SVN_Portal.Controllers
                         .DefaultIfEmpty(TimeSpan.MaxValue)
                         .Min())
                     .ToList();
+
+                    //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
+                    int pageSize = 9;
+                    for (int i = 0; i < models.Count; i += pageSize)
+                    {
+                        var slide = new QtyPDByOperVMPerSlide();
+
+                        slide.OperViewModels = models
+                            .Skip(i)
+                            .Take(pageSize)
+                            .ToList();
+
+                        qtyPDByOperVMPerSlides.Add(slide);
+                    }
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -242,19 +257,12 @@ namespace SVN_Portal.Controllers
                     ViewBag.ComparePeople = comparePeople;
                 }
 
-                //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
-
-                return View(models);
+                return View(qtyPDByOperVMPerSlides);
             }
             catch (Exception ex)
             {
-                QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
-                var data1 = model.GetData("POP");
-                var data2 = model.GetData("eKIT");
-                var data3 = model.GetData("Solar");
-                var data4 = model.GetData("Injection");
-                models = new List<QtyProdResultByOperViewModel> { data1, data2, data3, data4 };
-                return View(models);
+                List<QtyPDByOperVMPerSlide> vMPerSlides = new List<QtyPDByOperVMPerSlide>();
+                return View(vMPerSlides);
 
             }
         }

@@ -35,6 +35,11 @@ if(!string.IsNullOrWhiteSpace(masterOperList))
 {
     appConfig.MasterOperList = masterOperList;
 }
+//string strTimeChangeTabMainDashboard = await appSettingDataPortal.GetTimeChangeTabMainDashboard();
+//if (!string.IsNullOrWhiteSpace(strTimeChangeTabMainDashboard) && int.TryParse(strTimeChangeTabMainDashboard, out int timeChangeTabMainDashboard))
+//{
+//    appConfig.timeChangeTabMainDashboard = timeChangeTabMainDashboard;
+//}
 
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(dBConfiguration);
