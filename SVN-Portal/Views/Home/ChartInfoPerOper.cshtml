@@ -79,6 +79,9 @@
         Stop = equipments.Count(x => x.State == "Stop");
         Devel = equipments.Count(x => x.State == "Devel");
     }
+
+    bool isInSetup = ViewBag.IsInSetup;
+    string setupNote = ViewBag.SetupNote;
 }
 <script>
     function BuildProductionChart(dataParam, chartID){
@@ -265,569 +268,588 @@
     <div class="col-12 text-center">
         <h1 class="text-white"><b>@ViewBag.oper</b></h1>
     </div>
-    <div class="col-lg-12">
-        <form method="post">
-            <div class="form-group row mt-1">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <div class="row">
-                        <div class="col-9">
-                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
-                        </div>
-                        <div class="col-3">
-                            <button type="submit" class="btn btn-primary">
-                                Search
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="col-lg-12">
-        <div class="row">
-            <div class="col-12 col-md-8">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card svn-card svn-small-card">
-                            <div class="card-title">
-                                <h4>Machine</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-12 col-md-6 row">
-                                        <div class="col-3 bg-info border table-cell text-center">
-                                            All: @All
-                                        </div>
-                                        <div class="col-3 bg-success border table-cell text-center">
-                                            Run: @Run
-                                        </div>
-                                        <div class="col-3 bg-warning border table-cell text-center">
-                                            Fault: @Fault
-                                        </div>
-                                        <div class="col-3 bg-primary border table-cell text-center">
-                                            Adjust: @Adjust
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6 row">
-                                        <div class="col-3 bg-light text-dark border table-cell text-center">
-                                            Item: @Item
-                                        </div>
-                                        <div class="col-3 bg-secondary color-white border table-cell text-center">
-                                            Maint: @Maint
-                                        </div>
-                                        <div class="col-3 bg-danger border table-cell text-center">
-                                            Stop: @Stop
-                                        </div>
-                                        <div class="col-3 bg-dark border table-cell text-center">
-                                            Devel: @Devel
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="svn-machine-card">
-                                    <div class="row">
-                                        @{
-                                            string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
-                                            string[] machineStateColor = { "btn-info", "btn-success", "btn-warning", "btn-primary", "btn-light", "btn-secondary", "btn-danger", "btn-dark" };
-                                        }
-                                        @if (equipments != null)
-                                        {
-                                            foreach (var item in equipments)
-                                            {
-                                                int stateIndex = Array.IndexOf(machineStates, item.State);
-                                                string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
-                                                <div class="col-1 mt-2">
-                                                    <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
-                                                </div>
-                                            }
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="card svn-card svn-small-card">
-                            <div class="card-body">
-                                <div class="image-container">
-                                    @if (!string.IsNullOrWhiteSpace(PDURL))
-                                    {
-                                        <img class="card-img-top SVN-card-img-top mt-1" src="@PDURL" alt="Card image cap">
-                                    }
-                                    else
-                                    {
-                                        <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
-                                    }
-                                </div>
-                                <h3>PD: @PDName</h3>
-                            </div>
-                        </div>
-
-                        @* <h3>(SVN0003)</h3> *@
-                    </div>
-                    <div class="col-6">
-                        <div class="card svn-card svn-small-card">
-                            <div class="card-body">
-                                <div class="image-container">
-                                    @if (!string.IsNullOrWhiteSpace(QCURL))
-                                    {
-                                        <img class="card-img-top SVN-card-img-top mt-1" src="@QCURL" alt="Card image cap">
-                                    }
-                                    else
-                                    {
-                                        <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
-                                    }
-                                </div>
-                                <h3>QC: @QCName</h3>
-                                @* <h3>(SVN0334)</h3> *@
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 text-center d-none">
-                        <div class="card svn-card svn-small-card">
-                            <div class="card-title">
-                                <h4>Daily Plan Achieve</h4>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="achieveChart" width="400" height="200"></canvas>
-                                <h3 id="txtAchieve">@Achieve %</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 text-center d-none">
-                        <div class="card svn-card svn-small-card">
-                            <div class="card-title">
-                                <h4>Forecast</h4>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="forecastChart" width="400" height="200"></canvas>
-                                <h3 id="txtForecast">@Forecast %</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 d-none">
-                <div class="card svn-card">
-                    <div class="card-title">
-                        <h4>Defect</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="defectchart"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 ">
-                <div id="disableCard" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
-                <div id="bigCard" class="card svn-card">
-                    <div class="card-title">
-                        <h4>@* Production result *@</h4>
-                    </div>
-                    <div class="card-body">
+    @if(!isInSetup)
+    {
+        <div class="col-lg-12">
+            <form method="post">
+                <div class="form-group row mt-1">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                         <div class="row">
-                            @* <div class="col-4">
-                                        <strong id="txtWORunning">WO running: @WORunning</strong>
-                                    </div>
-                                    <div class="col-4">
-                                        <strong id="txtProduct">Product: @Product</strong>
-                                    </div>
-                                    <div class="col-4">
-                                        <strong id="txtCustomer">Customer: @Customer</strong>
-                                    </div> *@
-                            @if (Model != null)
-                            {
-                                foreach (var item in Model)
-                                {
-                                    string currentTime = string.Empty;
-                                    foreach (var subitem in item.ViewModels)
-                                    {
-                                        if (!string.IsNullOrWhiteSpace(subitem.Time))
-                                        {
-                                            var times = subitem.Time.Split('-');
-                                            DateTime today = DateTime.Today;
-
-                                            // Chuyển đổi thành định dạng HH:mm
-                                            string startTime = times[0].Replace("h", ":");
-                                            if (startTime.Last() == ':')
-                                            {
-                                                startTime = startTime + "00";
-                                            }
-                                            if (startTime.Length == 4)
-                                            {
-                                                startTime = "0" + startTime;
-                                            }
-
-                                            string endTime = times[1].Replace("h", ":");
-                                            if (endTime.Last() == ':')
-                                            {
-                                                endTime = endTime + "00";
-                                            }
-                                            if (endTime.Length == 4)
-                                            {
-                                                endTime = "0" + endTime;
-                                            }
-
-                                            // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
-                                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                            if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
-                                            {
-                                                currentTime = subitem.Time;
-                                            }
-                                        }
-                                    }
-                                    string charID = "chartdiv" + item.Operation;
-                                    if (!string.IsNullOrWhiteSpace(item.WC))
-                                    {
-                                        charID = "chartdiv" + item.Operation + item.WC;
-                                        charID = charID.Replace("-", "");
-                                    }
-                                    string jsonData = string.Empty;
-                                    jsonData = JsonConvert.SerializeObject(item.ViewModels);
-                                    <style>
-                                        #@charID {
-                                            height: 494px;
-                                            width: 100%;
-                                        }
-                                    </style>
-                                    <div id="smallCard_@charID" class="col-lg-@item.ColWidth mt-2">
-                                        @if (item.WC != "FG")
-                                        {
-                                            <h1>
-                                                @item.WC
-                                            </h1>
-                                        }
-                                        @{
-                                            string productName = string.Empty;
-                                            if (!string.IsNullOrWhiteSpace(item.Name))
-                                            {
-                                                productName = "(" + item.Name + ")";
-                                            }
-
-                                            string textHeaderColor = string.Empty;
-                                            if (item.Line == "line 1")
-                                            {
-                                                textHeaderColor = "text-primary";
-                                            }
-                                            else if (item.Line == "line 2")
-                                            {
-                                                textHeaderColor = "text-warning";
-                                            }
-                                            else
-                                            {
-                                                textHeaderColor = "text-light";
-                                            }
-                                        }
-                                        <h1 class="@textHeaderColor">@item.Operation @productName - (@item.Line)</h1>
-                                        @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
-                                        <div class="row">
-                                            <div id="checklistStatus-@charID" class="col-12">
-                                                <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🔴 PD - 🔴 MT - 🔴 QC Checked | 🔴 PD - 🔴 QC Confirmed </p>
+                            <div class="col-9">
+                                <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                            </div>
+                            <div class="col-3">
+                                <button type="submit" class="btn btn-primary">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-12 col-md-8">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card svn-card svn-small-card">
+                                <div class="card-title">
+                                    <h4>Machine</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 row">
+                                            <div class="col-3 bg-info border table-cell text-center">
+                                                All: @All
                                             </div>
-                                            @* <div id="pd_@charID" class="col-6 row">
-                                                        <div class="col-12 border table-cell text-center">
-                                                            <strong>Production result: @item.Operation</strong>
-                                                        </div>
-                                                        <div class="col-2">
-                                                            <div class="row">
-                                                                <div class="col-12 border table-cell text-center">
-                                                                    <strong>Time</strong>
-                                                                </div>
-                                                                <div class="col-12 border table-cell text-center">
-                                                                    <strong>Target</strong>
-                                                                </div>
-                                                                <div class="col-12 border table-cell text-center">
-                                                                    <strong>Line</strong>
-                                                                </div>
-                                                                <div class="col-12 border table-cell text-center">
-                                                                    <strong>Labor</strong>
-                                                                </div>
-                                                                <div class="col-12 border table-cell text-center">
-                                                                    <strong>Defect</strong>
-                                                                </div>
+                                            <div class="col-3 bg-success border table-cell text-center">
+                                                Run: @Run
+                                            </div>
+                                            <div class="col-3 bg-warning border table-cell text-center">
+                                                Fault: @Fault
+                                            </div>
+                                            <div class="col-3 bg-primary border table-cell text-center">
+                                                Adjust: @Adjust
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6 row">
+                                            <div class="col-3 bg-light text-dark border table-cell text-center">
+                                                Item: @Item
+                                            </div>
+                                            <div class="col-3 bg-secondary color-white border table-cell text-center">
+                                                Maint: @Maint
+                                            </div>
+                                            <div class="col-3 bg-danger border table-cell text-center">
+                                                Stop: @Stop
+                                            </div>
+                                            <div class="col-3 bg-dark border table-cell text-center">
+                                                Devel: @Devel
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="svn-machine-card">
+                                        <div class="row">
+                                            @{
+                                                string[] machineStates = { "All", "Run", "Fault", "Adjust", "Item", "Maint", "Stop", "Devel" };
+                                                string[] machineStateColor = { "btn-info", "btn-success", "btn-warning", "btn-primary", "btn-light", "btn-secondary", "btn-danger", "btn-dark" };
+                                            }
+                                            @if (equipments != null)
+                                            {
+                                                foreach (var item in equipments)
+                                                {
+                                                    int stateIndex = Array.IndexOf(machineStates, item.State);
+                                                    string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
+                                                    <div class="col-1 mt-2">
+                                                        <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="card svn-card svn-small-card">
+                                <div class="card-body">
+                                    <div class="image-container">
+                                        @if (!string.IsNullOrWhiteSpace(PDURL))
+                                        {
+                                            <img class="card-img-top SVN-card-img-top mt-1" src="@PDURL" alt="Card image cap">
+                                        }
+                                        else
+                                        {
+                                            <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
+                                        }
+                                    </div>
+                                    <h3>PD: @PDName</h3>
+                                </div>
+                            </div>
+
+                            @* <h3>(SVN0003)</h3> *@
+                        </div>
+                        <div class="col-6">
+                            <div class="card svn-card svn-small-card">
+                                <div class="card-body">
+                                    <div class="image-container">
+                                        @if (!string.IsNullOrWhiteSpace(QCURL))
+                                        {
+                                            <img class="card-img-top SVN-card-img-top mt-1" src="@QCURL" alt="Card image cap">
+                                        }
+                                        else
+                                        {
+                                            <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
+                                        }
+                                    </div>
+                                    <h3>QC: @QCName</h3>
+                                    @* <h3>(SVN0334)</h3> *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center d-none">
+                            <div class="card svn-card svn-small-card">
+                                <div class="card-title">
+                                    <h4>Daily Plan Achieve</h4>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="achieveChart" width="400" height="200"></canvas>
+                                    <h3 id="txtAchieve">@Achieve %</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center d-none">
+                            <div class="card svn-card svn-small-card">
+                                <div class="card-title">
+                                    <h4>Forecast</h4>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="forecastChart" width="400" height="200"></canvas>
+                                    <h3 id="txtForecast">@Forecast %</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 d-none">
+                    <div class="card svn-card">
+                        <div class="card-title">
+                            <h4>Defect</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="defectchart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 ">
+                    <div id="disableCard" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
+                    <div id="bigCard" class="card svn-card">
+                        <div class="card-title">
+                            <h4>@* Production result *@</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @* <div class="col-4">
+                                            <strong id="txtWORunning">WO running: @WORunning</strong>
+                                        </div>
+                                        <div class="col-4">
+                                            <strong id="txtProduct">Product: @Product</strong>
+                                        </div>
+                                        <div class="col-4">
+                                            <strong id="txtCustomer">Customer: @Customer</strong>
+                                        </div> *@
+                                @if (Model != null)
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        string currentTime = string.Empty;
+                                        foreach (var subitem in item.ViewModels)
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(subitem.Time))
+                                            {
+                                                var times = subitem.Time.Split('-');
+                                                DateTime today = DateTime.Today;
+
+                                                // Chuyển đổi thành định dạng HH:mm
+                                                string startTime = times[0].Replace("h", ":");
+                                                if (startTime.Last() == ':')
+                                                {
+                                                    startTime = startTime + "00";
+                                                }
+                                                if (startTime.Length == 4)
+                                                {
+                                                    startTime = "0" + startTime;
+                                                }
+
+                                                string endTime = times[1].Replace("h", ":");
+                                                if (endTime.Last() == ':')
+                                                {
+                                                    endTime = endTime + "00";
+                                                }
+                                                if (endTime.Length == 4)
+                                                {
+                                                    endTime = "0" + endTime;
+                                                }
+
+                                                // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                                {
+                                                    currentTime = subitem.Time;
+                                                }
+                                            }
+                                        }
+                                        string charID = "chartdiv" + item.Operation;
+                                        if (!string.IsNullOrWhiteSpace(item.WC))
+                                        {
+                                            charID = "chartdiv" + item.Operation + item.WC;
+                                            charID = charID.Replace("-", "");
+                                        }
+                                        string jsonData = string.Empty;
+                                        jsonData = JsonConvert.SerializeObject(item.ViewModels);
+                                        <style>
+                                            #@charID {
+                                                height: 494px;
+                                                width: 100%;
+                                            }
+                                        </style>
+                                        <div id="smallCard_@charID" class="col-lg-@item.ColWidth mt-2">
+                                            @if (item.WC != "FG")
+                                            {
+                                                <h1>
+                                                    @item.WC
+                                                </h1>
+                                            }
+                                            @{
+                                                string productName = string.Empty;
+                                                if (!string.IsNullOrWhiteSpace(item.Name))
+                                                {
+                                                    productName = "(" + item.Name + ")";
+                                                }
+
+                                                string textHeaderColor = string.Empty;
+                                                if (item.Line == "line 1")
+                                                {
+                                                    textHeaderColor = "text-primary";
+                                                }
+                                                else if (item.Line == "line 2")
+                                                {
+                                                    textHeaderColor = "text-warning";
+                                                }
+                                                else
+                                                {
+                                                    textHeaderColor = "text-light";
+                                                }
+                                            }
+                                            <h1 class="@textHeaderColor">@item.Operation @productName - (@item.Line)</h1>
+                                            @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
+                                            <div class="row">
+                                                <div id="checklistStatus-@charID" class="col-12">
+                                                    <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🔴 PD - 🔴 MT - 🔴 QC Checked | 🔴 PD - 🔴 QC Confirmed </p>
+                                                </div>
+                                                @* <div id="pd_@charID" class="col-6 row">
+                                                            <div class="col-12 border table-cell text-center">
+                                                                <strong>Production result: @item.Operation</strong>
                                                             </div>
-                                                        </div>
-                                                        @foreach (var subitem in item.ViewModels)
-                                                        {
                                                             <div class="col-2">
                                                                 <div class="row">
                                                                     <div class="col-12 border table-cell text-center">
-                                                                        @subitem.Time
+                                                                        <strong>Time</strong>
                                                                     </div>
                                                                     <div class="col-12 border table-cell text-center">
-                                                                        @Math.Round(subitem.Target, 2)
+                                                                        <strong>Target</strong>
                                                                     </div>
                                                                     <div class="col-12 border table-cell text-center">
-                                                                        @Math.Round(subitem.Line, 2)
+                                                                        <strong>Line</strong>
                                                                     </div>
                                                                     <div class="col-12 border table-cell text-center">
-                                                                        @Math.Round(subitem.ManQuantity, 2)
+                                                                        <strong>Labor</strong>
                                                                     </div>
                                                                     <div class="col-12 border table-cell text-center">
-                                                                        @Math.Round(subitem.NG, 2)
+                                                                        <strong>Defect</strong>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        }
-                                                    </div> *@
-                                            @if ((!string.IsNullOrWhiteSpace(item.WC) && item.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(item.Operation))
-                                            {
-                                                <div id="tg_@charID" class="col-12 row target-container" style="padding-left:20px; height:160px">
-                                                    @foreach (var subitem in item.TargetViewModels)
-                                                    {
-                                                        string textColor = string.Empty;
-                                                        string status = string.Empty;
-                                                        string alert = string.Empty;
-                                                        if (subitem.Item == "Defect")
+                                                            @foreach (var subitem in item.ViewModels)
+                                                            {
+                                                                <div class="col-2">
+                                                                    <div class="row">
+                                                                        <div class="col-12 border table-cell text-center">
+                                                                            @subitem.Time
+                                                                        </div>
+                                                                        <div class="col-12 border table-cell text-center">
+                                                                            @Math.Round(subitem.Target, 2)
+                                                                        </div>
+                                                                        <div class="col-12 border table-cell text-center">
+                                                                            @Math.Round(subitem.Line, 2)
+                                                                        </div>
+                                                                        <div class="col-12 border table-cell text-center">
+                                                                            @Math.Round(subitem.ManQuantity, 2)
+                                                                        </div>
+                                                                        <div class="col-12 border table-cell text-center">
+                                                                            @Math.Round(subitem.NG, 2)
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div> *@
+                                                @if ((!string.IsNullOrWhiteSpace(item.WC) && item.WC.Contains("FG")) || appConfig.ShowSingleChart.Contains(item.Operation))
+                                                {
+                                                    <div id="tg_@charID" class="col-12 row target-container" style="padding-left:20px; height:160px">
+                                                        @foreach (var subitem in item.TargetViewModels)
                                                         {
-                                                            if (subitem.Percent > 100)
+                                                            string textColor = string.Empty;
+                                                            string status = string.Empty;
+                                                            string alert = string.Empty;
+                                                            if (subitem.Item == "Defect")
                                                             {
+                                                                if (subitem.Percent > 100)
+                                                                {
 
-                                                                status = "bg-danger";
-                                                                if (item.IsProduction)
-                                                                {
-                                                                    alert = "blinking";
+                                                                    status = "bg-danger";
+                                                                    if (item.IsProduction)
+                                                                    {
+                                                                        alert = "blinking";
+                                                                    }
                                                                 }
-                                                            }
-                                                            else if (subitem.Percent > 75 && subitem.Percent <= 100)
-                                                            {
-                                                                status = "bg-warning";
-                                                            }
-                                                            else
-                                                            {
-                                                                status = "bg-primary";
-                                                            }
-                                                        }
-                                                        else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
-                                                        {
-                                                            if (!string.IsNullOrWhiteSpace(currentTime))
-                                                            {
-                                                                var times = currentTime.Split('-');
-                                                                DateTime today = DateTime.Today;
-
-                                                                // Chuyển đổi thành định dạng HH:mm
-                                                                string startTime = times[0].Replace("h", ":");
-                                                                if (startTime.Last() == ':')
+                                                                else if (subitem.Percent > 75 && subitem.Percent <= 100)
                                                                 {
-                                                                    startTime = startTime + "00";
+                                                                    status = "bg-warning";
                                                                 }
-                                                                if (startTime.Length == 4)
-                                                                {
-                                                                    startTime = "0" + startTime;
-                                                                }
-
-                                                                string endTime = times[1].Replace("h", ":");
-                                                                if (endTime.Last() == ':')
-                                                                {
-                                                                    endTime = endTime + "00";
-                                                                }
-                                                                if (endTime.Length == 4)
-                                                                {
-                                                                    endTime = "0" + endTime;
-                                                                }
-
-                                                                // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
-                                                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                                                if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                                                else
                                                                 {
                                                                     status = "bg-primary";
                                                                 }
-                                                                else
+                                                            }
+                                                            else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
+                                                            {
+                                                                if (!string.IsNullOrWhiteSpace(currentTime))
                                                                 {
-                                                                    if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                                                    var times = currentTime.Split('-');
+                                                                    DateTime today = DateTime.Today;
+
+                                                                    // Chuyển đổi thành định dạng HH:mm
+                                                                    string startTime = times[0].Replace("h", ":");
+                                                                    if (startTime.Last() == ':')
                                                                     {
-                                                                        status = "bg-danger";
-                                                                        if (item.IsProduction)
-                                                                        {
-                                                                            alert = "blinking";
-                                                                        }
+                                                                        startTime = startTime + "00";
                                                                     }
-                                                                    else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                                                    if (startTime.Length == 4)
                                                                     {
-                                                                        status = "bg-warning";
+                                                                        startTime = "0" + startTime;
                                                                     }
-                                                                    else
+
+                                                                    string endTime = times[1].Replace("h", ":");
+                                                                    if (endTime.Last() == ':')
+                                                                    {
+                                                                        endTime = endTime + "00";
+                                                                    }
+                                                                    if (endTime.Length == 4)
+                                                                    {
+                                                                        endTime = "0" + endTime;
+                                                                    }
+
+                                                                    // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                                                    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                                    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                                    if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
                                                                     {
                                                                         status = "bg-primary";
                                                                     }
+                                                                    else
+                                                                    {
+                                                                        if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                                                        {
+                                                                            status = "bg-danger";
+                                                                            if (item.IsProduction)
+                                                                            {
+                                                                                alert = "blinking";
+                                                                            }
+                                                                        }
+                                                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                                                        {
+                                                                            status = "bg-warning";
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            status = "bg-primary";
+                                                                        }
+                                                                    }
                                                                 }
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-
-                                                            if (subitem.Percent >= 0 && subitem.Percent <= 75)
-                                                            {
-                                                                status = "bg-danger";
-                                                                if (item.IsProduction)
-                                                                {
-                                                                    alert = "blinking";
-                                                                }
-                                                            }
-                                                            else if (subitem.Percent > 75 && subitem.Percent <= 92)
-                                                            {
-                                                                status = "bg-warning";
                                                             }
                                                             else
                                                             {
-                                                                status = "bg-primary";
-                                                            }
-                                                        }
 
-                                                        <div class="target-item bg-primary @alert">
-                                                            <div>
-                                                                @if (subitem.Item == "H.Plan")
+                                                                if (subitem.Percent >= 0 && subitem.Percent <= 75)
                                                                 {
-                                                                    <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
-
-                                                                    <br>
+                                                                    status = "bg-danger";
+                                                                    if (item.IsProduction)
+                                                                    {
+                                                                        alert = "blinking";
+                                                                    }
                                                                 }
-                                                                else if (subitem.Item == "UPH")
+                                                                else if (subitem.Percent > 75 && subitem.Percent <= 92)
                                                                 {
-                                                                    <strong class="f-s-26">⚙️ <span class="@textColor">@subitem.Item</span></strong>
-
-                                                                    <br>
-                                                                }
-                                                                else if (subitem.Item == "UPPH")
-                                                                {
-                                                                    <strong class="f-s-26">📈 <span class="@textColor">@subitem.Item</span></strong>
-
-                                                                    <br>
-                                                                }
-                                                                else if (subitem.Item == "Labor")
-                                                                {
-                                                                    <strong class="f-s-26">👷 <span class="@textColor">@subitem.Item</span></strong>
-
-                                                                    <br>
-                                                                }
-                                                                else if (subitem.Item == "Defect")
-                                                                {
-                                                                    <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
-
-                                                                    <br>
-                                                                }
-
-                                                                @if (subitem.Item == "Defect")
-                                                                {
-                                                                    <span>Tar: @Math.Round(subitem.Target, 2) %</span>
-                                                                    <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
-                                                                    <span>
-                                                                        <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
-                                                                    </span>
+                                                                    status = "bg-warning";
                                                                 }
                                                                 else
                                                                 {
-                                                                    <span>Tar: @Math.Round(subitem.Target, 2)</span>
-                                                                    <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
-                                                                    <span>
-                                                                        <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
-                                                                    </span>
+                                                                    status = "bg-primary";
                                                                 }
-                                                            </div>
-                                                        </div>
-                                                    }
+                                                            }
 
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div id="tg_@charID" class="col-12" style="padding-left:20px; height:160px">
-                                                    <div class="row">
-                                                        <div class="col-4 border table-cell text-center">
-                                                            <strong>WO Name</strong>
-                                                        </div>
-                                                        <div class="col-4 border table-cell text-center">
-                                                            <strong>State</strong>
-                                                        </div>
-                                                        <div class="col-4 border table-cell text-center">
-                                                            <strong>Product Qty</strong>
-                                                        </div>
-                                                        @foreach (var subitem in item.ProductionUIs)
-                                                        {
-                                                            <div class="col-4 border table-cell text-center">
-                                                                @subitem.name
-                                                            </div>
-                                                            <div class="col-4 border table-cell text-center">
-                                                                @subitem.state
-                                                            </div>
-                                                            <div class="col-4 border table-cell text-center">
-                                                                @subitem.product_uom_qty
+                                                            <div class="target-item bg-primary @alert">
+                                                                <div>
+                                                                    @if (subitem.Item == "H.Plan")
+                                                                    {
+                                                                        <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "UPH")
+                                                                    {
+                                                                        <strong class="f-s-26">⚙️ <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "UPPH")
+                                                                    {
+                                                                        <strong class="f-s-26">📈 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "Labor")
+                                                                    {
+                                                                        <strong class="f-s-26">👷 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "Defect")
+                                                                    {
+                                                                        <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+
+                                                                    @if (subitem.Item == "Defect")
+                                                                    {
+                                                                        <span>Tar: @Math.Round(subitem.Target, 2) %</span>
+                                                                        <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
+                                                                        <span>
+                                                                            <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                                                        </span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span>Tar: @Math.Round(subitem.Target, 2)</span>
+                                                                        <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
+                                                                        <span>
+                                                                            <strong class="f-s-26">Rate:</strong> <strong class="rate-box @status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                                                        </span>
+                                                                    }
+                                                                </div>
                                                             </div>
                                                         }
+
                                                     </div>
-                                                </div>
-                                            }
+                                                }
+                                                else
+                                                {
+                                                    <div id="tg_@charID" class="col-12" style="padding-left:20px; height:160px">
+                                                        <div class="row">
+                                                            <div class="col-4 border table-cell text-center">
+                                                                <strong>WO Name</strong>
+                                                            </div>
+                                                            <div class="col-4 border table-cell text-center">
+                                                                <strong>State</strong>
+                                                            </div>
+                                                            <div class="col-4 border table-cell text-center">
+                                                                <strong>Product Qty</strong>
+                                                            </div>
+                                                            @foreach (var subitem in item.ProductionUIs)
+                                                            {
+                                                                <div class="col-4 border table-cell text-center">
+                                                                    @subitem.name
+                                                                </div>
+                                                                <div class="col-4 border table-cell text-center">
+                                                                    @subitem.state
+                                                                </div>
+                                                                <div class="col-4 border table-cell text-center">
+                                                                    @subitem.product_uom_qty
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div id=@charID></div>
+                                            <script>
+
+                                                $(document).ready(function () {
+                                                    var dataParam = @Html.Raw(jsonData);
+                                                    BuildProductionChart(dataParam, @charID)
+
+                                                    charIDs.push({
+                                                        charID: "@charID",
+                                                        date: "@date.ToString("yyyyMMdd")",
+                                                        oper: "@item.Operation",
+                                                        wc: "@item.WC"
+                                                    })
+
+                                                    // setInterval(function () {
+                                                    //     var date = "@date.ToString("yyyyMMdd")";
+                                                    //     var oper = "@item.Operation";
+                                                    //     var wc = "@item.WC";
+                                                    //     /* chart.clear(); */ // Clear the existing chart
+                                                    //     $.ajax({
+                                                    //         url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
+                                                    //         type: 'POST',
+                                                    //         data: {
+                                                    //             date: date,
+                                                    //             oper: oper,
+                                                    //             wc: wc
+                                                    //         },
+                                                    //         success: function (response) {
+                                                    //             if (response.result) {
+                                                    //                 // Clear the content of the two divs first
+                                                    //                 $("#pd_@charID").empty();
+                                                    //                 $("#tg_@charID").empty();
+
+                                                    //                 // Populate the content after clearing
+                                                    //                 $("#pd_@charID").html(response.productionResultTable);
+                                                    //                 $("#tg_@charID").html(response.targetTable);
+
+                                                    //                 var pdData = JSON.parse(response.pdmodel);
+
+                                                    //                 BuildProductionChart(pdData, @charID)
+                                                    //                 BuildDefectChart(pdData, "defectchart")
+                                                    //             } else {
+                                                    //                 alert("Error: " + response.message);
+                                                    //             }
+                                                    //         },
+                                                    //         error: function (xhr, status, error) {
+                                                    //             console.error("AJAX Error: " + status + ", " + error);
+                                                    //         }
+                                                    //     });
+                                                    // }, 10000); // Repeat every 5 seconds
+                                                });
+                                            </script>
                                         </div>
-                                        <div id=@charID></div>
-                                        <script>
-
-                                            $(document).ready(function () {
-                                                var dataParam = @Html.Raw(jsonData);
-                                                BuildProductionChart(dataParam, @charID)
-
-                                                charIDs.push({
-                                                    charID: "@charID",
-                                                    date: "@date.ToString("yyyyMMdd")",
-                                                    oper: "@item.Operation",
-                                                    wc: "@item.WC"
-                                                })
-
-                                                // setInterval(function () {
-                                                //     var date = "@date.ToString("yyyyMMdd")";
-                                                //     var oper = "@item.Operation";
-                                                //     var wc = "@item.WC";
-                                                //     /* chart.clear(); */ // Clear the existing chart
-                                                //     $.ajax({
-                                                //         url: '/Home/GetDataByOperAndWC', // Replace ControllerName with your actual controller name
-                                                //         type: 'POST',
-                                                //         data: {
-                                                //             date: date,
-                                                //             oper: oper,
-                                                //             wc: wc
-                                                //         },
-                                                //         success: function (response) {
-                                                //             if (response.result) {
-                                                //                 // Clear the content of the two divs first
-                                                //                 $("#pd_@charID").empty();
-                                                //                 $("#tg_@charID").empty();
-
-                                                //                 // Populate the content after clearing
-                                                //                 $("#pd_@charID").html(response.productionResultTable);
-                                                //                 $("#tg_@charID").html(response.targetTable);
-
-                                                //                 var pdData = JSON.parse(response.pdmodel);
-
-                                                //                 BuildProductionChart(pdData, @charID)
-                                                //                 BuildDefectChart(pdData, "defectchart")
-                                                //             } else {
-                                                //                 alert("Error: " + response.message);
-                                                //             }
-                                                //         },
-                                                //         error: function (xhr, status, error) {
-                                                //             console.error("AJAX Error: " + status + ", " + error);
-                                                //         }
-                                                //     });
-                                                // }, 10000); // Repeat every 5 seconds
-                                            });
-                                        </script>
-                                    </div>
+                                    }
                                 }
-                            }
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="inSetupStatus">
+                <p>@setupNote</p>
+            </div>
+        </div>
+    }
 </div>
 <style>
     #defectchart {
         height: 375px;
         width: 100%;
+    }
+
+    .inSetupStatus{
+        height: 60vh;
+        text-align: center;
+        font-size: 70px;
+        position: relative;
+        top: 35%;
     }
 </style>
 <script>

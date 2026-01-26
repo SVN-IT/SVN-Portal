@@ -570,7 +570,24 @@ namespace SVN_Portal.Controllers
         /// <returns></returns>
         public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline)
         {
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            ViewBag.date = date;
+            ViewBag.oper = operline;
+            //Check xem truyền có đang setup hay không
+            var operSetupInProcess = appSettingDataPortal.GetOperationSetupInProcess().Result.Split(",").FirstOrDefault(x => x == operline);
+            var setupNote = await appSettingDataPortal.GetOperationInSetupStatus();
+            if (!string.IsNullOrWhiteSpace(operSetupInProcess))
+            {
+                ViewBag.IsInSetup = true;
+                ViewBag.SetupNote = setupNote;
+                return View(models);
+            }
+            else
+            {
+                ViewBag.IsInSetup = false;
+            }
+
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -583,8 +600,7 @@ namespace SVN_Portal.Controllers
                 var operLineList = operline.Split("-").ToList();
                 var oper = operLineList[0];
                 var line = operLineList.Count > 1 ? operLineList[1] : "";
-                ViewBag.date = date;
-                ViewBag.oper = operline;
+                
                 strdate = date.ToString("yyyyMMdd");
 
                 List<OperInfo> opers = new List<OperInfo>();

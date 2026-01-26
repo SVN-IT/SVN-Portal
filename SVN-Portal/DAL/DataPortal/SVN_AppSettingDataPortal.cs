@@ -172,5 +172,41 @@ namespace SVN_Portal.DAL.DataPortal
                 return string.Empty;
             }
         }
+
+        public async Task<string> GetOperationSetupInProcess()
+        {
+            string strValue = string.Empty;
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("OperationSetupInProcess");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    strValue = appSetting.Value;
+                }
+                return strValue;
+            }
+            catch
+            {
+                return strValue;
+            }
+        }
+
+        public async Task<string> GetOperationInSetupStatus()
+        {
+            string strValue = string.Empty;
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("OperationInSetupStatus");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    strValue = appSetting.Value;
+                }
+                return strValue;
+            }
+            catch
+            {
+                return strValue;
+            }
+        }
     }
 }
