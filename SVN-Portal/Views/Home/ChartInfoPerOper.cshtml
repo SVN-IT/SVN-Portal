@@ -833,7 +833,14 @@
     {
         <div class="col-12">
             <div class="inSetupStatus">
-                <p>@setupNote</p>
+                <div class="setup-track">
+                    <span>
+                        @setupNote
+                    </span>
+                    <span>
+                        @setupNote
+                    </span>
+                </div>
             </div>
         </div>
     }
@@ -847,9 +854,33 @@
     .inSetupStatus{
         height: 60vh;
         text-align: center;
-        font-size: 70px;
+        font-size: 75px;
         position: relative;
         top: 35%;
+    }
+
+    .setup-track {
+        display: flex;
+        width: max-content;
+        animation: marquee 12s linear infinite;
+    }
+
+        .setup-track span {
+            white-space: nowrap;
+            font-size: 48px;
+            color: #9fb0ba;
+            padding-right: 40px; /* khoảng cách giữa 2 câu */
+        }
+
+    @@keyframes marquee {
+        from
+        {
+            transform: translateX(0);
+        }
+        to 
+        {
+            transform: translateX(-50%);
+        }
     }
 </style>
 <script>
