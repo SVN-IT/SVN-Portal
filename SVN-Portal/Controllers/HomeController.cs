@@ -135,6 +135,8 @@ namespace SVN_Portal.Controllers
 
                     models = models
                     .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
                     .ThenBy(x => x.Line)
                     .ThenBy(x => x.ViewModels
                         .Where(i => i.Target != 0)
@@ -159,6 +161,88 @@ namespace SVN_Portal.Controllers
                     string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
                     ViewBag.ComparePeople = comparePeople;
                 }
+
+                return View(models);
+            }
+            catch (Exception ex)
+            {
+                QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+                var data1 = model.GetData("POP");
+                var data2 = model.GetData("eKIT");
+                var data3 = model.GetData("Solar");
+                var data4 = model.GetData("Injection");
+                models = new List<QtyProdResultByOperViewModel> { data1, data2, data3, data4 };
+                return View(models);
+
+            }
+        }
+
+        /// <summary>
+        /// dashboard thêm phần chia biểu đồ ra các slide
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> ProductionResultV1(DateTime date)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                if (models != null && models.Count > 0)
+                {
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.Line)
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
+                }
+
+                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
+                var compareUI = await compareDataPortal.ReadList(strdate);
+
+                if (compareUI != null && compareUI.Count > 0)
+                {
+
+                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
+                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    int arrangeQty = ArrangingNumber(models);
+
+                    decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
+
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    ViewBag.ComparePeople = comparePeople;
+                }
+
+                //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
 
                 return View(models);
             }
