@@ -1,6 +1,7 @@
 ﻿using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
 using Serilog;
+using SVN_Portal.DAL.DataPortal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,13 @@ OperInfoConfig operInfoConfig = builder.Configuration.GetSection("OperInfoConfig
 APIConfiguration aPIConfiguration = builder.Configuration.GetSection("APIConfiguration").Get<APIConfiguration>();
 TOASTLabelConfiguration labelConfiguration = builder.Configuration.GetSection("TOASTLabelConfiguration").Get<TOASTLabelConfiguration>();
 dBConfiguration.ProductMode = appConfig.ProductMode;
+
+var appSettingDataPortal = new SVN_AppSettingDataPortal(dBConfiguration.GetConnectionString());
+string masterOperList = await appSettingDataPortal.GetMasterOperList();
+if(!string.IsNullOrWhiteSpace(masterOperList))
+{
+    appConfig.MasterOperList = masterOperList;
+}
 
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(dBConfiguration);
