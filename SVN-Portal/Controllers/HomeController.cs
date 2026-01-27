@@ -664,6 +664,10 @@ namespace SVN_Portal.Controllers
         {
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            if (date == DateTime.MinValue)
+            {
+                date = DateTime.Now;
+            }
             ViewBag.date = date;
             ViewBag.oper = operline;
             //Check xem truyền có đang setup hay không
@@ -687,10 +691,7 @@ namespace SVN_Portal.Controllers
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
-                if (date == DateTime.MinValue)
-                {
-                    date = DateTime.Now;
-                }
+                
                 var operLineList = operline.Split("-").ToList();
                 var oper = operLineList[0];
                 var line = operLineList.Count > 1 ? operLineList[1] : "";
