@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterServices", "PrinterS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomationService", "AutomationService\AutomationService.csproj", "{3DB5E051-C1C2-4110-95FA-EBEE317B4291}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SVN-Authentication-Portal", "SVN-Authentication-Portal\SVN-Authentication-Portal.csproj", "{C4719BF7-0AEE-4B15-8EAE-219453B243C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{3DB5E051-C1C2-4110-95FA-EBEE317B4291}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DB5E051-C1C2-4110-95FA-EBEE317B4291}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DB5E051-C1C2-4110-95FA-EBEE317B4291}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4719BF7-0AEE-4B15-8EAE-219453B243C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4719BF7-0AEE-4B15-8EAE-219453B243C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4719BF7-0AEE-4B15-8EAE-219453B243C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4719BF7-0AEE-4B15-8EAE-219453B243C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
