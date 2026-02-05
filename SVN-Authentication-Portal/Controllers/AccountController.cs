@@ -86,9 +86,6 @@ namespace SVN_Authentication_Portal.Controllers
 
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
         public IActionResult LoginWithMicrosoft(LoginViewModel model, string? ReturnUrl = null)
         {
 
