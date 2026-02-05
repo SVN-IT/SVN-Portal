@@ -42,6 +42,7 @@
         public string MarkDeleteAppUserURL { get; set; }
         public string AdminChangePassURL { get; set; }
         public string LoginURL { get; set; }
+        public string LoginByEmailURL { get; set; }
         public string ReNewTokenURL { get; set; }
     }
 }

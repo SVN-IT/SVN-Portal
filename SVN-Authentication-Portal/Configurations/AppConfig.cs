@@ -4,5 +4,6 @@
     {
         public int AppID { get; set; }
         public int CompanyID { get; set; }
+        public string ProductMode { get; set; }
     }
 }

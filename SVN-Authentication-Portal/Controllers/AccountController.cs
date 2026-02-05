@@ -35,6 +35,10 @@ namespace SVN_Authentication_Portal.Controllers
                             ?? User.FindFirst(ClaimTypes.Email)?.Value;
 
                 // TODO: xử lý login nội bộ ở đây
+                LoginViewModel viewModel = new LoginViewModel();
+                viewModel.UserName = email ?? "";
+                viewModel.Pwd = "";
+                var userInfo = await accountService.LoginByEmail(viewModel);
             }
 
             if (signInManager.IsSignedIn())

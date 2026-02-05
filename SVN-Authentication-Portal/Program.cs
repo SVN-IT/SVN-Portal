@@ -14,6 +14,8 @@ builder.Services
 .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 
+authenticationAPIConfig.ProductMode = appConfig.ProductMode;
+
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(authenticationAPIConfig);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

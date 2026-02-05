@@ -108,6 +108,77 @@ namespace SVN_Authentication_Portal.Services
             return isLogin;
         }
 
+        public async Task<SVNUserInfo> LoginByEmail(LoginViewModel viewModel)
+        {
+            bool isLogin = false;
+            LoginModel model = new LoginModel()
+            {
+                AppID = _appConfig.AppID,
+                CompanyID = _appConfig.CompanyID,
+                KeepLogined = viewModel.KeepLogined,
+                Password = viewModel.Pwd,
+                UserName = viewModel.UserName,
+                UserType = "UserID",
+
+            };
+            try
+            {
+                HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(_serviceConfig.GetBaseAPIURL(), 1000);
+                string strAcessURL = _serviceConfig.LoginByEmailURL;
+                LoginInfo loginInfo = null;
+                //===>call api===>
+
+
+                string json = JsonConvert.SerializeObject(model);
+                var response = await httpClientHelper.PostRequest(strAcessURL, model, new CancellationToken(false));
+                if (response != null)
+                {
+                    isLogin = response.Content != null && response.OK;
+                    //==> IsLogin=true Client Login process====>
+
+                    loginInfo = JsonConvert.DeserializeObject<LoginInfo>(response.Content.ToString()); //(LoginInfo)processResult.Content;
+
+                    //===>save cookier JwtData
+                    SVNUserInfo userInfo = new SVNUserInfo();
+                    userInfo.LoginInfo = loginInfo;
+
+
+                    return userInfo;
+                    //===>
+                }
+                else
+                {
+                    return null;
+                }
+                //===end call api=========>
+
+                if (!isLogin)
+                {
+                    return null;
+                }
+
+                ////==> IsLogin=true Client Login process====>
+
+                //loginInfo = JsonConvert.DeserializeObject<LoginInfo>(response.Content.ToString()); //(LoginInfo)processResult.Content;
+
+                ////===>save cookier JwtData
+                //SVNUserInfo userInfo = new SVNUserInfo();
+                //userInfo.LoginInfo = loginInfo;
+                //await _msasignInManager.SignInAsync(userInfo);
+
+
+                //return isLogin;
+                ////===>
+
+            }
+            catch (Exception ex)
+            {
+                string err = ex.Message;
+            }
+            //===> end login process
+            return null;
+        }
+
         /// <summary>
         /// renew token base on exist token
         /// neu renew thanh cong thi tra ve new token
