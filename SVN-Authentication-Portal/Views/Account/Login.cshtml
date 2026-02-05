@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "SigmaWorldwide Login Portal";
+    Layout = null;
+}
+@model LoginViewModel
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/Assets/Images/Icons/sigmaLogo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Welcome to SigmaWorldwide</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Custom fonts for this template-->
+    <!-- Custom styles for this template-->
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+
+<body class="">
+
+    <div class="container">
+        <!--Success Dialog Start-->
+        <div id="myModalSuccess" class="modal fade text-width:30%;" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h2>Information</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div id="MyModalSuccessAlertBody" class="modal-body alert alert-success">
+                        this is a modal body. our message will appear here.
+                    </div>
+
+                    <div class="modal-footer">
+                        &nbsp;
+                        <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!--Success Dialog End-->
+        <!--Error Dialog Start-->
+        <div id="myModalError" class="modal fade text-width:30%;" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h2>Error</h2>
+                        @*<button type="button" class="btn-close" data-bs-dismiss="modal"></button>*@
+                    </div>
+
+                    <div id="MyModalErrorAlertBody" class="modal-body alert alert-danger">
+                        this is a modal body. our message will appear here.
+                    </div>
+
+                    <div class="modal-footer">
+                        &nbsp;
+                        <button type="button" class="btn btn-info" data-bs-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!--Error Dialog End-->
+        <!-- Outer Row -->
+        <div class="row justify-content-center">
+
+            <div class="col-xl-10 col-lg-12 col-md-9">
+
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <!-- Nested Row within Card Body -->
+                        <div class="row">
+                            <div class="col-12 col-md-12 col-lg-6 d-none bg-white d-lg-flex ">
+                                <div class="col-12" style="padding:100px">
+                                    <img style="padding-top:20%" src="~/assets/images/icons/sigmalogo.png" class="img-fluid" alt="Sigma Logo" />
+                                </div>
+
+                            </div>
+                            <div class="col-12 col-md-12 col-lg-6 bg-dark">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-white mb-4">@ViewData["Title"]</h1>
+                                    </div>
+                                    <form class="user" method="post">
+                                        <div class="form-group mb-2">
+                                            <input asp-for="UserName" class="form-control form-control-user"
+                                                   aria-describedby="emailHelp"
+                                                   placeholder="Enter user name">
+                                            <span asp-validation-for="UserName" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <input asp-for="Pwd" type="password" class="form-control form-control-user"
+                                                   placeholder="Password">
+                                            <span asp-validation-for="Pwd" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group mb-2 text-center">
+                                            <p>
+                                                <button style="width:80%" asp-controller="Account" asp-action="Login" class="btn btn-sigma-pink text-white" type="submit">
+                                                    <span>Sign in with Sigma account</span>
+                                                </button>
+                                            </p>
+                                            <p>
+                                                <button style="width:80%" class="btn btn-light" asp-controller="Account" asp-action="LoginWithMicrosoft" type="submit">
+                                                    <img style="width:22px" src="https://www.svgrepo.com/show/452062/microsoft.svg">
+                                                    <span>Sign in with Microsoft</span>
+                                                </button>
+                                            </p>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+
+</html>
