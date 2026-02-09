@@ -1,5 +1,6 @@
 ﻿@using Newtonsoft.Json
 @using SVNShareLib.DTO
+@using SVN_Portal.DAL.DTO
 @using System.Globalization
 @model IEnumerable<QtyProdResultByOperViewModel>
 @{
@@ -87,6 +88,8 @@
     {
         inSetupFontSize = "75px";
     }
+
+    List<SVN_InputItemsStatusUI> inputItemsStatusUIs = ViewBag.InputItemsStatus;
 }
 <script>
     function BuildProductionChart(dataParam, chartID){
@@ -295,7 +298,7 @@
         </div>
         <div class="col-lg-12">
             <div class="row">
-                <div class="col-12 col-md-8">
+                <div class="col-12 col-md-4">
                     <div class="row">
                         <div class="col-12">
                             <div class="card svn-card svn-small-card">
@@ -345,7 +348,7 @@
                                                 {
                                                     int stateIndex = Array.IndexOf(machineStates, item.State);
                                                     string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
-                                                    <div class="col-1 mt-2">
+                                                    <div class="col-2 col-md-2 mt-2">
                                                         <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
                                                     </div>
                                                 }
@@ -420,6 +423,57 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12 col-md-4">
+                    <div class="card svn-card svn-small-card">
+                        <div class="card-title">
+                            <h4>Input items status</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive fs-table">
+                                <table class="table table-bordered table-hover table-sm align-middle">
+                                    <thead class="text-center">
+                                        <tr>
+                                            <th style="padding:0px!important">Line</th>
+                                            <th style="padding:0px!important" class="text-end">Section</th>
+                                            <th style="padding:0px!important" class="text-end">Input Item</th>
+                                            <th style="padding:0px!important">FAI Status</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @if (inputItemsStatusUIs != null)
+                                        {
+                                            foreach (var item in inputItemsStatusUIs)
+                                            {
+                                                <tr>
+                                                    <td style="padding:0px!important">@item.Line</td>
+                                                    <td style="padding:0px!important" class="text-end">@item.Section</td>
+                                                    <td style="padding:0px!important" class="text-end">@item.ItemInput</td>
+                                                    <td style="padding:0px!important">
+                                                        @if (!string.IsNullOrWhiteSpace(item.FAIStatus) && item.FAIStatus.ToLower() == "done")
+                                                        {
+                                                            <span class="text-success">✔️ Done</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-danger">❌ Not yet</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="text-center">No data available</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-12 d-none">
                     <div class="card svn-card">
                         <div class="card-title">
@@ -430,7 +484,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 ">
+                <div class="col-12">
                     <div id="disableCard" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
                     <div id="bigCard" class="card svn-card">
                         <div class="card-title">

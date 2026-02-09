@@ -73,8 +73,13 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                <tr>
-                                    <th scope="row">@item.OperationActive</th>
+                                string rowClass = "";
+                                if (item.OperationActive == "Total Quatity")
+                                {
+                                    rowClass = "font-weight: 800;";
+                                }
+                                <tr style="@rowClass">
+                                    <td>@item.OperationActive</td>
                                     <td>@item.DailyPlanTarget</td>
                                     <td>@item.DailyPlanCurrent</td>
                                     <td>@item.DailyPlanAchieve</td>

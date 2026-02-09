@@ -663,7 +663,10 @@ namespace SVN_Portal.Controllers
         public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline)
         {
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var inputItemsDataPortal = new SVN_InputItemsStatusDataPortal(connectionString);
+
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<SVN_InputItemsStatusUI> inputItemsStatusUIs = new List<SVN_InputItemsStatusUI>();
             if (date == DateTime.MinValue)
             {
                 date = DateTime.Now;
@@ -717,6 +720,8 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                inputItemsStatusUIs = await inputItemsDataPortal.ReadList(strdate, operline);
+                ViewBag.InputItemsStatus = inputItemsStatusUIs;
 
                 //Lọc dữ liệu lấy dc theo line
                 if (!string.IsNullOrWhiteSpace(line))
@@ -2394,6 +2399,30 @@ namespace SVN_Portal.Controllers
                                             : string.Empty;
                         viewModels.Add(viewModel);
                     }
+
+                    //Tính tổng Sản lượng Target và Curent
+                    var sumTotalPlan = viewModels.Sum(x =>
+                    {
+                        return double.TryParse(x.DailyPlanTarget, out var value)
+                            ? value
+                            : 0;
+                    });
+
+                    var sumTotalCurrent = viewModels.Sum(x =>
+                    {
+                        return double.TryParse(x.DailyPlanCurrent, out var value)
+                            ? value
+                            : 0;
+                    });
+
+                    var sumPlanAchieve = sumTotalPlan == 0 ? 0 : (sumTotalCurrent / sumTotalPlan) * 100;
+
+                    PDResultDailyViewModel sumViewModel = new PDResultDailyViewModel();
+                    sumViewModel.OperationActive = "Total Quatity";
+                    sumViewModel.DailyPlanTarget = Math.Round(sumTotalPlan, appConfig.Rounding).ToString();
+                    sumViewModel.DailyPlanCurrent = Math.Round(sumTotalCurrent, appConfig.Rounding).ToString();
+                    sumViewModel.DailyPlanAchieve = Math.Round(sumPlanAchieve, appConfig.Rounding).ToString() + "%";
+                    viewModels.Add(sumViewModel);
 
                     return viewModels;
                 }
