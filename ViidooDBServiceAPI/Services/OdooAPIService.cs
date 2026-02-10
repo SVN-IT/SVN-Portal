@@ -3022,7 +3022,7 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
-        public async Task<Dictionary<string, object>> WriteProductTemplate(int codeID, string ItemCode, string DisplayName, int id, int uid, string sessionId)
+        public async Task<bool> WriteProductTemplate(int codeID, string ItemCode, string DisplayName, int uid, string sessionId)
         {
             using (var client = new HttpClient())
             {
@@ -3069,11 +3069,21 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/create", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
-                if (json["error"] != null)
+                //if (json["error"] != null)
+                //{
+                //    throw new Exception(json["error"]["message"].ToString());
+                //}
+                //return json.ToObject<Dictionary<string, object>>();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                try
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    bool isUpdate = obj.result;
+                    return isUpdate;
                 }
-                return json.ToObject<Dictionary<string, object>>();
+                catch
+                {
+                    return false;
+                }
             }
         }
         #endregion

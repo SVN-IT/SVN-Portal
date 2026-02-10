@@ -1291,9 +1291,18 @@ namespace ViidooDBServiceAPI.Controllers
                     var result = await odooAPIService.SearchProductTemplate(dataRequest.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
                     if (result != 0)
                     {
-                        bODataProcessResult.OK = true;
-                        bODataProcessResult.Message = "Lấy thông tin sản phẩm thành công";
-                        bODataProcessResult.Content = result;
+                        var updateResult = await odooAPIService.WriteProductTemplate(result, dataRequest.ItemCode, dataRequest.ItemName, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        if(updateResult)
+                        {
+                            bODataProcessResult.OK = true;
+                            bODataProcessResult.Message = "Cập nhật item thành công";
+                            bODataProcessResult.Content = result;
+                        }
+                        else
+                        {
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = "Cập nhật item thất bại";
+                        }
                     }
                     else
                     {
