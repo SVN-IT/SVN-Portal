@@ -1343,9 +1343,7 @@ namespace ViidooDBServiceAPI.Controllers
                     try
                     {
                         int productItemID = productResult.result[0].id;
-                        int product_tmpl_id = productResult.result[0].product_tmpl_id[0];
                         dataRequest.ProductID = productItemID;
-                        dataRequest.ProductTmplID = product_tmpl_id;
                     }
                     catch
                     {
@@ -1374,9 +1372,7 @@ namespace ViidooDBServiceAPI.Controllers
                             try
                             {
                                 int productItemID = productSubItemResult.result[0].id;
-                                int product_tmpl_id = productResult.result[0].product_tmpl_id[0];
                                 item.ProductID = productItemID;
-                                item.ProductTmplID = product_tmpl_id;
                             }
                             catch
                             {
