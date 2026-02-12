@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using SVNShareLib.Request;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -2782,7 +2783,9 @@ namespace ViidooDBServiceAPI.Services
                 return json.ToObject<Dictionary<string, object>>();
             }
         }
+        #endregion
 
+        #region BOM và sản phẩm
         /// <summary>
         /// Hàm API để tạo mới sản phẩm trong Odoo.
         /// </summary>
@@ -2915,7 +2918,7 @@ namespace ViidooDBServiceAPI.Services
                 {
                     return 0;
                 }
-                
+
             }
         }
 
@@ -3018,10 +3021,19 @@ namespace ViidooDBServiceAPI.Services
                 {
                     return 0;
                 }
-                
+
             }
         }
 
+        /// <summary>
+        /// Hàm API để cập nhật sản phẩm trong Odoo.
+        /// </summary>
+        /// <param name="codeID"></param>
+        /// <param name="ItemCode"></param>
+        /// <param name="DisplayName"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
         public async Task<bool> WriteProductTemplate(int codeID, string ItemCode, string DisplayName, int uid, string sessionId)
         {
             using (var client = new HttpClient())
@@ -3084,6 +3096,195 @@ namespace ViidooDBServiceAPI.Services
                 {
                     return false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Tìm kiếm BOM theo Product Template ID
+        /// </summary>
+        /// <param name="product_template_id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<dynamic> SearchBOMByProductTemplateID(int product_template_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 170,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.bom",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                "|",
+                                new object[] { "product_tmpl_id", "=", product_template_id },
+                                new object[] { "byproduct_ids.product_id.product_tmpl_id", "=", product_template_id }
+                            },
+                            fields = new string[]
+                            {
+                                "active", "sequence", "product_tmpl_id", "code", "type",
+                                "product_id", "company_id", "product_qty", "product_uom_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> InsertBOM(BOMDataRequest bOMData, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                var bomLineIds = bOMData.Items
+                    .Select(x => new object[]
+                    {
+                        0,
+                        0,
+                        new
+                        {
+                            sequence = 1,
+                            product_id = x.ProductID,
+                            product_qty = x.Quantity,
+                            product_uom_id = 27,
+                            bom_product_template_attribute_value_ids = new object[]
+                            {
+                                new object[] { 6, 0, new int[] { } }
+                            },
+                            operation_id = false,
+                            manual_consumption = false,
+                            cost_share = 0
+                        }
+                    })
+                    .ToArray();
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 200,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.bom",
+                        method = "create",
+                        args = new object[]
+                        {
+                            new
+                            {
+                                active = true,
+                                company_id = 1,
+                                product_tmpl_id = bOMData.ProductTempID,
+                                allow_operation_dependencies = false,
+                                product_id = false,
+                                product_qty = bOMData.Quantity,
+                                product_uom_id = 27,
+                                code = false,
+                                type = "normal",
+                                bom_line_ids = bomLineIds,
+                                operation_ids = new object[] { },
+                                ready_to_produce = "all_available",
+                                consumption = "warning",
+                                picking_type_id = false
+                            }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> SearhProductItem(string itemCode, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 180,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.product",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "default_code", "=", itemCode }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "name", "default_code", "product_tmpl_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.product/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
             }
         }
         #endregion

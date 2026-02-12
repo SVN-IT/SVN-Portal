@@ -1280,7 +1280,7 @@ namespace ViidooDBServiceAPI.Controllers
         /// <returns></returns>
         [Route("InsertProductItem")]
         [HttpPost]
-        public async Task<BODataProcessResult> InsertProductItem(ItemDataRequest dataRequest)
+        public async Task<BODataProcessResult> InsertWriteProductItem(ItemDataRequest dataRequest)
         {
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             try
@@ -1292,7 +1292,7 @@ namespace ViidooDBServiceAPI.Controllers
                     if (result != 0)
                     {
                         var updateResult = await odooAPIService.WriteProductTemplate(result, dataRequest.ItemCode, dataRequest.ItemName, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                        if(updateResult)
+                        if (updateResult)
                         {
                             bODataProcessResult.OK = true;
                             bODataProcessResult.Message = "Cập nhật item thành công";
@@ -1307,7 +1307,7 @@ namespace ViidooDBServiceAPI.Controllers
                     else
                     {
                         var createResult = await odooAPIService.CreateProductTemplate(dataRequest.ItemCode, dataRequest.ItemName, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                        if (createResult != 0) 
+                        if (createResult != 0)
                         {
                             bODataProcessResult.OK = true;
                             bODataProcessResult.Message = "Tạo item thành công";
@@ -1318,6 +1318,86 @@ namespace ViidooDBServiceAPI.Controllers
                             bODataProcessResult.OK = false;
                             bODataProcessResult.Message = "Tạo item thất bại";
                         }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+            }
+            return bODataProcessResult;
+        }
+
+        [Route("InsertBOM")]
+        [HttpPost]
+        public async Task<BODataProcessResult> InsertBOM(BOMDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                bODataProcessResult = await odooAPIService.LoginAsync();
+                if (bODataProcessResult.OK)
+                {
+                    var productResult = await odooAPIService.SearhProductItem(dataRequest.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    try
+                    {
+                        int productItemID = productResult.result[0].id;
+                        int product_tmpl_id = productResult.result[0].product_tmpl_id[0];
+                        dataRequest.ProductID = productItemID;
+                        dataRequest.ProductTmplID = product_tmpl_id;
+                    }
+                    catch
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                        return bODataProcessResult;
+                    }
+
+                    try
+                    {
+                        int productTempItemID = productResult.result[0].product_tmpl_id[0];
+                        dataRequest.ProductTempID = productTempItemID;
+                    }
+                    catch
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                        return bODataProcessResult;
+                    }
+
+                    if (dataRequest.Items != null && dataRequest.Items.Count > 0)
+                    {
+                        foreach(var item in dataRequest.Items)
+                        {
+                            var productSubItemResult = await odooAPIService.SearhProductItem(item.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                            try
+                            {
+                                int productItemID = productSubItemResult.result[0].id;
+                                int product_tmpl_id = productResult.result[0].product_tmpl_id[0];
+                                item.ProductID = productItemID;
+                                item.ProductTmplID = product_tmpl_id;
+                            }
+                            catch
+                            {
+                                bODataProcessResult.OK = false;
+                                bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                                return bODataProcessResult;
+                            }
+                        }
+                    }
+
+                    var result = await odooAPIService.InsertBOM(dataRequest, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (result != 0)
+                    {
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = "Tạo BOM thành công";
+                        bODataProcessResult.Content = result;
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Tạo BOM thất bại";
                     }
                 }
             }
