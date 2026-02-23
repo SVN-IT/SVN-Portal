@@ -114,14 +114,19 @@ namespace SVN_Portal.Controllers
                 // Tính DL
                 decimal dl = group
                     .Where(x => x.Account2 == "500102 Production Cost : Direct Labor")
-                    .Sum(x => x.Amount_Foreign_Currency);
+                    .Sum(x => Math.Abs(x.Amount_Foreign_Currency));
 
-                decimal total = mat + dl;
+                decimal oh = group
+                    .Where(x => x.Account2 == "500103 Production Cost : Overhead")
+                    .Sum(x => Math.Abs(x.Amount_Foreign_Currency));
+
+                decimal total = mat + dl + oh;
 
                 foreach (var item in group)
                 {
                     item.Mat = mat;
                     item.DL = dl;
+                    item.OH = oh;
                     item.Total = total;
                     item.UnitPrice = item.Quantity != 0 ? total / item.Quantity : 0;
 
