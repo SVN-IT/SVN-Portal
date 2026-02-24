@@ -26,9 +26,10 @@ namespace SVNShareLib.DTO
         public string? Account2 { get; set; }
         public string? Memo { get; set; }
         public string? Subsidiary { get; set; }
-        public string? FGitem { get; set; }
+        public string FGitem { get; set; }
         public decimal Quantity { get; set; }
         public string? Location { get; set; }
+        public int item_type { get; set; }
 
         //Các trường cần phải tính toán
         public decimal Mat { get; set; }

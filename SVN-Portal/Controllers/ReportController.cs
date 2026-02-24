@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Vml;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib.DAL;
@@ -36,26 +37,78 @@ namespace SVN_Portal.Controllers
 
             if (workOrderModels != null && workOrderModels.Count > 0) 
             {
-                //var grouped = workOrderModels.GroupBy(x => x.WO_FGID);
-
-
-                //foreach (var group in grouped)
-                //{
-                //    decimal mat = 0;
-                //    var list = group.ToList();
-                //    var matFormularUI = sVN_SavedSearch_FormulaUIs.FirstOrDefault(x => x.Field == "Mat");
-                //    if (matFormularUI != null)
-                //    {
-                //        mat = ExecuteSumFormula(matFormularUI.Formula, matFormularUI.Regex, list);
-                //    }
-
-                //    foreach (var item in list)
-                //    {
-                //        item.Mat = mat;
-
-                //    }
-                //}
                 var list = CalculateCost(workOrderModels);
+
+                //Tính toán lại các trường cho FG theo WIP
+                //Lọc dữ liệu của Vietnam thôi
+                if (list != null && list.Count > 0) 
+                {
+                    list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
+                    // Group toàn bộ dữ liệu theo WO
+                    var woGroups = list
+                        .GroupBy(x => x.WO_FGID)
+                        .ToDictionary(g => g.Key, g => g.ToList());
+
+                    // Map FGItem -> WO
+                    var fgItemToWO = list
+                        .GroupBy(x => x.FGitem)
+                        .ToDictionary(g => g.Key, g => g.First().WO_FGID);
+
+                    foreach (var parentWO in woGroups)
+                    {
+                        var parentWoId = parentWO.Key;
+                        var parentRows = parentWO.Value;
+
+                        // Mat hiện tại của WO cha
+                        var parentMat = parentRows
+                                    .FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")
+                                    ?.Mat ?? 0;
+
+                        var parentDL = parentRows
+                                    .FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")
+                                    ?.DL ?? 0;
+
+                        decimal childMat = 0;
+                        decimal childDL = 0;
+                        decimal childOH = 0;
+
+                        // Tìm WO con dựa vào Material_Name
+                        foreach (var row in parentRows)
+                        {
+                            if (row.FGitem != row.Material_Name)
+                            {
+                                if (fgItemToWO.ContainsKey(row.Material_Name))
+                                {
+                                    var childWoId = fgItemToWO[row.Material_Name];
+
+                                    if (woGroups.ContainsKey(childWoId))
+                                    {
+                                        childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
+                                        childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
+                                        childOH += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.OH ?? 0;
+                                    }
+                                }
+                            }
+                        }
+
+                        var newMat = parentMat - childDL - childOH;
+                        var newDL = parentDL + childDL;
+
+                        // Cập nhật toàn bộ dòng của WO cha (hoặc chỉ dòng 500103 nếu bạn muốn)
+                        foreach (var item in list)
+                        {
+                            if(item.WO_FGID == parentWoId && item.Account2 == "500103 Production Cost : Overhead")
+                            {
+                                item.Mat = newMat;
+                                item.DL = newDL;
+                                item.Total = item.Mat + item.DL + item.OH;
+                                item.UnitPrice = item.Quantity != 0 ? item.Total / item.Quantity : 0;
+                            }
+                        }
+                    }
+
+                    list = list.OrderBy(x => x.WO_FGID).ToList();
+                }
             }
 
 
