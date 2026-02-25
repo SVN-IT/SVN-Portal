@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Vml;
+﻿using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Vml;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.Services.Configurations;
@@ -55,6 +56,20 @@ namespace SVN_Portal.Controllers
                         .GroupBy(x => x.FGitem)
                         .ToDictionary(g => g.Key, g => g.First().WO_FGID);
 
+                    var fgList = list
+                        .GroupBy(x => new { x.FGitem, x.WO_FGID })
+                        .Select(g =>
+                        {
+                            var first = g.First();
+                            return new FGInfo
+                            {
+                                FGitem = first.FGitem,
+                                WO_FGID = first.WO_FGID,
+                                Quantity = first.Quantity
+                            };
+                        })
+                        .ToList();
+
                     foreach (var parentWO in woGroups)
                     {
                         var parentWoId = parentWO.Key;
@@ -82,8 +97,31 @@ namespace SVN_Portal.Controllers
                             {
                                 if (fgItemToWO.ContainsKey(row.Material_Name))
                                 {
-                                    var childWoId = fgItemToWO[row.Material_Name];
+                                    //var childWoId = fgItemToWO[row.Material_Name];
 
+                                    //if (woGroups.ContainsKey(childWoId))
+                                    //{
+                                    //    var childWoinfo = woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead" && x.Quantity == row.Quantity);
+                                    //    if (childWoinfo != null)
+                                    //    {
+                                    //        childWoinfo.CurWOID = childWoId;
+                                    //        childWoinfo.ParentWOID = parentWoId;
+                                    //        childWoinfo.Status = "Term";
+                                    //        itemsForFG.Add(childWoinfo);
+                                    //        //childMat += childWoinfo.Mat;
+                                    //        //childDL += childWoinfo.DL;
+                                    //        //childOH += childWoinfo.OH;
+                                    //    }
+                                    //    //childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
+                                    //    //childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
+                                    //    //childOH += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.OH ?? 0;
+                                    //}
+                                }
+
+                                var childItemForFG = fgList.FirstOrDefault(x => x.FGitem == row.Material_Name && x.Quantity == row.Quantity);
+                                if (childItemForFG != null)
+                                {
+                                    var childWoId = childItemForFG.WO_FGID;
                                     if (woGroups.ContainsKey(childWoId))
                                     {
                                         var childWoinfo = woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead" && x.Quantity == row.Quantity);
@@ -93,13 +131,7 @@ namespace SVN_Portal.Controllers
                                             childWoinfo.ParentWOID = parentWoId;
                                             childWoinfo.Status = "Term";
                                             itemsForFG.Add(childWoinfo);
-                                            //childMat += childWoinfo.Mat;
-                                            //childDL += childWoinfo.DL;
-                                            //childOH += childWoinfo.OH;
                                         }
-                                        //childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
-                                        //childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
-                                        //childOH += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.OH ?? 0;
                                     }
                                 }
                             }

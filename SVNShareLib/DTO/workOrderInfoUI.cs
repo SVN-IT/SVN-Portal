@@ -43,4 +43,11 @@ namespace SVNShareLib.DTO
         public decimal Total { get; set; }
         public decimal UnitPrice { get; set; }
     }
+
+    public class FGInfo
+    {
+        public string FGitem { get; set; }
+        public int WO_FGID { get; set; }
+        public decimal Quantity { get; set; }
+    }
 }
