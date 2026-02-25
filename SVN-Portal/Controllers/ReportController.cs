@@ -43,7 +43,7 @@ namespace SVN_Portal.Controllers
                 //Lọc dữ liệu của Vietnam thôi
                 if (list != null && list.Count > 0) 
                 {
-                    list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
+                    list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").OrderByDescending(x => x.WO_FGID).ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
                     // Group toàn bộ dữ liệu theo WO
                     var woGroups = list
                         .GroupBy(x => x.WO_FGID)
@@ -83,9 +83,16 @@ namespace SVN_Portal.Controllers
 
                                     if (woGroups.ContainsKey(childWoId))
                                     {
-                                        childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
-                                        childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
-                                        childOH += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.OH ?? 0;
+                                        var childWoinfo = woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead" && x.Quantity == row.Quantity);
+                                        if (childWoinfo != null)
+                                        {
+                                            childMat += childWoinfo.Mat;
+                                            childDL += childWoinfo.DL;
+                                            childOH += childWoinfo.OH;
+                                        }
+                                        //childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
+                                        //childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
+                                        //childOH += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.OH ?? 0;
                                     }
                                 }
                             }
@@ -97,7 +104,7 @@ namespace SVN_Portal.Controllers
                         // Cập nhật toàn bộ dòng của WO cha (hoặc chỉ dòng 500103 nếu bạn muốn)
                         foreach (var item in list)
                         {
-                            if(item.WO_FGID == parentWoId && item.Account2 == "500103 Production Cost : Overhead")
+                            if(item.WO_FGID == parentWoId && item.Account2 == "500103 Production Cost : Overhead" && item.item_type == "1")
                             {
                                 item.Mat = newMat;
                                 item.DL = newDL;
