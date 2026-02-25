@@ -31,6 +31,11 @@ namespace SVNShareLib.DTO
         public string? Location { get; set; }
         public string item_type { get; set; }
 
+        //property để lưu parentWOID
+        public int ParentWOID { get; set; }
+        public int CurWOID { get; set; }
+        public string Status { get; set; }
+
         //Các trường cần phải tính toán
         public decimal Mat { get; set; }
         public decimal DL { get; set; }

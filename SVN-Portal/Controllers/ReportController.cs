@@ -44,6 +44,7 @@ namespace SVN_Portal.Controllers
                 if (list != null && list.Count > 0) 
                 {
                     list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").OrderByDescending(x => x.WO_FGID).ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
+                    //&& (x.WO_FGID == 15752 || x.WO_FGID == 15751 || x.WO_FGID == 15752)
                     // Group toàn bộ dữ liệu theo WO
                     var woGroups = list
                         .GroupBy(x => x.WO_FGID)
@@ -72,6 +73,8 @@ namespace SVN_Portal.Controllers
                         decimal childDL = 0;
                         decimal childOH = 0;
 
+                        List<workOrderInfoUI> itemsForFG = new List<workOrderInfoUI>();
+
                         // Tìm WO con dựa vào Material_Name
                         foreach (var row in parentRows)
                         {
@@ -86,9 +89,13 @@ namespace SVN_Portal.Controllers
                                         var childWoinfo = woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead" && x.Quantity == row.Quantity);
                                         if (childWoinfo != null)
                                         {
-                                            childMat += childWoinfo.Mat;
-                                            childDL += childWoinfo.DL;
-                                            childOH += childWoinfo.OH;
+                                            childWoinfo.CurWOID = childWoId;
+                                            childWoinfo.ParentWOID = parentWoId;
+                                            childWoinfo.Status = "Term";
+                                            itemsForFG.Add(childWoinfo);
+                                            //childMat += childWoinfo.Mat;
+                                            //childDL += childWoinfo.DL;
+                                            //childOH += childWoinfo.OH;
                                         }
                                         //childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
                                         //childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
@@ -98,23 +105,24 @@ namespace SVN_Portal.Controllers
                             }
                         }
 
-                        var newMat = parentMat - childDL - childOH;
-                        var newDL = parentDL + childDL;
+                        //var newMat = parentMat - childDL - childOH;
+                        //var newDL = parentDL + childDL;
 
                         // Cập nhật toàn bộ dòng của WO cha (hoặc chỉ dòng 500103 nếu bạn muốn)
-                        foreach (var item in list)
-                        {
-                            if(item.WO_FGID == parentWoId && item.Account2 == "500103 Production Cost : Overhead" && item.item_type == "1")
-                            {
-                                item.Mat = newMat;
-                                item.DL = newDL;
-                                item.Total = item.Mat + item.DL + item.OH;
-                                item.UnitPrice = item.Quantity != 0 ? item.Total / item.Quantity : 0;
-                            }
-                        }
+                        //foreach (var item in list)
+                        //{
+                        //    if(item.WO_FGID == parentWoId && item.Account2 == "500103 Production Cost : Overhead" && item.item_type == "1")
+                        //    {
+                        //        item.Mat = newMat;
+                        //        item.DL = newDL;
+                        //        item.Total = item.Mat + item.DL + item.OH;
+                        //        item.UnitPrice = item.Quantity != 0 ? item.Total / item.Quantity : 0;
+                        //    }
+                        //}
                     }
 
                     list = list.OrderBy(x => x.WO_FGID).ToList();
+                    list = CalculateMat(list);
                 }
             }
 
@@ -197,7 +205,119 @@ namespace SVN_Portal.Controllers
             return result;
         }
 
+        public List<workOrderInfoUI> CalculateMat(List<workOrderInfoUI> list)
+        {
+            if (list == null || list.Count == 0)
+                return list;
 
+            // 1️⃣ Group theo WO_FGID (vì đây là ID thật của WO)
+            var woGroupMap = list
+                .GroupBy(x => x.WO_FGID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // 2️⃣ Build cây Parent → Child theo WO_FGID
+            var childrenMap = list
+                .Where(x => x.ParentWOID != 0)
+                .GroupBy(x => x.ParentWOID)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.WO_FGID).Distinct().ToList()
+                );
+
+            // 3️⃣ Cache tránh tính lặp
+            var costCache = new Dictionary<int, decimal>();
+            var dlCache = new Dictionary<int, decimal>();
+
+            decimal GetTotalSubCost(int parentWOID)
+            {
+                if (costCache.ContainsKey(parentWOID))
+                    return costCache[parentWOID];
+
+                decimal total = 0;
+
+                if (childrenMap.ContainsKey(parentWOID))
+                {
+                    foreach (var childWOID in childrenMap[parentWOID])
+                    {
+                        if (woGroupMap.ContainsKey(childWOID))
+                        {
+                            var childRows = woGroupMap[childWOID];
+
+                            // 🔥 CHỈ lấy dòng Overhead của WO con
+                            var overheadRow = childRows
+                                .FirstOrDefault(x =>
+                                    x.Account2 == "500103 Production Cost : Overhead"
+                                    && x.ParentWOID > 0);
+
+                            if (overheadRow != null)
+                            {
+                                var cost = overheadRow.DL + overheadRow.OH;
+                                total += cost;
+                            }
+
+                            // cộng tiếp tầng dưới
+                            total += GetTotalSubCost(childWOID);
+                        }
+                    }
+                }
+
+                costCache[parentWOID] = total;
+                return total;
+            }
+
+            decimal GetTotalSubDL(int parentWOID)
+            {
+                if (dlCache.ContainsKey(parentWOID))
+                    return dlCache[parentWOID];
+
+                decimal total = 0;
+
+                if (childrenMap.ContainsKey(parentWOID))
+                {
+                    foreach (var childWOID in childrenMap[parentWOID])
+                    {
+                        if (woGroupMap.ContainsKey(childWOID))
+                        {
+                            var childRows = woGroupMap[childWOID];
+
+                            // 🔥 CHỈ lấy dòng Overhead của WO con
+                            var overheadRow = childRows
+                                .FirstOrDefault(x =>
+                                    x.Account2 == "500103 Production Cost : Overhead"
+                                    && x.ParentWOID > 0);
+
+                            if (overheadRow != null)
+                            {
+                                total += overheadRow.DL;
+                            }
+
+                            // cộng tiếp tầng dưới
+                            total += GetTotalSubDL(childWOID);
+                        }
+                    }
+                }
+
+                dlCache[parentWOID] = total;
+                return total;
+            }
+
+            // 4️⃣ Tính lại Mat cho FG (CurWOID = 0)
+            foreach (var row in list)
+            {
+                if (row.CurWOID == 0 &&  // là FG
+                    row.item_type == "1" &&
+                    row.Account2 == "500103 Production Cost : Overhead")
+                {
+                    var totalSubCost = GetTotalSubCost(row.WO_FGID);
+                    var totalSubDL = GetTotalSubDL(row.WO_FGID);
+
+                    row.Mat = row.Mat - totalSubCost;
+                    row.DL = row.DL + totalSubDL;
+                }
+            }
+
+            return list;
+        }
         #endregion
     }
 }
