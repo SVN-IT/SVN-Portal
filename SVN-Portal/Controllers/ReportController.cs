@@ -345,6 +345,8 @@ namespace SVN_Portal.Controllers
 
                     row.Mat = row.Mat - totalSubCost;
                     row.DL = row.DL + totalSubDL;
+                    row.Total = row.Mat + row.DL + row.OH;
+                    row.UnitPrice = row.Quantity != 0 ? row.Total / row.Quantity : 0;
                 }
             }
 
