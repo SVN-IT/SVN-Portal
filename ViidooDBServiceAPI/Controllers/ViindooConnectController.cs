@@ -1356,6 +1356,20 @@ namespace ViidooDBServiceAPI.Controllers
                     {
                         int productTempItemID = productResult.result[0].product_tmpl_id[0];
                         dataRequest.ProductTempID = productTempItemID;
+
+                        //Lấy productTemp để lấy đơn vị ra
+                        var productTemp = await odooAPIService.SearhProductTemp(productTempItemID, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        try
+                        {
+                            int UomID = productTemp.result[0].uom_id[0];
+                            dataRequest.ProductUomlID = UomID;
+                        }
+                        catch
+                        {
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = "ID product template " + productTempItemID + " chưa tồn tại";
+                            return bODataProcessResult;
+                        }
                     }
                     catch
                     {
@@ -1373,11 +1387,37 @@ namespace ViidooDBServiceAPI.Controllers
                             {
                                 int productItemID = productSubItemResult.result[0].id;
                                 item.ProductID = productItemID;
+
                             }
                             catch
                             {
                                 bODataProcessResult.OK = false;
-                                bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                                bODataProcessResult.Message = "Item " + item.ItemCode + " chưa tồn tại";
+                                return bODataProcessResult;
+                            }
+
+                            try
+                            {
+                                int productTempItemID = productSubItemResult.result[0].product_tmpl_id[0];
+
+                                //Lấy productTemp để lấy đơn vị ra
+                                var productTemp = await odooAPIService.SearhProductTemp(productTempItemID, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                                try
+                                {
+                                    int UomID = productTemp.result[0].uom_id[0];
+                                    item.ProductUomlID = UomID;
+                                }
+                                catch
+                                {
+                                    bODataProcessResult.OK = false;
+                                    bODataProcessResult.Message = "ID product template " + productTempItemID + " chưa tồn tại";
+                                    return bODataProcessResult;
+                                }
+                            }
+                            catch
+                            {
+                                bODataProcessResult.OK = false;
+                                bODataProcessResult.Message = "Item " + item.ItemCode + " chưa tồn tại";
                                 return bODataProcessResult;
                             }
                         }

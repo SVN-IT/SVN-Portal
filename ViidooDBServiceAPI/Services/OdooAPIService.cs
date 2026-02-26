@@ -3172,7 +3172,7 @@ namespace ViidooDBServiceAPI.Services
                             sequence = 1,
                             product_id = x.ProductID,
                             product_qty = x.Quantity,
-                            product_uom_id = 27,
+                            product_uom_id = x.ProductUomlID, //27
                             bom_product_template_attribute_value_ids = new object[]
                             {
                                 new object[] { 6, 0, new int[] { } }
@@ -3205,7 +3205,7 @@ namespace ViidooDBServiceAPI.Services
                                 allow_operation_dependencies = false,
                                 product_id = false,
                                 product_qty = bOMData.Quantity,
-                                product_uom_id = 27,
+                                product_uom_id = bOMData.ProductUomlID,
                                 code = false,
                                 type = "normal",
                                 bom_line_ids = bomLineIds,
@@ -3282,6 +3282,55 @@ namespace ViidooDBServiceAPI.Services
                     "application/json"
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.product/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> SearhProductTemp(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 180,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.template",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "id", "=", id }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "name", "default_code", "uom_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
