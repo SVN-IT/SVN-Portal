@@ -15,47 +15,58 @@
     <div class="col-lg-12">
         <form method="post">
             <div class="form-group row">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <div class="row">
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <input type="date" name="fromdate" value="@fromdate.ToString("yyyy-MM-dd")" class="form-control" />
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-end gap-2">
+                        <div class="m-1">
+                            <input type="date" name="fromdate"
+                                   value="@fromdate.ToString("yyyy-MM-dd")"
+                                   class="form-control" />
                         </div>
-                        <div class="col-12 col-sm-6 col-md-3">
-                            <input type="date" name="todate" value="@todate.ToString("yyyy-MM-dd")" class="form-control" />
+                        <div class="m-1">
+                            <input type="date" name="todate"
+                                   value="@todate.ToString("yyyy-MM-dd")"
+                                   class="form-control" />
                         </div>
-                        <div class="col-12 col-sm-12 col-md-2">
-                            <input type="text" name="pageSize" value="@pageSize" class="form-control" />
+                        <div class="m-1">
+                            <input type="text" name="pageSize"
+                                   value="@pageSize"
+                                   class="form-control"
+                                   placeholder="Page size" />
                         </div>
-                        <div class="col-12 col-sm-6 col-md-2">
-                            <button type="submit" asp-action="WOAnalisisReport" class="btn btn-primary">
+                        <div class="m-1">
+                            <button type="submit"
+                                    asp-action="WOAnalisisReport"
+                                    class="btn btn-primary">
                                 Search
                             </button>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-2">
-                            <button type="submit" asp-action="ExportWOAnalisis" class="btn btn-success">
+                        <div class="m-1">
+                            <button type="submit"
+                                    asp-action="ExportWOAnalisis"
+                                    class="btn btn-success">
                                 Export excel
                             </button>
                         </div>
-                        <div class="col-12">
-                            <ul class="pagination">
-                                @foreach (var item in paginationList)
-                                {
-                                    if (item == "...")
-                                    {
-                                        <li class="page-item disabled">
-                                            <span class="page-link">...</span>
-                                        </li>
-                                    }
-                                    else
-                                    {
-                                        <li class="page-item @(item == pageNumber.ToString() ? "active" : "")">
-                                            <button type="submit" class="page-link" asp-action="WOAnalisisReport" asp-route-pageNumber=@item>@item</button>
-                                        </li>
-                                    }
-                                }
-                            </ul>
-                        </div>
                     </div>
+                </div>
+                <div class="col-12">
+                    <ul class="pagination">
+                        @foreach (var item in paginationList)
+                        {
+                            if (item == "...")
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item @(item == pageNumber.ToString() ? "active" : "")">
+                                    <button type="submit" class="page-link" asp-action="WOAnalisisReport" asp-route-pageNumber=@item>@item</button>
+                                </li>
+                            }
+                        }
+                    </ul>
                 </div>
             </div>
         </form>
