@@ -2,6 +2,7 @@
 using SVN_Portal.Services.Helpers;
 using Serilog;
 using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.Services.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,7 @@ builder.Services.AddSingleton(operInfoConfig);
 builder.Services.AddSingleton(aPIConfiguration);
 builder.Services.AddSingleton(labelConfiguration);
 builder.Services.AddSingleton<ToolsHelper>();
+builder.Services.AddSingleton<Pagination>();
 
 var app = builder.Build();
 

@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Vml;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.Services.Configurations;
+using SVN_Portal.Services.Util;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System.Text.RegularExpressions;
@@ -14,10 +15,12 @@ namespace SVN_Portal.Controllers
     {
         DBConfiguration dBConfiguration;
         string connectionString;
-        public ReportController(DBConfiguration dBConfiguration)
+        Pagination pagination;
+        public ReportController(DBConfiguration dBConfiguration, Pagination pagination)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
+            this.pagination = pagination;
         }
         public IActionResult Index()
         {
@@ -25,10 +28,11 @@ namespace SVN_Portal.Controllers
         }
 
         #region FN
-        public IActionResult WOAnalisisReport(DateTime fromDate, DateTime toDate)
+        public IActionResult WOAnalisisReport(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10)
         {
             string storedProcedure = "SVN_ERP_savedsearch_779_803";
             List<workOrderInfoUI> workOrderModels = new List<workOrderInfoUI>();
+            List<workOrderInfoUI> pagedData = new List<workOrderInfoUI>();
             List<SVN_SavedSearch_FormulaUI> sVN_SavedSearch_FormulaUIs = new List<SVN_SavedSearch_FormulaUI>();
 
             var dataPortal = new mrp_productionDataPortal(connectionString);
@@ -155,11 +159,20 @@ namespace SVN_Portal.Controllers
 
                     list = list.OrderBy(x => x.WO_FGID).ToList();
                     list = CalculateMat(list);
+
+                    pagedData = list
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
                 }
             }
-
-
-            return View();
+            var paginationList = pagination.GeneratePagination(pageNumber, pageSize);
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.PaginationList = paginationList;
+            return View(pagedData);
         }
         #endregion
 
