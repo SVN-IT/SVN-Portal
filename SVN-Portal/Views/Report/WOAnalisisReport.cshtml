@@ -18,39 +18,56 @@
                 <div class="col-12">
                     <div class="d-flex flex-wrap align-items-end gap-2">
                         <div class="m-1">
-                            <input type="date" name="fromdate"
-                                   value="@fromdate.ToString("yyyy-MM-dd")"
-                                   class="form-control" />
+                            <div class="form-group">
+                                <label>From Date</label>
+                                <input type="date" name="fromdate"
+                                       value="@fromdate.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
                         </div>
                         <div class="m-1">
-                            <input type="date" name="todate"
-                                   value="@todate.ToString("yyyy-MM-dd")"
-                                   class="form-control" />
+                            <div class="form-group">
+                                <label>To Date</label>
+                                <input type="date" name="todate"
+                                       value="@todate.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
                         </div>
                         <div class="m-1">
-                            <input type="text" name="pageSize"
-                                   value="@pageSize"
-                                   class="form-control"
-                                   placeholder="Page size" />
+                            <div class="form-group">
+                                <label>Page size</label>
+                                <select class="form-control" name="pageSize">
+                                    <option value="10" selected="@(pageSize == 10)">10</option>
+                                    <option value="15" selected="@(pageSize == 15)">15</option>
+                                    <option value="20" selected="@(pageSize == 20)">20</option>
+                                    <option value="25" selected="@(pageSize == 25)">25</option>
+                                    <option value="50" selected="@(pageSize == 50)">50</option>
+                                    <option value="100" selected="@(pageSize == 100)">100</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="m-1">
-                            <button type="submit"
-                                    asp-action="WOAnalisisReport"
-                                    class="btn btn-primary">
-                                Search
-                            </button>
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="WOAnalisisReport"
+                                        class="btn btn-primary">
+                                    Search
+                                </button>
+                            </div>
                         </div>
                         <div class="m-1">
-                            <button type="submit"
-                                    asp-action="ExportWOAnalisis"
-                                    class="btn btn-success">
-                                Export excel
-                            </button>
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="ExportWOAnalisis"
+                                        class="btn btn-success">
+                                    Export excel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-12">
-                    <ul class="pagination">
+                    <ul class="pagination float-right">
                         @foreach (var item in paginationList)
                         {
                             if (item == "...")
