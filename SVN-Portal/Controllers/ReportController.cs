@@ -8,6 +8,7 @@ using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 
 namespace SVN_Portal.Controllers
 {
@@ -31,183 +32,95 @@ namespace SVN_Portal.Controllers
         public IActionResult WOAnalisisReport(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10)
         {
             List<workOrderInfoUI> pagedData = new List<workOrderInfoUI>();
-            if (fromDate == DateTime.MinValue)
-            {
-                fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            }
-            if (toDate == DateTime.MinValue)
-            {
-                toDate = DateTime.Now.Date.AddDays(-1).AddHours(23).AddMinutes(59);
-            }
 
-            if (fromDate.Date > DateTime.Now.Date)
-            {
-                fromDate = DateTime.Now.Date;
-            }
+            pagedData = GetPageWOData(fromDate, toDate, pageNumber, pageSize); 
 
-            if (toDate.Date > DateTime.Now.Date)
-            {
-                toDate = DateTime.Now.Date.AddHours(23).AddMinutes(59);
-            }
-
-            if (fromDate.Date > toDate.Date)
-            {
-                fromDate = toDate;
-                toDate = toDate.Date.AddHours(23).AddMinutes(59);
-            }
-            else if (fromDate.Date == toDate.Date)
-            {
-                toDate = toDate.Date.AddHours(23).AddMinutes(59);
-            }
-
-            int totalPages = 0;
-            string storedProcedure = "SVN_ERP_savedsearch_779_803";
-            List<workOrderInfoUI> workOrderModels = new List<workOrderInfoUI>();
-            
-            List<SVN_SavedSearch_FormulaUI> sVN_SavedSearch_FormulaUIs = new List<SVN_SavedSearch_FormulaUI>();
-
-            var dataPortal = new mrp_productionDataPortal(connectionString);
-            var formulaDataPortal = new SVN_SavedSearch_FormulaDataPortal(connectionString);
-            workOrderModels = dataPortal.GetWorkOrderInfo();
-            sVN_SavedSearch_FormulaUIs = formulaDataPortal.GetSavedSearchFormulaData(storedProcedure);
-
-            if (workOrderModels != null && workOrderModels.Count > 0) 
-            {
-                var list = CalculateCost(workOrderModels);
-
-                //Tính toán lại các trường cho FG theo WIP
-                //Lọc dữ liệu của Vietnam thôi
-                if (list != null && list.Count > 0) 
-                {
-                    list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").OrderByDescending(x => x.WO_FGID).ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
-                    //&& (x.WO_FGID == 15752 || x.WO_FGID == 15751 || x.WO_FGID == 15752)
-                    // Group toàn bộ dữ liệu theo WO
-                    var woGroups = list
-                        .GroupBy(x => x.WO_FGID)
-                        .ToDictionary(g => g.Key, g => g.ToList());
-
-                    // Map FGItem -> WO
-                    var fgItemToWO = list
-                        .GroupBy(x => x.FGitem)
-                        .ToDictionary(g => g.Key, g => g.First().WO_FGID);
-
-                    var fgList = list
-                        .GroupBy(x => new { x.FGitem, x.WO_FGID })
-                        .Select(g =>
-                        {
-                            var first = g.First();
-                            return new FGInfo
-                            {
-                                FGitem = first.FGitem,
-                                WO_FGID = first.WO_FGID,
-                                Quantity = first.Quantity
-                            };
-                        })
-                        .ToList();
-
-                    foreach (var parentWO in woGroups)
-                    {
-                        var parentWoId = parentWO.Key;
-                        var parentRows = parentWO.Value;
-
-                        // Mat hiện tại của WO cha
-                        var parentMat = parentRows
-                                    .FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")
-                                    ?.Mat ?? 0;
-
-                        var parentDL = parentRows
-                                    .FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")
-                                    ?.DL ?? 0;
-
-                        decimal childMat = 0;
-                        decimal childDL = 0;
-                        decimal childOH = 0;
-
-                        List<workOrderInfoUI> itemsForFG = new List<workOrderInfoUI>();
-
-                        // Tìm WO con dựa vào Material_Name
-                        foreach (var row in parentRows)
-                        {
-                            if (row.FGitem != row.Material_Name)
-                            {
-                                if (fgItemToWO.ContainsKey(row.Material_Name))
-                                {
-                                    //var childWoId = fgItemToWO[row.Material_Name];
-
-                                    //if (woGroups.ContainsKey(childWoId))
-                                    //{
-                                    //    var childWoinfo = woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead" && x.Quantity == row.Quantity);
-                                    //    if (childWoinfo != null)
-                                    //    {
-                                    //        childWoinfo.CurWOID = childWoId;
-                                    //        childWoinfo.ParentWOID = parentWoId;
-                                    //        childWoinfo.Status = "Term";
-                                    //        itemsForFG.Add(childWoinfo);
-                                    //        //childMat += childWoinfo.Mat;
-                                    //        //childDL += childWoinfo.DL;
-                                    //        //childOH += childWoinfo.OH;
-                                    //    }
-                                    //    //childMat += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.Mat ?? 0;
-                                    //    //childDL += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.DL ?? 0;
-                                    //    //childOH += woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead")?.OH ?? 0;
-                                    //}
-                                }
-
-                                var childItemForFG = fgList.FirstOrDefault(x => x.FGitem == row.Material_Name && x.Quantity == row.Quantity);
-                                if (childItemForFG != null)
-                                {
-                                    var childWoId = childItemForFG.WO_FGID;
-                                    if (woGroups.ContainsKey(childWoId))
-                                    {
-                                        var childWoinfo = woGroups[childWoId].FirstOrDefault(x => x.Account2 == "500103 Production Cost : Overhead" && x.Quantity == row.Quantity);
-                                        if (childWoinfo != null)
-                                        {
-                                            childWoinfo.CurWOID = childWoId;
-                                            childWoinfo.ParentWOID = parentWoId;
-                                            childWoinfo.Status = "Term";
-                                            itemsForFG.Add(childWoinfo);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        //var newMat = parentMat - childDL - childOH;
-                        //var newDL = parentDL + childDL;
-
-                        // Cập nhật toàn bộ dòng của WO cha (hoặc chỉ dòng 500103 nếu bạn muốn)
-                        //foreach (var item in list)
-                        //{
-                        //    if(item.WO_FGID == parentWoId && item.Account2 == "500103 Production Cost : Overhead" && item.item_type == "1")
-                        //    {
-                        //        item.Mat = newMat;
-                        //        item.DL = newDL;
-                        //        item.Total = item.Mat + item.DL + item.OH;
-                        //        item.UnitPrice = item.Quantity != 0 ? item.Total / item.Quantity : 0;
-                        //    }
-                        //}
-                    }
-
-                    list = list.OrderBy(x => x.WO_FGID).ToList();
-                    list = CalculateMat(list);
-
-                    pagedData = list
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
-
-                    totalPages = (int)Math.Ceiling((double)list.Count / pageSize);
-                }
-            }
-            var paginationList = pagination.GeneratePagination(pageNumber, totalPages);
-            ViewBag.FromDate = fromDate;
-            ViewBag.ToDate = toDate;
-            ViewBag.CurrentPage = pageNumber;
-            ViewBag.PageSize = pageSize;
-            ViewBag.PaginationList = paginationList;
             return View(pagedData);
         }
 
+        public IActionResult ExportWOAnalisis(DateTime fromDate, DateTime toDate)
+        {
+            var data = GetPageWOData(fromDate, toDate, 1, int.MaxValue, true);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("WO Analysis");
+
+                // ===== HEADER =====
+                var headers = new[]
+                {
+                    "WO_FGID","WO_Date","WO_Close_Date","ISSUE_Date","Type","WO_ISSUE",
+                    "Material_InternalID","Material_Name","LOT_InternalID","Lot_Display",
+                    "Quantity_MAT","Units","Amount_Foreign_Currency","RMB","Account2",
+                    "Memo","Subsidiary","FGitem","Quantity","Location","item_type",
+                    "ParentWOID",/*"CurWOID","Status",*/
+                    "Mat","DL","OH","Total","UnitPrice"
+                };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cell(1, i + 1).Value = headers[i];
+                    worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                }
+
+                // ===== DATA =====
+                int row = 2;
+
+                foreach (var item in data)
+                {
+                    int col = 1;
+
+                    worksheet.Cell(row, col++).Value = item.WO_FGID;
+                    worksheet.Cell(row, col++).Value = item.WO_Date;
+                    worksheet.Cell(row, col++).Value = item.WO_Close_Date;
+                    worksheet.Cell(row, col++).Value = item.ISSUE_Date;
+                    worksheet.Cell(row, col++).Value = item.Type;
+                    worksheet.Cell(row, col++).Value = item.WO_ISSUE;
+                    worksheet.Cell(row, col++).Value = item.Material_InternalID;
+                    worksheet.Cell(row, col++).Value = item.Material_Name;
+                    worksheet.Cell(row, col++).Value = item.LOT_InternalID;
+                    worksheet.Cell(row, col++).Value = item.Lot_Display;
+                    worksheet.Cell(row, col++).Value = item.Quantity_MAT;
+                    worksheet.Cell(row, col++).Value = item.Units;
+                    worksheet.Cell(row, col++).Value = item.Amount_Foreign_Currency;
+                    worksheet.Cell(row, col++).Value = item.RMB;
+                    worksheet.Cell(row, col++).Value = item.Account2;
+                    worksheet.Cell(row, col++).Value = item.Memo;
+                    worksheet.Cell(row, col++).Value = item.Subsidiary;
+                    worksheet.Cell(row, col++).Value = item.FGitem;
+                    worksheet.Cell(row, col++).Value = item.Quantity;
+                    worksheet.Cell(row, col++).Value = item.Location;
+                    worksheet.Cell(row, col++).Value = item.item_type;
+                    worksheet.Cell(row, col++).Value = item.ParentWOID;
+                    //worksheet.Cell(row, col++).Value = item.CurWOID;
+                    //worksheet.Cell(row, col++).Value = item.Status;
+                    worksheet.Cell(row, col++).Value = item.Mat;
+                    worksheet.Cell(row, col++).Value = item.DL;
+                    worksheet.Cell(row, col++).Value = item.OH;
+                    worksheet.Cell(row, col++).Value = item.Total;
+                    worksheet.Cell(row, col++).Value = item.UnitPrice;
+
+                    row++;
+                }
+
+                // ===== FORMAT =====
+                worksheet.Columns().AdjustToContents();
+                worksheet.SheetView.FreezeRows(1);
+                worksheet.RangeUsed().SetAutoFilter();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+
+                    return File(
+                        content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        $"WOAnalysisReport_{fromDate:yyyyMMdd}_{toDate:yyyyMMdd}.xlsx"
+                    );
+                }
+            }
+        }
 
         #endregion
 
@@ -237,7 +150,7 @@ namespace SVN_Portal.Controllers
         #endregion
 
         #region config and logic
-        public List<workOrderInfoUI> GetPageWOData(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10)
+        public List<workOrderInfoUI> GetPageWOData(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10, bool isExport = false)
         {
             List<workOrderInfoUI> pagedData = new List<workOrderInfoUI>();
             if (fromDate == DateTime.MinValue)
@@ -399,13 +312,20 @@ namespace SVN_Portal.Controllers
 
                     list = list.OrderBy(x => x.WO_FGID).ToList();
                     list = CalculateMat(list);
+                    if (!isExport)
+                    {
+                        pagedData = list
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+                    }
+                    else
+                    {
+                        pagedData = list;
+                    }
 
-                    pagedData = list
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
 
-                    totalPages = (int)Math.Ceiling((double)list.Count / pageSize);
+                        totalPages = (int)Math.Ceiling((double)list.Count / pageSize);
                 }
             }
             var paginationList = pagination.GeneratePagination(pageNumber, totalPages);
