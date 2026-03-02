@@ -71,29 +71,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model)
+                            @if (Model != null)
                             {
-                                string rowClass = "";
-                                if (item.OperationActive == "Total Quatity")
+                                foreach (var item in Model)
                                 {
-                                    rowClass = "font-weight: 800;";
+                                    string rowClass = "";
+                                    if (item.OperationActive == "Total Quatity")
+                                    {
+                                        rowClass = "font-weight: 800;";
+                                    }
+                                    <tr style="@rowClass">
+                                        <td>@item.OperationActive</td>
+                                        <td>@item.DailyPlanTarget</td>
+                                        <td>@item.DailyPlanCurrent</td>
+                                        <td>@item.DailyPlanAchieve</td>
+                                        <td>@item.UPHTarget</td>
+                                        <td>@item.UPHCurrent</td>
+                                        <td>@item.UPH</td>
+                                        <td>@item.UPPH</td>
+                                        <td>@item.Labor</td>
+                                        <td>@item.DefectTargetRate</td>
+                                        <td>@item.DefectCurrentRate</td>
+                                        <td>@item.DefectRate</td>
+                                        <td>@item.CheckListOnSystem</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
                                 }
-                                <tr style="@rowClass">
-                                    <td>@item.OperationActive</td>
-                                    <td>@item.DailyPlanTarget</td>
-                                    <td>@item.DailyPlanCurrent</td>
-                                    <td>@item.DailyPlanAchieve</td>
-                                    <td>@item.UPHTarget</td>
-                                    <td>@item.UPHCurrent</td>
-                                    <td>@item.UPH</td>
-                                    <td>@item.UPPH</td>
-                                    <td>@item.Labor</td>
-                                    <td>@item.DefectTargetRate</td>
-                                    <td>@item.DefectCurrentRate</td>
-                                    <td>@item.DefectRate</td>
-                                    <td>@item.CheckListOnSystem</td>
-                                    <td>@item.Remark</td>
-                                </tr>
                             }
                         </tbody>
                     </table>
