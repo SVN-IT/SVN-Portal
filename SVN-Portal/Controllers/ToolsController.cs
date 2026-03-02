@@ -1137,9 +1137,11 @@ namespace SVN_Portal.Controllers
                         TempData["RemainQty"] = workOrderInfo.OrderInfo["product_qty"] as string;
                         TempData.Keep("RemainQty");
 
+                        var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                        var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                        List<OperInfo> opers = operInfo1.OperInfo;
 
-
-                        List<OperInfo> opers = operInfoConfig.OperInfo;
+                        //List<OperInfo> opers = operInfoConfig.OperInfo;
                         var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
                         if (currentOper != null)
                         {
@@ -1566,7 +1568,12 @@ namespace SVN_Portal.Controllers
 
                                         return Json(new { result = processResult.OK, message = processResult.Message });
                                     }
-                                    List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                                    var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                                    var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                                    List<OperInfo> opers = operInfo1.OperInfo;
+
+                                    //List<OperInfo> opers = operInfoConfig.OperInfo;
                                     var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
                                     if (currentOper != null)
                                     {

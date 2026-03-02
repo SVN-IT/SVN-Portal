@@ -67,7 +67,12 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models.Count > 0)
@@ -117,7 +122,12 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
@@ -198,7 +208,12 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
@@ -312,7 +327,12 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
@@ -604,8 +624,13 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
 
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                //var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+
+                var singleOper = operInfo1.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -701,8 +726,12 @@ namespace SVN_Portal.Controllers
                 
                 strdate = date.ToString("yyyyMMdd");
 
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
+                //var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
+
+                var singleOper = operInfo1.OperInfo.Where(x => x.MasterOperation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -799,7 +828,12 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 ViewBag.date = date;
                 ViewBag.oper = oper;
-                List<OperInfo> opers = new List<OperInfo>();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = new List<OperInfo>();
                 var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
@@ -1882,7 +1916,12 @@ namespace SVN_Portal.Controllers
 
                 ViewBag.FromDate = fromdate;
                 ViewBag.ToDate = todate;
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo.OperInfo;
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.GetDataForReport(fromdate, todate, opers, "FG");
                 if (models != null && models.Count > 0)
