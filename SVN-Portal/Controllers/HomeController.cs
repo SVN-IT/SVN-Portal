@@ -2189,7 +2189,7 @@ namespace SVN_Portal.Controllers
         }
 
 
-        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string itemType = "FG")
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string itemType = "ALL")
         {
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
@@ -2203,7 +2203,7 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string itemType = "FG")
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string itemType = "ALL")
         {
             try
             {
@@ -3145,7 +3145,7 @@ namespace SVN_Portal.Controllers
 
                 ViewBag.StatusList = statusList;
                 ViewBag.LocalCurrency = finalCurrency;
-
+                
                 return View(costRevenueViewModels);
             }
             catch (Exception ex)
