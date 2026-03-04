@@ -1,0 +1,274 @@
+﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
+@model IEnumerable<workOrderInfoUI>
+@{
+
+    DateTime fromdate = ViewBag.FromDate;
+    DateTime todate = ViewBag.ToDate;
+    int pageNumber = ViewBag.CurrentPage;
+    int pageSize = ViewBag.PageSize;
+    List<string> paginationList = ViewBag.PaginationList;
+    ViewData["Title"] = "Production Result Daily";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-end gap-2">
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>From Date</label>
+                                <input type="date" name="fromdate"
+                                       value="@fromdate.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>To Date</label>
+                                <input type="date" name="todate"
+                                       value="@todate.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Page size</label>
+                                <select class="form-control" name="pageSize">
+                                    <option value="10" selected="@(pageSize == 10)">10</option>
+                                    <option value="15" selected="@(pageSize == 15)">15</option>
+                                    <option value="20" selected="@(pageSize == 20)">20</option>
+                                    <option value="25" selected="@(pageSize == 25)">25</option>
+                                    <option value="50" selected="@(pageSize == 50)">50</option>
+                                    <option value="100" selected="@(pageSize == 100)">100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="WOAnalisisReport"
+                                        class="btn btn-primary">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="ExportWOAnalisis"
+                                        class="btn btn-success">
+                                    Export excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <ul class="pagination float-right">
+                        @foreach (var item in paginationList)
+                        {
+                            if (item == "...")
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item @(item == pageNumber.ToString() ? "active" : "")">
+                                    <button type="submit" class="page-link" asp-action="WOAnalisisReport" asp-route-pageNumber=@item>@item</button>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h4>WO Analysis Monthly Report</h4>
+            </div>
+            <div class="card-body">
+                <div class="row" style="overflow-x: auto; white-space: nowrap;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    WO_FGID
+                                </th>
+                                <th>
+                                    WO_Date
+                                </th>
+                                <th>
+                                    ISSUE_Date
+                                </th>
+                                <th>
+                                    Type
+                                </th>
+                                <th>
+                                    WO_ISSUE
+                                </th>
+                                <th>
+                                    Material_InternalID
+                                </th>
+                                <th>
+                                    Material_Name
+                                </th>
+                                <th>
+                                    LOT_InternalID
+                                </th>
+                                <th>
+                                    Lot_Display
+                                </th>
+                                <th>
+                                    Quantity_MAT
+                                </th>
+                                <th>
+                                    Units
+                                </th>
+                                <th>
+                                    Amount_Foreign_Currency
+                                </th>
+                                <th>
+                                    RMB
+                                </th>
+                                <th>
+                                    Account2
+                                </th>
+                                <th>
+                                    Memo
+                                </th>
+                                <th>
+                                    Subsidiary
+                                </th>
+                                <th>
+                                    FGitem
+                                </th>
+                                <th>
+                                    Quantity
+                                </th>
+                                <th>
+                                    Location
+                                </th>
+                                <th>
+                                    item_type
+                                </th>
+                                <th>
+                                    ParentWOID
+                                </th>
+                                <th>
+                                    Mat
+                                </th>
+                                <th>
+                                    DL
+                                </th>
+                                <th>
+                                    OH
+                                </th>
+                                <th>
+                                    Total
+                                </th>
+                                <th>
+                                    UnitPrice
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                string rowClass = "";
+                                <tr style="@rowClass">
+                                    <td>
+                                        @item.WO_FGID
+                                    </td>
+                                    <td>
+                                        @item.WO_Date
+                                    </td>
+                                    <td>
+                                        @item.ISSUE_Date
+                                    </td>
+                                    <td>
+                                        @item.Type
+                                    </td>
+                                    <td>
+                                        @item.WO_ISSUE
+                                    </td>
+                                    <td>
+                                        @item.Material_InternalID
+                                    </td>
+                                    <td>
+                                        @item.Material_Name
+                                    </td>
+                                    <td>
+                                        @item.LOT_InternalID
+                                    </td>
+                                    <td>
+                                        @item.Lot_Display
+                                    </td>
+                                    <td>
+                                        @item.Quantity_MAT
+                                    </td>
+                                    <td>
+                                        @item.Units
+                                    </td>
+                                    <td>
+                                        @item.Amount_Foreign_Currency
+                                    </td>
+                                    <td>
+                                        @item.RMB
+                                    </td>
+                                    <td>
+                                        @item.Account2
+                                    </td>
+                                    <td>
+                                        @item.Memo
+                                    </td>
+                                    <td>
+                                        @item.Subsidiary
+                                    </td>
+                                    <td>
+                                        @item.FGitem
+                                    </td>
+                                    <td>
+                                        @item.Quantity
+                                    </td>
+                                    <td>
+                                        @item.Location
+                                    </td>
+                                    <td>
+                                        @item.item_type
+                                    </td>
+                                    <td>
+                                        @item.ParentWOID
+                                    </td>
+                                    <td>
+                                        @item.Mat
+                                    </td>
+                                    <td>
+                                        @item.DL
+                                    </td>
+                                    <td>
+                                        @item.OH
+                                    </td>
+                                    <td>
+                                        @item.Total
+                                    </td>
+                                    <td>
+                                        @item.UnitPrice
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

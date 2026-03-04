@@ -5,13 +5,16 @@ using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.ObjectClasses;
+using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using System;
@@ -32,11 +35,13 @@ namespace SVN_Portal.Controllers
         string connectionString;
         QCInfoConfig qCInfoConfig;
         OperInfoConfig operInfoConfig;
+        APIConfiguration aPIConfiguration;
 
         public HomeController(ILogger<HomeController> logger,
             AppConfig appConfig,
             DBConfiguration dBConfiguration,
             OperInfoConfig operInfoConfig,
+            APIConfiguration aPIConfiguration,
             QCInfoConfig qCInfoConfig)
         {
             _logger = logger;
@@ -45,6 +50,7 @@ namespace SVN_Portal.Controllers
             connectionString = dBConfiguration.GetConnectionString();
             this.qCInfoConfig = qCInfoConfig;
             this.operInfoConfig = operInfoConfig;
+            this.aPIConfiguration = aPIConfiguration;
         }
 
         public async Task<IActionResult> Index(DateTime date)
@@ -62,7 +68,12 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
                 if (models.Count > 0)
@@ -141,6 +152,12 @@ namespace SVN_Portal.Controllers
                 TempData.Keep("Hours");
 
 
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
@@ -156,6 +173,18 @@ namespace SVN_Portal.Controllers
                         }
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.Line)
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -185,6 +214,101 @@ namespace SVN_Portal.Controllers
                 var data4 = model.GetData("Injection");
                 models = new List<QtyProdResultByOperViewModel> { data1, data2, data3, data4 };
                 return View(models);
+
+            }
+        }
+
+        /// <summary>
+        /// dashboard thêm phần chia biểu đồ ra các slide
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> ProductionResultV1(DateTime date)
+        {
+            List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                if (models != null && models.Count > 0)
+                {
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.Line)
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
+
+                    //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
+                    int pageSize = 9;
+                    for (int i = 0; i < models.Count; i += pageSize)
+                    {
+                        var slide = new QtyPDByOperVMPerSlide();
+
+                        slide.OperViewModels = models
+                            .Skip(i)
+                            .Take(pageSize)
+                            .ToList();
+
+                        qtyPDByOperVMPerSlides.Add(slide);
+                    }
+                }
+
+                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
+                var compareUI = await compareDataPortal.ReadList(strdate);
+
+                if (compareUI != null && compareUI.Count > 0)
+                {
+
+                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
+                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    int arrangeQty = ArrangingNumber(models);
+
+                    decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
+
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    ViewBag.ComparePeople = comparePeople;
+                }
+
+                return View(qtyPDByOperVMPerSlides);
+            }
+            catch (Exception ex)
+            {
+                List<QtyPDByOperVMPerSlide> vMPerSlides = new List<QtyPDByOperVMPerSlide>();
+                return View(vMPerSlides);
 
             }
         }
@@ -234,7 +358,12 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
@@ -267,6 +396,15 @@ namespace SVN_Portal.Controllers
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+            List<CostDailyViewModel> costDailyViewModels = new List<CostDailyViewModel>();
+
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+            var cost = await appSettingDataPortal.GetCostPerDay();
+            var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
+            var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
+            var vndRate = await appSettingDataPortal.GetVNDRate();
+            var finalCurrency = "USD";
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -279,84 +417,136 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                //Thay đổi đọc setting từ csdl
+                List<OperInfo> opers = operInfo.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
                 if (models != null && models.Count > 0)
                 {
-                    foreach (var model in models)
+                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
+
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    //var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
+                    //try
+                    //{
+                    //    cost = Math.Round((double)finalCostResult.Content, 0);
+                    //}
+                    //catch
+                    //{
+
+                    //}
+                    cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
+
+                    CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
+                    costDailyViewModel1.Currency = finalCurrency;
+                    costDailyViewModel1.Cost = cost;
+                    costDailyViewModel1.Date = date.ToString("dd/MM/yyyy");
+                    costDailyViewModel1.TargetRevenue = grandTotalTargetRevenue;
+                    costDailyViewModel1.ActualRevenue = grandTotalActualRevenue;
+                    costDailyViewModel1.RevenueRate = grandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel1);
+
+                    var costAndRevenueInfo = "💸FN Cost: " + cost.ToString("N0") + " " + finalCurrency
+                        + " | 💰PMC WO: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰PD Output: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
+                    ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
+                    ViewBag.LocalCurrency = finalCurrency;
+                }
+
+                // 21/12/2025: tính tri phí doanh thu của ngày hôm trc
+                var yesterday = date.AddDays(-1);
+                string stryesterday = yesterday.ToString("yyyyMMdd");
+                List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+
+                while(previousmodels == null || previousmodels.Count == 0)
+                {
+                    yesterday = yesterday.AddDays(-1);
+                    stryesterday = yesterday.ToString("yyyyMMdd");
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                }
+                if(previousmodels != null && previousmodels.Count > 0)
+                {
+                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, vndRate, out finalCurrency);
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var previousgrandTotalRevenueRate = Math.Round(previousgrandTotalTargetRevenue == 0 ? 0 : (previousgrandTotalActualRevenue / previousgrandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    CostDailyViewModel costDailyViewModel2 = new CostDailyViewModel();
+                    costDailyViewModel2.Currency = finalCurrency;
+                    costDailyViewModel2.Cost = cost;
+                    costDailyViewModel2.Date = yesterday.ToString("dd/MM/yyyy");
+                    costDailyViewModel2.TargetRevenue = previousgrandTotalTargetRevenue;
+                    costDailyViewModel2.ActualRevenue = previousgrandTotalActualRevenue;
+                    costDailyViewModel2.RevenueRate = previousgrandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel2);
+                }
+
+                costDailyViewModels = costDailyViewModels.OrderBy(x => x.Date).ToList();
+                ViewBag.CostDaily = costDailyViewModels;
+
+                //23/12/2025: Tính toán Cost và doanh thu theo năm
+                //Lấy cost của 1 năm được nhập bởi PMC
+                var yearCost = await appSettingDataPortal.GetCostInYear();
+                var svnTargetDataPortal = new SVN_TargetDataPortal(connectionString);
+                string companyStartDate = await appSettingDataPortal.GetStartDate();
+                string currentDate = date.ToString("yyyyMMdd");
+
+                //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
+                var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
+                if(yearlyTarget != null)
+                {
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig, localCurrency, vndRate);
+                    if(costYearlyResult != null)
                     {
-                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        if (userInfo != null)
-                        {
-                            model.PDName = userInfo.PDName;
-                            model.QCName = userInfo.QCName;
-                            model.TechName = userInfo.TechName;
-                        }
-                    }
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
-                    
-                    // sum dữ liệu theo master oper
-                    List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
-                    foreach (var oper in operations)
-                    {
-                        var totalPlan = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
-                        var totalPlanCurrent = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
-                        var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
-
-                        var totalUPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
-                        var totalUPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
-                        var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
-
-                        var totalUPPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
-                        var totalUPPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
-                        var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
-
-                        var totalLabor = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
-                        var totalLaborTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
-                        var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
-
-                        var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
-                        var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
-                        var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
-
-                        totalDefectTarget = totalDefectTarget * 100;
-                        totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
-                        totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
-
-                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
-                        viewModel.OperationActive = oper;
-                        viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
-
-                        var remarkList = models
-                            .Where(x => x.MasterOperation == oper)
-                            .SelectMany(x => x.DefectByCategoryViewModels
-                                .Where(y => y.value != "0")
-                                .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
-                            .GroupBy(x => x.category)
-                            .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
-                            .ToList();
-                        viewModel.Remark = remarkList.Any()
-                                            ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
-                                            : string.Empty;
-                        viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
-                        viewModel.UPPHTarget = Math.Round(totalUPPHTarget, appConfig.Rounding).ToString();
-                        viewModel.LaborTarget = Math.Round(totalLaborTarget, appConfig.Rounding).ToString();
-                        viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
-                        viewModel.UPPHCurrent = Math.Round(totalUPPH, appConfig.Rounding).ToString();
-                        viewModel.LaborCurrent = Math.Round(totalLabor, appConfig.Rounding).ToString();
-                        pdResultviewModels.Add(viewModel);
+                        //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
+                        //double yearlyCostValue = 0;
+                        //try
+                        //{
+                        //    yearlyCostValue = (double)finalYearlyCostResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
+                        //var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
+                        //double yearlyTargetRevenue = 0;
+                        //double yearlyActualRevenue = 0;
+                        //try
+                        //{
+                        //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //try
+                        //{
+                        //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        var yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        var yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
+                        var yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
+                        var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
+                        var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
+                            + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD Yearly Output: " + yearlyActualRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD/PMC Rate: " + yearlyRevenueRate.ToString() + "%";
+                        ViewBag.CostAndRevenueYearlyInfo = costAndRevenueYearlyInfo;
                     }
                 }
+
+
 
                 List<string> statusList = new List<string>();
                 foreach(var item in pdResultviewModels)
@@ -466,8 +656,13 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
 
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                //var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+
+                var singleOper = operInfo1.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -523,20 +718,45 @@ namespace SVN_Portal.Controllers
         /// <param name="date"></param>
         /// <param name="oper"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string oper)
+        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline)
         {
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var inputItemsDataPortal = new SVN_InputItemsStatusDataPortal(connectionString);
+
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<SVN_InputItemsStatusUI> inputItemsStatusUIs = new List<SVN_InputItemsStatusUI>();
+            if (date == DateTime.MinValue)
+            {
+                date = DateTime.Now;
+            }
+            ViewBag.date = date;
+            ViewBag.oper = operline;
+            //Check xem truyền có đang setup hay không
+            var operSetupInProcess = appSettingDataPortal.GetOperationSetupInProcess().Result.Split(",").FirstOrDefault(x => x == operline);
+            var setupNote = await appSettingDataPortal.GetOperationInSetupStatus();
+            var inSetupFontSize = await appSettingDataPortal.GetInSetupStatusFontSize();
+            if (!string.IsNullOrWhiteSpace(operSetupInProcess))
+            {
+                ViewBag.IsInSetup = true;
+                ViewBag.SetupNote = setupNote;
+                ViewBag.InSetupFontSize = inSetupFontSize;
+                return View(models);
+            }
+            else
+            {
+                ViewBag.IsInSetup = false;
+            }
+
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
-                if (date == DateTime.MinValue)
-                {
-                    date = DateTime.Now;
-                }
-                ViewBag.date = date;
-                ViewBag.oper = oper;
+                
+                var operLineList = operline.Split("-").ToList();
+                var oper = operLineList[0];
+                var line = operLineList.Count > 1 ? operLineList[1] : "";
+                
                 strdate = date.ToString("yyyyMMdd");
 
                 if (oper.Contains("SM"))
@@ -550,8 +770,12 @@ namespace SVN_Portal.Controllers
                     ViewBag.CompanyCode = "SVN";
                 }
 
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
+                //var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
+
+                var singleOper = operInfo1.OperInfo.Where(x => x.MasterOperation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -579,6 +803,15 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, hours);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                inputItemsStatusUIs = await inputItemsDataPortal.ReadList(strdate, operline);
+                ViewBag.InputItemsStatus = inputItemsStatusUIs;
+
+                //Lọc dữ liệu lấy dc theo line
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    models = models.Where(x => x.Line == line).ToList();
+                }
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -611,14 +844,24 @@ namespace SVN_Portal.Controllers
                         }
                     }
 
-                    models = models.OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.Line)
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
                 }
                 return View(models);
             }
             catch (Exception ex)
             {
                 QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
-                var data = model.GetData(oper);
+                var data = model.GetData(operline);
                 models = new List<QtyProdResultByOperViewModel> { data };
                 return View(models);
 
@@ -642,7 +885,12 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 ViewBag.date = date;
                 ViewBag.oper = oper;
-                List<OperInfo> opers = new List<OperInfo>();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = new List<OperInfo>();
                 var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
@@ -1154,8 +1402,8 @@ namespace SVN_Portal.Controllers
                     // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
                     DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                     DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "11:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                    DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
                     DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                     DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
@@ -1207,122 +1455,122 @@ namespace SVN_Portal.Controllers
                             status = "bg-primary";
                         }
                     }
-                    //else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH")
-                    //{
-                    //    if (!string.IsNullOrWhiteSpace(currentTime))
-                    //    {
-                    //        var times = currentTime.Split('-');
-                    //        DateTime today = currentDate;
+                    else if (item.Item == "H.Plan" || item.Item == "UPH" || item.Item == "UPPH" || item.Item == "OEE")
+                    {
+                        if (!string.IsNullOrWhiteSpace(currentTime))
+                        {
+                            var times = currentTime.Split('-');
+                            DateTime today = currentDate;
 
-                    //        // Chuyển đổi thành định dạng HH:mm
-                    //        string startTime = times[0].Replace("h", ":");
-                    //        if (startTime.Last() == ':')
-                    //        {
-                    //            startTime = startTime + "00";
-                    //        }
-                    //        if (startTime.Length == 4)
-                    //        {
-                    //            startTime = "0" + startTime;
-                    //        }
+                            // Chuyển đổi thành định dạng HH:mm
+                            string startTime = times[0].Replace("h", ":");
+                            if (startTime.Last() == ':')
+                            {
+                                startTime = startTime + "00";
+                            }
+                            if (startTime.Length == 4)
+                            {
+                                startTime = "0" + startTime;
+                            }
 
-                    //        string endTime = times[1].Replace("h", ":");
-                    //        if (endTime.Last() == ':')
-                    //        {
-                    //            endTime = endTime + "00";
-                    //        }
-                    //        if (endTime.Length == 4)
-                    //        {
-                    //            endTime = "0" + endTime;
-                    //        }
+                            string endTime = times[1].Replace("h", ":");
+                            if (endTime.Last() == ':')
+                            {
+                                endTime = endTime + "00";
+                            }
+                            if (endTime.Length == 4)
+                            {
+                                endTime = "0" + endTime;
+                            }
 
-                    //        // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
-                    //        DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    //        DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                    //        DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    //        DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "11:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                    //        DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                    //        DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                    //        if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) || 
-                    //            (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now) || 
-                    //            (startRelaxNoonTime <= DateTime.Now && endRelaxNoonTime >= DateTime.Now))
-                    //        {
-                    //            status = "bg-primary";
-                    //            if (item.Percent > 100)
-                    //            {
-                    //                if (item.Item == "H.Plan")
-                    //                {
-                    //                    if (model.IsProduction)
-                    //                    {
-                    //                        alert = "blinking-warning";
-                    //                    }
-                    //                }
-                    //            }
-                    //        }
-                    //        else
-                    //        {
-                    //            if (item.Percent > 0 && item.Percent <= 75)
-                    //            {
-                    //                status = "bg-danger";
-                    //                if (model.IsProduction)
-                    //                {
-                    //                    alert = "blinking";
-                    //                }
-                    //            }
-                    //            else if (item.Percent > 100)
-                    //            {
-                    //                status = "bg-primary";
-                    //                if (item.Item == "H.Plan")
-                    //                {
-                    //                    if (model.IsProduction)
-                    //                    {
-                    //                        alert = "blinking-warning";
-                    //                    }
-                    //                }
-                    //            }
-                    //            else if (item.Percent > 75 && item.Percent <= 92)
-                    //            {
-                    //                status = "bg-warning";
-                    //            }
-                    //            else
-                    //            {
-                    //                status = "bg-primary";
-                    //            }
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        if (item.Percent > 0 && item.Percent <= 75)
-                    //        {
-                    //            status = "bg-danger";
-                    //            if (model.IsProduction)
-                    //            {
-                    //                alert = "blinking";
-                    //            }
-                    //        }
-                    //        else if (item.Percent > 100)
-                    //        {
-                    //            status = "bg-primary";
-                    //            if (item.Item == "H.Plan")
-                    //            {
-                    //                if (model.IsProduction)
-                    //                {
-                    //                    alert = "blinking-warning";
-                    //                }
-                    //            }
-                    //        }
-                    //        else if (item.Percent > 75 && item.Percent <= 92)
-                    //        {
-                    //            status = "bg-warning";
-                    //        }
-                    //        else
-                    //        {
-                    //            status = "bg-primary";
-                    //        }
-                    //    }
-                    //}
+                            if ((startDatetime <= DateTime.Now && endDatetime >= DateTime.Now) ||
+                                (startRelaxTime <= DateTime.Now && endRelaxTime >= DateTime.Now) ||
+                                (startRelaxNoonTime <= DateTime.Now && endRelaxNoonTime >= DateTime.Now))
+                            {
+                                status = "bg-primary";
+                                if (item.Percent > 100)
+                                {
+                                    if (item.Item == "H.Plan")
+                                    {
+                                        if (model.IsProduction)
+                                        {
+                                            alert = "blinking-warning";
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (item.Percent > 0 && item.Percent <= 75)
+                                {
+                                    status = "bg-danger";
+                                    if (model.IsProduction)
+                                    {
+                                        alert = "blinking";
+                                    }
+                                }
+                                else if (item.Percent > 100)
+                                {
+                                    status = "bg-primary";
+                                    if (item.Item == "H.Plan")
+                                    {
+                                        if (model.IsProduction)
+                                        {
+                                            alert = "blinking-warning";
+                                        }
+                                    }
+                                }
+                                else if (item.Percent > 75 && item.Percent <= 92)
+                                {
+                                    status = "bg-warning";
+                                }
+                                else
+                                {
+                                    status = "bg-primary";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (item.Percent > 0 && item.Percent <= 75)
+                            {
+                                status = "bg-danger";
+                                if (model.IsProduction)
+                                {
+                                    alert = "blinking";
+                                }
+                            }
+                            else if (item.Percent > 100)
+                            {
+                                status = "bg-primary";
+                                if (item.Item == "H.Plan")
+                                {
+                                    if (model.IsProduction)
+                                    {
+                                        alert = "blinking-warning";
+                                    }
+                                }
+                            }
+                            else if (item.Percent > 75 && item.Percent <= 92)
+                            {
+                                status = "bg-warning";
+                            }
+                            else
+                            {
+                                status = "bg-primary";
+                            }
+                        }
+                    }
                     else
                     {
                         if (item.Percent >= 0 && item.Percent <= 75)
@@ -1382,6 +1630,11 @@ namespace SVN_Portal.Controllers
                         sb.Append("<strong class='f-s-26'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
+                    if (item.Item == "OEE")
+                    {
+                        sb.Append("<strong class='f-s-26'>🎯 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<br>");
+                    }
                     if (item.Item == "Defect")
                     {
                         sb.Append("<strong class='f-s-26'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
@@ -1413,6 +1666,15 @@ namespace SVN_Portal.Controllers
                         sb.Append("</span> <br />");
                         sb.Append("<span>");
                         sb.Append("<strong class='f-s-23'>Cur: " + Math.Round(item.Current, appConfig.Rounding) + " %</strong>");
+                        sb.Append("</span>");
+                    }
+                    else if(item.Item == "OEE")
+                    {
+                        sb.Append("<span>A: " + Math.Round(item.Availability, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span> | P: " + Math.Round(item.Performance, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span> | Q: " + Math.Round(item.Quality, appConfig.Rounding) + " %</span> <br />");
+                        sb.Append("<span>");
+                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.OEE, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else
@@ -1542,8 +1804,8 @@ namespace SVN_Portal.Controllers
                 // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
                 DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "13:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime startRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "11:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endRelaxTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "12:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 DateTime startRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "17:30", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 DateTime endRelaxNoonTime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + "18:00", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                 if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
@@ -1755,6 +2017,12 @@ namespace SVN_Portal.Controllers
 
                 ViewBag.FromDate = fromdate;
                 ViewBag.ToDate = todate;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo.OperInfo;
+
                 List<OperInfo> opers = operInfoConfig.OperInfo;
 
                 if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
@@ -1771,7 +2039,7 @@ namespace SVN_Portal.Controllers
                 }
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.GetDataForReport(fromdate, todate, opers);
+                models = await dataPortal.GetDataForReport(fromdate, todate, opers, "FG");
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -2076,13 +2344,12 @@ namespace SVN_Portal.Controllers
         }
 
 
-        public async Task<IActionResult> PDResultDailyReportV0(DateTime date, string companyCode)
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string itemType = "ALL")
         {
-            ViewBag.date = date;
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyDataV0(date, companyCode);
+                viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -2091,11 +2358,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDailyV0(DateTime date, string companyCode)
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string itemType = "ALL")
         {
             try
             {
-                var viewModels = await GetPDResultDailyDataV0(date, companyCode);
+                var viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -2179,6 +2446,8 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime fromdate, DateTime todate, string itemType)
+        {
         public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime date, string companyCode)
         {
             if (string.IsNullOrWhiteSpace(companyCode))
@@ -2187,6 +2456,524 @@ namespace SVN_Portal.Controllers
             }
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
+            List<PDResultDailyViewModel> dailyViewModels = new List<PDResultDailyViewModel>();
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+
+                if (fromdate == DateTime.MinValue)
+                {
+                    fromdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                }
+                if (todate == DateTime.MinValue)
+                {
+                    todate = DateTime.Now.Date.AddDays(-1).AddHours(23).AddMinutes(59);
+                }
+
+                if (fromdate.Date > DateTime.Now.Date)
+                {
+                    fromdate = DateTime.Now.Date;
+                }
+
+                if (todate.Date > DateTime.Now.Date)
+                {
+                    todate = DateTime.Now.Date.AddHours(23).AddMinutes(59);
+                }
+
+                if (fromdate.Date > todate.Date)
+                {
+                    fromdate = todate;
+                    todate = todate.Date.AddHours(23).AddMinutes(59);
+                }
+                else if (fromdate.Date == todate.Date)
+                {
+                    todate = todate.Date.AddHours(23).AddMinutes(59);
+                }
+
+                ViewBag.FromDate = fromdate;
+                ViewBag.ToDate = todate;
+                ViewBag.ItemType = itemType;
+
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                //models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
+                models = await dataPortal.GetDataForReport(fromdate, todate, opers, itemType);
+                if (models != null && models.Count > 0)
+                {
+                    //models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+                    // sum dữ liệu theo master oper
+                    List<string> operations = models.Select(x => x.Operation).Distinct().ToList();
+                    foreach (var oper in operations)
+                    {
+                        var totalPlan = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
+                        var totalPlanCurrent = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
+                        var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
+
+                        var totalUPH = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
+                        var totalUPHTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
+                        var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
+
+                        var totalUPPH = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
+                        var totalUPPHTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
+                        var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
+
+                        var totalLabor = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
+                        var totalLaborTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
+                        var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
+
+                        var totalDefect = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
+                        var totalDefectTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                        var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                        totalDefectTarget = totalDefectTarget * 100;
+                        totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
+                        totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                        viewModel.OperationActive = oper;
+                        viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
+                        viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
+                        viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
+                        viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
+                        viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
+                        //viewModel.CheckListOnSystem = models.Where(x => x.Operation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
+
+                        var remarkList = models
+                            .Where(x => x.Operation == oper)
+                            .SelectMany(x => x.DefectByCategoryViewModels
+                                .Where(y => y.value != "0")
+                                .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
+                            .GroupBy(x => x.category)
+                            .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
+                            .ToList();
+                        viewModel.Remark = remarkList.Any()
+                                            ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
+                                            : string.Empty;
+                        viewModels.Add(viewModel);
+                    }
+
+                    //Tính tổng Sản lượng Target và Curent
+                    var sumTotalPlan = viewModels.Sum(x =>
+                    {
+                        return double.TryParse(x.DailyPlanTarget, out var value)
+                            ? value
+                            : 0;
+                    });
+
+                    var sumTotalCurrent = viewModels.Sum(x =>
+                    {
+                        return double.TryParse(x.DailyPlanCurrent, out var value)
+                            ? value
+                            : 0;
+                    });
+
+                    var sumPlanAchieve = sumTotalPlan == 0 ? 0 : (sumTotalCurrent / sumTotalPlan) * 100;
+
+                    PDResultDailyViewModel sumViewModel = new PDResultDailyViewModel();
+                    sumViewModel.OperationActive = "Total Quatity";
+                    sumViewModel.DailyPlanTarget = Math.Round(sumTotalPlan, appConfig.Rounding).ToString();
+                    sumViewModel.DailyPlanCurrent = Math.Round(sumTotalCurrent, appConfig.Rounding).ToString();
+                    sumViewModel.DailyPlanAchieve = Math.Round(sumPlanAchieve, appConfig.Rounding).ToString() + "%";
+                    viewModels.Add(sumViewModel);
+
+                    return viewModels;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<IActionResult> CostRevenueReport(DateTime date)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+            List<CostDailyViewModel> costDailyViewModels = new List<CostDailyViewModel>();
+            List<CostRevenueViewModel> costRevenueViewModels = new List<CostRevenueViewModel>();
+
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+            var cost = await appSettingDataPortal.GetCostPerDay();
+            var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
+            var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
+            var vndRate = await appSettingDataPortal.GetVNDRate();
+            var finalCurrency = "USD";
+            cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_Viindoo";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                //Thay đổi đọc setting từ csdl
+                List<OperInfo> opers = operInfo.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                if (models != null && models.Count > 0)
+                {
+                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
+
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    //var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
+                    //try
+                    //{
+                    //    cost = Math.Round((double)finalCostResult.Content, 0);
+                    //}
+                    //catch
+                    //{
+
+                    //}
+                    //cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
+
+                    CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
+                    costDailyViewModel1.Currency = finalCurrency;
+                    costDailyViewModel1.Cost = cost;
+                    costDailyViewModel1.Date = date.ToString("dd/MM/yyyy");
+                    costDailyViewModel1.TargetRevenue = grandTotalTargetRevenue;
+                    costDailyViewModel1.ActualRevenue = grandTotalActualRevenue;
+                    costDailyViewModel1.RevenueRate = grandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel1);
+
+                    var costAndRevenueInfo = "💸FN Cost: " + cost.ToString("N0") + " " + finalCurrency
+                        + " | 💰PMC WO: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰PD Output: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
+                    ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
+                    //ViewBag.LocalCurrency = finalCurrency;
+
+                    CostRevenueViewModel todayCostVM = new CostRevenueViewModel();
+                    todayCostVM.Time = "Today";
+                    todayCostVM.StrDateTime = date.ToString("dd/MM/yyyy");
+                    todayCostVM.Key = "Cost";
+                    todayCostVM.Value = cost;
+                    costRevenueViewModels.Add(todayCostVM);
+
+                    CostRevenueViewModel todayPMCWOVM = new CostRevenueViewModel();
+                    todayPMCWOVM.Time = "Today";
+                    todayPMCWOVM.StrDateTime = date.ToString("dd/MM/yyyy");
+                    todayPMCWOVM.Key = "PMC WO";
+                    todayPMCWOVM.Value = grandTotalTargetRevenue;
+                    costRevenueViewModels.Add(todayPMCWOVM);
+
+                    CostRevenueViewModel todayPDOutputVM = new CostRevenueViewModel();
+                    todayPDOutputVM.Time = "Today";
+                    todayPDOutputVM.StrDateTime = date.ToString("dd/MM/yyyy");
+                    todayPDOutputVM.Key = "PD Output";
+                    todayPDOutputVM.Value = grandTotalActualRevenue;
+                    costRevenueViewModels.Add(todayPDOutputVM);
+                }
+
+                // 21/12/2025: tính tri phí doanh thu của ngày hôm trc
+                var yesterday = date.AddDays(-1);
+                string stryesterday = yesterday.ToString("yyyyMMdd");
+                List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+
+                while (previousmodels == null || previousmodels.Count == 0)
+                {
+                    yesterday = yesterday.AddDays(-1);
+                    stryesterday = yesterday.ToString("yyyyMMdd");
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                }
+                if (previousmodels != null && previousmodels.Count > 0)
+                {
+                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, vndRate, out finalCurrency);
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var previousgrandTotalRevenueRate = Math.Round(previousgrandTotalTargetRevenue == 0 ? 0 : (previousgrandTotalActualRevenue / previousgrandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    CostDailyViewModel costDailyViewModel2 = new CostDailyViewModel();
+                    costDailyViewModel2.Currency = finalCurrency;
+                    costDailyViewModel2.Cost = cost;
+                    costDailyViewModel2.Date = yesterday.ToString("dd/MM/yyyy");
+                    costDailyViewModel2.TargetRevenue = previousgrandTotalTargetRevenue;
+                    costDailyViewModel2.ActualRevenue = previousgrandTotalActualRevenue;
+                    costDailyViewModel2.RevenueRate = previousgrandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel2);
+
+                    CostRevenueViewModel yesterdayCostVM = new CostRevenueViewModel();
+                    yesterdayCostVM.Time = "Yesterday";
+                    yesterdayCostVM.StrDateTime = yesterday.ToString("dd/MM/yyyy");
+                    yesterdayCostVM.Key = "Cost";
+                    yesterdayCostVM.Value = cost;
+                    costRevenueViewModels.Add(yesterdayCostVM);
+
+                    CostRevenueViewModel yesterdayPMCWOVM = new CostRevenueViewModel();
+                    yesterdayPMCWOVM.Time = "Yesterday";
+                    yesterdayPMCWOVM.StrDateTime = yesterday.ToString("dd/MM/yyyy");
+                    yesterdayPMCWOVM.Key = "PMC WO";
+                    yesterdayPMCWOVM.Value = previousgrandTotalTargetRevenue;
+                    costRevenueViewModels.Add(yesterdayPMCWOVM);
+
+                    CostRevenueViewModel yesterdayPDOutputVM = new CostRevenueViewModel();
+                    yesterdayPDOutputVM.Time = "Yesterday";
+                    yesterdayPDOutputVM.StrDateTime = yesterday.ToString("dd/MM/yyyy");
+                    yesterdayPDOutputVM.Key = "PD Output";
+                    yesterdayPDOutputVM.Value = previousgrandTotalActualRevenue;
+                    costRevenueViewModels.Add(yesterdayPDOutputVM);
+
+                    ViewBag.Yesterday = yesterday.ToString("dd/MM/yyyy");
+                }
+
+                costDailyViewModels = costDailyViewModels.OrderBy(x => x.Date).ToList();
+                ViewBag.CostDaily = costDailyViewModels;
+
+                //23/12/2025: Tính toán Cost và doanh thu theo năm
+                //Lấy cost của 1 năm được nhập bởi PMC
+                var yearCost = await appSettingDataPortal.GetCostInYear();
+                var svnTargetDataPortal = new SVN_TargetDataPortal(connectionString);
+                string companyStartDate = await appSettingDataPortal.GetStartDate();
+                string currentDate = date.ToString("yyyyMMdd");
+
+                DateTime startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                if(date.Year > startDate.Year)
+                {
+                    companyStartDate = date.Year.ToString() + "0101";
+                }
+
+                //Tính yearcost từ thời điểm đầu tiên đến hiện tại
+                startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                int totalDays = (date.Date - startDate.Date).Days;
+                yearCost = cost * totalDays;
+
+                //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
+                var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
+                if (yearlyTarget != null)
+                {
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfo, localCurrency, vndRate);
+                    if (costYearlyResult != null)
+                    {
+                        //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
+                        //double yearlyCostValue = 0;
+                        //try
+                        //{
+                        //    yearlyCostValue = (double)finalYearlyCostResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
+                        //var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
+                        //double yearlyTargetRevenue = 0;
+                        //double yearlyActualRevenue = 0;
+                        //try
+                        //{
+                        //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //try
+                        //{
+                        //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        double yearlyCostValue = yearCost;
+                        double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
+                        double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
+                        var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
+                        var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
+                            + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD Yearly Output: " + yearlyActualRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD/PMC Rate: " + yearlyRevenueRate.ToString() + "%";
+                        ViewBag.CostAndRevenueYearlyInfo = costAndRevenueYearlyInfo;
+
+                        CostRevenueViewModel yearlyCostVM = new CostRevenueViewModel();
+                        yearlyCostVM.Time = "Yearly";
+                        yearlyCostVM.StrDateTime = date.Year.ToString();
+                        yearlyCostVM.Key = "Cost";
+                        yearlyCostVM.Value = yearlyCostValue;
+                        costRevenueViewModels.Add(yearlyCostVM);
+
+                        CostRevenueViewModel yearlyPMCWOVM = new CostRevenueViewModel();
+                        yearlyPMCWOVM.Time = "Yearly";
+                        yearlyPMCWOVM.StrDateTime = date.Year.ToString();
+                        yearlyPMCWOVM.Key = "PMC WO";
+                        yearlyPMCWOVM.Value = yearlyTargetRevenue;
+                        costRevenueViewModels.Add(yearlyPMCWOVM);
+
+                        CostRevenueViewModel yearlyPDOutputVM = new CostRevenueViewModel();
+                        yearlyPDOutputVM.Time = "Yearly";
+                        yearlyPDOutputVM.StrDateTime = date.Year.ToString();
+                        yearlyPDOutputVM.Key = "PD Output";
+                        yearlyPDOutputVM.Value = yearlyActualRevenue;
+                        costRevenueViewModels.Add(yearlyPDOutputVM);
+
+                        //Lấy top 3 có doanh thu cao nhất và top 3 có doanh thu thấp nhất
+                        
+                        if (costYearlyResult.CostYearlyPerOpers != null)
+                        {
+                            var itemHaveRevenue = costYearlyResult.CostYearlyPerOpers.Where(x => x.ActualRevenue > 0).ToList();
+                            if(itemHaveRevenue != null)
+                            {
+                                //var top3HighRevenue = itemHaveRevenue.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
+                                //var top3LowRevenue = itemHaveRevenue.OrderBy(x => x.ActualRevenue).Take(5).OrderByDescending(x => x.ActualRevenue).ToList();
+
+                                //ViewBag.Top3HighRevenue = top3HighRevenue;
+                                //ViewBag.Top3LowRevenue = top3LowRevenue;
+
+                                var topHigh = itemHaveRevenue
+                                .OrderByDescending(x => x.ActualRevenue)
+                                .Take(5)
+                                .ToList();
+
+                                var highKeys = new HashSet<string>(topHigh.Select(x => x.Operation));
+
+                                var topLow = itemHaveRevenue
+                                    .Where(x => !highKeys.Contains(x.Operation))
+                                    .OrderBy(x => x.ActualRevenue)
+                                    .Take(5)
+                                    .OrderByDescending(x => x.ActualRevenue)
+                                    .ToList();
+
+                                ViewBag.Top3HighRevenue = topHigh;
+                                ViewBag.Top3LowRevenue = topLow;
+                            }
+                        }
+                        
+                    }
+                }
+
+
+
+                List<string> statusList = new List<string>();
+                foreach (var item in pdResultviewModels)
+                {
+                    string warning = " ⚠️ ";
+                    string error = " ❌ ";
+                    string issue = "❗";
+                    string status = item.OperationActive + ": ";
+
+                    if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) >= 0 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 75)
+                    {
+                        status = status + "Daily plan " + error + item.DailyPlanAchieve;
+                    }
+                    else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 100)
+                    {
+                        status = status + "Daily plan " + warning + item.DailyPlanAchieve;
+                    }
+                    else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 75 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 92)
+                    {
+                        status = status + "Daily plan " + warning + item.DailyPlanAchieve;
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.UPH.Replace("%", "")) >= 0 && double.Parse(item.UPH.Replace("%", "")) <= 75)
+                    {
+                        status = status + " UPH " + error + item.UPH;
+                    }
+                    else if (double.Parse(item.UPH.Replace("%", "")) > 100)
+                    {
+                        status = status + " UPH " + warning + item.UPH;
+                    }
+                    else if (double.Parse(item.UPH.Replace("%", "")) > 75 && double.Parse(item.UPH.Replace("%", "")) <= 92)
+                    {
+                        status = status + " UPH " + warning + item.UPH;
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.UPPH.Replace("%", "")) >= 0 && double.Parse(item.UPPH.Replace("%", "")) <= 75)
+                    {
+                        status = status + " UPPH " + error + item.UPPH;
+                    }
+                    else if (double.Parse(item.UPPH.Replace("%", "")) > 100)
+                    {
+                        status = status + " UPPH " + warning + item.UPPH;
+                    }
+                    else if (double.Parse(item.UPPH.Replace("%", "")) > 75 && double.Parse(item.UPPH.Replace("%", "")) <= 92)
+                    {
+                        status = status + " UPPH " + warning + item.UPPH;
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.DefectRate.Replace("%", "")) > 100)
+                    {
+                        status = status + " Defect " + error + item.DefectRate;
+                    }
+                    else if (double.Parse(item.DefectRate.Replace("%", "")) > 75 && double.Parse(item.DefectRate.Replace("%", "")) <= 100)
+                    {
+                        status = status + " Defect " + warning + item.DefectRate;
+                    }
+                    else
+                    {
+
+                    }
+
+                    statusList.Add(status);
+                }
+
+                ViewBag.StatusList = statusList;
+                ViewBag.LocalCurrency = finalCurrency;
+
+                return View(costRevenueViewModels);
+            }
+            catch (Exception ex)
+            {
+                costRevenueViewModels = new List<CostRevenueViewModel>();
+                return View(costRevenueViewModels);
+
+            }
+        }
+
+        /// <summary>
+        /// Update thêm 1 số biểu đồ theo dõi cashin cashout 
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> CostRevenueReportV2(DateTime date)
+        {
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+            List<CostDailyViewModel> costDailyViewModels = new List<CostDailyViewModel>();
+            List<CostRevenueViewModel> costRevenueViewModels = new List<CostRevenueViewModel>();
+
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+            var cost = await appSettingDataPortal.GetCostPerDay();
+            var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
+            var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
+            var vndRate = await appSettingDataPortal.GetVNDRate();
+            var finalCurrency = "USD";
+            cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
             try
             {
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
@@ -2224,56 +3011,588 @@ namespace SVN_Portal.Controllers
 
                 }
 
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                //Thay đổi đọc setting từ csdl
+                List<OperInfo> opers = operInfo.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0, hours);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
-                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
-                    foreach (var model in models)
-                    {
-                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        if (userInfo != null)
-                        {
-                            model.PDName = userInfo.PDName;
-                            model.QCName = userInfo.QCName;
-                            model.TechName = userInfo.TechName;
-                        }
+                    pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
 
-                        PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
-                        viewModel.OperationActive = model.Operation;
-                        viewModel.DailyPlanTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Target ?? 0, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Current ?? 0, appConfig.Rounding).ToString();
-                        viewModel.DailyPlanAchieve = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "H.Plan")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var grandTotalTargetRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var grandTotalActualRevenue = Math.Round(pdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var grandTotalRevenueRate = Math.Round(grandTotalTargetRevenue == 0 ? 0 : (grandTotalActualRevenue / grandTotalTargetRevenue) * 100, appConfig.Rounding);
 
-                        viewModel.UPHTarget = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Target ?? 0, appConfig.Rounding).ToString();
-                        viewModel.UPHCurrent = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Current ?? 0, appConfig.Rounding).ToString();
+                    //var finalCostResult = await GetAmountByCurrency(cost, "USD", localCurrency);
+                    //try
+                    //{
+                    //    cost = Math.Round((double)finalCostResult.Content, 0);
+                    //}
+                    //catch
+                    //{
 
-                        viewModel.UPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.UPPH = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "UPPH")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.Labor = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Labor")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectTargetRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Target ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectCurrentRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Current ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.DefectRate = Math.Round(model.TargetViewModels.FirstOrDefault(x => x.Item == "Defect")?.Percent ?? 0, appConfig.Rounding).ToString() + "%";
-                        viewModel.CheckListOnSystem = "OK";
-                        viewModel.Remark = model.DefectByCategoryViewModels.Where(x => x.value != "0").Count() > 0 ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, model.DefectByCategoryViewModels.Where(x => x.value != "0").Select(x => $"{x.category}: {x.value}")) : string.Empty;
-                        if (model.CanProductionByCheclist)
-                        {
-                            viewModel.CheckListOnSystem = "OK";
-                        }
-                        viewModels.Add(viewModel);
-                    }
-                    return viewModels;
+                    //}
+                    //cost = localCurrency == "VND" ? Math.Round(cost * vndRate, 0) : cost;
+
+                    CostDailyViewModel costDailyViewModel1 = new CostDailyViewModel();
+                    costDailyViewModel1.Currency = finalCurrency;
+                    costDailyViewModel1.Cost = cost;
+                    costDailyViewModel1.Date = date.ToString("dd/MM/yyyy");
+                    costDailyViewModel1.TargetRevenue = grandTotalTargetRevenue;
+                    costDailyViewModel1.ActualRevenue = grandTotalActualRevenue;
+                    costDailyViewModel1.RevenueRate = grandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel1);
+
+                    var costAndRevenueInfo = "💸FN Cost: " + cost.ToString("N0") + " " + finalCurrency
+                        + " | 💰PMC WO: " + grandTotalTargetRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰PD Output: " + grandTotalActualRevenue.ToString("N0") + " " + finalCurrency
+                        + " /💰Rate: " + grandTotalRevenueRate.ToString() + "%";
+                    ViewBag.CostAndRevenueInfo = costAndRevenueInfo;
+                    //ViewBag.LocalCurrency = finalCurrency;
+
+                    CostRevenueViewModel todayCostVM = new CostRevenueViewModel();
+                    todayCostVM.Time = "Today";
+                    todayCostVM.StrDateTime = date.ToString("dd/MM/yyyy");
+                    todayCostVM.Key = "Cost";
+                    todayCostVM.Value = cost;
+                    costRevenueViewModels.Add(todayCostVM);
+
+                    CostRevenueViewModel todayPMCWOVM = new CostRevenueViewModel();
+                    todayPMCWOVM.Time = "Today";
+                    todayPMCWOVM.StrDateTime = date.ToString("dd/MM/yyyy");
+                    todayPMCWOVM.Key = "PMC WO";
+                    todayPMCWOVM.Value = grandTotalTargetRevenue;
+                    costRevenueViewModels.Add(todayPMCWOVM);
+
+                    CostRevenueViewModel todayPDOutputVM = new CostRevenueViewModel();
+                    todayPDOutputVM.Time = "Today";
+                    todayPDOutputVM.StrDateTime = date.ToString("dd/MM/yyyy");
+                    todayPDOutputVM.Key = "PD Output";
+                    todayPDOutputVM.Value = grandTotalActualRevenue;
+                    costRevenueViewModels.Add(todayPDOutputVM);
                 }
-                else
+
+                // 21/12/2025: tính tri phí doanh thu của ngày hôm trc
+                var yesterday = date.AddDays(-1);
+                string stryesterday = yesterday.ToString("yyyyMMdd");
+                List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+
+                while (previousmodels == null || previousmodels.Count == 0)
                 {
-                    return null;
+                    yesterday = yesterday.AddDays(-1);
+                    stryesterday = yesterday.ToString("yyyyMMdd");
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 }
+                if (previousmodels != null && previousmodels.Count > 0)
+                {
+                    var previouspdResultviewModels = GetPDResultDailyViewModel(previousmodels, localCurrency, vndRate, out finalCurrency);
+                    //Tính tổng danh thu trên ngày của tất cả operation
+                    var previousgrandTotalTargetRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.TargetRevenue)), appConfig.Rounding);
+                    var previousgrandTotalActualRevenue = Math.Round(previouspdResultviewModels.Sum(x => double.Parse(x.ActualRevenue)), appConfig.Rounding);
+                    var previousgrandTotalRevenueRate = Math.Round(previousgrandTotalTargetRevenue == 0 ? 0 : (previousgrandTotalActualRevenue / previousgrandTotalTargetRevenue) * 100, appConfig.Rounding);
+
+                    CostDailyViewModel costDailyViewModel2 = new CostDailyViewModel();
+                    costDailyViewModel2.Currency = finalCurrency;
+                    costDailyViewModel2.Cost = cost;
+                    costDailyViewModel2.Date = yesterday.ToString("dd/MM/yyyy");
+                    costDailyViewModel2.TargetRevenue = previousgrandTotalTargetRevenue;
+                    costDailyViewModel2.ActualRevenue = previousgrandTotalActualRevenue;
+                    costDailyViewModel2.RevenueRate = previousgrandTotalRevenueRate;
+                    costDailyViewModels.Add(costDailyViewModel2);
+
+                    CostRevenueViewModel yesterdayCostVM = new CostRevenueViewModel();
+                    yesterdayCostVM.Time = "Yesterday";
+                    yesterdayCostVM.StrDateTime = yesterday.ToString("dd/MM/yyyy");
+                    yesterdayCostVM.Key = "Cost";
+                    yesterdayCostVM.Value = cost;
+                    costRevenueViewModels.Add(yesterdayCostVM);
+
+                    CostRevenueViewModel yesterdayPMCWOVM = new CostRevenueViewModel();
+                    yesterdayPMCWOVM.Time = "Yesterday";
+                    yesterdayPMCWOVM.StrDateTime = yesterday.ToString("dd/MM/yyyy");
+                    yesterdayPMCWOVM.Key = "PMC WO";
+                    yesterdayPMCWOVM.Value = previousgrandTotalTargetRevenue;
+                    costRevenueViewModels.Add(yesterdayPMCWOVM);
+
+                    CostRevenueViewModel yesterdayPDOutputVM = new CostRevenueViewModel();
+                    yesterdayPDOutputVM.Time = "Yesterday";
+                    yesterdayPDOutputVM.StrDateTime = yesterday.ToString("dd/MM/yyyy");
+                    yesterdayPDOutputVM.Key = "PD Output";
+                    yesterdayPDOutputVM.Value = previousgrandTotalActualRevenue;
+                    costRevenueViewModels.Add(yesterdayPDOutputVM);
+
+                    ViewBag.Yesterday = yesterday.ToString("dd/MM/yyyy");
+                }
+
+                costDailyViewModels = costDailyViewModels.OrderBy(x => x.Date).ToList();
+                ViewBag.CostDaily = costDailyViewModels;
+
+                //23/12/2025: Tính toán Cost và doanh thu theo năm
+                //Lấy cost của 1 năm được nhập bởi PMC
+                var yearCost = await appSettingDataPortal.GetCostInYear();
+                
+
+                var svnTargetDataPortal = new SVN_TargetDataPortal(connectionString);
+                string companyStartDate = await appSettingDataPortal.GetStartDate();
+                string currentDate = date.ToString("yyyyMMdd");
+
+                DateTime startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                if (date.Year > startDate.Year)
+                {
+                    companyStartDate = date.Year.ToString() + "0101";
+                }
+
+                //Tính yearcost từ thời điểm đầu tiên đến hiện tại
+                startDate = DateTime.ParseExact(companyStartDate, "yyyyMMdd", null);
+                int totalDays = (date.Date - startDate.Date).Days;
+                yearCost = cost * totalDays;
+
+                //Lấy target/Actual Output từ ngày bắt đầu đến hiện tại
+                var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
+                if (yearlyTarget != null)
+                {
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfo, localCurrency, vndRate);
+                    if (costYearlyResult != null)
+                    {
+                        //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
+                        //double yearlyCostValue = 0;
+                        //try
+                        //{
+                        //    yearlyCostValue = (double)finalYearlyCostResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //var yearlyTargetRevenueResult = await GetAmountByCurrency(costYearlyResult.TargetRevenue, "USD", localCurrency);
+                        //var yearlyActualRevenueResult = await GetAmountByCurrency(costYearlyResult.ActualRevenue, "USD", localCurrency);
+                        //double yearlyTargetRevenue = 0;
+                        //double yearlyActualRevenue = 0;
+                        //try
+                        //{
+                        //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //try
+                        //{
+                        //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                        //}
+                        //catch
+                        //{
+                        //}
+                        //double yearlyCostValue = localCurrency == "VND" ? Math.Round(yearCost * vndRate, 0) : yearCost;
+                        double yearlyCostValue = yearCost;
+                        double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.TargetRevenue * vndRate, 0) : costYearlyResult.TargetRevenue;
+                        double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(costYearlyResult.ActualRevenue * vndRate, 0) : costYearlyResult.ActualRevenue;
+                        var yearlyRevenueRate = yearlyTargetRevenue == 0 ? 0 : Math.Round((yearlyActualRevenue / yearlyTargetRevenue) * 100, appConfig.Rounding);
+                        var costAndRevenueYearlyInfo = "💸FN Yearly Cost: " + yearlyCostValue.ToString("N0") + " " + finalCurrency
+                            + " | 💰PMC Yearly WO: " + yearlyTargetRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD Yearly Output: " + yearlyActualRevenue.ToString("N0") + " " + finalCurrency
+                            + " |💰PD/PMC Rate: " + yearlyRevenueRate.ToString() + "%";
+                        ViewBag.CostAndRevenueYearlyInfo = costAndRevenueYearlyInfo;
+
+                        CostRevenueViewModel yearlyCostVM = new CostRevenueViewModel();
+                        yearlyCostVM.Time = "Yearly";
+                        yearlyCostVM.StrDateTime = date.Year.ToString();
+                        yearlyCostVM.Key = "Cost";
+                        yearlyCostVM.Value = yearlyCostValue;
+                        costRevenueViewModels.Add(yearlyCostVM);
+
+                        CostRevenueViewModel yearlyPMCWOVM = new CostRevenueViewModel();
+                        yearlyPMCWOVM.Time = "Yearly";
+                        yearlyPMCWOVM.StrDateTime = date.Year.ToString();
+                        yearlyPMCWOVM.Key = "PMC WO";
+                        yearlyPMCWOVM.Value = yearlyTargetRevenue;
+                        costRevenueViewModels.Add(yearlyPMCWOVM);
+
+                        CostRevenueViewModel yearlyPDOutputVM = new CostRevenueViewModel();
+                        yearlyPDOutputVM.Time = "Yearly";
+                        yearlyPDOutputVM.StrDateTime = date.Year.ToString();
+                        yearlyPDOutputVM.Key = "PD Output";
+                        yearlyPDOutputVM.Value = yearlyActualRevenue;
+                        costRevenueViewModels.Add(yearlyPDOutputVM);
+
+                        //Lấy top 3 có doanh thu cao nhất và top 3 có doanh thu thấp nhất
+
+                        if (costYearlyResult.CostYearlyPerOpers != null)
+                        {
+                            var itemHaveRevenue = costYearlyResult.CostYearlyPerOpers.Where(x => x.ActualRevenue > 0).ToList();
+                            if (itemHaveRevenue != null)
+                            {
+                                //var top3HighRevenue = itemHaveRevenue.OrderByDescending(x => x.ActualRevenue).Take(5).ToList();
+                                //var top3LowRevenue = itemHaveRevenue.OrderBy(x => x.ActualRevenue).Take(5).OrderByDescending(x => x.ActualRevenue).ToList();
+
+                                //ViewBag.Top3HighRevenue = top3HighRevenue;
+                                //ViewBag.Top3LowRevenue = top3LowRevenue;
+
+                                var topHigh = itemHaveRevenue
+                                .OrderByDescending(x => x.ActualRevenue)
+                                .Take(5)
+                                .ToList();
+
+                                var highKeys = new HashSet<string>(topHigh.Select(x => x.Operation));
+
+                                var topLow = itemHaveRevenue
+                                    .Where(x => !highKeys.Contains(x.Operation))
+                                    .OrderBy(x => x.ActualRevenue)
+                                    .Take(5)
+                                    .OrderByDescending(x => x.ActualRevenue)
+                                    .ToList();
+
+                                ViewBag.Top3HighRevenue = topHigh;
+                                ViewBag.Top3LowRevenue = topLow;
+                            }
+                        }
+
+                    }
+                }
+
+
+
+                List<string> statusList = new List<string>();
+                foreach (var item in pdResultviewModels)
+                {
+                    string warning = " ⚠️ ";
+                    string error = " ❌ ";
+                    string issue = "❗";
+                    string status = item.OperationActive + ": ";
+
+                    if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) >= 0 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 75)
+                    {
+                        status = status + "Daily plan " + error + item.DailyPlanAchieve;
+                    }
+                    else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 100)
+                    {
+                        status = status + "Daily plan " + warning + item.DailyPlanAchieve;
+                    }
+                    else if (double.Parse(item.DailyPlanAchieve.Replace("%", "")) > 75 && double.Parse(item.DailyPlanAchieve.Replace("%", "")) <= 92)
+                    {
+                        status = status + "Daily plan " + warning + item.DailyPlanAchieve;
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.UPH.Replace("%", "")) >= 0 && double.Parse(item.UPH.Replace("%", "")) <= 75)
+                    {
+                        status = status + " UPH " + error + item.UPH;
+                    }
+                    else if (double.Parse(item.UPH.Replace("%", "")) > 100)
+                    {
+                        status = status + " UPH " + warning + item.UPH;
+                    }
+                    else if (double.Parse(item.UPH.Replace("%", "")) > 75 && double.Parse(item.UPH.Replace("%", "")) <= 92)
+                    {
+                        status = status + " UPH " + warning + item.UPH;
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.UPPH.Replace("%", "")) >= 0 && double.Parse(item.UPPH.Replace("%", "")) <= 75)
+                    {
+                        status = status + " UPPH " + error + item.UPPH;
+                    }
+                    else if (double.Parse(item.UPPH.Replace("%", "")) > 100)
+                    {
+                        status = status + " UPPH " + warning + item.UPPH;
+                    }
+                    else if (double.Parse(item.UPPH.Replace("%", "")) > 75 && double.Parse(item.UPPH.Replace("%", "")) <= 92)
+                    {
+                        status = status + " UPPH " + warning + item.UPPH;
+                    }
+                    else
+                    {
+
+                    }
+
+                    if (double.Parse(item.DefectRate.Replace("%", "")) > 100)
+                    {
+                        status = status + " Defect " + error + item.DefectRate;
+                    }
+                    else if (double.Parse(item.DefectRate.Replace("%", "")) > 75 && double.Parse(item.DefectRate.Replace("%", "")) <= 100)
+                    {
+                        status = status + " Defect " + warning + item.DefectRate;
+                    }
+                    else
+                    {
+
+                    }
+
+                    statusList.Add(status);
+                }
+
+                ViewBag.StatusList = statusList;
+                ViewBag.LocalCurrency = finalCurrency;
+                
+                return View(costRevenueViewModels);
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                costRevenueViewModels = new List<CostRevenueViewModel>();
+                return View(costRevenueViewModels);
+
             }
         }
+        #endregion
+
+        #region privatelogic
+        private async Task<BODataProcessResult> GetAmountByCurrency(double amount, string fromCurrency, string toCurrency)
+        {
+            BODataProcessResult dataProcessResult = new BODataProcessResult();
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    string url = aPIConfiguration.ChangeCurrencyURL;
+                    url = url.Replace("fromCurrency", fromCurrency);
+                    var response = await client.GetStringAsync(url);
+
+                    var json = JObject.Parse(response);
+                    double rate = (double)json["rates"][toCurrency];
+
+                    dataProcessResult.OK = true;
+                    dataProcessResult.Message = "Change currency from " + fromCurrency + " to " + toCurrency + " OK";
+                    dataProcessResult.Content = amount * rate;
+                }
+            }
+            catch (Exception ex)
+            {
+                dataProcessResult.OK = false;
+                dataProcessResult.Message = ex.Message;
+                dataProcessResult.Content = amount;
+            }
+            return dataProcessResult;
+        }
+
+        private List<PDResultDailyViewModel> GetPDResultDailyViewModel(List<QtyProdResultByOperViewModel> models, string localCurrency, double vndRate, out string finalCurrency)
+        {
+            bool callCurrencyAPI = false;
+            List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
+            foreach (var model in models)
+            {
+                var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                if (userInfo != null)
+                {
+                    model.PDName = userInfo.PDName;
+                    model.QCName = userInfo.QCName;
+                }
+            }
+            models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+            // sum dữ liệu theo master oper
+            List<string> operations = models.Select(x => x.MasterOperation).Distinct().ToList();
+            foreach (var oper in operations)
+            {
+                var totalPlan = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Target ?? 0);
+                var totalPlanCurrent = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.Current ?? 0);
+                var totalPlanAchieve = totalPlan == 0 ? 0 : (totalPlanCurrent / totalPlan) * 100;
+
+                var totalUPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Current ?? 0);
+                var totalUPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPH")?.Target ?? 0);
+                var totalUPHRate = totalUPHTarget == 0 ? 0 : (totalUPH / totalUPHTarget) * 100;
+
+                var totalUPPH = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Current ?? 0);
+                var totalUPPHTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "UPPH")?.Target ?? 0);
+                var totalUPPHRate = totalUPPHTarget == 0 ? 0 : (totalUPPH / totalUPPHTarget) * 100;
+
+                var totalLabor = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Current ?? 0);
+                var totalLaborTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Labor")?.Target ?? 0);
+                var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
+
+                var totalDefect = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
+                var totalDefectTarget = models.Where(x => x.MasterOperation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                totalDefectTarget = totalDefectTarget * 100;
+                totalDefect = totalPlanCurrent != 0 ? (totalDefect / totalPlanCurrent) * 100 : 0;
+                totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
+
+                PDResultDailyViewModel viewModel = new PDResultDailyViewModel();
+                viewModel.OperationActive = oper;
+                viewModel.DailyPlanTarget = Math.Round(totalPlan, appConfig.Rounding).ToString();
+                viewModel.DailyPlanCurrent = Math.Round(totalPlanCurrent, appConfig.Rounding).ToString();
+                viewModel.DailyPlanAchieve = Math.Round(totalPlanAchieve, appConfig.Rounding).ToString() + "%";
+                viewModel.UPH = Math.Round(totalUPHRate, appConfig.Rounding).ToString() + "%";
+                viewModel.UPPH = Math.Round(totalUPPHRate, appConfig.Rounding).ToString() + "%";
+                viewModel.Labor = Math.Round(totalLaborRate, appConfig.Rounding).ToString() + "%";
+                viewModel.DefectTargetRate = Math.Round(totalDefectTarget, appConfig.Rounding).ToString() + "%";
+                viewModel.DefectCurrentRate = Math.Round(totalDefect, appConfig.Rounding).ToString() + "%";
+                viewModel.DefectRate = Math.Round(totalDefectRate, appConfig.Rounding).ToString() + "%";
+                viewModel.CheckListOnSystem = models.Where(x => x.MasterOperation == oper).All(x => x.CanProductionByCheclist) ? "OK" : "NG";
+
+                var remarkList = models
+                    .Where(x => x.MasterOperation == oper)
+                    .SelectMany(x => x.DefectByCategoryViewModels
+                        .Where(y => y.value != "0")
+                        .Select(y => new { y.category, Value = int.Parse(y.value) })) // ép value sang số
+                    .GroupBy(x => x.category)
+                    .Select(g => $"{g.Key}: {g.Sum(x => x.Value)}")
+                    .ToList();
+                viewModel.Remark = remarkList.Any()
+                                    ? "Defect reason:" + Environment.NewLine + string.Join(Environment.NewLine, remarkList)
+                                    : string.Empty;
+                viewModel.UPHTarget = Math.Round(totalUPHTarget, appConfig.Rounding).ToString();
+                viewModel.UPPHTarget = Math.Round(totalUPPHTarget, appConfig.Rounding).ToString();
+                viewModel.LaborTarget = Math.Round(totalLaborTarget, appConfig.Rounding).ToString();
+                viewModel.UPHCurrent = Math.Round(totalUPH, appConfig.Rounding).ToString();
+                viewModel.UPPHCurrent = Math.Round(totalUPPH, appConfig.Rounding).ToString();
+                viewModel.LaborCurrent = Math.Round(totalLabor, appConfig.Rounding).ToString();
+
+                //2025/12/12: Tính toán doanh thu cho từng công đoạn
+                var totalTargetRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.TargetRevenue ?? 0);
+                var totalActualRevenue = models.Where(x => x.MasterOperation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "H.Plan")?.ActualRevenue ?? 0);
+                var totalRevenueRate = totalTargetRevenue == 0 ? 0 : (totalActualRevenue / totalTargetRevenue) * 100;
+
+                //var targetRResult = GetAmountByCurrency(totalTargetRevenue, "USD", localCurrency).GetAwaiter().GetResult();
+                //if (targetRResult != null)
+                //{
+                //    try
+                //    {
+                //        totalTargetRevenue = (double)targetRResult.Content;
+                //    }
+                //    catch
+                //    {
+
+                //    }
+                //    if (targetRResult.OK)
+                //    {
+                //        callCurrencyAPI = true;
+                //        //finalCurrency = localCurrency;
+                //    }
+                //    else
+                //    {
+                //        callCurrencyAPI = false;
+                //        //finalCurrency = "USD";
+                //    }
+                //}
+                //var actualRResult = GetAmountByCurrency(totalActualRevenue, "USD", localCurrency).GetAwaiter().GetResult();
+                //if (actualRResult != null)
+                //{
+                //    try
+                //    {
+                //        totalActualRevenue = (double)actualRResult.Content;
+                //    }
+                //    catch
+                //    {
+
+                //    }
+                //    if (actualRResult.OK)
+                //    {
+                //        callCurrencyAPI = true;
+                //        //finalCurrency = localCurrency;
+                //    }
+                //    else
+                //    {
+                //        callCurrencyAPI = false;
+                //        //finalCurrency = "USD";
+                //    }
+                //}
+
+                totalTargetRevenue = localCurrency == "VND" ? Math.Round(totalTargetRevenue * vndRate, 0) : totalTargetRevenue;
+                totalActualRevenue = localCurrency == "VND" ? Math.Round(totalActualRevenue * vndRate, 0) : totalActualRevenue;
+
+
+                viewModel.TargetRevenue = Math.Round(totalTargetRevenue, appConfig.Rounding).ToString("N0");
+                viewModel.ActualRevenue = Math.Round(totalActualRevenue, appConfig.Rounding).ToString("N0");
+                viewModel.RevenueRate = Math.Round(totalRevenueRate, appConfig.Rounding).ToString() + "%";
+
+                pdResultviewModels.Add(viewModel);
+            }
+            //if(callCurrencyAPI == false)
+            //{
+            //    finalCurrency = "USD";
+            //}
+            //else
+            //{
+            //    finalCurrency = localCurrency;
+            //}
+
+            finalCurrency = localCurrency;
+
+            return pdResultviewModels;
+        }
+
+        //Hàm tính tri phí, doanh thu theo năm
+        private CostDailyViewModel GetCostPerYear(List<SVN_target> sVN_Targets, OperInfoConfig operInfoConfig, string localCurrency = "VND", double SVNRate = 26152.137911)
+        {
+            CostDailyViewModel costDailyViewModel = new CostDailyViewModel();
+            foreach(var item in operInfoConfig.OperInfo)
+            {
+                var dataByOper = sVN_Targets.Where(x => x.Operation == item.Operation).ToList();
+                if(dataByOper != null && dataByOper.Count > 0)
+                {
+                    var sumTargetQtyByOper = dataByOper.Sum(x => x.Daily_plan);
+                    var sumActualQtyByOper = dataByOper.Sum(x => x.Total_Qty);
+
+                    var sumTargetRevenueByOper = sumTargetQtyByOper * item.Price;
+                    var sumActualRevenueByOper = sumActualQtyByOper * item.Price;
+
+                    costDailyViewModel.TargetRevenue = costDailyViewModel.TargetRevenue + sumTargetRevenueByOper;
+                    costDailyViewModel.ActualRevenue = costDailyViewModel.ActualRevenue + sumActualRevenueByOper;
+
+                    CostYearlyPerOperViewModel costYearlyPerOperViewModel = new CostYearlyPerOperViewModel();
+                    costYearlyPerOperViewModel.Operation = item.Operation;
+                    costYearlyPerOperViewModel.TargetOutput = sumTargetQtyByOper;
+                    costYearlyPerOperViewModel.ActualOutput = sumActualQtyByOper;
+
+                    //var yearlyTargetRevenueResult = GetAmountByCurrency(sumTargetRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
+                    //var yearlyActualRevenueResult = GetAmountByCurrency(sumActualRevenueByOper, "USD", localCurrency).GetAwaiter().GetResult();
+                    //double yearlyTargetRevenue = 0;
+                    //double yearlyActualRevenue = 0;
+                    //try
+                    //{
+                    //    yearlyTargetRevenue = (double)yearlyTargetRevenueResult.Content;
+                    //}
+                    //catch
+                    //{
+                    //}
+                    //try
+                    //{
+                    //    yearlyActualRevenue = (double)yearlyActualRevenueResult.Content;
+                    //}
+                    //catch
+                    //{
+                    //}
+                    double yearlyTargetRevenue = localCurrency == "VND" ? Math.Round(sumTargetRevenueByOper * SVNRate, 0) : sumTargetRevenueByOper;
+                    double yearlyActualRevenue = localCurrency == "VND" ? Math.Round(sumActualRevenueByOper * SVNRate, 0) : sumActualRevenueByOper;
+
+                    costYearlyPerOperViewModel.TargetRevenue = yearlyTargetRevenue;
+                    costYearlyPerOperViewModel.ActualRevenue = yearlyActualRevenue;
+
+                    costDailyViewModel.CostYearlyPerOpers.Add(costYearlyPerOperViewModel);
+                }
+            }
+            costDailyViewModel.RevenueRate = costDailyViewModel.TargetRevenue == 0 ? 0 : (costDailyViewModel.ActualRevenue / costDailyViewModel.TargetRevenue) * 100;
+            return costDailyViewModel;
+        }
+
+        /// <summary>
+        /// convert time
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        private TimeSpan GetStartTime(string time)
+        {
+            var part = time.Split('-')[0];   // "10h10"
+            var arr = part.Split('h');
+
+            int hour = int.Parse(arr[0]);
+            int minute = arr.Length > 1 && arr[1] != ""
+                ? int.Parse(arr[1])
+                : 0;
+
+            return new TimeSpan(hour, minute, 0);
+        }
+
         #endregion
     }
 }

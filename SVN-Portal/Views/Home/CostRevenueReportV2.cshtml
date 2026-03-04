@@ -1,0 +1,839 @@
+﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
+@model IEnumerable<CostRevenueViewModel>
+@{
+    // Layout = "~/Views/Shared/_NewLayout.cshtml";
+    DateTime date = ViewBag.Date;
+    ViewData["Title"] = "Cost/Revenue Report";
+
+    List<CostRevenueViewModel> yestardayVM = Model.Where(x => x.Time == "Yesterday").ToList();
+    List<CostRevenueViewModel> todayVM = Model.Where(x => x.Time == "Today").ToList();
+    List<CostRevenueViewModel> yearlyVM = Model.Where(x => x.Time == "Yearly").ToList();
+
+    string jsonYestardayData = JsonConvert.SerializeObject(yestardayVM);
+    string jsonTodayData = JsonConvert.SerializeObject(todayVM);
+    string jsonYearlyData = JsonConvert.SerializeObject(yearlyVM);
+
+    List<CostYearlyPerOperViewModel> top3HighRevenue = ViewBag.Top3HighRevenue;
+    List<CostYearlyPerOperViewModel> top3LowRevenue = ViewBag.Top3LowRevenue;
+}
+<link href="~/css/responsivescreen.css" rel="stylesheet" />
+<div class="row d-none">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                    <div class="row">
+                        <div class="col-9 col-sm-6 col-md-3">
+                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-3 col-sm-6 col-md-3">
+                            <button type="submit" asp-action="CostRevenueReportV2" class="btn btn-primary" style="height: 100%">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="row">
+            <div class="col-12 col-md-4">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cost/Revenue @ViewBag.Yesterday (@ViewBag.LocalCurrency)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="costRevenueYesterdayChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cost/Revenue @date.ToString("dd/MM/yyyy") (@ViewBag.LocalCurrency)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="costRevenueTodayChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card svn-card">
+                    <div class="card-title">
+                        <h2>Cost/Revenue @date.Year.ToString() (@ViewBag.LocalCurrency)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="costRevenueYearChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card svn-card svn-b-card">
+                    <div class="card-title">
+                        <h2>Cash Inflow vs Outflow</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="cashFlowChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card svn-card svn-b-card">
+                    <div class="card-title">
+                        <h2>Cash Forecast</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="cashForecastChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card svn-card svn-b-card">
+            <div class="card-title">
+                <h2>AR Ageing</h2>
+            </div>
+            <div class="card-body">
+                @* <div class="table-responsive fs-table">
+                    <table class="table table-bordered table-hover table-sm align-middle">
+                        <thead class="text-center">
+                            <tr>
+                                <th>Customer Code</th>
+                                <th>Customer</th>
+                                <th class="text-end">Ending Balance</th>
+                                <th class="text-end">0 - 30 days</th>
+                                <th class="text-end">31 - 60 days</th>
+                                <th class="text-end">61 - 90 days</th>
+                                <th class="text-end">91+ days</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>S000002</td>
+                                <td>Walter</td>
+                                <td class="text-end">5,800</td>
+                                <td class="text-end">5,800</td>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                                <td>Re-issue invoice Aug 22</td>
+                            </tr>
+
+                            <tr>
+                                <td>S000004</td>
+                                <td>Toast</td>
+                                <td class="text-end">12,589,041</td>
+                                <td class="text-end">1,054,423</td>
+                                <td class="text-end">2,142,027</td>
+                                <td class="text-end">2,177,389</td>
+                                <td class="text-end text-danger fw-bold">6,511,311</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>S000001</td>
+                                <td>Astro</td>
+                                <td class="text-end">187,229</td>
+                                <td class="text-end">187,229</td>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>P000015</td>
+                                <td>POP</td>
+                                <td class="text-end">6,450</td>
+                                <td class="text-end">6,450</td>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                                <td class="text-end">-</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="2" class="text-center">Total</td>
+                                <td class="text-end">12,388,520</td>
+                                <td class="text-end">1,304,101</td>
+                                <td class="text-end">2,142,027</td>
+                                <td class="text-end">2,177,389</td>
+                                <td class="text-end text-danger">6,511,311</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div> *@
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="table-responsive fs-table">
+                            <table class="table table-bordered table-hover table-sm align-middle">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th class="text-end">Ending Balance</th>
+                                        <th class="text-end">61 - 90 days</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <td>Walter</td>
+                                        <td class="text-end">5,800</td>
+                                        <td class="text-end">-</td>
+                                        <td>Re-issue invoice Aug 22</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Toast</td>
+                                        <td class="text-end">12,589,041</td>
+                                        <td class="text-end">2,177,389</td>
+                                        <td></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Astro</td>
+                                        <td class="text-end">187,229</td>
+                                        <td class="text-end">-</td>
+                                        <td></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>POP</td>
+                                        <td class="text-end">6,450</td>
+                                        <td class="text-end">-</td>
+                                        <td></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="text-center">Total</td>
+                                        <td class="text-end">12,388,520</td>
+                                        <td class="text-end">2,177,389</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive fs-table mt-3">
+                            <table class="table table-bordered table-hover table-sm align-middle">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th class="text-end">AR</th>
+                                        <th class="text-end">AP</th>
+                                        <th class="text-end">AP - AR</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <td>Walter</td>
+                                        <td class="text-end">12,785,618</td>
+                                        <td class="text-end">-</td>
+                                        <td class="text-end text-success fw-bold">+12,785,618</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Toast</td>
+                                        <td class="text-end">-</td>
+                                        <td class="text-end">1,832,296</td>
+                                        <td class="text-end text-danger fw-bold">-1,832,296</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Astro</td>
+                                        <td class="text-end">-</td>
+                                        <td class="text-end">30,803</td>
+                                        <td class="text-end text-danger">-30,803</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>POP</td>
+                                        <td class="text-end">6,800</td>
+                                        <td class="text-end">-</td>
+                                        <td class="text-end text-success">+6,800</td>
+                                    </tr>
+
+                                    @* <tr>
+                                        <td>KMC</td>
+                                        <td class="text-end">206,233</td>
+                                        <td class="text-end">-</td>
+                                        <td class="text-end text-success">+206,233</td>
+                                    </tr> *@
+
+                                    <tr>
+                                        <td>Oversea other</td>
+                                        <td class="text-end">-</td>
+                                        <td class="text-end">487,232</td>
+                                        <td class="text-end text-danger">-487,232</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Local other</td>
+                                        <td class="text-end">6,133</td>
+                                        <td class="text-end">654,214</td>
+                                        <td class="text-end text-danger">-648,081</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">Total</td>
+                                        <td class="text-end">13,004,844</td>
+                                        <td class="text-end">1,844,525</td>
+                                        <td class="text-end text-success">+9,960,318</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive fs-table mt-3">
+                            <table class="table table-bordered table-sm align-middle">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th>Month</th>
+                                        <th class="text-end">AP</th>
+                                        <th class="text-end">AR</th>
+                                        <th class="text-end">AP - AR</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <td>2023</td>
+                                        <td class="text-end">11,939,799.42</td>
+                                        <td class="text-end">5,574,031.78</td>
+                                        <td class="text-end text-success fw-bold">5,515,887.54</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>2024</td>
+                                        <td class="text-end">2,297,258.07</td>
+                                        <td class="text-end">2,727,565.54</td>
+                                        <td class="text-end text-success fw-bold">436,363.47</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>2025</td>
+                                        <td class="text-end">2,554,333.91</td>
+                                        <td class="text-end">5,565,564.55</td>
+                                        <td class="text-end text-danger fw-bold">-2,901,532.69</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Jan-25</td>
+                                        <td class="text-end">244,869.26</td>
+                                        <td class="text-end">6,889,772.36</td>
+                                         <td class="text-end text-danger">-6,644,903.10</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Feb-25</td>
+                                        <td class="text-end">855,290.54</td>
+                                        <td class="text-end">5,449,743.88</td>
+                                        <td class="text-end text-danger">-4,594,453.66</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Mar-25</td>
+                                        <td class="text-end">589,155.52</td>
+                                        <td class="text-end">7,647,952.81</td>
+                                        <td class="text-end text-danger">-7,058,797.29</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Apr-25</td>
+                                        <td class="text-end">2,293,004.85</td>
+                                        <td class="text-end">7,184,961.63</td>
+                                        <td class="text-end text-danger fw-bold">-4,891,956.78</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>May-25</td>
+                                        <td class="text-end">1,756,888.72</td>
+                                        <td class="text-end">11,272,227.60</td>
+                                        <td class="text-end text-danger fw-bold">-9,515,338.88</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div id="apStatusChart" class="col-chart-cost-contain-v2"></div>
+                        <div id="apArStatusChart" class="col-chart-cost-contain-v2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var jsonYestardayData = @Html.Raw(jsonYestardayData);
+        var jsonTodayData = @Html.Raw(jsonTodayData);
+        var jsonYearlyData = @Html.Raw(jsonYearlyData);
+
+        AmCharts.makeChart("costRevenueYesterdayChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonYestardayData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            // "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "labelsEnabled": false,
+                "axisColor": "#FFFFFF",     // đường trục
+                "lineColor": "#FFFFFF",
+                "gridColor": "#FFFFFF",     // đường grid
+                "gridAlpha": 0.2,           // giảm đậm grid
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Money",
+                "valueField": "Value",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }],
+            "categoryField": "Key",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+
+        AmCharts.makeChart("costRevenueTodayChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonTodayData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            // "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "labelsEnabled": false,
+                "axisColor": "#FFFFFF",     // đường trục
+                "lineColor": "#FFFFFF",
+                "gridColor": "#FFFFFF",     // đường grid
+                "gridAlpha": 0.2,           // giảm đậm grid
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Money",
+                "valueField": "Value",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }],
+            "categoryField": "Key",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+
+        AmCharts.makeChart("costRevenueYearChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonYearlyData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            // "fontSize": 20,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "labelsEnabled": false,
+                "axisColor": "#FFFFFF",     // đường trục
+                "lineColor": "#FFFFFF",
+                "gridColor": "#FFFFFF",     // đường grid
+                "gridAlpha": 0.2,           // giảm đậm grid
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "Money",
+                "valueField": "Value",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }],
+            "categoryField": "Key",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+
+        var cashChartData = [
+          { month: "APR", cashIn: 260, cashOut: 220 },
+          { month: "MAY", cashIn: 310, cashOut: 250 },
+          { month: "JUN", cashIn: 360, cashOut: 290 },
+          { month: "JUL", cashIn: 430, cashOut: 330 },
+          { month: "AUG", cashIn: 420, cashOut: 320 },
+          { month: "SEP", cashIn: 460, cashOut: 360 },
+          { month: "OCT", cashIn: 520, cashOut: 420 }
+        ];
+
+        AmCharts.makeChart("cashFlowChart", {
+          "type": "serial",
+          "theme": "dark",
+          "dataProvider": cashChartData,
+
+          "categoryField": "month",
+          "color": "#FFFFFF",
+          "startDuration": 0,
+
+          "valueAxes": [{
+            "axisColor": "#FFFFFF",     // đường trục
+            "lineColor": "#FFFFFF",
+            "gridColor": "#FFFFFF",     // đường grid
+            "axisAlpha": 0,
+            "gridAlpha": 0.1,
+            "position": "left",
+            "title": "VND (Million)",
+            "minimum": 0
+          }],
+
+          "graphs": [
+            {
+              "id": "g1",
+              "title": "Cash In",
+              "valueField": "cashIn",
+              "type": "line",
+              "lineThickness": 3,
+              "lineColor": "#4FC3F7",
+              "fillAlphas": 0.35,
+              "bullet": "round",
+              "bulletSize": 6,
+              "bulletBorderAlpha": 1,
+              "bulletBorderThickness": 2,
+              "balloonText": "[[title]]: [[value]]M",
+              "labelText": "[[value]]M",
+              "labelPosition": "top"
+            },
+            {
+              "id": "g2",
+              "title": "Cash Out",
+              "valueField": "cashOut",
+              "type": "line",
+              "lineThickness": 3,
+              "lineColor": "#81C784",
+              "fillAlphas": 0.35,
+              "bullet": "round",
+              "bulletSize": 6,
+              "bulletBorderAlpha": 1,
+              "bulletBorderThickness": 2,
+              "balloonText": "[[title]]: [[value]]M"
+            }
+          ],
+
+          "chartCursor": {
+            "cursorAlpha": 0,
+            "zoomable": false
+          },
+
+          "categoryAxis": {
+            "gridPosition": "start",
+            "axisAlpha": 0,
+            "gridAlpha": 0.1
+          },
+
+          "legend": {
+            "useGraphSettings": true,
+            "color": "#fff"
+          }
+        });
+
+        var forecastchartData = [
+          { month: "APR", cash: 600 },
+          { month: "MAY", cash: 550 },
+          { month: "JUN", cash: 480 },
+          { month: "JUL", cash: 400 },
+          { month: "AUG", cash: 350 },
+          { month: "SEP", cash: 300 },
+          { month: "OCT", cash: 150 }
+        ];
+
+        AmCharts.makeChart("cashForecastChart", {
+          "type": "serial",
+          "theme": "dark",
+          "dataProvider": forecastchartData,
+
+          "categoryField": "month",
+          "color": "#FFFFFF",
+          "startDuration": 0,
+
+          "valueAxes": [{
+            "position": "left",
+            "axisColor": "#FFFFFF",     // đường trục
+            "lineColor": "#FFFFFF",
+            "gridColor": "#FFFFFF",     // đường grid
+            "axisAlpha": 0,
+            "gridAlpha": 0.1,
+            "minimum": 0,
+            "title": "VND (Million)",
+
+            // 🔥 Threshold line
+            "guides": [{
+              "value": 150,
+              "lineColor": "#FBC02D",
+              "lineAlpha": 1,
+              "dashLength": 5,
+              "label": "ACTION REQUIRED",
+              "inside": true,
+              "fontSize": 11,
+              "color": "#FBC02D"
+            }]
+          }],
+
+          "graphs": [{
+            "id": "g1",
+            "title": "Cash Forecast",
+            "valueField": "cash",
+            "type": "line",
+            "lineThickness": 3,
+            "lineColor": "#AED581",
+
+            // Area
+            "fillAlphas": 0.35,
+            "fillColors": "#558B2F",
+
+            // Bullet
+            "bullet": "round",
+            "bulletSize": 6,
+
+            // Tooltip
+            "balloonText": "[[category]]: [[value]]M",
+
+            // 🔥 Highlight last point only
+            // "labelFunction": function(item) {
+            //   return item.index === chartData.length - 1
+            //     ? item.values.value + "M"
+            //     : "";
+            // },
+            "labelPosition": "top"
+          }],
+
+          "categoryAxis": {
+            "gridPosition": "start",
+            "axisAlpha": 0,
+            "gridAlpha": 0.1
+          },
+
+          "chartCursor": {
+            "cursorAlpha": 0,
+            "zoomable": false
+          },
+
+          "legend": {
+            "enabled": true,
+            "color": "#FFFFFF"
+          }
+        });
+
+        var apStatusData = [
+            {
+                "status": "AP Paid",
+                "value": 2340000
+            },
+            {
+                "status": "AP Unpaid",
+                "value": 480000
+            }
+        ];
+
+        AmCharts.makeChart("apStatusChart", {
+            "type": "pie",
+            "theme": "light",
+
+            "dataProvider": apStatusData,
+            "valueField": "value",
+            "titleField": "status",
+            "color": "#FFFFFF",
+            "startDuration": 0.8,
+
+            // Hiển thị value trên lát
+            "labelText": "[[title]]\n[[value]]",
+            "balloonText": "[[title]]: <b>[[value]]</b>",
+
+            // Style giống hình
+            "depth3D": 15,
+            "angle": 30,
+
+            // Tách 1 lát ra
+            "pullOutRadius": 10,
+            "pullOutOnlyOne": true,
+
+            // Tự động pull slice nhỏ (hoặc bạn set tay bên dưới)
+            "startEffect": "elastic",
+
+            "colors": [
+                "#4F81BD", // xanh
+                "#C0504D"  // đỏ
+            ],
+
+            "legend": {
+                "position": "right",
+                "align": "center",
+                "markerType": "circle",
+                "valueText": "[[value]]",
+                "color": "#FFFFFF"
+            },
+
+            "titles": [{
+                "text": "AP Status",
+                "size": 16
+            }]
+        });
+
+        var apArData = [
+            { month: "2023", AR: 1200000, AP: 900000, Balance: 300000 },
+            { month: "2024", AR: 800000,  AP: 700000, Balance: 100000 },
+            { month: "Jan-25", AR: 950000, AP: 1100000, Balance: -150000 },
+            { month: "Feb-25", AR: 900000, AP: 1000000, Balance: -100000 },
+            { month: "Mar-25", AR: 1050000, AP: 1200000, Balance: -150000 },
+            { month: "Apr-25", AR: 1150000, AP: 1300000, Balance: -150000 },
+            { month: "May-25", AR: 1250000, AP: 1450000, Balance: -200000 }
+        ];
+
+        AmCharts.makeChart("apArStatusChart", {
+            "type": "serial",
+            "theme": "light",
+
+            "dataProvider": apArData,
+            "categoryField": "month",
+            "color": "#FFFFFF",
+            "startDuration": 0.8,
+
+            "valueAxes": [
+                {
+                    "id": "vMoney",
+                    "position": "left",
+                    "title": "Amount",
+                    "minimum": 0
+                },
+                {
+                    "id": "vBalance",
+                    "position": "right",
+                    "title": "AP - AR",
+                    "gridAlpha": 0
+                }
+            ],
+
+            "graphs": [
+                {
+                    "id": "gAR",
+                    "title": "AR",
+                    "type": "column",
+                    "valueField": "AR",
+                    "valueAxis": "vMoney",
+                    "fillAlphas": 0.9,
+                    "lineAlpha": 0.2,
+                    "fillColors": "#777777",
+                    "balloonText": "AR: <b>[[value]]</b>"
+                },
+                {
+                    "id": "gAP",
+                    "title": "AP",
+                    "type": "column",
+                    "valueField": "AP",
+                    "valueAxis": "vMoney",
+                    "fillAlphas": 0.9,
+                    "lineAlpha": 0.2,
+                    "fillColors": "#FFFFFF",
+                    "lineColor": "#999999",
+                    "balloonText": "AP: <b>[[value]]</b>"
+                },
+                {
+                    "id": "gBalance",
+                    "title": "AP - AR",
+                    "type": "line",
+                    "valueField": "Balance",
+                    "valueAxis": "vBalance",
+                    "lineThickness": 3,
+                    "bullet": "round",
+                    "bulletSize": 6,
+                    "lineColor": "#4F81BD",
+                    "balloonText": "AP - AR: <b>[[value]]</b>"
+                }
+            ],
+
+            "categoryAxis": {
+                "gridPosition": "start",
+                "axisAlpha": 0.5
+            },
+
+            "legend": {
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "position": "bottom"
+            },
+
+            "titles": [{
+                "text": "AP - AR STATUS",
+                "size": 16
+            }]
+        });
+
+
+    </script>
+</div>

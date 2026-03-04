@@ -3,7 +3,9 @@
 @model IEnumerable<PDResultDailyViewModel>
 @{
 
-    DateTime date = ViewBag.date;
+    DateTime fromdate = ViewBag.FromDate;
+    DateTime todate = ViewBag.ToDate;
+    string itemType = ViewBag.ItemType;
     ViewData["Title"] = "Production Result Daily";
 }
 
@@ -11,10 +13,64 @@
     <div class="col-lg-12">
         <form method="post">
             <div class="form-group row">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-end gap-2">
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>From Date</label>
+                                <input type="date" name="fromdate"
+                                       value="@fromdate.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>To Date</label>
+                                <input type="date" name="todate"
+                                       value="@todate.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Item Type</label>
+                                <select class="form-control" name="itemType">
+                                    <option value="ALL" selected="@(itemType == "ALL")">ALL</option>
+                                    <option value="FG" selected="@(itemType == "FG")">FG</option>
+                                    <option value="WIP" selected="@(itemType == "WIP")">WIP</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="PDResultDailyReportV0"
+                                        class="btn btn-primary">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="ExportPDResultDailyV0"
+                                        class="btn btn-success">
+                                    Export excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @* <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="row">
-                        <div class="col-6">
-                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="fromdate" value="@fromdate.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <input type="date" name="todate" value="@todate.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-2">
+                            <input type="text" name="itemType" value="@itemType" placeholder="ALL or WIP or FG" class="form-control" />
                         </div>
                         <div class="col-3">
                             <button type="submit" asp-action="PDResultDailyReportV0" asp-route-companyCode="@ViewBag.CompanyCode" class="btn btn-primary">
@@ -27,7 +83,7 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> *@
             </div>
         </form>
     </div>
@@ -63,24 +119,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var item in Model)
+                            @if (Model != null)
                             {
-                                <tr>
-                                    <th scope="row">@item.OperationActive</th>
-                                    <td>@item.DailyPlanTarget</td>
-                                    <td>@item.DailyPlanCurrent</td>
-                                    <td>@item.DailyPlanAchieve</td>
-                                    <td>@item.UPHTarget</td>
-                                    <td>@item.UPHCurrent</td>
-                                    <td>@item.UPH</td>
-                                    <td>@item.UPPH</td>
-                                    <td>@item.Labor</td>
-                                    <td>@item.DefectTargetRate</td>
-                                    <td>@item.DefectCurrentRate</td>
-                                    <td>@item.DefectRate</td>
-                                    <td>@item.CheckListOnSystem</td>
-                                    <td>@item.Remark</td>
-                                </tr>
+                                foreach (var item in Model)
+                                {
+                                    string rowClass = "";
+                                    if (item.OperationActive == "Total Quatity")
+                                    {
+                                        rowClass = "font-weight: 800;";
+                                    }
+                                    <tr style="@rowClass">
+                                        <td>@item.OperationActive</td>
+                                        <td>@item.DailyPlanTarget</td>
+                                        <td>@item.DailyPlanCurrent</td>
+                                        <td>@item.DailyPlanAchieve</td>
+                                        <td>@item.UPHTarget</td>
+                                        <td>@item.UPHCurrent</td>
+                                        <td>@item.UPH</td>
+                                        <td>@item.UPPH</td>
+                                        <td>@item.Labor</td>
+                                        <td>@item.DefectTargetRate</td>
+                                        <td>@item.DefectCurrentRate</td>
+                                        <td>@item.DefectRate</td>
+                                        <td>@item.CheckListOnSystem</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>

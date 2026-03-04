@@ -28,5 +28,8 @@ namespace SVN_Portal.Models
         public string UPPHTarget { get; set; }
         public string LaborCurrent { get; set; }
         public string LaborTarget { get; set; }
+        public string TargetRevenue { get; set; }
+        public string ActualRevenue { get; set; }
+        public string RevenueRate { get; set; }
     }
 }

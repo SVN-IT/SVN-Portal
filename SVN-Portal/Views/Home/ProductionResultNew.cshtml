@@ -12,6 +12,8 @@
     string jsonLaborData = string.Empty;
     string jsonDefectRateData = string.Empty;
     List<string> listStatus = ViewBag.StatusList;
+    List<CostDailyViewModel> costDailyViewModels = ViewBag.CostDaily;
+    string jsonCostData = JsonConvert.SerializeObject(costDailyViewModels);
 }
 <link href="~/css/responsivescreen.css" rel="stylesheet" />
 <script>
@@ -75,6 +77,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                    @* <h2 style="float:right"><strong>@ViewBag.CostAndRevenueYearlyInfo</strong></h2> *@
+                </div>
             </div>
         </form>
     </div>
@@ -135,6 +140,8 @@
                                         status = "bg-primary";
                                     }
                                     <h5><strong>Defect Rate: </strong> <strong class="rate-box @status">@item.DefectRate</strong></h5>
+                                    <br/>
+                                    <h4><strong>💰PMC WO: </strong> <strong>@item.TargetRevenue @ViewBag.LocalCurrency</strong> | <strong>💰PD Output: </strong> <strong>@item.ActualRevenue @ViewBag.LocalCurrency</strong> | <strong>💰Rate: </strong> <strong>@item.RevenueRate</strong></h4>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div id="pieChart_@item.OperationActive" class="donut-chart-contain"></div>
@@ -157,20 +164,10 @@
     <div class="col-12 col-md-4">
         <div class="card svn-card">
             <div class="card-title">
-                <h2>UPH</h2>
+                <h2>Cost/Revenue (@ViewBag.LocalCurrency)</h2>
             </div>
             <div class="card-body">
-                <div id="uphChart" class="col-chart-contain"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-4">
-        <div class="card svn-card">
-            <div class="card-title">
-                <h2>UPPH</h2>
-            </div>
-            <div class="card-body">
-                <div id="upphChart" class="col-chart-contain"></div>
+                <div id="costRevenueChart" class="col-chart-contain"></div>
             </div>
         </div>
     </div>
@@ -187,12 +184,30 @@
     <div class="col-12 col-md-4">
         <div class="card svn-card">
             <div class="card-title">
+                <h2>UPH</h2>
+            </div>
+            <div class="card-body">
+                <div id="uphChart" class="col-chart-contain"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h2>UPPH</h2>
+            </div>
+            <div class="card-body">
+                <div id="upphChart" class="col-chart-contain"></div>
+            </div>
+        </div>
+        @* <div class="card svn-card">
+            <div class="card-title">
                 <h2>Labor</h2>
             </div>
             <div class="card-body">
                 <div id="laborChart" class="col-chart-contain"></div>
             </div>
-        </div>
+        </div> *@
     </div>
     <div class="col-12 col-md-4">
         <div class="card svn-card">
@@ -256,7 +271,8 @@
         </div>
     </div>
     <script>
-        var chartData = @Html.Raw(jsonData)
+        var chartData = @Html.Raw(jsonData);
+        var jsonCostData = @Html.Raw(jsonCostData);
 
         function safeParse(val) {
             if (!val) return 0;
@@ -585,6 +601,83 @@
                 "lineColor": "#FF0000"
             }],
             "categoryField": "OperationActive",
+            "categoryAxis": {
+                "gridPosition": "start"
+            },
+            "legend": {
+                "bulletType": "round",
+                "equalWidths": false,
+                "valueWidth": 0,
+                "useGraphSettings": true,
+                "color": "#FFFFFF",
+                "horizontalGap": 0,  // khoảng cách giữa các item
+                "maxColumns": 3,      // số lượng cột tối đa (cho legend nằm ngang)
+                "forceWidth": true    // ép giữ nguyên width, không xuống dòng
+            }
+        });
+
+        AmCharts.makeChart("costRevenueChart", {
+            "type": "serial",
+            "theme": "light",
+            "dataProvider": jsonCostData,
+
+            "addClassNames": true,
+            "startDuration": 0,
+            "color": "#FFFFFF",
+            "fontSize": 12,
+            "marginLeft": 0,
+
+            "valueAxes": [{
+                "id": "v1",
+                "position": "left",
+                "minimum": 0
+                // "title": "Qty"
+            }],
+            "graphs": [{
+                "balloonText": "[[value]]",
+                "legendValueText": "Target: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "PMC WO",
+                "valueField": "TargetRevenue",
+                "valueAxis": "v1",
+                "fillColors": "#FFCE56"
+            }, {
+                "balloonText": "[[value]]",
+                "legendValueText": "Actual: [[value]]",
+                "labelText": "[[value]]",
+                "fillAlphas": 0.7,
+                "lineAlpha": 0.2,
+                "type": "column",
+                "title": "PD Output",
+                "valueField": "ActualRevenue",
+                "valueAxis": "v1",
+                "fillColors": "#36A2EB"
+            }, {
+                "id": "g2",
+                "classNameField": "bulletClass",
+                "bullet": "line",
+                "lineThickness": 1,
+                "type": "line",
+                "title": "FN Cost",
+                "valueField": "Cost",
+                "valueAxis": "v1",
+                "showBalloon": true,
+                "animationPlayed": false,
+                "balloonText": "[[value]]",
+                "legendValueText": "Cost: [[value]]",
+                "bullet": "round",
+                "bulletBorderColor": "#006600",
+                "bulletBorderThickness": 1,
+                "bulletBorderAlpha": 1,
+                "dashLengthField": "dashLength",
+                "labelText": "[[value]]",
+                "labelPosition": "top",
+                "lineColor": "#FF0000"
+            }],
+            "categoryField": "Date",
             "categoryAxis": {
                 "gridPosition": "start"
             },

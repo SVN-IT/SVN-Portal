@@ -39,7 +39,11 @@ namespace SVN_Portal.Controllers
             string date = DateTime.Now.ToString("yyyy-MM-dd") + "  00:00:00.000";
             try
             {
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var oper = opers.FirstOrDefault(x => x.MasterOperation == operation);
                 if (oper != null)
                 {
@@ -215,7 +219,11 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryDatav2(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0, 7);
                 if (models != null && models.Count > 0)

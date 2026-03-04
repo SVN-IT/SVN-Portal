@@ -42,6 +42,31 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<List<SVN_target>> ReadListTargetByDate(string fromDate, string toDate, string storedProceduce = "SVN_Pro_CalTarget_Viindoo_FT")
+        {
+            List<SVN_target> dataUI = new List<SVN_target>();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    //Gọi thủ tục tính toán kết quả theo tarhet
+                    string storedProcedure = storedProceduce;
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("date_time", fromDate);
+                    parameters.Add("to_date", toDate);
+
+                    var datas = await conn.QueryAsync<SVN_target>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+                    return datas.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<List<SVN_target>> ReadListTargetFromToDate(DateTime fromDate, DateTime toDate)
         {
             List<SVN_target> dataUI = new List<SVN_target>();

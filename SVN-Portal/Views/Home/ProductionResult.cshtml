@@ -178,7 +178,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-md-8 col-lg-9">
-                    <h1 class="float-right">@ViewBag.ComparePeople</h1>
+                    <h1 class="float-right d-none">@ViewBag.ComparePeople</h1>
                 </div>
             </div>
         </form>
@@ -268,11 +268,24 @@
                             {
                                 productName = "(" + item.Name + ")";
                             }
+                            string textHeaderColor = string.Empty;
+                            if (item.Line == "line 1")
+                            {
+                                textHeaderColor = "text-primary";
+                            }
+                            else if (item.Line == "line 2")
+                            {
+                                textHeaderColor = "text-warning";
+                            }
+                            else
+                            {
+                                textHeaderColor = "text-light";
+                            }
                         }
                         <div class="row">
                             <div class="col-12">
-                                <h4>
-                                    @item.Operation @productName
+                                <h4 class="@textHeaderColor">
+                                    @item.Operation @productName - (@item.Line)
                                     <br />
                                     <br />
                                     @{
@@ -336,7 +349,7 @@
                                             status = "bg-primary";
                                         }
                                     }
-                                    else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH")
+                                    else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH" || subitem.Item == "OEE")
                                     {
                                         if (!string.IsNullOrWhiteSpace(currentTime))
                                         {
@@ -501,19 +514,34 @@
 
                                                 <br>
                                             }
+                                            else if (subitem.Item == "OEE")
+                                            {
+                                                <strong class="f-s-26">🎯 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                <br>
+                                            }
                                             else if (subitem.Item == "Defect")
                                             {
                                                 <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
 
                                                 <br>
                                             }
-                                        
+
                                             @if (subitem.Item == "Defect")
                                             {
                                                 <span>Tar: @Math.Round(subitem.Target, 2) %</span>
                                                 <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
                                                 <span>
                                                     <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
+                                                </span>
+                                            }
+                                            else if (subitem.Item == "OEE")
+                                            {
+                                                <span>A: @Math.Round(subitem.Availability, 2)</span>
+                                                <span> | P: @Math.Round(subitem.Performance, 2)</span>
+                                                <span> | Q: @Math.Round(subitem.Quality, 2)</span> <br />
+                                                <span>
+                                                    <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.OEE, 2) %</strong>
                                                 </span>
                                             }
                                             else

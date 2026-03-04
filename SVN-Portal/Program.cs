@@ -1,21 +1,23 @@
 ﻿using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
 using Serilog;
+using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.Services.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning) // ASP.NET Core log >= Warning
-    .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)    // System.* log >= Warning
-    .WriteTo.File(
-        Path.Combine(builder.Environment.WebRootPath, "Logs", "app.log"),
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7
-    )
-    .CreateLogger();
+//Log.Logger = new LoggerConfiguration()
+//    .MinimumLevel.Information()
+//    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning) // ASP.NET Core log >= Warning
+//    .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)    // System.* log >= Warning
+//    .WriteTo.File(
+//        Path.Combine(builder.Environment.WebRootPath, "Logs", "app.log"),
+//        rollingInterval: RollingInterval.Day,
+//        retainedFileCountLimit: 7
+//    )
+//    .CreateLogger();
 
-builder.Host.UseSerilog();
+//builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -28,6 +30,18 @@ APIConfiguration aPIConfiguration = builder.Configuration.GetSection("APIConfigu
 TOASTLabelConfiguration labelConfiguration = builder.Configuration.GetSection("TOASTLabelConfiguration").Get<TOASTLabelConfiguration>();
 dBConfiguration.ProductMode = appConfig.ProductMode;
 
+var appSettingDataPortal = new SVN_AppSettingDataPortal(dBConfiguration.GetConnectionString());
+string masterOperList = await appSettingDataPortal.GetMasterOperList();
+if(!string.IsNullOrWhiteSpace(masterOperList))
+{
+    appConfig.MasterOperList = masterOperList;
+}
+//string strTimeChangeTabMainDashboard = await appSettingDataPortal.GetTimeChangeTabMainDashboard();
+//if (!string.IsNullOrWhiteSpace(strTimeChangeTabMainDashboard) && int.TryParse(strTimeChangeTabMainDashboard, out int timeChangeTabMainDashboard))
+//{
+//    appConfig.timeChangeTabMainDashboard = timeChangeTabMainDashboard;
+//}
+
 builder.Services.AddSingleton(appConfig);
 builder.Services.AddSingleton(dBConfiguration);
 builder.Services.AddSingleton(qCInfoConfig);
@@ -35,6 +49,7 @@ builder.Services.AddSingleton(operInfoConfig);
 builder.Services.AddSingleton(aPIConfiguration);
 builder.Services.AddSingleton(labelConfiguration);
 builder.Services.AddSingleton<ToolsHelper>();
+builder.Services.AddSingleton<Pagination>();
 
 var app = builder.Build();
 
@@ -55,6 +70,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=ProductionResult}/{id?}");
+    pattern: "{controller=Home}/{action=ProductionResultV1}/{id?}");
 
 app.Run();

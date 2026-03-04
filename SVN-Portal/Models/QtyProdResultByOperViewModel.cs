@@ -19,6 +19,7 @@ namespace SVN_Portal.Models
         }
         public string MasterOperation { get; set; }
         public string Operation { get; set; }
+        public string Line { get; set; }
         public string Name { get; set; }
         public string WC { get; set; }
         public string PDName { get; set; }
@@ -55,6 +56,10 @@ namespace SVN_Portal.Models
         public double CurWorkingTime { get; set; }
         public double TotalDuration { get; set; }
         public DateTime EndDownTime { get; set; }
+        public double Availability { get; set; }
+        public double Performance { get; set; }
+        public double Quality { get; set; }
+        public double OEE { get; set; }
         public QtyProdResultByOperViewModel GetData(string operation)
         {
             QtyProdResultByOperViewModel Model = new QtyProdResultByOperViewModel();
@@ -132,5 +137,14 @@ namespace SVN_Portal.Models
             };
             return viewModels;
         }
+    }
+
+    public class QtyPDByOperVMPerSlide
+    {
+        public QtyPDByOperVMPerSlide()
+        {
+            OperViewModels = new List<QtyProdResultByOperViewModel>();
+        }
+        public List<QtyProdResultByOperViewModel> OperViewModels { get; set; }
     }
 }

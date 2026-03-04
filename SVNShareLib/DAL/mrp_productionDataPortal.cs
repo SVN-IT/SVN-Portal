@@ -195,5 +195,23 @@ namespace SVNShareLib.DAL
             }
             return processResult;
         }
+
+        public List<workOrderInfoUI> GetWorkOrderInfo()
+        {
+            try
+            {
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    string storedProcedure = "SVN_ERP_savedsearch_779_803";
+                    DynamicParameters parameters = new DynamicParameters();
+                    var datas = connection.Query<workOrderInfoUI>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+                    return datas.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

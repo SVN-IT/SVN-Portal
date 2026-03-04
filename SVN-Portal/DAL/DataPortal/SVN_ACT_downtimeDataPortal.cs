@@ -13,7 +13,7 @@ namespace SVN_Portal.DAL.DataPortal
             this.connectionString = connectionString;
         }
 
-        public async Task<List<SVN_ACT_downtimeUI>> ReadList(string date, string storedProceduce = "SVN_ACT_downtime")
+        public async Task<List<SVN_ACT_downtimeUI>> ReadList(string storedProceduce = "SVN_ACT_downtime")
         {
             List<SVN_ACT_downtimeUI> dataUI = new List<SVN_ACT_downtimeUI>();
             int timeOut = 1000;
@@ -35,5 +35,6 @@ namespace SVN_Portal.DAL.DataPortal
                 return null;
             }
         }
+
     }
 }

@@ -204,7 +204,7 @@ namespace SVN_Portal.Controllers
                         item_code ="[" + product.default_code + "] ";
                     }    
 
-                    if(product.product_name.Contains("vi_VN"))
+                    if(!string.IsNullOrWhiteSpace(product.product_name) && product.product_name.Contains("vi_VN"))
                     {
                         Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(product.product_name);
                         product.product_name = item_code + dictionary["vi_VN"];
@@ -1137,9 +1137,11 @@ namespace SVN_Portal.Controllers
                         TempData["RemainQty"] = workOrderInfo.OrderInfo["product_qty"] as string;
                         TempData.Keep("RemainQty");
 
+                        var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                        var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                        List<OperInfo> opers = operInfo1.OperInfo;
 
-
-                        List<OperInfo> opers = operInfoConfig.OperInfo;
+                        //List<OperInfo> opers = operInfoConfig.OperInfo;
                         var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
                         if (currentOper != null)
                         {
@@ -1539,52 +1541,66 @@ namespace SVN_Portal.Controllers
                             WorkOrderNumber = data.Name.Split("-")[0],
                             LotNumber = ""
                         };
-                        var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
-                        if (woResult != null)
+                        if(dataRequest.IsLastOrder == false)
                         {
-                            if (woResult.OK)
+                            var woResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                            if (woResult != null)
                             {
-                                if(woResult.Content == null)
+                                if (woResult.OK)
                                 {
-                                    processResult.OK = false;
-                                    processResult.Message = "Lệnh sản xuất nhập thất bại, kiểm tra MES";
-                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                                    if (woResult.Content == null)
+                                    {
+                                        processResult.OK = false;
+                                        processResult.Message = "Lệnh sản xuất nhập thất bại, kiểm tra MES";
+                                        logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
-                                    //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                                        //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
-                                    return Json(new { result = processResult.OK, message = processResult.Message });
+                                        return Json(new { result = processResult.OK, message = processResult.Message });
+                                    }
+                                    WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
+                                    if (workOrderInfo.OrderInfo["name"] == data.SubName && dataRequest.IsLastOrder == false)
+                                    {
+                                        processResult.OK = false;
+                                        processResult.Message = "Lệnh đã được nhập trước đó";
+                                        logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                                        //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+
+                                        return Json(new { result = processResult.OK, message = processResult.Message });
+                                    }
+
+                                    var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                                    var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                                    List<OperInfo> opers = operInfo1.OperInfo;
+
+                                    //List<OperInfo> opers = operInfoConfig.OperInfo;
+                                    var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
+                                    if (currentOper != null)
+                                    {
+                                        operation = currentOper.MasterOperation;
+                                    }
                                 }
-                                WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woResult.Content.ToString());
-                                if (workOrderInfo.OrderInfo["name"] == data.SubName && dataRequest.IsLastOrder == false)
+                                else
                                 {
-                                    processResult.OK = false;
-                                    processResult.Message = "Lệnh đã được nhập trước đó";
-                                    logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
-                                    //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
-
-                                    return Json(new { result = processResult.OK, message = processResult.Message });
-                                }
-                                List<OperInfo> opers = operInfoConfig.OperInfo;
-                                var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
-                                if (currentOper != null)
-                                {
-                                    operation = currentOper.MasterOperation;
+                                    return Json(new { result = woResult.OK, message = woResult.Message });
                                 }
                             }
                             else
                             {
-                                return Json(new { result = woResult.OK, message = woResult.Message });
+                                processResult.OK = false;
+                                processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
+                                logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                                //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+
+                                return Json(new { result = processResult.OK, message = processResult.Message });
                             }
                         }
-                        else
-                        {
-                            processResult.OK = false;
-                            processResult.Message = "Lỗi mạng, không lấy được thông tin lệnh sản xuất";
-                            logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
-                            //_logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
 
-                            return Json(new { result = processResult.OK, message = processResult.Message });
+                        if (string.IsNullOrWhiteSpace(operation))
+                        {
+                            operation = "Walter";
                         }
+                        
 
                         processResult.OK = true;
 
@@ -1613,8 +1629,7 @@ namespace SVN_Portal.Controllers
             {
                 processResult.Message = ex.Message;
 
-
-                _logger.LogError("Lệnh sản xuất " + data.Name + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
+                logger.Log(LogApp.SVNPortal, LogAction.AutoInputProduction, LogType.Error, "Lệnh sản xuất " + data.SubName + " nhập thất bại: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm") + " | Error detail: " + processResult.Message);
             }
             return Json(new { success = false, message = processResult.Message });
         }
