@@ -97,8 +97,8 @@
                             <div class="dropdown-menu animated zoomIn">
                                 @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-ca"></i> Canada</a>
                                 <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr"></i> French</a> *@
-                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SM">@* <i class="flag-icon flag-icon-cn"></i> *@ SM</a>
-                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResult" asp-route-companyCode="SVN">@* <i class="flag-icon flag-icon-vn"></i> *@ SVN</a>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResultV1" asp-route-companyCode="SM">@* <i class="flag-icon flag-icon-cn"></i> *@ SM</a>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResultV1" asp-route-companyCode="SVN">@* <i class="flag-icon flag-icon-vn"></i> *@ SVN</a>
                                 @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de"></i> Dutch</a> *@
                             </div>
                         </li>
@@ -330,10 +330,10 @@
                         <li>
                             <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-book" aria-hidden="true"></i><span class="hide-menu">Report <span class="label label-rouded label-primary pull-right">4</span></span></a>
                             <ul aria-expanded="false" class="collapse">
-                                <li><a asp-controller="Home" asp-action="PDResultByMonthReport">Production Result by Month</a></li>
-                                <li><a asp-controller="Home" asp-action="PDResultDailyReportV0">Production Result Daily</a></li>
-                                <li><a asp-controller="Home" asp-action="PDResultDailyReport">Production Result Daily New</a></li>
-                                <li><a asp-controller="Home" asp-action="CostRevenueReport">Cost Revenue Report</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultByMonthReport" asp-route-companyCode="@ViewBag.CompanyCode">Production Result by Month</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultDailyReportV0" asp-route-companyCode="@ViewBag.CompanyCode">Production Result Daily</a></li>
+                                <li><a asp-controller="Home" asp-action="PDResultDailyReport" asp-route-companyCode="@ViewBag.CompanyCode">Production Result Daily New</a></li>
+                                <li><a asp-controller="Home" asp-action="CostRevenueReport" asp-route-companyCode="@ViewBag.CompanyCode">Cost Revenue Report</a></li>
                             </ul>
                         </li>
                         <li>

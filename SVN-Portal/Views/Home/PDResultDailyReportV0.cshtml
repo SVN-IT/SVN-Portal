@@ -44,7 +44,7 @@
                         <div class="m-1">
                             <div class="form-group">
                                 <button type="submit"
-                                        asp-action="PDResultDailyReportV0"
+                                        asp-action="PDResultDailyReportV0" asp-route-companyCode="@ViewBag.CompanyCode"
                                         class="btn btn-primary">
                                     Search
                                 </button>
@@ -53,7 +53,7 @@
                         <div class="m-1">
                             <div class="form-group">
                                 <button type="submit"
-                                        asp-action="ExportPDResultDailyV0"
+                                        asp-action="ExportPDResultDailyV0" asp-route-companyCode="@ViewBag.CompanyCode"
                                         class="btn btn-success">
                                     Export excel
                                 </button>

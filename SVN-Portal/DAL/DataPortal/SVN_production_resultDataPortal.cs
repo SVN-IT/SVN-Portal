@@ -379,7 +379,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
                                     workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -1295,7 +1295,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
                                     workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -1803,7 +1803,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
                                     workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -2311,7 +2311,7 @@ namespace SVN_Portal.DAL.DataPortal
                             else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
                                 workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
-                                        curDateTime, sectionTimes, gapTime, Duration);
+                                        curDateTime, sectionTimes, gapTime, Duration, hours);
                                 //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                 //if (oper.Operation == "POP" || oper.Operation == "Injection_POP" || oper.Operation == "Injection_Toast")
@@ -2570,7 +2570,7 @@ namespace SVN_Portal.DAL.DataPortal
 
         private double CalculateWorkingTime(List<int> product_id, DateTime startDatetime, DateTime finishedTime, 
             DateTime minStartSection, DateTime curDateTime,
-            List<SectionTime> sectionTimes, double gapTime, double Duration)
+            List<SectionTime> sectionTimes, double gapTime, double Duration, int hours)
         {
             double workingTime = 0;
             //var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
@@ -2599,7 +2599,7 @@ namespace SVN_Portal.DAL.DataPortal
             //}
 
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
-            var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(product_id, startDatetime, curDateTime);
+            var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(product_id, startDatetime, curDateTime, hours);
             startDatetime = minStartSection;
             startDatetime = GetStartTime(sectionTimes, startDatetime);
             if (productionUI != null)

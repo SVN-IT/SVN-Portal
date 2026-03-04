@@ -548,6 +548,10 @@
                                         {
                                             charID = "chartdiv" + item.Operation + item.WC;
                                             charID = charID.Replace("-", "");
+                                            if (charID.Contains("(SM)"))
+                                            {
+                                                charID = charID.Replace("(SM)", "");
+                                            }
                                         }
                                         string jsonData = string.Empty;
                                         jsonData = JsonConvert.SerializeObject(item.ViewModels);

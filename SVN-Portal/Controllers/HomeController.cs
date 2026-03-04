@@ -128,7 +128,11 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
 
                 //Lấy múi giờ theo SM hoặc SVN
                 int hours = 7; //default
@@ -150,12 +154,6 @@ namespace SVN_Portal.Controllers
                 TempData.Remove("Hours");
                 TempData["Hours"] = hours.ToString();
                 TempData.Keep("Hours");
-
-
-
-                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
-                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
-                List<OperInfo> opers = operInfo1.OperInfo;
 
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
@@ -223,12 +221,17 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResultV1(DateTime date)
+        public async Task<IActionResult> ProductionResultV1(DateTime date, string companyCode)
         {
             List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
             {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
+
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -244,9 +247,30 @@ namespace SVN_Portal.Controllers
                 var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
                 List<OperInfo> opers = operInfo1.OperInfo;
 
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    hours = 8;
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                }
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -407,6 +431,11 @@ namespace SVN_Portal.Controllers
             var finalCurrency = "USD";
             try
             {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
+
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -421,8 +450,30 @@ namespace SVN_Portal.Controllers
 
                 //Thay đổi đọc setting từ csdl
                 List<OperInfo> opers = operInfo.OperInfo;
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    hours = 8;
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                }
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, 7);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
                 {
                     pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
@@ -464,13 +515,13 @@ namespace SVN_Portal.Controllers
                 var yesterday = date.AddDays(-1);
                 string stryesterday = yesterday.ToString("yyyyMMdd");
                 List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
-                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
 
                 while(previousmodels == null || previousmodels.Count == 0)
                 {
                     yesterday = yesterday.AddDays(-1);
                     stryesterday = yesterday.ToString("yyyyMMdd");
-                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 }
                 if(previousmodels != null && previousmodels.Count > 0)
                 {
@@ -803,7 +854,6 @@ namespace SVN_Portal.Controllers
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, hours);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
                 inputItemsStatusUIs = await inputItemsDataPortal.ReadList(strdate, operline);
                 ViewBag.InputItemsStatus = inputItemsStatusUIs;
 
@@ -2023,8 +2073,6 @@ namespace SVN_Portal.Controllers
                 var operInfo = await appSettingDataPortal.GetOperInfoConfig();
                 List<OperInfo> opers = operInfo.OperInfo;
 
-                List<OperInfo> opers = operInfoConfig.OperInfo;
-
                 if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
                 {
                     opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
@@ -2344,12 +2392,12 @@ namespace SVN_Portal.Controllers
         }
 
 
-        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string itemType = "ALL")
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string companyCode, string itemType = "ALL")
         {
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
+                viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType, companyCode);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -2358,11 +2406,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string itemType = "ALL")
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string companyCode, string itemType = "ALL")
         {
             try
             {
-                var viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
+                var viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType, companyCode);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -2446,9 +2494,7 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime fromdate, DateTime todate, string itemType)
-        {
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime date, string companyCode)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime fromdate, DateTime todate, string itemType, string companyCode)
         {
             if (string.IsNullOrWhiteSpace(companyCode))
             {
@@ -2497,7 +2543,32 @@ namespace SVN_Portal.Controllers
                 ViewBag.ItemType = itemType;
 
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                int hours = 7; //default
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    hours = 8;
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                }
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 //models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
                 models = await dataPortal.GetDataForReport(fromdate, todate, opers, itemType);
@@ -2598,7 +2669,7 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> CostRevenueReport(DateTime date)
+        public async Task<IActionResult> CostRevenueReport(DateTime date, string companyCode)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
@@ -2608,7 +2679,7 @@ namespace SVN_Portal.Controllers
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             var operInfo = await appSettingDataPortal.GetOperInfoConfig();
             var cost = await appSettingDataPortal.GetCostPerDay();
-            var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
+            //var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
             var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
             var vndRate = await appSettingDataPortal.GetVNDRate();
             var finalCurrency = "USD";
@@ -2629,8 +2700,29 @@ namespace SVN_Portal.Controllers
 
                 //Thay đổi đọc setting từ csdl
                 List<OperInfo> opers = operInfo.OperInfo;
+
+                int hours = 7; //default
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    hours = 8;
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                }
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
                 {
                     pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
@@ -2693,13 +2785,13 @@ namespace SVN_Portal.Controllers
                 var yesterday = date.AddDays(-1);
                 string stryesterday = yesterday.ToString("yyyyMMdd");
                 List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
-                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
 
                 while (previousmodels == null || previousmodels.Count == 0)
                 {
                     yesterday = yesterday.AddDays(-1);
                     stryesterday = yesterday.ToString("yyyyMMdd");
-                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 }
                 if (previousmodels != null && previousmodels.Count > 0)
                 {
@@ -2986,7 +3078,8 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+                List<OperInfo> opers = operInfo.OperInfo;
 
                 if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
                 {
@@ -3014,10 +3107,9 @@ namespace SVN_Portal.Controllers
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
 
                 //Thay đổi đọc setting từ csdl
-                List<OperInfo> opers = operInfo.OperInfo;
+                //List<OperInfo> opers = operInfo.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0, hours);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
                 if (models != null && models.Count > 0)
                 {
                     pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
@@ -3080,13 +3172,13 @@ namespace SVN_Portal.Controllers
                 var yesterday = date.AddDays(-1);
                 string stryesterday = yesterday.ToString("yyyyMMdd");
                 List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
-                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
 
                 while (previousmodels == null || previousmodels.Count == 0)
                 {
                     yesterday = yesterday.AddDays(-1);
                     stryesterday = yesterday.ToString("yyyyMMdd");
-                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 }
                 if (previousmodels != null && previousmodels.Count > 0)
                 {
