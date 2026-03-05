@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using SVN_Authentication_Portal.Configurations;
@@ -10,8 +12,15 @@ builder.Services.AddControllersWithViews();
 AppConfig appConfig = builder.Configuration.GetSection("AppConfig").Get<AppConfig>();
 AuthenticationAPIConfig authenticationAPIConfig = builder.Configuration.GetSection("AuthenticationAPIConfig").Get<AuthenticationAPIConfig>();
 
-builder.Services
-.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+//builder.Services
+//.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+//.AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+})
 .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 
 authenticationAPIConfig.ProductMode = appConfig.ProductMode;
@@ -44,9 +53,19 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+
+if (app.Environment.IsDevelopment())
+{
+    app.Use(async (context, next) =>
+    {
+        await context.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
+        await next();
+    });
+}
 
 app.MapControllerRoute(
     name: "default",

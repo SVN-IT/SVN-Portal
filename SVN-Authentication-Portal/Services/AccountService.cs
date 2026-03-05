@@ -141,7 +141,7 @@ namespace SVN_Authentication_Portal.Services
                     //===>save cookier JwtData
                     SVNUserInfo userInfo = new SVNUserInfo();
                     userInfo.LoginInfo = loginInfo;
-
+                    await _msasignInManager.SignInAsync(userInfo);
 
                     return userInfo;
                     //===>

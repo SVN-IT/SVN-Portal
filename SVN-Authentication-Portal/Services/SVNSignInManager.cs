@@ -259,7 +259,7 @@ namespace SVN_Authentication_Portal.Services
             //====login into HttpContext
             ClaimsPrincipal user = new ClaimsPrincipal(identity);
 
-            await _contextAccessor.HttpContext.SignInAsync(user, authenticationProperties);
+            //await _contextAccessor.HttpContext.SignInAsync(user, authenticationProperties);
 
 
             _contextAccessor.HttpContext.User = user;
