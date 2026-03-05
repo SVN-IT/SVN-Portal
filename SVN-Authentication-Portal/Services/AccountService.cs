@@ -3,6 +3,7 @@ using SVN_Authentication_Portal.Configurations;
 using SVN_Authentication_Portal.Models;
 using SVN_Authentication_Portal.Utilities;
 using SVNShareLib;
+using SVNShareLib.Utils;
 
 namespace SVN_Authentication_Portal.Services
 {

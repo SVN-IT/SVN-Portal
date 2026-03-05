@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using SVN_Authentication_Portal.Models;
 using SVN_Authentication_Portal.Utilities;
 using System.Security.Claims;
+using SVNShareLib.Utils;
 
 namespace SVN_Authentication_Portal.Services
 {

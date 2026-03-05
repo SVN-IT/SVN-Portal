@@ -25,6 +25,7 @@ namespace SVN_Authentication_Portal.Controllers
 
         public async Task<IActionResult> Login(string? ReturnUrl = null)
         {
+            string jwtData = string.Empty;
             //Trong trường hợp đăng nhập bằng 
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -39,6 +40,8 @@ namespace SVN_Authentication_Portal.Controllers
                 viewModel.UserName = email ?? "";
                 viewModel.Pwd = "";
                 var userInfo = await accountService.LoginByEmail(viewModel);
+
+                jwtData = userInfo.LoginInfo.JwtData.AccessToken;
             }
 
             if (signInManager.IsSignedIn())
