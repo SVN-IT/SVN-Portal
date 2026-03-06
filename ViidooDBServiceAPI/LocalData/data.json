@@ -1975,10 +1975,10 @@
     "ColWidth": 4
   },
   {
-    "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
+    "Operation": "Toast-FG-TRO-CE-0007-00",
     "Name": "",
-    "Price": 0,
-    "MasterOperation": "Sakura(SM)",
+    "Price": 8.76,
+    "MasterOperation": "Toast",
     "WCType": "FG",
     "WC": [
       {
@@ -1987,25 +1987,8 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 3,
-    "Produce_id": [ 1257 ],
+    "StoreID": 7,
+    "Produce_id": [ 1341 ],
     "ColWidth": 4
-  },
-  {
-    "Operation": "Saddle-SG-NGTC5TC7-HDSTP-100(SM)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Saddle(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1277 ],
-    "ColWidth": 12
   }
 ]

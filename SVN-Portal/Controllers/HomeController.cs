@@ -472,7 +472,7 @@ namespace SVN_Portal.Controllers
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if(yearlyTarget != null)
                 {
-                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig, localCurrency, vndRate);
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfo, localCurrency, vndRate);
                     if(costYearlyResult != null)
                     {
                         //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
@@ -655,7 +655,7 @@ namespace SVN_Portal.Controllers
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
@@ -773,7 +773,7 @@ namespace SVN_Portal.Controllers
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
@@ -834,7 +834,7 @@ namespace SVN_Portal.Controllers
                 List<OperInfo> opers = operInfo1.OperInfo;
 
                 //List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                var singleOper = operInfo1.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -868,7 +868,7 @@ namespace SVN_Portal.Controllers
                     foreach (var item in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             item.PDName = userInfo.PDName;
@@ -905,7 +905,11 @@ namespace SVN_Portal.Controllers
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string tableName = "SVN_Production_result_Viindoo";
                 OperInfo operInfo = new OperInfo();
-                operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == oper);
                 if (operInfo != null)
                 {
                     if (!string.IsNullOrWhiteSpace(wc))
@@ -1023,7 +1027,11 @@ namespace SVN_Portal.Controllers
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string tableName = "SVN_Production_result_Viindoo";
                 OperInfo operInfo = new OperInfo();
-                operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == oper);
                 if (operInfo != null)
                 {
                     if (!string.IsNullOrWhiteSpace(wc))
@@ -2375,7 +2383,10 @@ namespace SVN_Portal.Controllers
                 ViewBag.ItemType = itemType;
 
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                List<OperInfo> opers = operInfo1.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 //models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
                 models = await dataPortal.GetDataForReport(fromdate, todate, opers, itemType);
