@@ -210,7 +210,7 @@ namespace SVN_Portal.Controllers
 
                     // Map FGItem -> WO
                     var fgItemToWO = list
-                        .GroupBy(x => x.FGitem)
+                        .GroupBy(x => x.FGitem ?? "")
                         .ToDictionary(g => g.Key, g => g.First().WO_FGID);
 
                     var fgList = list
