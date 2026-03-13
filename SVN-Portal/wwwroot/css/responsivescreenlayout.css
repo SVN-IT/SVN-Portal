@@ -1,4 +1,194 @@
-﻿@media (max-width: 768px) {
+﻿@media (max-width: 1920px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 1680px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 1440px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 1360px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 1280px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 1152px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+    
     .sub-header-layout {
         height: 50px !important
     }
@@ -9,4 +199,38 @@
         font-weight: 700;
         width:180px;
     }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
 }
+
+@media (max-width: 576px) {
+    .text-primary {
+        font-size: 18px !important;
+        font-weight: 700!important;
+    }
+
+    .text-warning {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-light {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+    }
+
+    .text-manager-status {
+        font-size: 16px !important;
+    }
+
+    .text-checklist-status {
+        font-size: 12px !important;
+    }
+}
+

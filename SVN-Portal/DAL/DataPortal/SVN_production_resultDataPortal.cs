@@ -2604,7 +2604,7 @@ namespace SVN_Portal.DAL.DataPortal
             startDatetime = GetStartTime(sectionTimes, startDatetime);
             if (productionUI != null)
             {
-                finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
             }
             else
             {
