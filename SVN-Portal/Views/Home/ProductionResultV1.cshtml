@@ -310,7 +310,7 @@
                                                 }
                                                 <div class="row">
                                                     <div class="col-12">
-                                                        <h4 class="@textHeaderColor">
+                                                        <h4 class="text-header-operation @textHeaderColor">
                                                             @item.Operation @productName - (@item.Line)
                                                         </h4>
                                                         <br />
@@ -514,64 +514,64 @@
                                                                 <div>
                                                                     @if (subitem.Item == "H.Plan")
                                                                     {
-                                                                        <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
+                                                                        <strong class="text-achivcar-header">📅 <span class="@textColor">@subitem.Item</span></strong>
 
                                                                         <br>
                                                                     }
                                                                     else if (subitem.Item == "UPH")
                                                                     {
-                                                                        <strong class="f-s-26">⚙️ <span class="@textColor">@subitem.Item</span></strong>
+                                                                        <strong class="text-achivcar-header">⚙️ <span class="@textColor">@subitem.Item</span></strong>
 
                                                                         <br>
                                                                     }
                                                                     else if (subitem.Item == "UPPH")
                                                                     {
-                                                                        <strong class="f-s-26">📈 <span class="@textColor">@subitem.Item</span></strong>
+                                                                        <strong class="text-achivcar-header">📈 <span class="@textColor">@subitem.Item</span></strong>
 
                                                                         <br>
                                                                     }
                                                                     else if (subitem.Item == "Labor")
                                                                     {
-                                                                        <strong class="f-s-26">👷 <span class="@textColor">@subitem.Item</span></strong>
+                                                                        <strong class="text-achivcar-header">👷 <span class="@textColor">@subitem.Item</span></strong>
 
                                                                         <br>
                                                                     }
                                                                     else if (subitem.Item == "OEE")
                                                                     {
-                                                                        <strong class="f-s-26">🎯 <span class="@textColor">@subitem.Item</span></strong>
+                                                                        <strong class="text-achivcar-header">🎯 <span class="@textColor">@subitem.Item</span></strong>
 
                                                                         <br>
                                                                     }
                                                                     else if (subitem.Item == "Defect")
                                                                     {
-                                                                        <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
+                                                                        <strong class="text-achivcar-header">❌ <span class="@textColor">@subitem.Item</span></strong>
 
                                                                         <br>
                                                                     }
 
                                                                     @if (subitem.Item == "Defect")
                                                                     {
-                                                                        <span>Tar: @Math.Round(subitem.Target, 2) %</span>
-                                                                        <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
-                                                                        <span>
-                                                                            <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
+                                                                        <span class="text-achivcar-content">Tar: @Math.Round(subitem.Target, 2) %</span>
+                                                                        <span class="text-achivcar-content"> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
+                                                                        <span class="text-achivcar-content">
+                                                                            <strong>Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
                                                                         </span>
                                                                     }
                                                                     else if (subitem.Item == "OEE")
                                                                     {
-                                                                        <span>A: @Math.Round(subitem.Availability, 2)</span>
-                                                                        <span> | P: @Math.Round(subitem.Performance, 2)</span>
-                                                                        <span> | Q: @Math.Round(subitem.Quality, 2)</span> <br />
-                                                                        <span>
-                                                                            <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.OEE, 2) %</strong>
+                                                                        <span class="text-achivcar-content">A: @Math.Round(subitem.Availability, 2)</span>
+                                                                        <span class="text-achivcar-content"> | P: @Math.Round(subitem.Performance, 2)</span>
+                                                                        <span class="text-achivcar-content"> | Q: @Math.Round(subitem.Quality, 2)</span> <br />
+                                                                        <span class="text-achivcar-content">
+                                                                            <strong>Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.OEE, 2) %</strong>
                                                                         </span>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <span>Tar: @Math.Round(subitem.Target, 2)</span>
-                                                                        <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
-                                                                        <span>
-                                                                            <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
+                                                                        <span class="text-achivcar-content">Tar: @Math.Round(subitem.Target, 2)</span>
+                                                                        <span class="text-achivcar-content"> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
+                                                                        <span class="text-achivcar-content">
+                                                                            <strong>Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
                                                                         </span>
                                                                     }
                                                                 </div>

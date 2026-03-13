@@ -1084,7 +1084,7 @@ namespace SVN_Portal.Controllers
                     //{
                     //    model.CanProductionByCheclist = true;
                     //}
-                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    sb.Append("<p class='text-checklist-status text-light'>");
                     sb.Append("<strong>Checklist status</strong>: ");
                     sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
@@ -1211,7 +1211,7 @@ namespace SVN_Portal.Controllers
                     //{
                     //    model.CanProductionByCheclist = true;
                     //}
-                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    sb.Append("<p class='text-checklist-status text-light'>");
                     sb.Append("<strong>Checklist status</strong>: ");
                     sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
@@ -1670,32 +1670,32 @@ namespace SVN_Portal.Controllers
                     sb.Append("<div>");
                     if (item.Item == "H.Plan")
                     {
-                        sb.Append("<strong class='f-s-26'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<strong class='text-achivcar-header'>📅 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
                     if (item.Item == "UPH")
                     {
-                        sb.Append("<strong class='f-s-26'>⚙️ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<strong class='text-achivcar-header'>⚙️ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
                     if (item.Item == "UPPH")
                     {
-                        sb.Append("<strong class='f-s-26'>📈 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<strong class='text-achivcar-header'>📈 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
                     if (item.Item == "Labor")
                     {
-                        sb.Append("<strong class='f-s-26'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<strong class='text-achivcar-header'>👷 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
                     if (item.Item == "OEE")
                     {
-                        sb.Append("<strong class='f-s-26'>🎯 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<strong class='text-achivcar-header'>🎯 <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
                     if (item.Item == "Defect")
                     {
-                        sb.Append("<strong class='f-s-26'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
+                        sb.Append("<strong class='text-achivcar-header'>❌ <span class='" + textColor + "'>" + item.Item + "</span></strong>");
                         sb.Append("<br>");
                     }
 
@@ -1718,29 +1718,29 @@ namespace SVN_Portal.Controllers
 
                     if (item.Item == "Defect")
                     {
-                        sb.Append("<span>Tar: " + Math.Round(item.Target, appConfig.Rounding) + " %</span>");
-                        sb.Append("<span> | Rate: " );
+                        sb.Append("<span class='text-achivcar-content'>Tar: " + Math.Round(item.Target, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span class='text-achivcar-content'> | Rate: ");
                         sb.Append("<strong class='rate-box " + status + "'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span> <br />");
-                        sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Cur: " + Math.Round(item.Current, appConfig.Rounding) + " %</strong>");
+                        sb.Append("<span class='text-achivcar-content'>");
+                        sb.Append("<strong>Cur: " + Math.Round(item.Current, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else if(item.Item == "OEE")
                     {
-                        sb.Append("<span>A: " + Math.Round(item.Availability, appConfig.Rounding) + " %</span>");
-                        sb.Append("<span> | P: " + Math.Round(item.Performance, appConfig.Rounding) + " %</span>");
-                        sb.Append("<span> | Q: " + Math.Round(item.Quality, appConfig.Rounding) + " %</span> <br />");
-                        sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.OEE, appConfig.Rounding) + " %</strong>");
+                        sb.Append("<span class='text-achivcar-content'>A: " + Math.Round(item.Availability, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span class='text-achivcar-content'> | P: " + Math.Round(item.Performance, appConfig.Rounding) + " %</span>");
+                        sb.Append("<span class='text-achivcar-content'> | Q: " + Math.Round(item.Quality, appConfig.Rounding) + " %</span> <br />");
+                        sb.Append("<span class='text-achivcar-content'>");
+                        sb.Append("<strong>Rate:</strong> <strong class='rate-box " + status + "'>" + Math.Round(item.OEE, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     else
                     {
-                        sb.Append("<span>Tar " + Math.Round(item.Target, appConfig.Rounding) + "</span>");
-                        sb.Append("<span> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + "</span> <br />");
-                        sb.Append("<span>");
-                        sb.Append("<strong class='f-s-23'>Rate:</strong> <strong class='rate-box " + status + " f-s-23'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
+                        sb.Append("<span class='text-achivcar-content'>Tar " + Math.Round(item.Target, appConfig.Rounding) + "</span>");
+                        sb.Append("<span class='text-achivcar-content'> | Cur: " + Math.Round(item.Current, appConfig.Rounding) + "</span> <br />");
+                        sb.Append("<span class='text-achivcar-content'>");
+                        sb.Append("<strong>Rate:</strong> <strong class='rate-box " + status + "'>" + Math.Round(item.Percent, appConfig.Rounding) + " %</strong>");
                         sb.Append("</span>");
                     }
                     //else
