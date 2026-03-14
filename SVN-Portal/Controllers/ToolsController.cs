@@ -1052,6 +1052,21 @@ namespace SVN_Portal.Controllers
         }
 
         /// <summary>
+        /// màn hình nhập kết quả xản xuất cho lệnh sản xuất có kiểm tra lot pouch ở bước FG Check
+        /// </summary>
+        /// <param name="workOrder"></param>
+        /// <returns></returns>
+        public IActionResult WorkOrderInfoFGCheckLotPouch(string workOrder)
+        {
+            if (!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
+            return View();
+        }
+
+        /// <summary>
         /// Hàm nhập kết quả sản xuất theo Work Order
         /// </summary>
         /// <param name="workOrderCode"></param>
@@ -1269,6 +1284,40 @@ namespace SVN_Portal.Controllers
             catch (Exception ex)
             {
                 return Json(new { result = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra để nhập số lượng sản phẩm theo mã Lot Pouch ở bước FG Check
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult CheckScanQuantitySerialFGPouch(string serial, string productionCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(productionCode))
+                {
+                    string message = "Chưa nhập mã lot đang sản xuất";
+                    return Json(new { result = false, message = message.ToUpper() });
+                }
+
+                if(serial == productionCode)
+                {
+                    string message = "Mã lot khớp";
+                    return Json(new { result = true, message = message.ToUpper(), quantity = 1 });
+                }
+                else
+                {
+                    string message = "Mã Lot được nhập không khớp với mã Lot đang sản xuất";
+                    return Json(new { result = false, message = message.ToUpper() });
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { result = false, message = message.ToUpper() });
             }
         }
 
