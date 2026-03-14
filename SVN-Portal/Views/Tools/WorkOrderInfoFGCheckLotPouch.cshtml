@@ -27,7 +27,14 @@
                                 <div class="modal-body">
                                     <div class="row">
                                         <div class="col-12">
-                                            <input id="txtInputQuantityCode" type="text" name="txtInputQuantityCode" class="form-control" />
+                                            <div class="form-group">
+                                                <label class="control-label text-dark">Mã Lot đang sản xuất</label>
+                                                <input id="txtProductionModalLot" type="text" name="productionModaLot" class="form-control pe-none bg-light" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label text-dark">Mã Lot chờ kiểm tra</label>
+                                                <input id="txtInputQuantityCode" type="text" name="txtInputQuantityCode" class="form-control" />
+                                            </div>
                                         </div>
                                         <div class="col-12">
                                             <div id="divLotCheckModalStatus" class="col-12 bg-primary text-center f-s-26 f-w-800">
@@ -89,6 +96,10 @@
 
     function GetProductByWorkOrder(txtworkOrderCode) {
         var workOrderCode = $(txtworkOrderCode).val();
+
+        var productionLot = $('input[name="productionLot"]').val();
+        $('input[name="productionModaLot"]').val(productionLot);
+
         showLoader();
         $.ajax({
             url: '@Url.Action("GetProductByWorkOrder", "Tools")',  // Adjust the controller name if needed
@@ -230,6 +241,8 @@
                                 document.getElementById("divLotCheckModalStatus").classList.add("bg-success");
                                 document.getElementById("divLotCheckModalStatus").innerText = res.message;
 
+                                $('input[name="productionModaLot"]').val(res.productionCode);
+
                                 $('input[name="Quantity"]').val(res.quantity);
                                 $('input[name="Quantity"]').focus().trigger({
                                     type: 'keydown',
@@ -246,6 +259,8 @@
                                 document.getElementById("divLotCheckModalStatus").classList.remove("bg-success");
                                 document.getElementById("divLotCheckModalStatus").classList.add("bg-danger");
                                 document.getElementById("divLotCheckModalStatus").innerText = res.message;
+
+                                $('input[name="productionModaLot"]').val(res.productionCode);
 
                                 $('input[name="txtInputQuantityCode"]').val('');
                                 $('input[name="txtInputQuantityCode"]').focus();

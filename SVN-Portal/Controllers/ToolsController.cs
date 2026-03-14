@@ -1300,24 +1300,24 @@ namespace SVN_Portal.Controllers
                 if (string.IsNullOrWhiteSpace(productionCode))
                 {
                     string message = "Chưa nhập mã lot đang sản xuất";
-                    return Json(new { result = false, message = message.ToUpper() });
+                    return Json(new { result = false, message = message.ToUpper(), productionCode = productionCode });
                 }
 
                 if(serial == productionCode)
                 {
                     string message = "Mã lot khớp";
-                    return Json(new { result = true, message = message.ToUpper(), quantity = 1 });
+                    return Json(new { result = true, message = message.ToUpper(), quantity = 1, productionCode = productionCode });
                 }
                 else
                 {
                     string message = "Mã Lot được nhập không khớp với mã Lot đang sản xuất";
-                    return Json(new { result = false, message = message.ToUpper() });
+                    return Json(new { result = false, message = message.ToUpper(), productionCode = productionCode });
                 }
             }
             catch (Exception ex)
             {
                 string message = ex.Message;
-                return Json(new { result = false, message = message.ToUpper() });
+                return Json(new { result = false, message = message.ToUpper(), productionCode = productionCode });
             }
         }
 
