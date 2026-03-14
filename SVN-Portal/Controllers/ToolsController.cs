@@ -1305,7 +1305,7 @@ namespace SVN_Portal.Controllers
 
                 if(serial == productionCode)
                 {
-                    string message = "Mã lot khớp";
+                    string message = "Mã lot khớp, Hãy scan mã Lot tiếp theo";
                     return Json(new { result = true, message = message.ToUpper(), quantity = 1, productionCode = productionCode });
                 }
                 else
