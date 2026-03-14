@@ -233,12 +233,12 @@
 
                                 document.getElementById("divLotCheckStatus").classList.remove("bg-primary");
                                 document.getElementById("divLotCheckStatus").classList.remove("bg-danger");
-                                document.getElementById("divLotCheckStatus").classList.add("bg-success");
+                                document.getElementById("divLotCheckStatus").classList.add("bg-primary");
                                 document.getElementById("divLotCheckStatus").innerText = res.message;
 
                                 document.getElementById("divLotCheckModalStatus").classList.remove("bg-primary");
                                 document.getElementById("divLotCheckModalStatus").classList.remove("bg-danger");
-                                document.getElementById("divLotCheckModalStatus").classList.add("bg-success");
+                                document.getElementById("divLotCheckModalStatus").classList.add("bg-primary");
                                 document.getElementById("divLotCheckModalStatus").innerText = res.message;
 
                                 $('input[name="productionModaLot"]').val(res.productionCode);
@@ -251,12 +251,10 @@
                             } else {
                                 // alert(res.message);
                                 document.getElementById("divLotCheckStatus").classList.remove("bg-primary");
-                                document.getElementById("divLotCheckStatus").classList.remove("bg-success");
                                 document.getElementById("divLotCheckStatus").classList.add("bg-danger");
                                 document.getElementById("divLotCheckStatus").innerText = res.message;
 
                                 document.getElementById("divLotCheckModalStatus").classList.remove("bg-primary");
-                                document.getElementById("divLotCheckModalStatus").classList.remove("bg-success");
                                 document.getElementById("divLotCheckModalStatus").classList.add("bg-danger");
                                 document.getElementById("divLotCheckModalStatus").innerText = res.message;
 
