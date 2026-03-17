@@ -772,6 +772,67 @@ namespace ViidooDBServiceAPI.Services
         }
 
         /// <summary>
+        /// Hàm API để kiểm tra số lượng tồn kho còn lại của một mã lot.
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="product_id"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<double> GetLotRemainingQtyAsync(string lot_name, int product_id, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.quant",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            // Lọc theo Lot name, Product và chỉ lấy ở các địa điểm Nội bộ (Internal)
+                            domain = new object[] {
+                        new object[] { "lot_id.name", "=", lot_name },
+                        new object[] { "product_id", "=", product_id },
+                        new object[] { "location_id.usage", "=", "internal" }
+                    },
+                            fields = new string[] { "quantity", "reserved_quantity", "location_id" }
+                        }
+                    },
+                    id = DateTime.Now.Ticks
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.quant/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+
+                if (json["result"] == null) return 0;
+
+                var results = (JArray)json["result"];
+
+                // Cộng dồn tồn kho nếu Lot này nằm ở nhiều vị trí (bin) khác nhau
+                double totalQty = 0;
+                foreach (var item in results)
+                {
+                    totalQty += item["quantity"]?.Value<double>() ?? 0;
+                }
+
+                return totalQty;
+            }
+        }
+
+        /// <summary>
         /// Hàm xử lý tiêu hao nguyên vật liệu theo BOM trong Odoo.
         /// </summary>
         /// <param name="productionOrderInfo"></param>

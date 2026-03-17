@@ -12,6 +12,7 @@ namespace SVNShareLib.Request
         public string seriNumber { get; set; }
         public string lotNumber { get; set; }
         public int count { get; set; }
+        public string? hasTracking { get; set; }
 
     }
 

@@ -284,6 +284,7 @@
 
                     // lấy product-id đi kèm (ở cùng <td>)
                     let productId = $this.closest('td').find('.product-id').val();
+                    let hasTracking = $this.closest('td').find('.has-tracking').val();
 
                     $.ajax({
                         url: '/Tools/CheckLotSerialComponemt', // API riêng cho serial-input
@@ -291,7 +292,8 @@
                         data: {
                             serial: serialCValue,
                             productId: productId,
-                            masterMOName: masterMOName
+                            masterMOName: masterMOName,
+                            hasTracking: hasTracking
                         },
                         success: function (res) {
                             if (res.result) {

@@ -1209,17 +1209,34 @@ namespace ViidooDBServiceAPI.Controllers
                 bODataProcessResult = await odooAPIService.LoginAsync();
                 if (bODataProcessResult.OK)
                 {
-                    var result = await odooAPIService.GetUsedLotForComponemtAsync(dataRequest.seriNumber, dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
-                    if (result != null && result.Count > 0)
+                    if (dataRequest.hasTracking == "serial")
                     {
-                        bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất: " + result["reference"];
-                        bODataProcessResult.Content = result;
+                        var result = await odooAPIService.GetUsedLotForComponemtAsync(dataRequest.seriNumber, dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                        if (result != null && result.Count > 0)
+                        {
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất: " + result["reference"];
+                            bODataProcessResult.Content = result;
+                        }
+                        else
+                        {
+                            bODataProcessResult.OK = true;
+                            bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " chưa được sử dụng";
+                        }
                     }
-                    else
+                    else if (dataRequest.hasTracking == "lot")
                     {
-                        bODataProcessResult.OK = true;
-                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " chưa được sử dụng";
+                        var result = await odooAPIService.GetLotRemainingQtyAsync(dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.DataType);
+                        if (result != 0)
+                        {
+                            bODataProcessResult.OK = true;
+                            bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " tồn tại với số lượng còn lại là: " + result;
+                        }
+                        else
+                        {
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = "Không tìm thấy mã lot: " + dataRequest.lotNumber + " hoặc tồn của mã lot đã hết";
+                        }
                     }
                 }
             }
