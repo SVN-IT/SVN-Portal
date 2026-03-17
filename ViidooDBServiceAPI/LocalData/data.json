@@ -1990,5 +1990,22 @@
     "StoreID": 7,
     "Produce_id": [ 1341 ],
     "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00332",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1200 ],
+    "ColWidth": 4
   }
 ]
