@@ -227,7 +227,12 @@
                         inputs.first().focus();
                     }
                     else{
-                        InputProductionResult();
+                        if($('input[name="ProductTracking"]').val() === "lot"){
+                            $('input[name="Serial"]').focus();
+                        }
+                        else{
+                            InputProductionResult();
+                        }
                     }
                     return;
                 }
@@ -247,7 +252,9 @@
                         success: function (res) {
                             if (res.result) {
                                 // Nếu pass -> set Quality = 1 rồi đi tiếp
-                                $('input[name="Quantity"]').val(1);
+                                if($('input[name="ProductTracking"]').val() === "serial"){
+                                    $('input[name="Quantity"]').val(1);
+                                }
                                 if(inputs.length > 0){
                                     inputs.first().focus();
                                 }

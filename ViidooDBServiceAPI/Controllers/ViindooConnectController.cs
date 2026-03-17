@@ -757,7 +757,7 @@ namespace ViidooDBServiceAPI.Controllers
                         foreach (var item in stockMoveInfo)
                         {
                             var token = (JToken)item["has_tracking"];
-                            if (token.Type == JTokenType.String && token?.ToString() == "serial")
+                            if (token.Type == JTokenType.String && token?.ToString() == "serial" || token.Type == JTokenType.String && token?.ToString() == "lot")
                             {
                                 stockMoveSerialInfo.Add(item);
                             }
@@ -902,7 +902,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                     int lot_id = 0;
                     string lot_name = string.Empty;
-                    if (!string.IsNullOrWhiteSpace(productTracking) && productTracking == "serial")
+                    if (!string.IsNullOrWhiteSpace(productTracking) && (productTracking == "serial" || productTracking == "lot"))
                     {
                         var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.LotNumber, product_id, company_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
                         if (stockLotInfo == null)
@@ -938,11 +938,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                     // Thực hiên tiêu hao nghuyên vật liệu theo BOM
                     Dictionary<string, object> moveRawConsumeInfo = new Dictionary<string, object>();
-                    if (productionOrderInfo["product_tracking"] != "serial")
-                    {
-                        moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
-                    }
-                    else
+                    if (productionOrderInfo["product_tracking"] == "serial" || productionOrderInfo["product_tracking"] == "lot")
                     {
                         //Xử lý tiêu hao nvl theo mã serial tiêu hao theo qty_produce hoặc lot_producing_id
                         for (int i = 0; i < 4; i++)
@@ -955,9 +951,13 @@ namespace ViidooDBServiceAPI.Controllers
                             }
                         }
                     }
+                    else
+                    {
+                        moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
+                    }
 
-                    //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
-                    var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+                        //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
+                        var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
                     var workOrderResult = ((JObject)moveRawConsumeInfo["result"])["value"]["workorder_ids"] as JArray;
 
                     var moveRawList = new List<object>();

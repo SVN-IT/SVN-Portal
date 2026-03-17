@@ -1320,7 +1320,7 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
-            if (workOrderInfo.OrderInfo["product_tracking"] == "serial")
+            if (workOrderInfo.OrderInfo["product_tracking"] == "serial" || workOrderInfo.OrderInfo["product_tracking"] == "lot")
             {
                 sb.Append("<div class=\"col-12 col-md-3\">");
             }
@@ -1359,7 +1359,11 @@ namespace SVN_Portal.Controllers
                 sb.Append("<td>" + item["location_name"] + "</td>");
                 if(item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /></td>");
+                }
+                else if(item["has_tracking"] == "lot")
+                {
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /></td>");
                 }
                 else
                 {
@@ -1390,12 +1394,24 @@ namespace SVN_Portal.Controllers
             try
             {
                 List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
-                data.Products = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
                 {
                     LotScanedRequest lotScaned = new LotScanedRequest
                     {
                         product_id = y.Product_id,
-                        lotNumber = y.Serial_code
+                        lotNumber = y.Serial_code,
+                        tracking = "serial"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "lot"
                     };
                     lotScaneds.Add(lotScaned);
                     return y;

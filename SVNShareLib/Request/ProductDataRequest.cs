@@ -32,5 +32,6 @@ namespace SVNShareLib.Request
     {
         public int product_id { get; set; }
         public string lotNumber { get; set; }
+        public string tracking { get; set; }
     }
 }
