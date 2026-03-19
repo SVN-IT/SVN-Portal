@@ -15,7 +15,8 @@
     string QCName = string.Empty;
     string PDURL = string.Empty;
     string QCURL = string.Empty;
-
+    string TechName = string.Empty;
+    string TechURL = string.Empty;
     QtyProdResultByOperViewModel defectModel = new QtyProdResultByOperViewModel();
     if(Model != null)
     {
@@ -33,6 +34,8 @@
                 QCName = defectModel.QCName;
                 PDURL = defectModel.PDURL;
                 QCURL = defectModel.QCURL;
+                TechName = defectModel.TechName;
+                TechURL = defectModel.TechURL;
             }
         }
         else
@@ -49,6 +52,8 @@
                 QCName = defectModel.QCName;
                 PDURL = defectModel.PDURL;
                 QCURL = defectModel.QCURL;
+                TechName = defectModel.TechName;
+                TechURL = defectModel.TechURL;
             }
         }
     }
@@ -362,7 +367,32 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="row">
-                        <div class="col-6">
+                        @{
+                            int colNum = 6;
+                        }
+                        @if (!string.IsNullOrWhiteSpace(TechName))
+                        {
+                            colNum = 4;
+                            <div class="col-@colNum">
+                                <div class="card svn-card svn-small-card">
+                                    <div class="card-body">
+                                        <div class="image-container">
+                                            @if (!string.IsNullOrWhiteSpace(TechURL))
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="@TechURL" alt="Card image cap">
+                                            }
+                                            else
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
+                                            }
+                                        </div>
+                                        <h3>Tech: @TechName</h3>
+                                        @* <h3>(SVN0334)</h3> *@
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-@colNum">
                             <div class="card svn-card svn-small-card">
                                 <div class="card-body">
                                     <div class="image-container">
@@ -381,7 +411,7 @@
 
                             @* <h3>(SVN0003)</h3> *@
                         </div>
-                        <div class="col-6">
+                        <div class="col-@colNum">
                             <div class="card svn-card svn-small-card">
                                 <div class="card-body">
                                     <div class="image-container">
