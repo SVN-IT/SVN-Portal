@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,17 @@ namespace SVNShareLib
         public string ProductTracking { get; set; }
         public string Serial { get; set; }
         public List<ProductSerial> Products { get; set; }
+    }
+
+    public class ProductionDataWithSerialList
+    {
+        public string Name { get; set; }
+        public string SubName { get; set; }
+        public string Quantity { get; set; }
+        public string ProductTracking { get; set; }
+        public string Serial { get; set; }
+        public List<ProductSerial> Products { get; set; }
+        public IFormFile serialFile { get; set; }
     }
 
     public class ProductSerial

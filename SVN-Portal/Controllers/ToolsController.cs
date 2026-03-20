@@ -1,5 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Lextm.SharpSnmpLib.Messaging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -1284,7 +1286,25 @@ namespace SVN_Portal.Controllers
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             StringBuilder sb = new StringBuilder();
-            sb.Append("<div class=\"col-12\">");
+            sb.Append("<div class=\"col-12 col-md-3\">");
+            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
+            {
+                if (workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
+                {
+                    sb.Append("<div id=\"divResultLight\" class=\"box-square bg-success\">");
+                }
+                else
+                {
+                    sb.Append("<div id=\"divResultLight\" class=\"box-square bg-warning\">");
+                }
+            }
+            else
+            {
+                sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
+            }
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-9\">");
             sb.Append("<div class=\"form-group\">");
             if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
             {
@@ -1347,7 +1367,25 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
-            
+
+            // Khi component có tracking là serial hoặc lot thì sẽ không cho phép Upload list serial nữa mà phải scan từng cái một để tránh sai sót
+            var componentsHasTracking = workOrderInfo.StockMoveInfo.Where(x => x["has_tracking"] == "serial" || x["has_tracking"] == "lot").ToList();
+            if (componentsHasTracking == null || componentsHasTracking.Count == 0)
+            {
+                sb.Append("<div class=\"col-12 col-md-4\">");
+                sb.Append("<div class=\"form-group\">");
+                sb.Append("<div class=\"row\">");
+                sb.Append("<div class=\"col-4\">");
+                sb.Append("<label class=\"control-label\">Hoặc Upload file serial:</label>");
+                sb.Append("</div>");
+                sb.Append("<div class=\"col-8\">");
+                sb.Append("<input type=\"file\" id=\"serialFile\" name=\"serialFile\" onchange=\"InputProductionResultWithSearialList()\" class=\"form-control\" accept=\".xlsx, .xls\" />");
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+            }
+
             sb.Append("<div class=\"col-12\">");
             sb.Append("<table class=\"table\">");
             sb.Append("<thead>");
@@ -1496,6 +1534,96 @@ namespace SVN_Portal.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { success = false, message = processResult.Message });
+        }
+
+        public async Task<IActionResult> InputProductionResultWithSerialList(ProductionDataWithSerialList data)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "serial"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "lot"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+
+                List<string> serialCodes = GetSerialsFromExcel(data.serialFile);
+
+                string inputSerialsSuccessMessage = "Inpputed Serial List Success: ";
+                string inputSerialsFailMessage = "Inpputed Serial List Fail: ";
+                List<string> successSerials = new List<string>();
+                List<string> failSerials = new List<string>();
+
+                if (serialCodes != null && serialCodes.Count > 0)
+                {
+                    foreach (var serial in serialCodes)
+                    {
+                        InputProductDataRequest dataRequest = new InputProductDataRequest()
+                        {
+                            WorkOrderNumber = data.Name,
+                            LotNumber = serial,
+                            Quality = 1,
+                            LotScaneds = lotScaneds
+                        };
+                        var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
+                        if (result != null)
+                        {
+                            TempData.Remove("WorkOrderName");
+                            TempData["WorkOrderName"] = data.SubName;
+                            TempData.Keep("WorkOrderName");
+                            if (result.OK)
+                            {
+                                successSerials.Add(serial);
+
+                            }
+                            else
+                            {
+                                failSerials.Add(serial);
+                            }
+                        }
+                    }
+
+                    string operation = "";
+                    inputSerialsSuccessMessage = inputSerialsSuccessMessage + string.Join(", ", successSerials) + " Count: " + successSerials.Count;
+                    inputSerialsFailMessage = inputSerialsFailMessage + string.Join(", ", failSerials) + " Count: " + failSerials.Count;
+
+                    processResult.OK = true;
+                    processResult.Message = $"{inputSerialsSuccessMessage}{Environment.NewLine}{inputSerialsFailMessage}";
+
+                    return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Replace("/", "%2f") });
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "File serial không có dữ liệu hoặc sai định dạng";
+                }
+
+                
+            }
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
@@ -2045,6 +2173,61 @@ namespace SVN_Portal.Controllers
             ViewBag.PaginationList = paginationList;
 
             return pagedData;
+        }
+        #endregion
+
+        #region hàm xử lý input excel danh sách serial
+        private List<string> GetSerialsFromExcel(IFormFile file)
+        {
+            List<string> serials = new List<string>();
+
+            using (var stream = file.OpenReadStream())
+            {
+                using (SpreadsheetDocument doc = SpreadsheetDocument.Open(stream, false))
+                {
+                    // Lấy Sheet đầu tiên
+                    WorkbookPart workbookPart = doc.WorkbookPart;
+                    SharedStringTablePart sstpart = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+                    SharedStringTable sst = sstpart?.SharedStringTable;
+
+                    WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
+                    Worksheet sheet = worksheetPart.Worksheet;
+
+                    // Lấy tất cả các dòng (Rows)
+                    var rows = sheet.Descendants<Row>();
+
+                    foreach (Row row in rows)
+                    {
+                        // Lấy cell đầu tiên của mỗi dòng (Cột A)
+                        Cell cell = row.Elements<Cell>().FirstOrDefault();
+                        if (cell != null)
+                        {
+                            string value = GetCellValue(cell, sst);
+                            if (!string.IsNullOrWhiteSpace(value) && value != "serial_code") // Bỏ qua tiêu đề nếu có
+                            {
+                                serials.Add(value.Trim());
+                            }
+                        }
+                    }
+                }
+            }
+            return serials;
+        }
+
+        // Hàm bổ trợ để đọc giá trị thực tế của Cell (Xử lý trường hợp SharedString)
+        private string GetCellValue(Cell cell, SharedStringTable sst)
+        {
+            if (cell.CellValue == null) return string.Empty;
+
+            string value = cell.CellValue.InnerText;
+
+            // Nếu cell là kiểu SharedString (chuỗi dùng chung), phải tra cứu trong bảng sst
+            if (cell.DataType != null && cell.DataType == CellValues.SharedString && sst != null)
+            {
+                return sst.ElementAt(int.Parse(value)).InnerText;
+            }
+
+            return value;
         }
         #endregion
     }
