@@ -1304,8 +1304,8 @@ namespace SVN_Portal.Controllers
             }
             sb.Append("</div>");
             sb.Append("</div>");
-            sb.Append("<div class=\"col-12 col-md-9\">");
-            sb.Append("<div class=\"form-group\">");
+            sb.Append("<div class=\"col-12 col-md-9 row\">");
+            sb.Append("<div class=\"form-group\" style=\"width: 100%;\">");
             if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
             {
                 if(workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
@@ -1326,7 +1326,6 @@ namespace SVN_Portal.Controllers
             sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["name"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
-            sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
@@ -1403,11 +1402,11 @@ namespace SVN_Portal.Controllers
                 sb.Append("<tr>");
                 sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
                 sb.Append("<td>" + item["location_name"] + "</td>");
-                if(item["has_tracking"] == "serial")
+                if (item["has_tracking"] == "serial")
                 {
                     sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /></td>");
                 }
-                else if(item["has_tracking"] == "lot")
+                else if (item["has_tracking"] == "lot")
                 {
                     sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /></td>");
                 }
@@ -1425,6 +1424,8 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
+            sb.Append("</div>");
+            
             return sb.ToString();
         }
 
