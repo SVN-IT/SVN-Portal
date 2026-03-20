@@ -13,6 +13,7 @@ using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
+using SVN_Portal.Services.Util;
 using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
@@ -22,6 +23,7 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using static SVNShareLib.Utils.LogService;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SVN_Portal.Controllers
 {
@@ -34,12 +36,13 @@ namespace SVN_Portal.Controllers
         APIConfiguration aPIConfiguration;
         TOASTLabelConfiguration labelConfiguration;
         OperInfoConfig operInfoConfig;
+        Pagination pagination;
         public ToolsController(DBConfiguration dBConfiguration,
             ILogger<ToolsController> logger,
             ToolsHelper toolsHelper, 
             APIConfiguration aPIConfiguration,
             OperInfoConfig operInfoConfig,
-            TOASTLabelConfiguration labelConfiguration)
+            TOASTLabelConfiguration labelConfiguration, Pagination pagination)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
@@ -48,12 +51,14 @@ namespace SVN_Portal.Controllers
             this.labelConfiguration = labelConfiguration;
             this.operInfoConfig = operInfoConfig;
             _logger = logger;
+            this.pagination = pagination;
         }
         public IActionResult Index()
         {
             return View();
         }
 
+        #region PrintLabel
         /// <summary>
         /// Màn hình quản lý máy in
         /// </summary>
@@ -1019,6 +1024,8 @@ namespace SVN_Portal.Controllers
             
         }
 
+        #endregion
+
         #region Nhập kết quả sản xuất
         public IActionResult WorkOrderInfo(string workOrder)
         {
@@ -1959,6 +1966,86 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
         }
 
+        #endregion
+
+        #region Check Operator
+        /// <summary>
+        /// Hàm kiểm tra xem operator đã được đào tạo cho công đoạn đó chưa
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> CheckOperatorTraining(DateTime date, string operation, string documentCode, int pageNumber = 1, int pageSize = 10)
+        {
+            List<TrainingOperatorRecordUI> pagedData = new List<TrainingOperatorRecordUI>();
+
+            pagedData = GetPageOperatorData(date, operation, documentCode, pageNumber, pageSize);
+
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+            List<OperInfo> opers = operInfo1.OperInfo;
+            List<string> operations = new List<string>();
+            operations = opers.Select(x => x.Operation).Distinct().ToList();
+            operations.Add("ALL");
+            operations = operations.OrderBy(x => x).ToList();
+
+            ViewBag.Operations = operations;
+            ViewBag.CurrentOperation = operation;
+            ViewBag.DocumentCode = documentCode;
+
+            return View(pagedData);
+        }
+
+        public List<TrainingOperatorRecordUI> GetPageOperatorData(DateTime date, string operation, string documentCode, int pageNumber = 1, int pageSize = 10, bool isExport = false)
+        {
+            List<TrainingOperatorRecordUI> pagedData = new List<TrainingOperatorRecordUI>();
+            if (date == DateTime.MinValue)
+            {
+                date = DateTime.Now;
+            }
+
+            int totalPages = 0;
+            List<TrainingOperatorRecordUI> trainingOperators = new List<TrainingOperatorRecordUI>();
+
+            var dataPortal = new TrainingOperatorRecordDataPortal(connectionString);
+            trainingOperators = dataPortal.ReadListByDate(date.ToString("yyyyMMdd"));
+
+            if (trainingOperators != null && trainingOperators.Count > 0)
+            {
+                if(!string.IsNullOrWhiteSpace(operation) && operation != "ALL")
+                {
+                    trainingOperators = trainingOperators.Where(x => x.Operation == operation).ToList();
+                }
+
+                if(!string.IsNullOrWhiteSpace(documentCode))
+                {
+                    trainingOperators = trainingOperators.Where(x => x.Training_doc_code == documentCode).ToList();
+                }
+
+                if (!isExport)
+                {
+                    pagedData = trainingOperators
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+                }
+                else
+                {
+                    pagedData = trainingOperators;
+                }
+
+
+                totalPages = (int)Math.Ceiling((double)trainingOperators.Count / pageSize);
+            }
+            var paginationList = pagination.GeneratePagination(pageNumber, totalPages);
+            ViewBag.Date = date;
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.PaginationList = paginationList;
+
+            return pagedData;
+        }
         #endregion
     }
 

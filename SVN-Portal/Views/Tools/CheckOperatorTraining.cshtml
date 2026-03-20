@@ -1,0 +1,189 @@
+﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
+@model IEnumerable<TrainingOperatorRecordUI>
+@{
+
+    DateTime date = ViewBag.Date;
+    int pageNumber = ViewBag.CurrentPage;
+    int pageSize = ViewBag.PageSize;
+    List<string> paginationList = ViewBag.PaginationList;
+    List<string> operations = ViewBag.Operations;
+    string operation = ViewBag.CurrentOperation;
+    string documentCode = ViewBag.DocumentCode;
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Training Operation Checklist";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-end gap-2">
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Training Date</label>
+                                <input type="date" name="date"
+                                       value="@date.ToString("yyyy-MM-dd")"
+                                       class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Document Code</label>
+                                <input type="text" name="documentCode"
+                                       value="@documentCode"
+                                       class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Operation</label>
+                                <select class="form-control" name="operation">
+                                    @foreach (var item in operations)
+                                    {
+                                        <option value="@item" selected="@(operation == item)">@item</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Page size</label>
+                                <select class="form-control" name="pageSize">
+                                    <option value="10" selected="@(pageSize == 10)">10</option>
+                                    <option value="15" selected="@(pageSize == 15)">15</option>
+                                    <option value="20" selected="@(pageSize == 20)">20</option>
+                                    <option value="25" selected="@(pageSize == 25)">25</option>
+                                    <option value="50" selected="@(pageSize == 50)">50</option>
+                                    <option value="100" selected="@(pageSize == 100)">100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="CheckOperatorTraining"
+                                        class="btn btn-primary">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                        asp-action="ExportCheckOperatorTraining"
+                                        class="btn btn-success">
+                                    Export excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <ul class="pagination float-right">
+                        @foreach (var item in paginationList)
+                        {
+                            if (item == "...")
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item @(item == pageNumber.ToString() ? "active" : "")">
+                                    <button type="submit" class="page-link" asp-action="CheckOperatorTraining" asp-route-pageNumber=@item>@item</button>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12">
+        <div class="card svn-card">
+            <div class="card-title">
+                <h4>Training Operator Checklist</h4>
+            </div>
+            <div class="card-body">
+                <div class="row" style="overflow-x: auto; white-space: nowrap;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Traning date
+                                </th>
+                                <th>
+                                    Training hours
+                                </th>
+                                <th>
+                                    Training document code
+                                </th>
+                                <th>
+                                    Operation
+                                </th>
+                                <th>
+                                    Supervisor code
+                                </th>
+                                <th>
+                                    Operator code
+                                </th>
+                                <th>
+                                    Operator name
+                                </th>
+                                <th>
+                                    Training Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                string rowClass = "";
+                                string trainingStatus = "";
+                                if (item.Status == "Pending")
+                                {
+                                    trainingStatus = "text-warning";
+                                }
+                                else if (item.Status == "Success")
+                                {
+                                    trainingStatus = "text-success";
+                                }
+                                <tr style="@rowClass">
+                                    <td>
+                                        @item.Traning_date
+                                    </td>
+                                    <td>
+                                        @item.Traing_hours
+                                    </td>
+                                    <td>
+                                        @item.Training_doc_code
+                                    </td>
+                                    <td>
+                                        @item.Operation
+                                    </td>
+                                    <td>
+                                        @item.Supervisor_code
+                                    </td>
+                                    <td>
+                                        @item.Operator_code
+                                    </td>
+                                    <td>
+                                        @item.Operator_name
+                                    </td>
+                                    <td class="@trainingStatus">
+                                        @item.Status
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
