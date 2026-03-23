@@ -2181,28 +2181,36 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CheckOperatorTrained(DateTime date, string operation, string documentCode, IFormFile qrImage)
+        public async Task<IActionResult> CheckOperatorTrained(DateTime date, string operation, string documentCode, string scanOperatorID, IFormFile qrImage)
         {
             var dataPortal = new TrainingOperatorRecordDataPortal(connectionString);
-            if (qrImage == null || qrImage.Length == 0)
-                return Json(new { success = false, message = "Chưa chọn ảnh!" });
+            string operatorCode = string.Empty;
             try
             {
-                using var stream = qrImage.OpenReadStream();
-                using var skBitmap = SkiaSharp.SKBitmap.Decode(stream);
 
-                var reader = new ZXing.SkiaSharp.BarcodeReader();
-                var result = reader.Decode(skBitmap);
-                if (result == null)
+                //if (qrImage == null || qrImage.Length == 0)
+                //    return Json(new { success = false, message = "Chưa chọn ảnh!" });
+                //using var stream = qrImage.OpenReadStream();
+                //using var skBitmap = SkiaSharp.SKBitmap.Decode(stream);
+
+                //var reader = new ZXing.SkiaSharp.BarcodeReader();
+                //var result = reader.Decode(skBitmap);
+                //if (result == null)
+                //{
+                //    return Json(new { result = false, message = "The QR code from the image cannot be read!" });
+                //}
+                //operatorCode = result.Text;
+                if (string.IsNullOrWhiteSpace(scanOperatorID))
                 {
-                    return Json(new { result = false, message = "The QR code from the image cannot be read!" });
+                    return Json(new { result = false, message = "Please input operator code!" });
                 }
+                operatorCode = scanOperatorID;
 
                 List<TrainingOperatorRecordUI> trainingOperators = GetPageOperatorData(date, operation, documentCode, 1, int.MaxValue, true);
                 if (trainingOperators != null && trainingOperators.Count > 0)
                 {
                     //Lấy ra nhân viên trong danh sách đào tạo theo QR code
-                    var operatorInfo = trainingOperators.FirstOrDefault(x => x.Operator_code == result.Text);
+                    var operatorInfo = trainingOperators.FirstOrDefault(x => x.Operator_code == operatorCode);
                     if (operatorInfo != null)
                     {
                         //Nếu nhân viên chưa được training thì cập nhật trạng thái training cho nhân viên đó
@@ -2227,7 +2235,7 @@ namespace SVN_Portal.Controllers
                     }
                     else
                     {
-                        return Json(new { result = false, message = $"The operator {result.Text} has not been trained for this operation or does not exist on the training list." });
+                        return Json(new { result = false, message = $"The operator {operatorCode} has not been trained for this operation or does not exist on the training list." });
                     }
                 }
                 return Json(new { result = true, message = "Training list not found" });

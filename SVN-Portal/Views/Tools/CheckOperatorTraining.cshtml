@@ -57,7 +57,7 @@
                                     <option value="25" selected="@(pageSize == 25)">25</option>
                                     <option value="50" selected="@(pageSize == 50)">50</option>
                                     <option value="100" selected="@(pageSize == 100)">100</option>
-                                    @if (Model != null && Model.Count() > 0)
+                                    @if (Model != null && Model.Count() > 100)
                                     {
                                         <option value="@Model.Count()" selected="@(pageSize == Model.Count())">All</option>
                                     })
@@ -104,7 +104,12 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                <input type="file" id="fileQR" accept="image/*" capture="environment" class="form-control">
+                                                <input type="file" id="fileQR" accept="image/*" capture="environment" class="form-control d-none">
+                                                <div class="form-group">
+                                                    <label class="text-dark">Scan Operator Code</label>
+                                                    <input id="txtScanOperatorID" type="text" name="scanOperatorID"
+                                                           class="form-control" />
+                                                </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -230,19 +235,21 @@
         let dateVal = $('#txtDate').val(); // ID của textbox ngày tháng
         let operationVal = $('#selectOperation').val(); // ID của dropdownlist (select)
         let documentCodeVal = $('#txtDocumentCode').val(); // ID của textbox mã tài liệu
+        let scanOperatorIDVal = $('#txtScanOperatorID').val();
         let qrFile = $('#fileQR')[0].files[0]; // ID của input file ảnh
 
         // Kiểm tra nhanh file
-        if (!qrFile) {
-            alert("Vui lòng chọn hoặc chụp ảnh QR code!");
-            return;
-        }
+        // if (!qrFile) {
+        //     alert("Vui lòng chọn hoặc chụp ảnh QR code!");
+        //     return;
+        // }
 
         // 2. Đóng gói vào FormData
         let formData = new FormData();
         formData.append("date", dateVal);
         formData.append("operation", operationVal);
         formData.append("documentCode", documentCodeVal);
+        formData.append("scanOperatorID", scanOperatorIDVal);
         formData.append("qrImage", qrFile); // Phải khớp với tên tham số 'qrImage' trong Controller
 
         // Hiển thị loader nếu cần
@@ -264,6 +271,7 @@
                     alert("Success: " + res.message);
                     // Có thể reload lại danh sách hoặc reset file input ở đây
                     $('#fileQR').val('');
+                    $('#txtScanOperatorID').val('');
 
                     let operatorCode = res.operatorCode;
 
@@ -291,6 +299,7 @@
                 } else {
                     alert("Error: " + res.message);
                     $('#fileQR').val('');
+                    $('#txtScanOperatorID').val('');
                 }
             },
             error: function (xhr, status, error) {
@@ -307,6 +316,21 @@
         
         $('#fileQR').on('change', function() {
             CheckOperatorTrained();
+        });
+
+        $(document).on('keydown', 'input', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // chặn submit form khi bấm Enter
+
+                // Nếu ô hiện tại rỗng => không cho đi tiếp
+                if (!$(this).val().trim()) {
+                    return;
+                }
+
+                if ($(this).attr("name") === "scanOperatorID") {
+                    CheckOperatorTrained();
+                }
+            }
         });
     });
 </script>
