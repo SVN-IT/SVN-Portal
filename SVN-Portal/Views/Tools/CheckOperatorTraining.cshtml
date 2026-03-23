@@ -110,6 +110,9 @@
                                                     <input id="txtScanOperatorID" type="text" name="scanOperatorID"
                                                            class="form-control" />
                                                 </div>
+                                                <div id="divAlert" class="alert" role="alert">
+
+                                                </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -268,10 +271,16 @@
                 let isSuccess = res.result || res.success;
 
                 if (isSuccess) {
-                    alert("Success: " + res.message);
+                    // alert("Success: " + res.message);
                     // Có thể reload lại danh sách hoặc reset file input ở đây
                     $('#fileQR').val('');
                     $('#txtScanOperatorID').val('');
+
+                    $('#divAlert').text(res.message)
+                                      .removeClass("alert-warning")
+                                      .addClass("alert-success")
+                                      .hide()
+                                      .fadeIn(500);
 
                     let operatorCode = res.operatorCode;
 
@@ -297,9 +306,15 @@
                         }
                     });
                 } else {
-                    alert("Error: " + res.message);
+                    // alert("Error: " + res.message);
                     $('#fileQR').val('');
                     $('#txtScanOperatorID').val('');
+
+                    $('#divAlert').text(res.message)
+                                      .removeClass("alert-success")
+                                      .addClass("alert-warning")
+                                      .hide()
+                                      .fadeIn(500);
                 }
             },
             error: function (xhr, status, error) {

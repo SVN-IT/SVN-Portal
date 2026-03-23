@@ -2230,7 +2230,7 @@ namespace SVN_Portal.Controllers
                         }
                         else
                         {
-                            return Json(new { result = true, message = $"The operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name} has already been marked as trained." });
+                            return Json(new { result = false, message = $"The operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name} has already been marked as trained." });
                         }
                     }
                     else
