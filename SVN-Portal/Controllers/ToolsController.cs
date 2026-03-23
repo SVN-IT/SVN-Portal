@@ -25,7 +25,9 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using static SVNShareLib.Utils.LogService;
+using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using ZXing;
 
 namespace SVN_Portal.Controllers
 {
@@ -2152,6 +2154,8 @@ namespace SVN_Portal.Controllers
                     trainingOperators = trainingOperators.Where(x => x.Training_doc_code == documentCode).ToList();
                 }
 
+                trainingOperators = trainingOperators.OrderBy(x => x.Training_doc_code).ToList();
+
                 if (!isExport)
                 {
                     pagedData = trainingOperators
@@ -2174,6 +2178,64 @@ namespace SVN_Portal.Controllers
             ViewBag.PaginationList = paginationList;
 
             return pagedData;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckOperatorTrained(DateTime date, string operation, string documentCode, IFormFile qrImage)
+        {
+            var dataPortal = new TrainingOperatorRecordDataPortal(connectionString);
+            if (qrImage == null || qrImage.Length == 0)
+                return Json(new { success = false, message = "Chưa chọn ảnh!" });
+            try
+            {
+                using var stream = qrImage.OpenReadStream();
+                using var skBitmap = SkiaSharp.SKBitmap.Decode(stream);
+
+                var reader = new ZXing.SkiaSharp.BarcodeReader();
+                var result = reader.Decode(skBitmap);
+                if (result == null)
+                {
+                    return Json(new { result = false, message = "The QR code from the image cannot be read!" });
+                }
+
+                List<TrainingOperatorRecordUI> trainingOperators = GetPageOperatorData(date, operation, documentCode, 1, int.MaxValue, true);
+                if (trainingOperators != null && trainingOperators.Count > 0)
+                {
+                    //Lấy ra nhân viên trong danh sách đào tạo theo QR code
+                    var operatorInfo = trainingOperators.FirstOrDefault(x => x.Operator_code == result.Text);
+                    if (operatorInfo != null)
+                    {
+                        //Nếu nhân viên chưa được training thì cập nhật trạng thái training cho nhân viên đó
+                        if (operatorInfo.Status == "Not OK")
+                        {
+                            operatorInfo.Status = "OK";
+                            var resultUpdate = await dataPortal.Update(operatorInfo);
+                            if(resultUpdate > 0)
+                            {
+                                return Json(new { result = true, message = $"The operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name} has been successfully marked as trained.", operatorCode = operatorInfo.Operator_code });
+                            }
+                            else
+                            {
+                                return Json(new { result = false, message = $"Failed to update training status for operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name}. Please try again or report to admin." });
+                            }
+                            
+                        }
+                        else
+                        {
+                            return Json(new { result = true, message = $"The operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name} has already been marked as trained." });
+                        }
+                    }
+                    else
+                    {
+                        return Json(new { result = false, message = $"The operator {result.Text} has not been trained for this operation or does not exist on the training list." });
+                    }
+                }
+                return Json(new { result = true, message = "Training list not found" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
         #endregion
 

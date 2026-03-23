@@ -38,5 +38,29 @@ namespace SVNShareLib.DAL
                 return null;
             }
         }
+
+        public async Task<int> Update(TrainingOperatorRecordUI dataUI, string tableName = "TrainingOperatorRecord")
+        {
+            int timeOut = 1000;
+            string updateQuery = "UPDATE " + tableName +
+                    " SET Status = @Status " +
+                    "WHERE Operator_code = @Operator_code AND Traning_date = @Traning_date AND Training_doc_code = @Training_doc_code";
+            try
+            {
+                using (IDbConnection dbConnection = new SqlConnection(connectionString))
+                {
+                    dbConnection.Open();
+
+                    // Execute the update query; Dapper maps the parameters automatically
+                    int rowsAffected = await dbConnection.ExecuteAsync(updateQuery, dataUI, null, timeOut, CommandType.Text);
+
+                    return rowsAffected;
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+        }
     }
 }
