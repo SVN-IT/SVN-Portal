@@ -2009,8 +2009,25 @@
     "ColWidth": 4
   },
   {
-    "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
+    "Operation": "Saddle-SG-NGTC5TC7-HDSTP-100(SM)",
     "Name": "",
+    "Price": 0,
+    "MasterOperation": "Saddle(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1277 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
+    "Name": "Sakura Folio Case, Midnight Blue, with gift box, SKU NO.: RM15A-1000NW",
     "Price": 0,
     "MasterOperation": "Sakura F/G(SM)",
     "WCType": "FG",
@@ -2022,7 +2039,92 @@
       }
     ],
     "StoreID": 3,
-    "Produce_id": [ 1277 ],
+    "Produce_id": [ 1257 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00304(SM)",
+    "Name": "Back Panel- Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1356 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00303(SM)",
+    "Name": "Mid-width semi-finished components - Sukara blue",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1259 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00302(SM)",
+    "Name": "Top Panel- Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1258 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00500(SM)",
+    "Name": "Cut_Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1353 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00672(SM)",
+    "Name": "Cut_Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1355 ],
     "ColWidth": 4
   }
 ]
