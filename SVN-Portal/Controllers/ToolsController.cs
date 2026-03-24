@@ -28,6 +28,7 @@ using static SVNShareLib.Utils.LogService;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using ZXing;
+using ClosedXML.Excel;
 
 namespace SVN_Portal.Controllers
 {
@@ -2126,6 +2127,62 @@ namespace SVN_Portal.Controllers
             ViewBag.DocumentCode = documentCode;
 
             return View(pagedData);
+        }
+
+        public IActionResult ExportCheckOperatorTraining(DateTime date, string documentCode, int pageNumber = 1, int pageSize = 10, string operation = "Sakura-FG-RAI-SP-0007-00(SM)")
+        {
+            var data = GetPageOperatorData(date, operation, documentCode, 1, int.MaxValue, true);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("WO Analysis");
+
+                // ===== HEADER =====
+                var headers = new[]
+                {
+                    "Operation","Training hours","Supervisor code","Operator code","Operator name","Training Status"
+                };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cell(1, i + 1).Value = headers[i];
+                    worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                }
+
+                // ===== DATA =====
+                int row = 2;
+
+                foreach (var item in data)
+                {
+                    int col = 1;
+
+                    worksheet.Cell(row, col++).Value = item.Operation;
+                    worksheet.Cell(row, col++).Value = item.Traing_hours;
+                    worksheet.Cell(row, col++).Value = item.Supervisor_code;
+                    worksheet.Cell(row, col++).Value = item.Operator_code;
+                    worksheet.Cell(row, col++).Value = item.Operator_name;
+                    worksheet.Cell(row, col++).Value = item.Status;
+
+                    row++;
+                }
+
+                // ===== FORMAT =====
+                worksheet.Columns().AdjustToContents();
+                worksheet.SheetView.FreezeRows(1);
+                worksheet.RangeUsed().SetAutoFilter();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+
+                    return File(
+                        content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        $"WOAnalysisReport_{operation}.xlsx"
+                    );
+                }
+            }
         }
 
         public List<TrainingOperatorRecordUI> GetPageOperatorData(DateTime date, string operation, string documentCode, int pageNumber = 1, int pageSize = 10, bool isExport = false)
