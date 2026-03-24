@@ -2007,5 +2007,22 @@
     "StoreID": 3,
     "Produce_id": [ 1200 ],
     "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1277 ],
+    "ColWidth": 4
   }
 ]

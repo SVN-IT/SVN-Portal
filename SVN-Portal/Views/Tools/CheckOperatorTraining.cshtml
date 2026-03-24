@@ -20,7 +20,7 @@
             <div class="form-group row">
                 <div class="col-12">
                     <div class="d-flex flex-wrap align-items-end gap-2">
-                        <div class="m-1">
+                        <div class="m-1 d-none">
                             <div class="form-group">
                                 <label>Training Date</label>
                                 <input id="txtDate" type="date" name="date"
@@ -28,7 +28,7 @@
                                 class="form-control" />
                             </div>
                         </div>
-                        <div class="m-1">
+                        <div class="m-1 d-none">
                             <div class="form-group">
                                 <label>Document Code</label>
                                 <input id="txtDocumentCode" type="text" name="documentCode"
@@ -36,7 +36,7 @@
                                 class="form-control" />
                             </div>
                         </div>
-                        <div class="m-1 d-none">
+                        <div class="m-1">
                             <div class="form-group">
                                 <label>Operation</label>
                                 <select id="selectOperation" class="form-control" name="operation">
@@ -86,7 +86,7 @@
                         </div>
                         <div class="m-1">
                             <div class="form-group">
-                                @if (!string.IsNullOrWhiteSpace(documentCode) && Model != null && Model.Count() > 0)
+                                @if (!string.IsNullOrWhiteSpace(operation) && operation != "ALL" && Model != null && Model.Count() > 0)
                                 {
                                     <button type="button"
                                         class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
@@ -156,15 +156,15 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>
+                                @* <th>
                                     Traning date
-                                </th>
+                                </th> *@
                                 <th>
                                     Training hours
                                 </th>
-                                <th>
+                                @* <th>
                                     Training document code
-                                </th>
+                                </th> *@
                                 <th>
                                     Operation
                                 </th>
@@ -196,15 +196,15 @@
                                     trainingStatus = "text-success";
                                 }
                                 <tr style="@rowClass">
-                                    <td>
+                                    @* <td>
                                         @item.Traning_date
-                                    </td>
+                                    </td> *@
                                     <td>
                                         @item.Traing_hours
                                     </td>
-                                    <td>
+                                    @* <td>
                                         @item.Training_doc_code
-                                    </td>
+                                    </td> *@
                                     <td>
                                         @item.Operation
                                     </td>
@@ -288,13 +288,13 @@
                         let row = $(this);
 
                         // Cột Operator code là cột thứ 6 (index là 5)
-                        let codeInTable = row.find("td:eq(5)").text().trim();
+                        let codeInTable = row.find("td:eq(3)").text().trim();
 
                         console.log("Đang so sánh: Table[" + codeInTable + "] với Server[" + operatorCode + "]");
 
                         if (codeInTable === operatorCode) {
                             // Cột Training Status là cột thứ 8 (index là 7)
-                            let statusCell = row.find("td:eq(7)");
+                            let statusCell = row.find("td:eq(5)");
 
                             statusCell.text("OK")
                                       .removeClass("text-warning")

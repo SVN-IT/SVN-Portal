@@ -2107,7 +2107,7 @@ namespace SVN_Portal.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public async Task<IActionResult> CheckOperatorTraining(DateTime date, string operation, string documentCode, int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> CheckOperatorTraining(DateTime date, string documentCode, int pageNumber = 1, int pageSize = 10, string operation = "Sakura-FG-RAI-SP-0007-00(SM)")
         {
             List<TrainingOperatorRecordUI> pagedData = new List<TrainingOperatorRecordUI>();
 
@@ -2138,23 +2138,43 @@ namespace SVN_Portal.Controllers
 
             int totalPages = 0;
             List<TrainingOperatorRecordUI> trainingOperators = new List<TrainingOperatorRecordUI>();
+            List<TrainingOperatorRecordUI> tempTrainingOperators = new List<TrainingOperatorRecordUI>();
 
             var dataPortal = new TrainingOperatorRecordDataPortal(connectionString);
-            trainingOperators = dataPortal.ReadListByDate(date.ToString("yyyyMMdd"));
+            var targetDataPortal = new SVN_TrainingOperationTargetDataPortal(connectionString);
+            var operatorDataPortal = new SVN_OperatorInfoDataPortal(connectionString);
+
+            var targetList = targetDataPortal.ReadListTargetByOperation(operation);
+            var operatorList = operatorDataPortal.ReadList();
+            trainingOperators = dataPortal.ReadListByOperation(operation);
+            tempTrainingOperators = GetListRecordByTarget(targetList, operatorList);
 
             if (trainingOperators != null && trainingOperators.Count > 0)
             {
-                if(!string.IsNullOrWhiteSpace(operation) && operation != "ALL")
+                var operatorsToAdd = tempTrainingOperators
+                                    .Where(temp => !trainingOperators.Any(t => t.Operator_code == temp.Operator_code))
+                                    .ToList();
+
+                var operatorsToRemove = trainingOperators
+                                        .Where(t => !tempTrainingOperators.Any(temp => temp.Operator_code == t.Operator_code))
+                                        .ToList();
+                int insertResult = 0;
+                int deleteResult = 0;
+                if (operatorsToAdd != null && operatorsToAdd.Count > 0)
                 {
-                    trainingOperators = trainingOperators.Where(x => x.Operation == operation).ToList();
+                    insertResult = dataPortal.InsertBulk(operatorsToAdd);
+                }
+                if(operatorsToRemove != null && operatorsToRemove.Count > 0)
+                {
+                    deleteResult = dataPortal.DeleteBulk(operatorsToRemove);
                 }
 
-                if(!string.IsNullOrWhiteSpace(documentCode))
+                if (insertResult > 0 || deleteResult > 0)
                 {
-                    trainingOperators = trainingOperators.Where(x => x.Training_doc_code == documentCode).ToList();
+                    trainingOperators = dataPortal.ReadListByOperation(operation);
                 }
 
-                trainingOperators = trainingOperators.OrderBy(x => x.Training_doc_code).ToList();
+                trainingOperators = trainingOperators.OrderBy(x => x.Status).ToList();
 
                 if (!isExport)
                 {
@@ -2167,10 +2187,39 @@ namespace SVN_Portal.Controllers
                 {
                     pagedData = trainingOperators;
                 }
-
-
                 totalPages = (int)Math.Ceiling((double)trainingOperators.Count / pageSize);
             }
+            else
+            {
+                //Nếu chưa có dữ liệu đào tạo nào thì lấy danh sách nhân viên theo target để hiển thị, mặc định trạng thái là chưa đạt yêu cầu
+                trainingOperators = new List<TrainingOperatorRecordUI>();
+                trainingOperators = tempTrainingOperators;
+
+                //Thực hiên insert vào CSDL
+                if(trainingOperators != null && trainingOperators.Count > 0)
+                {
+                    var rowsEffect = dataPortal.InsertBulk(trainingOperators);
+                    if (rowsEffect <= 0)
+                    {
+                        trainingOperators = new List<TrainingOperatorRecordUI>();
+                    }
+                    trainingOperators = trainingOperators.OrderBy(x => x.Status).ToList();
+
+                    if (!isExport)
+                    {
+                        pagedData = trainingOperators
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+                    }
+                    else
+                    {
+                        pagedData = trainingOperators;
+                    }
+                    totalPages = (int)Math.Ceiling((double)trainingOperators.Count / pageSize);
+                }
+            }
+            
             var paginationList = pagination.GeneratePagination(pageNumber, totalPages);
             ViewBag.Date = date;
             ViewBag.CurrentPage = pageNumber;
@@ -2178,6 +2227,31 @@ namespace SVN_Portal.Controllers
             ViewBag.PaginationList = paginationList;
 
             return pagedData;
+        }
+
+        private List<TrainingOperatorRecordUI> GetListRecordByTarget(List<SVN_TrainingOperationTargetUI> targetUI, List<SVN_OperatorInfoUI> operatorUI)
+        {
+            List<TrainingOperatorRecordUI> trainingOperators = new List<TrainingOperatorRecordUI>();
+            if(targetUI == null || targetUI.Count == 0)
+            {
+                return trainingOperators;
+            }
+            foreach (var target in targetUI)
+            {
+                var operatorInfo = operatorUI.FirstOrDefault(x => x.Operator_code == target.Operator_code);
+                TrainingOperatorRecordUI record = new TrainingOperatorRecordUI();
+                record.Operation = target.Operation;
+                record.Traing_hours = target.Traing_hours;
+                record.Supervisor_code = target.Supervisor_code;
+                record.Operator_code = target.Operator_code;
+                if (operatorInfo != null)
+                {
+                    record.Operator_name = operatorInfo.Operator_name;
+                }
+                record.Status = "Not OK";
+                trainingOperators.Add(record);
+            }
+            return trainingOperators;
         }
 
         [HttpPost]
