@@ -1085,8 +1085,12 @@ namespace SVN_Portal.Controllers
                     //    model.CanProductionByCheclist = true;
                     //}
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
-                    sb.Append("<strong>Checklist status</strong>: ");
-                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    // Tạm cho SM
+                    if (!oper.Contains("(SM)"))
+                    {
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    }
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
                     sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
                     sb.Append(" | <strong>Downtime</strong>: ");
@@ -1212,8 +1216,13 @@ namespace SVN_Portal.Controllers
                     //    model.CanProductionByCheclist = true;
                     //}
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
-                    sb.Append("<strong>Checklist status</strong>: ");
-                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    // Tạm cho SM
+                    if(!oper.Contains("(SM)"))
+                    {
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    }
+                    
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
                     sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
                     sb.Append(" | <strong>Downtime</strong>: ");
@@ -1240,6 +1249,12 @@ namespace SVN_Portal.Controllers
 
                     strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model, date);
+
+                    // Tạm cho SM
+                    if (!oper.Contains("(SM)"))
+                    {
+                        model.CanProductionByCheclist = true;
+                    }
 
                     return new JsonResult(new
                     {
