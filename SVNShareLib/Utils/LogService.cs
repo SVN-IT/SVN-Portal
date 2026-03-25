@@ -34,12 +34,12 @@ namespace SVNShareLib.Utils
 
             try
             {
-                var result = dataPortal.InsertBulk(new List<SVN_summary_logUI>() { log });
+                //var result = dataPortal.InsertBulk(new List<SVN_summary_logUI>() { log });
             }
             catch(Exception ex)
             {
                 log.Content += $" | Log Error: {ex.Message}";
-                var result = dataPortal.InsertBulk(new List<SVN_summary_logUI>() { log });
+                //var result = dataPortal.InsertBulk(new List<SVN_summary_logUI>() { log });
             }
         }
 
