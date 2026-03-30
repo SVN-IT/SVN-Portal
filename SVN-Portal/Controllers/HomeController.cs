@@ -78,7 +78,7 @@ namespace SVN_Portal.Controllers
 
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -138,7 +138,7 @@ namespace SVN_Portal.Controllers
 
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -229,7 +229,7 @@ namespace SVN_Portal.Controllers
 
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -353,7 +353,7 @@ namespace SVN_Portal.Controllers
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -669,7 +669,7 @@ namespace SVN_Portal.Controllers
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift);
 
                 if (models != null && models.Count > 0)
                 {
@@ -775,7 +775,7 @@ namespace SVN_Portal.Controllers
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift);
                 inputItemsStatusUIs = await inputItemsDataPortal.ReadList(strdate, operline);
                 ViewBag.InputItemsStatus = inputItemsStatusUIs;
 
@@ -882,7 +882,7 @@ namespace SVN_Portal.Controllers
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -959,7 +959,7 @@ namespace SVN_Portal.Controllers
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift);
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
                 {
@@ -1081,7 +1081,7 @@ namespace SVN_Portal.Controllers
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift);
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)

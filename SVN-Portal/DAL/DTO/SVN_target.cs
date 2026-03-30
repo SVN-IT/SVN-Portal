@@ -16,5 +16,6 @@
         public double Total_NG_Qty { get; set; }
         public string WC { get; set; }
         public double Workingtime { get; set; }
+        public string Shift { get; set; }
     }
 }

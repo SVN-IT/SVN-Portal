@@ -108,7 +108,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, List<string> curSectionList)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, List<string> curSectionList, string shift)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -167,11 +167,21 @@ namespace SVN_Portal.DAL.DataPortal
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 dataUI = await ReadListByOperationsRunning(date, tableName);
 
+                if(targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
+                    //Lấy ra các Operation có target để hiển thị trên UI
+                    var operHaveTarget = targetDataUI.Select(x => x.Operation).Distinct().ToList();
+                    opers = opers.Where(x => operHaveTarget.Contains(x.Operation)).ToList();
+                }
 
                 if (dataUI != null && dataUI.Count > 0) 
                 {
                     //Lấy Data có WC = null hoặc WC contain FG
                     dataUI = dataUI.Where(x => string.IsNullOrWhiteSpace(x.WC) || x.WC.Contains("FG")).ToList();
+
+                    dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
 
                     foreach (var item in opers)
                     {
@@ -1042,7 +1052,7 @@ namespace SVN_Portal.DAL.DataPortal
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                dataUI = await ReadList(date, tableName);
+                dataUI = await ReadListByOperationsRunning(date, tableName);
 
 
                 if (dataUI.Count > 0)
@@ -1538,7 +1548,7 @@ namespace SVN_Portal.DAL.DataPortal
             return viewModels;
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1589,9 +1599,21 @@ namespace SVN_Portal.DAL.DataPortal
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadList(date, tableName);
+                dataUI = await ReadListByOperationsRunning(date, tableName);
+
+                if (targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
+                    //Lấy ra các Operation có target để hiển thị trên UI
+                    var operHaveTarget = targetDataUI.Select(x => x.Operation).Distinct().ToList();
+                    opers = opers.Where(x => operHaveTarget.Contains(x.Operation)).ToList();
+                }
+
                 if (dataUI.Count > 0)
                 {
+                    dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
                     foreach (var item in opers)
                     {
                         QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
@@ -1977,7 +1999,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="storedProceduce"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList)
+        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift)
         {
             DateTime currentDate = DateTime.Now;
             try
@@ -2036,8 +2058,16 @@ namespace SVN_Portal.DAL.DataPortal
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
                 viewModel.CanProductionByDowntime = true;
+
+                if (targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+                }
+
                 if (dataUI.Count > 0)
                 {
+                    dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
                     QtyProdResultViewModel val1 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val2 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val3 = new QtyProdResultViewModel();
