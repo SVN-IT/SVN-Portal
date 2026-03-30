@@ -108,7 +108,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, List<string> curSectionList)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -130,12 +130,42 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 currentDate = DateTime.Now;
             }
+
+            string section1 = "section1";
+            string section2 = "section2";
+            string section3 = "section3";
+            string section4 = "section4";
+            string section5 = "section5";
+            if(curSectionList != null && curSectionList.Count > 0)
+            {
+                if (curSectionList.Count >= 1)
+                {
+                    section1 = curSectionList[0];
+                }
+                if (curSectionList.Count >= 2)
+                {
+                    section2 = curSectionList[1];
+                }
+                if (curSectionList.Count >= 3)
+                {
+                    section3 = curSectionList[2];
+                }
+                if (curSectionList.Count >= 4)
+                {
+                    section4 = curSectionList[3];
+                }
+                if (curSectionList.Count >= 5)
+                {
+                    section5 = curSectionList[4];
+                }
+            }
+
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                dataUI = await ReadList(date, tableName);
+                dataUI = await ReadListByOperationsRunning(date, tableName);
 
 
                 if (dataUI != null && dataUI.Count > 0) 
@@ -152,11 +182,11 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
-                        val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
-                        val3.Time = "12h30-15h";
-                        val4.Time = "15h10-17h30";
-                        val5.Time = "18h-20h";
+                        val1.Time = section1;
+                        val2.Time = section2;
+                        val3.Time = section3;
+                        val4.Time = section4;
+                        val5.Time = section5;
 
                         viewModel.MasterOperation = item.MasterOperation;
                         viewModel.Operation = item.Operation;
@@ -1508,7 +1538,7 @@ namespace SVN_Portal.DAL.DataPortal
             return viewModels;
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1526,6 +1556,36 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 currentDate = DateTime.Now;
             }
+
+            string section1 = "section1";
+            string section2 = "section2";
+            string section3 = "section3";
+            string section4 = "section4";
+            string section5 = "section5";
+            if (curSectionList != null && curSectionList.Count > 0)
+            {
+                if (curSectionList.Count >= 1)
+                {
+                    section1 = curSectionList[0];
+                }
+                if (curSectionList.Count >= 2)
+                {
+                    section2 = curSectionList[1];
+                }
+                if (curSectionList.Count >= 3)
+                {
+                    section3 = curSectionList[2];
+                }
+                if (curSectionList.Count >= 4)
+                {
+                    section4 = curSectionList[3];
+                }
+                if (curSectionList.Count >= 5)
+                {
+                    section5 = curSectionList[4];
+                }
+            }
+
             try
             {
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
@@ -1541,11 +1601,11 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
-                        val1.Time = "8h-10h";
-                        val2.Time = "10h10-12h";
-                        val3.Time = "13h-15h";
-                        val4.Time = "15h10-17h30";
-                        val5.Time = "18h-20h";
+                        val1.Time = section1;
+                        val2.Time = section2;
+                        val3.Time = section3;
+                        val4.Time = section4;
+                        val5.Time = section5;
 
                         viewModel.Operation = item.Operation;
                         viewModel.Name = item.Name;
@@ -1917,7 +1977,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="storedProceduce"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList)
         {
             DateTime currentDate = DateTime.Now;
             try
@@ -1928,6 +1988,36 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 currentDate = DateTime.Now;
             }
+
+            string section1 = "section1";
+            string section2 = "section2";
+            string section3 = "section3";
+            string section4 = "section4";
+            string section5 = "section5";
+            if (curSectionList != null && curSectionList.Count > 0)
+            {
+                if (curSectionList.Count >= 1)
+                {
+                    section1 = curSectionList[0];
+                }
+                if (curSectionList.Count >= 2)
+                {
+                    section2 = curSectionList[1];
+                }
+                if (curSectionList.Count >= 3)
+                {
+                    section3 = curSectionList[2];
+                }
+                if (curSectionList.Count >= 4)
+                {
+                    section4 = curSectionList[3];
+                }
+                if (curSectionList.Count >= 5)
+                {
+                    section5 = curSectionList[4];
+                }
+            }
+
             QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
@@ -1954,11 +2044,11 @@ namespace SVN_Portal.DAL.DataPortal
                     QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
-                    val1.Time = "8h-10h";
-                    val2.Time = "10h10-11h30";
-                    val3.Time = "12h30-15h";
-                    val4.Time = "15h10-17h30";
-                    val5.Time = "18h-20h";
+                    val1.Time = section1;
+                    val2.Time = section2;
+                    val3.Time = section3;
+                    val4.Time = section4;
+                    val5.Time = section5;
 
                     viewModel.Operation = oper.Operation;
                     

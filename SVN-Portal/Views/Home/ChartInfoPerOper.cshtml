@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
+    string shift = ViewBag.shift;
     double Achieve = 0;
     double Forecast = 0;
     string WORunning = string.Empty;
@@ -281,6 +282,12 @@
         <div class="col-lg-12">
             <form method="post">
                 <div class="form-group row mt-1">
+                    <div class="col-12 col-sm-6 col-md-2 col-lg-1">
+                        <select class="form-control" name="shift">
+                            <option value="Day" selected="@(shift == "Day")">Day</option>
+                            <option value="Night" selected="@(shift == "Night")">Night</option>
+                        </select>
+                    </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                         <div class="row">
                             <div class="col-9">
@@ -1075,7 +1082,7 @@
         }, 500); // Adjust timing to ensure smooth reset
     }, 1500); // Repeat every 5 seconds
 
-    function fetchChartData(charID, date, oper, wc) {
+    function fetchChartData(charID, date, oper, wc, shift) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: '/Home/GetDataByOperAndWC',
@@ -1083,7 +1090,8 @@
                 data: {
                     date: date,
                     oper: oper,
-                    wc: wc
+                    wc: wc,
+                    shift: shift
                 },
                 success: function (response) {
                     if (response.result) {
@@ -1172,14 +1180,14 @@
         var dataParam = @Html.Raw(defectJsonData);
         BuildDefectChart(dataParam, "defectchart")
         
-
+        var shiftValue = $('select[name="shift"]').val();
         // setInterval(function () {
         //     BuildDefectChart(dataParam, "defectchart")
         // }, 10000); // Repeat every 5 seconds
 
         async function executeSequentialCalls(charIDs) {
             for (const charID of charIDs) {
-                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc, shiftValue);
             }
             setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         }

@@ -2,11 +2,11 @@
   {
     "CompanyCode": "SVN",
     "DaySection": "8h-10h,10h10-11h30,12h30-15h,15h10-17h30,18h-20h",
-    "NightSection": "20h–22h,22h10–23h30,0h30–3h,3h10–5h30,6h–8h"
+    "NightSection": "20h-22h,22h10-23h30,0h30-3h,3h10-5h30,6h-8h"
   },
   {
     "CompanyCode": "SM",
     "DaySection": "8h-10h,10h-12h,13h30-15h30,15h30-17h30,18h30-21h",
-    "NightSection": "21h–22h,22h10–23h30,0h30–3h,3h10–5h30,6h–8h"
+    "NightSection": "21h-22h,22h10-23h30,0h30-3h,3h10-5h30,6h-8h"
   }
 ]
