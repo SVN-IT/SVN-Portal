@@ -1251,7 +1251,7 @@ namespace SVN_Portal.Controllers
                     strTargetTable = BuildAchievementCard(model, date);
 
                     // Tạm cho SM
-                    if (!oper.Contains("(SM)"))
+                    if (oper.Contains("(SM)"))
                     {
                         model.CanProductionByCheclist = true;
                     }

@@ -2027,7 +2027,7 @@
   },
   {
     "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
-    "Name": "Sakura Folio Case, Midnight Blue, with gift box, SKU NO.: RM15A-1000NW",
+    "Name": "Sakura Folio Case,Midnight Blue,RM15A-1000NW",
     "Price": 0,
     "MasterOperation": "Sakura F/G(SM)",
     "WCType": "FG",
@@ -2044,7 +2044,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00304(SM)",
-    "Name": "Back Panel- Semi-finished product",
+    "Name": "Back Panel- Sukara blue",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2061,7 +2061,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00303(SM)",
-    "Name": "Mid-width semi-finished components - Sukara blue",
+    "Name": "Mid Panel-Sukara blue",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2125,6 +2125,193 @@
     ],
     "StoreID": 3,
     "Produce_id": [ 1355 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-RM15A-1001NW(SM)",
+    "Name": "Sakura - Desert Pink",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1373 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-C54-00565-01(SM)",
+    "Name": "Sakura - Desert Pink",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1382 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00300(SM)",
+    "Name": "中幅半成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1374 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00671(SM)",
+    "Name": "前幅裁片半成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1380 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00488(SM)",
+    "Name": "裁片-后幅面料-Sakura 粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1381 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00299(SM)",
+    "Name": "前幅半成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1376 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00301(SM)",
+    "Name": "成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1378 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-RM15A-1000NW(SM)",
+    "Name": "Sakura - Ocean Blue",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1371 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-RM15A-1002NW(SM)",
+    "Name": "Sakura - Mist Green",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1361 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00306(SM)",
+    "Name": "Middle Panel- Semi-finished product - Sakura Green",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1366 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00307(SM)",
+    "Name": "Back Panel- Semi-finished product - Sakura Green",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1362 ],
     "ColWidth": 4
   }
 ]
