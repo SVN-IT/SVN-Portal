@@ -111,7 +111,7 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResult(DateTime date, string shift = "Day", string companyCode = "SVN")
+        public async Task<IActionResult> ProductionResult(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
@@ -123,6 +123,19 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
+
+                if (!isManualLoad)
+                {
+                    if (date.Hour >= 20)
+                    {
+                        shift = "Night";
+                    }
+                    else
+                    {
+                        shift = "Day";
+                    }
+                }
+
                 ViewBag.date = date;
                 ViewBag.shift = shift;
                 strdate = date.ToString("yyyyMMdd");
@@ -201,7 +214,7 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResultV1(DateTime date, string shift = "Day", string companyCode = "SVN")
+        public async Task<IActionResult> ProductionResultV1(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
@@ -214,6 +227,20 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
+
+                if (!isManualLoad)
+                {
+                    if (date.Hour >= 20)
+                    {
+                        shift = "Night";
+                    }
+                    else
+                    {
+                        shift = "Day";
+                    }
+                }
+                
+
                 ViewBag.date = date;
                 ViewBag.shift = shift;
                 strdate = date.ToString("yyyyMMdd");
@@ -707,7 +734,7 @@ namespace SVN_Portal.Controllers
         /// <param name="date"></param>
         /// <param name="oper"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline, string shift = "Day", string companyCode = "SVN")
+        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             var inputItemsDataPortal = new SVN_InputItemsStatusDataPortal(connectionString);
@@ -718,6 +745,19 @@ namespace SVN_Portal.Controllers
             {
                 date = DateTime.Now;
             }
+
+            if (!isManualLoad)
+            {
+                if (date.Hour >= 20)
+                {
+                    shift = "Night";
+                }
+                else
+                {
+                    shift = "Day";
+                }
+            }
+
             ViewBag.date = date;
             ViewBag.oper = operline;
             ViewBag.shift = shift;

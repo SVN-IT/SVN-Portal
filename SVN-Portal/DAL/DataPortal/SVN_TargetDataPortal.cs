@@ -18,7 +18,7 @@ namespace SVN_Portal.DAL.DataPortal
         }
 
 
-        public async Task<List<SVN_target>> ReadList(string date, string storedProceduce = "SVN_Pro_CalTarget")
+        public async Task<List<SVN_target>> ReadList(string date, string shift, string storedProceduce = "SVN_Pro_CalTarget_Viindoo")
         {
             List<SVN_target> dataUI = new List<SVN_target>();
             int timeOut = 1000;
@@ -30,7 +30,8 @@ namespace SVN_Portal.DAL.DataPortal
                     string storedProcedure = storedProceduce;
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("date_time", date);
-                   
+                    parameters.Add("shift", shift);
+
                     var datas = await conn.QueryAsync<SVN_target>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
                     return datas.ToList();
                 }

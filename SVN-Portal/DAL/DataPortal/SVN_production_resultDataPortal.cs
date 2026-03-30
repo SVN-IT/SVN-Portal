@@ -162,7 +162,7 @@ namespace SVN_Portal.DAL.DataPortal
 
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 dataUI = await ReadListByOperationsRunning(date, tableName);
@@ -623,7 +623,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, "day", storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 dataUI = await ReadListByOperationsRunning(date, tableName);
@@ -1049,7 +1049,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, "day", storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 dataUI = await ReadListByOperationsRunning(date, tableName);
@@ -1598,7 +1598,7 @@ namespace SVN_Portal.DAL.DataPortal
 
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadListByOperationsRunning(date, tableName);
 
                 if (targetDataUI != null && targetDataUI.Count > 0)
@@ -2055,7 +2055,7 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
                 viewModel.CanProductionByDowntime = true;
 
