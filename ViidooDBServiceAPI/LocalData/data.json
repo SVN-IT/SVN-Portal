@@ -13,88 +13,7 @@
       }
     ],
     "StoreID": 1,
-    "Produce_id": [
-      21,
-      24,
-      25,
-      267,
-      268,
-      269,
-      294,
-      295,
-      296,
-      299,
-      298,
-      300,
-      301,
-      307,
-      308,
-      309,
-      310,
-      313,
-      314,
-      315,
-      316,
-      321,
-      320,
-      322,
-      323,
-      325,
-      326,
-      327,
-      328,
-      273,
-      274,
-      275,
-      276,
-      281,
-      282,
-      283,
-      284,
-      340,
-      339,
-      341,
-      338,
-      344,
-      345,
-      346,
-      347,
-      626,
-      625,
-      627,
-      628,
-      630,
-      631,
-      288,
-      632,
-      633,
-      634,
-      635,
-      636,
-      640,
-      639,
-      638,
-      641,
-      647,
-      646,
-      645,
-      648,
-      650,
-      651,
-      652,
-      653,
-      657,
-      658,
-      737,
-      330,
-      332,
-      331,
-      333,
-      798,
-      797,
-      799,
-      800
-    ],
+    "Produce_id": [ 21, 24, 25, 267, 268, 269, 294, 295, 296, 299, 298, 300, 301, 307, 308, 309, 310, 313, 314, 315, 316, 321, 320, 322, 323, 325, 326, 327, 328, 273, 274, 275, 276, 281, 282, 283, 284, 340, 339, 341, 338, 344, 345, 346, 347, 626, 625, 627, 628, 630, 631, 288, 632, 633, 634, 635, 636, 640, 639, 638, 641, 647, 646, 645, 648, 650, 651, 652, 653, 657, 658, 737, 330, 332, 331, 333, 798, 797, 799, 800 ],
     "ColWidth": 12
   },
   {
@@ -128,11 +47,7 @@
       }
     ],
     "StoreID": 2,
-    "Produce_id": [
-      36,
-      348,
-      349
-    ],
+    "Produce_id": [ 36, 348, 349 ],
     "ColWidth": 12
   },
   {
@@ -149,11 +64,7 @@
       }
     ],
     "StoreID": 5,
-    "Produce_id": [
-      898,
-      899,
-      900
-    ],
+    "Produce_id": [ 898, 899, 900 ],
     "ColWidth": 6
   },
   {
@@ -170,10 +81,7 @@
       }
     ],
     "StoreID": 5,
-    "Produce_id": [
-      801,
-      803
-    ],
+    "Produce_id": [ 801, 803 ],
     "ColWidth": 6
   },
   {
@@ -207,20 +115,7 @@
       }
     ],
     "StoreID": 6,
-    "Produce_id": [
-      370,
-      606,
-      608,
-      610,
-      609,
-      612,
-      611,
-      613,
-      615,
-      614,
-      616,
-      617
-    ],
+    "Produce_id": [ 370, 606, 608, 610, 609, 612, 611, 613, 615, 614, 616, 617 ],
     "ColWidth": 6
   },
   {
@@ -2009,10 +1904,10 @@
     "ColWidth": 4
   },
   {
-    "Operation": "Injection-WIP07-00045",
+    "Operation": "Saddle-SG-NGTC5TC7-HDSTP-100(SM)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Injection",
+    "MasterOperation": "Saddle(SM)",
     "WCType": "FG",
     "WC": [
       {
@@ -2021,17 +1916,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 5,
-    "Produce_id": [
-      1385
-    ],
-    "ColWidth": 6
+    "StoreID": 3,
+    "Produce_id": [ 1277 ],
+    "ColWidth": 4
   },
   {
-    "Operation": "Injection-WIP07-00044",
-    "Name": "",
+    "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
+    "Name": "Sakura Folio Case,Midnight Blue,RM15A-1000NW",
     "Price": 0,
-    "MasterOperation": "Injection",
+    "MasterOperation": "Sakura F/G(SM)",
     "WCType": "FG",
     "WC": [
       {
@@ -2040,17 +1933,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 5,
-    "Produce_id": [
-      1384
-    ],
-    "ColWidth": 6
+    "StoreID": 3,
+    "Produce_id": [ 1257 ],
+    "ColWidth": 4
   },
   {
-    "Operation": "Injection-WIP07-00048",
-    "Name": "",
+    "Operation": "Sakura-WSS03-00304(SM)",
+    "Name": "Back Panel- Sukara blue",
     "Price": 0,
-    "MasterOperation": "Injection",
+    "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
     "WC": [
       {
@@ -2059,17 +1950,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 5,
-    "Produce_id": [
-      1387
-    ],
-    "ColWidth": 6
+    "StoreID": 3,
+    "Produce_id": [ 1356 ],
+    "ColWidth": 4
   },
   {
-    "Operation": "Injection-WIP07-00047",
-    "Name": "",
+    "Operation": "Sakura-WSS03-00303(SM)",
+    "Name": "Mid Panel-Sukara blue",
     "Price": 0,
-    "MasterOperation": "Injection",
+    "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
     "WC": [
       {
@@ -2078,10 +1967,246 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 5,
-    "Produce_id": [
-      1386
+    "StoreID": 3,
+    "Produce_id": [ 1259 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00302(SM)",
+    "Name": "Top Panel- Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
     ],
-    "ColWidth": 6
+    "StoreID": 3,
+    "Produce_id": [ 1258 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00500(SM)",
+    "Name": "Cut_Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1353 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00672(SM)",
+    "Name": "Cut_Semi-finished product",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1355 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-RM15A-1001NW(SM)",
+    "Name": "Sakura - Desert Pink",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1373 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-C54-00565-01(SM)",
+    "Name": "Sakura - Desert Pink",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1382 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00300(SM)",
+    "Name": "中幅半成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1374 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00671(SM)",
+    "Name": "前幅裁片半成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1380 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WCT01-00488(SM)",
+    "Name": "裁片-后幅面料-Sakura 粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1381 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00299(SM)",
+    "Name": "前幅半成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1376 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00301(SM)",
+    "Name": "成品组件-Sakura粉色",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1378 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-RM15A-1000NW(SM)",
+    "Name": "Sakura - Ocean Blue",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1371 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-RM15A-1002NW(SM)",
+    "Name": "Sakura - Mist Green",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1361 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00306(SM)",
+    "Name": "Middle Panel- Semi-finished product - Sakura Green",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1366 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-WSS03-00307(SM)",
+    "Name": "Back Panel- Semi-finished product - Sakura Green",
+    "Price": 0,
+    "MasterOperation": "Sakura WIP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1362 ],
+    "ColWidth": 4
   }
 ]

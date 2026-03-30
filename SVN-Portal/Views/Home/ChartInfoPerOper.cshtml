@@ -294,7 +294,7 @@
                                 <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                             </div>
                             <div class="col-3">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" asp-route-operline="@ViewBag.oper" asp-route-isManualLoad=true>
                                     Search
                                 </button>
                             </div>
