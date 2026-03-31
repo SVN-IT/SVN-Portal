@@ -325,46 +325,7 @@ namespace SVN_Portal.DAL.DataPortal
                             double gapTime = 0; // Khoảng thời gian trống gữa các ca
                             List<SectionTime> sectionTimes = new List<SectionTime>();
                             var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
-                            listSection = listSection.Select(x =>
-                            {
-                                var times = x.Time.Split('-');
-
-                                // Chuyển đổi thành định dạng HH:mm
-                                string startTime = times[0].Replace("h", ":");
-                                if (startTime.Last() == ':')
-                                {
-                                    startTime = startTime + "00";
-                                }
-                                if (startTime.Length == 4)
-                                {
-                                    startTime = "0" + startTime;
-                                }
-                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-                                string endTime = times[1].Replace("h", ":");
-                                if (endTime.Last() == ':')
-                                {
-                                    endTime = endTime + "00";
-                                }
-                                if (endTime.Length == 4)
-                                {
-                                    endTime = "0" + endTime;
-                                }
-                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-                                //2025-12-19: Lấy target output theo ca hiện tại
-                                if (currentDate >= startDatetime && currentDate <= endDatetime)
-                                {
-                                    HPlanTarget = x.Target;
-                                }
-
-                                SectionTime sectionTime = new SectionTime();
-                                sectionTime.StartTime = startDatetime;
-                                sectionTime.EndTime = endDatetime;
-                                sectionTime.Target = x.Target;
-                                sectionTimes.Add(sectionTime);
-                                return x;
-                            }).ToList();
+                            sectionTimes = GetListSectionTime(listSection, today, currentDate, HPlanTarget);
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
 
@@ -1742,40 +1703,41 @@ namespace SVN_Portal.DAL.DataPortal
                             double gapTime = 0; // Khoảng thời gian trống gữa các ca
                             List<SectionTime> sectionTimes = new List<SectionTime>();
                             var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
-                            listSection = listSection.Select(x =>
-                            {
-                                var times = x.Time.Split('-');
+                            sectionTimes = GetListSectionTime(listSection, today, currentDate, HPlanTarget);
+                            //listSection = listSection.Select(x =>
+                            //{
+                            //    var times = x.Time.Split('-');
 
-                                // Chuyển đổi thành định dạng HH:mm
-                                string startTime = times[0].Replace("h", ":");
-                                if (startTime.Last() == ':')
-                                {
-                                    startTime = startTime + "00";
-                                }
-                                if (startTime.Length == 4)
-                                {
-                                    startTime = "0" + startTime;
-                                }
-                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            //    // Chuyển đổi thành định dạng HH:mm
+                            //    string startTime = times[0].Replace("h", ":");
+                            //    if (startTime.Last() == ':')
+                            //    {
+                            //        startTime = startTime + "00";
+                            //    }
+                            //    if (startTime.Length == 4)
+                            //    {
+                            //        startTime = "0" + startTime;
+                            //    }
+                            //    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                                string endTime = times[1].Replace("h", ":");
-                                if (endTime.Last() == ':')
-                                {
-                                    endTime = endTime + "00";
-                                }
-                                if (endTime.Length == 4)
-                                {
-                                    endTime = "0" + endTime;
-                                }
-                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            //    string endTime = times[1].Replace("h", ":");
+                            //    if (endTime.Last() == ':')
+                            //    {
+                            //        endTime = endTime + "00";
+                            //    }
+                            //    if (endTime.Length == 4)
+                            //    {
+                            //        endTime = "0" + endTime;
+                            //    }
+                            //    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                                SectionTime sectionTime = new SectionTime();
-                                sectionTime.StartTime = startDatetime;
-                                sectionTime.EndTime = endDatetime;
-                                sectionTime.Target = x.Target;
-                                sectionTimes.Add(sectionTime);
-                                return x;
-                            }).ToList();
+                            //    SectionTime sectionTime = new SectionTime();
+                            //    sectionTime.StartTime = startDatetime;
+                            //    sectionTime.EndTime = endDatetime;
+                            //    sectionTime.Target = x.Target;
+                            //    sectionTimes.Add(sectionTime);
+                            //    return x;
+                            //}).ToList();
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
 
@@ -2259,40 +2221,41 @@ namespace SVN_Portal.DAL.DataPortal
                         double gapTime = 0; // Khoảng thời gian trống gữa các ca
                         List<SectionTime> sectionTimes = new List<SectionTime>();
                         var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
-                        listSection = listSection.Select(x =>
-                        {
-                            var times = x.Time.Split('-');
+                        sectionTimes = GetListSectionTime(listSection, today, currentDate, HPlanTarget);
+                        //listSection = listSection.Select(x =>
+                        //{
+                        //    var times = x.Time.Split('-');
 
-                            // Chuyển đổi thành định dạng HH:mm
-                            string startTime = times[0].Replace("h", ":");
-                            if (startTime.Last() == ':')
-                            {
-                                startTime = startTime + "00";
-                            }
-                            if (startTime.Length == 4)
-                            {
-                                startTime = "0" + startTime;
-                            }
-                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                        //    // Chuyển đổi thành định dạng HH:mm
+                        //    string startTime = times[0].Replace("h", ":");
+                        //    if (startTime.Last() == ':')
+                        //    {
+                        //        startTime = startTime + "00";
+                        //    }
+                        //    if (startTime.Length == 4)
+                        //    {
+                        //        startTime = "0" + startTime;
+                        //    }
+                        //    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                            string endTime = times[1].Replace("h", ":");
-                            if (endTime.Last() == ':')
-                            {
-                                endTime = endTime + "00";
-                            }
-                            if (endTime.Length == 4)
-                            {
-                                endTime = "0" + endTime;
-                            }
-                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                        //    string endTime = times[1].Replace("h", ":");
+                        //    if (endTime.Last() == ':')
+                        //    {
+                        //        endTime = endTime + "00";
+                        //    }
+                        //    if (endTime.Length == 4)
+                        //    {
+                        //        endTime = "0" + endTime;
+                        //    }
+                        //    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                            SectionTime sectionTime = new SectionTime();
-                            sectionTime.StartTime = startDatetime;
-                            sectionTime.EndTime = endDatetime;
-                            sectionTime.Target = x.Target;
-                            sectionTimes.Add(sectionTime);
-                            return x;
-                        }).ToList();
+                        //    SectionTime sectionTime = new SectionTime();
+                        //    sectionTime.StartTime = startDatetime;
+                        //    sectionTime.EndTime = endDatetime;
+                        //    sectionTime.Target = x.Target;
+                        //    sectionTimes.Add(sectionTime);
+                        //    return x;
+                        //}).ToList();
 
                         sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
 
@@ -2679,6 +2642,69 @@ namespace SVN_Portal.DAL.DataPortal
             TimeSpan diff = finishedTime - startDatetime;
             workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime; // - Duration
             return workingTime;
+        }
+
+        private List<SectionTime> GetListSectionTime(List<QtyProdResultViewModel> listSection, DateTime today, DateTime currentDate, double HPlanTarget) 
+        {
+            List<SectionTime> sectionTimes = new List<SectionTime>();
+            listSection = listSection.Select(x =>
+            {
+                var times = x.Time.Split('-');
+
+                // Hàm phụ để chuẩn hóa chuỗi "8h" hoặc "8:30" thành "08:30"
+                string NormalizeTime(string t)
+                {
+                    t = t.Replace("h", ":");
+                    if (t.EndsWith(":")) t += "00";
+                    if (t.Length <= 4 && !t.Contains(":")) t += ":00"; // Xử lý trường hợp chỉ có số "8"
+                    if (t.IndexOf(":") == 1) t = "0" + t;
+                    return t;
+                }
+
+                string sTime = NormalizeTime(times[0]);
+                string eTime = NormalizeTime(times[1]);
+
+                string dateString = today.ToString("yyyy-MM-dd");
+
+                // Parse thời gian bắt đầu
+                DateTime startDatetime = DateTime.ParseExact(dateString + " " + sTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                // Parse thời gian kết thúc
+                DateTime endDatetime = DateTime.ParseExact(dateString + " " + eTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                // LOGIC QUAN TRỌNG: 
+                // Nếu thời gian kết thúc nhỏ hơn thời gian bắt đầu (VD: 22:00 - 02:00)
+                // Hoặc nếu cả hai đều nhỏ hơn một mốc buổi sáng trong khi ca bắt đầu từ tối (ca đêm)
+                if (endDatetime <= startDatetime)
+                {
+                    endDatetime = endDatetime.AddDays(1);
+                }
+
+                // Trường hợp đặc biệt: Nếu cả Start và End đều thuộc ngày hôm sau (VD: 00:30 - 03:00)
+                // Giả sử ca đêm bắt đầu từ 20h, bất kỳ mốc nào < 8h sáng nên được hiểu là ngày hôm sau
+                if (startDatetime.Hour < 8 && startDatetime.Hour >= 0)
+                {
+                    // Kiểm tra nếu thực sự là đang chạy ca đêm (thường dựa vào giờ bắt đầu ca lớn)
+                    // Ở đây ta cộng thêm 1 ngày cho cả hai nếu chúng nằm trong khung giờ sáng sớm
+                    startDatetime = startDatetime.AddDays(1);
+                    endDatetime = endDatetime.AddDays(1);
+                }
+
+                // 2025-12-19: Lấy target output theo ca hiện tại
+                if (currentDate >= startDatetime && currentDate <= endDatetime)
+                {
+                    HPlanTarget = x.Target;
+                }
+
+                SectionTime sectionTime = new SectionTime();
+                sectionTime.StartTime = startDatetime;
+                sectionTime.EndTime = endDatetime;
+                sectionTime.Target = x.Target;
+                sectionTimes.Add(sectionTime);
+
+                return x;
+            }).ToList();
+            return sectionTimes;
         }
 
         private double CalculateWorkingTimeNewRules(SVN_ACT_downtimeUI downtimeByOper, DateTime startDatetime, DateTime finishedTime, DateTime minStartSection, DateTime curDateTime,
