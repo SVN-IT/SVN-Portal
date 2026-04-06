@@ -3187,15 +3187,21 @@ namespace ViidooDBServiceAPI.Services
                         {
                             domain = new object[]
                             {
+                                "&", // Phép AND cho toàn bộ điều kiện bên dưới
+                                new object[] { "active", "=", true }, // Chỉ lấy BOM đang enable
                                 "|",
                                 new object[] { "product_tmpl_id", "=", product_template_id },
                                 new object[] { "byproduct_ids.product_id.product_tmpl_id", "=", product_template_id }
                             },
                             fields = new string[]
                             {
-                                "active", "sequence", "product_tmpl_id", "code", "type",
-                                "product_id", "company_id", "product_qty", "product_uom_id"
+                                "eco_count","active","company_id","product_tmpl_id","product_uom_category_id",
+                                "allow_operation_dependencies","product_id","product_qty","product_uom_id",
+                                "product_packaging_qty","product_packaging_id","code","type","bom_line_ids",
+                                "operation_ids","ready_to_produce","version","previous_bom_id","consumption",
+                                "picking_type_id","display_name", "create_date", "write_date"
                             },
+                            order = "sequence asc, id desc",
                             limit = 1,
                             context = new
                             {
@@ -3214,6 +3220,63 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetBomLinesByIdsAsync(List<int> bomLineIds, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu chi tiết các dòng BOM
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.bom.line",
+                        method = "read",
+                        // Args chứa danh sách ID cần đọc và danh sách các fields cần lấy
+                    args = new object[]
+                    {
+                        bomLineIds, // Ví dụ: [3695, 3696, 3697, 3698, 3699]
+                        new string[]
+                        {
+                            "company_id","sequence","product_id","product_tmpl_id","attachments_count",
+                            "standard_qty","loss_rate","product_qty","product_uom_category_id","parent_product_tmpl_id",
+                            "product_uom_id","possible_bom_product_template_attribute_value_ids","bom_product_template_attribute_value_ids",
+                            "allowed_operation_ids","operation_id","manual_consumption_readonly","manual_consumption","cost_share","bom_id",
+                            "create_date", "write_date"
+                        }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    },
+                    id = 56 // ID request giống trong ảnh Postman của bạn
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                // Lưu ý: URL kết thúc bằng /read vì method gọi là read
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
             }

@@ -2,8 +2,11 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
+using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using SVNShareLib.Utils;
+using System;
+using System.Security.Cryptography;
 using ViidooDBServiceAPI.Services;
 
 namespace ViidooDBServiceAPI.Controllers
@@ -15,12 +18,14 @@ namespace ViidooDBServiceAPI.Controllers
         ViindooDBConfig dbConfig;
         OdooAPIService odooAPIService;
         SVNDBConfig svnDBConfig;
+        ConvertDataService convertDataService;
 
-        public ViindooConnectController(ViindooDBConfig dbConfig, OdooAPIService odooAPIService, SVNDBConfig svnDBConfig)
+        public ViindooConnectController(ViindooDBConfig dbConfig, OdooAPIService odooAPIService, SVNDBConfig svnDBConfig, ConvertDataService convertDataService)
         {
             this.dbConfig = dbConfig;
             this.odooAPIService = odooAPIService;
             this.svnDBConfig = svnDBConfig;
+            this.convertDataService = convertDataService;
         }
         [Route("ProductionRead")]
         [HttpPost]
@@ -956,8 +961,8 @@ namespace ViidooDBServiceAPI.Controllers
                         moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, bODataProcessResult.UserID, bODataProcessResult.DataType, dataRequest.Quality, lot_id);
                     }
 
-                        //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
-                        var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+                    //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
+                    var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
                     var workOrderResult = ((JObject)moveRawConsumeInfo["result"])["value"]["workorder_ids"] as JArray;
 
                     var moveRawList = new List<object>();
@@ -1397,7 +1402,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                     if (dataRequest.Items != null && dataRequest.Items.Count > 0)
                     {
-                        foreach(var item in dataRequest.Items)
+                        foreach (var item in dataRequest.Items)
                         {
                             var productSubItemResult = await odooAPIService.SearhProductItem(item.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
                             try
@@ -1451,6 +1456,94 @@ namespace ViidooDBServiceAPI.Controllers
                     {
                         bODataProcessResult.OK = false;
                         bODataProcessResult.Message = "Tạo BOM thất bại";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+            }
+            return bODataProcessResult;
+        }
+
+        public async Task<BODataProcessResult> GetBOMDetails(BOMDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                bODataProcessResult = await odooAPIService.LoginAsync();
+                if (bODataProcessResult.OK)
+                {
+                    var product_tmpl_id = await odooAPIService.SearchProductTemplate(dataRequest.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (product_tmpl_id != 0)
+                    {
+                        var bomResponse = await odooAPIService.SearchBOMByProductTemplateID(product_tmpl_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                        if (bomResponse == null || bomResponse["result"] == null || ((JArray)bomResponse["result"]).Count == 0)
+                        {
+                            bODataProcessResult.OK = false;
+                            bODataProcessResult.Message = $"BOM infomation for Item code {product_tmpl_id} not found";
+                            return bODataProcessResult;
+                        }
+
+                        var bomData = bomResponse["result"][0];
+                        int bomId = bomData["id"].Value<int>();
+                        // Lấy danh sách ID của các Bom Lines (Odoo trả về dạng mảng ID)
+                        var lineIds = bomData["bom_line_ids"]?.ToObject<List<int>>();
+                        mrp_bomUI bomUI = new mrp_bomUI();
+                        bomUI.id = bomId;
+                        bomUI.active = bomData["active"].Value<bool>();
+                        bomUI.company_id = bomData["company_id"]?[0]?.Value<int>() ?? 0;
+                        bomUI.product_tmpl_id = bomData["product_tmpl_id"]?[0]?.Value<int>() ?? 0;
+                        bomUI.product_qty = bomData["product_qty"].Value<decimal>() ?? 0;
+                        bomUI.product_uom_id = bomData["product_uom_id"]?[0]?.Value<int>() ?? 0;
+                        bomUI.allow_operation_dependencies = bomData["allow_operation_dependencies"].Value<bool>() ?? false;
+                        bomUI.code = bomData["code"].Value<string>() ?? string.Empty;
+                        bomUI.type = bomData["type"].Value<string>() ?? string.Empty;
+                        bomUI.ready_to_produce = bomData["ready_to_produce"].Value<string>() ?? string.Empty;
+                        bomUI.version = bomData["version"].Value<int>() ?? 0;
+                        bomUI.previous_bom_id = bomData["previous_bom_id"]?[0]?.Value<int>() ?? 0;
+                        bomUI.consumption = bomData["consumption"].Value<string>() ?? string.Empty;
+                        bomUI.picking_type_id = bomData["picking_type_id"]?[0]?.Value<int>() ?? 0;
+                        bomUI.create_date = bomData["create_date"].Value<DateTime>() ?? DateTime.MinValue;
+                        bomUI.write_date = bomData["write_date"].Value<DateTime>() ?? DateTime.MinValue;
+
+
+                        List<mrp_bom_lineUI> bomLines = new List<mrp_bom_lineUI>();
+                        if (lineIds != null && lineIds.Count > 0)
+                        {
+                            var linesResponse = await odooAPIService.GetBomLinesByIdsAsync(lineIds, bODataProcessResult.UserID, bODataProcessResult.DataType);
+
+                            if (linesResponse != null && linesResponse["result"] != null)
+                            {
+                                foreach (var line in linesResponse["result"])
+                                {
+                                    bomLines.Add(new mrp_bom_lineUI
+                                    {
+                                        id = line["id"].Value<int>(),
+                                        company_id = line["company_id"]?[0]?.Value<int>() ?? 0,
+                                        sequence = line["sequence"].Value<int>() ?? 0,
+                                        product_id = line["product_id"]?[0]?.Value<int>() ?? 0,
+                                        product_tmpl_id = line["product_tmpl_id"]?[0]?.Value<int>() ?? 0,
+                                        standard_qty = line["standard_qty"].Value<decimal>() ?? 0,
+                                        loss_rate = line["loss_rate"].Value<decimal>() ?? 0,
+                                        product_qty = line["product_qty"].Value<decimal>() ?? 0,
+                                        product_uom_id = line["product_uom_id"]?[0]?.Value<int>() ?? 0,
+                                        manual_consumption = line["manual_consumption"].Value<bool>() ?? false,
+                                        cost_share = line["cost_share"].Value<decimal>() ?? 0,
+                                        bom_id = line["bom_id"]?[0]?.Value<int>() ?? 0,
+                                        create_date = line["create_date"].Value<DateTime>() ?? DateTime.MinValue,
+                                        write_date = line["write_date"].Value<DateTime>() ?? DateTime.MinValue
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = $"Item code {dataRequest.ItemCode} not found";
                     }
                 }
             }
