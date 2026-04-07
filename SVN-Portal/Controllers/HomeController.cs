@@ -2619,7 +2619,7 @@ namespace SVN_Portal.Controllers
                         var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
 
                         var totalDefect = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
-                        var totalDefectTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                        var totalDefectTarget = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
                         var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
 
                         totalDefectTarget = totalDefectTarget * 100;
