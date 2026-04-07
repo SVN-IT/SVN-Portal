@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
+using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using SVNShareLib.Utils;
@@ -1467,6 +1468,8 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        [Route("GetBOMDetails")]
+        [HttpPost]
         public async Task<BODataProcessResult> GetBOMDetails(BOMDataRequest dataRequest)
         {
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
@@ -1475,7 +1478,20 @@ namespace ViidooDBServiceAPI.Controllers
                 bODataProcessResult = await odooAPIService.LoginAsync();
                 if (bODataProcessResult.OK)
                 {
-                    var product_tmpl_id = await odooAPIService.SearchProductTemplate(dataRequest.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    var productSubItemResult = await odooAPIService.SearhProductItem(dataRequest.ItemCode, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    int product_tmpl_id = 0;
+                    try
+                    {
+                        product_tmpl_id = productSubItemResult.result[0].product_tmpl_id[0];
+
+                    }
+                    catch
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                        return bODataProcessResult;
+                    }
+
                     if (product_tmpl_id != 0)
                     {
                         var bomResponse = await odooAPIService.SearchBOMByProductTemplateID(product_tmpl_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
@@ -1487,27 +1503,27 @@ namespace ViidooDBServiceAPI.Controllers
                             return bODataProcessResult;
                         }
 
-                        var bomData = bomResponse["result"][0];
-                        int bomId = bomData["id"].Value<int>();
+                        var bomData = bomResponse.result[0];
+                        int bomId = bomData.id;
                         // Lấy danh sách ID của các Bom Lines (Odoo trả về dạng mảng ID)
                         var lineIds = bomData["bom_line_ids"]?.ToObject<List<int>>();
                         mrp_bomUI bomUI = new mrp_bomUI();
                         bomUI.id = bomId;
-                        bomUI.active = bomData["active"].Value<bool>();
-                        bomUI.company_id = bomData["company_id"]?[0]?.Value<int>() ?? 0;
-                        bomUI.product_tmpl_id = bomData["product_tmpl_id"]?[0]?.Value<int>() ?? 0;
-                        bomUI.product_qty = bomData["product_qty"].Value<decimal>() ?? 0;
-                        bomUI.product_uom_id = bomData["product_uom_id"]?[0]?.Value<int>() ?? 0;
-                        bomUI.allow_operation_dependencies = bomData["allow_operation_dependencies"].Value<bool>() ?? false;
-                        bomUI.code = bomData["code"].Value<string>() ?? string.Empty;
-                        bomUI.type = bomData["type"].Value<string>() ?? string.Empty;
-                        bomUI.ready_to_produce = bomData["ready_to_produce"].Value<string>() ?? string.Empty;
-                        bomUI.version = bomData["version"].Value<int>() ?? 0;
-                        bomUI.previous_bom_id = bomData["previous_bom_id"]?[0]?.Value<int>() ?? 0;
-                        bomUI.consumption = bomData["consumption"].Value<string>() ?? string.Empty;
-                        bomUI.picking_type_id = bomData["picking_type_id"]?[0]?.Value<int>() ?? 0;
-                        bomUI.create_date = bomData["create_date"].Value<DateTime>() ?? DateTime.MinValue;
-                        bomUI.write_date = bomData["write_date"].Value<DateTime>() ?? DateTime.MinValue;
+                        bomUI.active = bomData.active;
+                        bomUI.company_id = bomData.company_id?[0] ?? 0;
+                        bomUI.product_tmpl_id = bomData.product_tmpl_id?[0] ?? 0;
+                        bomUI.product_qty = bomData.product_qty ?? 0;
+                        bomUI.product_uom_id = bomData.product_uom_id?[0] ?? 0;
+                        bomUI.allow_operation_dependencies = bomData.allow_operation_dependencies ?? false;
+                        bomUI.code = bomData.code ?? string.Empty;
+                        bomUI.type = bomData.type ?? string.Empty;
+                        bomUI.ready_to_produce = bomData.ready_to_produce ?? string.Empty;
+                        bomUI.version = bomData.version ?? 0;
+                        bomUI.previous_bom_id = bomData.previous_bom_id?[0] ?? 0;
+                        bomUI.consumption = bomData.consumption ?? string.Empty;
+                        bomUI.picking_type_id = bomData.picking_type_id?[0] ?? 0;
+                        bomUI.create_date = bomData.create_date ?? DateTime.MinValue;
+                        bomUI.write_date = bomData.write_date ?? DateTime.MinValue;
 
 
                         List<mrp_bom_lineUI> bomLines = new List<mrp_bom_lineUI>();
@@ -1536,6 +1552,74 @@ namespace ViidooDBServiceAPI.Controllers
                                         create_date = line["create_date"].Value<DateTime>() ?? DateTime.MinValue,
                                         write_date = line["write_date"].Value<DateTime>() ?? DateTime.MinValue
                                     });
+                                }
+                            }
+                        }
+
+                        if (bomUI.product_tmpl_id != 0)
+                        {
+                            mrp_bom_newDataPortal mrp_Bom_NewDataPortal = new mrp_bom_newDataPortal(svnDBConfig.ConnectionString);
+                            var existingBom = mrp_Bom_NewDataPortal.GetDataByProductTemplateID(bomUI.product_tmpl_id);
+                            if (existingBom != null)
+                            {
+                                if (existingBom.id != bomUI.id)
+                                {
+                                    var deleteResult = mrp_Bom_NewDataPortal.Delete(existingBom.id);
+                                    if (deleteResult)
+                                    {
+                                        var insertResult = mrp_Bom_NewDataPortal.Insert(bomUI);
+                                    }
+                                }
+                                else
+                                {
+                                    if (existingBom.write_date < bomUI.write_date)
+                                    {
+                                        var updateResult = mrp_Bom_NewDataPortal.Update(bomUI);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var insertResult = mrp_Bom_NewDataPortal.Insert(bomUI);
+                            }
+
+                            if (bomLines != null && bomLines.Count > 0)
+                            {
+                                mrp_bom_line_newDataPortal mrp_Bom_Line_NewDataPortal = new mrp_bom_line_newDataPortal(svnDBConfig.ConnectionString);
+                                var existingBomLines = mrp_Bom_Line_NewDataPortal.GetDataByBomID(bomUI.id);
+                                foreach (var line in bomLines)
+                                {
+                                    if (existingBomLines != null)
+                                    {
+                                        var existingLine = existingBomLines.FirstOrDefault(x => x.product_id == line.product_id);
+                                        if (existingLine != null)
+                                        {
+                                            if(existingLine.id != line.id)
+                                            {
+                                                var deleteResult = mrp_Bom_Line_NewDataPortal.Delete(existingLine.id);
+                                                if (deleteResult)
+                                                {
+                                                    var insertResult = mrp_Bom_Line_NewDataPortal.Insert(line);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (existingLine.write_date < line.write_date)
+                                                {
+                                                    var updateResult = mrp_Bom_Line_NewDataPortal.Update(line);
+                                                }
+                                            }
+                                            
+                                        }
+                                        else
+                                        {
+                                            var insertResult = mrp_Bom_Line_NewDataPortal.Insert(line);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var insertResult = mrp_Bom_Line_NewDataPortal.Insert(line);
+                                    }
                                 }
                             }
                         }

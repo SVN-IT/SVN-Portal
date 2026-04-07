@@ -18,7 +18,7 @@ namespace SVNShareLib.DAL
             this.connectionString = connectionString;
         }
 
-        public mrp_bomUI GetDataByID(int product_tmpl_id)
+        public mrp_bomUI GetDataByProductTemplateID(int product_tmpl_id)
         {
             try
             {
