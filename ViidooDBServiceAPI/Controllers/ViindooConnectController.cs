@@ -1496,11 +1496,20 @@ namespace ViidooDBServiceAPI.Controllers
                     {
                         var bomResponse = await odooAPIService.SearchBOMByProductTemplateID(product_tmpl_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
-                        if (bomResponse == null || bomResponse["result"] == null || ((JArray)bomResponse["result"]).Count == 0)
+                        if (bomResponse == null || bomResponse.result == null || ((JArray)bomResponse.result).Count == 0)
                         {
                             bODataProcessResult.OK = false;
                             bODataProcessResult.Message = $"BOM infomation for Item code {product_tmpl_id} not found";
                             return bODataProcessResult;
+                        }
+
+                        int GetIdFromMany2one(dynamic field)
+                        {
+                            if (field is JArray && ((JArray)field).Count > 0)
+                            {
+                                return (int)field[0];
+                            }
+                            return 0;
                         }
 
                         var bomData = bomResponse.result[0];
@@ -1509,19 +1518,22 @@ namespace ViidooDBServiceAPI.Controllers
                         var lineIds = bomData["bom_line_ids"]?.ToObject<List<int>>();
                         mrp_bomUI bomUI = new mrp_bomUI();
                         bomUI.id = bomId;
-                        bomUI.active = bomData.active;
-                        bomUI.company_id = bomData.company_id?[0] ?? 0;
-                        bomUI.product_tmpl_id = bomData.product_tmpl_id?[0] ?? 0;
+                        bomUI.active = bomData.active ?? false;
+                        bomUI.company_id = GetIdFromMany2one(bomData.company_id);
+                        bomUI.product_tmpl_id = GetIdFromMany2one(bomData.product_tmpl_id);
                         bomUI.product_qty = bomData.product_qty ?? 0;
-                        bomUI.product_uom_id = bomData.product_uom_id?[0] ?? 0;
+                        bomUI.product_uom_id = GetIdFromMany2one(bomData.product_uom_id);
                         bomUI.allow_operation_dependencies = bomData.allow_operation_dependencies ?? false;
-                        bomUI.code = bomData.code ?? string.Empty;
-                        bomUI.type = bomData.type ?? string.Empty;
-                        bomUI.ready_to_produce = bomData.ready_to_produce ?? string.Empty;
+                        bomUI.code = bomData.code?.ToString() ?? string.Empty;
+                        bomUI.type = bomData.type?.ToString() ?? string.Empty;
+                        bomUI.ready_to_produce = bomData.ready_to_produce?.ToString() ?? string.Empty;
                         bomUI.version = bomData.version ?? 0;
-                        bomUI.previous_bom_id = bomData.previous_bom_id?[0] ?? 0;
-                        bomUI.consumption = bomData.consumption ?? string.Empty;
-                        bomUI.picking_type_id = bomData.picking_type_id?[0] ?? 0;
+
+                        // Sửa lỗi previous_bom_id ở đây
+                        bomUI.previous_bom_id = GetIdFromMany2one(bomData.previous_bom_id);
+
+                        bomUI.consumption = bomData.consumption?.ToString() ?? string.Empty;
+                        bomUI.picking_type_id = GetIdFromMany2one(bomData.picking_type_id);
                         bomUI.create_date = bomData.create_date ?? DateTime.MinValue;
                         bomUI.write_date = bomData.write_date ?? DateTime.MinValue;
 
@@ -1531,26 +1543,28 @@ namespace ViidooDBServiceAPI.Controllers
                         {
                             var linesResponse = await odooAPIService.GetBomLinesByIdsAsync(lineIds, bODataProcessResult.UserID, bODataProcessResult.DataType);
 
-                            if (linesResponse != null && linesResponse["result"] != null)
+                            if (linesResponse != null && linesResponse.result != null)
                             {
-                                foreach (var line in linesResponse["result"])
+                                foreach (var line in linesResponse.result)
                                 {
                                     bomLines.Add(new mrp_bom_lineUI
                                     {
-                                        id = line["id"].Value<int>(),
-                                        company_id = line["company_id"]?[0]?.Value<int>() ?? 0,
-                                        sequence = line["sequence"].Value<int>() ?? 0,
-                                        product_id = line["product_id"]?[0]?.Value<int>() ?? 0,
-                                        product_tmpl_id = line["product_tmpl_id"]?[0]?.Value<int>() ?? 0,
-                                        standard_qty = line["standard_qty"].Value<decimal>() ?? 0,
-                                        loss_rate = line["loss_rate"].Value<decimal>() ?? 0,
-                                        product_qty = line["product_qty"].Value<decimal>() ?? 0,
-                                        product_uom_id = line["product_uom_id"]?[0]?.Value<int>() ?? 0,
-                                        manual_consumption = line["manual_consumption"].Value<bool>() ?? false,
-                                        cost_share = line["cost_share"].Value<decimal>() ?? 0,
-                                        bom_id = line["bom_id"]?[0]?.Value<int>() ?? 0,
-                                        create_date = line["create_date"].Value<DateTime>() ?? DateTime.MinValue,
-                                        write_date = line["write_date"].Value<DateTime>() ?? DateTime.MinValue
+                                        id = line.id,
+                                        company_id = GetIdFromMany2one(line.company_id),
+                                        sequence = line.sequence ?? 0,
+                                        product_id = GetIdFromMany2one(line.product_id),
+                                        product_tmpl_id = GetIdFromMany2one(line.product_tmpl_id),
+                                        standard_qty = line.standard_qty ?? 0,
+                                        loss_rate = line.loss_rate ?? 0,
+                                        product_qty = line.product_qty ?? 0,
+                                        product_uom_id = GetIdFromMany2one(line.product_uom_id),
+                                        manual_consumption = line.manual_consumption ?? false,
+                                        cost_share = line.cost_share ?? 0,
+                                        bom_id = GetIdFromMany2one(line.bom_id),
+
+                                        // Đối với DateTime, Odoo trả về string hoặc false, nên dùng ép kiểu an toàn
+                                        create_date = line.create_date ?? DateTime.MinValue,
+                                        write_date = line.write_date ?? DateTime.MinValue
                                     });
                                 }
                             }

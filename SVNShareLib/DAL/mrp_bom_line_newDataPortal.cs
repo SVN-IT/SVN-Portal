@@ -46,6 +46,7 @@ namespace SVNShareLib.DAL
                 string sql = @"
                     INSERT INTO SVN_mrp_bom_line_new
                     (
+                        id,
                         product_id,
                         product_tmpl_id,
                         company_id,
@@ -65,6 +66,7 @@ namespace SVNShareLib.DAL
                     )
                     VALUES
                     (
+                        @id,
                         @product_id,
                         @product_tmpl_id,
                         @company_id,
