@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Irony.Parsing;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL;
+using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using System.Text;
 using ZXing;
@@ -108,6 +111,7 @@ namespace SVN_Portal.Controllers
                 //Lấy thông tin WO đã được nhập trc đó để xây dự giao diện
                 SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
                 var lastLog = await dataPortal.GetByMasterWOCodeAsync(currentMasterWorkOrderName);
+                var productedQty = await dataPortal.GetProducedQtyByMasterWOCodeAsync(currentMasterWorkOrderName);
 
                 string masterWorkOrder = string.Empty;
                 decimal totalQty = 0;
@@ -117,7 +121,7 @@ namespace SVN_Portal.Controllers
                     previousWorkOrderName = lastLog.wo_code;
                     masterWorkOrder = lastLog.master_wo_code;
                     totalQty = lastLog.total_qty;
-                    remainQty = lastLog.remain_qty;
+                    remainQty = lastLog.total_qty - productedQty;
                 }
 
                 WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
@@ -134,54 +138,69 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
         }
 
+        /// <summary>
+        /// Hàm dùng để xây dựng giao diện nhập kết quả sản xuất dựa trên thông tin WO lấy được từ Viindoo và thông tin WO đã được nhập trc đó (nếu có)
+        /// </summary>
+        /// <param name="workOrderInfo"></param>
+        /// <param name="previousWorkOrderName"></param>
+        /// <param name="masterWorkOrderLog"></param>
+        /// <param name="totalQty"></param>
+        /// <param name="remainQty"></param>
+        /// <returns></returns>
         private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName, string masterWorkOrderLog, decimal totalQty, decimal remainQty)
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
+            string curWorkOrder = workOrderInfo.OrderInfo["name"];
+            string curRemainQty = workOrderInfo.OrderInfo["product_qty"];
+            string curTotalQty = workOrderInfo.OrderInfo["product_qty"];
+            if (!string.IsNullOrWhiteSpace(masterWorkOrderLog))
+            {
+                masterWorkOrder = masterWorkOrderLog;
+            }
+            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
+            {
+                string[] parts = previousWorkOrderName.Split('-');
+
+                if (parts.Length == 2)
+                {
+                    string prefix = parts[0]; // "NM/MO/02638"
+                    string suffix = parts[1]; // "001"
+
+                    // 2. Chuyển phần hậu tố sang số và cộng thêm 1
+                    if (int.TryParse(suffix, out int number))
+                    {
+                        number++;
+
+                        // 3. Ghép lại với định dạng 3 chữ số (001, 002,...)
+                        curWorkOrder = $"{prefix}-{number.ToString("D3")}";
+                    }
+                }
+            }
+            if(remainQty > 0)
+            {
+                curRemainQty = remainQty.ToString();
+            }
+            if (totalQty > 0)
+            {
+                curTotalQty = totalQty.ToString();
+            }
             StringBuilder sb = new StringBuilder();
-            sb.Append("<div class=\"col-12 col-md-3\">");
-            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
-            {
-                if (workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
-                {
-                    sb.Append("<div id=\"divResultLight\" class=\"box-square bg-success\">");
-                }
-                else
-                {
-                    sb.Append("<div id=\"divResultLight\" class=\"box-square bg-warning\">");
-                }
-            }
-            else
-            {
-                sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
-            }
-            sb.Append("</div>");
-            sb.Append("</div>");
-            sb.Append("<div class=\"col-12 col-md-9 row\">");
+            //sb.Append("<div class=\"col-12 col-md-3\">");
+            //sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
+            //sb.Append("</div>");
+            //sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-12 row\">");
             sb.Append("<div class=\"form-group\" style=\"width: 100%;\">");
-            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
-            {
-                if (workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
-                {
-                    sb.Append("<div class=\"alert alert-success\" role=\"alert\">");
-                    sb.Append("Lệnh " + previousWorkOrderName + " input result success");
-                    sb.Append("</div>");
-                }
-                else
-                {
-                    sb.Append("<div class=\"alert alert-warning\" role=\"alert\">");
-                    sb.Append("Lệnh " + previousWorkOrderName + " input result fail, please contact to Admin");
-                    sb.Append("</div>");
-                }
-            }
-            sb.Append("<h1 class=\"control-label\">Work order: " + workOrderInfo.OrderInfo["name"] + "</h1>");
+            sb.Append("<h1 class=\"control-label\">Work order: " + curWorkOrder + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
-            sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["name"] + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + curWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
+            sb.Append("<input type=\"hidden\" name=\"TotalQuantity\" class=\"form-control\" value=\"" + curTotalQty + "\" />");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
-            sb.Append("<h2 class=\"control-label\">Product: " + workOrderInfo.OrderInfo["product_name"] + "</h2>");
+            sb.Append("<h2 class=\"control-label\">Product: " + workOrderInfo.OrderInfo["product_name"] + " / Total Qty: " + curTotalQty + "</h2>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-3\">");
@@ -194,7 +213,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<input type=\"text\" name=\"Quantity\" class=\"form-control\" />");
             sb.Append("</div>");
             sb.Append("<div class=\"col-5\">");
-            sb.Append("/" + workOrderInfo.OrderInfo["product_qty"]);
+            sb.Append("/" + curRemainQty);
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
@@ -279,6 +298,286 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Hàm kiểm tra số seri đã được dùng cho lệnh sản xuất khác chưa
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CheckLotSerialFG(string serial, string masterMOName, string productID)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                var existingLog = await dataPortal.GetByProductIDAndSerialCodeAsync(int.Parse(productID), serial);
+                if (existingLog != null)
+                {
+                    if (existingLog.state == "Used")
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"Serial/Lot {serial} has been used for the WO {existingLog.wo_code}. Please double-check.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    //else if (existingLog.state == "Consumed")
+                    //{
+                    //    processResult.OK = false;
+                    //    processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
+                    //    //return Json(new { result = processResult.OK, message = processResult.Message });
+                    //}
+                    else
+                    {
+                        processResult.OK = true;
+                        processResult.Message = $"Serial/Lot {serial} is valid for use.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                }
+                else
+                {
+                    processResult.OK = true;
+                    processResult.Message = $"Serial/Lot {serial} is valid for input.";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message });
+        }
+
+        /// <summary>
+        /// Hàm kiểm tra số seri đã dùng để tiêu hao cho lệnh sản xuất khác chưa
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CheckLotSerialComponemt(string serial, string productId, string masterMOName, string hasTracking)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                var existingLog = await dataPortal.GetByProductIDAndSerialCodeAsync(int.Parse(productId), serial);
+                if (existingLog != null)
+                {
+                    //if (existingLog.state == "Used")
+                    //{
+                    //    processResult.OK = false;
+                    //    processResult.Message = $"Serial/Lot {serial} has been used for the WO {existingLog.wo_code}. Please double-check.";
+                    //    //return Json(new { result = processResult.OK, message = processResult.Message });
+                    //}
+                    if (existingLog.state == "Consumed")
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    else
+                    {
+                        processResult.OK = true;
+                        processResult.Message = $"Serial/Lot {serial} is valid for use.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không có dữ liệu";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message });
+        }
+
+        /// <summary>
+        /// Kiểm tra để nhập số lượng sản phẩm theo mã seri
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> CheckScanQuantitySerial(string serial)
+        {
+            SVN_Scan_Code_InfoDataPortal dataPortal = new SVN_Scan_Code_InfoDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                var dataUI = await dataPortal.ReadByCode(serial);
+                if (dataUI != null)
+                {
+                    return Json(new { result = true, message = "Tìm thấy mã serial", quantity = dataUI.SelectedQuantity });
+                }
+                else
+                {
+                    return Json(new { result = false, message = "Không tìm thấy mã serial" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> InputProductionResult([FromBody] ProductionDataV1 data)
+        {
+            bool isInputToViindoo = false;
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "serial"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "lot"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = data.Name,
+                    LotNumber = data.Serial,
+                    Quality = int.Parse(data.Quantity),
+                    LotScaneds = lotScaneds
+                };
+
+                string[] parts = data.SubName.Split('-');
+
+                if (parts.Length == 1)
+                {
+                    string prefix = parts[0]; // "NM/MO/02638"
+
+                    data.SubName = $"{prefix}-001";
+                }
+
+                //Xử lý nhập KQSX vào SVNDB
+                SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
+                productDataUI.wo_code = data.SubName;
+                productDataUI.master_wo_code = data.Name;
+                productDataUI.product_id = int.Parse(data.ProductID);
+                productDataUI.product_qty = decimal.Parse(data.Quantity);
+                productDataUI.product_type = data.ProductTracking;
+                productDataUI.date_finished = DateTime.Now;
+                productDataUI.state = "Used";
+                productDataUI.component_list = JsonConvert.SerializeObject(lotScaneds);
+                productDataUI.API_function = $"{aPIConfiguration.BaseURL}{aPIConfiguration.InputProductionByWorkOrderv1URL}";
+                productDataUI.API_parameters = JsonConvert.SerializeObject(dataRequest);
+                productDataUI.status = "Not synchronized";
+                productDataUI.total_qty = decimal.Parse(data.TotalQuantity);
+                //productDataUI.remain_qty = decimal.Parse(data.TotalQuantity) - decimal.Parse(data.Quantity);
+                var insertResult = await dataPortal.InsertAsync(productDataUI);
+
+                // Thực hiện cập nhật tiêu hao thành phần
+                if (lotScaneds != null && lotScaneds.Count > 0)
+                {
+                    foreach (var item in lotScaneds)
+                    {
+                        if (item.tracking == "serial")
+                        {
+                            var existComponentLog = await dataPortal.GetByProductIDAndSerialCodeAsync(item.product_id, item.lotNumber);
+                            if (existComponentLog != null)
+                            {
+                                existComponentLog.state = "Consumed";
+                                existComponentLog.consumed_wo_code = data.SubName;
+                                var updateResult = await dataPortal.UpdateAsync(existComponentLog);
+                                if (updateResult)
+                                {
+                                    processResult.OK = true;
+                                }
+                                else
+                                {
+                                    processResult.OK = false;
+                                    processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with serial {item.lotNumber} as consumed.";
+                                }
+                            }
+                        }
+                        else if (item.tracking == "lot")
+                        {
+
+                        }
+                    }
+                    if (processResult.OK)
+                    {
+                        processResult.Message = "Input production result successfully";
+                    }
+                }
+                else
+                {
+                    if (insertResult > 0)
+                    {
+                        processResult.OK = true;
+                        processResult.Message = "Input production result successfully";
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Failed to input production result into local database.";
+                    }
+                }
+
+                TempData.Remove("MasterWorkOrderName");
+                TempData["MasterWorkOrderName"] = data.Name;
+                TempData.Keep("MasterWorkOrderName");
+
+
+                if (isInputToViindoo)
+                {
+                    var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
+                    if (result != null)
+                    {
+                        TempData.Remove("WorkOrderName");
+                        TempData["WorkOrderName"] = data.SubName;
+                        TempData.Keep("WorkOrderName");
+                        if (result.OK)
+                        {
+                            string operation = "";
+
+                            processResult.OK = true;
+                            return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Split("-")[0].Replace("/", "%2f") });
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            if (!string.IsNullOrWhiteSpace(result.Message))
+                            {
+                                processResult.Message = result.Message;
+                            }
+                            else
+                            {
+                                processResult.Message = "Không có dữ liệu";
+                            }
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message });
         }
         #endregion
     }

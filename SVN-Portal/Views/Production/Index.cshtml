@@ -1,0 +1,441 @@
+﻿@{
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Nhập kết quả sản xuất";
+    string masterWorkOrder = ViewBag.MasterWorkOrder as string ?? "";
+}
+<style>
+    .box-square {
+        width: 100%; /* chiếm hết chiều ngang phần tử cha */
+        aspect-ratio: 1 / 1; /* đảm bảo luôn vuông (width : height = 1:1) */
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+</style>
+<form method="post">
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkScanCode">
+                        <label class="form-check-label" for="checkScanCode">MPQ</label>
+                    </div>
+                    <div id="modalInputQuantityCode" class="modal" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" style="color:#455a64!important">Quét số serial để nhập số lượng</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input id="txtInputQuantityCode" type="text" name="txtInputQuantityCode" class="form-control" />
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary">Xác nhận</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Lệnh sản xuất</label>
+                        <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" value="@masterWorkOrder" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group" style="margin-top:33px">
+                        <button id="btnSearch" class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Tìm kiếm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <h4>Phím 1 (Bàn phím số) - ✅ Quét số serial để nhập số lượng</h4>
+            <h4>Phím 2 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
+            <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
+            <h4>Phím 4 (Bàn phím số) - Mở trang scan</h4>
+            <h4>Phím F5 - Reset lại trang web</h4>
+        </div>
+        <div class="col-12 col-md-3">
+            <div id="divResultLight" class="box-square bg-light"></div>
+        </div>
+        <div id="divWorkOrder" class="row col-12 col-md-9">
+        </div>
+    </div>
+</form>
+
+<script>
+    var product_tracking = "none"
+
+    // Hiện loader
+    function showLoader() {
+        $("#app-loader").css("display", "flex");
+    }
+
+    // Ẩn loader
+    function hideLoader() {
+        $("#app-loader").css("display", "none");
+    }
+
+    function GetProductByWorkOrder(txtworkOrderCode) {
+        var workOrderCode = $(txtworkOrderCode).val();
+        showLoader();
+        $.ajax({
+            url: '@Url.Action("GetProductByWorkOrder", "Production")',  // Adjust the controller name if needed
+            type: 'POST',
+            data: {workOrderCode: workOrderCode},
+            dataType: 'json',
+            success: function (response) {
+                if(response.result == false) {
+                    alert(response.message);
+                }
+                else{
+                    $(`#divWorkOrder`).html(response.message);
+
+                    product_tracking = response.product_tracking;
+
+                    // Focus ban đầu
+                    if (product_tracking === "serial") {
+                        $('input[name="Serial"]').focus();
+                    } else {
+                        if ($('#checkScanCode').is(':checked')) {
+                            $('#modalInputQuantityCode').modal('show');
+                            $('input[name="txtInputQuantityCode"]').val('');
+                            $('input[name="txtInputQuantityCode"]').focus();
+                        } else {
+                            $('input[name="Quantity"]').focus();
+                        }
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", error);
+                alert("An error occurred while getting Pallet ID.");
+            },
+            complete: function () {
+                hideLoader();
+            }
+        });
+    }
+
+    let isRunning = false;
+    function InputProductionResult(){
+        if (isRunning) {
+            console.warn("Đang chạy rồi, bỏ qua...");
+            return;
+        }
+        isRunning = true;
+
+        let formData = {
+            name: $('input[name="Name"]').val(),
+            subName: $('input[name="SubName"]').val(),
+            quantity: $('input[name="Quantity"]').val(),
+            productTracking: $('input[name="ProductTracking"]').val(),
+            serial: $('input[name="Serial"]').val(),
+            productID: $('input[name="ProductID"]').val(),
+            totalQuantity: $('input[name="TotalQuantity"]').val(),
+            products: []
+        };
+        showLoader();
+        $(".table tbody tr").each(function () {
+            let inputs = $(this).find("input");
+
+            let productItem = {
+                product_id: $(inputs[0]).val(),    // hidden
+                has_tracking: $(inputs[1]).val(), // text
+                serial_code: $(inputs[2]).val()
+            };
+
+            formData.products.push(productItem);
+        });
+
+        $.ajax({
+            url: '/Production/InputProductionResult',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (res) {
+                if(res.result) {
+                    console.log("Gửi thành công:", res);
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-success');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-success').addClass('bg-light');
+                    }, 3000);
+                    GetProductByWorkOrder('#txtWorkOrderCode');
+                }
+                else{
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                    }, 3000);
+                    alert(res.message);
+                }
+
+            },
+            error: function (err) {
+                console.error("Lỗi:", err);
+            },
+            complete: function () {
+                isRunning = false;
+                hideLoader();
+            }
+        });
+    }
+
+
+
+    function InputProductionResultWithSearialList() {
+        if (isRunning) {
+            console.warn("Đang chạy rồi, bỏ qua...");
+            return;
+        }
+        isRunning = true;
+
+        // 1. Khởi tạo đối tượng FormData (thay vì Object thường)
+        let formData = new FormData();
+
+        // 2. Thêm các trường text thông thường
+        formData.append("name", $('input[name="Name"]').val());
+        formData.append("subName", $('input[name="SubName"]').val());
+        formData.append("quantity", $('input[name="Quantity"]').val());
+        formData.append("productTracking", $('input[name="ProductTracking"]').val());
+        formData.append("serial", $('input[name="Serial"]').val());
+
+        // 3. Thêm File từ input (quan trọng)
+        let fileInput = $('#serialFile')[0].files[0];
+        if (fileInput) {
+            formData.append("serialFile", fileInput);
+        }
+
+        // 4. Thêm danh sách products (Dạng mảng phải append từng item hoặc gửi string JSON)
+        $(".table tbody tr").each(function (index) {
+            let inputs = $(this).find("input");
+            // Gửi theo định dạng mảng để Controller dễ nhận (Syntax: Products[0].Property)
+            formData.append(`products[${index}].product_id`, $(inputs[0]).val());
+            formData.append(`products[${index}].has_tracking`, $(inputs[1]).val());
+            formData.append(`products[${index}].serial_code`, $(inputs[2]).val());
+        });
+
+        showLoader();
+
+        $.ajax({
+            url: '/Tools/InputProductionResultWithSerialList',
+            type: 'POST',
+            data: formData, // Không dùng JSON.stringify nữa
+            contentType: false, // Bắt buộc: Để trình duyệt tự xử lý Content-Type
+            processData: false, // Bắt buộc: Không để jQuery biến formData thành query string
+            success: function (res) {
+                if (res.result) {
+                    console.log("Gửi thành công:", res);
+                    alert(res.message);
+                    GetProductByWorkOrder('#txtWorkOrderCode');
+                } else {
+                    alert(res.message);
+                }
+            },
+            error: function (err) {
+                console.error("Lỗi:", err);
+            },
+            complete: function () {
+                isRunning = false;
+                hideLoader();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('input[name="workOrderCode"]').focus();
+
+        // Bắt phím Enter
+        $(document).on('keydown', 'input', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // chặn submit form khi bấm Enter
+
+                // Nếu ô hiện tại rỗng => không cho đi tiếp
+                if (!$(this).val().trim()) {
+                    return;
+                }
+
+                let inputs = $('.serial-input'); // tất cả ô seri
+
+                if ($(this).attr("name") === "workOrderCode") {
+                    $('#btnSearch').trigger('click');
+                }
+
+                if ($(this).attr("name") === "txtInputQuantityCode") {
+                    let serialScanQuantityCode = $(this).val().trim();
+                    // Gọi AJAX để kiểm tra
+                    $.ajax({
+                        url: '/Production/CheckScanQuantitySerial', // API check
+                        type: 'POST',
+                        data: { serial: serialScanQuantityCode },
+                        success: function (res) {
+                            if (res.result) {
+                                $('#modalInputQuantityCode').modal('hide');
+                                $('input[name="Quantity"]').val(res.quantity);
+                                $('input[name="Quantity"]').focus().trigger({
+                                    type: 'keydown',
+                                    key: 'Enter'
+                                });
+                            } else {
+                                alert(res.message);
+                                $('input[name="txtInputQuantityCode"]').val('');
+                                $('input[name="txtInputQuantityCode"]').focus();
+                            }
+                        },
+                        error: function () {
+                            alert("Lỗi khi gọi server!");
+                            $('input[name="txtInputQuantityCode"]').val('');
+                            $('input[name="txtInputQuantityCode"]').focus();
+                        }
+                    });
+                    return;
+                }
+
+                // Nếu đang ở ô Quality thì nhảy sang ô seri đầu tiên
+                if ($(this).attr("name") === "Quantity") {
+                    if(inputs.length > 0){
+                        inputs.first().focus();
+                    }
+                    else{
+                        if($('input[name="ProductTracking"]').val() === "lot"){
+                            $('input[name="Serial"]').focus();
+                        }
+                        else{
+                            InputProductionResult();
+                        }
+                    }
+                    return;
+                }
+
+                var masterMOName = $('input[name="Name"]').val();
+                var productID = $('input[name="ProductID"]').val();
+
+                // Nếu đang ở ô Serial (form trên đầu)
+                if ($(this).attr("name") === "Serial") {
+                    let serialValue = $(this).val().trim();
+
+                    // Gọi AJAX để kiểm tra
+                    $.ajax({
+                        url: '/Production/CheckLotSerialFG', // API check
+                        type: 'POST',
+                        data: { serial: serialValue, masterMOName: masterMOName, productID: productID },
+                        success: function (res) {
+                            if (res.result) {
+                                // Nếu pass -> set Quality = 1 rồi đi tiếp
+                                if($('input[name="ProductTracking"]').val() === "serial"){
+                                    $('input[name="Quantity"]').val(1);
+                                }
+                                if(inputs.length > 0){
+                                    inputs.first().focus();
+                                }
+                                else{
+                                    InputProductionResult();
+                                }
+                            } else {
+                                alert(res.message);
+                                $('input[name="Serial"]').val('');
+                                $('input[name="Serial"]').focus();
+                            }
+                        },
+                        error: function () {
+                            alert("Lỗi khi gọi server!");
+                            $('input[name="Serial"]').val('');
+                            $('input[name="Serial"]').focus();
+                        }
+                    });
+                    return;
+                }
+
+                // Nếu đang ở trong list serial-input
+                if ($(this).hasClass('serial-input')) {
+                    let $this = $(this);
+                    let idx = inputs.index(this);
+                    let serialCValue = $this.val().trim();
+
+                    // lấy product-id đi kèm (ở cùng <td>)
+                    let productId = $this.closest('td').find('.product-id').val();
+                    let hasTracking = $this.closest('td').find('.has-tracking').val();
+
+                    $.ajax({
+                        url: '/Production/CheckLotSerialComponemt', // API riêng cho serial-input
+                        type: 'POST',
+                        data: {
+                            serial: serialCValue,
+                            productId: productId,
+                            masterMOName: masterMOName,
+                            hasTracking: hasTracking
+                        },
+                        success: function (res) {
+                            if (res.result) {
+                                if (idx >= 0 && idx < inputs.length - 1) {
+                                    // Nhảy xuống serial-input tiếp theo
+                                    inputs.eq(idx + 1).focus();
+                                } else {
+                                    // // Nếu là serial cuối cùng thì quay lại ô ban đầu
+                                    // if (product_tracking === "serial") {
+                                    //     $('input[name="Serial"]').focus();
+                                    // } else {
+                                    //     $('input[name="Quantity"]').focus();
+                                    // }
+                                    InputProductionResult();
+                                }
+                            } else {
+                                alert(res.message);
+                                $this.val('').focus();
+                            }
+                        },
+                        error: function () {
+                            alert("Lỗi khi gọi server (serial-input)!");
+                            $this.val('').focus();
+                        }
+                    });
+                }
+
+            }
+        });
+
+        $('#serialFile').on('change', function() {
+            InputProductionResultWithSearialList();
+        });
+
+        // document.addEventListener("keydown", function (e) {
+        //     // Để check/uncheck id=checkScanCode
+        //     if (e.code === "Numpad1") {
+        //         let checkbox = $("#checkScanCode");
+        //         checkbox.prop("checked", !checkbox.prop("checked"));
+
+        //         if ($(e.target).is("input, textarea")) {
+        //             e.preventDefault(); // chặn nhập số 1
+        //         }
+        //     }
+        //     // Để forcus name=workOrderCode
+        //     if(e.code === "Numpad2"){
+        //         e.preventDefault();
+        //         $('input[name="workOrderCode"]').val("");
+        //         $('input[name="workOrderCode"]').focus();
+        //     }
+
+        //     // Mở trang máy in
+        //     if(e.code === "Numpad3"){
+        //         e.preventDefault();
+        //         window.location.href = "http://10.10.99.10:8102/Utils/Whoop/WHOOP";
+        //     }
+
+        //     // Mở trang scan
+        //     if(e.code === "Numpad4"){
+        //         e.preventDefault();
+        //         window.location.href = "http://10.10.99.10:8102/utils/scantocheck/whoop#";
+        //     }
+        // });
+    });
+</script>

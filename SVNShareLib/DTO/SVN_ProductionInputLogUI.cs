@@ -24,5 +24,6 @@ namespace SVNShareLib.DTO
         public string master_wo_code { get; set; }
         public decimal total_qty { get; set; }
         public decimal remain_qty { get; set; }
+        public string consumed_wo_code { get; set; }
     }
 }

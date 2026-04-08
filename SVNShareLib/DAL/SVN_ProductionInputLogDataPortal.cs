@@ -26,10 +26,10 @@ namespace SVNShareLib.DAL
             const string sql = @"
             INSERT INTO SVN_ProductionInputLogs 
             ([level], product_id, product_qty, date_finished, product_type, serial_code, 
-             component_list, [state], API_function, API_parameters, [status], wo_code, master_wo_code, total_qty, remain_qty)
+             component_list, [state], API_function, API_parameters, [status], wo_code, master_wo_code, total_qty, remain_qty, consumed_wo_code)
             VALUES 
             (@level, @product_id, @product_qty, @date_finished, @product_type, @serial_code, 
-             @component_list, @state, @API_function, @API_parameters, @status, @wo_code, @master_wo_code, @total_qty, @remain_qty);
+             @component_list, @state, @API_function, @API_parameters, @status, @wo_code, @master_wo_code, @total_qty, @remain_qty, @consumed_wo_code);
             SELECT CAST(SCOPE_IDENTITY() as int);";
 
             using (var db = Connection)
@@ -73,6 +73,34 @@ namespace SVNShareLib.DAL
             }
         }
 
+        /// <summary>
+        /// Lấy tổng số lượng sản xuất theo WO tổng
+        /// </summary>
+        /// <param name="master_wo_code"></param>
+        /// <returns></returns>
+        public async Task<decimal> GetProducedQtyByMasterWOCodeAsync(string master_wo_code)
+        {
+            // Sử dụng ISNULL trong SQL để an toàn tuyệt đối ngay từ đầu
+            const string sql = "SELECT ISNULL(SUM(product_qty), 0) FROM SVN_ProductionInputLogs WHERE master_wo_code = @master_wo_code";
+
+            using (var db = Connection)
+            {
+                // Sử dụng ExecuteScalarAsync sẽ phù hợp hơn cho việc lấy 1 giá trị duy nhất (Scalar)
+                var result = await db.ExecuteScalarAsync<decimal?>(sql, new { master_wo_code });
+
+                return result ?? 0m;
+            }
+        }
+
+        public async Task<SVN_ProductionInputLogUI> GetByProductIDAndSerialCodeAsync(int product_id, string serial_code)
+        {
+            const string sql = "SELECT * FROM SVN_ProductionInputLogs WHERE product_id = @product_id AND serial_code = @serial_code ORDER BY date_finished DESC";
+            using (var db = Connection)
+            {
+                return await db.QueryFirstOrDefaultAsync<SVN_ProductionInputLogUI>(sql, new { product_id = product_id, serial_code = serial_code });
+            }
+        }
+
         // 4. UPDATE
         public async Task<bool> UpdateAsync(SVN_ProductionInputLogUI log)
         {
@@ -92,7 +120,8 @@ namespace SVNShareLib.DAL
                 wo_code = @wo_code,
                 master_wo_code = @master_wo_code,
                 total_qty = @total_qty,
-                remain_qty = @remain_qty
+                remain_qty = @remain_qty,
+                consumed_wo_code = @consumed_wo_code
             WHERE id = @id";
 
             using (var db = Connection)
