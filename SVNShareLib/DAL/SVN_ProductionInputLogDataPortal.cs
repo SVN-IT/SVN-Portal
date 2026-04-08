@@ -12,7 +12,7 @@ namespace SVNShareLib.DAL
 {
     public class SVN_ProductionInputLogDataPortal
     {
-        private readonly string _connectionString;
+        string _connectionString;
 
         public SVN_ProductionInputLogDataPortal(string connectionString)
         {
@@ -26,10 +26,10 @@ namespace SVNShareLib.DAL
             const string sql = @"
             INSERT INTO SVN_ProductionInputLogs 
             ([level], product_id, product_qty, date_finished, product_type, serial_code, 
-             component_list, [state], API_function, API_parameters, [status], wo_code)
+             component_list, [state], API_function, API_parameters, [status], wo_code, master_wo_code, total_qty, remain_qty)
             VALUES 
             (@level, @product_id, @product_qty, @date_finished, @product_type, @serial_code, 
-             @component_list, @state, @API_function, @API_parameters, @status, @wo_code);
+             @component_list, @state, @API_function, @API_parameters, @status, @wo_code, @master_wo_code, @total_qty, @remain_qty);
             SELECT CAST(SCOPE_IDENTITY() as int);";
 
             using (var db = Connection)
@@ -59,6 +59,20 @@ namespace SVNShareLib.DAL
             }
         }
 
+        /// <summary>
+        /// Lấy bản ghi mới nhất theo master_wo_code
+        /// </summary>
+        /// <param name="master_wo_code"></param>
+        /// <returns></returns>
+        public async Task<SVN_ProductionInputLogUI> GetByMasterWOCodeAsync(string master_wo_code)
+        {
+            const string sql = "SELECT * FROM SVN_ProductionInputLogs WHERE master_wo_code = @master_wo_code ORDER BY date_finished DESC";
+            using (var db = Connection)
+            {
+                return await db.QueryFirstOrDefaultAsync<SVN_ProductionInputLogUI>(sql, new { master_wo_code });
+            }
+        }
+
         // 4. UPDATE
         public async Task<bool> UpdateAsync(SVN_ProductionInputLogUI log)
         {
@@ -75,7 +89,10 @@ namespace SVNShareLib.DAL
                 API_function = @API_function, 
                 API_parameters = @API_parameters, 
                 [status] = @status, 
-                wo_code = @wo_code
+                wo_code = @wo_code,
+                master_wo_code = @master_wo_code,
+                total_qty = @total_qty,
+                remain_qty = @remain_qty
             WHERE id = @id";
 
             using (var db = Connection)

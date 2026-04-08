@@ -9,10 +9,10 @@ namespace SVNShareLib.DTO
     public class SVN_ProductionInputLogUI
     {
         public int id { get; set; }
-        public int? level { get; set; }
-        public int? product_id { get; set; }
-        public decimal? product_qty { get; set; }
-        public DateTime? date_finished { get; set; }
+        public int level { get; set; }
+        public int product_id { get; set; }
+        public decimal product_qty { get; set; }
+        public DateTime date_finished { get; set; }
         public string product_type { get; set; }
         public string serial_code { get; set; }
         public string component_list { get; set; }
@@ -21,5 +21,8 @@ namespace SVNShareLib.DTO
         public string API_parameters { get; set; }
         public string status { get; set; }
         public string wo_code { get; set; }
+        public string master_wo_code { get; set; }
+        public decimal total_qty { get; set; }
+        public decimal remain_qty { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib;
+using SVNShareLib.DAL;
 using SVNShareLib.Request;
 using System.Text;
 using ZXing;
@@ -11,9 +12,11 @@ namespace SVN_Portal.Controllers
     public class ProductionController : Controller
     {
         APIConfiguration aPIConfiguration;
-        public ProductionController(APIConfiguration aPIConfiguration)
+        DBConfiguration dBConfiguration;
+        public ProductionController(APIConfiguration aPIConfiguration, DBConfiguration dBConfiguration)
         {
             this.aPIConfiguration = aPIConfiguration;
+            this.dBConfiguration = dBConfiguration;
         }
 
         public IActionResult Index(string workOrder)
@@ -41,10 +44,11 @@ namespace SVN_Portal.Controllers
             try
             {
                 string currentMasterWorkOrderName = TempData.Peek("MasterWorkOrderName") as string;
-                string previousWorkOrderName = TempData.Peek("WorkOrderName") as string;
+                //string previousWorkOrderName = TempData.Peek("WorkOrderName") as string;
+                string previousWorkOrderName = string.Empty;
 
                 //Nếu chưa có MasterWO trc đó thì thực hiện lấy dữ liệu WO từ Viindoo
-                if(string.IsNullOrWhiteSpace(currentMasterWorkOrderName))
+                if (string.IsNullOrWhiteSpace(currentMasterWorkOrderName))
                 {
                     isGetDataFromViindoo = true;
                 }
@@ -101,8 +105,23 @@ namespace SVN_Portal.Controllers
                     return Json(new { result = processResult.OK, message = processResult.Message });
                 }
 
+                //Lấy thông tin WO đã được nhập trc đó để xây dự giao diện
+                SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+                var lastLog = await dataPortal.GetByMasterWOCodeAsync(currentMasterWorkOrderName);
+
+                string masterWorkOrder = string.Empty;
+                decimal totalQty = 0;
+                decimal remainQty = 0;
+                if (lastLog != null) 
+                {
+                    previousWorkOrderName = lastLog.wo_code;
+                    masterWorkOrder = lastLog.master_wo_code;
+                    totalQty = lastLog.total_qty;
+                    remainQty = lastLog.remain_qty;
+                }
+
                 WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
-                string stringContent = BuildWorkOrderInfo(workOrderInfo, previousWorkOrderName);
+                string stringContent = BuildWorkOrderInfo(workOrderInfo, previousWorkOrderName, masterWorkOrder, totalQty, remainQty);
                 processResult.OK = true;
                 processResult.Message = stringContent;
                 return Json(new { result = processResult.OK, message = processResult.Message, product_tracking = workOrderInfo.OrderInfo["product_tracking"] });
@@ -115,7 +134,7 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
         }
 
-        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName)
+        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName, string masterWorkOrderLog, decimal totalQty, decimal remainQty)
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             StringBuilder sb = new StringBuilder();
