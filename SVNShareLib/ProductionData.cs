@@ -40,6 +40,19 @@ namespace SVNShareLib
         public IFormFile serialFile { get; set; }
     }
 
+    public class ProductionDataWithSerialListV1
+    {
+        public string Name { get; set; }
+        public string SubName { get; set; }
+        public string Quantity { get; set; }
+        public string ProductTracking { get; set; }
+        public string Serial { get; set; }
+        public string ProductID { get; set; }
+        public string TotalQuantity { get; set; }
+        public List<ProductSerial> Products { get; set; }
+        public IFormFile serialFile { get; set; }
+    }
+
     public class ProductSerial
     {
         public int Product_id { get; set; }

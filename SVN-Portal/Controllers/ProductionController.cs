@@ -1,4 +1,6 @@
-﻿using Irony.Parsing;
+﻿using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Irony.Parsing;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.DAL.DataPortal;
@@ -116,7 +118,7 @@ namespace SVN_Portal.Controllers
                 string masterWorkOrder = string.Empty;
                 decimal totalQty = 0;
                 decimal remainQty = 0;
-                if (lastLog != null) 
+                if (lastLog != null)
                 {
                     previousWorkOrderName = lastLog.wo_code;
                     masterWorkOrder = lastLog.master_wo_code;
@@ -157,7 +159,7 @@ namespace SVN_Portal.Controllers
             {
                 masterWorkOrder = masterWorkOrderLog;
             }
-            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
+            if (!string.IsNullOrWhiteSpace(previousWorkOrderName) && remainQty > 0)
             {
                 string[] parts = previousWorkOrderName.Split('-');
 
@@ -176,10 +178,7 @@ namespace SVN_Portal.Controllers
                     }
                 }
             }
-            if(remainQty > 0)
-            {
-                curRemainQty = remainQty.ToString();
-            }
+            curRemainQty = remainQty.ToString();
             if (totalQty > 0)
             {
                 curTotalQty = totalQty.ToString();
@@ -474,6 +473,7 @@ namespace SVN_Portal.Controllers
                 //Xử lý nhập KQSX vào SVNDB
                 SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
                 productDataUI.wo_code = data.SubName;
+                productDataUI.serial_code = data.Serial;
                 productDataUI.master_wo_code = data.Name;
                 productDataUI.product_id = int.Parse(data.ProductID);
                 productDataUI.product_qty = decimal.Parse(data.Quantity);
@@ -579,6 +579,216 @@ namespace SVN_Portal.Controllers
             }
             return Json(new { result = processResult.OK, message = processResult.Message });
         }
+
+        public async Task<IActionResult> InputProductionResultWithSerialList(ProductionDataWithSerialListV1 data)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "serial"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "lot"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+
+                List<string> serialCodes = GetSerialsFromExcel(data.serialFile);
+
+                string inputSerialsSuccessMessage = "Inpputed Serial List Success: ";
+                string inputSerialsFailMessage = "Inpputed Serial List Fail: ";
+                string inputSerialsExistMessage = "Inpputed Serial List Exist: ";
+                List<string> successSerials = new List<string>();
+                List<string> failSerials = new List<string>();
+                List<string> existSerials = new List<string>();
+
+                string[] parts = data.SubName.Split('-');
+
+                if (parts.Length == 1)
+                {
+                    string prefix = parts[0]; // "NM/MO/02638"
+
+                    data.SubName = $"{prefix}-001";
+                }
+                bool isFirstInput = true;
+
+                if (serialCodes != null && serialCodes.Count > 0)
+                {
+                    foreach (var serial in serialCodes)
+                    {
+                        InputProductDataRequest dataRequest = new InputProductDataRequest()
+                        {
+                            WorkOrderNumber = data.Name,
+                            LotNumber = serial,
+                            Quality = 1,
+                            LotScaneds = lotScaneds
+                        };
+                        //Xử lý nhập KQSX vào SVNDB
+                        SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
+                        if (!isFirstInput)
+                        {
+                            data.SubName = GetNewWorkOrderName(data.SubName);
+                        }
+                        isFirstInput = false;
+
+                        productDataUI.wo_code = data.SubName;
+                        productDataUI.master_wo_code = data.Name;
+                        productDataUI.serial_code = serial;
+                        productDataUI.product_id = int.Parse(data.ProductID);
+                        productDataUI.product_qty = 1;
+                        productDataUI.product_type = data.ProductTracking;
+                        productDataUI.date_finished = DateTime.Now;
+                        productDataUI.state = "Used";
+                        productDataUI.component_list = JsonConvert.SerializeObject(lotScaneds);
+                        productDataUI.API_function = $"{aPIConfiguration.BaseURL}{aPIConfiguration.InputProductionByWorkOrderv1URL}";
+                        productDataUI.API_parameters = JsonConvert.SerializeObject(dataRequest);
+                        productDataUI.status = "Not synchronized";
+                        productDataUI.total_qty = decimal.Parse(data.TotalQuantity);
+                        //productDataUI.remain_qty = decimal.Parse(data.TotalQuantity) - decimal.Parse(data.Quantity);
+                        var existingLog = await dataPortal.GetByProductIDAndSerialCodeAsync(int.Parse(data.ProductID), serial);
+                        if(existingLog != null)
+                        {
+                            existSerials.Add(serial);
+                            isFirstInput = true;
+                        }
+                        else
+                        {
+                            var insertResult = await dataPortal.InsertAsync(productDataUI);
+                            if (insertResult > 0)
+                            {
+                                successSerials.Add(serial);
+                            }
+                            else
+                            {
+                                failSerials.Add(serial);
+                                isFirstInput = true;
+                            }
+                        }
+                        
+                    }
+
+                    TempData.Remove("MasterWorkOrderName");
+                    TempData["MasterWorkOrderName"] = data.Name;
+                    TempData.Keep("MasterWorkOrderName");
+
+                    inputSerialsSuccessMessage = inputSerialsSuccessMessage + string.Join(", ", successSerials) + " Count: " + successSerials.Count;
+                    inputSerialsFailMessage = inputSerialsFailMessage + string.Join(", ", failSerials) + " Count: " + failSerials.Count;
+                    inputSerialsExistMessage = inputSerialsExistMessage + string.Join(", ", existSerials) + " Count: " + existSerials.Count;
+
+                    processResult.OK = true;
+                    processResult.Message = $"{inputSerialsSuccessMessage}{Environment.NewLine}{inputSerialsFailMessage}{Environment.NewLine}{inputSerialsExistMessage}";
+
+                    //return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Replace("/", "%2f") });
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "File serial không có dữ liệu hoặc sai định dạng";
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = false, message = processResult.Message });
+        }
         #endregion
+
+        #region hàm xử lý input excel danh sách serial
+        private List<string> GetSerialsFromExcel(IFormFile file)
+        {
+            List<string> serials = new List<string>();
+
+            using (var stream = file.OpenReadStream())
+            {
+                using (SpreadsheetDocument doc = SpreadsheetDocument.Open(stream, false))
+                {
+                    // Lấy Sheet đầu tiên
+                    WorkbookPart workbookPart = doc.WorkbookPart;
+                    SharedStringTablePart sstpart = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+                    SharedStringTable sst = sstpart?.SharedStringTable;
+
+                    WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
+                    Worksheet sheet = worksheetPart.Worksheet;
+
+                    // Lấy tất cả các dòng (Rows)
+                    var rows = sheet.Descendants<Row>();
+
+                    foreach (Row row in rows)
+                    {
+                        // Lấy cell đầu tiên của mỗi dòng (Cột A)
+                        Cell cell = row.Elements<Cell>().FirstOrDefault();
+                        if (cell != null)
+                        {
+                            string value = GetCellValue(cell, sst);
+                            if (!string.IsNullOrWhiteSpace(value) && value != "serial_code") // Bỏ qua tiêu đề nếu có
+                            {
+                                serials.Add(value.Trim());
+                            }
+                        }
+                    }
+                }
+            }
+            return serials;
+        }
+
+        // Hàm bổ trợ để đọc giá trị thực tế của Cell (Xử lý trường hợp SharedString)
+        private string GetCellValue(Cell cell, SharedStringTable sst)
+        {
+            if (cell.CellValue == null) return string.Empty;
+
+            string value = cell.CellValue.InnerText;
+
+            // Nếu cell là kiểu SharedString (chuỗi dùng chung), phải tra cứu trong bảng sst
+            if (cell.DataType != null && cell.DataType == CellValues.SharedString && sst != null)
+            {
+                return sst.ElementAt(int.Parse(value)).InnerText;
+            }
+
+            return value;
+        }
+        #endregion
+
+        private string GetNewWorkOrderName(string previousWorkOrderName)
+        {
+            if (string.IsNullOrWhiteSpace(previousWorkOrderName))
+            {
+                return string.Empty;
+            }
+            string[] parts = previousWorkOrderName.Split('-');
+            if (parts.Length == 2)
+            {
+                string prefix = parts[0]; // "NM/MO/02638"
+                string suffix = parts[1]; // "001"
+                // 2. Chuyển phần hậu tố sang số và cộng thêm 1
+                if (int.TryParse(suffix, out int number))
+                {
+                    number++;
+                    // 3. Ghép lại với định dạng 3 chữ số (001, 002,...)
+                    return $"{prefix}-{number.ToString("D3")}";
+                }
+            }
+            return string.Empty; // Trả về chuỗi rỗng nếu định dạng không đúng
+        }
     }
 }

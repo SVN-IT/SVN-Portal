@@ -57,11 +57,11 @@
             </div>
         </div>
         <div class="col-12 col-md-4">
-            <h4>Phím 1 (Bàn phím số) - ✅ Quét số serial để nhập số lượng</h4>
-            <h4>Phím 2 (Bàn phím số) - Nhập lệnh sản xuất mới</h4>
-            <h4>Phím 3 (Bàn phím số) - Mở trang in tem</h4>
-            <h4>Phím 4 (Bàn phím số) - Mở trang scan</h4>
-            <h4>Phím F5 - Reset lại trang web</h4>
+            <h4>Key 1 (Numeric keypad) - ✅ Scan serial number to enter quantity</h4>
+            <h4>Key 2 (Numeric keypad) - Enter new production order</h4>
+            <h4>Key 3 (Numeric keypad) - Open label printing page</h4>
+            <h4>Key 4 (Numeric keypad) - Open scan page</h4>
+            <h4>Key F5 - Reset web page</h4>
         </div>
         <div class="col-12 col-md-3">
             <div id="divResultLight" class="box-square bg-light"></div>
@@ -209,6 +209,8 @@
         formData.append("quantity", $('input[name="Quantity"]').val());
         formData.append("productTracking", $('input[name="ProductTracking"]').val());
         formData.append("serial", $('input[name="Serial"]').val());
+        formData.append("productID", $('input[name="ProductID"]').val());
+        formData.append("totalQuantity", $('input[name="TotalQuantity"]').val());
 
         // 3. Thêm File từ input (quan trọng)
         let fileInput = $('#serialFile')[0].files[0];
@@ -228,7 +230,7 @@
         showLoader();
 
         $.ajax({
-            url: '/Tools/InputProductionResultWithSerialList',
+            url: '/Production/InputProductionResultWithSerialList',
             type: 'POST',
             data: formData, // Không dùng JSON.stringify nữa
             contentType: false, // Bắt buộc: Để trình duyệt tự xử lý Content-Type
@@ -237,8 +239,22 @@
                 if (res.result) {
                     console.log("Gửi thành công:", res);
                     alert(res.message);
+
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-success');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-success').addClass('bg-light');
+                    }, 3000);
+
                     GetProductByWorkOrder('#txtWorkOrderCode');
                 } else {
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                    }, 3000);
+                    GetProductByWorkOrder('#txtWorkOrderCode');
+
                     alert(res.message);
                 }
             },
