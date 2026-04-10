@@ -239,7 +239,7 @@ namespace SVN_Portal.Controllers
 
             // Khi component có tracking là serial hoặc lot thì sẽ không cho phép Upload list serial nữa mà phải scan từng cái một để tránh sai sót
             var componentsHasTracking = workOrderInfo.StockMoveInfo.Where(x => x["has_tracking"] == "serial" || x["has_tracking"] == "lot").ToList();
-            if (componentsHasTracking == null || componentsHasTracking.Count == 0)
+            if ((componentsHasTracking == null || componentsHasTracking.Count == 0) && workOrderInfo.OrderInfo["product_tracking"] != "none")
             {
                 sb.Append("<div class=\"col-12 col-md-4\">");
                 sb.Append("<div class=\"form-group\">");
