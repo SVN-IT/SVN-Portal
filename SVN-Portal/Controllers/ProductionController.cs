@@ -64,6 +64,7 @@ namespace SVN_Portal.Controllers
                     TempData.Remove("MasterWorkOrderName");
                     TempData["MasterWorkOrderName"] = workOrderCode;
                     TempData.Keep("MasterWorkOrderName");
+                    currentMasterWorkOrderName = workOrderCode;
                     isGetDataFromViindoo = true;
                 }
 
@@ -115,6 +116,8 @@ namespace SVN_Portal.Controllers
                 var lastLog = await dataPortal.GetByMasterWOCodeAsync(currentMasterWorkOrderName);
                 var productedQty = await dataPortal.GetProducedQtyByMasterWOCodeAsync(currentMasterWorkOrderName);
 
+
+                WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
                 string masterWorkOrder = string.Empty;
                 decimal totalQty = 0;
                 decimal remainQty = 0;
@@ -125,8 +128,12 @@ namespace SVN_Portal.Controllers
                     totalQty = lastLog.total_qty;
                     remainQty = lastLog.total_qty - productedQty;
                 }
-
-                WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
+                else
+                {
+                    totalQty = decimal.Parse(workOrderInfo.OrderInfo["product_qty"]);
+                    remainQty = totalQty - productedQty;
+                }
+                
                 string stringContent = BuildWorkOrderInfo(workOrderInfo, previousWorkOrderName, masterWorkOrder, totalQty, remainQty);
                 processResult.OK = true;
                 processResult.Message = stringContent;
@@ -183,6 +190,11 @@ namespace SVN_Portal.Controllers
             {
                 curTotalQty = totalQty.ToString();
             }
+            string isInputStatus = string.Empty;
+            if(remainQty <= 0)
+            {
+                isInputStatus = "d-none pe-none";
+            }
             StringBuilder sb = new StringBuilder();
             //sb.Append("<div class=\"col-12 col-md-3\">");
             //sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
@@ -209,7 +221,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<label class=\"control-label\">Quantity:</label>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-4\">");
-            sb.Append("<input type=\"text\" name=\"Quantity\" class=\"form-control\" />");
+            sb.Append($"<input type=\"text\" name=\"Quantity\" class=\"form-control {isInputStatus}\" />");
             sb.Append("</div>");
             sb.Append("<div class=\"col-5\">");
             sb.Append("/" + curRemainQty);
@@ -231,7 +243,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<label class=\"control-label\">Serial number:</label>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-10\">");
-            sb.Append("<input type=\"text\" name=\"Serial\" class=\"form-control\" />");
+            sb.Append($"<input type=\"text\" name=\"Serial\" class=\"form-control {isInputStatus}\" />");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
@@ -248,7 +260,7 @@ namespace SVN_Portal.Controllers
                 sb.Append("<label class=\"control-label\">Or Upload file serial:</label>");
                 sb.Append("</div>");
                 sb.Append("<div class=\"col-8\">");
-                sb.Append("<input type=\"file\" id=\"serialFile\" name=\"serialFile\" onchange=\"InputProductionResultWithSearialList()\" class=\"form-control\" accept=\".xlsx, .xls\" />");
+                sb.Append($"<input type=\"file\" id=\"serialFile\" name=\"serialFile\" onchange=\"InputProductionResultWithSearialList()\" class=\"form-control {isInputStatus}\" accept=\".xlsx, .xls\" />");
                 sb.Append("</div>");
                 sb.Append("</div>");
                 sb.Append("</div>");
