@@ -2608,6 +2608,10 @@ namespace SVN_Portal.DAL.DataPortal
             }
             else
             {
+                DateTimeOffset timeAtPlusHour = new DateTimeOffset(curDateTime, TimeSpan.FromHours(7))
+                              .ToOffset(TimeSpan.FromHours(hours));
+                curDateTime = timeAtPlusHour.DateTime;
+
                 finishedTime = curDateTime;
             }
             gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
