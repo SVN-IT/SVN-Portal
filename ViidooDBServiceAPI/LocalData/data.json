@@ -1,12 +1,2448 @@
 ﻿[
   {
-    "CompanyCode": "SVN",
-    "DaySection": "8h-10h,10h10-11h30,12h30-15h,15h10-17h30,18h-20h",
-    "NightSection": "20h-22h,22h10-23h30,0h30-3h,3h10-5h30,6h-8h"
+    "Operation": "POP",
+    "Name": "",
+    "Price": 1.59,
+    "MasterOperation": "POP",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      21,
+      24,
+      25,
+      267,
+      268,
+      269,
+      294,
+      295,
+      296,
+      299,
+      298,
+      300,
+      301,
+      307,
+      308,
+      309,
+      310,
+      313,
+      314,
+      315,
+      316,
+      321,
+      320,
+      322,
+      323,
+      325,
+      326,
+      327,
+      328,
+      273,
+      274,
+      275,
+      276,
+      281,
+      282,
+      283,
+      284,
+      340,
+      339,
+      341,
+      338,
+      344,
+      345,
+      346,
+      347,
+      626,
+      625,
+      627,
+      628,
+      630,
+      631,
+      288,
+      632,
+      633,
+      634,
+      635,
+      636,
+      640,
+      639,
+      638,
+      641,
+      647,
+      646,
+      645,
+      648,
+      650,
+      651,
+      652,
+      653,
+      657,
+      658,
+      737,
+      330,
+      332,
+      331,
+      333,
+      798,
+      797,
+      799,
+      800
+    ],
+    "ColWidth": 12
   },
   {
-    "CompanyCode": "SM",
-    "DaySection": "8h-10h,10h-12h,13h30-15h30,15h30-17h30,18h30-21h",
-    "NightSection": "21h-22h,22h10-23h30,0h30-3h,3h10-5h30,6h-8h"
+    "Operation": "eKIT",
+    "Name": "",
+    "Price": 20.34,
+    "MasterOperation": "eKIT",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 4,
+    "Produce_id": [],
+    "ColWidth": 12
+  },
+  {
+    "Operation": "Solar",
+    "Name": "",
+    "Price": 23338.91,
+    "MasterOperation": "Solar",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 2,
+    "Produce_id": [
+      36,
+      348,
+      349
+    ],
+    "ColWidth": 12
+  },
+  {
+    "Operation": "Injection_Toast",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Injection",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 5,
+    "Produce_id": [
+      898,
+      899,
+      900
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Injection_POP",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Injection",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 5,
+    "Produce_id": [
+      801,
+      803
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "ITA_Wip",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "ITA",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 6,
+    "Produce_id": [],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "ITA_FG",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "ITA",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 6,
+    "Produce_id": [
+      370,
+      606,
+      608,
+      610,
+      609,
+      612,
+      611,
+      613,
+      615,
+      614,
+      616,
+      617
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Toast-WSS03-00290",
+    "Name": "DCT3 Dock Assembly",
+    "Price": 0,
+    "MasterOperation": "Toast",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 925 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0001-00",
+    "Name": "Dock",
+    "Price": 8.76,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 924 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0002-00",
+    "Name": "Case Dark Grey",
+    "Price": 0.88,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 951 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0003-00",
+    "Name": "Case White",
+    "Price": 1.75,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 952 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Astro-WSS04-60001",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Astro",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 8,
+    "Produce_id": [ 236 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Astro-WSS04-60002",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Astro",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 8,
+    "Produce_id": [ 235 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Astro-WSS04-60003",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Astro",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 8,
+    "Produce_id": [ 237 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Astro-FG-AST-CE-0004-00",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Astro",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 8,
+    "Produce_id": [ 177 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00349",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1219 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00345",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1220 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00350",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1216 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00360",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1234 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00361",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1238 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00362",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1242 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00363",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1254 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00364",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1251 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00365",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1247 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00356",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1227 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00358",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1229 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00359",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1228 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363119",
+    "Name": "",
+    "Price": 3.06,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1067 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363140",
+    "Name": "",
+    "Price": 3.06,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1057 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363171",
+    "Name": "",
+    "Price": 2.83,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1081 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00331",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1192 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00341",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1222 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00343",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1223 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00351",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1218 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00352",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1215 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362525",
+    "Name": "",
+    "Price": 3.00,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1025 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362464",
+    "Name": "",
+    "Price": 3.01,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1074 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362471",
+    "Name": "",
+    "Price": 3.01,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1070 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362488",
+    "Name": "",
+    "Price": 3.04,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1051 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362457",
+    "Name": "",
+    "Price": 3.04,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1064 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114364055",
+    "Name": "",
+    "Price": 3.06,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1077 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114364062",
+    "Name": "",
+    "Price": 2.83,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1086 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362808",
+    "Name": "",
+    "Price": 2.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1232 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362815",
+    "Name": "",
+    "Price": 2.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1236 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362822",
+    "Name": "",
+    "Price": 2.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1240 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362839",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1138 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362846",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1249 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362853",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1245 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362761",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1100 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362785",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1106 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362792",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1109 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363249",
+    "Name": "",
+    "Price": 10.04,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1112 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00347",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1217 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363201",
+    "Name": "",
+    "Price": 2.83,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1141 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363133",
+    "Name": "",
+    "Price": 3.03,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1128 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00344",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1224 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362655",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1120 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362662",
+    "Name": "",
+    "Price": 2.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1139 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00334",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1221 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362709",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1134 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363195",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1125 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362556",
+    "Name": "",
+    "Price": 3.06,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1179 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00337",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1205 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362495",
+    "Name": "",
+    "Price": 3.35,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1207 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00339",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1201 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362679",
+    "Name": "",
+    "Price": 3.25,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1189 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00355",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1231 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363232",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1097 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363157",
+    "Name": "",
+    "Price": 3.37,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1202 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363218",
+    "Name": "",
+    "Price": 3.28,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1183 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00326",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1307 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-750-13-000-015-02-501",
+    "Name": "",
+    "Price": 1.31,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1306 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00314",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1302 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-750-11-000-015-02-501",
+    "Name": "",
+    "Price": 1.34,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1295 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00315",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1305 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-750-11-000-015-03-500",
+    "Name": "",
+    "Price": 1.76,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1304 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00348",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1193 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362747",
+    "Name": "",
+    "Price": 3.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1161 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00346",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1194 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362563",
+    "Name": "",
+    "Price": 3.86,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1166 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00340",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1197 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362730",
+    "Name": "",
+    "Price": 2.94,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1174 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00338",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1198 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00335",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1199 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362716",
+    "Name": "",
+    "Price": 2.89,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1181 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00333",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1196 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362549",
+    "Name": "",
+    "Price": 3.40,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1171 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00336",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1195 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362723",
+    "Name": "",
+    "Price": 3.33,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1169 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0005-00",
+    "Name": "Dock",
+    "Price": 8.76,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1309 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-WSS03-00450",
+    "Name": "Dock",
+    "Price": 0,
+    "MasterOperation": "Toast",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1310 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0004-00",
+    "Name": "Dock",
+    "Price": 8.76,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1312 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-WSS03-00449",
+    "Name": "Dock",
+    "Price": 0,
+    "MasterOperation": "Toast",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1313 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362754",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1090 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362778",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1103 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363256",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1115 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362648",
+    "Name": "",
+    "Price": 2.79,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1118 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363188",
+    "Name": "",
+    "Price": 2.82,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1122 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363126",
+    "Name": "",
+    "Price": 3.03,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1131 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362501",
+    "Name": "",
+    "Price": 3.04,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1136 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362631",
+    "Name": "",
+    "Price": 2.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1144 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362686",
+    "Name": "",
+    "Price": 2.80,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1147 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362518",
+    "Name": "",
+    "Price": 3.36,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1149 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363164",
+    "Name": "",
+    "Price": 3.38,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1155 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362693",
+    "Name": "",
+    "Price": 3.25,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1158 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114363225",
+    "Name": "",
+    "Price": 3.28,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1209 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-810114362532",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1026 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0006-00",
+    "Name": "",
+    "Price": 8.76,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1317 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-WSS03-00451",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Toast",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1322 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-WSS03-00453",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Toast",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1342 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Toast-FG-TRO-CE-0007-00",
+    "Name": "",
+    "Price": 8.76,
+    "MasterOperation": "Toast",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 7,
+    "Produce_id": [ 1341 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00332",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1200 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Injection-WIP07-00045",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Injection",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 5,
+    "Produce_id": [
+      1385
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Injection-WIP07-00044",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Injection",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 5,
+    "Produce_id": [
+      1384
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Injection-WIP07-00048",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Injection",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 5,
+    "Produce_id": [
+      1387
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Injection-WIP07-00047",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Injection",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 5,
+    "Produce_id": [
+      1386
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406070",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1389
+    ],
+    "ColWidth": 12
+  },
+  {
+    "Operation": "Twist-7100405899",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1426
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406375",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1419
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406405",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1411
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406374",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1420
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406378",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1410
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406413",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1413
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406379",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1422
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406384",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1415
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406287",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1391
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406386",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1424
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406306",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1408
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406012",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1417
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406225",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1434
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406380",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1436
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406577",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1428
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406527",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1430
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406454",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1438
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100406653",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [
+      1432
+    ],
+    "ColWidth": 6
   }
 ]
