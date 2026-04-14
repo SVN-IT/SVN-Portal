@@ -1999,7 +1999,7 @@ namespace SVN_Portal.DAL.DataPortal
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
+                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
                 viewModel.CanProductionByDowntime = true;
                 if (dataUI.Count > 0)
                 {

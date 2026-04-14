@@ -337,6 +337,127 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// dashboard thêm phần chia biểu đồ ra các slide
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> ProductionResultV2(DateTime date, string companyCode)
+        {
+            List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
+
+                string storedProceduce = "SVN_Pro_CalTarget_New_Table_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_ViindooV1";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+                ViewBag.date = date;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                {
+                    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SVN";
+                    hours = 8;
+                }
+                else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                {
+                    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                    ViewBag.NextCompany = "SM";
+                }
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
+                if (models != null && models.Count > 0)
+                {
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+
+                    models = models
+                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                    .ThenBy(x => x.Line)
+                    .ThenBy(x => x.ViewModels
+                        .Where(i => i.Target != 0)
+                        .Select(i => GetStartTime(i.Time))
+                        .DefaultIfEmpty(TimeSpan.MaxValue)
+                        .Min())
+                    .ToList();
+
+                    //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
+                    int pageSize = 9;
+                    for (int i = 0; i < models.Count; i += pageSize)
+                    {
+                        var slide = new QtyPDByOperVMPerSlide();
+
+                        slide.OperViewModels = models
+                            .Skip(i)
+                            .Take(pageSize)
+                            .ToList();
+
+                        qtyPDByOperVMPerSlides.Add(slide);
+                    }
+                }
+
+                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
+                var compareUI = await compareDataPortal.ReadList(strdate);
+
+                if (compareUI != null && compareUI.Count > 0)
+                {
+
+                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
+                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    int arrangeQty = ArrangingNumber(models);
+
+                    decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
+
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    ViewBag.ComparePeople = comparePeople;
+                }
+
+                return View(qtyPDByOperVMPerSlides);
+            }
+            catch (Exception ex)
+            {
+                List<QtyPDByOperVMPerSlide> vMPerSlides = new List<QtyPDByOperVMPerSlide>();
+                return View(vMPerSlides);
+
+            }
+        }
+
         // Defect rate 20250103
 
         public async Task<IActionResult> Defect_Rate(DateTime date)
@@ -1238,6 +1359,157 @@ namespace SVN_Portal.Controllers
                     if(!model.CanProductionByDowntime)
                     {
                         if(model.EndDownTime == DateTime.MinValue)
+                        {
+                            downTimeStatus = "Máy đang bảo trì";
+                        }
+                        else
+                        {
+                            downTimeStatus = "Máy đang bảo trì, dự kiến kết thúc: " + model.EndDownTime.ToString("dd/MM/yyyy HH:mm");
+                        }
+                    }
+
+                    strForecase = BuildForecastInfo(model.Forecast);
+                    strTargetTable = BuildAchievementCard(model, date);
+
+                    // Tạm cho SM
+                    if (oper.Contains("(SM)"))
+                    {
+                        model.CanProductionByCheclist = true;
+                    }
+
+                    return new JsonResult(new
+                    {
+                        result = true,
+                        forecase = strForecase,
+                        targetTable = strTargetTable,
+                        isProduction = model.IsProduction,
+                        canProduction = model.CanProductionByCheclist,
+                        canProductionByDowntime = model.CanProductionByDowntime,
+                        downTimeStatus = downTimeStatus,
+                        checklistStatus = sb.ToString(),
+                        pdmodel = JsonConvert.SerializeObject(model.ViewModels),
+                        defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
+                    });
+                }
+                else
+                {
+                    return new JsonResult(new { result = false, message = "No data" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { result = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Hàm build lại dữ liệu cho dashboard bằng cách lấy dữ liệu từ oper và wc bằng Ajax
+        /// Dùng cho view ProductionResultV2
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="oper"></param>
+        /// <param name="wc"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> GetDataByOperAndWCMainDashBoardV1(string date, string oper, string wc)
+        {
+            QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+            string strForecase = string.Empty;
+            string strTargetTable = string.Empty;
+
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_New_Table_Viindoo";
+                string tableName = "SVN_Production_result_ViindooV1";
+                OperInfo operInfo = new OperInfo();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == oper);
+                if (operInfo != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(wc))
+                    {
+                        operInfo.WCName = wc;
+                    }
+                }
+
+                int hours = 7;
+                try
+                {
+                    var strHours = TempData.Peek("Hours") as string;
+                    hours = int.Parse(strHours);
+                }
+                catch
+                {
+
+                }
+
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, hours);
+
+                //sử dụng stringBuilder để build lại 2 table
+                if (model != null)
+                {
+                    string pdChecked = "🔴";
+                    string mtChecked = "🔴";
+                    string qcChecked = "🔴";
+                    string pdConfirmed = "🔴";
+                    string qcConfirmed = "🔴";
+
+                    if (model.IsPDChecked)
+                    {
+                        pdChecked = "🟢";
+                    }
+                    if (model.IsMTChecked)
+                    {
+                        mtChecked = "🟢";
+                    }
+                    if (model.IsQCChecked)
+                    {
+                        qcChecked = "🟢";
+                    }
+                    if (model.IsPDConfirmed)
+                    {
+                        pdConfirmed = "🟢";
+                    }
+                    if (model.IsQCConfirmed)
+                    {
+                        qcConfirmed = "🟢";
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+
+
+                    //if (!oper.Contains("Walter"))
+                    //{
+                    //    model.CanProductionByCheclist = true;
+                    //}
+                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    // Tạm cho SM
+                    if (!oper.Contains("(SM)"))
+                    {
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    }
+
+                    sb.Append(" | <strong>Actual WorkingTime</strong>: ");
+                    sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
+                    sb.Append(" | <strong>Downtime</strong>: ");
+                    sb.Append(Math.Round(model.TotalDuration, appConfig.Rounding) + " h");
+                    sb.Append("</p>");
+                    //sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    //sb.Append("<strong>Current WorkingTime</strong>: ");
+                    //sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
+                    //sb.Append(" |  <strong>Current Duration</strong>: ");
+                    //sb.Append(Math.Round(model.CurDuration, appConfig.Rounding) + " h");
+                    //sb.Append("</p>");
+                    string downTimeStatus = string.Empty;
+                    if (!model.CanProductionByDowntime)
+                    {
+                        if (model.EndDownTime == DateTime.MinValue)
                         {
                             downTimeStatus = "Máy đang bảo trì";
                         }

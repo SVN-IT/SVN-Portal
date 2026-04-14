@@ -2163,7 +2163,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00300(SM)",
-    "Name": "中幅半成品组件-Sakura粉色",
+    "Name": "MidPanel - Sakura Pink",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2214,7 +2214,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00299(SM)",
-    "Name": "前幅半成品组件-Sakura粉色",
+    "Name": "TopPanel - Sakura Pink",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2231,7 +2231,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00301(SM)",
-    "Name": "成品组件-Sakura粉色",
+    "Name": "BackPanel - Sakura Pink",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2282,7 +2282,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00306(SM)",
-    "Name": "Middle Panel- Semi-finished product - Sakura Green",
+    "Name": "MidPanel - Sakura Green",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2299,7 +2299,7 @@
   },
   {
     "Operation": "Sakura-WSS03-00307(SM)",
-    "Name": "Back Panel- Semi-finished product - Sakura Green",
+    "Name": "BackPanel- Sakura Green",
     "Price": 0,
     "MasterOperation": "Sakura WIP(SM)",
     "WCType": "FG",
@@ -2312,6 +2312,23 @@
     ],
     "StoreID": 3,
     "Produce_id": [ 1362 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Sakura-C54-00567-01(SM)",
+    "Name": "Sakura - Mist Green",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1370 ],
     "ColWidth": 4
   }
 ]
