@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using SVN_Portal.DAL.DataPortal
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -295,13 +296,31 @@
         @{
             string companyCode = ViewBag.CompanyCode;
             List<string> operList = appConfig.MasterOperList.Split(",").ToList();
-            if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(dBConfiguration.GetConnectionString());
+            string masterOperList = await appSettingDataPortal.GetMasterOperList();
+            if (!string.IsNullOrWhiteSpace(masterOperList))
             {
-                operList = operList.Where(x => x.Contains("SM")).ToList();
+                operList = masterOperList.Split(",").ToList();
             }
-            else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+            if (!string.IsNullOrWhiteSpace(companyCode))
             {
-                operList = operList.Where(x => !x.Contains("SM")).ToList();
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        operList = operList.Where(x => x.EndsWith("(SM)")).ToList();
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        operList = operList.Where(x => x.EndsWith("(ITA)")).ToList();
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        operList = operList.Where(x => !x.EndsWith("(SM)") && !x.EndsWith("(ITA)")).ToList();
+                        break;
+                }
             }
         }
         <div class="left-sidebar">
@@ -328,7 +347,7 @@
                             <ul aria-expanded="false" class="collapse">
                                 @foreach (var item in operList)
                                 {
-                                    <li><a asp-controller="Home" asp-action="ChartInfoPerOper" asp-route-operline="@item">@item Dashboard</a></li>
+                                    <li><a asp-controller="Home" asp-action="ChartInfoPerOper" asp-route-operline="@item" asp-route-companyCode="@ViewBag.CompanyCode">@item Dashboard</a></li>
                                 }
                             </ul>
                         </li>

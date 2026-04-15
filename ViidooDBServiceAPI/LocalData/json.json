@@ -2332,10 +2332,10 @@
     "ColWidth": 4
   },
   {
-    "Operation": "De-burring-465(ITA)",
+    "Operation": "De_burring-465(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De-burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2351,10 +2351,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-466(ITA)",
+    "Operation": "De_burring-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2370,10 +2370,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-467(ITA)",
+    "Operation": "De_burring-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2389,10 +2389,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-475(ITA)",
+    "Operation": "De_burring-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2408,10 +2408,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-476(ITA)",
+    "Operation": "De_burring-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2427,10 +2427,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-477(ITA)",
+    "Operation": "De_burring-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2446,10 +2446,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-478(ITA)",
+    "Operation": "De_burring-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2465,10 +2465,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-479(ITA)",
+    "Operation": "De_burring-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2484,10 +2484,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "De-burring-480(ITA)",
+    "Operation": "De_burring-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De-burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2503,10 +2503,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-465(ITA)",
+    "Operation": "Auto_Polish-465(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2522,10 +2522,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-466(ITA)",
+    "Operation": "Auto_Polish-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2541,10 +2541,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-467(ITA)",
+    "Operation": "Auto_Polish-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2560,10 +2560,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-475(ITA)",
+    "Operation": "Auto_Polish-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2579,10 +2579,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-476(ITA)",
+    "Operation": "Auto_Polish-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2598,10 +2598,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-477(ITA)",
+    "Operation": "Auto_Polish-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2617,10 +2617,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-478(ITA)",
+    "Operation": "Auto_Polish-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2636,7 +2636,7 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-479(ITA)",
+    "Operation": "Auto_Polish-479(ITA)",
     "Name": "",
     "Price": 0,
     "MasterOperation": "Auto Polish",
@@ -2655,10 +2655,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Auto Polish-480(ITA)",
+    "Operation": "Auto_Polish-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2674,10 +2674,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-466(ITA)",
+    "Operation": "Manual_Polish-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2693,10 +2693,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-467(ITA)",
+    "Operation": "Manual_Polish-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2712,10 +2712,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-475(ITA)",
+    "Operation": "Manual_Polish-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2731,10 +2731,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-476(ITA)",
+    "Operation": "Manual_Polish-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2750,10 +2750,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-477(ITA)",
+    "Operation": "Manual_Polish-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2769,10 +2769,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-478(ITA)",
+    "Operation": "Manual_Polish-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2788,10 +2788,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-479(ITA)",
+    "Operation": "Manual_Polish-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2807,10 +2807,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual Polish-480(ITA)",
+    "Operation": "Manual_Polish-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish",
+    "MasterOperation": "Manual Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2829,7 +2829,7 @@
     "Operation": "Painting-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2848,7 +2848,7 @@
     "Operation": "Painting-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2867,7 +2867,7 @@
     "Operation": "Painting-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2886,7 +2886,7 @@
     "Operation": "Painting-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2905,7 +2905,7 @@
     "Operation": "Painting-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2924,7 +2924,7 @@
     "Operation": "Painting-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2943,7 +2943,7 @@
     "Operation": "Painting-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2962,7 +2962,7 @@
     "Operation": "Painting-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {

@@ -1019,16 +1019,17 @@ namespace SVN_Portal.Controllers
                 
                 strdate = date.ToString("yyyyMMdd");
 
-                if (oper.Contains("SM"))
-                {
-                    ViewBag.NextCompany = "SVN";
-                    ViewBag.CompanyCode = "SM";
-                }
-                else if (oper.Contains("SVN"))
-                {
-                    ViewBag.NextCompany = "SM";
-                    ViewBag.CompanyCode = "SVN";
-                }
+                //if (oper.Contains("SM"))
+                //{
+                //    ViewBag.NextCompany = "SVN";
+                //    ViewBag.CompanyCode = "SM";
+                //}
+                //else if (oper.Contains("SVN"))
+                //{
+                //    ViewBag.NextCompany = "SM";
+                //    ViewBag.CompanyCode = "SVN";
+                //}
+                ViewBag.CompanyCode = companyCode;
 
                 var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
 
@@ -2314,16 +2315,18 @@ namespace SVN_Portal.Controllers
             SVN_production_summaryDataPortal dataPortal = new SVN_production_summaryDataPortal(connectionString);
             try
             {
-                if (companyCode == "SM")
-                {
-                    ViewBag.NextCompany = "SVN";
-                    ViewBag.CompanyCode = "SM";
-                }
-                else if (companyCode == "SVN")
-                {
-                    ViewBag.NextCompany = "SM";
-                    ViewBag.CompanyCode = "SVN";
-                }
+                //if (companyCode == "SM")
+                //{
+                //    ViewBag.NextCompany = "SVN";
+                //    ViewBag.CompanyCode = "SM";
+                //}
+                //else if (companyCode == "SVN")
+                //{
+                //    ViewBag.NextCompany = "SM";
+                //    ViewBag.CompanyCode = "SVN";
+                //}
+
+                ViewBag.CompanyCode = companyCode;
 
                 if (date == DateTime.MinValue)
                 {
