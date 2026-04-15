@@ -109,7 +109,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, List<string> curSectionList, string shift)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, List<string> curSectionList, string shift, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1564,7 +1564,7 @@ namespace SVN_Portal.DAL.DataPortal
             return viewModels;
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -2016,7 +2016,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="storedProceduce"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift)
+        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift, int hours)
         {
             DateTime currentDate = DateTime.Now;
             try
@@ -2072,8 +2072,8 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
+                //targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                //dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
                 targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
                 dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
                 viewModel.CanProductionByDowntime = true;

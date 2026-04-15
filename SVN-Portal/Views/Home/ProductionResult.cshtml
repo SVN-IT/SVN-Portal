@@ -178,8 +178,7 @@
                             <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
                         <div class="col-3">
-                            <button type="submit" asp-route-companyCode="@ViewBag.CompanyCode" class="btn btn-primary">
-                            <button type="submit" class="btn btn-primary" asp-route-isManualLoad=true>
+                            <button type="submit" asp-route-companyCode="@ViewBag.CompanyCode" asp-route-isManualLoad=true class="btn btn-primary">
                                 Search
                             </button>
                         </div>

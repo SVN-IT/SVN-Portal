@@ -90,6 +90,10 @@
                             {
                                 flagIcon = "SVN";
                             }
+                            else if (!string.IsNullOrWhiteSpace(ViewBag.CompanyCode) && ViewBag.CompanyCode == "ITA")
+                            {
+                                flagIcon = "ITA";
+                            }
                         }
                         <!-- Language -->
                         <li class="nav-item dropdown">
@@ -99,6 +103,7 @@
                                 <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-fr"></i> French</a> *@
                                 <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResultV1" asp-route-companyCode="SM">@* <i class="flag-icon flag-icon-cn"></i> *@ SM</a>
                                 <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResultV1" asp-route-companyCode="SVN">@* <i class="flag-icon flag-icon-vn"></i> *@ SVN</a>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="ProductionResultV1" asp-route-companyCode="ITA"> ITA</a>
                                 @* <a class="dropdown-item" href="#"><i class="flag-icon flag-icon-de"></i> Dutch</a> *@
                             </div>
                         </li>
