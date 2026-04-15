@@ -56,6 +56,24 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<List<SectionConfig>> GetSectionConfigs()
+        {
+            List<SectionConfig> sectionConfigs = new List<SectionConfig>();
+            try
+            {
+                var appSetting = await GetSettingByGroupAndKey("SectionConfig");
+                if (appSetting != null && !string.IsNullOrWhiteSpace(appSetting.Value))
+                {
+                    sectionConfigs = System.Text.Json.JsonSerializer.Deserialize<List<SectionConfig>>(appSetting.Value);
+                }
+                return sectionConfigs;
+            }
+            catch
+            {
+                return sectionConfigs;
+            }
+        }
+
         public async Task<double> GetCostPerDay()
         {
             double cost = 0;
