@@ -185,17 +185,35 @@ namespace SVN_Portal.Controllers
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
 
-                    models = models
-                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
-                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
-                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
-                    .ThenBy(x => x.Line)
-                    .ThenBy(x => x.ViewModels
-                        .Where(i => i.Target != 0)
-                        .Select(i => GetStartTime(i.Time))
-                        .DefaultIfEmpty(TimeSpan.MaxValue)
-                        .Min())
-                    .ToList();
+                    if (companyCode == "ITA")
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Line != 0))
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
+                    else
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -316,18 +334,35 @@ namespace SVN_Portal.Controllers
                         }
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
-
-                    models = models
-                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
-                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
-                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
-                    .ThenBy(x => x.Line)
-                    .ThenBy(x => x.ViewModels
-                        .Where(i => i.Target != 0)
-                        .Select(i => GetStartTime(i.Time))
-                        .DefaultIfEmpty(TimeSpan.MaxValue)
-                        .Min())
-                    .ToList();
+                    if(companyCode == "ITA")
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Line != 0))
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
+                    else
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }  
 
                     //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
                     int pageSize = 9;
@@ -1110,15 +1145,31 @@ namespace SVN_Portal.Controllers
 
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
 
-                    models = models
-                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
-                    .ThenBy(x => x.Line)
-                    .ThenBy(x => x.ViewModels
-                        .Where(i => i.Target != 0)
-                        .Select(i => GetStartTime(i.Time))
-                        .DefaultIfEmpty(TimeSpan.MaxValue)
-                        .Min())
-                    .ToList();
+                    if(companyCode == "ITA")
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Line != 0))
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
+                    else
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }   
                 }
                 return View(models);
             }
