@@ -238,6 +238,10 @@
             {
                 charID = charID.Replace("(SM)", "");
             }
+            if (charID.Contains("(ITA)"))
+            {
+                charID = charID.Replace("(ITA)", "");
+            }
             string jsonData = string.Empty;
             string defectData = string.Empty;
             string disableStatus = string.Empty;
