@@ -4,6 +4,7 @@
 @model IEnumerable<QtyPDByOperVMPerSlide>
 @{
     ViewData["Title"] = "Home Page";
+    string shift = ViewBag.shift;
     DateTime date = ViewBag.date;
     List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
     if (Model != null)
@@ -187,13 +188,19 @@
     <div class="col-lg-12">
         <form method="post">
             <div class="form-group row">
+                <div class="col-12 col-sm-6 col-md-2 col-lg-1">
+                    <select class="form-control" name="shift">
+                        <option value="Day" selected="@(shift == "Day")">Day</option>
+                        <option value="Night" selected="@(shift == "Night")">Night</option>
+                    </select>
+                </div>
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="row">
                         <div class="col-9">
                             <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
                         <div class="col-3">
-                            <button type="submit" class="btn btn-primary" asp-route-companyCode="@ViewBag.CompanyCode">
+                            <button type="submit" class="btn btn-primary" asp-route-companyCode="@ViewBag.CompanyCode" asp-route-isManualLoad=true>
                                 Search
                             </button>
                         </div>

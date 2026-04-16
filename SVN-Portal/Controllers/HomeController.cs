@@ -410,7 +410,7 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResultV2(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
+        public async Task<IActionResult> ProductionResultV2(DateTime date, string shift = "Day", string companyCode = "SM", bool isManualLoad = false)
         {
             List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
