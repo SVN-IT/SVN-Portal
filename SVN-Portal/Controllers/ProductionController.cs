@@ -90,6 +90,7 @@ namespace SVN_Portal.Controllers
                             TempData.Remove("MasterWorkOrderName");
                             TempData["MasterWorkOrderName"] = workOrderCode;
                             TempData.Keep("MasterWorkOrderName");
+                            currentMasterWorkOrderName = workOrderCode;
                         }
                         else
                         {
