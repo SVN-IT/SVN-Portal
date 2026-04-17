@@ -86,6 +86,10 @@ namespace SVN_Portal.Controllers
                             TempData.Remove("WOContent");
                             TempData["WOContent"] = woJsonContent;
                             TempData.Keep("WOContent");
+
+                            TempData.Remove("MasterWorkOrderName");
+                            TempData["MasterWorkOrderName"] = workOrderCode;
+                            TempData.Keep("MasterWorkOrderName");
                         }
                         else
                         {
