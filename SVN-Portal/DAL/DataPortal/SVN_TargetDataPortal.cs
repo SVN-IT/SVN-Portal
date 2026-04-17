@@ -210,6 +210,31 @@ namespace SVN_Portal.DAL.DataPortal
                 return -1;
             }
         }
+
+        public async Task<bool> ExecuteSyncProduction(string storedProceduce = "SVN_Sync_Production_By_Hour_1s")
+        {
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    // Sử dụng ExecuteAsync cho thủ tục không có giá trị trả về
+                    // Truyền null cho tham số vì SP không có param
+                    await conn.ExecuteAsync(
+                        storedProceduce,
+                        null,
+                        commandType: CommandType.StoredProcedure,
+                        commandTimeout: 1000
+                    );
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi nếu cần: Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
     }
 
 
