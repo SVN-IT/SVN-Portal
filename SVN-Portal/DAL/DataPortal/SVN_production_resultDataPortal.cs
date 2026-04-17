@@ -2075,7 +2075,7 @@ namespace SVN_Portal.DAL.DataPortal
                 //targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
                 //dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
                 targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
+                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
                 viewModel.CanProductionByDowntime = true;
 
                 if (targetDataUI != null && targetDataUI.Count > 0)
