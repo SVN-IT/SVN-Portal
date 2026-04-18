@@ -2129,7 +2129,8 @@ namespace SVN_Portal.DAL.DataPortal
 
                     //sai ở đây
                     //dùng linq mà list đang bị null
-                    var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName);//Lấy ra 1 dòng target theo opearation
+                    //var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName);//Lấy ra 1 dòng target theo opearation
+                    var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == oper.Operation);
 
                     var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName && x.Type_value == "Target");
                     if (dataUIbyOperTarget != null)

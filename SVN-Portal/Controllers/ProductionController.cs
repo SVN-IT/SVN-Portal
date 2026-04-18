@@ -221,7 +221,7 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
-            sb.Append("<h2 class=\"control-label\">Product: " + workOrderInfo.OrderInfo["product_name"] + " / Total Qty: " + curTotalQty + "</h2>");
+            sb.Append("<h2 class=\"control-label\">Product: " + workOrderInfo.OrderInfo["product_name"] + " / WO Qty: " + curTotalQty + "</h2>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-3\">");
@@ -406,7 +406,7 @@ namespace SVN_Portal.Controllers
                 else
                 {
                     processResult.OK = false;
-                    processResult.Message = "Không có dữ liệu";
+                    processResult.Message = $"Serial/Lot {serial} not yet input";
                 }
             }
             catch (Exception ex)

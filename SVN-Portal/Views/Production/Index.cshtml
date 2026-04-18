@@ -94,6 +94,11 @@
             dataType: 'json',
             success: function (response) {
                 if(response.result == false) {
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                    }, 3000);
                     alert(response.message);
                 }
                 else{
@@ -117,7 +122,12 @@
             },
             error: function (xhr, status, error) {
                 console.error("AJAX error:", error);
-                alert("An error occurred while getting Pallet ID.");
+                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                setTimeout(function() {
+                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                }, 3000);
+                alert("Network error. Please try again");
             },
             complete: function () {
                 hideLoader();
@@ -183,6 +193,12 @@
             },
             error: function (err) {
                 console.error("Lỗi:", err);
+                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                setTimeout(function() {
+                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                }, 3000);
+                alert("Network error. Please try again");
             },
             complete: function () {
                 isRunning = false;
@@ -260,6 +276,12 @@
             },
             error: function (err) {
                 console.error("Lỗi:", err);
+                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                setTimeout(function() {
+                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                }, 3000);
+                alert("Network error. Please try again");
             },
             complete: function () {
                 isRunning = false;
@@ -303,13 +325,23 @@
                                     key: 'Enter'
                                 });
                             } else {
+                                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                                setTimeout(function() {
+                                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                                }, 3000);
                                 alert(res.message);
                                 $('input[name="txtInputQuantityCode"]').val('');
                                 $('input[name="txtInputQuantityCode"]').focus();
                             }
                         },
                         error: function () {
-                            alert("Lỗi khi gọi server!");
+                            $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                            setTimeout(function() {
+                                $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                            }, 3000);
+                            alert("Network error. Please try again");
                             $('input[name="txtInputQuantityCode"]').val('');
                             $('input[name="txtInputQuantityCode"]').focus();
                         }
@@ -358,13 +390,23 @@
                                     InputProductionResult();
                                 }
                             } else {
+                                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                                setTimeout(function() {
+                                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                                }, 3000);
                                 alert(res.message);
                                 $('input[name="Serial"]').val('');
                                 $('input[name="Serial"]').focus();
                             }
                         },
                         error: function () {
-                            alert("Lỗi khi gọi server!");
+                            $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                            setTimeout(function() {
+                                $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                            }, 3000);
+                            alert("Network error. Please try again");
                             $('input[name="Serial"]').val('');
                             $('input[name="Serial"]').focus();
                         }
@@ -406,12 +448,22 @@
                                     InputProductionResult();
                                 }
                             } else {
+                                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                                setTimeout(function() {
+                                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                                }, 3000);
                                 alert(res.message);
                                 $this.val('').focus();
                             }
                         },
                         error: function () {
-                            alert("Lỗi khi gọi server (serial-input)!");
+                            $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                            setTimeout(function() {
+                                $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                            }, 3000);
+                            alert("Network error. Please try again");
                             $this.val('').focus();
                         }
                     });
