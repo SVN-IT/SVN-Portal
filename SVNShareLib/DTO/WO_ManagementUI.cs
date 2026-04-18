@@ -11,6 +11,6 @@ namespace SVNShareLib.DTO
         public int id { get; set; }
         public string WO_Name { get; set; }
         public string WO_Content { get; set; }
-        public int Created_Date { get; set; }
+        public DateTime Created_Date { get; set; }
     }
 }

@@ -46,25 +46,19 @@ namespace SVN_Portal.Controllers
             bool isGetDataFromViindoo = false;
             BODataProcessResult processResult = new BODataProcessResult();
             HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            WO_ManagementUIDataPortal woDataPortal = new WO_ManagementUIDataPortal(dBConfiguration.GetConnectionString());
             try
             {
-                string currentMasterWorkOrderName = TempData.Peek("MasterWorkOrderName") as string;
-                //string previousWorkOrderName = TempData.Peek("WorkOrderName") as string;
+                string currentMasterWorkOrderName = string.Empty;
                 string previousWorkOrderName = string.Empty;
-
-                //Nếu chưa có MasterWO trc đó thì thực hiện lấy dữ liệu WO từ Viindoo
-                if (string.IsNullOrWhiteSpace(currentMasterWorkOrderName))
+                var woInfor = await woDataPortal.GetByWONameAsync(workOrderCode);
+                if (woInfor != null)
                 {
-                    isGetDataFromViindoo = true;
+                    currentMasterWorkOrderName = woInfor.WO_Name;
                 }
-
-                //Nếu đang nhập 1 WO mới thì lưu WO mới vào tiến hành lấy dữ liệu từ Viindoo
-                if (!string.IsNullOrWhiteSpace(currentMasterWorkOrderName) && workOrderCode != currentMasterWorkOrderName)
+                else 
                 {
-                    TempData.Remove("MasterWorkOrderName");
-                    TempData["MasterWorkOrderName"] = workOrderCode;
-                    TempData.Keep("MasterWorkOrderName");
-                    currentMasterWorkOrderName = workOrderCode;
+                    //Nếu chưa có MasterWO trc đó thì thực hiện lấy dữ liệu WO từ Viindoo
                     isGetDataFromViindoo = true;
                 }
 
@@ -83,13 +77,24 @@ namespace SVN_Portal.Controllers
                         if (result.OK)
                         {
                             woJsonContent = result.Content.ToString();
-                            TempData.Remove("WOContent");
-                            TempData["WOContent"] = woJsonContent;
-                            TempData.Keep("WOContent");
+                            WO_ManagementUI woManagementUI = new WO_ManagementUI()
+                            {
+                                WO_Name = workOrderCode,
+                                WO_Content = woJsonContent,
+                                Created_Date = DateTime.Now
+                            };
+                            var insertResult = await woDataPortal.CreateAsync(woManagementUI);
+                            if(insertResult > 0)
+                            {
+                                processResult.OK = true;
+                                processResult.Message = "Get Work order information successfully";
+                            }
+                            else
+                            {
+                                processResult.OK = false;
+                                processResult.Message = "Failed to save Work order information into local database.";
+                            }
 
-                            TempData.Remove("MasterWorkOrderName");
-                            TempData["MasterWorkOrderName"] = workOrderCode;
-                            TempData.Keep("MasterWorkOrderName");
                             currentMasterWorkOrderName = workOrderCode;
                         }
                         else
@@ -106,7 +111,7 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    woJsonContent = TempData.Peek("WOContent") as string;
+                    woJsonContent = woInfor.WO_Content;
                 }
 
                 if (string.IsNullOrWhiteSpace(woJsonContent))

@@ -37,7 +37,7 @@ namespace SVNShareLib.DAL
             }
         }
 
-        public async Task<WO_ManagementUI> GetByIdAsync(string WO_Name)
+        public async Task<WO_ManagementUI> GetByWONameAsync(string WO_Name)
         {
             try
             {
