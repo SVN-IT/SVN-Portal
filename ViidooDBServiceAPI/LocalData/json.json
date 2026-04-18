@@ -2673,11 +2673,31 @@
     ],
     "ColWidth": 6
   },
+
   {
-    "Operation": "Manual_Polish-466(ITA)",
+    "Operation": "Painting_Polish-465(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      481
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-466(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2693,10 +2713,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-467(ITA)",
+    "Operation": "Painting_Polish-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2712,10 +2732,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-475(ITA)",
+    "Operation": "Painting_Polish-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2731,10 +2751,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-476(ITA)",
+    "Operation": "Painting_Polish-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2750,10 +2770,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-477(ITA)",
+    "Operation": "Painting_Polish-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2769,10 +2789,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-478(ITA)",
+    "Operation": "Painting_Polish-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2788,10 +2808,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-479(ITA)",
+    "Operation": "Painting_Polish-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2807,10 +2827,181 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-480(ITA)",
+    "Operation": "Painting_Polish-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Manual Polish(ITA)",
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      497
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-465(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      481
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-466(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      490
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-467(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      491
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-475(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      492
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-476(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      493
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-477(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      494
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-478(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      495
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-479(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      496
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-480(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {

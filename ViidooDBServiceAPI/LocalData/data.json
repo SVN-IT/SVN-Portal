@@ -2335,7 +2335,7 @@
     "Operation": "De_burring-465(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2354,7 +2354,7 @@
     "Operation": "De_burring-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2373,7 +2373,7 @@
     "Operation": "De_burring-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2392,7 +2392,7 @@
     "Operation": "De_burring-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2411,7 +2411,7 @@
     "Operation": "De_burring-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2430,7 +2430,7 @@
     "Operation": "De_burring-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2449,7 +2449,7 @@
     "Operation": "De_burring-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2468,7 +2468,7 @@
     "Operation": "De_burring-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2487,7 +2487,7 @@
     "Operation": "De_burring-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De_burring",
+    "MasterOperation": "De burring(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2506,7 +2506,7 @@
     "Operation": "Auto_Polish-465(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2525,7 +2525,7 @@
     "Operation": "Auto_Polish-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2544,7 +2544,7 @@
     "Operation": "Auto_Polish-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2563,7 +2563,7 @@
     "Operation": "Auto_Polish-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2582,7 +2582,7 @@
     "Operation": "Auto_Polish-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2601,7 +2601,7 @@
     "Operation": "Auto_Polish-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2620,7 +2620,7 @@
     "Operation": "Auto_Polish-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2639,7 +2639,7 @@
     "Operation": "Auto_Polish-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish",
     "WCType": "FG",
     "WC": [
       {
@@ -2658,7 +2658,7 @@
     "Operation": "Auto_Polish-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto_Polish",
+    "MasterOperation": "Auto Polish(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2674,162 +2674,10 @@
     "ColWidth": 6
   },
   {
-    "Operation": "Manual_Polish-466(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      490
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-467(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      491
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-475(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      492
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-476(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      493
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-477(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      494
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-478(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      495
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-479(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      496
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Manual_Polish-480(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Manual_Polish",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      497
-    ],
-    "ColWidth": 6
-  },
-  {
     "Operation": "Painting-466(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2848,7 +2696,7 @@
     "Operation": "Painting-467(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2867,7 +2715,7 @@
     "Operation": "Painting-475(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2886,7 +2734,7 @@
     "Operation": "Painting-476(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2905,7 +2753,7 @@
     "Operation": "Painting-477(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2924,7 +2772,7 @@
     "Operation": "Painting-478(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2943,7 +2791,7 @@
     "Operation": "Painting-479(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2962,7 +2810,7 @@
     "Operation": "Painting-480(ITA)",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting",
+    "MasterOperation": "Painting(ITA)",
     "WCType": "FG",
     "WC": [
       {
@@ -2974,6 +2822,652 @@
     "StoreID": 1,
     "Produce_id": [
       505
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-465(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      506
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-466(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      507
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-467(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      508
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-475(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      509
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-476(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      510
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-477(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      511
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-478(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      512
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-479(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      513
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Machining-480(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Machining(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      514
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-465(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      515
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-466(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      516
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-467(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      517
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-475(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      518
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-476(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      519
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-477(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      520
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-478(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      521
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-479(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      522
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Die_casting-480(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Die casting(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      523
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-466(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      524
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-467(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      525
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-475(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      526
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-476(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      527
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-477(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      528
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-478(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      529
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-479(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      530
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Painting_Polish-480(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Painting_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      531
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-466(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      532
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-467(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      533
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-475(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      534
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-476(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      535
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-477(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      536
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-478(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      537
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-479(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      538
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Plating_Polish-480(ITA)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Plating_Polish(ITA)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
     ],
     "ColWidth": 6
   }
