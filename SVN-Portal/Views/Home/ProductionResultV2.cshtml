@@ -6,6 +6,7 @@
     ViewData["Title"] = "Home Page";
     string shift = ViewBag.shift;
     DateTime date = ViewBag.date;
+    string companyCode = ViewBag.CompanyCode;
     List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
     if (Model != null)
     {
@@ -659,7 +660,9 @@
                                                             charID: "@charID",
                                                             date: "@date.ToString("yyyyMMdd")",
                                                             oper: "@item.Operation",
-                                                            wc: "@item.WC"
+                                                            wc: "@item.WC",
+                                                            shift: "@shift",
+                                                            companyCode: "@ViewBag.CompanyCode"
                                                         })
                                                     });
 
@@ -678,7 +681,7 @@
     }
 </div>
 <script>
-    function fetchChartData(charID, date, oper, wc) {
+    function fetchChartData(charID, date, oper, wc, shift, companyCode) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: '/Home/GetDataByOperAndWCMainDashBoardV1',
@@ -686,7 +689,9 @@
                 data: {
                     date: date,
                     oper: oper,
-                    wc: wc
+                    wc: wc,
+                    shift: shift,
+                    companyCode: companyCode
                 },
                 success: function (response) {
                     if (response.result) {
@@ -757,7 +762,7 @@
         async function executeSequentialCalls(charIDs) {
             for (const charID of charIDs) {
                 try{
-                    await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+                    await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc, charID.shift, charID.companyCode);
                 } catch (error) {
                     // console.error("Error fetching data for " + charID.charID + ": " + error);
                 }

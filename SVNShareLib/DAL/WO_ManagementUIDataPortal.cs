@@ -43,8 +43,12 @@ namespace SVNShareLib.DAL
             {
                 using (IDbConnection db = new SqlConnection(_connectionString))
                 {
-                    string sql = "SELECT * FROM WO_Management WHERE WO_Name = @WO_Name";
-                    return await db.QueryFirstOrDefaultAsync<WO_ManagementUI>(sql, new { WO_Name });
+                    // Sử dụng toán tử LIKE trong SQL
+                    string sql = "SELECT * FROM WO_Management WHERE WO_Name LIKE @WO_Name";
+                    var param = new { WO_Name = $"%{WO_Name}%" };
+
+                    var result = await db.QueryFirstOrDefaultAsync<WO_ManagementUI>(sql, param);
+                    return result;
                 }
             }
             catch

@@ -211,17 +211,19 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<bool> ExecuteSyncProduction(string storedProceduce = "SVN_Sync_Production_By_Hour_1s")
+        public async Task<bool> ExecuteSyncProduction(int add_hour, string storedProceduce = "SVN_Sync_Production_By_Hour_1s")
         {
             try
             {
                 using (IDbConnection conn = new SqlConnection(connectionString))
                 {
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("add_hour", add_hour);
                     // Sử dụng ExecuteAsync cho thủ tục không có giá trị trả về
                     // Truyền null cho tham số vì SP không có param
                     await conn.ExecuteAsync(
                         storedProceduce,
-                        null,
+                        parameters,
                         commandType: CommandType.StoredProcedure,
                         commandTimeout: 1000
                     );

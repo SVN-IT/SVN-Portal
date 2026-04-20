@@ -77,6 +77,14 @@ namespace SVN_Portal.Controllers
                         if (result.OK)
                         {
                             woJsonContent = result.Content.ToString();
+
+                            WorkOrderInfo workOrderInfo1 = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
+                            workOrderCode = workOrderInfo1.OrderInfo["name"];
+                            if(!string.IsNullOrWhiteSpace(workOrderCode))
+                            {
+                                workOrderCode = workOrderCode.Split("-")[0];
+                            }
+
                             WO_ManagementUI woManagementUI = new WO_ManagementUI()
                             {
                                 WO_Name = workOrderCode,

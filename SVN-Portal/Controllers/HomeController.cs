@@ -414,6 +414,9 @@ namespace SVN_Portal.Controllers
         {
             List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            var targetDataPortal = new SVN_TargetDataPortal(connectionString);
+            int addHours = await GetAddHourByCompanyCode(companyCode);
+            var synchResult = await targetDataPortal.ExecuteSyncProduction(addHours);
             try
             {
                 if (string.IsNullOrWhiteSpace(companyCode))
@@ -1617,6 +1620,10 @@ namespace SVN_Portal.Controllers
                 List<string> curSectionList = new List<string>();
                 //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                int addHours = await GetAddHourByCompanyCode(companyCode);
+                var targetdataportal = new SVN_TargetDataPortal(connectionString);
+                var synchresult = await targetdataportal.ExecuteSyncProduction(addHours);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
@@ -4157,6 +4164,23 @@ namespace SVN_Portal.Controllers
                 }
             }
             return hours;
+        }
+
+        private async Task<int> GetAddHourByCompanyCode(string companyCode)
+        {
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            int addHours = 0;
+            //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+            var sectionConfig = await appSettingDataPortal.GetSectionConfigs();
+            if (sectionConfig != null && sectionConfig.Count > 0)
+            {
+                var sectionByCompany = sectionConfig.FirstOrDefault(x => x.CompanyCode == companyCode);
+                if (sectionByCompany != null)
+                {
+                    addHours = sectionByCompany.AddHours;
+                }
+            }
+            return addHours;
         }
 
         private List<OperInfo> GetOpersByCompanyCode(List<OperInfo> opers, string companyCode)

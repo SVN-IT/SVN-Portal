@@ -8,5 +8,6 @@ namespace SVN_Portal.Services.Configurations
         public string DaySection { get; set; }
         public string NightSection { get; set; }
         public int Hour { get; set; }
+        public int AddHours { get; set; }
     }
 }

@@ -2070,7 +2070,6 @@ namespace SVN_Portal.DAL.DataPortal
             var svn_equipment_StatusDataPortal = new SVN_Equipment_Status_UpdateDataPortal(connectionString);
             try
             {
-                var synchresult = await targetdataportal.ExecuteSyncProduction();
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 //targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
