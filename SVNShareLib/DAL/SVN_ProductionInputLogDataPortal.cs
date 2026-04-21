@@ -49,6 +49,48 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public async Task<List<SVN_ProductionInputLogUI>> GetDataByDateFinishedAsync(DateTime dateFinished)
+        {
+            // Sử dụng WHERE để lọc và tham số @dateFinished để bảo mật
+            const string sql = @"SELECT * FROM SVN_ProductionInputLogs 
+                         WHERE date_finished >= @dateFinished AND status = 'Not synchronized'
+                         ORDER BY id";
+            try
+            {
+                using (var db = Connection)
+                {
+                    // Truyền tham số vào QueryAsync
+                    var dataUI = await db.QueryAsync<SVN_ProductionInputLogUI>(sql, new { dateFinished });
+                    return dataUI.ToList();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<SVN_ProductionInputLogUI>> GetDataByIdAsync(int id)
+        {
+            // Sử dụng WHERE để lọc và tham số @dateFinished để bảo mật
+            const string sql = @"SELECT * FROM SVN_ProductionInputLogs 
+                         WHERE id <= @id AND status = 'Not synchronized'
+                         ORDER BY id";
+            try
+            {
+                using (var db = Connection)
+                {
+                    // Truyền tham số vào QueryAsync
+                    var dataUI = await db.QueryAsync<SVN_ProductionInputLogUI>(sql, new { id });
+                    return dataUI.ToList();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         // 3. READ (Get by ID)
         public async Task<SVN_ProductionInputLogUI> GetByIdAsync(int id)
         {
