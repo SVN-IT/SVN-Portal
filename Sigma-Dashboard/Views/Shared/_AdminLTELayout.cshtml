@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Dashboard</title>
+    <title>@ViewData["Title"]</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -25,6 +25,12 @@
     <link href="~/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" />
     <!-- summernote -->
     <link href="~/plugins/summernote/summernote-bs4.min.css" rel="stylesheet" />
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <!-- ChartJS -->
+    <script src="~/plugins/chart.js/chart.min.js"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -888,18 +894,14 @@
     </div>
     <!-- ./wrapper -->
     <!-- REQUIRED SCRIPTS -->
-    <!-- jQuery -->
-    <script src="~/plugins/jquery/jquery.min.js"></script>
-    <!-- jQuery UI 1.11.4 -->
-    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
         $.widget.bridge('uibutton', $.ui.button)
     </script>
     <!-- Bootstrap -->
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- ChartJS -->
-    <script src="~/plugins/chart.js/chart.min.js"></script>
+    
     <!-- Sparkline -->
     <script src="~/plugins/sparklines/sparkline.js"></script>
     <!-- JQVMap -->
