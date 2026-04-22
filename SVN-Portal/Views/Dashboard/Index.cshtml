@@ -1,0 +1,203 @@
+﻿@{
+    Layout = "~/Views/Shared/_NewLayout.cshtml";
+    ViewData["Title"] = "New Dashboard";
+}
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+    <h1 data-i18n="report.title">📈 Production Report</h1>
+    <div class="header-line"></div>
+</div>
+
+<!-- ── FILTER CARD ── -->
+<div class="filter-card">
+    <div class="filter-header" onclick="toggleFilter()">
+        <h3 data-i18n="report.filter.title">🔍 Filter &amp; Export</h3>
+        <span class="filter-toggle" id="filterToggle">▼</span>
+    </div>
+    <div class="filter-body" id="filterBody">
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label data-i18n="report.label.process">Process</label>
+                <select id="fProcess">
+                    <option value="" data-i18n="report.all.process">All Process</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label data-i18n="report.label.product">Product</label>
+                <select id="fProductId">
+                    <option value="" data-i18n="report.all.product">All Products</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label data-i18n="report.label.vendor">Vendor</label>
+                <select id="fVendor">
+                    <option value="" data-i18n="report.all.vendor">All Vendors</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label data-i18n="report.label.from">From Date</label>
+                <input type="date" id="fDateFrom" />
+            </div>
+            <div class="filter-group">
+                <label data-i18n="report.label.to">To Date</label>
+                <input type="date" id="fDateTo" />
+            </div>
+            <!-- Button group: no hidden label, auto column, aligns to bottom -->
+            <div class="filter-group filter-btn-group">
+                <div class="filter-actions">
+                    <button class="btn btn-primary" onclick="loadReport()" data-i18n="report.btn.apply">🔍 Apply</button>
+                    <button class="btn btn-outline" onclick="resetFilters()" data-i18n="report.btn.reset">↺ Reset</button>
+                    <button class="btn btn-excel" onclick="exportExcel()" data-i18n="report.btn.excel">⬇ Excel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── SUMMARY STATS ── -->
+<div class="stats-row">
+    <div class="stat-card blue">
+        <div class="stat-label" data-i18n="report.stat.qty">Production Qty</div>
+        <div class="stat-value" id="statTotalQty">—</div>
+        <div class="stat-sub" data-i18n="report.stat.qty.sub">Production Qty only</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-label" data-i18n="report.stat.records">Records</div>
+        <div class="stat-value" id="statRecords">—</div>
+        <div class="stat-sub" data-i18n="report.stat.records.sub">All entries found</div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-label" data-i18n="report.stat.vendors">Vendors</div>
+        <div class="stat-value" id="statVendors">—</div>
+        <div class="stat-sub" data-i18n="report.stat.vendors.sub">Active vendors</div>
+    </div>
+    <div class="stat-card orange">
+        <div class="stat-label" data-i18n="report.stat.processes">Processes</div>
+        <div class="stat-value" id="statProcesses">—</div>
+        <div class="stat-sub" data-i18n="report.stat.processes.sub">Active processes</div>
+    </div>
+</div>
+
+<div class="charts-row">
+    <!-- Chart 1: By Process -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <div class="chart-icon blue">⚙️</div>
+            <div>
+                <h3 data-i18n="report.chart.by_process">Qty by Process</h3>
+                <p data-i18n="report.chart.by_process.sub">Production Qty Process</p>
+            </div>
+        </div>
+        <div class="chart-body">
+            <div id="chartProcessEmpty" class="no-data-chart" style="display:none;">
+                <span style="font-size:1.5rem">📭</span><span data-i18n="report.nodata">No data</span>
+            </div>
+            <canvas id="chartProcess"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 2: By Vendor -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <div class="chart-icon green">🏭</div>
+            <div>
+                <h3 data-i18n="report.chart.by_vendor">Qty by Vendor</h3>
+                <p data-i18n="report.chart.by_vendor.sub">Distribution Across Suppliers</p>
+            </div>
+        </div>
+        <div class="chart-body">
+            <div id="chartVendorEmpty" class="no-data-chart" style="display:none;">
+                <span style="font-size:1.5rem">📭</span><span data-i18n="report.nodata">No data</span>
+            </div>
+            <canvas id="chartVendor"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 3: By Operation -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <div class="chart-icon purple">🔢</div>
+            <div>
+                <h3 data-i18n="report.chart.by_product">Qty by Product</h3>
+                <p data-i18n="report.chart.by_product.sub">Top Products By Production Qty</p>
+            </div>
+        </div>
+        <div class="chart-body">
+            <div id="chartCodeEmpty" class="no-data-chart" style="display:none;">
+                <span style="font-size:1.5rem">📭</span><span data-i18n="report.nodata">No data</span>
+            </div>
+            <canvas id="chartCode"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ── LINE CHART: Avg Man Power by Process ── -->
+<div class="line-chart-card" style="margin-bottom:1.5rem;">
+    <div class="chart-card-header">
+        <div class="chart-icon purple">👷</div>
+        <div>
+            <h3 data-i18n="report.chart.manpower">Average Man Power — by Process</h3>
+        </div>
+    </div>
+    <div class="chart-body">
+        <div id="chartAvgManPowerEmpty" class="no-data-chart" style="display:none;">
+            <span style="font-size:1.5rem">📭</span><span data-i18n="report.nodata.manpower">No Man Power data</span>
+        </div>
+        <canvas id="chartAvgManPower"></canvas>
+    </div>
+</div>
+
+<!-- ── LINE CHART: Daily Qty by Process ── -->
+<div class="line-chart-card">
+    <div class="chart-card-header">
+        <div class="chart-icon blue">📅</div>
+        <div>
+            <h3 data-i18n="report.chart.daily_process">Daily Quantity Trend — by Process</h3>
+            <p data-i18n="report.chart.daily_process.sub">Production Qty per day by process</p>
+        </div>
+    </div>
+    <div class="chart-body">
+        <div id="chartDailyProcessEmpty" class="no-data-chart" style="display:none;">
+            <span style="font-size:1.5rem">📭</span><span data-i18n="report.nodata.display">No data to display</span>
+        </div>
+        <canvas id="chartDailyProcess"></canvas>
+    </div>
+</div>
+
+<!-- ── LINE CHART: Daily Qty by Vendor ── -->
+<div class="line-chart-card">
+    <div class="chart-card-header">
+        <div class="chart-icon green">🏭</div>
+        <div>
+            <h3 data-i18n="report.chart.daily_vendor">Daily Quantity Trend — by Vendor</h3>
+            <p data-i18n="report.chart.daily_vendor.sub">Production Qty per day for each supplier</p>
+        </div>
+    </div>
+    <div class="chart-body">
+        <div id="chartDailyVendorEmpty" class="no-data-chart" style="display:none;">
+            <span style="font-size:1.5rem">📭</span><span data-i18n="report.nodata.display">No data to display</span>
+        </div>
+        <canvas id="chartDailyVendor"></canvas>
+    </div>
+</div>
+
+<!-- ── DETAIL BY VENDOR ── -->
+<div class="detail-section">
+    <div class="detail-header">
+        <div class="detail-header-left">
+            <span style="font-size:1.2rem">🏭</span>
+            <div>
+                <h3 data-i18n="report.detail.title">Detail by Vendor</h3>
+                <p data-i18n="report.detail.sub">Expand each vendor to see production records</p>
+            </div>
+        </div>
+        <span class="record-count" id="detailCount">0 records</span>
+    </div>
+    <div id="vendorDetailContainer">
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <p data-i18n="report.empty.hint">Apply a filter to load the report data.</p>
+        </div>
+    </div>
+</div>
