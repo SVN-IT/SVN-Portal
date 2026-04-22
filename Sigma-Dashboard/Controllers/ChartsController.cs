@@ -2,19 +2,14 @@
 
 namespace Sigma_Dashboard.Controllers
 {
-    public class DashboardController : Controller
+    public class ChartsController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Index2()
-        {
-            return View();
-        }
-
-        public IActionResult Index3()
+        public IActionResult Chartjs()
         {
             return View();
         }
