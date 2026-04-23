@@ -1,9 +1,9 @@
 ﻿<div class="container-fluid">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-12 col-md-6 col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Monthly Recap Report</h5>
+                    <h5 class="card-title">POP - (line 1)</h5>
 
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -29,58 +29,26 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-8">
-                            <p class="text-center">
-                                <strong>Sales: 1 Jan, 2014 - 30 Jul, 2014</strong>
+                        <div class="col-md-8 col-12">
+                            <p class="text-center header-font-size">
+                                <strong>Nguyễn Văn Hướng (SVN0005) - Phạm Thị Thủy (SVN0132)</strong>
                             </p>
 
                             <div class="chart">
                                 <!-- Sales Chart Canvas -->
-                                <canvas id="salesChart" height="180" style="height: 180px;"></canvas>
+                                <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                             </div>
                             <!-- /.chart-responsive -->
                         </div>
                         <!-- /.col -->
-                        <div class="col-md-4">
-                            <p class="text-center">
-                                <strong>Goal Completion</strong>
+                        <div class="col-md-4 col-12">
+                            <p class="text-center header-font-size">
+                                <strong>Defect by category</strong>
                             </p>
-
-                            <div class="progress-group">
-                                <span class="progress-text">Add Products to Cart</span>
-                                <span class="float-right"><b>160</b>/200</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-primary" style="width: 80%"></div>
-                                </div>
+                            <div class="chart">
+                                <!-- Sales Chart Canvas -->
+                                <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                             </div>
-                            <!-- /.progress-group -->
-
-                            <div class="progress-group">
-                                <span class="progress-text">Complete Purchase</span>
-                                <span class="float-right"><b>310</b>/400</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-danger" style="width: 75%"></div>
-                                </div>
-                            </div>
-
-                            <!-- /.progress-group -->
-                            <div class="progress-group">
-                                <span class="progress-text">Visit Premium Page</span>
-                                <span class="float-right"><b>480</b>/800</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-success" style="width: 60%"></div>
-                                </div>
-                            </div>
-
-                            <!-- /.progress-group -->
-                            <div class="progress-group">
-                                <span class="progress-text">Send Inquiries</span>
-                                <span class="float-right"><b>250</b>/500</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-warning" style="width: 50%"></div>
-                                </div>
-                            </div>
-                            <!-- /.progress-group -->
                         </div>
                         <!-- /.col -->
                     </div>
@@ -91,31 +59,20 @@
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <div class="progress-group">
-                                <span class="progress-text">Add Products to Cart</span>
-                                <span class="float-right"><b>160</b>/200</span>
+                                <span class="progress-text content-font-size">Hourly Plan</span>
+                                <span class="float-right content-font-size"><b>1820</b>/2192</span>
                                 <div class="progress progress-sm">
-                                    <div class="progress-bar bg-primary" style="width: 80%"></div>
+                                    <div class="progress-bar bg-primary" style="width: 83%"></div>
                                 </div>
                             </div>
                         </div>
                         <!-- /.col -->
                         <div class="col-md-6 col-12">
                             <div class="progress-group">
-                                <span class="progress-text">Complete Purchase</span>
-                                <span class="float-right"><b>310</b>/400</span>
+                                <span class="progress-text content-font-size">UPH</span>
+                                <span class="float-right content-font-size"><b>358.26</b>/375.62</span>
                                 <div class="progress progress-sm">
-                                    <div class="progress-bar bg-danger" style="width: 75%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6 col-12">
-                            <!-- /.progress-group -->
-                            <div class="progress-group">
-                                <span class="progress-text">Visit Premium Page</span>
-                                <span class="float-right"><b>480</b>/800</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-success" style="width: 60%"></div>
+                                    <div class="progress-bar bg-danger" style="width: 95.38%"></div>
                                 </div>
                             </div>
                         </div>
@@ -123,10 +80,21 @@
                         <div class="col-md-6 col-12">
                             <!-- /.progress-group -->
                             <div class="progress-group">
-                                <span class="progress-text">Send Inquiries</span>
-                                <span class="float-right"><b>250</b>/500</span>
+                                <span class="progress-text content-font-size">UPPH</span>
+                                <span class="float-right content-font-size"><b>25.59</b>/26.83</span>
                                 <div class="progress progress-sm">
-                                    <div class="progress-bar bg-warning" style="width: 50%"></div>
+                                    <div class="progress-bar bg-success" style="width: 95.38%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-6 col-12">
+                            <!-- /.progress-group -->
+                            <div class="progress-group">
+                                <span class="progress-text content-font-size">Defect</span>
+                                <span class="float-right content-font-size"><b>0.22</b>/1%</span>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar bg-warning" style="width: 22%"></div>
                                 </div>
                             </div>
                         </div>
@@ -141,3 +109,87 @@
     </div>
     
 </div><!--/. container-fluid -->
+<script>
+    $(function () {
+      var areaChartData = {
+        labels  : ['8h-10h', '10h10-11h30', '12h30-15h', '15h10-17h30', '18h-20h'],
+        datasets: [
+          {
+            label               : 'Line total: 2,120',
+            backgroundColor     : 'rgba(60,141,188,0.9)',
+            borderColor         : 'rgba(60,141,188,0.8)',
+            pointRadius          : false,
+            pointColor          : '#3b8bba',
+            pointStrokeColor    : 'rgba(60,141,188,1)',
+            pointHighlightFill  : '#fff',
+            pointHighlightStroke: 'rgba(60,141,188,1)',
+            data                : [750, 501, 850, 0, 0]
+          },
+          {
+            label               : 'Target total: 3,820',
+            backgroundColor     : 'rgba(210, 214, 222, 1)',
+            borderColor         : 'rgba(210, 214, 222, 1)',
+            pointRadius         : false,
+            pointColor          : 'rgba(210, 214, 222, 1)',
+            pointStrokeColor    : '#c1c7d1',
+            pointHighlightFill  : '#fff',
+            pointHighlightStroke: 'rgba(220,220,220,1)',
+            data                : [750, 501, 939, 877, 751]
+          },
+        ]
+      }
+      var donutData        = {
+        labels: [
+            'Color box error: 4',
+            'Plastic blister error: 0',
+            'Carton error: 0'
+        ],
+        datasets: [
+          {
+            data: [4,0,0],
+            backgroundColor : ['#00c0ef', '#3c8dbc', '#d2d6de'],
+          }
+        ]
+      }
+
+      //-------------
+      //- PIE CHART -
+      //-------------
+      // Get context with jQuery - using jQuery's .get() method.
+      var pieChartCanvas = $('#pieChart').get(0).getContext('2d')
+      var pieData        = donutData;
+      var pieOptions     = {
+        maintainAspectRatio : false,
+        responsive : true,
+      }
+      //Create pie or douhnut chart
+      // You can switch between pie and douhnut using the method below.
+      new Chart(pieChartCanvas, {
+        type: 'pie',
+        data: pieData,
+        options: pieOptions
+      })
+
+      //-------------
+      //- BAR CHART -
+      //-------------
+      var barChartCanvas = $('#barChart').get(0).getContext('2d')
+      var barChartData = $.extend(true, {}, areaChartData)
+      var temp0 = areaChartData.datasets[0]
+      var temp1 = areaChartData.datasets[1]
+      barChartData.datasets[0] = temp1
+      barChartData.datasets[1] = temp0
+
+      var barChartOptions = {
+        responsive              : true,
+        maintainAspectRatio     : false,
+        datasetFill             : false
+      }
+
+      new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barChartData,
+        options: barChartOptions
+      })
+    })
+</script>

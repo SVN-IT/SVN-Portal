@@ -7,4 +7,8 @@
     <RootNamespace>Sigma_Dashboard</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SVNShareLib\SVNShareLib.csproj" />
+  </ItemGroup>
+
 </Project>
