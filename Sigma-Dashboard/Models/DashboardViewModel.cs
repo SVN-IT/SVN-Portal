@@ -14,19 +14,20 @@
     {
         public string Operation { get; set; }
         public string ChartTitle { get; set; }
+        public string ChartID { get; set; }
         public string TargetLabel { get; set; }
         public double[] TargetData { get; set; }
         public string ActualLabel { get; set; }
         public double[] ActualData { get; set; }
-        public string[] Defectlabel { get; set; }
-        public int[] Defectdata { get; set; }
+        public string[] DefectLabel { get; set; }
+        public int[] DefectData { get; set; }
         public string HourlyPlanData { get; set; }
         public string HourlyPlanPercent { get; set; }
         public string UPHData { get; set; }
         public string UPHPercent { get; set; }
         public string UPPHData { get; set; }
         public string UPPHPercent { get; set; }
-        public string DefectData { get; set; }
+        public string DefectInfo { get; set; }
         public string DefectPercent { get; set; }
     }
 

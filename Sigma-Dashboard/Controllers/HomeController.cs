@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Sigma_Dashboard.Models;
@@ -64,6 +64,32 @@ public class HomeController : Controller
             dashboardData = new DashboardViewModel();
         }
         return View(dashboardData);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetFullDashboardData(DateTime? date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = true)
+    {
+        // 1. Xử lý logic mặc định giống hệt trong ảnh
+        DateTime searchDate = date ?? DateTime.Now;
+
+        if (string.IsNullOrWhiteSpace(companyCode))
+            companyCode = "SVN";
+
+        if (!isManualLoad)
+        {
+            shift = (searchDate.Hour >= 20) ? "Night" : "Day";
+        }
+
+        string strdate = searchDate.ToString("yyyyMMdd");
+        string storedProcedure = "SVN_Pro_CalTarget_Viindoo";
+        string tableName = "SVN_Production_result_Viindoo";
+        int hours = 7;
+
+        // 2. Gọi Helper để lấy dữ liệu cho ViewModel
+        DashboardViewModel model = await homeControllerHelper.SummaryData(strdate, storedProcedure, tableName, 3, shift, companyCode, hours);
+
+        // 3. Trả về JSON
+        return Json(model);
     }
 
     public IActionResult Privacy()

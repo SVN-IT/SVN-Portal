@@ -91,6 +91,18 @@ namespace Sigma_Dashboard.Services.Helpers
                         BarChartData barChartData = new BarChartData();
                         barChartData.Operation = item.Operation;
 
+                        string charID = item.Operation;
+                        charID = charID.Replace("-", "");
+                        if (charID.Contains("(SM)"))
+                        {
+                            charID = charID.Replace("(SM)", "");
+                        }
+                        if (charID.Contains("(ITA)"))
+                        {
+                            charID = charID.Replace("(ITA)", "");
+                        }
+                        barChartData.ChartID = charID;
+
                         //Lấy dữ liệu Hourly target của từng operation
                         var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Target");
                         if (dataUIbyOperTarget != null)
@@ -108,20 +120,49 @@ namespace Sigma_Dashboard.Services.Helpers
                         //add defect by category
                         if (quantity_ReasonUI != null && defect_RecordUI != null)
                         {
-                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
+                            //var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
+                            //{
+                            //    string category = x.name;
+                            //    int value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG);
+
+                            //    DefectData defectData = new DefectData
+                            //    {
+                            //        Category = category,
+                            //        Value = value
+                            //    };
+                            //    defectDatas.Add(defectData);
+
+                            //    return x;
+                            //}).ToList();
+                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).ToList();
+                            //foreach(var itemReason in quantity_ReasonUI_by_oper)
+                            //{
+                            //    string category = itemReason.name;
+                            //    int value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == itemReason.code).Sum(y => y.Qty_NG);
+                            //    DefectData defectData = new DefectData
+                            //    {
+                            //        Category = category,
+                            //        Value = value
+                            //    };
+                            //    defectDatas.Add(defectData);
+                            //}
+                            var defectRecordUI_by_oper = defect_RecordUI.Where(x => x.Operation == item.Operation).ToList();
+                            foreach (var itemDefect in defectRecordUI_by_oper)
                             {
-                                string category = x.name;
-                                int value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG);
-
-                                DefectData defectData = new DefectData
+                                var categoryByCodeAndOper = quantity_ReasonUI_by_oper.FirstOrDefault(x => x.code == itemDefect.Defect_Code);
+                                if (categoryByCodeAndOper != null)
                                 {
-                                    Category = category,
-                                    Value = value
-                                };
-                                defectDatas.Add(defectData);
-
-                                return x;
-                            }).ToList();
+                                    string category = categoryByCodeAndOper.name;
+                                    int value = itemDefect.Qty_NG;
+                                    DefectData defectData = new DefectData
+                                    {
+                                        Category = category,
+                                        Value = value
+                                    };
+                                    defectDatas.Add(defectData);
+                                }
+                                    
+                            }
                         }
 
                         //get 5 ng lỡn nhất
@@ -146,8 +187,8 @@ namespace Sigma_Dashboard.Services.Helpers
                                 return x;
                             }).ToList();
 
-                            barChartData.Defectlabel = defectLabel.ToArray();
-                            barChartData.Defectdata = defectData.ToArray();
+                            barChartData.DefectLabel = defectLabel.ToArray();
+                            barChartData.DefectData = defectData.ToArray();
                         }
 
                         //Lấy Daily target của từng operation
@@ -255,10 +296,10 @@ namespace Sigma_Dashboard.Services.Helpers
                         barChartData.UPHPercent = $"{UPHPercent}%";
                         barChartData.UPPHData = UPPHCurrent + "/" + UPPHTarget;
                         barChartData.UPPHPercent = $"{UPPHPercent}%";
-                        barChartData.DefectData = $"{DefectCurrent}%" + "/" + $"{DefectTarget}%";
+                        barChartData.DefectInfo = $"{DefectCurrent}%" + "/" + $"{DefectTarget}%";
                         barChartData.DefectPercent = $"{DefectPercent}%";
                         
-                        barChartData.ChartTitle = $"{item.Operation} - Actual working time: {workingTime}h";
+                        barChartData.ChartTitle = $"{item.Operation} - Actual working time: {Math.Round(workingTime, 2)}h";
 
                         dashboardData.BarChartData.Add(barChartData);
                     }
