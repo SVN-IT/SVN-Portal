@@ -3,6 +3,7 @@ using Sigma_Dashboard.Services.Configurations;
 using SVNShareLib.DAL;
 using SVNShareLib.DAL.NewDashboard;
 using SVNShareLib.DTO.NewDashboard;
+using System.Globalization;
 
 namespace Sigma_Dashboard.Services.Helpers
 {
@@ -12,12 +13,16 @@ namespace Sigma_Dashboard.Services.Helpers
         string checkListConnection;
         DBConfiguration dBConfiguration;
         AppSettingServices appSettingServices;
-        public HomeControllerHelper(DBConfiguration dBConfiguration, AppSettingServices appSettingServices)
+        SectionTimeServices sectionTimeServices;
+        public HomeControllerHelper(DBConfiguration dBConfiguration, 
+            AppSettingServices appSettingServices, 
+            SectionTimeServices sectionTimeServices)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
             checkListConnection = dBConfiguration.CheckListConnectionString;
             this.appSettingServices = appSettingServices;
+            this.sectionTimeServices = sectionTimeServices;
         }
 
         public async Task<DashboardViewModel> SummaryData(string date, string storedProceduce, string tableName, int topDefect, string shift, string companyCode, int hours = 7)
@@ -81,6 +86,7 @@ namespace Sigma_Dashboard.Services.Helpers
                     dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList(); //lọc dữ liệu thực tế theo ca hiện tại
                     foreach (var item in opers) 
                     {
+                        double workingTime = 0;
                         List<DefectData> defectDatas = new List<DefectData>();
                         BarChartData barChartData = new BarChartData();
                         barChartData.Operation = item.Operation;
@@ -170,18 +176,73 @@ namespace Sigma_Dashboard.Services.Helpers
                             UPHTarget = targetDataUIbyOper.UPH;
                             UPPHTarget = targetDataUIbyOper.UPPH;
                             DefectTarget = targetDataUIbyOper.Defect;
-                            double workingTime = 0;
                             //Lấy ra list section có target
                             DateTime curDateTime = DateTime.Now;
                             DateTime today = currentDate;
                             double gapTime = 0; // Khoảng thời gian trống gữa các ca
 
+                            List<SectionTime> sectionTimes = new List<SectionTime>();
+                            sectionTimes = sectionTimeServices.SplitSectionTime(dashboardData.Sections, barChartData.TargetData);
+
+                            var listSection = sectionTimes.Where(x => x.Target != 0).ToList();
+
+                            sectionTimes = sectionTimeServices.GetListSectionTime(listSection, today, currentDate);
+
+                            HPlanTarget = sectionTimeServices.GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
+
+                            var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;
+                            var maxEndSection = sectionTimes.LastOrDefault() != null ? sectionTimes.LastOrDefault().EndTime : DateTime.MinValue;
+
+                            // Tính toán Working time thực tế
+                            if (minStartSection != DateTime.MinValue &&
+                                maxEndSection != DateTime.MinValue)
+                            {
+                                double Duration = 0;
+                                DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.Operation);
+                                if (equipmentStatus != null)
+                                {
+                                    //Duration = equipmentStatus.TotalDuration;
+                                    Duration = equipmentStatus.Select(x => x.DurationHours).Sum();
+                                }
+                                DateTime finishedTime = curDateTime;
+                                DateTime startDatetime = minStartSection;
+                                DateTime endDatetime = maxEndSection;
+
+                                if (curDateTime < startDatetime)
+                                {
+                                    workingTime = 0;
+                                }
+                                else if (startDatetime < curDateTime && curDateTime < endDatetime)
+                                {
+                                    workingTime = sectionTimeServices.CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
+                                }
+                                else if (endDatetime < curDateTime)
+                                {
+                                    workingTime = targetDataUIbyOper.Workingtime;
+                                }
+                            }
+
+
                             //dữ liệu test
                             HPlanCurrent = targetDataUIbyOper.Total_Qty;
                             HPlanPercent = HPlanTarget != 0 ? Math.Round((HPlanCurrent / HPlanTarget) * 100, 2) : 0;
-                            UPHCurrent = targetDataUIbyOper.Current_UPH;
+                            UPHCurrent = Math.Round(targetDataUIbyOper.Current_UPH, 2);
+
+                            if (workingTime > 0)
+                            {
+                                UPHCurrent = Math.Round(targetDataUIbyOper.Total_Qty / workingTime, 2);
+                            }
+
                             UPHPercent = UPHTarget != 0 ? Math.Round((UPHCurrent / UPHTarget) * 100, 2) : 0;
-                            UPPHCurrent = targetDataUIbyOper.Current_UPPH;
+                            UPPHCurrent = Math.Round(targetDataUIbyOper.Current_UPPH, 2);
+
+                            if (workingTime > 0)
+                            {
+                                UPPHCurrent = Math.Round(UPHCurrent / targetDataUIbyOper.MaxLabor, 2);
+                            }
+
                             UPPHPercent = UPPHTarget != 0 ? Math.Round((UPPHCurrent / UPPHTarget) * 100, 2) : 0;
 
                             DefectTarget = Math.Round(targetDataUIbyOper.Defect * 100, 2);
@@ -196,6 +257,8 @@ namespace Sigma_Dashboard.Services.Helpers
                         barChartData.UPPHPercent = $"{UPPHPercent}%";
                         barChartData.DefectData = $"{DefectCurrent}%" + "/" + $"{DefectTarget}%";
                         barChartData.DefectPercent = $"{DefectPercent}%";
+                        
+                        barChartData.ChartTitle = $"{item.Operation} - Actual working time: {workingTime}h";
 
                         dashboardData.BarChartData.Add(barChartData);
                     }
