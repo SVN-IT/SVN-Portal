@@ -1,195 +1,224 @@
-﻿<div class="container-fluid">
+﻿@using Newtonsoft.Json
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Home Page";
+    DateTime date = ViewBag.date;
+    string shift = ViewBag.shift;
+}
+<div class="container-fluid">
     <div class="row">
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">POP - (line 1)</h5>
+        @foreach (var item in Model.BarChartData)
+        {
+            string sectionList = string.Empty;
+            string targetData = string.Empty;
+            string resultData = string.Empty;
+            string defectLabel = string.Empty;
+            string defectData = string.Empty;
 
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
-                                <i class="fas fa-wrench"></i>
+            sectionList = JsonConvert.SerializeObject(Model.Sections);
+            targetData = JsonConvert.SerializeObject(item.TargetData);
+            resultData = JsonConvert.SerializeObject(item.ActualData);
+            defectLabel = JsonConvert.SerializeObject(item.Defectlabel);
+            defectData = JsonConvert.SerializeObject(item.Defectdata);
+
+            string charID = item.Operation;
+            charID = charID.Replace("-", "");
+            if (charID.Contains("(SM)"))
+            {
+                charID = charID.Replace("(SM)", "");
+            }
+            if (charID.Contains("(ITA)"))
+            {
+                charID = charID.Replace("(ITA)", "");
+            }
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">@item.Operation</h5>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                <a href="#" class="dropdown-item">Action</a>
-                                <a href="#" class="dropdown-item">Another action</a>
-                                <a href="#" class="dropdown-item">Something else here</a>
-                                <a class="dropdown-divider"></a>
-                                <a href="#" class="dropdown-item">Separated link</a>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fas fa-wrench"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" role="menu">
+                                    <a href="#" class="dropdown-item">Action</a>
+                                    <a href="#" class="dropdown-item">Another action</a>
+                                    <a href="#" class="dropdown-item">Something else here</a>
+                                    <a class="dropdown-divider"></a>
+                                    <a href="#" class="dropdown-item">Separated link</a>
+                                </div>
                             </div>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
                     </div>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8 col-12">
-                            <p class="text-center header-font-size">
-                                <strong>Nguyễn Văn Hướng (SVN0005) - Phạm Thị Thủy (SVN0132)</strong>
-                            </p>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8 col-12">
+                                <p class="text-center header-font-size">
+                                    <strong>Nguyễn Văn Hướng (SVN0005) - Phạm Thị Thủy (SVN0132)</strong>
+                                </p>
 
-                            <div class="chart">
-                                <!-- Sales Chart Canvas -->
-                                <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                <div class="chart">
+                                    <!-- Sales Chart Canvas -->
+                                    <canvas id="barChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                </div>
+                                <!-- /.chart-responsive -->
                             </div>
-                            <!-- /.chart-responsive -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-4 col-12">
-                            <p class="text-center header-font-size">
-                                <strong>Defect by category</strong>
-                            </p>
-                            <div class="chart">
-                                <!-- Sales Chart Canvas -->
-                                <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            <!-- /.col -->
+                            <div class="col-md-4 col-12">
+                                <p class="text-center header-font-size">
+                                    <strong>Defect by category</strong>
+                                </p>
+                                <div class="chart">
+                                    <!-- Sales Chart Canvas -->
+                                    <canvas id="pieChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                </div>
                             </div>
+                            <!-- /.col -->
                         </div>
-                        <!-- /.col -->
+                        <!-- /.row -->
                     </div>
-                    <!-- /.row -->
-                </div>
-                <!-- ./card-body -->
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-md-6 col-12">
-                            <div class="progress-group">
-                                <span class="progress-text content-font-size">Hourly Plan</span>
-                                <span class="float-right content-font-size"><b>1820</b>/2192</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-primary" style="width: 83%"></div>
+                    <!-- ./card-body -->
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-md-6 col-12">
+                                <div class="progress-group">
+                                    <span class="progress-text content-font-size">Hourly Plan</span>
+                                    <span class="float-right content-font-size"><b>@item.HourlyPlanData</b></span>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-primary" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-6 col-12">
+                                <div class="progress-group">
+                                    <span class="progress-text content-font-size">UPH</span>
+                                    <span class="float-right content-font-size"><b>@item.UPHData</b></span>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-danger" style="width: @item.UPHPercent">@item.UPHPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-6 col-12">
+                                <!-- /.progress-group -->
+                                <div class="progress-group">
+                                    <span class="progress-text content-font-size">UPPH</span>
+                                    <span class="float-right content-font-size"><b>@item.UPPHData</b></span>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-success" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-6 col-12">
+                                <!-- /.progress-group -->
+                                <div class="progress-group">
+                                    <span class="progress-text content-font-size">Defect</span>
+                                    <span class="float-right content-font-size"><b>@item.DefectData</b></span>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-warning" style="width: @item.DefectPercent">@item.DefectPercent</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- /.col -->
-                        <div class="col-md-6 col-12">
-                            <div class="progress-group">
-                                <span class="progress-text content-font-size">UPH</span>
-                                <span class="float-right content-font-size"><b>358.26</b>/375.62</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-danger" style="width: 95.38%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6 col-12">
-                            <!-- /.progress-group -->
-                            <div class="progress-group">
-                                <span class="progress-text content-font-size">UPPH</span>
-                                <span class="float-right content-font-size"><b>25.59</b>/26.83</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-success" style="width: 95.38%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-6 col-12">
-                            <!-- /.progress-group -->
-                            <div class="progress-group">
-                                <span class="progress-text content-font-size">Defect</span>
-                                <span class="float-right content-font-size"><b>0.22</b>/1%</span>
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar bg-warning" style="width: 22%"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- /.row -->
                     </div>
-                    <!-- /.row -->
+                    <!-- /.card-footer -->
                 </div>
-                <!-- /.card-footer -->
+                <!-- /.card -->
             </div>
-            <!-- /.card -->
-        </div>
+            <script>
+                $(function () {
+              var areaChartData = {
+                labels  : @Html.Raw(sectionList),
+                datasets: [
+                  {
+                    label               : '@item.TargetLabel',
+                    backgroundColor     : 'rgba(210, 214, 222, 1)',
+                    borderColor         : 'rgba(210, 214, 222, 1)',
+                    pointRadius         : false,
+                    pointColor          : 'rgba(210, 214, 222, 1)',
+                    pointStrokeColor    : '#c1c7d1',
+                    pointHighlightFill  : '#fff',
+                    pointHighlightStroke: 'rgba(220,220,220,1)',
+                    data                : @Html.Raw(targetData)
+                  },
+                  {
+                    label               : '@item.ActualLabel',
+                    backgroundColor     : 'rgba(60,141,188,0.9)',
+                    borderColor         : 'rgba(60,141,188,0.8)',
+                    pointRadius          : false,
+                    pointColor          : '#3b8bba',
+                    pointStrokeColor    : 'rgba(60,141,188,1)',
+                    pointHighlightFill  : '#fff',
+                    pointHighlightStroke: 'rgba(60,141,188,1)',
+                    data                : @Html.Raw(resultData)
+                  },
+                ]
+              }
+              var donutData        = {
+                labels: @Html.Raw(defectLabel),
+                datasets: [
+                  {
+                    data: @Html.Raw(defectData),
+                    backgroundColor : ['#00c0ef', '#3c8dbc', '#d2d6de'],
+                  }
+                ]
+              }
+
+              //-------------
+              //- PIE CHART -
+              //-------------
+              // Get context with jQuery - using jQuery's .get() method.
+              var pieChartCanvas = $('#pieChart_@charID').get(0).getContext('2d')
+              var pieData        = donutData;
+              var pieOptions     = {
+                maintainAspectRatio : false,
+                responsive : true,
+              }
+              //Create pie or douhnut chart
+              // You can switch between pie and douhnut using the method below.
+              new Chart(pieChartCanvas, {
+                type: 'pie',
+                data: pieData,
+                options: pieOptions
+              })
+
+              //-------------
+              //- BAR CHART -
+              //-------------
+              var barChartCanvas = $('#barChart_@charID').get(0).getContext('2d')
+              var barChartData = $.extend(true, {}, areaChartData)
+              var temp0 = areaChartData.datasets[0]
+              var temp1 = areaChartData.datasets[1]
+              barChartData.datasets[0] = temp1
+              barChartData.datasets[1] = temp0
+
+              var barChartOptions = {
+                responsive              : true,
+                maintainAspectRatio     : false,
+                datasetFill             : false
+              }
+
+              new Chart(barChartCanvas, {
+                type: 'bar',
+                data: barChartData,
+                options: barChartOptions
+              })
+            })
+        </script>
+        }
         <!-- /.col -->
     </div>
     
 </div><!--/. container-fluid -->
-<script>
-    $(function () {
-      var areaChartData = {
-        labels  : ['8h-10h', '10h10-11h30', '12h30-15h', '15h10-17h30', '18h-20h'],
-        datasets: [
-          {
-            label               : 'Line total: 2,120',
-            backgroundColor     : 'rgba(60,141,188,0.9)',
-            borderColor         : 'rgba(60,141,188,0.8)',
-            pointRadius          : false,
-            pointColor          : '#3b8bba',
-            pointStrokeColor    : 'rgba(60,141,188,1)',
-            pointHighlightFill  : '#fff',
-            pointHighlightStroke: 'rgba(60,141,188,1)',
-            data                : [750, 501, 850, 0, 0]
-          },
-          {
-            label               : 'Target total: 3,820',
-            backgroundColor     : 'rgba(210, 214, 222, 1)',
-            borderColor         : 'rgba(210, 214, 222, 1)',
-            pointRadius         : false,
-            pointColor          : 'rgba(210, 214, 222, 1)',
-            pointStrokeColor    : '#c1c7d1',
-            pointHighlightFill  : '#fff',
-            pointHighlightStroke: 'rgba(220,220,220,1)',
-            data                : [750, 501, 939, 877, 751]
-          },
-        ]
-      }
-      var donutData        = {
-        labels: [
-            'Color box error: 4',
-            'Plastic blister error: 0',
-            'Carton error: 0'
-        ],
-        datasets: [
-          {
-            data: [4,0,0],
-            backgroundColor : ['#00c0ef', '#3c8dbc', '#d2d6de'],
-          }
-        ]
-      }
-
-      //-------------
-      //- PIE CHART -
-      //-------------
-      // Get context with jQuery - using jQuery's .get() method.
-      var pieChartCanvas = $('#pieChart').get(0).getContext('2d')
-      var pieData        = donutData;
-      var pieOptions     = {
-        maintainAspectRatio : false,
-        responsive : true,
-      }
-      //Create pie or douhnut chart
-      // You can switch between pie and douhnut using the method below.
-      new Chart(pieChartCanvas, {
-        type: 'pie',
-        data: pieData,
-        options: pieOptions
-      })
-
-      //-------------
-      //- BAR CHART -
-      //-------------
-      var barChartCanvas = $('#barChart').get(0).getContext('2d')
-      var barChartData = $.extend(true, {}, areaChartData)
-      var temp0 = areaChartData.datasets[0]
-      var temp1 = areaChartData.datasets[1]
-      barChartData.datasets[0] = temp1
-      barChartData.datasets[1] = temp0
-
-      var barChartOptions = {
-        responsive              : true,
-        maintainAspectRatio     : false,
-        datasetFill             : false
-      }
-
-      new Chart(barChartCanvas, {
-        type: 'bar',
-        data: barChartData,
-        options: barChartOptions
-      })
-    })
-</script>

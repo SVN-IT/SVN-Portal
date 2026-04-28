@@ -20,8 +20,9 @@ namespace Sigma_Dashboard.Services.Helpers
             this.appSettingServices = appSettingServices;
         }
 
-        public async Task<DashboardViewModel> SummaryData(string date, string storedProceduce, string tableName, int topDefect, string shift, int hours, string companyCode)
+        public async Task<DashboardViewModel> SummaryData(string date, string storedProceduce, string tableName, int topDefect, string shift, string companyCode, int hours = 7)
         {
+            hours = await GetLocalHourByCompanyCode(companyCode);
             // Model hiển thị dữ liệu trên dashboard
             DashboardViewModel dashboardData = new DashboardViewModel();
 
@@ -41,6 +42,7 @@ namespace Sigma_Dashboard.Services.Helpers
 
             OperInfoConfig operInfoConfig = await appSettingServices.GetOperInfoConfig(); // Lấy cấu hình các operation từ appsettings
             List<OperInfo> opers = operInfoConfig.OperInfo; // Lấy danh sách các operation từ appsettings
+            opers = GetOpersByCompanyCode(opers, companyCode);
 
             List<SectionConfig> sectionConfigs = await appSettingServices.GetSectionConfigs(); // Lấy danh sách section theo ca từ appsettings
             List<string> curSectionList = GetCurrentSectionConfig(shift, sectionConfigs, companyCode); // Lấy danh sách section theo ca hiện tại
@@ -79,6 +81,7 @@ namespace Sigma_Dashboard.Services.Helpers
                     dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList(); //lọc dữ liệu thực tế theo ca hiện tại
                     foreach (var item in opers) 
                     {
+                        List<DefectData> defectDatas = new List<DefectData>();
                         BarChartData barChartData = new BarChartData();
                         barChartData.Operation = item.Operation;
 
@@ -96,6 +99,51 @@ namespace Sigma_Dashboard.Services.Helpers
                             barChartData.ActualData = new double[] { dataUIbyOperLine.Time1, dataUIbyOperLine.Time2, dataUIbyOperLine.Time3, dataUIbyOperLine.Time4, dataUIbyOperLine.Time5 };
                         }
 
+                        //add defect by category
+                        if (quantity_ReasonUI != null && defect_RecordUI != null)
+                        {
+                            var quantity_ReasonUI_by_oper = quantity_ReasonUI.Where(x => x.operation == item.Operation).Select(x =>
+                            {
+                                string category = x.name;
+                                int value = defect_RecordUI.Where(y => y.Operation == item.Operation && y.Defect_Code == x.code).Sum(y => y.Qty_NG);
+
+                                DefectData defectData = new DefectData
+                                {
+                                    Category = category,
+                                    Value = value
+                                };
+                                defectDatas.Add(defectData);
+
+                                return x;
+                            }).ToList();
+                        }
+
+                        //get 5 ng lỡn nhất
+                        if (defectDatas != null && defectDatas.Count > 0)
+                        {
+                            if (topDefect == 0)
+                            {
+                                defectDatas = defectDatas.OrderByDescending(x => x.Value).ToList();
+                            }
+                            else
+                            {
+                                defectDatas = defectDatas.OrderByDescending(x => x.Value).Take(topDefect).ToList();
+                            }
+
+                            List<string> defectLabel = new List<string>();
+                            List<int> defectData = new List<int>();
+
+                            defectDatas = defectDatas.Select(x =>
+                            {
+                                defectLabel.Add($"{x.Category}: {x.Value}");
+                                defectData.Add(x.Value);
+                                return x;
+                            }).ToList();
+
+                            barChartData.Defectlabel = defectLabel.ToArray();
+                            barChartData.Defectdata = defectData.ToArray();
+                        }
+
                         //Lấy Daily target của từng operation
                         SVN_target_v1UI targetDataUIbyOper = new SVN_target_v1UI();
                         if(targetDataUI != null && targetDataUI.Count > 0)
@@ -103,19 +151,53 @@ namespace Sigma_Dashboard.Services.Helpers
                             targetDataUIbyOper = targetDataUI.FirstOrDefault(x => x.Operation == item.Operation);
                         }
 
-                        if(targetDataUIbyOper != null)
+                        double HPlanTarget = 0;
+                        double UPHTarget = 0;
+                        double UPPHTarget = 0;
+                        double DefectTarget = 0;
+                        double HPlanCurrent = 0;
+                        double HPlanPercent = 0;
+                        double UPHCurrent = 0;
+                        double UPHPercent = 0;
+                        double UPPHCurrent = 0;
+                        double UPPHPercent = 0;
+                        double DefectCurrent = 0;
+                        double DefectPercent = 0;
+
+                        if (targetDataUIbyOper != null)
                         {
-                            double HPlanTarget = targetDataUIbyOper.Daily_plan;
-                            double UPHCurrent = targetDataUIbyOper.Current_UPH;
-                            double UPPHCurrent = targetDataUIbyOper.Current_UPPH;
+                            HPlanTarget = targetDataUIbyOper.Daily_plan;
+                            UPHTarget = targetDataUIbyOper.UPH;
+                            UPPHTarget = targetDataUIbyOper.UPPH;
+                            DefectTarget = targetDataUIbyOper.Defect;
                             double workingTime = 0;
                             //Lấy ra list section có target
                             DateTime curDateTime = DateTime.Now;
                             DateTime today = currentDate;
                             double gapTime = 0; // Khoảng thời gian trống gữa các ca
+
+                            //dữ liệu test
+                            HPlanCurrent = targetDataUIbyOper.Total_Qty;
+                            HPlanPercent = HPlanTarget != 0 ? Math.Round((HPlanCurrent / HPlanTarget) * 100, 2) : 0;
+                            UPHCurrent = targetDataUIbyOper.Current_UPH;
+                            UPHPercent = UPHTarget != 0 ? Math.Round((UPHCurrent / UPHTarget) * 100, 2) : 0;
+                            UPPHCurrent = targetDataUIbyOper.Current_UPPH;
+                            UPPHPercent = UPPHTarget != 0 ? Math.Round((UPPHCurrent / UPPHTarget) * 100, 2) : 0;
+
+                            DefectTarget = Math.Round(targetDataUIbyOper.Defect * 100, 2);
+                            DefectCurrent = Math.Round(targetDataUIbyOper.Total_Qty != 0 ? (targetDataUIbyOper.Total_NG_Qty / targetDataUIbyOper.Total_Qty) * 100 : 0, 2);
+                            DefectPercent = Math.Round(targetDataUIbyOper.Total_Qty != 0 && targetDataUIbyOper.Defect != 0 ? (DefectCurrent / DefectTarget) * 100 : 0, 2);
                         }
+                        barChartData.HourlyPlanData = HPlanCurrent + "/" + HPlanTarget;
+                        barChartData.HourlyPlanPercent = $"{HPlanPercent}%";
+                        barChartData.UPHData = UPHCurrent + "/" + UPHTarget;
+                        barChartData.UPHPercent = $"{UPHPercent}%";
+                        barChartData.UPPHData = UPPHCurrent + "/" + UPPHTarget;
+                        barChartData.UPPHPercent = $"{UPPHPercent}%";
+                        barChartData.DefectData = $"{DefectCurrent}%" + "/" + $"{DefectTarget}%";
+                        barChartData.DefectPercent = $"{DefectPercent}%";
 
-
+                        dashboardData.BarChartData.Add(barChartData);
                     }
                 }
             }
@@ -148,6 +230,47 @@ namespace Sigma_Dashboard.Services.Helpers
                 }
             }
             return curSectionList;
+        }
+
+        private async Task<int> GetLocalHourByCompanyCode(string companyCode)
+        {
+            int hours = 7;
+            //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+            var sectionConfig = await appSettingServices.GetSectionConfigs();
+            if (sectionConfig != null && sectionConfig.Count > 0)
+            {
+                var sectionByCompany = sectionConfig.FirstOrDefault(x => x.CompanyCode == companyCode);
+                if (sectionByCompany != null)
+                {
+                    hours = sectionByCompany.Hour;
+                }
+            }
+            return hours;
+        }
+
+        private List<OperInfo> GetOpersByCompanyCode(List<OperInfo> opers, string companyCode)
+        {
+            if (!string.IsNullOrWhiteSpace(companyCode))
+            {
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        opers = opers.Where(x => x.Operation.EndsWith("(SM)")).ToList();
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        opers = opers.Where(x => x.Operation.EndsWith("(ITA)")).ToList();
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)")).ToList();
+                        break;
+                }
+            }
+            return opers;
         }
         #endregion
     }

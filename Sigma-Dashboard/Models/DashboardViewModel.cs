@@ -28,4 +28,10 @@
         public string DefectData { get; set; }
         public string DefectPercent { get; set; }
     }
+
+    public class DefectData
+    {
+        public string Category { get; set; }
+        public int Value { get; set; }
+    }
 }
