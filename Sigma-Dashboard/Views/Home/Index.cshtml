@@ -4,6 +4,40 @@
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
     string shift = ViewBag.shift;
+
+    string GetStatus(string Percent)
+    {
+        string status = "bg-primary";
+
+        if (Percent != null)
+        {
+            if (Percent.Contains("%"))
+            {
+                Percent = Percent.Replace("%", "");
+            }
+            if (double.TryParse(Percent, out double percentValue))
+            {
+                if (percentValue >= 100)
+                {
+                    status = "bg-primary";
+                }
+                else if (percentValue >= 92 && percentValue < 100)
+                {
+                    status = "bg-success";
+                }
+                else if (percentValue >= 75 && percentValue < 92)
+                {
+                    status = "bg-warning";
+                }
+                else
+                {
+                    status = "bg-danger";
+                }
+            }
+        }
+
+        return status;
+    }
 }
 <div class="container-fluid">
     <div class="row">
@@ -94,7 +128,7 @@
                                     <span class="progress-text content-font-size">Hourly Plan</span>
                                     <span class="float-right content-font-size"><b>@item.HourlyPlanData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar bg-primary" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
+                                        <div class="progress-bar @GetStatus(item.HourlyPlanPercent)" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -104,7 +138,7 @@
                                     <span class="progress-text content-font-size">UPH</span>
                                     <span class="float-right content-font-size"><b>@item.UPHData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar bg-danger" style="width: @item.UPHPercent">@item.UPHPercent</div>
+                                        <div class="progress-bar @GetStatus(item.UPHPercent)" style="width: @item.UPHPercent">@item.UPHPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -115,7 +149,7 @@
                                     <span class="progress-text content-font-size">UPPH</span>
                                     <span class="float-right content-font-size"><b>@item.UPPHData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar bg-success" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
+                                        <div class="progress-bar @GetStatus(item.UPPHPercent)" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +160,7 @@
                                     <span class="progress-text content-font-size">Defect</span>
                                     <span class="float-right content-font-size"><b>@item.DefectData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar bg-warning" style="width: @item.DefectPercent">@item.DefectPercent</div>
+                                        <div class="progress-bar @GetStatus(item.DefectPercent)" style="width: @item.DefectPercent">@item.DefectPercent</div>
                                     </div>
                                 </div>
                             </div>
