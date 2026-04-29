@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@ViewData["Title"]</title>
 
+    <link rel="icon" type="image/png" sizes="20x20" href="~/dist/img/sigma-logo.svg">
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
@@ -32,6 +33,7 @@
     <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
     <!-- ChartJS -->
     <script src="~/plugins/chart.js/chart.min.js"></script>
+    <script src="~/js/site.js"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
     <div class="wrapper">
@@ -78,7 +80,7 @@
                                     <button class="btn btn-navbar" type="submit" asp-controller="Home" asp-action="Index" asp-route-isManualLoad=true>
                                         <i class="fas fa-search"></i>
                                     </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                                    <button class="btn btn-navbar" type="button" id="btnCloseSearchBar">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
@@ -102,7 +104,7 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=true class="brand-link">
+            <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="brand-link">
                 <img src="~/dist/img/sigma-logo.svg" alt="AdminLTE Logo" class="sigma-brand-image" style="opacity: .8">
                 @* <span class="brand-text font-weight-light">AdminLTE 3</span> *@
             </a>
@@ -137,7 +139,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="Index" class="nav-link active">
+                                    <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Main Dashboard</p>
                                     </a>
@@ -178,10 +180,10 @@
         </div>
         <!-- /.content-wrapper -->
         <footer class="main-footer">
-            <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
+            <strong>Copyright &copy; 2026 <a href="https://sigmaworldwide.com/">Sigmaworldwide</a>.</strong>
             All rights reserved.
             <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> 3.1.0
+                <b>Version</b> 1.0
             </div>
         </footer>
 
