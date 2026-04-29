@@ -88,6 +88,19 @@ public class HomeController : Controller
         // 2. Gọi Helper để lấy dữ liệu cho ViewModel
         DashboardViewModel model = await homeControllerHelper.SummaryData(strdate, storedProcedure, tableName, 3, shift, companyCode, hours);
 
+        // dùng để test
+        //foreach (var item in model.BarChartData)
+        //{
+        //    if (item.Operation == "Injection_POP")
+        //    {
+        //        item.ActualData = [100, 0, 0, 0, 0];
+        //    }
+        //    if(item.Operation == "Astro-WSS04-60001")
+        //    {
+        //        item.ActualData = [400, 0, 0, 0, 0];
+        //    }
+        //}
+
         // 3. Trả về JSON
         return Json(model);
     }

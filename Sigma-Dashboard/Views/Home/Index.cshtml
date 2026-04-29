@@ -117,9 +117,9 @@
                             <div class="col-md-6 col-12">
                                 <div class="progress-group">
                                     <span class="progress-text content-font-size">Hourly Plan</span>
-                                    <span class="float-right content-font-size"><b>@item.HourlyPlanData</b></span>
+                                    <span class="float-right content-font-size"><b id="textHourlyPlan_@charID">@item.HourlyPlanData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar @GetStatus(item.HourlyPlanPercent)" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
+                                        <div id="barHourlyPlan_@charID" class="progress-bar @GetStatus(item.HourlyPlanPercent)" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -127,9 +127,9 @@
                             <div class="col-md-6 col-12">
                                 <div class="progress-group">
                                     <span class="progress-text content-font-size">UPH</span>
-                                    <span class="float-right content-font-size"><b>@item.UPHData</b></span>
+                                    <span class="float-right content-font-size"><b id="textUPH_@charID">@item.UPHData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar @GetStatus(item.UPHPercent)" style="width: @item.UPHPercent">@item.UPHPercent</div>
+                                        <div id="barUPH_@charID" class="progress-bar @GetStatus(item.UPHPercent)" style="width: @item.UPHPercent">@item.UPHPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -138,9 +138,9 @@
                                 <!-- /.progress-group -->
                                 <div class="progress-group">
                                     <span class="progress-text content-font-size">UPPH</span>
-                                    <span class="float-right content-font-size"><b>@item.UPPHData</b></span>
+                                    <span class="float-right content-font-size"><b id="textUPPH_@charID">@item.UPPHData</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar @GetStatus(item.UPPHPercent)" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
+                                        <div id="barUPPH_@charID" class="progress-bar @GetStatus(item.UPPHPercent)" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -149,9 +149,9 @@
                                 <!-- /.progress-group -->
                                 <div class="progress-group">
                                     <span class="progress-text content-font-size">Defect</span>
-                                    <span class="float-right content-font-size"><b>@item.DefectInfo</b></span>
+                                    <span class="float-right content-font-size"><b id="textDefect_@charID">@item.DefectInfo</b></span>
                                     <div class="progress progress-sm">
-                                        <div class="progress-bar @GetStatus(item.DefectPercent)" style="width: @item.DefectPercent">@item.DefectPercent</div>
+                                        <div id="barDefect_@charID" class="progress-bar @GetStatus(item.DefectPercent)" style="width: @item.DefectPercent">@item.DefectPercent</div>
                                     </div>
                                 </div>
                             </div>
@@ -274,12 +274,13 @@
             data: params, // Truyền các biến vào đây
             beforeSend: function() {
                 // Có thể thêm hiệu ứng loading tại đây
-                console.log("Đang tải dữ liệu cho ngày: " + params.date);
+                // console.log("Đang tải dữ liệu cho ngày: " + params.date);
             },
             success: function (model) {
                 if (model && model.barChartData) {
                     // Duyệt qua danh sách BarChartData để vẽ lại từng chart
                     model.barChartData.forEach(function (item) {
+                        console.log("Đang xử lý item:", item.operation);
                         updateSingleChart(item, model.sections);
                     });
                     console.log("Cập nhật Dashboard thành công!");
@@ -304,9 +305,59 @@
         return null;
     };
 
+    function getJsStatus(percentStr) {
+        var val = parseFloat(percentStr.replace('%', ''));
+        if (val >= 100) return 'bg-primary';
+        if (val >= 92 && val < 100) return 'bg-success';
+        if (val >= 75 && val < 92) return 'bg-warning';
+        return 'bg-danger';
+    }
+
+    function updateProductionInfo(processBarTitle_id, processBarStatus_id, textData, statusData){
+        var title = $(processBarTitle_id);
+        var status = $(processBarStatus_id);
+
+        // Kiểm tra HourlyPlanData (null, undefined hoặc "")
+        var displayData = (textData != null && textData.toString().trim() !== "")
+                          ? textData
+                          : "0/0"; // Giá trị mặc định khi trống
+
+        if (title.length) {
+            title.text(displayData);
+        }
+
+        // --- Cập nhật Progress Bar ---
+        if (status.length) {
+            // Kiểm tra HourlyPlanPercent
+            var percent = (statusData != null && statusData.toString().trim() !== "")
+                          ? statusData
+                          : "0%";
+
+            status.css('width', percent);
+            status.text(percent);
+
+            // Cập nhật màu sắc dựa trên phần trăm
+            status.removeClass('bg-primary bg-success bg-warning bg-danger');
+            status.addClass(getJsStatus(percent));
+        }
+    }
+
     function updateSingleChart(item, sections) {
         var chartId = "barChart_" + item.chartID;
 
+        var textPlan = "#textHourlyPlan_" + item.chartID;
+        var barPlan = "#barHourlyPlan_" + item.chartID;
+        var textUPH = "#textUPH_" + item.chartID;
+        var barUPH = "#barUPH_" + item.chartID;
+        var textUPPH = "#textUPPH_" + item.chartID;
+        var barUPPH = "#barUPPH_" + item.chartID;
+        var textDefect = "#textDefect_" + item.chartID;
+        var barDefect = "#barDefect_" + item.chartID;
+
+        updateProductionInfo(textPlan, barPlan, item.hourlyPlanData, item.hourlyPlanPercent);
+        updateProductionInfo(textUPH, barUPH, item.uphData, item.uphPercent);
+        updateProductionInfo(textUPPH, barUPPH, item.upphData, item.upphPercent);
+        updateProductionInfo(textDefect, barDefect, item.defectInfo, item.defectPercent);
         
         var barChart = getChartByCanvasId(chartId);
 
@@ -322,9 +373,26 @@
         var pieChartId = "pieChart_" + item.chartID;
         var pieChart = getChartByCanvasId(pieChartId);
         if (pieChart) {
-            pieChart.data.labels = item.defectLabel;
+            // Kiểm tra nếu cả label và data đều có dữ liệu thì mới gán và update
+            // Sử dụng || [] để tránh lỗi crash nếu server trả về null
+            if (item.defectLabel != null && item.defectData != null) {
+
+                pieChart.data.labels = item.defectLabel;
+                pieChart.data.datasets[0].data = item.defectData;
+
+                // Chỉ update khi thực sự có sự thay đổi hoặc có dữ liệu
+                pieChart.update();
+            } else {
+                // Tùy chọn: Nếu muốn biểu đồ trống khi không có lỗi
+                pieChart.data.labels = [];
+                pieChart.data.datasets[0].data = [];
+                pieChart.update();
+
+                console.warn("Dữ liệu Defect của " + item.operation + " đang bị null");
+            }
+            @* pieChart.data.labels = item.defectLabel;
             pieChart.data.datasets[0].data = item.defectData;
-            pieChart.update();
+            pieChart.update(); *@
         }
     }
 </script>
