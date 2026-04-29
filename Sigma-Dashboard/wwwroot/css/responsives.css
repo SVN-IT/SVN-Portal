@@ -1,4 +1,25 @@
-﻿@media (max-width: 1920px) {
+﻿.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active, .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #da2041;
+    color: #fff;
+}
+
+a {
+    color: #da2041;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+.brand-link .sigma-brand-image {
+    /* float: left; */
+    line-height: .8;
+    margin-left: .8rem;
+    margin-right: .5rem;
+    margin-top: -3px;
+    max-height: 33px;
+    width: auto;
+}
+
+@media (max-width: 1920px) {
     .content-font-size {
         font-size: 18px;
         margin-top: 0px;
