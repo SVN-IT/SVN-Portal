@@ -4,6 +4,7 @@
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
     string shift = ViewBag.shift;
+    string companyCode = ViewBag.CompanyCode;
 
     string GetStatus(string Percent)
     {
@@ -262,9 +263,9 @@
 
     function refreshDashboard() {
         var params = {
-            date: $('#inputDate').val(), // Định dạng yyyy-MM-dd
-            shift: $('#selectShift').val(),
-            companyCode: 'SVN',
+            date: '@date.ToString("yyyy-MM-dd")', // Định dạng yyyy-MM-dd
+            shift: '@shift',
+            companyCode: '@companyCode',
             isManualLoad: true
         };
 

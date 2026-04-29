@@ -33,9 +33,13 @@
     <!-- ChartJS -->
     <script src="~/plugins/chart.js/chart.min.js"></script>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
     <div class="wrapper">
-
+        @{
+            DateTime date = ViewBag.date;
+            string shift = ViewBag.shift;
+            string companyCode = ViewBag.CompanyCode;
+        }
         <!-- Preloader -->
         <div class="preloader flex-column justify-content-center align-items-center">
             <img class="animation__shake" src="~/dist/img/sigma-logo.svg" alt="AdminLTELogo" height="500" width="500">
@@ -58,11 +62,20 @@
                         <i class="fas fa-search"></i>
                     </a>
                     <div class="navbar-search-block">
-                        <form class="form-inline">
+                        <form method="post" class="form-inline">
                             <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                                <select class="form-control form-control-navbar" name="companyCode">
+                                    <option value="SVN" selected="@(companyCode == "SVN")">SVN</option>
+                                    <option value="SM" selected="@(companyCode == "SM")">SM</option>
+                                    <option value="ITA" selected="@(companyCode == "ITA")">ITA</option>
+                                </select>
+                                <select class="form-control form-control-navbar" name="shift">
+                                    <option value="Day" selected="@(shift == "Day")">Day</option>
+                                    <option value="Night" selected="@(shift == "Night")">Night</option>
+                                </select>
+                                <input id="inputDate" class="form-control form-control-navbar" type="date" name="date" value="@date.ToString("yyyy-MM-dd")">
                                 <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit">
+                                    <button class="btn btn-navbar" type="submit" asp-controller="Home" asp-action="Index" asp-route-isManualLoad=true>
                                         <i class="fas fa-search"></i>
                                     </button>
                                     <button class="btn btn-navbar" type="button" data-widget="navbar-search">
@@ -89,7 +102,7 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a asp-controller="Home" asp-action="Index" class="brand-link">
+            <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=true class="brand-link">
                 <img src="~/dist/img/sigma-logo.svg" alt="AdminLTE Logo" class="sigma-brand-image" style="opacity: .8">
                 @* <span class="brand-text font-weight-light">AdminLTE 3</span> *@
             </a>
