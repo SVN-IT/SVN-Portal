@@ -61,28 +61,77 @@
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">@item.ChartTitle</h5>
-
-                        @* <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fas fa-wrench"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                    <a href="#" class="dropdown-item">Action</a>
-                                    <a href="#" class="dropdown-item">Another action</a>
-                                    <a href="#" class="dropdown-item">Something else here</a>
-                                    <a class="dropdown-divider"></a>
-                                    <a href="#" class="dropdown-item">Separated link</a>
+                        <div class="row">
+                            <div class="col-12 mb-2">
+                                <h5 class="card-title"><b>@item.ChartTitle</b></h5>
+                            </div>
+                            <div class="col-md-3 col-6 border-right">
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size text-truncate">📅 Hourly Plan</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textHourlyPlan_@charID">@item.HourlyPlanData</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barHourlyPlan_@charID" class="progress-bar @GetStatus(item.HourlyPlanPercent)" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
+                                    </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div> *@
+                            <!-- /.col -->
+                            <div class="col-md-3 col-6 border-right">
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size  text-truncate">⚙️ UPH</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textUPH_@charID">@item.UPHData</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barUPH_@charID" class="progress-bar @GetStatus(item.UPHPercent)" style="width: @item.UPHPercent">@item.UPHPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-3 col-6 border-right">
+                                <!-- /.progress-group -->
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size  text-truncate">📈 UPPH</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textUPPH_@charID">@item.UPPHData</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barUPPH_@charID" class="progress-bar @GetStatus(item.UPPHPercent)" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-3 col-6">
+                                <!-- /.progress-group -->
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size  text-truncate">❌ Defect</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textDefect_@charID">@item.DefectInfo</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barDefect_@charID" class="progress-bar @GetStatus(item.DefectPercent)" style="width: @item.DefectPercent">@item.DefectPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
@@ -114,50 +163,7 @@
                     </div>
                     <!-- ./card-body -->
                     <div class="card-footer">
-                        <div class="row">
-                            <div class="col-md-6 col-12">
-                                <div class="progress-group">
-                                    <span class="progress-text content-font-size">Hourly Plan</span>
-                                    <span class="float-right content-font-size"><b id="textHourlyPlan_@charID">@item.HourlyPlanData</b></span>
-                                    <div class="progress progress-sm">
-                                        <div id="barHourlyPlan_@charID" class="progress-bar @GetStatus(item.HourlyPlanPercent)" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-md-6 col-12">
-                                <div class="progress-group">
-                                    <span class="progress-text content-font-size">UPH</span>
-                                    <span class="float-right content-font-size"><b id="textUPH_@charID">@item.UPHData</b></span>
-                                    <div class="progress progress-sm">
-                                        <div id="barUPH_@charID" class="progress-bar @GetStatus(item.UPHPercent)" style="width: @item.UPHPercent">@item.UPHPercent</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-md-6 col-12">
-                                <!-- /.progress-group -->
-                                <div class="progress-group">
-                                    <span class="progress-text content-font-size">UPPH</span>
-                                    <span class="float-right content-font-size"><b id="textUPPH_@charID">@item.UPPHData</b></span>
-                                    <div class="progress progress-sm">
-                                        <div id="barUPPH_@charID" class="progress-bar @GetStatus(item.UPPHPercent)" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-md-6 col-12">
-                                <!-- /.progress-group -->
-                                <div class="progress-group">
-                                    <span class="progress-text content-font-size">Defect</span>
-                                    <span class="float-right content-font-size"><b id="textDefect_@charID">@item.DefectInfo</b></span>
-                                    <div class="progress progress-sm">
-                                        <div id="barDefect_@charID" class="progress-bar @GetStatus(item.DefectPercent)" style="width: @item.DefectPercent">@item.DefectPercent</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.row -->
+                        
                     </div>
                     <!-- /.card-footer -->
                 </div>
@@ -202,6 +208,8 @@
                 ]
               }
 
+              Chart.plugins.register(ChartDataLabels);
+
               //-------------
               //- PIE CHART -
               //-------------
@@ -232,10 +240,28 @@
               barChartData.datasets[1] = temp0
 
               var barChartOptions = {
-                animation: false,
+                animation: {
+                    duration: 2000,          // Thời gian chạy animation (2 giây)
+                    easing: 'easeOutBounce'   // Kiểu hiệu ứng mượt mà từ nhanh đến chậm
+                },
                 responsive              : true,
                 maintainAspectRatio     : false,
-                datasetFill             : false
+                datasetFill             : false,
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        color: 'white',
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: Math.round, // Làm tròn số nếu cần
+                        // --- THÊM DÒNG NÀY ĐỂ XOAY ---
+                        rotation: -90, 
+                        // ----------------------------
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
               }
 
               new Chart(barChartCanvas, {
@@ -363,12 +389,21 @@
         var barChart = getChartByCanvasId(chartId);
 
         if (barChart) {
+
+            barChart.data.datasets[0].data = new Array(item.actualData.length).fill(0);
+            barChart.data.datasets[1].data = new Array(item.targetData.length).fill(0);
+            barChart.update({duration: 0}); // Update lập tức về 0 không cần delay
+
             barChart.data.labels = sections;
             barChart.data.datasets[1].label = item.targetLabel;
             barChart.data.datasets[1].data = item.targetData;
             barChart.data.datasets[0].label = item.actualLabel;
             barChart.data.datasets[0].data = item.actualData;
-            barChart.update();
+            barChart.update({
+                duration: 2000,          // Thời gian mọc lên (2 giây)
+                easing: 'easeOutBounce'   // Hiệu ứng nảy tăng trưởng
+            });
+
         }
 
         var pieChartId = "pieChart_" + item.chartID;

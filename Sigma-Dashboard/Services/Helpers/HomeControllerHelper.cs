@@ -110,11 +110,21 @@ namespace Sigma_Dashboard.Services.Helpers
                             barChartData.TargetLabel = $"Target total: {dataUIbyOperTarget.Time1 + dataUIbyOperTarget.Time2 + dataUIbyOperTarget.Time3 + dataUIbyOperTarget.Time4 + dataUIbyOperTarget.Time5}";
                             barChartData.TargetData = new double[] { dataUIbyOperTarget.Time1, dataUIbyOperTarget.Time2, dataUIbyOperTarget.Time3, dataUIbyOperTarget.Time4, dataUIbyOperTarget.Time5 };
                         }
+                        else
+                        {
+                            barChartData.TargetLabel = $"Target total: 0";
+                            barChartData.TargetData = new double[] { 0, 0, 0, 0, 0 };
+                        }
                         var dataUIbyOperLine = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Production Qty");
                         if (dataUIbyOperLine != null)
                         {
                             barChartData.ActualLabel = $"Actual total: {dataUIbyOperLine.Time1 + dataUIbyOperLine.Time2 + dataUIbyOperLine.Time3 + dataUIbyOperLine.Time4 + dataUIbyOperLine.Time5}";
                             barChartData.ActualData = new double[] { dataUIbyOperLine.Time1, dataUIbyOperLine.Time2, dataUIbyOperLine.Time3, dataUIbyOperLine.Time4, dataUIbyOperLine.Time5 };
+                        }
+                        else
+                        {
+                            barChartData.ActualLabel = $"Actual total: 0";
+                            barChartData.ActualData = new double[] { 0, 0, 0, 0, 0 };
                         }
 
                         //add defect by category
@@ -161,7 +171,7 @@ namespace Sigma_Dashboard.Services.Helpers
                                     };
                                     defectDatas.Add(defectData);
                                 }
-                                    
+
                             }
                         }
 
@@ -298,8 +308,16 @@ namespace Sigma_Dashboard.Services.Helpers
                         barChartData.UPPHPercent = $"{UPPHPercent}%";
                         barChartData.DefectInfo = $"{DefectCurrent}%" + "/" + $"{DefectTarget}%";
                         barChartData.DefectPercent = $"{DefectPercent}%";
-                        
-                        barChartData.ChartTitle = $"{item.Operation} - Actual working time: {Math.Round(workingTime, 2)}h";
+
+                        string line = "1";
+
+                        var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Man Q'ty");
+                        if(dataUIbyOperManQty != null)
+                        {
+                            line = dataUIbyOperManQty.Product;
+                        }
+
+                        barChartData.ChartTitle = $"{item.Operation} - Line {line}";
 
                         dashboardData.BarChartData.Add(barChartData);
                     }
