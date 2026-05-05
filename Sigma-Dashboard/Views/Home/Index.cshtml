@@ -142,8 +142,10 @@
                                 </p>
 
                                 <div class="chart">
-                                    <!-- Sales Chart Canvas -->
-                                    <canvas id="barChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                    <div class="chart-progress-wrapper">
+                                        <!-- Sales Chart Canvas -->
+                                        <canvas id="barChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                    </div>
                                 </div>
                                 <!-- /.chart-responsive -->
                             </div>
@@ -253,7 +255,10 @@
                         color: 'white',
                         anchor: 'center',
                         align: 'center',
-                        formatter: Math.round, // Làm tròn số nếu cần
+                        formatter: function(value) {
+                            // Chỉ hiển thị nếu giá trị lớn hơn 0 để tránh rối biểu đồ
+                            return value > 0 ? value : ''; 
+                        },
                         // --- THÊM DÒNG NÀY ĐỂ XOAY ---
                         rotation: -90, 
                         // ----------------------------
@@ -390,15 +395,16 @@
 
         if (barChart) {
 
-            barChart.data.datasets[0].data = new Array(item.actualData.length).fill(0);
+            @* barChart.data.datasets[0].data = new Array(item.actualData.length).fill(0);
             barChart.data.datasets[1].data = new Array(item.targetData.length).fill(0);
-            barChart.update({duration: 0}); // Update lập tức về 0 không cần delay
+            barChart.update({duration: 0}); // Update lập tức về 0 không cần delay *@
 
             barChart.data.labels = sections;
             barChart.data.datasets[1].label = item.targetLabel;
             barChart.data.datasets[1].data = item.targetData;
             barChart.data.datasets[0].label = item.actualLabel;
             barChart.data.datasets[0].data = item.actualData;
+            @* barChart.update(); *@
             barChart.update({
                 duration: 2000,          // Thời gian mọc lên (2 giây)
                 easing: 'easeOutBounce'   // Hiệu ứng nảy tăng trưởng
