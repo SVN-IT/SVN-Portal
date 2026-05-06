@@ -32,6 +32,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UsePathBase(appConfig.LocationPath);
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

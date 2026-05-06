@@ -8,5 +8,6 @@
         public int Rounding { get; set; }
         public int timeChangeTabMainDashboard { get; set; }
         public string DefaultCompany { get; set; }
+        public string LocationPath { get; set; }
     }
 }
