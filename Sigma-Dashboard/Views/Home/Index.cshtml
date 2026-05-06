@@ -178,17 +178,21 @@
                 datasets: [
                   {
                     label               : '@item.TargetLabel',
-                    backgroundColor     : 'rgba(210, 214, 222, 1)',
-                    borderColor         : 'rgba(210, 214, 222, 1)',
-                    pointRadius         : false,
-                    pointColor          : 'rgba(210, 214, 222, 1)',
+                    type: 'line',             // Ép kiểu đường kẻ
+                    fill: false,              // KHÔNG đổ màu vùng (quan trọng nhất)
+                    backgroundColor     : '#218838',
+                    borderColor         : '#218838',
+                    pointRadius         : 5,
+                    pointColor          : '#218838',
                     pointStrokeColor    : '#c1c7d1',
                     pointHighlightFill  : '#fff',
-                    pointHighlightStroke: 'rgba(220,220,220,1)',
-                    data                : @Html.Raw(targetData)
+                    pointHighlightStroke: '#218838',
+                    data                : @Html.Raw(targetData),
+                    order: 1
                   },
                   {
                     label               : '@item.ActualLabel',
+                    //type: 'bar',
                     backgroundColor     : 'rgba(60,141,188,0.9)',
                     borderColor         : 'rgba(60,141,188,0.8)',
                     pointRadius          : false,
@@ -196,7 +200,9 @@
                     pointStrokeColor    : 'rgba(60,141,188,1)',
                     pointHighlightFill  : '#fff',
                     pointHighlightStroke: 'rgba(60,141,188,1)',
-                    data                : @Html.Raw(resultData)
+                    data                : @Html.Raw(resultData),
+                    order: 2
+
                   },
                 ]
               }
@@ -252,16 +258,37 @@
                 plugins: {
                     datalabels: {
                         display: true,
-                        color: 'white',
-                        anchor: 'center',
-                        align: 'center',
-                        formatter: function(value) {
-                            // Chỉ hiển thị nếu giá trị lớn hơn 0 để tránh rối biểu đồ
-                            return value > 0 ? value : ''; 
-                        },
-                        // --- THÊM DÒNG NÀY ĐỂ XOAY ---
-                        rotation: -90, 
-                        // ----------------------------
+                        // color: 'white',
+                        // anchor: 'center',
+                        // align: 'center',
+                        // formatter: function(value) {
+                        //     // Chỉ hiển thị nếu giá trị lớn hơn 0 để tránh rối biểu đồ
+                        //     return value > 0 ? value : ''; 
+                        // },
+                        // // --- THÊM DÒNG NÀY ĐỂ XOAY ---
+                        // rotation: -90, 
+                        // // ----------------------------
+                        // Hàm này giúp định dạng riêng cho từng loại biểu đồ
+                          color: function(context) {
+                              // Line thì để màu tối cho dễ nhìn, Bar thì để màu trắng
+                              return context.dataset.type === 'line' ? '#218838' : 'white';
+                          },
+                          anchor: function(context) {
+                              // Line thì đặt phía trên điểm nút, Bar thì đặt ở giữa cột
+                              return context.dataset.type === 'line' ? 'end' : 'center';
+                          },
+                          align: function(context) {
+                              return context.dataset.type === 'line' ? 'top' : 'center';
+                          },
+                          formatter: function(value) {
+                              return value > 0 ? value : ''; 
+                          },
+                          // --- SỬA ĐOẠN XOAY Ở ĐÂY ---
+                          rotation: function(context) {
+                              // Nếu là Line thì xoay 0 độ (nằm ngang), nếu là Bar thì xoay -90 độ
+                              return context.dataset.type === 'line' ? 0 : -90;
+                          },
+                          // ----------------------------
                         font: {
                             size: 12
                         }
