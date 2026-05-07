@@ -328,7 +328,7 @@
         };
 
         $.ajax({
-            url: 'Home/GetFullDashboardData',
+            url: '@Url.Action("GetFullDashboardData", "Home")',
             type: 'GET',
             data: params, // Truyền các biến vào đây
             beforeSend: function() {
