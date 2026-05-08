@@ -13,6 +13,7 @@
     public class BarChartData
     {
         public string Operation { get; set; }
+        public string Line { get; set; }
         public string ChartTitle { get; set; }
         public string ChartID { get; set; }
         public string TargetLabel { get; set; }

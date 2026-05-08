@@ -25,7 +25,7 @@ namespace Sigma_Dashboard.Services.Helpers
             this.sectionTimeServices = sectionTimeServices;
         }
 
-        public async Task<DashboardViewModel> SummaryData(string date, string storedProceduce, string tableName, int topDefect, string shift, string companyCode, int hours = 7)
+        public async Task<DashboardViewModel> SummaryData(string date, string storedProceduce, string tableName, int topDefect, string shift, string companyCode, int hours = 7, string masterOperation = "All")
         {
             hours = await GetLocalHourByCompanyCode(companyCode);
             // Model hiển thị dữ liệu trên dashboard
@@ -47,7 +47,9 @@ namespace Sigma_Dashboard.Services.Helpers
 
             OperInfoConfig operInfoConfig = await appSettingServices.GetOperInfoConfig(); // Lấy cấu hình các operation từ appsettings
             List<OperInfo> opers = operInfoConfig.OperInfo; // Lấy danh sách các operation từ appsettings
-            opers = GetOpersByCompanyCode(opers, companyCode);
+
+            //Lọc operation theo company code và master operation nếu có
+            opers = GetOpersByCompanyCode(opers, companyCode, masterOperation);
 
             List<SectionConfig> sectionConfigs = await appSettingServices.GetSectionConfigs(); // Lấy danh sách section theo ca từ appsettings
             List<string> curSectionList = GetCurrentSectionConfig(shift, sectionConfigs, companyCode); // Lấy danh sách section theo ca hiện tại
@@ -309,18 +311,28 @@ namespace Sigma_Dashboard.Services.Helpers
                         barChartData.DefectInfo = $"{DefectCurrent}%" + "/" + $"{DefectTarget}%";
                         barChartData.DefectPercent = $"{DefectPercent}%";
 
-                        string line = "1";
-
                         var dataUIbyOperManQty = dataUI.FirstOrDefault(x => x.Operation == item.Operation && x.Type_value == "Man Q'ty");
                         if(dataUIbyOperManQty != null)
                         {
-                            line = dataUIbyOperManQty.Product;
+                            barChartData.Line = "line 1";
+                            //Thêm thông tin line nếu có vào operationName
+                            if (!string.IsNullOrWhiteSpace(dataUIbyOperManQty.Product))
+                            {
+                                barChartData.Line = "line " + dataUIbyOperManQty.Product.Replace(".0", "");
+                            }
                         }
 
-                        barChartData.ChartTitle = $"{item.Operation} - Line {line}";
+                        barChartData.ChartTitle = $"{item.Operation} - {barChartData.Line}";
 
                         dashboardData.BarChartData.Add(barChartData);
                     }
+
+                    //Lọc lại các operation theo line
+                    if(!string.IsNullOrWhiteSpace(masterOperation) && masterOperation != "All" && masterOperation.Contains("-line"))
+                    {
+                        dashboardData.BarChartData = dashboardData.BarChartData.Where(x => masterOperation.Contains(x.Line)).ToList();
+                    }    
+                    
                 }
             }
             catch (Exception ex)
@@ -370,7 +382,14 @@ namespace Sigma_Dashboard.Services.Helpers
             return hours;
         }
 
-        private List<OperInfo> GetOpersByCompanyCode(List<OperInfo> opers, string companyCode)
+        /// <summary>
+        /// Hàm lấy operation theo company code
+        /// Nếu MasterOperation có tồn tại thì lấy theo operation
+        /// </summary>
+        /// <param name="opers"></param>
+        /// <param name="companyCode"></param>
+        /// <returns></returns>
+        private List<OperInfo> GetOpersByCompanyCode(List<OperInfo> opers, string companyCode, string masterOperation = "All")
         {
             if (!string.IsNullOrWhiteSpace(companyCode))
             {
@@ -391,6 +410,21 @@ namespace Sigma_Dashboard.Services.Helpers
                         opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)")).ToList();
                         break;
                 }
+            }
+
+            if(masterOperation != "All")
+            {
+                string masterOperationWithSuffix = masterOperation;
+                try
+                {
+                    masterOperationWithSuffix = masterOperation.Split("-")[0];
+                }
+                catch
+                {
+                    masterOperationWithSuffix = masterOperation;
+                }
+                masterOperationWithSuffix = masterOperation.Split("-")[0];
+                opers = opers.Where(x => x.MasterOperation == masterOperationWithSuffix).ToList();
             }
             return opers;
         }

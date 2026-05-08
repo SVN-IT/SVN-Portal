@@ -1,0 +1,470 @@
+﻿@using Newtonsoft.Json
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Home Page";
+    DateTime date = ViewBag.date;
+    string shift = ViewBag.shift;
+    string companyCode = ViewBag.CompanyCode;
+
+    string masterOperation = ViewBag.SelectedMasterOperation;
+
+
+    string GetStatus(string Percent)
+    {
+        string status = "bg-primary";
+
+        if (Percent != null)
+        {
+            if (Percent.Contains("%"))
+            {
+                Percent = Percent.Replace("%", "");
+            }
+            if (double.TryParse(Percent, out double percentValue))
+            {
+                if (percentValue >= 100)
+                {
+                    status = "bg-primary";
+                }
+                else if (percentValue >= 92 && percentValue < 100)
+                {
+                    status = "bg-success";
+                }
+                else if (percentValue >= 75 && percentValue < 92)
+                {
+                    status = "bg-warning";
+                }
+                else
+                {
+                    status = "bg-danger";
+                }
+            }
+        }
+
+        return status;
+    }
+}
+<div class="container-fluid">
+    <div class="row">
+        @foreach (var item in Model.BarChartData)
+        {
+            string sectionList = string.Empty;
+            string targetData = string.Empty;
+            string resultData = string.Empty;
+            string defectLabel = string.Empty;
+            string defectData = string.Empty;
+
+            sectionList = JsonConvert.SerializeObject(Model.Sections);
+            targetData = JsonConvert.SerializeObject(item.TargetData);
+            resultData = JsonConvert.SerializeObject(item.ActualData);
+            defectLabel = JsonConvert.SerializeObject(item.DefectLabel);
+            defectData = JsonConvert.SerializeObject(item.DefectData);
+
+            string charID = item.ChartID;
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-12 mb-2">
+                                <h5 class="card-title"><b>@item.ChartTitle</b></h5>
+                            </div>
+                            <div class="col-md-3 col-6 border-right">
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size text-truncate">📅 Hourly Plan</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textHourlyPlan_@charID">@item.HourlyPlanData</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barHourlyPlan_@charID" class="progress-bar @GetStatus(item.HourlyPlanPercent)" style="width: @item.HourlyPlanPercent">@item.HourlyPlanPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-3 col-6 border-right">
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size  text-truncate">⚙️ UPH</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textUPH_@charID">@item.UPHData</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barUPH_@charID" class="progress-bar @GetStatus(item.UPHPercent)" style="width: @item.UPHPercent">@item.UPHPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-3 col-6 border-right">
+                                <!-- /.progress-group -->
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size  text-truncate">📈 UPPH</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textUPPH_@charID">@item.UPPHData</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barUPPH_@charID" class="progress-bar @GetStatus(item.UPPHPercent)" style="width: @item.UPPHPercent">@item.UPPHPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-3 col-6">
+                                <!-- /.progress-group -->
+                                <div class="progress-group">
+                                    <div class="row">
+                                        <div class="col-6 col-md-12">
+                                            <span class="progress-text content-font-size  text-truncate">❌ Defect</span>
+                                        </div>
+                                        <div class="col-6 col-md-12">
+                                            <span class="float-right content-font-size"><b id="textDefect_@charID">@item.DefectInfo</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div id="barDefect_@charID" class="progress-bar @GetStatus(item.DefectPercent)" style="width: @item.DefectPercent">@item.DefectPercent</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8 col-12">
+                                <p class="text-center header-font-size">
+                                    <strong>Nguyễn Văn Hướng (SVN0005) - Phạm Thị Thủy (SVN0132)</strong>
+                                </p>
+
+                                <div class="chart">
+                                    <div class="chart-progress-wrapper">
+                                        <!-- Sales Chart Canvas -->
+                                        <canvas id="barChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                    </div>
+                                </div>
+                                <!-- /.chart-responsive -->
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-md-4 col-12">
+                                <p class="text-center header-font-size">
+                                    <strong>Defect by category</strong>
+                                </p>
+                                <div class="chart">
+                                    <!-- Sales Chart Canvas -->
+                                    <canvas id="pieChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- ./card-body -->
+                    <div class="card-footer">
+                    </div>
+                    <!-- /.card-footer -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <script>
+                    $(function () {
+                  var areaChartData = {
+                    labels  : @Html.Raw(sectionList),
+                    datasets: [
+                      {
+                        label               : '@item.TargetLabel',
+                        type: 'line',             // Ép kiểu đường kẻ
+                        fill: false,              // KHÔNG đổ màu vùng (quan trọng nhất)
+                        backgroundColor     : '#218838',
+                        borderColor         : '#218838',
+                        pointRadius         : 5,
+                        pointColor          : '#218838',
+                        pointStrokeColor    : '#c1c7d1',
+                        pointHighlightFill  : '#fff',
+                        pointHighlightStroke: '#218838',
+                        data                : @Html.Raw(targetData),
+                        order: 1
+                      },
+                      {
+                        label               : '@item.ActualLabel',
+                        //type: 'bar',
+                        backgroundColor     : 'rgba(60,141,188,0.9)',
+                        borderColor         : 'rgba(60,141,188,0.8)',
+                        pointRadius          : false,
+                        pointColor          : '#3b8bba',
+                        pointStrokeColor    : 'rgba(60,141,188,1)',
+                        pointHighlightFill  : '#fff',
+                        pointHighlightStroke: 'rgba(60,141,188,1)',
+                        data                : @Html.Raw(resultData),
+                        order: 2
+
+                      },
+                    ]
+                  }
+                  var donutData        = {
+                    labels: @Html.Raw(defectLabel),
+                    datasets: [
+                      {
+                        data: @Html.Raw(defectData),
+                        backgroundColor : ['#00c0ef', '#3c8dbc', '#d2d6de'],
+                      }
+                    ]
+                  }
+
+                  Chart.plugins.register(ChartDataLabels);
+
+                  //-------------
+                  //- PIE CHART -
+                  //-------------
+                  // Get context with jQuery - using jQuery's .get() method.
+                  var pieChartCanvas = $('#pieChart_@charID').get(0).getContext('2d')
+                  var pieData        = donutData;
+                  var pieOptions     = {
+                    animation: false,
+                    maintainAspectRatio : false,
+                    responsive : true,
+                  }
+                  //Create pie or douhnut chart
+                  // You can switch between pie and douhnut using the method below.
+                  new Chart(pieChartCanvas, {
+                    type: 'pie',
+                    data: pieData,
+                    options: pieOptions
+                  })
+
+                  //-------------
+                  //- BAR CHART -
+                  //-------------
+                  var barChartCanvas = $('#barChart_@charID').get(0).getContext('2d')
+                  var barChartData = $.extend(true, {}, areaChartData)
+                  var temp0 = areaChartData.datasets[0]
+                  var temp1 = areaChartData.datasets[1]
+                  barChartData.datasets[0] = temp1
+                  barChartData.datasets[1] = temp0
+
+                  var barChartOptions = {
+                    animation: {
+                        duration: 2000,          // Thời gian chạy animation (2 giây)
+                        easing: 'easeOutBounce'   // Kiểu hiệu ứng mượt mà từ nhanh đến chậm
+                    },
+                    responsive              : true,
+                    maintainAspectRatio     : false,
+                    datasetFill             : false,
+                    plugins: {
+                        datalabels: {
+                            display: true,
+                            // color: 'white',
+                            // anchor: 'center',
+                            // align: 'center',
+                            // formatter: function(value) {
+                            //     // Chỉ hiển thị nếu giá trị lớn hơn 0 để tránh rối biểu đồ
+                            //     return value > 0 ? value : '';
+                            // },
+                            // // --- THÊM DÒNG NÀY ĐỂ XOAY ---
+                            // rotation: -90,
+                            // // ----------------------------
+                            // Hàm này giúp định dạng riêng cho từng loại biểu đồ
+                              color: function(context) {
+                                  // Line thì để màu tối cho dễ nhìn, Bar thì để màu trắng
+                                  return context.dataset.type === 'line' ? '#218838' : 'white';
+                              },
+                              anchor: function(context) {
+                                  // Line thì đặt phía trên điểm nút, Bar thì đặt ở giữa cột
+                                  return context.dataset.type === 'line' ? 'end' : 'center';
+                              },
+                              align: function(context) {
+                                  return context.dataset.type === 'line' ? 'top' : 'center';
+                              },
+                              formatter: function(value) {
+                                  return value > 0 ? value : '';
+                              },
+                              // --- SỬA ĐOẠN XOAY Ở ĐÂY ---
+                              rotation: function(context) {
+                                  // Nếu là Line thì xoay 0 độ (nằm ngang), nếu là Bar thì xoay -90 độ
+                                  return context.dataset.type === 'line' ? 0 : -90;
+                              },
+                              // ----------------------------
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                  }
+
+                  new Chart(barChartCanvas, {
+                    type: 'bar',
+                    data: barChartData,
+                    options: barChartOptions
+                  })
+                })
+            </script>
+        }
+        <!-- /.col -->
+    </div>
+
+</div><!--/. container-fluid -->
+<script>
+    $(function () {
+        // Gọi lần đầu ngay khi trang vừa load xong
+        refreshDashboard();
+
+        // Thiết lập chu kỳ 10 giây (10000 miliseconds)
+        setInterval(function () {
+            refreshDashboard();
+        }, 10000);
+    });
+
+    function refreshDashboard() {
+        var params = {
+            date: '@date.ToString("yyyy-MM-dd")', // Định dạng yyyy-MM-dd
+            shift: '@shift',
+            companyCode: '@companyCode',
+            isManualLoad: true,
+            masterOperation: '@masterOperation'
+        };
+
+        $.ajax({
+            url: '@Url.Action("GetFullDashboardData", "Home")',
+            type: 'GET',
+            data: params, // Truyền các biến vào đây
+            beforeSend: function() {
+                // Có thể thêm hiệu ứng loading tại đây
+                // console.log("Đang tải dữ liệu cho ngày: " + params.date);
+            },
+            success: function (model) {
+                if (model && model.barChartData) {
+                    // Duyệt qua danh sách BarChartData để vẽ lại từng chart
+                    model.barChartData.forEach(function (item) {
+                        console.log("Đang xử lý item:", item.operation);
+                        updateSingleChart(item, model.sections);
+                    });
+                    console.log("Cập nhật Dashboard thành công!");
+                }
+            },
+            error: function (err) {
+                console.error("Lỗi khi lấy dữ liệu Dashboard:", err);
+            }
+        });
+    }
+
+    // Hàm tìm Chart theo ID của Canvas dành riêng cho v2.9
+    var getChartByCanvasId = function(canvasId) {
+        for (var id in Chart.instances) {
+            var instance = Chart.instances[id];
+            // Trong v2.9, canvas nằm trực tiếp trong instance hoặc instance.chart
+            var currentCanvas = instance.chart ? instance.chart.canvas : instance.canvas;
+            if (currentCanvas && currentCanvas.id === canvasId) {
+                return instance;
+            }
+        }
+        return null;
+    };
+
+    function getJsStatus(percentStr) {
+        var val = parseFloat(percentStr.replace('%', ''));
+        if (val >= 100) return 'bg-primary';
+        if (val >= 92 && val < 100) return 'bg-success';
+        if (val >= 75 && val < 92) return 'bg-warning';
+        return 'bg-danger';
+    }
+
+    function updateProductionInfo(processBarTitle_id, processBarStatus_id, textData, statusData){
+        var title = $(processBarTitle_id);
+        var status = $(processBarStatus_id);
+
+        // Kiểm tra HourlyPlanData (null, undefined hoặc "")
+        var displayData = (textData != null && textData.toString().trim() !== "")
+                          ? textData
+                          : "0/0"; // Giá trị mặc định khi trống
+
+        if (title.length) {
+            title.text(displayData);
+        }
+
+        // --- Cập nhật Progress Bar ---
+        if (status.length) {
+            // Kiểm tra HourlyPlanPercent
+            var percent = (statusData != null && statusData.toString().trim() !== "")
+                          ? statusData
+                          : "0%";
+
+            status.css('width', percent);
+            status.text(percent);
+
+            // Cập nhật màu sắc dựa trên phần trăm
+            status.removeClass('bg-primary bg-success bg-warning bg-danger');
+            status.addClass(getJsStatus(percent));
+        }
+    }
+
+    function updateSingleChart(item, sections) {
+        var chartId = "barChart_" + item.chartID;
+
+        var textPlan = "#textHourlyPlan_" + item.chartID;
+        var barPlan = "#barHourlyPlan_" + item.chartID;
+        var textUPH = "#textUPH_" + item.chartID;
+        var barUPH = "#barUPH_" + item.chartID;
+        var textUPPH = "#textUPPH_" + item.chartID;
+        var barUPPH = "#barUPPH_" + item.chartID;
+        var textDefect = "#textDefect_" + item.chartID;
+        var barDefect = "#barDefect_" + item.chartID;
+
+        updateProductionInfo(textPlan, barPlan, item.hourlyPlanData, item.hourlyPlanPercent);
+        updateProductionInfo(textUPH, barUPH, item.uphData, item.uphPercent);
+        updateProductionInfo(textUPPH, barUPPH, item.upphData, item.upphPercent);
+        updateProductionInfo(textDefect, barDefect, item.defectInfo, item.defectPercent);
+
+        var barChart = getChartByCanvasId(chartId);
+
+        if (barChart) {
+
+    @* barChart.data.datasets[0].data = new Array(item.actualData.length).fill(0);
+            barChart.data.datasets[1].data = new Array(item.targetData.length).fill(0);
+            barChart.update({duration: 0}); // Update lập tức về 0 không cần delay *@
+
+            barChart.data.labels = sections;
+            barChart.data.datasets[1].label = item.targetLabel;
+            barChart.data.datasets[1].data = item.targetData;
+            barChart.data.datasets[0].label = item.actualLabel;
+            barChart.data.datasets[0].data = item.actualData;
+    @* barChart.update(); *@
+            barChart.update({
+                duration: 2000,          // Thời gian mọc lên (2 giây)
+                easing: 'easeOutBounce'   // Hiệu ứng nảy tăng trưởng
+            });
+
+        }
+
+        var pieChartId = "pieChart_" + item.chartID;
+        var pieChart = getChartByCanvasId(pieChartId);
+        if (pieChart) {
+            // Kiểm tra nếu cả label và data đều có dữ liệu thì mới gán và update
+            // Sử dụng || [] để tránh lỗi crash nếu server trả về null
+            if (item.defectLabel != null && item.defectData != null) {
+
+                pieChart.data.labels = item.defectLabel;
+                pieChart.data.datasets[0].data = item.defectData;
+
+                // Chỉ update khi thực sự có sự thay đổi hoặc có dữ liệu
+                pieChart.update();
+            } else {
+                // Tùy chọn: Nếu muốn biểu đồ trống khi không có lỗi
+                pieChart.data.labels = [];
+                pieChart.data.datasets[0].data = [];
+                pieChart.update();
+
+                console.warn("Dữ liệu Defect của " + item.operation + " đang bị null");
+            }
+    @* pieChart.data.labels = item.defectLabel;
+            pieChart.data.datasets[0].data = item.defectData;
+            pieChart.update(); *@
+        }
+    }
+</script>

@@ -42,6 +42,36 @@
             DateTime date = ViewBag.date;
             string shift = ViewBag.shift;
             string companyCode = ViewBag.CompanyCode;
+
+            string selectedMasterOperation = ViewBag.SelectedMasterOperation;
+
+            string indexPage = ViewBag.IndexPage;
+            if (string.IsNullOrWhiteSpace(indexPage))
+            {
+                indexPage = "Index";
+            }
+            string masterOperations = await appSettingServices.GetMasterOperList();
+            List<string> masterOperList = masterOperations.Split(',').ToList();
+            if (!string.IsNullOrWhiteSpace(companyCode))
+            {
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(SM)")).ToList();
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(ITA)")).ToList();
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        masterOperList = masterOperList.Where(x => !x.EndsWith("(SM)") && !x.EndsWith("(ITA)")).ToList();
+                        break;
+                }
+            }
         }
         <!-- Preloader -->
         <div class="preloader flex-column justify-content-center align-items-center">
@@ -78,7 +108,9 @@
                                 </select>
                                 <input id="inputDate" class="form-control form-control-navbar" type="date" name="date" value="@date.ToString("yyyy-MM-dd")">
                                 <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit" asp-controller="Home" asp-action="Index" asp-route-isManualLoad=true>
+                                    <button class="btn btn-navbar" type="submit" asp-controller="Home" asp-action="@indexPage" 
+                                        asp-route-masterOperation="@selectedMasterOperation"
+                                        asp-route-isManualLoad=true>
                                         <i class="fas fa-search"></i>
                                     </button>
                                     <button class="btn btn-navbar" type="button" id="btnCloseSearchBar">
@@ -140,11 +172,23 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="nav-link active">
+                                    <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="nav-link @(indexPage == "Index" ? "active":"")">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Main Dashboard</p>
+                                        <p>Main</p>
                                     </a>
                                 </li>
+                                @if (masterOperList != null && masterOperList.Count > 0)
+                                {
+                                    foreach (var oper in masterOperList)
+                                    {
+                                        <li class="nav-item">
+                                            <a asp-controller="Home" asp-action="ChartPageByOperation" asp-route-masterOperation="@oper" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false asp-route-oper=oper class="nav-link @(selectedMasterOperation == oper ? "active":"")">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>@oper</p>
+                                            </a>
+                                        </li>
+                                    }
+                                })
                             </ul>
                         </li>
                     </ul>

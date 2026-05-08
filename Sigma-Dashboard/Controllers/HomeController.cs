@@ -48,6 +48,7 @@ public class HomeController : Controller
 
             ViewBag.date = date;
             ViewBag.shift = shift;
+            ViewBag.IndexPage = "Index";
             strdate = date.ToString("yyyyMMdd");
 
             int hours = 7;
@@ -66,8 +67,54 @@ public class HomeController : Controller
         return View(dashboardData);
     }
 
+    public async Task<IActionResult> ChartPageByOperation(string masterOperation, DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
+    {
+        DashboardViewModel dashboardData = new DashboardViewModel();
+        try
+        {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
+            string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
+            string strdate = "20241220";
+            string tableName = "SVN_Production_result_Viindoo";
+            if (date == DateTime.MinValue)
+            {
+                date = DateTime.Now;
+            }
+            if (!isManualLoad)
+            {
+                if (date.Hour >= 20)
+                {
+                    shift = "Night";
+                }
+                else
+                {
+                    shift = "Day";
+                }
+            }
+            ViewBag.date = date;
+            ViewBag.shift = shift;
+            ViewBag.IndexPage = "ChartPageByOperation";
+            strdate = date.ToString("yyyyMMdd");
+            int hours = 7;
+            ViewBag.CompanyCode = companyCode;
+            ViewBag.SelectedMasterOperation = masterOperation;
+            TempData.Remove("Hours");
+            TempData["Hours"] = hours.ToString();
+            TempData.Keep("Hours");
+            dashboardData = await homeControllerHelper.SummaryData(strdate, storedProceduce, tableName, 3, shift, companyCode, hours, masterOperation);
+        }
+        catch
+        {
+            dashboardData = new DashboardViewModel();
+        }
+        return View(dashboardData);
+    }
+
     [HttpGet]
-    public async Task<IActionResult> GetFullDashboardData(DateTime? date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = true)
+    public async Task<IActionResult> GetFullDashboardData(DateTime? date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = true, string masterOperation = "All")
     {
         // 1. Xử lý logic mặc định giống hệt trong ảnh
         DateTime searchDate = date ?? DateTime.Now;
@@ -86,7 +133,7 @@ public class HomeController : Controller
         int hours = 7;
 
         // 2. Gọi Helper để lấy dữ liệu cho ViewModel
-        DashboardViewModel model = await homeControllerHelper.SummaryData(strdate, storedProcedure, tableName, 3, shift, companyCode, hours);
+        DashboardViewModel model = await homeControllerHelper.SummaryData(strdate, storedProcedure, tableName, 3, shift, companyCode, hours, masterOperation);
 
         // dùng để test
         //foreach (var item in model.BarChartData)
