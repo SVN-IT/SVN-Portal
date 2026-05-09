@@ -92,5 +92,111 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return processResult;
         }
+
+        [Route("GetSavedSearchAllPage")]
+        [HttpGet]
+        public async Task<BODataProcessResult> GetSavedSearchAllPage(DateTime fromDate, DateTime toDate, string savedSearchId = "customsearch799")
+        {
+            ERP_synch_dataPortal dataPortal = new ERP_synch_dataPortal(SVNDBConfig.ConnectionString);
+            BODataProcessResult processResult = new BODataProcessResult();
+
+            var dateFrom = fromDate.ToString("MM/dd/yyyy");
+            var dateTo = toDate.ToString("MM/dd/yyyy");
+            var synchTime = fromDate.ToString("yyyyMMdd") + toDate.ToString("dd");
+
+            int skip = 0;
+            int limitPerRequest = 1000; // Đặt limit cố định là 1000 theo yêu cầu
+            bool keepRunning = true;
+            StringBuilder fullResponseBuilder = new StringBuilder();
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    while (keepRunning)
+                    {
+                        var request = new
+                        {
+                            savedSearchId = savedSearchId,
+                            skip = skip,
+                            limit = limitPerRequest,
+                            debug = false,
+                            filters = new[]
+                            {
+                            new {
+                                    field = "trandate",
+                                    join = "createdFrom",
+                                    @operator = "WITHIN",
+                                    value = $"{dateFrom},{dateTo}"
+                                }
+                            }
+                        };
+
+                        var content = new StringContent(
+                            Newtonsoft.Json.JsonConvert.SerializeObject(request),
+                            Encoding.UTF8,
+                            "application/json"
+                        );
+
+                        var response = await client.PostAsync("https://api.sigmaworldwide.io/v1/api/saved-search/execute", content);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseString = await response.Content.ReadAsStringAsync();
+
+                            // Cộng dồn dữ liệu vào StringBuilder (nếu bạn muốn lưu tất cả vào 1 bản ghi duy nhất)
+                            // Hoặc xử lý lưu từng phần vào DB tại đây tùy theo thiết kế Database của bạn
+                            fullResponseBuilder.Append(responseString);
+
+                            // Kiểm tra xem trong response có chứa "limit": 1000 hay không
+                            if (responseString.Contains("\"limit\": 1000") || responseString.Contains("\"limit\":1000"))
+                            {
+                                skip++; // Tăng skip lên 1 (hoặc skip += limitPerRequest tùy theo logic API của bạn)
+                            }
+                            else
+                            {
+                                keepRunning = false; // Dừng vòng lặp
+                            }
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = $"API call failed at skip {skip} with status code: {response.StatusCode}";
+                            return processResult;
+                        }
+                    }
+
+                    // Sau khi lấy hết dữ liệu, tiến hành cập nhật/chèn vào Database
+                    string finalData = fullResponseBuilder.ToString();
+                    var exitingData = dataPortal.GetDataByID(savedSearchId);
+
+                    if (exitingData != null)
+                    {
+                        exitingData.data = finalData;
+                        exitingData.Synch_datetime = synchTime;
+                        dataPortal.Update(exitingData);
+                    }
+                    else
+                    {
+                        ERP_synch_dataUI newData = new ERP_synch_dataUI
+                        {
+                            savedsearchID = savedSearchId,
+                            data = finalData,
+                            Synch_datetime = synchTime
+                        };
+                        dataPortal.Insert(newData);
+                    }
+
+                    processResult.OK = true;
+                    processResult.Message = "All pages synchronized successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
     }
 }
