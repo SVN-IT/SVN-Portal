@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SVNShareLib;
+using SVNShareLib.DAL;
+using SVNShareLib.DTO;
 using System.Text;
+using ViidooDBServiceAPI.Services;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Net.WebRequestMethods;
 
@@ -10,14 +13,20 @@ namespace ViidooDBServiceAPI.Controllers
     [ApiController]
     public class ERPServicesController : Controller
     {
-        [Route("GetSavedSearch799")]
-        [HttpGet]
-        public async Task<BODataProcessResult> GetSavedSearch799(DateTime fromDate, DateTime toDate)
+        SVNDBConfig SVNDBConfig;
+        public ERPServicesController(SVNDBConfig SVNDBConfig)
         {
+            this.SVNDBConfig = SVNDBConfig;
+        }
+
+        [Route("GetSavedSearch")]
+        [HttpGet]
+        public async Task<BODataProcessResult> GetSavedSearch(DateTime fromDate, DateTime toDate, string savedSearchId = "customsearch799")
+        {
+            ERP_synch_dataPortal dataPortal = new ERP_synch_dataPortal(SVNDBConfig.ConnectionString);
             BODataProcessResult processResult = new BODataProcessResult();
             var dateFrom = fromDate.ToString("MM/dd/yyyy");
             var dateTo = toDate.ToString("MM/dd/yyyy");
-            var savedSearchId = "customsearch799";
             var request = new
             {
                 savedSearchId = savedSearchId,
@@ -47,6 +56,24 @@ namespace ViidooDBServiceAPI.Controllers
                     if (response.IsSuccessStatusCode)
                     {
                         var responseString = await response.Content.ReadAsStringAsync();
+
+                        var exitingData = dataPortal.GetDataByID(savedSearchId);
+                        if(exitingData != null)
+                        {
+                            exitingData.data = responseString;
+                            exitingData.Synch_datetime = fromDate.ToString("yyyyMMdd") + toDate.ToString("dd");
+                            dataPortal.Update(exitingData);
+                        }
+                        else
+                        {
+                            ERP_synch_dataUI newData = new ERP_synch_dataUI
+                            {
+                                savedsearchID = savedSearchId,
+                                data = responseString,
+                                Synch_datetime = fromDate.ToString("yyyyMMdd") + toDate.ToString("dd")
+                            };
+                            dataPortal.Insert(newData);
+                        }
 
                         processResult.OK = true;
                         processResult.Message = "API call successful";
