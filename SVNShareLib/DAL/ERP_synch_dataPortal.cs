@@ -85,7 +85,7 @@ namespace SVNShareLib.DAL
             {
                 string sql = @"UPDATE ERP_synch_data 
                        SET data = @data
-                       WHERE savedsearchID = @savedsearchID AND Synch_datetime = @Synch_datetime";
+                       WHERE Synch_datetime = @Synch_datetime";
 
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
