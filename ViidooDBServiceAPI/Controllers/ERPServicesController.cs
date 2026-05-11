@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
@@ -189,6 +190,119 @@ namespace ViidooDBServiceAPI.Controllers
 
                     processResult.OK = true;
                     processResult.Message = "All pages synchronized successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        [Route("GetSavedSearchAllPageV1")]
+        [HttpGet]
+        public async Task<BODataProcessResult> GetSavedSearchAllPageV1(DateTime fromDate, DateTime toDate, string savedSearchId = "customsearch799")
+        {
+            ERP_synch_dataPortal dataPortal = new ERP_synch_dataPortal(SVNDBConfig.ConnectionString);
+            BODataProcessResult processResult = new BODataProcessResult();
+
+            var dateFrom = fromDate.ToString("MM/dd/yyyy");
+            var dateTo = toDate.ToString("MM/dd/yyyy");
+            var synchTime = fromDate.ToString("yyyyMMdd") + toDate.ToString("dd");
+
+            int skip = 0;
+            int limitPerRequest = 1000;
+            bool keepRunning = true;
+
+            // Đối tượng gốc để chứa dữ liệu gộp
+            dynamic finalJsonObject = null;
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    while (keepRunning)
+                    {
+                        var request = new
+                        {
+                            savedSearchId = savedSearchId,
+                            skip = skip,
+                            limit = limitPerRequest,
+                            debug = false,
+                            filters = new[] {
+                                new { field = "trandate", join = "createdFrom", @operator = "WITHIN", value = $"{dateFrom},{dateTo}" }
+                            }
+                        };
+
+                        var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                        var response = await client.PostAsync("https://api.sigmaworldwide.io/v1/api/saved-search/execute", content);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseString = await response.Content.ReadAsStringAsync();
+                            // Deserialize chuỗi vừa lấy về thành object
+                            var currentBatch = JsonConvert.DeserializeObject<dynamic>(responseString);
+                            var currentData = currentBatch.data as Newtonsoft.Json.Linq.JArray;
+
+                            if (finalJsonObject == null)
+                            {
+                                // Lần đầu tiên: Lấy nguyên cấu trúc của response đầu làm gốc
+                                finalJsonObject = currentBatch;
+                            }
+                            else
+                            {
+                                // Các lần sau: Chỉ lấy mảng data đổ thêm vào đối tượng gốc
+                                if (currentData != null && currentData.Count > 0)
+                                {
+                                    ((Newtonsoft.Json.Linq.JArray)finalJsonObject.data).Merge(currentData);
+                                }
+                            }
+
+                            // Logic dừng: Nếu số lượng data trả về ít hơn limit thì nghĩa là đã hết trang
+                            if (currentData != null && currentData.Count == limitPerRequest)
+                            {
+                                skip++; // Tiếp tục tăng trang (hoặc skip += 1000 tùy logic API)
+                            }
+                            else
+                            {
+                                keepRunning = false;
+                            }
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = $"API call failed at skip {skip}";
+                            return processResult;
+                        }
+                    }
+
+                    // Sau khi gộp xong, cập nhật lại số lượng tổng vào trường 'count' hoặc 'limit' nếu cần
+                    finalJsonObject.count = ((Newtonsoft.Json.Linq.JArray)finalJsonObject.data).Count;
+
+                    // Chuyển đối tượng đã gộp hoàn chỉnh thành chuỗi JSON duy nhất
+                    string finalJsonString = JsonConvert.SerializeObject(finalJsonObject);
+
+                    // Lưu vào Database
+                    var exitingData = dataPortal.GetDataByID(savedSearchId);
+                    if (exitingData != null)
+                    {
+                        exitingData.data = finalJsonString;
+                        exitingData.Synch_datetime = synchTime;
+                        dataPortal.Update(exitingData);
+                    }
+                    else
+                    {
+                        dataPortal.Insert(new ERP_synch_dataUI
+                        {
+                            savedsearchID = savedSearchId,
+                            data = finalJsonString,
+                            Synch_datetime = synchTime
+                        });
+                    }
+
+                    processResult.OK = true;
+                    processResult.Message = "Gộp dữ liệu thành công!";
                 }
             }
             catch (Exception ex)
