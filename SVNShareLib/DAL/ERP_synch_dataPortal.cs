@@ -38,6 +38,26 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public ERP_synch_dataUI GetDataByIDAndSyncDate(string savedsearchID, string Synch_datetime)
+        {
+            try
+            {
+                ERP_synch_dataUI data = new ERP_synch_dataUI();
+                string sql = "SELECT * FROM ERP_synch_data WHERE savedsearchID = @savedsearchID AND Synch_datetime = @Synch_datetime";
+                var param = new { savedsearchID = savedsearchID, Synch_datetime = Synch_datetime };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    data = connection.QueryFirstOrDefault<ERP_synch_dataUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public bool Insert(ERP_synch_dataUI entity)
         {
             try
@@ -64,9 +84,8 @@ namespace SVNShareLib.DAL
             try
             {
                 string sql = @"UPDATE ERP_synch_data 
-                       SET data = @data, 
-                           Synch_datetime = @Synch_datetime 
-                       WHERE savedsearchID = @savedsearchID";
+                       SET data = @data
+                       WHERE savedsearchID = @savedsearchID AND Synch_datetime = @Synch_datetime";
 
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
