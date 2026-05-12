@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
+using SVNShareLib.Utils;
 using System.Text;
 using ViidooDBServiceAPI.Services;
 using static Org.BouncyCastle.Math.EC.ECCurve;
@@ -19,6 +20,33 @@ namespace ViidooDBServiceAPI.Controllers
         public ERPServicesController(SVNDBConfig SVNDBConfig)
         {
             this.SVNDBConfig = SVNDBConfig;
+        }
+
+        [Route("GetReport799_803")]
+        [HttpGet]
+        public async Task<BODataProcessResult> GetReport799_803(string condition)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                SavedSearchServices savedSearchServices = new SavedSearchServices(SVNDBConfig.ConnectionString);
+                var data = await savedSearchServices.GetWOData(condition);
+                if(data == null)
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Failed to get data from database";
+                    return processResult;
+                }
+                processResult.OK = true;
+                processResult.NumOfRow = data.Count;
+                processResult.Content = data;
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
         }
 
         [Route("GetSavedSearch")]
