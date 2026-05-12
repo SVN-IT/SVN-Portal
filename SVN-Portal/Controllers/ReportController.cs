@@ -29,18 +29,18 @@ namespace SVN_Portal.Controllers
         }
 
         #region FN
-        public IActionResult WOAnalisisReport(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> WOAnalisisReport(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10)
         {
             List<workOrderInfoUI> pagedData = new List<workOrderInfoUI>();
 
-            pagedData = GetPageWOData(fromDate, toDate, pageNumber, pageSize); 
+            pagedData = await GetPageWOData(fromDate, toDate, pageNumber, pageSize); 
 
             return View(pagedData);
         }
 
-        public IActionResult ExportWOAnalisis(DateTime fromDate, DateTime toDate)
+        public async Task<IActionResult> ExportWOAnalisis(DateTime fromDate, DateTime toDate)
         {
-            var data = GetPageWOData(fromDate, toDate, 1, int.MaxValue, true);
+            var data = await GetPageWOData(fromDate, toDate, 1, int.MaxValue, true);
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("WO Analysis");
@@ -150,7 +150,7 @@ namespace SVN_Portal.Controllers
         #endregion
 
         #region config and logic
-        public List<workOrderInfoUI> GetPageWOData(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10, bool isExport = false)
+        public async Task<List<workOrderInfoUI>> GetPageWOData(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 10, bool isExport = false)
         {
             List<workOrderInfoUI> pagedData = new List<workOrderInfoUI>();
             if (fromDate == DateTime.MinValue)
@@ -181,17 +181,13 @@ namespace SVN_Portal.Controllers
             {
                 toDate = toDate.Date.AddHours(23).AddMinutes(59);
             }
+            string conditionString = $"WO_Close_Date >= '{fromDate:yyyy-MM-dd}' AND WO_Date <= '{toDate:yyyy-MM-dd}'";
 
             int totalPages = 0;
-            string storedProcedure = "SVN_ERP_savedsearch_779_803";
             List<workOrderInfoUI> workOrderModels = new List<workOrderInfoUI>();
 
-            List<SVN_SavedSearch_FormulaUI> sVN_SavedSearch_FormulaUIs = new List<SVN_SavedSearch_FormulaUI>();
-
-            var dataPortal = new mrp_productionDataPortal(connectionString);
-            var formulaDataPortal = new SVN_SavedSearch_FormulaDataPortal(connectionString);
-            workOrderModels = dataPortal.GetWorkOrderInfo();
-            sVN_SavedSearch_FormulaUIs = formulaDataPortal.GetSavedSearchFormulaData(storedProcedure);
+            var dataPortal = new SVN_ERP_Final_ReportDataPortal(connectionString);
+            workOrderModels = await dataPortal.GetDataByCondition(conditionString);
 
             if (workOrderModels != null && workOrderModels.Count > 0)
             {
@@ -201,7 +197,8 @@ namespace SVN_Portal.Controllers
                 //Lọc dữ liệu của Vietnam thôi
                 if (list != null && list.Count > 0)
                 {
-                    list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").OrderByDescending(x => x.WO_FGID).ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
+                    list = list.OrderByDescending(x => x.WO_FGID).ToList();
+                    //list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").OrderByDescending(x => x.WO_FGID).ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
                     //&& (x.WO_FGID == 15752 || x.WO_FGID == 15751 || x.WO_FGID == 15752)
                     // Group toàn bộ dữ liệu theo WO
                     var woGroups = list
@@ -210,6 +207,7 @@ namespace SVN_Portal.Controllers
 
                     // Map FGItem -> WO
                     var fgItemToWO = list
+                        .Where(x => x.FGitem != null)
                         .GroupBy(x => x.FGitem)
                         .ToDictionary(g => g.Key, g => g.First().WO_FGID);
 
