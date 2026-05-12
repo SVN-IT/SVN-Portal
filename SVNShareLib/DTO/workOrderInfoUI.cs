@@ -30,6 +30,7 @@ namespace SVNShareLib.DTO
         public decimal Quantity { get; set; }
         public string? Location { get; set; }
         public string item_type { get; set; }
+        public DateTime Last_Updated { get; set; }
 
         //property để lưu parentWOID
         public int ParentWOID { get; set; }
