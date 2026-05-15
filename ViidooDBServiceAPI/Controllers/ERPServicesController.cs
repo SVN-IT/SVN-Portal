@@ -365,7 +365,7 @@ namespace ViidooDBServiceAPI.Controllers
                             limit = limitPerRequest,
                             debug = false,
                             filters = new[] {
-                                new { field = "closedate", join = "createdFrom", @operator = "WITHIN", value = $"{dateFrom},{dateTo}" }
+                                new { field = "trandate", join = "", @operator = "WITHIN", value = $"{dateFrom},{dateTo}" }
                             }
                         };
 
