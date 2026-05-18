@@ -32,7 +32,7 @@ namespace SVNShareLib.Utils
                 //Lọc dữ liệu của Vietnam thôi
                 if (list != null && list.Count > 0)
                 {
-                    list = list.OrderByDescending(x => x.WO_FGID).ToList();
+                    list = list.Where(x => x.WO_FGID == 15620 || x.WO_FGID == 15619).OrderByDescending(x => x.WO_FGID).ToList();
                     //list = list.Where(x => x.Subsidiary == "Sigma Worldwide : Sigma Vietnam").OrderByDescending(x => x.WO_FGID).ToList(); //&& (x.WO_FGID == 15850 || x.WO_FGID == 15849)
                     //&& (x.WO_FGID == 15752 || x.WO_FGID == 15751 || x.WO_FGID == 15752)
                     // Group toàn bộ dữ liệu theo WO
@@ -103,6 +103,9 @@ namespace SVNShareLib.Utils
                             }
                         }
                     }
+
+                    list = list.OrderBy(x => x.WO_FGID).ToList();
+                    list = CalculateMat(list);
 
                     pagedData = list;
                 }
