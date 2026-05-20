@@ -734,9 +734,9 @@ namespace ViidooDBServiceAPI.Controllers
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(svnDBConfig.ConnectionString);
             try
             {
-                DateTime timeBefore = DateTime.Now.AddDays(-20);
-                //var inputtedData = await dataPortal.GetDataByDateFinishedAsync(timeBefore);
-                var inputtedData = await dataPortal.GetDataByIdAsync(82);
+                DateTime timeBefore = DateTime.Now.AddMinutes(-10);
+                var inputtedData = await dataPortal.GetDataByDateFinishedAsync(timeBefore);
+                //var inputtedData = await dataPortal.GetDataByIdAsync(82);
                 if (inputtedData != null)
                 {
                     foreach (var item in inputtedData)
