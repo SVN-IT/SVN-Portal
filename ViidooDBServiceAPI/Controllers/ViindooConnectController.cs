@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
 using SVNShareLib.DAL;
+using SVNShareLib.DAL.NewDashboard;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using SVNShareLib.Utils;
@@ -732,9 +733,17 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             List<BODataProcessResult> SyncBODataResults = new List<BODataProcessResult>();
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(svnDBConfig.ConnectionString);
+            SVN_AppSetting_v1DataPortal appSettingDataPortal = new SVN_AppSetting_v1DataPortal(svnDBConfig.ConnectionString);
+            var synchTimeData = await appSettingDataPortal.GetSettingByGroupAndKey("SynchPDInputMinutesTime", "SVNCoreAPI");
+            int synchTime = 10;
+            if (synchTimeData != null && int.TryParse(synchTimeData.Value, out int result))
+            {
+                synchTime = result;
+            }
+
             try
             {
-                DateTime timeBefore = DateTime.Now.AddMinutes(-10);
+                DateTime timeBefore = DateTime.Now.AddMinutes(-synchTime);
                 var inputtedData = await dataPortal.GetDataByDateFinishedAsync(timeBefore);
                 //var inputtedData = await dataPortal.GetDataByIdAsync(82);
                 if (inputtedData != null)
