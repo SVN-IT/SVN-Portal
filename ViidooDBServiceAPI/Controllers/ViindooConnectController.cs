@@ -756,6 +756,7 @@ namespace ViidooDBServiceAPI.Controllers
                         if(inputResult.OK)
                         {
                             item.status = "synch success";
+                            SyncBODataResults.Add(inputResult);
                         }
                         else
                         {
@@ -764,11 +765,12 @@ namespace ViidooDBServiceAPI.Controllers
                         }
                         var updateResult = await dataPortal.UpdateAsync(item);
                     }
+                    var successCount = SyncBODataResults.Count(x => x.OK);
                     var failedCount = SyncBODataResults.Count(x => !x.OK);
                     if (failedCount > 0)
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Đồng bộ hoàn tất với " + failedCount + " bản ghi lỗi";
+                        bODataProcessResult.Message = $"Đồng bộ hoàn tất với {successCount} bản ghi thành công và {failedCount} bản ghi lỗi";
                         bODataProcessResult.Content = SyncBODataResults;
                     }
                     else
