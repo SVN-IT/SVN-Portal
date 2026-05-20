@@ -13,88 +13,7 @@
       }
     ],
     "StoreID": 1,
-    "Produce_id": [
-      21,
-      24,
-      25,
-      267,
-      268,
-      269,
-      294,
-      295,
-      296,
-      299,
-      298,
-      300,
-      301,
-      307,
-      308,
-      309,
-      310,
-      313,
-      314,
-      315,
-      316,
-      321,
-      320,
-      322,
-      323,
-      325,
-      326,
-      327,
-      328,
-      273,
-      274,
-      275,
-      276,
-      281,
-      282,
-      283,
-      284,
-      340,
-      339,
-      341,
-      338,
-      344,
-      345,
-      346,
-      347,
-      626,
-      625,
-      627,
-      628,
-      630,
-      631,
-      288,
-      632,
-      633,
-      634,
-      635,
-      636,
-      640,
-      639,
-      638,
-      641,
-      647,
-      646,
-      645,
-      648,
-      650,
-      651,
-      652,
-      653,
-      657,
-      658,
-      737,
-      330,
-      332,
-      331,
-      333,
-      798,
-      797,
-      799,
-      800
-    ],
+    "Produce_id": [ 21, 24, 25, 267, 268, 269, 294, 295, 296, 299, 298, 300, 301, 307, 308, 309, 310, 313, 314, 315, 316, 321, 320, 322, 323, 325, 326, 327, 328, 273, 274, 275, 276, 281, 282, 283, 284, 340, 339, 341, 338, 344, 345, 346, 347, 626, 625, 627, 628, 630, 631, 288, 632, 633, 634, 635, 636, 640, 639, 638, 641, 647, 646, 645, 648, 650, 651, 652, 653, 657, 658, 737, 330, 332, 331, 333, 798, 797, 799, 800 ],
     "ColWidth": 12
   },
   {
@@ -128,11 +47,7 @@
       }
     ],
     "StoreID": 2,
-    "Produce_id": [
-      36,
-      348,
-      349
-    ],
+    "Produce_id": [ 36, 348, 349 ],
     "ColWidth": 12
   },
   {
@@ -149,11 +64,7 @@
       }
     ],
     "StoreID": 5,
-    "Produce_id": [
-      898,
-      899,
-      900
-    ],
+    "Produce_id": [ 898, 899, 900 ],
     "ColWidth": 6
   },
   {
@@ -170,10 +81,7 @@
       }
     ],
     "StoreID": 5,
-    "Produce_id": [
-      801,
-      803
-    ],
+    "Produce_id": [ 801, 803 ],
     "ColWidth": 6
   },
   {
@@ -207,20 +115,7 @@
       }
     ],
     "StoreID": 6,
-    "Produce_id": [
-      370,
-      606,
-      608,
-      610,
-      609,
-      612,
-      611,
-      613,
-      615,
-      614,
-      616,
-      617
-    ],
+    "Produce_id": [ 370, 606, 608, 610, 609, 612, 611, 613, 615, 614, 616, 617 ],
     "ColWidth": 6
   },
   {
@@ -2009,10 +1904,10 @@
     "ColWidth": 4
   },
   {
-    "Operation": "Saddle-SG-NGTC5TC7-HDSTP-100(SM)",
+    "Operation": "Injection-WIP07-00045",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Saddle(SM)",
+    "MasterOperation": "Injection",
     "WCType": "FG",
     "WC": [
       {
@@ -2021,340 +1916,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 3,
-    "Produce_id": [ 1277 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-FG-RAI-SP-0007-00(SM)",
-    "Name": "Sakura Folio Case,Midnight Blue,RM15A-1000NW",
-    "Price": 0,
-    "MasterOperation": "Sakura F/G(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1257 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00304(SM)",
-    "Name": "Back Panel- Sukara blue",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1356 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00303(SM)",
-    "Name": "Mid Panel-Sukara blue",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1259 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00302(SM)",
-    "Name": "Top Panel- Semi-finished product",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1258 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WCT01-00500(SM)",
-    "Name": "Cut_Semi-finished product",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1353 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WCT01-00672(SM)",
-    "Name": "Cut_Semi-finished product",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1355 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-RM15A-1001NW(SM)",
-    "Name": "Sakura - Desert Pink",
-    "Price": 0,
-    "MasterOperation": "Sakura F/G(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1373 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-C54-00565-01(SM)",
-    "Name": "Sakura - Desert Pink",
-    "Price": 0,
-    "MasterOperation": "Sakura F/G(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1382 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00300(SM)",
-    "Name": "MidPanel - Sakura Pink",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1374 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WCT01-00671(SM)",
-    "Name": "前幅裁片半成品组件-Sakura粉色",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1380 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WCT01-00488(SM)",
-    "Name": "裁片-后幅面料-Sakura 粉色",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1381 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00299(SM)",
-    "Name": "TopPanel - Sakura Pink",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1376 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00301(SM)",
-    "Name": "BackPanel - Sakura Pink",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1378 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-RM15A-1000NW(SM)",
-    "Name": "Sakura - Ocean Blue",
-    "Price": 0,
-    "MasterOperation": "Sakura F/G(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1371 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-RM15A-1002NW(SM)",
-    "Name": "Sakura - Mist Green",
-    "Price": 0,
-    "MasterOperation": "Sakura F/G(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1361 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00306(SM)",
-    "Name": "MidPanel - Sakura Green",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1366 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-WSS03-00307(SM)",
-    "Name": "BackPanel- Sakura Green",
-    "Price": 0,
-    "MasterOperation": "Sakura WIP(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1362 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "Sakura-C54-00567-01(SM)",
-    "Name": "Sakura - Mist Green",
-    "Price": 0,
-    "MasterOperation": "Sakura F/G(SM)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [ 1370 ],
-    "ColWidth": 4
-  },
-  {
-    "Operation": "De_burring-465(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "De burring(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      465
-    ],
+    "StoreID": 5,
+    "Produce_id": [ 1385 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-466(ITA)",
+    "Operation": "Injection-WIP07-00044",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Injection",
     "WCType": "FG",
     "WC": [
       {
@@ -2363,17 +1933,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      466
-    ],
+    "StoreID": 5,
+    "Produce_id": [ 1384 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-467(ITA)",
+    "Operation": "Injection-WIP07-00048",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Injection",
     "WCType": "FG",
     "WC": [
       {
@@ -2382,17 +1950,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      467
-    ],
+    "StoreID": 5,
+    "Produce_id": [ 1387 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-475(ITA)",
+    "Operation": "Injection-WIP07-00047",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Injection",
     "WCType": "FG",
     "WC": [
       {
@@ -2401,17 +1967,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      475
-    ],
+    "StoreID": 5,
+    "Produce_id": [ 1386 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-476(ITA)",
+    "Operation": "Twist-7100406070",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2420,17 +1984,32 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      476
+    "StoreID": 10,
+    "Produce_id": [ 1389 ],
+    "ColWidth": 12
+  },
+  {
+    "Operation": "Twist-7100405899",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
     ],
+    "StoreID": 10,
+    "Produce_id": [ 1426 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-477(ITA)",
+    "Operation": "Twist-7100406375",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2439,17 +2018,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      477
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1419 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-478(ITA)",
+    "Operation": "Twist-7100406405",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2458,17 +2035,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      478
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1411 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-479(ITA)",
+    "Operation": "Twist-7100406374",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2477,17 +2052,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      479
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1420 ],
     "ColWidth": 6
   },
   {
-    "Operation": "De_burring-480(ITA)",
+    "Operation": "Twist-7100406378",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "De burring(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2496,17 +2069,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      480
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1410 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-465(ITA)",
+    "Operation": "Twist-7100406413",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2515,17 +2086,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      481
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1413 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-466(ITA)",
+    "Operation": "Twist-7100406379",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2534,17 +2103,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      482
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1422 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-467(ITA)",
+    "Operation": "Twist-7100406384",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2553,17 +2120,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      483
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1415 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-475(ITA)",
+    "Operation": "Twist-7100406287",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2572,17 +2137,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      484
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1391 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-476(ITA)",
+    "Operation": "Twist-7100406386",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2591,17 +2154,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      485
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1424 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-477(ITA)",
+    "Operation": "Twist-7100406306",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2610,17 +2171,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      486
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1408 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-478(ITA)",
+    "Operation": "Twist-7100406012",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2629,17 +2188,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      487
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1417 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-479(ITA)",
+    "Operation": "Twist-7100406225",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2648,17 +2205,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      488
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1434 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Auto_Polish-480(ITA)",
+    "Operation": "Twist-7100406380",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Auto Polish(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2667,17 +2222,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      489
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1436 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Painting-466(ITA)",
+    "Operation": "Twist-7100406577",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2686,17 +2239,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      498
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1428 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Painting-467(ITA)",
+    "Operation": "Twist-7100406527",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2705,17 +2256,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      499
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1430 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Painting-475(ITA)",
+    "Operation": "Twist-7100406454",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2724,17 +2273,15 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      500
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1438 ],
     "ColWidth": 6
   },
   {
-    "Operation": "Painting-476(ITA)",
+    "Operation": "Twist-7100406653",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "Painting(ITA)",
+    "MasterOperation": "Twist",
     "WCType": "FG",
     "WC": [
       {
@@ -2743,732 +2290,8 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 1,
-    "Produce_id": [
-      501
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting-477(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      502
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting-478(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      503
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting-479(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      504
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting-480(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      505
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-465(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      506
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-466(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      507
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-467(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      508
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-475(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      509
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-476(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      510
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-477(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      511
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-478(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      512
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-479(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      513
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Machining-480(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Machining(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      514
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-465(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      515
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-466(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      516
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-467(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      517
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-475(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      518
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-476(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      519
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-477(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      520
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-478(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      521
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-479(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      522
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Die_casting-480(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Die casting(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      523
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-466(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      524
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-467(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      525
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-475(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      526
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-476(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      527
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-477(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      528
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-478(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      529
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-479(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      530
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Painting_Polish-480(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Painting_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      531
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-466(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      532
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-467(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      533
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-475(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      534
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-476(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      535
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-477(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      536
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-478(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      537
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-479(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      538
-    ],
-    "ColWidth": 6
-  },
-  {
-    "Operation": "Plating_Polish-480(ITA)",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Plating_Polish(ITA)",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 1,
-    "Produce_id": [
-      539
-    ],
+    "StoreID": 10,
+    "Produce_id": [ 1432 ],
     "ColWidth": 6
   }
 ]
