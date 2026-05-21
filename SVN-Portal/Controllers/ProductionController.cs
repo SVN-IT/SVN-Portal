@@ -304,15 +304,15 @@ namespace SVN_Portal.Controllers
                 sb.Append("<td>" + item["location_name"] + "</td>");
                 if (item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /></td>");
                 }
                 else if (item["has_tracking"] == "lot")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /></td>");
                 }
                 else
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /><input type=\"hidden\" class=\"form-control  has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Not Available</td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control  has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" />Not Available</td>");
                 }
                 sb.Append("</tr>");
             }
@@ -350,12 +350,12 @@ namespace SVN_Portal.Controllers
                         processResult.Message = $"Serial/Lot {serial} has been used for the WO {existingLog.wo_code}. Please double-check.";
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
-                    //else if (existingLog.state == "Consumed")
-                    //{
-                    //    processResult.OK = false;
-                    //    processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
-                    //    //return Json(new { result = processResult.OK, message = processResult.Message });
-                    //}
+                    else if (existingLog.state == "Consumed")
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
                     else
                     {
                         processResult.OK = true;
