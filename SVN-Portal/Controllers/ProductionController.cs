@@ -304,15 +304,15 @@ namespace SVN_Portal.Controllers
                 sb.Append("<td>" + item["location_name"] + "</td>");
                 if (item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /></td>");
                 }
                 else if (item["has_tracking"] == "lot")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /></td>");
                 }
                 else
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control  has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Not Available</td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /><input type=\"hidden\" class=\"form-control  has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Not Available</td>");
                 }
                 sb.Append("</tr>");
             }
@@ -383,7 +383,7 @@ namespace SVN_Portal.Controllers
         /// <param name="workOrderCode"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CheckLotSerialComponemt(string serial, string productId, string masterMOName, string hasTracking)
+        public async Task<IActionResult> CheckLotSerialComponemt(string serial, string productId, string masterMOName, string hasTracking, string productName)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
@@ -415,25 +415,34 @@ namespace SVN_Portal.Controllers
                 else
                 {
                     // Dùng cho trường hợp các con nvl quản lý theo serial hoặc lot cần nhập kho thì sẽ check trên Viindoo
-                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
-                    ProductDataRequest dataRequest = new ProductDataRequest()
+                    if (!productName.StartsWith("[W"))
                     {
-                        lotNumber = serial,
-                        seriNumber = masterMOName,
-                        product_id = int.Parse(productId),
-                        hasTracking = hasTracking
-                    };
-                    var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
-                    if (result != null)
-                    {
-                        processResult.OK = result.OK;
-                        processResult.Message = result.Message;
+                        HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                        ProductDataRequest dataRequest = new ProductDataRequest()
+                        {
+                            lotNumber = serial,
+                            seriNumber = masterMOName,
+                            product_id = int.Parse(productId),
+                            hasTracking = hasTracking
+                        };
+                        var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
+                        if (result != null)
+                        {
+                            processResult.OK = result.OK;
+                            processResult.Message = result.Message;
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = $"Serial/Lot {serial} not yet input";
+                        }
                     }
                     else
                     {
                         processResult.OK = false;
                         processResult.Message = $"Serial/Lot {serial} not yet input";
                     }
+                    
                 }
             }
             catch (Exception ex)
