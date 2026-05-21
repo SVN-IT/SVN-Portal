@@ -743,7 +743,8 @@ namespace ViidooDBServiceAPI.Controllers
 
             try
             {
-                DateTime timeBefore = DateTime.Now.AddMinutes(-synchTime);
+                //DateTime timeBefore = DateTime.Now.AddMinutes(-synchTime);
+                DateTime timeBefore = DateTime.Today;
                 var inputtedData = await dataPortal.GetDataByDateFinishedAsync(timeBefore);
                 //var inputtedData = await dataPortal.GetDataByIdAsync(82);
                 if (inputtedData != null)
