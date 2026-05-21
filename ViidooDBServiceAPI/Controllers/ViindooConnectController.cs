@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SVNShareLib;
@@ -865,6 +866,14 @@ namespace ViidooDBServiceAPI.Controllers
                 bODataProcessResult = await odooAPIService.LoginAsync();
                 if (bODataProcessResult.OK)
                 {
+                    var lot_id_info = await odooAPIService.GetLotInfoInWarehoure(dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);
+                    if (lot_id_info == 0)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Mã lot " + dataRequest.lotNumber + " không tìm thấy ";
+                        return bODataProcessResult;
+                    }
+
                     if (dataRequest.hasTracking == "serial")
                     {
                         var result = await odooAPIService.GetUsedLotForComponemtAsync(dataRequest.seriNumber, dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.UserID, bODataProcessResult.DataType);

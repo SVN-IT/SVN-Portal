@@ -2711,6 +2711,80 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+
+        /// <summary>
+        /// Check lot có ở trong kho không trc khi tiêu thụ
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="mo_id"></param>
+        /// <param name="stockMoveInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<int> GetLotInfoInWarehoure(string lot_name, int product_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 130,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.lot",
+                        method = "name_search",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            name = lot_name,
+                            @operator = "ilike",
+                            args = new object[]
+                            {
+                                "&",
+                                new object[] { "product_id", "=", product_id }
+                            },
+                            limit = 8,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                //active_picking_id = false,
+                                default_product_id = product_id
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync();
+                //var resultArray = (JArray)json["result"];
+                try
+                {
+                    dynamic data = JsonConvert.DeserializeObject(json);
+                    int lotId = data.result[0][0];
+                    string lotName = data.result[0][1];
+
+                    return lotId;
+                }
+                catch (Exception ex)
+                {
+                    return 0;
+                }
+            }
+        }
+
         /// <summary>
         /// Trong trường hợp không giữ phần
         /// tạo 1 stockmoveline mới để tiêu hao
