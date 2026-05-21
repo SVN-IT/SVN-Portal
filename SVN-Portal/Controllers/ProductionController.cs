@@ -389,6 +389,7 @@ namespace SVN_Portal.Controllers
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
             try
             {
+                //chỉ đùng nếu là WIP
                 var existingLog = await dataPortal.GetByProductIDAndSerialCodeAsync(int.Parse(productId), serial);
                 if (existingLog != null)
                 {
@@ -413,8 +414,26 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    processResult.OK = false;
-                    processResult.Message = $"Serial/Lot {serial} not yet input";
+                    // Dùng cho trường hợp các con nvl quản lý theo serial hoặc lot cần nhập kho thì sẽ check trên Viindoo
+                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                    ProductDataRequest dataRequest = new ProductDataRequest()
+                    {
+                        lotNumber = serial,
+                        seriNumber = masterMOName,
+                        product_id = int.Parse(productId),
+                        hasTracking = hasTracking
+                    };
+                    var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
+                    if (result != null)
+                    {
+                        processResult.OK = result.OK;
+                        processResult.Message = result.Message;
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"Serial/Lot {serial} not yet input";
+                    }
                 }
             }
             catch (Exception ex)
