@@ -560,6 +560,11 @@ namespace SVN_Portal.Controllers
                                     processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with serial {item.lotNumber} as consumed.";
                                 }
                             }
+                            else
+                            {
+                                //trong trường hợp là nvl nhập kho thì ko cần check nữa vì bên trên đã check rồi
+                                processResult.OK = true;
+                            }
                         }
                         else if (item.tracking == "lot")
                         {
