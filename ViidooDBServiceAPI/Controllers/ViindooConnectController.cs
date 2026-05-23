@@ -758,11 +758,13 @@ namespace ViidooDBServiceAPI.Controllers
                         if(inputResult.OK)
                         {
                             item.status = "synch success";
+                            inputResult.Message = item.wo_code + " - " + inputResult.Message;
                             SyncBODataResults.Add(inputResult);
                         }
                         else
                         {
                             item.status = "synch failed";
+                            inputResult.Message = item.wo_code + " - " + inputResult.Message;
                             SyncBODataResults.Add(inputResult);
                         }
                         var updateResult = await dataPortal.UpdateAsync(item);
@@ -772,13 +774,13 @@ namespace ViidooDBServiceAPI.Controllers
                     if (failedCount > 0)
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = $"Đồng bộ hoàn tất với {successCount} bản ghi thành công và {failedCount} bản ghi lỗi";
+                        bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công và {failedCount} bản ghi lỗi";
                         bODataProcessResult.Content = SyncBODataResults;
                     }
                     else
                     {
                         bODataProcessResult.OK = true;
-                        bODataProcessResult.Message = "Đồng bộ hoàn tất với tất cả bản ghi thành công";
+                        bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công";
                     }
                 }
             }
