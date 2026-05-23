@@ -750,6 +750,9 @@ namespace ViidooDBServiceAPI.Controllers
                 //var inputtedData = await dataPortal.GetDataByIdAsync(82);
                 if (inputtedData != null)
                 {
+                    //bỏ hết các trường hợp serial_code bị trống
+                    inputtedData = inputtedData.Where(x => !string.IsNullOrWhiteSpace(x.serial_code)).ToList();
+
                     foreach (var item in inputtedData)
                     {
                         InputProductDataRequest request = new InputProductDataRequest();

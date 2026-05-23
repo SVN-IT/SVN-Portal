@@ -1017,7 +1017,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SaveSerialStockMoveAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -1261,7 +1262,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ConsumeMaterialsByBOMAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -1575,7 +1577,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ConsumeMaterialsByBOMAsyncv1 - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2054,7 +2057,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ConsumeMaterialsByBOMAsyncv2 - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2119,7 +2123,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SaveProductionOrderAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2194,7 +2199,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SaveProductionOrderAsyncv1 - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2255,7 +2261,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"MarkDoneProductionOrderAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2343,7 +2350,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderOnchange - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2516,7 +2524,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderAction - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2913,7 +2922,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CreateLotComponentForMO - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -3727,7 +3737,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetProductItemByCode - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 var resultArray = (JArray)json["result"];
                 var result = resultArray[0].ToObject<Dictionary<string, string>>();
