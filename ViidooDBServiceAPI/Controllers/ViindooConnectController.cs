@@ -796,6 +796,73 @@ namespace ViidooDBServiceAPI.Controllers
         }
 
         /// <summary>
+        /// Thực hiện tiêu hao trong cả trường hợp không có dữ phần
+        /// </summary>
+        /// <returns></returns>
+        [Route("ReSynchFailedProductionResultDataToViindoo")]
+        [HttpPost]
+        public async Task<BODataProcessResult> ReSynchFailedProductionResultDataToViindoo(SynchPDDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            List<BODataProcessResult> SyncBODataResults = new List<BODataProcessResult>();
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(svnDBConfig.ConnectionString);
+            
+
+            try
+            {
+                DateTime fromDate = dataRequest.FromDate;
+                DateTime toDate = dataRequest.ToDate;
+
+                var inputtedData = await dataPortal.GetDataFromDateToDateFinishedAsync(fromDate, toDate, dataRequest.Status);
+                //var inputtedData = await dataPortal.GetDataByIdAsync(82);
+                if (inputtedData != null)
+                {
+                    //bỏ hết các trường hợp serial_code bị trống
+                    inputtedData = inputtedData.Where(x => !string.IsNullOrWhiteSpace(x.serial_code)).ToList();
+
+                    foreach (var item in inputtedData)
+                    {
+                        InputProductDataRequest request = new InputProductDataRequest();
+                        request = JsonConvert.DeserializeObject<InputProductDataRequest>(item.API_parameters);
+                        var inputResult = await InputProductionResultToViindoo(request);
+                        if (inputResult.OK)
+                        {
+                            item.status = "synch success";
+                            inputResult.Message = item.wo_code + " - " + inputResult.Message;
+                            SyncBODataResults.Add(inputResult);
+                        }
+                        else
+                        {
+                            item.status = "synch failed";
+                            inputResult.Message = item.wo_code + " - " + inputResult.Message;
+                            SyncBODataResults.Add(inputResult);
+                        }
+                        var updateResult = await dataPortal.UpdateAsync(item);
+                    }
+                    var successCount = SyncBODataResults.Count(x => x.OK);
+                    var failedCount = SyncBODataResults.Count(x => !x.OK);
+                    if (failedCount > 0)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công và {failedCount} bản ghi lỗi";
+                        bODataProcessResult.Content = SyncBODataResults;
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+            }
+            return bODataProcessResult;
+        }
+
+        /// <summary>
         /// Check mã lot thành phẩm có tồn tại ko
         /// </summary>
         /// <param name="dataRequest"></param>
