@@ -1,1567 +1,2027 @@
 ﻿{
   "ok": false,
-  "message": "25/05/2026 12:51:47 | Đồng bộ hoàn tất với 116 bản ghi thành công và 40 bản ghi lỗi",
+  "message": "25/05/2026 05:19:53 | Đồng bộ hoàn tất với 80 bản ghi thành công và 122 bản ghi lỗi",
   "numOfRow": 0,
   "content": [
     {
       "ok": false,
-      "message": "NM/MO/03253-794 - Mã lô A101266182563 đã được sử dụng cho lệnh sản xuất NM/MO/03253-625",
+      "message": "NM/MO/03252-309 - Mã lô A101266181264 đã được sử dụng cho lệnh sản xuất NM/MO/03252-302",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "547722b8db60eb3fa717ca4c0e44a083a50e38ab"
+      "dataType": "a7a2f87d6b9bd9bb8ca285556f0cc63a4f2c8193"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-764 - Mã lô A101266185284 đã được sử dụng cho lệnh sản xuất NM/MO/03252-600",
+      "message": "NM/MO/03253-325 - Mã lô A101266181249 đã được sử dụng cho lệnh sản xuất NM/MO/03253-316",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "661b14f693d30edff2eb86ee34fc2b3d7c0e3223"
+      "dataType": "15cd3d8381296f4640618aef70cd2352f4bb2282"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-795 - Mã lô A101266182562 đã được sử dụng cho lệnh sản xuất NM/MO/03253-626",
+      "message": "NM/MO/03252-310 - Mã lô A101266181262 đã được sử dụng cho lệnh sản xuất NM/MO/03252-303",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "8f560df33a4c3fc91f0cbc02fa0a79e41d730f18"
+      "dataType": "d7c84372370f438fd337df8147b41e9f770c6e8b"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-796 - Mã lô A101266182558 đã được sử dụng cho lệnh sản xuất NM/MO/03253-627",
+      "message": "NM/MO/03253-326 - Mã lô A101266181251 đã được sử dụng cho lệnh sản xuất NM/MO/03253-317",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "65c6995b9303d41671f2e7faa289e2bf787046e1"
+      "dataType": "d58472a252b78db1d7c72f636f485986df1a93fc"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-765 - Mã lô A101266185288 đã được sử dụng cho lệnh sản xuất NM/MO/03252-601",
+      "message": "NM/MO/03253-327 - Mã lô A101266181256 đã được sử dụng cho lệnh sản xuất NM/MO/03253-318",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "f750f1075b5cc7e8148b5fedc2d4342dd03406e1"
+      "dataType": "0fdab718b2077a04041dbd77186b354721bf07d3"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-766 - Mã lô A101266185290 đã được sử dụng cho lệnh sản xuất NM/MO/03252-602",
+      "message": "NM/MO/03252-311 - Mã lô A101266181247 đã được sử dụng cho lệnh sản xuất NM/MO/03252-304",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "6dd87e13a4e926874adb0b6ef745a9e9d7ebee77"
+      "dataType": "f17ae9dee56b70b7699dfce2e40e3916562ee19a"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-797 - Mã lô A101266182561 đã được sử dụng cho lệnh sản xuất NM/MO/03253-649",
+      "message": "NM/MO/03252-312 - Mã lô A101266181269 đã được sử dụng cho lệnh sản xuất NM/MO/03252-305",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "1148ebecd5a53220b2220e65b9f90fdcb6d24768"
+      "dataType": "02588968afb5a5c11237ccba96b8f03f51d0ec06"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-798 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "message": "NM/MO/03253-328 - Mã lô A101266181253 đã được sử dụng cho lệnh sản xuất NM/MO/03253-319",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "2df2e8318000d9b21c7dfb612828a0fd9e8dbf0c"
+      "dataType": "6c2b67a133d037b52e6cf0d40056252083886800"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-799 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "message": "NM/MO/03164-1714 - Mã lô RM15A006114007K đã được sử dụng cho lệnh sản xuất NM/MO/03164-015",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "1ad47a4d1a285236096320ab303081f19fe71b4e"
+      "dataType": "cfec44811f06766e692ce3b905e0615ff82c1813"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-800 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "message": "NM/MO/03164-1715 - Mã lô RM15A006114007P đã được sử dụng cho lệnh sản xuất NM/MO/03164-016",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "2fd1a05eac728c0f6981d037c713c31c29edd93d"
+      "dataType": "13403272dae3816cbaeb823baa97405a0400eee7"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-801 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 1152726160005030 được sử dụng cho thành phần PCBA,DCDC,DTC3 đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "message": "NM/MO/03164-1718 - Mã lô RM15A006114007S đã được sử dụng cho lệnh sản xuất NM/MO/03164-019",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "c4e294587243549c09c584b6dca584f08d80a4ac"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-802 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "b89bfb1571b416f0bb94398d6e67b4cbeaa1ffd4"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-803 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "d9b53ab22769ba31edf57730e374f956fdc5fd6d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-804 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a5f023a192624c585724e73b2c737a782e98b787"
+      "dataType": "6e9e27d97384ec7221c0d6d6a67630c78402da42"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-805 - Mã lô A101266182554 đã được sử dụng cho lệnh sản xuất NM/MO/03253-628",
+      "message": "NM/MO/03164-1719 - Mã lô RM15A006114007T đã được sử dụng cho lệnh sản xuất NM/MO/03164-020",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "b5c5c68574e6f1f7d1fe8f77997289046b41f2c3"
+      "dataType": "8ba4a4ef7e8d5e7d4142df3ba1432c85bc5f9fc6"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-807 - Mã lô A101266182550 đã được sử dụng cho lệnh sản xuất NM/MO/03253-630",
+      "message": "NM/MO/03253-334 - Mã lô A101266181268 đã được sử dụng cho lệnh sản xuất NM/MO/03253-325",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "fed07155e438b20bcdb584a4ea208a35fe0074d8"
+      "dataType": "1fe4ed068239b20a746d774b65ab7e256943f4c4"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-808 - Mã lô A101266182545 đã được sử dụng cho lệnh sản xuất NM/MO/03253-631",
+      "message": "NM/MO/03164-1720 - Mã lô RM15A006114007J đã được sử dụng cho lệnh sản xuất NM/MO/03164-021",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "4800fd443163d38de337dc34a65844e8e7292eae"
+      "dataType": "507879bbfaf0750ee4bbd752ae13b0fd9791ed4d"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-809 - Mã lô A101266182544 đã được sử dụng cho lệnh sản xuất NM/MO/03253-632",
+      "message": "NM/MO/03164-1721 - Mã lô RM15A006114007U đã được sử dụng cho lệnh sản xuất NM/MO/03164-022",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "2cbbb64360f9a4be31d717bb0661edfb7187feb4"
+      "dataType": "feecf11db822a36b90f5003b55be5761e3c266a6"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-811 - Mã lô A101266182548 đã được sử dụng cho lệnh sản xuất NM/MO/03253-634",
+      "message": "NM/MO/03252-322 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 06501000500R-YN261700556 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 06501000500R-YN261700556 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 06501000500R-YN261700556 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "9b56e976ecf8b61e16cb17d65f2be8c661a93c2b"
+      "dataType": "ab19388f183be32a8a701bcce4ce0c050156407f"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-812 - Mã lô A101266182547 đã được sử dụng cho lệnh sản xuất NM/MO/03253-635",
+      "message": "NM/MO/03164-1723 - Mã lô RM15A006114007G đã được sử dụng cho lệnh sản xuất NM/MO/03164-024",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "0aab91a5db9e771fc4b6eafbcb65b30558443ffd"
+      "dataType": "2462c9192ba0f1d830056b0265af0f81cdd79c02"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-813 - Mã lô A101266182546 đã được sử dụng cho lệnh sản xuất NM/MO/03253-636",
+      "message": "NM/MO/03164-1725 - Mã lô RM15A006114006M đã được sử dụng cho lệnh sản xuất NM/MO/03164-025",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "0ddc9e95db1e95b72cf65bb250ac305f4f94e3ce"
+      "dataType": "bd98f78e5500e3ed48849dc74b8d4a895c224f2e"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-814 - Mã lô A101266182419 đã được sử dụng cho lệnh sản xuất NM/MO/03253-637",
+      "message": "NM/MO/03164-1726 - Mã lô RM15A006114006P đã được sử dụng cho lệnh sản xuất NM/MO/03164-026",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "af8905fc5405b07dcdbda659fc717fbf50a6c57f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-816 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "04acd49d8fe00632ab6f2383fa94f929e5d6f387"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-817 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c6a544f54179b1265347f31758f17e1c74342a00"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-818 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "2775d5edf254afa1b20b2524b842753da382400f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-819 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "9243a0adb9b054e9ac894518c43a50cec1943425"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-820 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "ac99b05fed62aa9dd71ddc3e3b5118108c90f84b"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-821 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "2f83eea33f460ec9cf3168b8ce76b290e1bb7440"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-822 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "32886142c4e2911e97cc46b5ba6c0b50fabcf8b1"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-823 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a7e2188b56928cd80f9d12fb3a0857b65645dbe0"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-824 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c5983f65c3529ab061919fd5bb27d21d131e6f24"
+      "dataType": "7f5a92f7e8e32fd378491b00d8223353177316a0"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-825 - Mã lô A101266182431 đã được sử dụng cho lệnh sản xuất NM/MO/03253-639",
+      "message": "NM/MO/03164-1728 - Mã lô RM15A006114006R đã được sử dụng cho lệnh sản xuất NM/MO/03164-027",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "b7bdb0073b5523c9cec25dea0d6b2c6971a06e47"
+      "dataType": "91113715f90dd4e49565215a00dc7ff1538edea7"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-826 - Mã lô A101266182430 đã được sử dụng cho lệnh sản xuất NM/MO/03253-640",
+      "message": "NM/MO/03164-1729 - Mã lô RM15A006114006S đã được sử dụng cho lệnh sản xuất NM/MO/03164-028",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "e011de60c841daeb0278fe724f71c6c4c127695c"
+      "dataType": "0141f2145767674baa52048dc4fdd1ead0efc00d"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-827 - Mã lô A101266182408 đã được sử dụng cho lệnh sản xuất NM/MO/03253-641",
+      "message": "NM/MO/03252-323 - Mã lô A101266181255 đã được sử dụng cho lệnh sản xuất NM/MO/03252-315",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "3911c21faedab801ff62e531084cd25e7d329b70"
+      "dataType": "f16fa41f039aafa610d65c10be48aef4c5fe026e"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-828 - Mã lô A101266182424 đã được sử dụng cho lệnh sản xuất NM/MO/03253-642",
+      "message": "NM/MO/03164-1731 - Mã lô RM15A006114006U đã được sử dụng cho lệnh sản xuất NM/MO/03164-030",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "8b6c524386090058dde7d6902298113261a1473f"
+      "dataType": "a781f064d9caccfcc9a81ad02286227784ea09d1"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-829 - Mã lô A101266182428 đã được sử dụng cho lệnh sản xuất NM/MO/03253-643",
+      "message": "NM/MO/03164-1733 - Mã lô RM15A006114006W đã được sử dụng cho lệnh sản xuất NM/MO/03164-031",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "47a24ce445a3162434a99014f7b581190061d918"
+      "dataType": "fabe61d9545bf66cf8dcc4db737d059716952539"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-830 - Mã lô A101266182425 đã được sử dụng cho lệnh sản xuất NM/MO/03253-644",
+      "message": "NM/MO/03164-1734 - Mã lô RM15A006114006X đã được sử dụng cho lệnh sản xuất NM/MO/03164-032",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "a63d65399f86c6ad89e3044032abf291b6f1950e"
+      "dataType": "f43aa18d05cd4e6e74e8f138d1c679d7a0ec09c7"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-831 - Mã lô A101266182429 đã được sử dụng cho lệnh sản xuất NM/MO/03253-645",
+      "message": "NM/MO/03164-1736 - Mã lô RM15A0061140071 đã được sử dụng cho lệnh sản xuất NM/MO/03164-034",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "4946456b987293512599e10ce808453f322b7a0c"
+      "dataType": "b2211779202eee8487845ba697ef9e88afe04398"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-832 - Mã lô A101266182426 đã được sử dụng cho lệnh sản xuất NM/MO/03253-646",
+      "message": "NM/MO/03164-1738 - Mã lô RM15A0061140073 đã được sử dụng cho lệnh sản xuất NM/MO/03164-036",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "2ed0bb32e9cfca36fa39d275393c3cb76b19a394"
+      "dataType": "486454779be0b6a68ce7a516394128535d4eb51b"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-833 - Mã lô A101266182427 đã được sử dụng cho lệnh sản xuất NM/MO/03253-647",
+      "message": "NM/MO/03164-1740 - Mã lô RM15A0061140075 đã được sử dụng cho lệnh sản xuất NM/MO/03164-038",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "65472a2e4f5dfed3803e2cb1ee455cce6a31317d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-834 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "551f21c0f6ede46b93106744c6f8a8b4440331c3"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-835 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "fe86e0ad7638d71a919fc9f5dee863aa1ed7f06e"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-836 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "26862e882acc2ac9f3ca0e1079b556a9e6eb078f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-837 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "2720ab64d622c8721e137211ea86ff748f2cedd0"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-838 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c09f43f97ca5e21e2a0e55962452be20fc8740a3"
+      "dataType": "d69e5e25b01ce92d2372a02c6573cc7a4dc0cd4f"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-773 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 06501000500R-YN261704611 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 06501000500R-YN261704611 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 06501000500R-YN261704611 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "message": "NM/MO/03164-1741 - Mã lô RM15A0061140076 đã được sử dụng cho lệnh sản xuất NM/MO/03164-039",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "8c82b25400cbbab0f92a45e7a9028a286b5f02c6"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-774 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "20fa65804f3e6f0d6cc4648c29cd6e3be16c2f33"
+      "dataType": "59a30b78c4eeced67380f5d4b60d0443a7137118"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-775 - Mã lô A101266182553 đã được sử dụng cho lệnh sản xuất NM/MO/03252-609",
+      "message": "NM/MO/03164-1743 - Mã lô RM15A0061140078 đã được sử dụng cho lệnh sản xuất NM/MO/03164-040",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "a8f2021be9d7cfe7245c41477d23da4da2fe6f07"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-839 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "19754c8450e192950b37a99a58930367e00a7c80"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-776 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f1ce547aae2f88e367529b4b6fe8b91dcfd7ae8f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-840 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f2accf9729f25aeb8ecfa360e4f54615214ee3a4"
+      "dataType": "dca8deee3e454668560437cdab744c969113ad5d"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-777 - Mã lô A101266182563 đã được sử dụng cho lệnh sản xuất NM/MO/03252-610",
+      "message": "NM/MO/03253-335 - Mã lô A101266181259 đã được sử dụng cho lệnh sản xuất NM/MO/03253-326",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "64e87d95e0ef67106a954f205f62004cc1c54a23"
+      "dataType": "1e283cd55796a74a039dc19dcb6d7e347a8fbab1"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-778 - Mã lô A101266182557 đã được sử dụng cho lệnh sản xuất NM/MO/03252-611",
+      "message": "NM/MO/03164-1745 - Mã lô RM15A006114007A đã được sử dụng cho lệnh sản xuất NM/MO/03164-042",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "a6233c960c8aa72c3633059610e5f3e746cd301c"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-841 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e0cd3b4151e4a92626ff5f7d3630f15df2ddb8b0"
+      "dataType": "9ab6da4311ac59a0531512a1594b36c9f7f21576"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-780 - Mã lô A101266182562 đã được sử dụng cho lệnh sản xuất NM/MO/03252-613",
+      "message": "NM/MO/03164-1748 - Mã lô RM15A006114007D đã được sử dụng cho lệnh sản xuất NM/MO/03164-045",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "d59dcd9799fc2a19393d0e5b1ff06a412d74b56f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-842 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "3061629e5ee8f694774a68cf797e8430bbb955c5"
+      "dataType": "85e5579361d20a83effa214f3fba9ce4c34f8496"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-781 - Mã lô A101266182544 đã được sử dụng cho lệnh sản xuất NM/MO/03252-614",
+      "message": "NM/MO/03164-1750 - Mã lô RM15A006114007F đã được sử dụng cho lệnh sản xuất NM/MO/03164-046",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "cd385c8f8ff5d055dceb9a3711d745dcaea577e8"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-782 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f93f7d2a0b46add16017a638fd897bd9b1391682"
+      "dataType": "de724af7784b4f2332e6bd967517fce223ffd8e7"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-783 - Mã lô A101266182419 đã được sử dụng cho lệnh sản xuất NM/MO/03252-615",
+      "message": "NM/MO/03164-1751 - Mã lô RM15A006114007V đã được sử dụng cho lệnh sản xuất NM/MO/03164-047",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "4b39a542674603f0bda187535c4789d5655bcb31"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-784 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c3e391b9cb05791504ded7afb8b4a5c42549283a"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-785 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c5ba26dae28673113e914eb520000cf61cdc9a58"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-786 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "fd1126ca7b1bc82a0d25c0f971a8197496a06a3b"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-843 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c950914cb9dd6a183cd9e938c821773badde6499"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-787 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "97bd8a209a0f613da62bab1a7ba451d721c628e1"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-788 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "42360bb7f346fe4aa825474725b5d37155abe3e3"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-789 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "b8e79ff18e0faaa9a97134d1ea9434e910b99a28"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-790 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4d492ad155dda9ad5a16cbc94f6479e46c6c567e"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-791 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "994da5a8862fd8d15354e3dc58fd450505c39387"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-792 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e8b7de3e3dc539f3c2cc9e5adf8cb0747899a1c2"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-793 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "bc7f2904050c5b6df91dd87ff7178ff3bbd5f60d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-794 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8e455887ed23107a2228ae82c76f74c94c93f485"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-795 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "bd00a94baae41519094cb4a078225a860d03fe2a"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-796 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4750ff4abd9a88ab22784f601879c159a594272e"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-797 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "6667bb31e866ca868cd08519186294ea2062aa5d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-798 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4d45e0047d4cc3ebbe8705f0a1ad5be42448848f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-799 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "410de8a53bab78d4b7c6dde5c09ecc92b8623a71"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-844 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "b3b3edccd40252c2cd064c19f318dedce98473eb"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-845 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "de969807e45cfb930c593d70068240b731d48948"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-800 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8d01559d33580e310afabfc2fd961436012bdccf"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-801 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "7bc33ea15a20761f51141fe1c0f2dcd67c91e22f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-802 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "058af084a9ff742cd5fe0270e6d96eabcccd25bf"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-803 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f69a375cf5b0295b596c7eb0ad7eb4561f788487"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-804 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "617b2e7453272ae95b3d5ff344d5b898f9f9dc1d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-846 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "1c2b6d810b31172646efa552227a07e1f012a69e"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-805 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c0939332a2998a9546613e598911a8dd3678a432"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-806 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "91084acdccce44a7f18bcb34a8b89a67ecbae681"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-807 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c1368f11f2b87d7732be275e25a4c1220deee0a3"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-847 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "134ee3407eba6fcca2e5ce215b0e0f9159911d89"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-808 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "1aa8e458494756b9f73d9a88af2107ace7e260c2"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-809 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "6ff8ac102e296fcbd9b07eaa8a5cbc8a829ebd2f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-810 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8d1374c6b9269196910590afeed56cffc975626d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-848 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "dc94ede26c77e1b103165f6f194d71c0fe5f4017"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-811 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "036bc86f6fe7cfa1713cb618388d866f51cfacb4"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-812 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "122d1619670d9348f03882b0efa974b7a1641dd7"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-849 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e4a3ea5db47bb26180276235ecfcce6e5fa0dbc0"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-813 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c8b9a014e3e83bdee0d42cd40e23d6d18269ffb8"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-814 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "aebc115517676519c14e8eed3366aafd2a78c407"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-850 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "3cfd6b73063f40e858546c706c30e3c8d7ace254"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-815 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "abb16e65fff29ccc8740f4547a212d49f3530c4c"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-851 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "2e12959dd7738dfae03365ebeaf04e1317366f9c"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-816 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a0d096a9a870aa097b3e8cf81ce1d662ccb4f910"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-852 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "ed9f8d0365b8b11e5fb3a29a6a97006735d65cfc"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-817 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "63267116752e85cb77a269b056045e34f45e17e7"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-818 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "cced4cccaf0724a3e8916b43a022b9f23da165b2"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-853 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "737ee3903e119905ae316a24d452376ff399818c"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-819 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e56b509a22b51f2193121e412d29dfa97e13bd8d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-820 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8d319666bda24102223ec3827ec087c7cb9b3dfc"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-854 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "0f07dbd8b0b9ce4b3a672329fffa26dbdc6b6bd8"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-855 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "167db9aaf32090b560ebcc6e71ff0cd558809f79"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-821 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "db0d27bfac3c8dd2c294bc921eed7eb3fc9bd6f7"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-822 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "dcd3f0ead319bbd443887717d545b1ae49419d7c"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-823 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "fc6ac153c5fd64525420d1078428bca148eb43a0"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-824 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "dc4da27f0f822bf32d5bb3db3bcd5d887b239156"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-825 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "5a4667b745fa7bb30f4cedf2a11b2a5736a986f3"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-856 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "28fb90e361f9b03142fde3ecbe59783a4e9d3b88"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-857 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "54ed8d420a5878711f528f15b64d6c75110432f6"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-826 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a72199a00688b91874a7032ac44c7145b87312bf"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-827 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "0f54b339285df10408571a3c6b8c1586cc2536c7"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-828 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "d5f03c6842679d316de53fa9f004dde016c7e51b"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-858 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "d372beeb5ba0b57b9acea54f19e37bf16eabe15f"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-829 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4421bf4e089a0dc6d020b978af04695228968f71"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-830 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "7609107532048535c54eb562a0cb9d5e34eabeb9"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-859 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f61ba85a178e4448f2c048ba5d20b71e7e434693"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-860 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "486e5e9bc6242ffc80bfa7fa27e6d8d87909be51"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-861 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "ded0aba8344be5ff5845d295a37c8f63bdc0195c"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-862 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e1cc6f2087dab3d50d1a0bc528efa33b717d4851"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-831 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8e2a0262ccb3f06e4bfe7d66e0df2fc6da0f53bf"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-832 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "d731fa79151ae099cb48e4e5cfbec61f3bcb9733"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-863 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "17bcd5e2d5d052a71341af14797dbb490ba7be10"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-864 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "396f7f95ce9a48d41cd70872d11c96584a2ecc9b"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-833 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a409d7f58f37db5b2582e41bba61dc80bc5d7d92"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-865 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a6594e009751fa99f5ca00791d3cbb760a8c419b"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-866 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "0ef642f5b93fafb432a0052ccaa4452e1acd0de8"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-834 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "75f49719785b52fa487a9811da970fcbd21662a4"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-835 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4e0734a3325674f7f37e6bf4155567b74716ac24"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-836 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "266026cce70dac210e383f35ec5d8ae649e2b2f4"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-867 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "b711b86f61170177df28d2973eb49c47055ddb4d"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-837 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e8b5c841b45e7ff500648ea2f74dba33cedef5d3"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-838 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c8d1a6b56fdb1276622ede2789a1193eba856dc9"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-868 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "30f0f6bbf1bfaaaecdf3b664d8f25fdf606801bf"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-839 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "fa1246ede1fc97396edf2a5b8ec104db036fdbb1"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-869 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8b76eaedbf6b3b9f7d842b44e8953a27f26627f9"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-840 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e3c769b2656ea61e6d2849a0b6bf316b15996911"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-841 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "a44a142fa2459e31905f5694fa7bbf938d68b002"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-870 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "443b19ebf4a07e060ecd5e618319b1499b682337"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-842 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "047be3c104d2b645434a89fa3922dcbb086ab0ce"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-843 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "0340e2f92b65026e25d09c3f8ddeac8cb0a0e928"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-844 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "b727b0090f5b12e9cf2ad90a8efff7d640a12dac"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-845 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4965a23fa9fbecb4e42852a90ac0ef118726a897"
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-846 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "6dbf5396d64da44a553038816efa9575eb8cb87c"
+      "dataType": "5b0eeca67b2dcc4251f163285415bb950c929fe7"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-847 - Mã lô A101266185257 đã được sử dụng cho lệnh sản xuất NM/MO/03252-616",
+      "message": "NM/MO/03164-1753 - Mã lô RM15A006114007X đã được sử dụng cho lệnh sản xuất NM/MO/03164-048",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "815c3cad4f0b61cc8e06e9edb124c57ac8226a69"
+      "dataType": "cc358d9dc9795c1b90a15505671030c55a599887"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1754 - Mã lô RM15A0061140080 đã được sử dụng cho lệnh sản xuất NM/MO/03164-049",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "57c47d0819bb05392a5a4debb8e7c8083e56b3c8"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1756 - Mã lô RM15A0061140083 đã được sử dụng cho lệnh sản xuất NM/MO/03164-050",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "78719f971565370dce347db46c53a407c783a89c"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1757 - Mã lô RM15A0061140084 đã được sử dụng cho lệnh sản xuất NM/MO/03164-051",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d303141426cf9e7fc54e18489e70783874b1ae71"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1759 - Mã lô RM15A0061140086 đã được sử dụng cho lệnh sản xuất NM/MO/03164-053",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "262aaa70082021b678f0ef4e8cceff69e7beb210"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1760 - Mã lô RM15A0061140087 đã được sử dụng cho lệnh sản xuất NM/MO/03164-054",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c934df90684f7e12f2fa1e4d808dc91b76483e64"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1761 - Mã lô RM15A0061140088 đã được sử dụng cho lệnh sản xuất NM/MO/03164-055",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "bd7c6cbf94ee3f95798f5f07dc260298fa8123a5"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-336 - Mã lô A101266181257 đã được sử dụng cho lệnh sản xuất NM/MO/03253-327",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "6e6f44f054e0a67e19ba061bfe4ea434b1803419"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1778 - Mã lô RM15A006114008R đã được sử dụng cho lệnh sản xuất NM/MO/03164-072",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d6078aa3a4775d1b35485950fab1172f1fdf3039"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1737 - Mã lô A00614102L5 đã được sử dụng cho lệnh sản xuất NM/MO/03165-072",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "f7f9a08e526abefd12ec40897d5faa986a301a5f"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1779 - Mã lô RM15A006114008S đã được sử dụng cho lệnh sản xuất NM/MO/03164-073",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "539b8d0da8cd8296950c64c90b5fa4008476fdf5"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1780 - Mã lô RM15A006114008T đã được sử dụng cho lệnh sản xuất NM/MO/03164-074",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "fb169fb5d8f310e8a074ff34adbfb7bf09f313f4"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1738 - Mã lô A00614102L4 đã được sử dụng cho lệnh sản xuất NM/MO/03165-073",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "348bc9c344eba1898bc4063becb98ce12652f91d"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1782 - Mã lô RM15A006114008V đã được sử dụng cho lệnh sản xuất NM/MO/03164-076",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "85f3a7954d48dbc1b913f4089aaec30bb2caf573"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1784 - Mã lô RM15A006114008X đã được sử dụng cho lệnh sản xuất NM/MO/03164-077",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "75e28de860de766ff61eb1a4f70de750a85e1187"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1785 - Mã lô RM15A0061140090 đã được sử dụng cho lệnh sản xuất NM/MO/03164-078",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "2f9335a6b07e13653670e44cfa0586157becdf29"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1743 - Mã lô A00614102L0 đã được sử dụng cho lệnh sản xuất NM/MO/03165-077",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "74a808ee93894129079452f43a7757e6296f1195"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1786 - Mã lô RM15A0061140091 đã được sử dụng cho lệnh sản xuất NM/MO/03164-079",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "368048ff036ee6847c880351544834fd33320428"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1745 - Mã lô A00614102LH đã được sử dụng cho lệnh sản xuất NM/MO/03165-079",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "48dfa76263697615a67e9df613534a0db5a53293"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1747 - Mã lô A00614102KW đã được sử dụng cho lệnh sản xuất NM/MO/03165-080",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "015963999077d41f66ac3e0ae937db6c1c56aa0f"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-338 - Mã lô A101266181258 đã được sử dụng cho lệnh sản xuất NM/MO/03253-329",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "2c970a533573f155259369e65f7274a32dc9c8f7"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1788 - Mã lô RM15A0061140093 đã được sử dụng cho lệnh sản xuất NM/MO/03164-081",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3556eee763dac8a4e39690ea88c994c57ae571d2"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1748 - Mã lô A00614102KV đã được sử dụng cho lệnh sản xuất NM/MO/03165-081",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d205a5948bec796a3da7c50d870bcf02fe813d55"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1750 - Mã lô A00614102KT đã được sử dụng cho lệnh sản xuất NM/MO/03165-083",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "6b568b4ba9954caa97ed5dcc36357b418913ac95"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1789 - Mã lô RM15A0061140094 đã được sử dụng cho lệnh sản xuất NM/MO/03164-082",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "97201a0b2fc675598173c87e11f384ea91b53d24"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1751 - Mã lô A00614102LK đã được sử dụng cho lệnh sản xuất NM/MO/03165-084",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "1769bdc5a88502d6110aeccebf7a87ebf2b85586"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1752 - Mã lô A00614102LL đã được sử dụng cho lệnh sản xuất NM/MO/03165-085",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7c7e3063433108f218008243857b1f5b9cb0b558"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-339 - Mã lô A101266181260 đã được sử dụng cho lệnh sản xuất NM/MO/03253-330",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "50d0b93f6766ce51091b29764fbbf9276f4c0e68"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1754 - Mã lô A00614102KR đã được sử dụng cho lệnh sản xuất NM/MO/03165-086",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ec7f47306ec930b7e34781a2c4496603491ac670"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1755 - Mã lô A00614102KQ đã được sử dụng cho lệnh sản xuất NM/MO/03165-087",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "e967d311f5dad5701e505f62f996b8c6be5fa3fa"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1757 - Mã lô A00614102KN đã được sử dụng cho lệnh sản xuất NM/MO/03165-088",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "dfb1f7456de59f93bd5191e357ad6cf9e9d41b52"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1758 - Mã lô A00614102KM đã được sử dụng cho lệnh sản xuất NM/MO/03165-089",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d419c8bc1161311c49a041310e79d662de3f6a41"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1759 - Mã lô A00614102KL đã được sử dụng cho lệnh sản xuất NM/MO/03165-090",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "39fef1b7d3d7ec70c5b48632401c945a315f16fc"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1760 - Mã lô A00614102KK đã được sử dụng cho lệnh sản xuất NM/MO/03165-091",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d6b1d9ed7f8cba038d77c37067a72c1a92deeb9c"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1762 - Mã lô A00614102KH đã được sử dụng cho lệnh sản xuất NM/MO/03165-093",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "23a21ed846c565c92f1cd3cf86aa26a551d32505"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1764 - Mã lô A00614102KF đã được sử dụng cho lệnh sản xuất NM/MO/03165-094",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7d2533eed0d0fad656a22205cb48485bc43a0ee8"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1765 - Mã lô A00614102KE đã được sử dụng cho lệnh sản xuất NM/MO/03165-095",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "603608fc416dcd3c9e3994aefec9c91a12974682"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1767 - Mã lô A00614102KC đã được sử dụng cho lệnh sản xuất NM/MO/03165-096",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "bad33ca68f5de74ee95a23e680caef30ffaea133"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1768 - Mã lô A00614102KB đã được sử dụng cho lệnh sản xuất NM/MO/03165-097",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "442bbc7852132ed59b6e7c03e3ea76fb18c3ba6b"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1770 - Mã lô A00614102K9 đã được sử dụng cho lệnh sản xuất NM/MO/03165-098",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "b6bdf9c256608324f8f580a02341a6527fc8552e"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1771 - Mã lô A00614102K8 đã được sử dụng cho lệnh sản xuất NM/MO/03165-099",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c3556afb0e59d92b0e453621f13629640d61c259"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1772 - Mã lô A00614102K7 đã được sử dụng cho lệnh sản xuất NM/MO/03165-100",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "b57020a69d9156ab8afaeca4a494bd5d685eb955"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1774 - Mã lô A00614102K5 đã được sử dụng cho lệnh sản xuất NM/MO/03165-101",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "0ab32d0bdd69dfaa7f21e611ad2e5299065b1552"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1775 - Mã lô A00614102K4 đã được sử dụng cho lệnh sản xuất NM/MO/03165-102",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8a4f7e26eb0528b689d9fc2734c8394ef70744c3"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1777 - Mã lô A00614102K2 đã được sử dụng cho lệnh sản xuất NM/MO/03165-103",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "4735bf5742d7286d27edea35481aabae6177e527"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1778 - Mã lô A00614102K1 đã được sử dụng cho lệnh sản xuất NM/MO/03165-104",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "275238ffd586cdfab0a727d13216ab12ea47faf9"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1780 - Mã lô A00614102JX đã được sử dụng cho lệnh sản xuất NM/MO/03165-105",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ca9db22c95a177aea22674a03ac7d203a68fb6f8"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1781 - Mã lô A00614102JW đã được sử dụng cho lệnh sản xuất NM/MO/03165-106",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "266c16521389568e39b8c2f99d94c4d9584c9fa7"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1783 - Mã lô A00614102JU đã được sử dụng cho lệnh sản xuất NM/MO/03165-107",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "469440e3dfc22b5a2f3d7faef61dbb86793f4e28"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1784 - Mã lô A00614102JT đã được sử dụng cho lệnh sản xuất NM/MO/03165-108",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8cb885360e15c45d8677147a18d3df162b585dce"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1786 - Mã lô A00614102JR đã được sử dụng cho lệnh sản xuất NM/MO/03165-109",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "869673d41e5022d25717f7663607e05d77ad592a"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1787 - Mã lô A00614102JQ đã được sử dụng cho lệnh sản xuất NM/MO/03165-110",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "0f2b540686036f2ab4165e06486fd382a48b2dee"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1789 - Mã lô A00614102JN đã được sử dụng cho lệnh sản xuất NM/MO/03165-111",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "cea250d68f042fd25906bdec9870887546428ace"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1790 - Mã lô A00614102JM đã được sử dụng cho lệnh sản xuất NM/MO/03165-112",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "e4481f66ee5c6b01aac914c7047d00d31eb53112"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1792 - Mã lô A00614102JK đã được sử dụng cho lệnh sản xuất NM/MO/03165-113",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "f3bb06258d0a11bab3ee7296394c2669c630cc13"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1793 - Mã lô A00614102JJ đã được sử dụng cho lệnh sản xuất NM/MO/03165-114",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "bb6018556cca55fe9d4776a05861b5c4c8073d0f"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1795 - Mã lô A00614102JG đã được sử dụng cho lệnh sản xuất NM/MO/03165-115",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7bf72ac0f526b4666655f65a44775e7d291a45f4"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1796 - Mã lô A00614102JF đã được sử dụng cho lệnh sản xuất NM/MO/03165-116",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "4fcbacb9daa0d3e5c369adc6266f373f95e095ec"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03165-1798 - Mã lô A00614102JD đã được sử dụng cho lệnh sản xuất NM/MO/03165-117",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "b47e75188cc6f66fe0bd2f1704e3a6703f190adc"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-351 - Mã lô A101266181362 đã được sử dụng cho lệnh sản xuất NM/MO/03253-503",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d32bf38ecc8133b8543893995b764ce230ed20f2"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-342 - BackOrderAction - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.ValidationError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/16.0/addons/mrp/wizard/mrp_production_backorder.py\\\", line 40, in action_backorder\\n    return self.mrp_production_ids.with_context(ctx, skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1899, in button_mark_done\\n    productions_to_backorder._post_inventory(cancel_backorder=True)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 202, in _post_inventory\\n    return super(MrpProduction, self)._post_inventory(cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1584, in _post_inventory\\n    self.env['stock.move'].browse(moves_to_do)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock_account/models/stock_move.py\\\", line 261, in _action_done\\n    res = super(StockMove, self)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move.py\\\", line 1857, in _action_done\\n    moves_todo.mapped('move_line_ids').sorted()._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment_bom_kit/models/stock_move_line.py\\\", line 29, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_equipment_woking_frequency/models/stock_move_line.py\\\", line 20, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment/models/stock_move_line.py\\\", line 47, in _action_done\\n    res = super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move_line.py\\\", line 631, in _action_done\\n    Quant._update_available_quantity(ml.product_id, ml.location_dest_id, quantity, lot_id=ml.lot_id, package_id=ml.result_package_id, owner_id=ml.owner_id, in_date=in_date)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 827, in _update_available_quantity\\n    quant.write({\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 352, in write\\n    return super(StockQuant, self).write(vals)\\n  File \\\"/opt/odoo/tvtmaaddons16.0/viin_user_assignment_log/models/base.py\\\", line 59, in write\\n    res = super(Base, self).write(vals)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 3842, in write\\n    real_recs._validate_fields(vals, inverse_fields)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 1373, in _validate_fields\\n    check(self)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 565, in check_quantity\\n    raise ValidationError(_('The serial number has already been assigned: \\\\n Product: %s, Serial Number: %s') % (product.display_name, lot.name))\\nodoo.exceptions.ValidationError: Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181360\\n\",\r\n  \"message\": \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181360\",\r\n  \"arguments\": [\r\n    \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181360\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9365f25411ead1e5df8ff3db85d6489e5cb6d97c"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-343 - Mã lô A101266181362 đã được sử dụng cho lệnh sản xuất NM/MO/03252-491",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "5f768b4c64a334fd7cb46524d4c63deb10f3b820"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-359 - Mã lô A101266181254 đã được sử dụng cho lệnh sản xuất NM/MO/03253-511",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "288c2d617a57d8dcf5555bbefc9c875b42f36833"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-349 - BackOrderAction - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.ValidationError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/16.0/addons/mrp/wizard/mrp_production_backorder.py\\\", line 40, in action_backorder\\n    return self.mrp_production_ids.with_context(ctx, skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1899, in button_mark_done\\n    productions_to_backorder._post_inventory(cancel_backorder=True)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 202, in _post_inventory\\n    return super(MrpProduction, self)._post_inventory(cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1584, in _post_inventory\\n    self.env['stock.move'].browse(moves_to_do)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock_account/models/stock_move.py\\\", line 261, in _action_done\\n    res = super(StockMove, self)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move.py\\\", line 1857, in _action_done\\n    moves_todo.mapped('move_line_ids').sorted()._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment_bom_kit/models/stock_move_line.py\\\", line 29, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_equipment_woking_frequency/models/stock_move_line.py\\\", line 20, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment/models/stock_move_line.py\\\", line 47, in _action_done\\n    res = super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move_line.py\\\", line 631, in _action_done\\n    Quant._update_available_quantity(ml.product_id, ml.location_dest_id, quantity, lot_id=ml.lot_id, package_id=ml.result_package_id, owner_id=ml.owner_id, in_date=in_date)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 827, in _update_available_quantity\\n    quant.write({\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 352, in write\\n    return super(StockQuant, self).write(vals)\\n  File \\\"/opt/odoo/tvtmaaddons16.0/viin_user_assignment_log/models/base.py\\\", line 59, in write\\n    res = super(Base, self).write(vals)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 3842, in write\\n    real_recs._validate_fields(vals, inverse_fields)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 1373, in _validate_fields\\n    check(self)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 565, in check_quantity\\n    raise ValidationError(_('The serial number has already been assigned: \\\\n Product: %s, Serial Number: %s') % (product.display_name, lot.name))\\nodoo.exceptions.ValidationError: Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181368\\n\",\r\n  \"message\": \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181368\",\r\n  \"arguments\": [\r\n    \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181368\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "bdf0b961344977eee9fff9c2462d4ffd87fd3c85"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-362 - Mã lô A101266181207 đã được sử dụng cho lệnh sản xuất NM/MO/03253-514",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "dbef2544d21e6fe16775c46265d8c5b81ead3109"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-365 - Mã lô A101266181212 đã được sử dụng cho lệnh sản xuất NM/MO/03253-517",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "712d7e9a300003b8eeb0524d86ea9fab79fc19dd"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-359 - Mã lô A101266181211 đã được sử dụng cho lệnh sản xuất NM/MO/03252-510",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "80f2edcda6420078fdbdbf8a97a0b6e3ac2bf6cc"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-370 - Mã lô A101266181217 đã được sử dụng cho lệnh sản xuất NM/MO/03253-522",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "dc8af397e8eb28525cae4196ff058582fd28565c"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-371 - Mã lô A101266181216 đã được sử dụng cho lệnh sản xuất NM/MO/03253-523",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "a9e54c64fe03340520513e3f2d2a6fb695f39177"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-383 - Mã lô A101266181999 đã được sử dụng cho lệnh sản xuất NM/MO/03252-587",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7e9115361311eadaf6bf0c30db7b0c0281167c41"
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-871 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-403 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "853c3099a093b528a2b46daead113cc12420db35"
+      "dataType": "78ea1b314e221cad0e4048bcfd3503cf46088523"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-384 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "61e53d4f13822adc7d591c83ce92cfdf7976767b"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-404 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "80f2ecabcbb350617844039241f96c50398b9c4d"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-385 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ceec1724b8bc36e7f2e106539645939a0919f4fd"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-405 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "406712b6d4877fd1af1d9743e9537e4e786523a5"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-386 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "b5db97981e3e7341cb296b1d9c86c52e1ed9c7bc"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-387 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "453918fd45b6bc2793e86aa247e312245acc36cb"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-406 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "812bc2ff6b38c7bf37a7b714a95774d2b6d55318"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-388 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8130fac94077ce6893c2550c53753130edabdcdc"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-389 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "26703626a6a6d9a42019ca039e2b385d8f26eb06"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-390 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3cc63c52e63cf6c9ef49ade6d1a72e31b0ced104"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-407 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "6669cb472df6ce713068e2c267824ee624e66489"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-391 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7d7d8fb9620fc0000dc4a289cdcc580af81ba92b"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-392 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9efcad55b318d7a8d9636f92bc94ded77ffbf6a5"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-408 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "e01e827bc19aee4299642ebf5382974165eff190"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-393 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ad6791d7ae3494df1eda87e3a9b4f46c67612761"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-394 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "44d8189c124f6ba08d5c5ca5ed56e3a47a7f96dc"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-409 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "5209a250faabbf37e25fcdeef57623e404ead4f2"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-395 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "251c48f9b8c39c79b85fb42efb19ec1c19f1e3a2"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-396 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "e6aeab5e738ca4bbc7052ac5718db24f441a7059"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-872 - Mã lô A101266185252 đã được sử dụng cho lệnh sản xuất NM/MO/03253-648",
+      "message": "NM/MO/03252-397 - Mã lô A101266181981 đã được sử dụng cho lệnh sản xuất NM/MO/03252-521",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "abd7b9995303b5cd12e23ebe4736b3277ecc39ee"
+      "dataType": "b791a6c203fb7e36fe98f24e75a2cb6ccb433a80"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-410 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "0dfe3bc9fbb67d276dfa1d7401f681b79b0d05ec"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-398 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8af717bb57cd31d8ea08b799c98116da1613ab9c"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-411 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "6592e3065947ab03141fa362ae684188f0471565"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-400 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "a3548e8b2553002c1583e3f4f388191deaffdc11"
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-873 - Mã lô A101266185253 đã được sử dụng cho lệnh sản xuất NM/MO/03265-001",
+      "message": "NM/MO/03253-412 - Mã lô A101266181970 đã được sử dụng cho lệnh sản xuất NM/MO/03253-530",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "9003704197a142e156f1ec8340e5788633dc5ccb"
+      "dataType": "9c63cb0563257371aaf34dc007e74aba63f87bbd"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-403 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c70e3c5797e03d0cf37ec607a4fd75a62db4aa2f"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-848 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2265, in _check_sn_uniqueness\\n    raise UserError(sn_error_msg[sn_id])\\nodoo.exceptions.UserError: Số sê-ri 06501000500R-YN261705192 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\\n\",\r\n  \"message\": \"Số sê-ri 06501000500R-YN261705192 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\",\r\n  \"arguments\": [\r\n    \"Số sê-ri 06501000500R-YN261705192 được sử dụng cho thành phần PD Charger(5V/3A  9V/3A  15V/3A  20V/3.25A) US plug đã được sử dụng\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "message": "NM/MO/03164-1842 - Mã lô RM15A00611400BM đã được sử dụng cho lệnh sản xuất NM/MO/03164-135",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "838ee7b9661bd81577d2d339eac1554368d599fa"
+      "dataType": "37caa1cbef06b82bf8acdd5d74bf6e21234d3a4e"
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-849 - Mã lô A101266185253 đã được sử dụng cho lệnh sản xuất NM/MO/03252-617",
+      "message": "NM/MO/03164-1844 - Mã lô RM15A00611400BK đã được sử dụng cho lệnh sản xuất NM/MO/03164-137",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
       "userID": 2,
       "odooUserID": 2,
-      "dataType": "ed4fe2f6cf03abc5ba8b8718e2491e0a7797b373"
+      "dataType": "6cebc9738ca6c72b2cd2e49f8a2aa9b85a56e9fd"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1845 - Mã lô RM15A00611400BJ đã được sử dụng cho lệnh sản xuất NM/MO/03164-138",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9d5a57c6ceca40ce7c54e73e245895c1cafe7888"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1846 - Mã lô RM15A00611400BH đã được sử dụng cho lệnh sản xuất NM/MO/03164-139",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "061e30411b45b45fcc66d71b34a14a4479bb79b9"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1847 - Mã lô RM15A00611400BG đã được sử dụng cho lệnh sản xuất NM/MO/03164-140",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "339b418db6b2f8801b858a3c82e64918db85f450"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1848 - Mã lô RM15A00611400BE đã được sử dụng cho lệnh sản xuất NM/MO/03164-141",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c33b5c800a8260fe5fb3a7fbc3ae10169fbc2da1"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1849 - Mã lô RM15A00611400BD đã được sử dụng cho lệnh sản xuất NM/MO/03164-142",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "94943d6e913ab1f05f77e979367bf597d4c836e1"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1851 - Mã lô RM15A00611400B1 đã được sử dụng cho lệnh sản xuất NM/MO/03164-143",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9d5e0648d2f0193bd0a3fcfe27c5732dc76f990a"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1854 - Mã lô RM15A00611400B4 đã được sử dụng cho lệnh sản xuất NM/MO/03164-146",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "60ffebe907386200fbc90885fbf8ed7373d0dd7d"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1856 - Mã lô RM15A00611400B6 đã được sử dụng cho lệnh sản xuất NM/MO/03164-147",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "606f1ff56c6789ffc2f29b6d1b729407672b4772"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1859 - Mã lô RM15A00611400B9 đã được sử dụng cho lệnh sản xuất NM/MO/03164-149",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "a3ffe4f0aec47c02b9379d57e607fe9636f33091"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1860 - Mã lô RM15A00611400BA đã được sử dụng cho lệnh sản xuất NM/MO/03164-150",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "a24dab2ceae2d5a36ed44151d7c9696c740f40a9"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03164-1861 - Mã lô RM15A00611400BB đã được sử dụng cho lệnh sản xuất NM/MO/03164-151",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "07b4f0d6eea500423cd2805fc45442e726235073"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-406 - BackOrderAction - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.ValidationError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/16.0/addons/mrp/wizard/mrp_production_backorder.py\\\", line 40, in action_backorder\\n    return self.mrp_production_ids.with_context(ctx, skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1899, in button_mark_done\\n    productions_to_backorder._post_inventory(cancel_backorder=True)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 202, in _post_inventory\\n    return super(MrpProduction, self)._post_inventory(cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1584, in _post_inventory\\n    self.env['stock.move'].browse(moves_to_do)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock_account/models/stock_move.py\\\", line 261, in _action_done\\n    res = super(StockMove, self)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move.py\\\", line 1857, in _action_done\\n    moves_todo.mapped('move_line_ids').sorted()._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment_bom_kit/models/stock_move_line.py\\\", line 29, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_equipment_woking_frequency/models/stock_move_line.py\\\", line 20, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment/models/stock_move_line.py\\\", line 47, in _action_done\\n    res = super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move_line.py\\\", line 631, in _action_done\\n    Quant._update_available_quantity(ml.product_id, ml.location_dest_id, quantity, lot_id=ml.lot_id, package_id=ml.result_package_id, owner_id=ml.owner_id, in_date=in_date)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 827, in _update_available_quantity\\n    quant.write({\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 352, in write\\n    return super(StockQuant, self).write(vals)\\n  File \\\"/opt/odoo/tvtmaaddons16.0/viin_user_assignment_log/models/base.py\\\", line 59, in write\\n    res = super(Base, self).write(vals)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 3842, in write\\n    real_recs._validate_fields(vals, inverse_fields)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 1373, in _validate_fields\\n    check(self)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 565, in check_quantity\\n    raise ValidationError(_('The serial number has already been assigned: \\\\n Product: %s, Serial Number: %s') % (product.display_name, lot.name))\\nodoo.exceptions.ValidationError: Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181972\\n\",\r\n  \"message\": \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181972\",\r\n  \"arguments\": [\r\n    \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181972\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "4e8a655f97c854035b6d41a889abee284753c45c"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-423 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "052d4121b437555007c3e29e1acc40a79c98c9b9"
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-410 - BackOrderAction - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.ValidationError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/16.0/addons/mrp/wizard/mrp_production_backorder.py\\\", line 40, in action_backorder\\n    return self.mrp_production_ids.with_context(ctx, skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1899, in button_mark_done\\n    productions_to_backorder._post_inventory(cancel_backorder=True)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 202, in _post_inventory\\n    return super(MrpProduction, self)._post_inventory(cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1584, in _post_inventory\\n    self.env['stock.move'].browse(moves_to_do)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock_account/models/stock_move.py\\\", line 261, in _action_done\\n    res = super(StockMove, self)._action_done(cancel_backorder=cancel_backorder)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move.py\\\", line 1857, in _action_done\\n    moves_todo.mapped('move_line_ids').sorted()._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment_bom_kit/models/stock_move_line.py\\\", line 29, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_equipment_woking_frequency/models/stock_move_line.py\\\", line 20, in _action_done\\n    super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/tvtmaaddons16.0/to_stock_equipment/models/stock_move_line.py\\\", line 47, in _action_done\\n    res = super(StockMoveLine, self)._action_done()\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_move_line.py\\\", line 631, in _action_done\\n    Quant._update_available_quantity(ml.product_id, ml.location_dest_id, quantity, lot_id=ml.lot_id, package_id=ml.result_package_id, owner_id=ml.owner_id, in_date=in_date)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 827, in _update_available_quantity\\n    quant.write({\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 352, in write\\n    return super(StockQuant, self).write(vals)\\n  File \\\"/opt/odoo/tvtmaaddons16.0/viin_user_assignment_log/models/base.py\\\", line 59, in write\\n    res = super(Base, self).write(vals)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 3842, in write\\n    real_recs._validate_fields(vals, inverse_fields)\\n  File \\\"/opt/odoo/16.0/odoo/models.py\\\", line 1373, in _validate_fields\\n    check(self)\\n  File \\\"/opt/odoo/16.0/addons/stock/models/stock_quant.py\\\", line 565, in check_quantity\\n    raise ValidationError(_('The serial number has already been assigned: \\\\n Product: %s, Serial Number: %s') % (product.display_name, lot.name))\\nodoo.exceptions.ValidationError: Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181969\\n\",\r\n  \"message\": \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181969\",\r\n  \"arguments\": [\r\n    \"Số sê-ri đã được chỉ định: sản phẩm: [WSS03-00290] DCT3 Dock Assembly US, số sê-ri: A101266181969\"\r\n  ],\r\n  \"context\": {}\r\n}",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "bfb3ae640a01189e0f666147934c6c9a53de2aa8"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-411 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "10e4dceb6b818ef29b91208b176356a9ee0da2e0"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-424 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "542d70089f6b1a78f28437f27debef30bae69abb"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-425 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3c761f75b56800e929304486bc76fe1ddc8b2e24"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-426 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "243ee557bb365ad7bafdc8459ab47ec00a3883de"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-412 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "5cc66c7a330b1725a756499f7de428abda0f19f9"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-413 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "a577bb4573cb8130f5d1719a32c3affbf268f73c"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-427 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "cf91e259b8dc0207b78b3d9e5831c9b3eb14051d"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-428 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "98f17c0763e73d52a36c3784d91a5076ee9fb938"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-414 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ad56cc4efb9053f0fe013c783e1b882c060f6750"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-415 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3c558b7f542d4e04e8f4e18afdc39f170cb75fad"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-416 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "eae4a937392a062b1760517cbee7aba14c12c80c"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-429 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "1547a5fc6ec8679311115b0a5c4e073938ca4fcd"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-417 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "75e3e10b1942715f42ed2f5e0ae0fd41fc3208c7"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-430 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8573d7c620b04ebbc5d889af699da9f948206a9e"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-431 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "afacf74b39e1851fe21b7223f7e0ec686efa4ab4"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-418 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "b63611d8490280a90ef37e7c9d0baab4b8867052"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-432 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "77c5acf7c614659b7183aa98f1cf338fabeda381"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-419 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9551932e812362db295df1734731237b517983e7"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-420 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "a4d3a7241591500c399ba3894248fdd2775cef2c"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-433 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "14db6485c59eb467158d488f7988a27103534552"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-434 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3be658324cb7764bff5773825d5412d738a41a6f"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-421 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3974bc6458beaf91d3a2e79dfaa97131effe2c4c"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-435 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "f0900bc4a457bdb97a4f04902b2674922ca96f8f"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-422 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c789ad0a5087b0d5c4c76e7c624507c7c25cdef0"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-436 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "cea39f9d685f96ac648ac79c5cf37650ed88425e"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-423 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9222dafe4ac6cb05df81cab062bf723a61b5bc17"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-437 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "29644be9d1b19d97813fd9aa567fb36eb2788b75"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-424 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "6fa1d2544c0055e8e395e70743208cdc49b1c373"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-438 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d4103aec298cbf65db2e335dba299e78c1c78979"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-425 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "704eea2ff82bc339de96de780c746dd30fc5de42"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-439 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d63420d1e45821976a6639d4ea344710a67f9a5d"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-426 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "70f7e366798e0800b153caf9cf360e1eed8f10e3"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-427 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ca4acf3e401a9f2e8f61bbb14e30a69891888719"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-440 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "fbbc4bbefcd4c69ea7929dc483bdde2aa976e364"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-428 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "495fe51ff5ede238d2ac88553d18a26d5dcf4254"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-429 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "091d8b6b23c8326afe2ad454486d95bc26dec2d8"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-441 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "70f2c23c12480fda8d5d30d86679d1b0a26ae956"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-442 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "336cda629e0709e262ac195541110a40c8886b3e"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-430 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "5edd1df5f763ea088accb27d7ab641f23a2ad9c9"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-431 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "dce2b6cf2844a1ff083597d0c2e89f9f9edcfbc8"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-443 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "0748886facfe278cfa0b391adc40a3f406434c80"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-444 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "64b3a45a145dc5743f052e14972e6f53e7b217dc"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-445 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "01fb5b01ea468f2ad6c9dbb00f70a2157e937565"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-432 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "ace0a850a903650b43780cb6d5590d7ee74c0e5d"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-433 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d1971483af3d692703cb046f50caaae235c5bfb7"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-446 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9eb81d2ec3ce524b25acccab965e440be6f8d8f4"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-447 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "b92ea97b01846c1da114be9ba27408a52d55f082"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-434 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "fdbd997cea7a0fe532f45b9bc3fd01a8bded780e"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-448 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "9c02e0555949745a5cc555c6e2c49ad79d2a6072"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-435 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "84d00d9d925a5254bc88303ab8168a499f758da9"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-449 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "3e36abdc778ef198170c5ab5d2f542162ea8c04f"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-436 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c11cfc95e499be58e76feb2a6719089e749fdd64"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-437 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "50fded07063bc41e10643825dfc2c377e3c0fd48"
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-450 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "21a26527c91541d59d07cbd757462eb5cb55ae92"
     }
   ],
   "errorNumber": 0,
