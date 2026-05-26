@@ -3750,7 +3750,7 @@ namespace ViidooDBServiceAPI.Services
 
 
         #region Đọc dữ kiệu sản xuất
-        public async Task<List<dynamic>> ReadProductionDynamicAsync(
+        public async Task<List<dynamic>> ReadProductionResultAsync(
             DateTime fromDate,
             DateTime toDate,
             List<int> excludeIds,
@@ -3768,8 +3768,8 @@ namespace ViidooDBServiceAPI.Services
                 // Xây dựng Domain Filter
                 var domain = new List<object>
                 {
-                    new object[] { "date_planned_finished", ">=", fromDateStr },
-                    new object[] { "date_planned_finished", "<=", toDateStr }
+                    new object[] { "date_finished", ">=", fromDateStr },
+                    new object[] { "date_finished", "<=", toDateStr }
                 };
 
                 if (excludeIds != null && excludeIds.Count > 0)
@@ -3791,16 +3791,11 @@ namespace ViidooDBServiceAPI.Services
                             domain = domain.ToArray(),
                             fields = new string[]
                             {
-                                "confirm_cancel", "show_lock", "move_byproduct_ids", "state",
-                                "show_serial_mass_produce", "check_ids", "check_todo", "reservation_state", "date_planned_finished", "is_locked", "qty_produced",
-                                "unreserve_visible", "reserve_visible", "consumption", "is_planned", "show_allocation", "workorder_ids", "eco_count", "purchase_order_count",
-                                "sale_order_count", "mrp_production_child_count", "mrp_production_source_count", "mrp_production_backorder_count", "unbuild_count", "scrap_count",
-                                "delivery_count", "alert_count", "package_count", "account_moves_count", "maintenance_count", "document_count", "overview_progress", "priority",
-                                "name", "id", "use_create_components_lots", "show_lot_ids", "product_tracking", "show_valuation", "product_id", "product_tmpl_id",
-                                "forecasted_issue", "company_id", "product_description_variants", "bom_id", "qty_producing", "product_qty", "product_uom_category_id",
-                                "product_uom_id", "product_packaging_id", "lot_producing_id", "date_planned_start", "delay_alert_date", "json_popover",
-                                "components_availability_state", "components_availability", "show_final_lots", "production_location_id", "move_finished_ids",
-                                "move_raw_ids", "picking_type_id", "location_src_id", "warehouse_id", "location_dest_id", "origin", "date_deadline", "display_name"
+                                "id", "product_id", "product_uom_id", "lot_producing_id", "bom_id",
+                                "name", "priority", "origin", "state", "reservation_state",
+                                "consumption", "product_qty", "qty_producing", "date_planned_start",
+                                "date_planned_finished", "date_deadline", "date_start", "date_finished",
+                                "product_uom_qty", "x_Svn_customer_SN", "finished_move_line_ids"
                             },
                             order = "create_date desc",
                             context = new

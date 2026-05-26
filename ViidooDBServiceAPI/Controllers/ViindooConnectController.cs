@@ -115,6 +115,8 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        [Route("GetProductionResult")]
+        [HttpPost]
         public async Task<BODataProcessResult> GetProductionResult()
         {
             BODataProcessResult processResult = new BODataProcessResult();
@@ -128,12 +130,59 @@ namespace ViidooDBServiceAPI.Controllers
                 DateTime today = DateTime.Today;
                 DateTime fromDate = today.AddHours(-7);
                 DateTime toDate = today.AddHours(16).AddMinutes(59);
+
+                List<int> excludeIds = new List<int>();
+
+                //Lấy ra các lệnh sản xuất đã dc đồng bộ rồi
                 mrp_productionDataPortal dataPortal = new mrp_productionDataPortal(svnDBConfig.ConnectionString);
+                var existData = dataPortal.GetDataProductFromTimeToTime(fromDate, toDate);
+                if (existData != null && existData.Count > 0)
+                {
+                    excludeIds = existData.Select(x => x.id).ToList();
+                }
+
+                int currentDataCount = existData != null ? existData.Count : 0;
+
+                var productionOrders = await odooAPIService.ReadProductionResultAsync(fromDate, toDate, excludeIds, processResult.UserID, processResult.DataType);
+                if(productionOrders == null || productionOrders.Count == 0)
+                {
+                    processResult.OK = false;
+                    processResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Không có lệnh sản xuất nào hoàn thành trong khoảng thời gian này";
+                    return processResult;
+                }
+
+                try
+                {
+                    var newmrpProduction = ConvertDynamicToUI(productionOrders);
+                    if (newmrpProduction == null || productionOrders.Count == 0) 
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Không có lệnh sản xuất nào hoàn thành trong khoảng thời gian này";
+                        return processResult;
+                    }
+                    var insertResult = dataPortal.InsertBulk(newmrpProduction);
+                    if (insertResult <= 0)
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Data trong SVN_mrp_production: {currentDataCount}  | Data từ Viindoo chưa có trong SVN_mrp_production: {productionOrders.Count} | Insert thất bại: {productionOrders.Count}";
+                        return processResult;
+                    }
+
+                    processResult.OK = true;
+                    processResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Data trong SVN_mrp_production: {currentDataCount}  | Data từ Viindoo chưa có trong SVN_mrp_production: {productionOrders.Count} | Insert thành công: {productionOrders.Count}";
+                    return processResult;
+                }
+                catch(Exception ex)
+                {
+                    processResult.OK = false;
+                    processResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | ConvertDynamicToUI - Lỗi khi chuyển đổi dữ liệu lệnh sản xuất: {ex.Message}";
+                    return processResult;
+                }
             }
             catch(Exception ex)
             {
                 processResult.OK = false;
-                processResult.Message = ex.Message;
+                processResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Lỗi không xác định: {ex.Message}";
             }
             return processResult;
         }
@@ -1831,6 +1880,110 @@ namespace ViidooDBServiceAPI.Controllers
 
             }
             return bODataProcessResult;
+        }
+        #endregion
+
+        #region private methods
+        private List<mrp_productionUI> ConvertDynamicToUI(List<dynamic> dynamicList)
+        {
+            try
+            {
+                if (dynamicList == null) return new List<mrp_productionUI>();
+
+                var result = new List<mrp_productionUI>(dynamicList.Count);
+
+                foreach (Newtonsoft.Json.Linq.JObject item in dynamicList)
+                {
+                    var uiItem = new mrp_productionUI
+                    {
+                        id = (int)(item["id"] ?? 0),
+                        message_main_attachment_id = (int)(item["message_main_attachment_id"] ?? 0),
+                        backorder_sequence = (int)(item["backorder_sequence"] ?? 0),
+
+                        // Các trường quan hệ Many2one hoặc false
+                        product_id = ParseOdooField(item["product_id"]),
+                        product_uom_id = ParseOdooField(item["product_uom_id"]),
+                        lot_producing_id = ParseOdooField(item["lot_producing_id"]),
+                        bom_id = ParseOdooField(item["bom_id"]),
+
+                        picking_type_id = ParseOdooField(item["picking_type_id"]) ?? 0,
+                        location_src_id = ParseOdooField(item["location_src_id"]) ?? 0,
+                        location_dest_id = ParseOdooField(item["location_dest_id"]) ?? 0,
+                        production_location_id = ParseOdooField(item["production_location_id"]) ?? 0,
+                        company_id = ParseOdooField(item["company_id"]) ?? 0,
+
+                        user_id = (int)(item["user_id"] ?? 0),
+                        procurement_group_id = (int)(item["procurement_group_id"] ?? 0),
+                        orderpoint_id = (int)(item["orderpoint_id"] ?? 0),
+                        create_uid = (int)(item["create_uid"] ?? 0),
+                        write_uid = (int)(item["write_uid"] ?? 0),
+
+                        origin_message_id = (string)item["origin_message_id"],
+                        origin_references = (string)item["origin_references"],
+                        name = (string)item["name"],
+                        priority = (string)item["priority"],
+                        origin = (string)item["origin"],
+                        state = (string)item["state"],
+                        reservation_state = (string)item["reservation_state"],
+                        product_description_variants = (string)item["product_description_variants"],
+                        consumption = (string)item["consumption"],
+
+                        product_qty = (decimal)(item["product_qty"] ?? 0m),
+                        qty_producing = (decimal)(item["qty_producing"] ?? 0m),
+                        product_uom_qty = (decimal)(item["product_uom_qty"] ?? 0m),
+                        extra_cost = (decimal)(item["extra_cost"] ?? 0m),
+
+                        propagate_cancel = (bool)(item["propagate_cancel"] ?? false),
+                        is_locked = (bool)(item["is_locked"] ?? false),
+                        is_planned = (bool)(item["is_planned"] ?? false),
+                        allow_workorder_dependencies = (bool)(item["allow_workorder_dependencies"] ?? false),
+
+                        // --- CẬP NHẬT: XỬ LÝ DATE/DATETIME CÓ THỂ BỊ FALSE ---
+                        date_planned_start = ParseOdooDateTime(item["date_planned_start"]),
+                        date_planned_finished = ParseOdooDateTime(item["date_planned_finished"]),
+                        date_deadline = ParseOdooDateTime(item["date_deadline"]),
+                        date_start = ParseOdooDateTime(item["date_start"]),
+                        date_finished = ParseOdooDateTime(item["date_finished"]),
+                        create_date = ParseOdooDateTime(item["create_date"]),
+                        write_date = ParseOdooDateTime(item["write_date"]),
+                        // ----------------------------------------------------
+
+                        analytic_account_id = (int)(item["analytic_account_id"] ?? 0),
+                        x_Svn_customer_SN = (string)item["x_Svn_customer_SN"],
+                        finished_move_line_ids = item["finished_move_line_ids"]
+                    };
+
+                    result.Add(uiItem);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần
+                return null;
+            }
+        }
+
+        // Helper xử lý ID (Many2one / Int)
+        private static int? ParseOdooField(Newtonsoft.Json.Linq.JToken token)
+        {
+            if (token == null || token.Type == Newtonsoft.Json.Linq.JTokenType.Boolean)
+                return null;
+
+            if (token.Type == Newtonsoft.Json.Linq.JTokenType.Array)
+                return (int?)token[0];
+
+            return (int?)token;
+        }
+
+        // Helper mới xử lý Date/DateTime: Tránh lỗi khi Odoo trả về false
+        private static DateTime? ParseOdooDateTime(Newtonsoft.Json.Linq.JToken token)
+        {
+            if (token == null || token.Type == Newtonsoft.Json.Linq.JTokenType.Boolean)
+                return null; // Nếu rỗng Odoo trả về false -> map thành null trong C#
+
+            return (DateTime?)token;
         }
         #endregion
     }

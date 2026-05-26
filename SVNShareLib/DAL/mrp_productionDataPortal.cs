@@ -61,6 +61,27 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public List<mrp_productionUI> GetDataProductFromTimeToTime(DateTime startTime, DateTime endTime)
+        {
+            try
+            {
+                string sql = "SELECT * FROM SVN_mrp_production_1" +
+                    " WHERE state = 'done' AND date_finished >= @startTime AND date_finished <= @endTime" +
+                    " ORDER BY date_finished DESC";
+                var param = new { startTime = startTime, endTime = endTime };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = connection.Query<mrp_productionUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data.ToList();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Lấy về lệnh sản xuất mới nhất đã hoàn thành trong khoảng thời gian
         /// </summary>
