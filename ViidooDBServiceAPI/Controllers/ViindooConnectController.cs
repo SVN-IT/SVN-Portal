@@ -115,6 +115,29 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        public async Task<BODataProcessResult> GetProductionResult()
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            try
+            {
+                processResult = await odooAPIService.LoginAsync();
+                if (!processResult.OK)
+                {
+                    return processResult;
+                }
+                DateTime today = DateTime.Today;
+                DateTime fromDate = today.AddHours(-7);
+                DateTime toDate = today.AddHours(16).AddMinutes(59);
+                mrp_productionDataPortal dataPortal = new mrp_productionDataPortal(svnDBConfig.ConnectionString);
+            }
+            catch(Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [Route("GetWorkOrder")]
         [HttpPost]
         public async Task<BODataProcessResult> GetWorkOrder(InputProductDataRequest dataRequest)

@@ -3747,5 +3747,99 @@ namespace ViidooDBServiceAPI.Services
         }
 
         #endregion
+
+
+        #region Đọc dữ kiệu sản xuất
+        public async Task<List<dynamic>> ReadProductionDynamicAsync(
+            DateTime fromDate,
+            DateTime toDate,
+            List<int> excludeIds,
+            int uid,
+            string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                // Định dạng ngày tháng theo chuẩn Odoo
+                string fromDateStr = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+                string toDateStr = toDate.ToString("yyyy-MM-dd HH:mm:ss");
+
+                // Xây dựng Domain Filter
+                var domain = new List<object>
+                {
+                    new object[] { "date_planned_finished", ">=", fromDateStr },
+                    new object[] { "date_planned_finished", "<=", toDateStr }
+                };
+
+                if (excludeIds != null && excludeIds.Count > 0)
+                {
+                    domain.Add(new object[] { "id", "not in", excludeIds.ToArray() });
+                }
+
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = domain.ToArray(),
+                            fields = new string[]
+                            {
+                                "confirm_cancel", "show_lock", "move_byproduct_ids", "state",
+                                "show_serial_mass_produce", "check_ids", "check_todo", "reservation_state", "date_planned_finished", "is_locked", "qty_produced",
+                                "unreserve_visible", "reserve_visible", "consumption", "is_planned", "show_allocation", "workorder_ids", "eco_count", "purchase_order_count",
+                                "sale_order_count", "mrp_production_child_count", "mrp_production_source_count", "mrp_production_backorder_count", "unbuild_count", "scrap_count",
+                                "delivery_count", "alert_count", "package_count", "account_moves_count", "maintenance_count", "document_count", "overview_progress", "priority",
+                                "name", "id", "use_create_components_lots", "show_lot_ids", "product_tracking", "show_valuation", "product_id", "product_tmpl_id",
+                                "forecasted_issue", "company_id", "product_description_variants", "bom_id", "qty_producing", "product_qty", "product_uom_category_id",
+                                "product_uom_id", "product_packaging_id", "lot_producing_id", "date_planned_start", "delay_alert_date", "json_popover",
+                                "components_availability_state", "components_availability", "show_final_lots", "production_location_id", "move_finished_ids",
+                                "move_raw_ids", "picking_type_id", "location_src_id", "warehouse_id", "location_dest_id", "origin", "date_deadline", "display_name"
+                            },
+                            order = "create_date desc",
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                allowed_company_ids = new List<int> { 1 },
+                                bin_size = true,
+                                uid = uid
+                            }
+                        }
+                    },
+                    id = 100
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"Odoo RPC Error: {json["error"]["data"]["message"] ?? json["error"]["message"]}");
+                }
+
+                var resultArray = (JArray)json["result"];
+
+                // Ép kiểu trực tiếp danh sách các phần tử JObject sang danh sách dynamic
+                List<dynamic> dynamicList = resultArray.Cast<dynamic>().ToList();
+
+                return dynamicList;
+            }
+        }
+        #endregion
     }
 }
