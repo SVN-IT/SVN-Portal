@@ -1462,6 +1462,23 @@
     "ColWidth": 4
   },
   {
+    "Operation": "Walter-WSS03-00534",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1493 ],
+    "ColWidth": 4
+  },
+  {
     "Operation": "Walter-810114362549",
     "Name": "",
     "Price": 3.40,

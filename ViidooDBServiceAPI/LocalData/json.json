@@ -1,297 +1,231 @@
 {
-  "ok": false,
-  "message": "23/05/2026 04:05:06 | Đồng bộ hoàn tất với 27 bản ghi thành công và 2 bản ghi lỗi",
+  "ok": true,
+  "message": null,
   "numOfRow": 0,
   "content": [
     {
-      "ok": true,
-      "message": "NM/MO/03253-731 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "49d3f27a6ab927318f93bc9b3119f39ff0a9edf8"
+      "operation": "Twist-7100406413",
+      "productID": "[1413]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-490 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "ced8950110b3ea1532e94709153cbad43b067c98"
+      "operation": "Twist-7100406375",
+      "productID": "[1419]",
+      "shift": "day            ",
+      "svnQty": 2716,
+      "viindooQty": 2716
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-491 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "16d610ecac81d891fc4598675561b671742c81dc"
+      "operation": "Twist-7100406374",
+      "productID": "[1420]",
+      "shift": "day            ",
+      "svnQty": 1032,
+      "viindooQty": 1032
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-492 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "5fa466db1f162e633dc336a37b2766a5acc1fb8c"
+      "operation": "Twist-7100406379",
+      "productID": "[1422]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-493 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "1f0152a4f7da723395206a44cff2517fa2307a9e"
+      "operation": "Twist-7100406405",
+      "productID": "[1411]",
+      "shift": "day            ",
+      "svnQty": 424,
+      "viindooQty": 424
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-494 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "37b4e910b1702af7f16264f72d6556244e10bdc4"
+      "operation": "Twist-7100406378",
+      "productID": "[1410]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-495 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "3d4cc7fe92a8a06c3244d63082bd89e657d71389"
+      "operation": "Twist-7100406380",
+      "productID": "[1436]",
+      "shift": "day            ",
+      "svnQty": 1014,
+      "viindooQty": 1014
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-496 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "824a2755fdd4125c5af2ab3d18abdeae6c68a505"
+      "operation": "Twist-7100406386",
+      "productID": "[1424]",
+      "shift": "day            ",
+      "svnQty": 594,
+      "viindooQty": 615
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-497 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f39b0ea08e7b8427cafbb0264cf403227eb9bc21"
+      "operation": "Twist-7100406527",
+      "productID": "[1430]",
+      "shift": "day            ",
+      "svnQty": 1676,
+      "viindooQty": 1676
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-498 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "1245f470bae5159100ade387a51abd08681ba19a"
+      "operation": "Walter-WSS03-00534",
+      "productID": "[1493]",
+      "shift": "day            ",
+      "svnQty": 870,
+      "viindooQty": 870
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-499 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "552ae87908d725731adff2e80acc6643be8c5189"
+      "operation": "Walter-750-11-000-015-02-501",
+      "productID": "[1295]",
+      "shift": "day            ",
+      "svnQty": 870,
+      "viindooQty": 870
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-732 - MarkDoneProductionOrderAsync - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2208, in _check_sn_uniqueness\\n    raise UserError(_('This serial number for product %s has already been produced', self.product_id.name))\\nodoo.exceptions.UserError: Số sê-ri cho sản phẩm DCT3 Dock Assembly US đã được sản xuất\\n\",\r\n  \"message\": \"Số sê-ri cho sản phẩm DCT3 Dock Assembly US đã được sản xuất\",\r\n  \"arguments\": [\r\n    \"Số sê-ri cho sản phẩm DCT3 Dock Assembly US đã được sản xuất\"\r\n  ],\r\n  \"context\": {}\r\n}",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "59610f30200f306dedbd11e18e6f04790412d668"
+      "operation": "Walter-WSS03-00360",
+      "productID": "[1234]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-500 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "9b90cb9cf2944f7b08f9a4d8b6c594f69a903abc"
+      "operation": "Walter-810114362808",
+      "productID": "[1232]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-501 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "86163e6c0a679cd97c59cafe7266649d2e9e6333"
+      "operation": "Walter-WSS03-00335",
+      "productID": "[1199]",
+      "shift": "day            ",
+      "svnQty": 1830,
+      "viindooQty": 1850
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-709 - BackOrderAction - 200 - Odoo Server Error - {\r\n  \"name\": \"odoo.exceptions.UserError\",\r\n  \"debug\": \"Traceback (most recent call last):\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1849, in _serve_db\\n    return service_model.retrying(self._serve_ir_http, self.env)\\n  File \\\"/opt/odoo/16.0/odoo/service/model.py\\\", line 153, in retrying\\n    result = func()\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 1877, in _serve_ir_http\\n    response = self.dispatcher.dispatch(rule.endpoint, args)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 2081, in dispatch\\n    result = self.request.registry['ir.http']._dispatch(endpoint)\\n  File \\\"/opt/odoo/16.0/odoo/addons/base/models/ir_http.py\\\", line 154, in _dispatch\\n    result = endpoint(**request.params)\\n  File \\\"/opt/odoo/16.0/odoo/http.py\\\", line 763, in route_wrapper\\n    result = endpoint(self, *args, **params_ok)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 47, in call_button\\n    action = self._call_kw(model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/addons/web/controllers/dataset.py\\\", line 34, in _call_kw\\n    return call_kw(Model, method, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 484, in call_kw\\n    result = _call_kw_multi(method, model, args, kwargs)\\n  File \\\"/opt/odoo/16.0/odoo/api.py\\\", line 469, in _call_kw_multi\\n    result = method(recs, *args, **kwargs)\\n  File \\\"/opt/odoo/16.0/addons/mrp/wizard/mrp_production_backorder.py\\\", line 40, in action_backorder\\n    return self.mrp_production_ids.with_context(ctx, skip_backorder=True, mo_ids_to_backorder=mo_ids_to_backorder).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_mrp_workorder/models/mrp_production.py\\\", line 9, in button_mark_done\\n    action = super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/viin_mrp/models/mrp_production.py\\\", line 111, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/erponline-enterprise16.0/to_quality_mrp/models/mrp_production.py\\\", line 92, in button_mark_done\\n    return super(MrpProduction, self).button_mark_done()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1878, in button_mark_done\\n    self._button_mark_done_sanity_checks()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 1983, in _button_mark_done_sanity_checks\\n    order._check_sn_uniqueness()\\n  File \\\"/opt/odoo/16.0/addons/mrp/models/mrp_production.py\\\", line 2208, in _check_sn_uniqueness\\n    raise UserError(_('This serial number for product %s has already been produced', self.product_id.name))\\nodoo.exceptions.UserError: Số sê-ri cho sản phẩm FG DCT3 Dock US đã được sản xuất\\n\",\r\n  \"message\": \"Số sê-ri cho sản phẩm FG DCT3 Dock US đã được sản xuất\",\r\n  \"arguments\": [\r\n    \"Số sê-ri cho sản phẩm FG DCT3 Dock US đã được sản xuất\"\r\n  ],\r\n  \"context\": {}\r\n}",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "895b0d075e413cd05cc78160c7d4a0ba3c337ee5"
+      "operation": "Walter-810114362716",
+      "productID": "[1181]",
+      "shift": "day            ",
+      "svnQty": 1840,
+      "viindooQty": 1840
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-502 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "0bb792fa37fc25c97dd18f82fda994547dba9dc2"
+      "operation": "Toast-WSS03-00290",
+      "productID": "[925]",
+      "shift": "day            ",
+      "svnQty": 270,
+      "viindooQty": 272
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-503 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "1d30c483c98d547646cf77c406581b9317507ba6"
+      "operation": "Toast-FG-TRO-CE-0001-00",
+      "productID": "[924]",
+      "shift": "day            ",
+      "svnQty": 267,
+      "viindooQty": 269
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-504 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "fdc31f71ef4e6c5970335deff85f8b21094a9444"
+      "operation": "Sakura-RM15A-1000NW(SM)",
+      "productID": "[]",
+      "shift": "day            ",
+      "svnQty": 347,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-505 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "ea66810dee680bc1bd926ece15701fe6ba80aac9"
+      "operation": "Sakura-WSS03-00303(SM)",
+      "productID": "[]",
+      "shift": "day            ",
+      "svnQty": 286,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-506 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4cb82f38d951eafce0ee6dc68215713efa020308"
+      "operation": "Sakura-WSS03-00304(SM)",
+      "productID": "[]",
+      "shift": "day            ",
+      "svnQty": 342,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-507 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "31120325e3609edad2b0617a679f3384105cd1e7"
+      "operation": "Sakura-RM15A-1002NW(SM)",
+      "productID": "[]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-508 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "62646265e9162b94deb8f73192e75f56a467d519"
+      "operation": "Sakura-WSS03-00307(SM)",
+      "productID": "[]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03252-710 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e6862d7003300cbb65d4930277df84eaeb713a82"
+      "operation": "Sakura-WSS03-00306(SM)",
+      "productID": "[]",
+      "shift": "day            ",
+      "svnQty": 0,
+      "viindooQty": 0
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-509 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "d41d5f4c01c50406e15e4b9a750482a82e7f10c7"
+      "operation": "POP",
+      "productID": "[21,24,25,267,268,269,294,295,296,299,298,300,301,307,308,309,310,313,314,315,316,321,320,322,323,325,326,327,328,273,274,275,276,281,282,283,284,340,339,341,338,344,345,346,347,626,625,627,628,630,631,288,632,633,634,635,636,640,639,638,641,647,646,645,648,650,651,652,653,657,658,737,330,332,331,333,798,797,799,800]",
+      "shift": "day            ",
+      "svnQty": 2814,
+      "viindooQty": 2814
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-510 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "1de806557de37ed7d130a97d83769f12fec70022"
+      "operation": "Injection_POP",
+      "productID": "[801,803]",
+      "shift": "day            ",
+      "svnQty": 3960,
+      "viindooQty": 3960
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-511 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c91d1ca55164108506ce3d86529bc59b9ea5857a"
+      "operation": "Injection-WIP07-00044",
+      "productID": "[1384]",
+      "shift": "day            ",
+      "svnQty": 6608,
+      "viindooQty": 6608
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-512 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e701e8d6f068bd60f9f9301198bc599a007b4d1f"
+      "operation": "Injection-WIP07-00045",
+      "productID": "[1385]",
+      "shift": "day            ",
+      "svnQty": 5559,
+      "viindooQty": 5559
     },
     {
-      "ok": true,
-      "message": "NM/MO/03258-513 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "70e36ca32f9fa06b7ea5eb063a0f9cb965d27a17"
+      "operation": "Injection-WIP07-00048",
+      "productID": "[1387]",
+      "shift": "day            ",
+      "svnQty": 1220,
+      "viindooQty": 1220
     },
     {
-      "ok": true,
-      "message": "NM/MO/03253-733 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "504a0d7f685920c8ee8130bafd0d5909be65502d"
+      "operation": "Injection_POP",
+      "productID": "[801,803]",
+      "shift": "night          ",
+      "svnQty": 0,
+      "viindooQty": 6900
+    },
+    {
+      "operation": "Injection-WIP07-00044",
+      "productID": "[1384]",
+      "shift": "night          ",
+      "svnQty": 0,
+      "viindooQty": 11400
+    },
+    {
+      "operation": "Injection-WIP07-00045",
+      "productID": "[1385]",
+      "shift": "night          ",
+      "svnQty": 0,
+      "viindooQty": 9600
+    },
+    {
+      "operation": "Injection-WIP07-00048",
+      "productID": "[1387]",
+      "shift": "night          ",
+      "svnQty": 0,
+      "viindooQty": 677
     }
   ],
   "errorNumber": 0,
