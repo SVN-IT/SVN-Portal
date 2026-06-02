@@ -1,231 +1,867 @@
 {
-  "ok": true,
-  "message": null,
+  "ok": false,
+  "message": "01/06/2026 11:37:32 | Đồng bộ hoàn tất với 24 bản ghi thành công và 62 bản ghi lỗi",
   "numOfRow": 0,
   "content": [
     {
-      "operation": "Twist-7100406413",
-      "productID": "[1413]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03253-2136 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "02408b5a05255f4c3a7a40a8fd88fef16216b087"
     },
     {
-      "operation": "Twist-7100406375",
-      "productID": "[1419]",
-      "shift": "day            ",
-      "svnQty": 2716,
-      "viindooQty": 2716
+      "ok": true,
+      "message": "NM/MO/03253-2137 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8c4d77edfc7538e16e591597a4d0a7c2d05bd105"
     },
     {
-      "operation": "Twist-7100406374",
-      "productID": "[1420]",
-      "shift": "day            ",
-      "svnQty": 1032,
-      "viindooQty": 1032
+      "ok": true,
+      "message": "NM/MO/03253-2138 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "67210492d8c013e1c0186c75fa49eda96b8f55bc"
     },
     {
-      "operation": "Twist-7100406379",
-      "productID": "[1422]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03253-2139 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7161c8601a719ac2457a6c5c843215563dfcc7de"
     },
     {
-      "operation": "Twist-7100406405",
-      "productID": "[1411]",
-      "shift": "day            ",
-      "svnQty": 424,
-      "viindooQty": 424
+      "ok": true,
+      "message": "NM/MO/03252-2065 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "214ef7341b1c0657bdfb3e2db17286953d67a316"
     },
     {
-      "operation": "Twist-7100406378",
-      "productID": "[1410]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03253-2140 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "088747153ee290d11d3f06dbdf2fc9a611fd18d5"
     },
     {
-      "operation": "Twist-7100406380",
-      "productID": "[1436]",
-      "shift": "day            ",
-      "svnQty": 1014,
-      "viindooQty": 1014
+      "ok": true,
+      "message": "NM/MO/03252-2066 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "80776154cc7887fff13457dd645a58c55f8def86"
     },
     {
-      "operation": "Twist-7100406386",
-      "productID": "[1424]",
-      "shift": "day            ",
-      "svnQty": 594,
-      "viindooQty": 615
+      "ok": true,
+      "message": "NM/MO/03253-2141 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7ff0601f71590c33ce6f188c756b51f7ceaa17d3"
     },
     {
-      "operation": "Twist-7100406527",
-      "productID": "[1430]",
-      "shift": "day            ",
-      "svnQty": 1676,
-      "viindooQty": 1676
+      "ok": true,
+      "message": "NM/MO/03252-2067 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "d2cf05fe09680fe5ad71288b664dc944f782e769"
     },
     {
-      "operation": "Walter-WSS03-00534",
-      "productID": "[1493]",
-      "shift": "day            ",
-      "svnQty": 870,
-      "viindooQty": 870
+      "ok": true,
+      "message": "NM/MO/03253-2142 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "51bdd51ea6505557c69f80c241fe09bb8cd0329f"
     },
     {
-      "operation": "Walter-750-11-000-015-02-501",
-      "productID": "[1295]",
-      "shift": "day            ",
-      "svnQty": 870,
-      "viindooQty": 870
+      "ok": true,
+      "message": "NM/MO/03252-2068 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "daf5b574304907eb90e2bedf6353fbf5d01cf869"
     },
     {
-      "operation": "Walter-WSS03-00360",
-      "productID": "[1234]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03252-2069 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "69aa817afe2dfca0c0719fccb43e8c4b442bd981"
     },
     {
-      "operation": "Walter-810114362808",
-      "productID": "[1232]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03252-2070 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "e6f5562006e549be0c108e5fc237c8e9df709f98"
     },
     {
-      "operation": "Walter-WSS03-00335",
-      "productID": "[1199]",
-      "shift": "day            ",
-      "svnQty": 1830,
-      "viindooQty": 1850
+      "ok": true,
+      "message": "NM/MO/03253-2143 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "8e64a21df3dcf3c6eaaae1d70e7b4fd183461d8b"
     },
     {
-      "operation": "Walter-810114362716",
-      "productID": "[1181]",
-      "shift": "day            ",
-      "svnQty": 1840,
-      "viindooQty": 1840
+      "ok": true,
+      "message": "NM/MO/03253-2144 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "51b5700f3c4724a1ace1ef18d362439125cb6851"
     },
     {
-      "operation": "Toast-WSS03-00290",
-      "productID": "[925]",
-      "shift": "day            ",
-      "svnQty": 270,
-      "viindooQty": 272
+      "ok": true,
+      "message": "NM/MO/03252-2071 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "4313b1239deb491c89ab241ff3dbf20f088470ee"
     },
     {
-      "operation": "Toast-FG-TRO-CE-0001-00",
-      "productID": "[924]",
-      "shift": "day            ",
-      "svnQty": 267,
-      "viindooQty": 269
+      "ok": true,
+      "message": "NM/MO/03252-2072 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "0f956f492acd91d5605737f33f100cfe23e7c3f5"
     },
     {
-      "operation": "Sakura-RM15A-1000NW(SM)",
-      "productID": "[]",
-      "shift": "day            ",
-      "svnQty": 347,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03253-2145 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "feb82fd24821b3868d59549660c9ea5155af7231"
     },
     {
-      "operation": "Sakura-WSS03-00303(SM)",
-      "productID": "[]",
-      "shift": "day            ",
-      "svnQty": 286,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03252-2073 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "437a8c8f1258d8c2c6e1a46aa8287e233cfac767"
     },
     {
-      "operation": "Sakura-WSS03-00304(SM)",
-      "productID": "[]",
-      "shift": "day            ",
-      "svnQty": 342,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03253-2146 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "f8dddc6828cf5e2c3af6808723de06dbfcc086e7"
     },
     {
-      "operation": "Sakura-RM15A-1002NW(SM)",
-      "productID": "[]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03253-2147 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "f1a6bf44f09974ee6e748ad4a783b9cdefc4c86f"
     },
     {
-      "operation": "Sakura-WSS03-00307(SM)",
-      "productID": "[]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03252-2074 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "c3bf590349629d17e0884f810a72a8055ba52075"
     },
     {
-      "operation": "Sakura-WSS03-00306(SM)",
-      "productID": "[]",
-      "shift": "day            ",
-      "svnQty": 0,
-      "viindooQty": 0
+      "ok": true,
+      "message": "NM/MO/03252-2075 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "971993baeab369740a434e8658ea9f175a5eb4dd"
     },
     {
-      "operation": "POP",
-      "productID": "[21,24,25,267,268,269,294,295,296,299,298,300,301,307,308,309,310,313,314,315,316,321,320,322,323,325,326,327,328,273,274,275,276,281,282,283,284,340,339,341,338,344,345,346,347,626,625,627,628,630,631,288,632,633,634,635,636,640,639,638,641,647,646,645,648,650,651,652,653,657,658,737,330,332,331,333,798,797,799,800]",
-      "shift": "day            ",
-      "svnQty": 2814,
-      "viindooQty": 2814
+      "ok": true,
+      "message": "NM/MO/03253-2148 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "f70e00c6beb5ba8d35e8f64dd4402421e76177ea"
     },
     {
-      "operation": "Injection_POP",
-      "productID": "[801,803]",
-      "shift": "day            ",
-      "svnQty": 3960,
-      "viindooQty": 3960
+      "ok": false,
+      "message": "NM/MO/03252-2076 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 2,
+      "odooUserID": 2,
+      "dataType": "7afbfb53e9e6b2ec7ba6ccd325de30ab43fa2a25"
     },
     {
-      "operation": "Injection-WIP07-00044",
-      "productID": "[1384]",
-      "shift": "day            ",
-      "svnQty": 6608,
-      "viindooQty": 6608
+      "ok": false,
+      "message": "NM/MO/03252-2077 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "operation": "Injection-WIP07-00045",
-      "productID": "[1385]",
-      "shift": "day            ",
-      "svnQty": 5559,
-      "viindooQty": 5559
+      "ok": false,
+      "message": "NM/MO/03253-2149 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "operation": "Injection-WIP07-00048",
-      "productID": "[1387]",
-      "shift": "day            ",
-      "svnQty": 1220,
-      "viindooQty": 1220
+      "ok": false,
+      "message": "NM/MO/03252-2078 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "operation": "Injection_POP",
-      "productID": "[801,803]",
-      "shift": "night          ",
-      "svnQty": 0,
-      "viindooQty": 6900
+      "ok": false,
+      "message": "NM/MO/03253-2150 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "operation": "Injection-WIP07-00044",
-      "productID": "[1384]",
-      "shift": "night          ",
-      "svnQty": 0,
-      "viindooQty": 11400
+      "ok": false,
+      "message": "NM/MO/03252-2079 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "operation": "Injection-WIP07-00045",
-      "productID": "[1385]",
-      "shift": "night          ",
-      "svnQty": 0,
-      "viindooQty": 9600
+      "ok": false,
+      "message": "NM/MO/03253-2151 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "operation": "Injection-WIP07-00048",
-      "productID": "[1387]",
-      "shift": "night          ",
-      "svnQty": 0,
-      "viindooQty": 677
+      "ok": false,
+      "message": "NM/MO/03253-2152 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2080 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2153 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2081 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2154 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2082 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2155 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2156 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2083 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2084 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2085 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2157 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2158 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2159 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2160 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2086 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2161 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2087 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2162 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2088 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2163 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2164 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2089 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2090 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2091 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2165 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2166 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2092 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2093 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2167 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2094 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2095 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2096 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2168 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2169 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2097 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2098 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2170 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2099 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2171 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2172 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2173 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2100 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2174 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2101 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2175 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2102 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2103 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2104 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2105 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2106 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2176 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2177 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03252-2107 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": false,
+      "message": "NM/MO/03253-2178 - Login failed. Please check your credentials.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     }
   ],
   "errorNumber": 0,

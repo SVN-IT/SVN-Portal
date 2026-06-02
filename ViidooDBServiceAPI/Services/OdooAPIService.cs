@@ -63,6 +63,12 @@ namespace ViidooDBServiceAPI.Services
                         var responseString = await response.Content.ReadAsStringAsync();
 
                         var json = JObject.Parse(responseString);
+                        if (json["error"] != null)
+                        {
+                            //throw new Exception(json["error"]["message"].ToString());
+                            throw new Exception($"LoginAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                        }
+
                         uid = json["result"]?["uid"]?.Value<int>() ?? 0;
 
                         if (response.Headers.TryGetValues("Set-Cookie", out var setCookieValues))
@@ -172,6 +178,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ReadProductionAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 var dictionary = ((JObject)resultArray[0])
@@ -238,6 +250,13 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"LotSearchAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
                 if (resultArray.Count == 0)
                 {
@@ -288,6 +307,13 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_create", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CreateLotAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
                 if (resultArray.Count == 0)
                 {
@@ -364,6 +390,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ReadProductionByProductIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 var dictionary = ((JObject)resultArray[0])
@@ -431,6 +463,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CheckUsedLotIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
 
@@ -515,6 +553,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotByNameAndProductIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
 
@@ -644,7 +688,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetStockMoveLineByLotNameAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
                 try
                 {
@@ -750,6 +802,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetUsedLotForComponemtAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 if (resultArray.Count == 0)
@@ -815,7 +873,14 @@ namespace ViidooDBServiceAPI.Services
 
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.quant/search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotRemainingQtyAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 if (json["result"] == null) return 0;
 
@@ -889,7 +954,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetStockMoveByIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 try
@@ -1015,6 +1088,7 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/write", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
                 if (json["error"] != null)
                 {
                     //throw new Exception(json["error"]["message"].ToString());
@@ -2447,6 +2521,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderCreate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var backorder_id = int.Parse(json["result"].ToString());
                 return backorder_id;
             }
@@ -2628,7 +2708,14 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderCreate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
 
@@ -2704,6 +2791,15 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = await response.Content.ReadAsStringAsync();
+
+                var jsonString = JObject.Parse(responseString);
+
+                if (jsonString["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotInfo - {jsonString["error"]["code"].ToString()} - {jsonString["error"]["message"].ToString()} - {jsonString["error"]["data"].ToString()}");
+                }
+
                 //var resultArray = (JArray)json["result"];
                 try
                 {
@@ -2778,6 +2874,15 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = await response.Content.ReadAsStringAsync();
+
+                var jsonString = JObject.Parse(responseString);
+
+                if (jsonString["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotInfoInWarehoure - {jsonString["error"]["code"].ToString()} - {jsonString["error"]["message"].ToString()} - {jsonString["error"]["data"].ToString()}");
+                }
+
                 //var resultArray = (JArray)json["result"];
                 try
                 {
@@ -3046,6 +3151,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/create", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CreateProductTemplate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 //var json = JObject.Parse(responseString);
                 //if (json["error"] != null)
                 //{
@@ -3149,6 +3263,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/web_search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearchProductTemplate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 //var json = JObject.Parse(responseString);
                 //if (json["error"] != null)
                 //{
@@ -3226,6 +3349,13 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/create", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"WriteProductTemplate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 //if (json["error"] != null)
                 //{
                 //    throw new Exception(json["error"]["message"].ToString());
@@ -3304,6 +3434,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearchBOMByProductTemplateID - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
             }
@@ -3359,7 +3498,16 @@ namespace ViidooDBServiceAPI.Services
 
                 // Lưu ý: URL kết thúc bằng /read vì method gọi là read
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom.line/read", content);
+
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetBomLinesByIdsAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
@@ -3442,6 +3590,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/create", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"InsertBOM - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
             }
@@ -3491,6 +3648,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.product/search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearhProductItem - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
             }
@@ -3540,6 +3706,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/search_read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearhProductTemp - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
                 return obj;
             }
@@ -3596,6 +3771,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetEmployeeCategory - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
                 foreach (var item in resultArray)
@@ -3667,6 +3848,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetEmployeeInfomation - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"]["records"];
                 foreach (var item in resultArray)
@@ -3824,7 +4011,7 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception($"Odoo RPC Error: {json["error"]["data"]["message"] ?? json["error"]["message"]}");
+                    throw new Exception($"ReadProductionResultAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
 
                 var resultArray = (JArray)json["result"];
