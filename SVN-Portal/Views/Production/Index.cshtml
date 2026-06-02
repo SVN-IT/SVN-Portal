@@ -201,8 +201,13 @@
                 alert("Network error. Please try again");
             },
             complete: function () {
-                isRunning = false;
-                hideLoader();
+                // isRunning = false;
+                // hideLoader();
+
+                setTimeout(function() {
+                    isRunning = false;
+                    hideLoader();
+                }, 3000);
             }
         });
     }
@@ -292,6 +297,31 @@
 
     $(document).ready(function () {
         $('input[name="workOrderCode"]').focus();
+
+        // ==================== ĐOẠN CODE THÊM MỚI Ở ĐÂY ====================
+        // Lắng nghe sự kiện khi bất kỳ ô input nào được focus vào
+        $(document).on('focus', 'input', function () {
+            // Chỉ áp dụng cho các ô nhập liệu được, bỏ qua nút bấm hoặc ô ẩn (hidden)
+            if ($(this).attr('type') !== 'hidden' && $(this).attr('type') !== 'button' && $(this).attr('type') !== 'submit') {
+                $(this).css({
+                    'border-color': '#28a745',          // Viền xanh lá
+                    'background-color': '#e8f5e9',      // Nền xanh lá cực nhạt
+                    'box-shadow': '0 0 0 0.2rem rgba(40, 167, 69, 0.25)', // Hiệu ứng đổ bóng sáng
+                    'outline': 'none',
+                    'transition': 'all 0.2s ease-in-out' // Hiệu ứng mượt mà
+                });
+            }
+        });
+
+        // Lắng nghe sự kiện khi con trỏ rời khỏi ô input (blur) -> Trả về trạng thái cũ
+        $(document).on('blur', 'input', function () {
+            $(this).css({
+                'border-color': '',
+                'background-color': '',
+                'box-shadow': ''
+            });
+        });
+        // ===================================================================
 
         // Bắt phím Enter
         $(document).on('keydown', 'input', function (e) {
