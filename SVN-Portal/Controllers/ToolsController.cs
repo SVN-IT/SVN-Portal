@@ -200,6 +200,7 @@ namespace SVN_Portal.Controllers
                     printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer", selectedPrinterID);
                 }
 
+                string itemName = "Item test";
 
                 products = await productDataPortal.ReadList();
                 if(products == null)
@@ -223,51 +224,71 @@ namespace SVN_Portal.Controllers
                     {
                         product.product_name = item_code + product.product_name;
                     }
-                        return product;
+
+                    if(product.id == selectedProductID)
+                    {
+                        itemName = product.product_name;
+                    }
+                    return product;
                 }).ToList();
                 SelectList productList = new SelectList(products, "id", "product_name");
                 if (selectedProductID != 0)
                 {
                     productList = new SelectList(products, "id", "product_name", selectedProductID);
 
-                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                    //HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
 
-                    ProductDataRequest dataRequest = new ProductDataRequest()
-                    {
-                        product_id = selectedProductID,
-                        lotNumber = "",
-                        count = countRows,
-                        seriNumber = ""
-                    };
+                    //ProductDataRequest dataRequest = new ProductDataRequest()
+                    //{
+                    //    product_id = selectedProductID,
+                    //    lotNumber = "",
+                    //    count = countRows,
+                    //    seriNumber = ""
+                    //};
 
-                    var result = await httpClientHelper.PostRequest(aPIConfiguration.GetLotByMODoneURL, dataRequest, new CancellationToken(false));
-                    if(result != null)
+                    //var result = await httpClientHelper.PostRequest(aPIConfiguration.GetLotByMODoneURL, dataRequest, new CancellationToken(false));
+                    //if(result != null)
+                    //{
+                    //    if(result.OK)
+                    //    {
+                    //        var dataUI = JsonConvert.DeserializeObject<List<svn_lot_infoUI>>(result.Content.ToString());
+                    //        if (dataUI != null)
+                    //        {
+                    //            dataUI = dataUI.Select(item =>
+                    //            {
+                    //                PrintTemViewModel viewModel = new PrintTemViewModel();
+                    //                if (item.item_name.Contains("vi_VN"))
+                    //                {
+                    //                    Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
+                    //                    item.item_name = dictionary["vi_VN"];
+                    //                }
+                    //                else
+                    //                {
+                    //                    item.item_name = item.item_name;
+                    //                }
+                    //                viewModel.item_name = item.item_name;
+                    //                viewModel.lot_code = item.lot_code;
+                    //                viewModel.product_qty = item.product_qty;
+                    //                viewModels.Add(viewModel);
+                    //                return item;
+                    //            }).ToList();
+                    //        }
+                    //    }
+                    //}
+
+                    SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(connectionString);
+                    var logData = await dataPortal.GetListByProductIDAsync(selectedProductID, countRows);
+                    if (logData != null)
                     {
-                        if(result.OK)
+                        logData = logData.Select(log =>
                         {
-                            var dataUI = JsonConvert.DeserializeObject<List<svn_lot_infoUI>>(result.Content.ToString());
-                            if (dataUI != null)
-                            {
-                                dataUI = dataUI.Select(item =>
-                                {
-                                    PrintTemViewModel viewModel = new PrintTemViewModel();
-                                    if (item.item_name.Contains("vi_VN"))
-                                    {
-                                        Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
-                                        item.item_name = dictionary["vi_VN"];
-                                    }
-                                    else
-                                    {
-                                        item.item_name = item.item_name;
-                                    }
-                                    viewModel.item_name = item.item_name;
-                                    viewModel.lot_code = item.lot_code;
-                                    viewModel.product_qty = item.product_qty;
-                                    viewModels.Add(viewModel);
-                                    return item;
-                                }).ToList();
-                            }
-                        }
+                            PrintTemViewModel viewModel = new PrintTemViewModel();
+                            viewModel.item_name = itemName;
+                            viewModel.lot_code = log.serial_code;
+                            viewModel.product_qty = log.product_qty;
+                            viewModels.Add(viewModel);
+                            return log;
+                        }).ToList();
                     }
 
                 }

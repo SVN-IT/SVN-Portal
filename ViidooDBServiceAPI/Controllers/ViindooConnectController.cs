@@ -1173,7 +1173,7 @@ namespace ViidooDBServiceAPI.Controllers
                 }
                 else if (dataRequest.hasTracking == "lot")
                 {
-                    var result = await odooAPIService.GetLotRemainingQtyAsync(dataRequest.lotNumber, dataRequest.product_id, bODataProcessResult.DataType);
+                    var result = await odooAPIService.GetLotRemainingQtyAsync(dataRequest.lotNumber, dataRequest.product_id, dbConfig.SessionID);
                     if (result != 0)
                     {
                         bODataProcessResult.OK = true;

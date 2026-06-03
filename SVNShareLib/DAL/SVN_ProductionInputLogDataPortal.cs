@@ -136,6 +136,17 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public async Task<List<SVN_ProductionInputLogUI>> GetListByProductIDAsync(int product_id, int count = 1)
+        {
+            string sql = "SELECT TOP(#COUNT) * FROM SVN_ProductionInputLogs WHERE product_id = @product_id ORDER BY date_finished DESC";
+            sql = sql.Replace("#COUNT", count.ToString());
+            using (var db = Connection)
+            {
+                var result = await db.QueryAsync<SVN_ProductionInputLogUI>(sql, new { product_id });
+                return result.ToList();
+            }
+        }
+
         /// <summary>
         /// Lấy tổng số lượng sản xuất theo WO tổng
         /// </summary>

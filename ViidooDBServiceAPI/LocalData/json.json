@@ -1,261 +1,2421 @@
 {
   "ok": false,
-  "message": "01/06/2026 11:37:32 | Đồng bộ hoàn tất với 24 bản ghi thành công và 62 bản ghi lỗi",
+  "message": "03/06/2026 01:33:47 | Đồng bộ hoàn tất với 342 bản ghi thành công và 52 bản ghi lỗi",
   "numOfRow": 0,
   "content": [
     {
       "ok": true,
-      "message": "NM/MO/03253-2136 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2491 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "02408b5a05255f4c3a7a40a8fd88fef16216b087"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2137 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2421 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8c4d77edfc7538e16e591597a4d0a7c2d05bd105"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2138 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2422 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "67210492d8c013e1c0186c75fa49eda96b8f55bc"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2139 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2492 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "7161c8601a719ac2457a6c5c843215563dfcc7de"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2065 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2493 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "214ef7341b1c0657bdfb3e2db17286953d67a316"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2140 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2494 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "088747153ee290d11d3f06dbdf2fc9a611fd18d5"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2066 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2495 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "80776154cc7887fff13457dd645a58c55f8def86"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2141 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2423 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "7ff0601f71590c33ce6f188c756b51f7ceaa17d3"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2067 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2496 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "d2cf05fe09680fe5ad71288b664dc944f782e769"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2142 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2424 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "51bdd51ea6505557c69f80c241fe09bb8cd0329f"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2068 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2425 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "daf5b574304907eb90e2bedf6353fbf5d01cf869"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2069 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2426 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "69aa817afe2dfca0c0719fccb43e8c4b442bd981"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2070 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2427 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "e6f5562006e549be0c108e5fc237c8e9df709f98"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2143 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2497 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "8e64a21df3dcf3c6eaaae1d70e7b4fd183461d8b"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2144 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2428 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "51b5700f3c4724a1ace1ef18d362439125cb6851"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2071 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2498 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "4313b1239deb491c89ab241ff3dbf20f088470ee"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2072 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2499 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "0f956f492acd91d5605737f33f100cfe23e7c3f5"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2145 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2500 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "feb82fd24821b3868d59549660c9ea5155af7231"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2073 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2501 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "437a8c8f1258d8c2c6e1a46aa8287e233cfac767"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2146 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2429 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f8dddc6828cf5e2c3af6808723de06dbfcc086e7"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2147 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2502 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f1a6bf44f09974ee6e748ad4a783b9cdefc4c86f"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2074 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2503 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "c3bf590349629d17e0884f810a72a8055ba52075"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-2075 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03252-2430 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "971993baeab369740a434e8658ea9f175a5eb4dd"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-2148 - Hoàn thành lệnh sản xuất",
+      "message": "NM/MO/03253-2504 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "f70e00c6beb5ba8d35e8f64dd4402421e76177ea"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2076 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "NM/MO/03252-2431 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
-      "userID": 2,
-      "odooUserID": 2,
-      "dataType": "7afbfb53e9e6b2ec7ba6ccd325de30ab43fa2a25"
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2077 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03252-2432 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2433 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2434 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2505 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2506 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2507 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2508 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2509 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2435 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2510 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2436 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2511 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2437 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2512 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2513 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2438 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2514 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2439 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2440 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2515 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2441 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2442 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2516 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2443 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2444 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2517 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2445 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2518 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2446 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2447 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2519 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2520 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2521 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2448 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2522 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2523 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2524 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2525 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2449 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2450 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2451 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2526 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2452 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2527 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2453 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2454 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2528 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2455 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2529 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2456 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2530 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2531 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2532 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2457 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2458 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2533 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2459 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2534 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2460 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2461 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2462 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2535 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2536 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2463 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2464 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2537 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2538 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2465 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2466 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2539 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2540 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2467 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2468 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2541 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2542 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2543 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2469 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2470 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2544 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2545 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2546 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2547 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2548 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2549 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2471 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2472 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2550 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2473 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2474 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2551 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2475 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2476 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2552 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2477 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2478 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2479 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2553 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2554 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2480 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2555 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2481 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2556 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2557 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2482 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2483 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2558 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2484 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2485 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2486 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2559 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2487 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2560 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2561 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2488 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2562 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2489 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2563 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2490 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2491 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2564 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2492 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2493 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2565 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2566 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2494 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2567 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2568 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2495 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2569 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2496 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2497 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2498 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2570 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2571 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2572 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2499 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2573 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2500 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2501 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2574 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2502 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2503 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2575 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2504 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2576 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2577 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2578 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2579 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2580 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2581 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2582 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2583 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2584 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2505 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2585 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2506 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2586 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2507 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2587 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2508 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2588 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2509 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2510 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2589 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2511 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2590 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2591 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2512 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2513 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2592 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2514 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2593 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2594 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2515 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2595 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2516 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2596 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2517 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2597 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2598 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2518 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2599 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2519 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2600 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2520 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2521 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2522 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2601 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2602 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2523 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2603 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2604 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2524 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2525 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2605 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2526 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2527 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2606 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2528 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2607 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2529 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2530 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2608 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2531 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2609 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2610 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2611 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2612 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2613 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2532 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2614 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2615 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2533 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2534 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2616 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2535 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2536 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -265,7 +2425,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2149 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2537 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -275,7 +2435,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2078 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2617 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -285,7 +2445,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2150 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2538 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -295,7 +2455,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2079 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2539 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -305,7 +2465,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2151 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2618 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -315,7 +2475,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2152 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2540 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -325,7 +2485,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2080 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2541 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -335,7 +2495,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2153 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2619 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -345,7 +2505,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2081 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2542 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -355,7 +2515,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2154 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2543 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -365,7 +2525,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2082 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2620 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -375,7 +2535,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2155 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2621 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -385,7 +2545,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2156 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2622 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -395,7 +2555,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2083 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2544 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -405,7 +2565,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2084 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2623 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -415,7 +2575,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2085 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2545 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -425,7 +2585,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2157 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2624 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -435,7 +2595,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2158 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2546 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -445,7 +2605,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2159 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2625 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -455,7 +2615,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2160 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2547 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -465,7 +2625,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2086 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2626 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -475,7 +2635,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2161 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2627 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -485,7 +2645,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2087 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2548 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -495,7 +2655,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2162 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2628 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -505,7 +2665,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2088 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2549 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -515,7 +2675,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2163 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2550 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -525,7 +2685,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2164 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2629 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -535,7 +2695,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2089 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2551 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -545,7 +2705,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2090 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2630 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -555,7 +2715,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2091 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2552 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -565,7 +2725,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2165 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2553 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -575,7 +2735,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2166 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2631 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -585,7 +2745,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2092 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2554 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -595,7 +2755,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2093 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2632 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -605,7 +2765,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2167 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2633 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -615,7 +2775,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2094 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2555 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -625,7 +2785,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2095 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2634 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -635,7 +2795,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2096 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2635 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -645,7 +2805,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2168 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2556 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -655,7 +2815,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2169 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2557 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -665,7 +2825,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2097 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2636 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -675,7 +2835,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2098 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2637 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -685,7 +2845,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2170 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2558 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -695,7 +2855,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2099 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2559 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -705,7 +2865,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2171 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2560 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -715,7 +2875,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2172 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03253-2638 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -725,7 +2885,17 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2173 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2561 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2639 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -735,7 +2905,37 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2100 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2562 - Mã lot A101266183493 không tìm thấy ",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2640 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2563 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2641 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -745,7 +2945,17 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2174 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2564 - Mã lot A101266183478 không tìm thấy ",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2642 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -755,7 +2965,67 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2101 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2565 - Mã lot A101266183581 không tìm thấy ",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2643 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2644 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2645 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2646 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2647 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2566 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -765,7 +3035,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-2175 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2567 - Mã lot A101266183479 không tìm thấy ",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -775,7 +3045,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03252-2102 - Login failed. Please check your credentials.",
+      "message": "NM/MO/03252-2568 - Mã lot A101266183495 không tìm thấy ",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -784,8 +3054,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2103 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03252-2569 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -794,8 +3064,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2104 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03253-2648 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -804,8 +3074,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2105 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03252-2570 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -814,8 +3084,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2106 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03253-2649 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -824,8 +3094,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-2176 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03252-2571 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -834,8 +3104,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-2177 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03253-2650 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -844,8 +3114,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-2107 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03253-2651 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -854,8 +3124,818 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-2178 - Login failed. Please check your credentials.",
+      "ok": true,
+      "message": "NM/MO/03252-2572 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2573 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2652 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2653 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2574 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2654 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2655 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2575 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2576 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2577 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2578 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2656 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2657 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2579 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2658 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2580 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2581 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2582 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2659 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2583 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2660 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2584 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2661 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2585 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2586 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2587 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2588 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2662 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2663 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2664 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2589 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2590 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2665 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2666 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2667 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2591 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2592 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2668 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2593 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2669 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2594 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2670 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2595 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2671 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2596 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2597 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2598 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2672 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2599 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2673 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2674 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2600 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2675 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2676 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2677 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2601 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2678 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2679 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2680 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2602 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2603 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2604 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2605 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2606 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2607 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2681 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2608 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2682 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2609 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2683 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2684 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2685 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2686 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2687 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2610 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2611 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2688 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2612 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2613 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03252-2614 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2689 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "NM/MO/03253-2690 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
