@@ -922,13 +922,13 @@ namespace ViidooDBServiceAPI.Controllers
                         if(inputResult.OK)
                         {
                             item.status = "synch success";
-                            inputResult.Message = item.wo_code + " - " + inputResult.Message;
+                            inputResult.Message = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + " - " + item.wo_code + " - " + inputResult.Message;
                             SyncBODataResults.Add(inputResult);
                         }
                         else
                         {
                             item.status = "synch failed";
-                            inputResult.Message = item.wo_code + " - " + inputResult.Message;
+                            inputResult.Message = DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + " - " + item.wo_code + " - " + inputResult.Message;
                             SyncBODataResults.Add(inputResult);
                         }
                         var updateResult = await dataPortal.UpdateAsync(item);
