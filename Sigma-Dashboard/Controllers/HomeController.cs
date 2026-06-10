@@ -17,8 +17,9 @@ public class HomeController : Controller
         this.appConfig = appConfig;
     }
 
-    public async Task<IActionResult> Index(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
+    public async Task<IActionResult> Index(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false, int pageSize = 9)
     {
+        PageDashboardViewModel pageDashboardViewModel = new PageDashboardViewModel();
         DashboardViewModel dashboardData = new DashboardViewModel();
         try
         {
@@ -49,6 +50,7 @@ public class HomeController : Controller
             ViewBag.date = date;
             ViewBag.shift = shift;
             ViewBag.IndexPage = "Index";
+            ViewBag.PageSize = pageSize;
             strdate = date.ToString("yyyyMMdd");
 
             int hours = 7;
@@ -58,17 +60,33 @@ public class HomeController : Controller
             TempData.Keep("Hours");
 
             dashboardData = await homeControllerHelper.SummaryData(strdate, storedProceduce, tableName, 3, shift, companyCode, hours);
+            if (dashboardData != null) 
+            {
+                if (pageSize == 0)
+                {
+                    pageSize = dashboardData.BarChartData.Count;
+                }
+                for (int i = 0; i < dashboardData.BarChartData.Count; i += pageSize)
+                {
+                    var slide = new DashboardViewModel();
+                    slide.Sections = dashboardData.Sections;
+                    slide.BarChartData = dashboardData.BarChartData.Skip(i).Take(pageSize).ToList();
+
+                    pageDashboardViewModel.DashboardData.Add(slide);
+                }
+            }
 
         }
         catch 
         {
-            dashboardData = new DashboardViewModel();
+            pageDashboardViewModel = new PageDashboardViewModel();
         }
-        return View(dashboardData);
+        return View(pageDashboardViewModel);
     }
 
-    public async Task<IActionResult> ChartPageByOperation(string masterOperation, DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
+    public async Task<IActionResult> ChartPageByOperation(string masterOperation, DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false, int pageSize = 9)
     {
+        PageDashboardViewModel pageDashboardViewModel = new PageDashboardViewModel();
         DashboardViewModel dashboardData = new DashboardViewModel();
         try
         {
@@ -97,6 +115,7 @@ public class HomeController : Controller
             ViewBag.date = date;
             ViewBag.shift = shift;
             ViewBag.IndexPage = "ChartPageByOperation";
+            ViewBag.PageSize = pageSize;
             strdate = date.ToString("yyyyMMdd");
             int hours = 7;
             ViewBag.CompanyCode = companyCode;
@@ -105,12 +124,27 @@ public class HomeController : Controller
             TempData["Hours"] = hours.ToString();
             TempData.Keep("Hours");
             dashboardData = await homeControllerHelper.SummaryData(strdate, storedProceduce, tableName, 3, shift, companyCode, hours, masterOperation);
+            if (dashboardData != null)
+            {
+                if(pageSize == 0)
+                {
+                    pageSize = dashboardData.BarChartData.Count;
+                }
+                for (int i = 0; i < dashboardData.BarChartData.Count; i += pageSize)
+                {
+                    var slide = new DashboardViewModel();
+                    slide.Sections = dashboardData.Sections;
+                    slide.BarChartData = dashboardData.BarChartData.Skip(i).Take(pageSize).ToList();
+
+                    pageDashboardViewModel.DashboardData.Add(slide);
+                }
+            }
         }
         catch
         {
-            dashboardData = new DashboardViewModel();
+            pageDashboardViewModel = new PageDashboardViewModel();
         }
-        return View(dashboardData);
+        return View(pageDashboardViewModel);
     }
 
     [HttpGet]

@@ -35,6 +35,10 @@
     <script src="~/plugins/chart.js/chart.min.js"></script>
     <script src="~/plugins/chart.js/chartjs-plugin-datalabels.min.js"></script>
     <script src="~/js/site.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
 </head>
 <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
     <div class="wrapper">
@@ -42,7 +46,7 @@
             DateTime date = ViewBag.date;
             string shift = ViewBag.shift;
             string companyCode = ViewBag.CompanyCode;
-
+            int pageSize = ViewBag.PageSize;
             string selectedMasterOperation = ViewBag.SelectedMasterOperation;
 
             string indexPage = ViewBag.IndexPage;
@@ -97,6 +101,17 @@
                     <div class="navbar-search-block">
                         <form method="post" class="form-inline">
                             <div class="input-group input-group-sm">
+                                @if (indexPage == "Index" || indexPage == "ChartPageByOperation")
+                                {
+                                    <select class="form-control form-control-navbar" name="pageSize">
+                                        <option value="3" selected="@(pageSize == 3)">3</option>
+                                        <option value="6" selected="@(pageSize == 6)">6</option>
+                                        <option value="9" selected="@(pageSize == 9)">9</option>
+                                        <option value="12" selected="@(pageSize == 12)">12</option>
+                                        <option value="15" selected="@(pageSize == 15)">15</option>
+                                        <option value="0" selected="@(pageSize == 0)">All</option>
+                                    </select>
+                                }
                                 <select class="form-control form-control-navbar" name="companyCode">
                                     <option value="SVN" selected="@(companyCode == "SVN")">SVN</option>
                                     <option value="SM" selected="@(companyCode == "SM")">SM</option>
@@ -244,8 +259,7 @@
     <script>
         $.widget.bridge('uibutton', $.ui.button)
     </script>
-    <!-- Bootstrap -->
-    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
 
     <!-- Sparkline -->
     <script src="~/plugins/sparklines/sparkline.js"></script>

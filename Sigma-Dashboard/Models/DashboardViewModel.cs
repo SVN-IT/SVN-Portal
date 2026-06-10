@@ -1,5 +1,14 @@
 ﻿namespace Sigma_Dashboard.Models
 {
+    public class PageDashboardViewModel
+    {
+        public PageDashboardViewModel()
+        {
+            DashboardData = new List<DashboardViewModel>();
+        }
+        public List<DashboardViewModel> DashboardData { get; set; }
+    }
+
     public class DashboardViewModel
     {
         public DashboardViewModel()
