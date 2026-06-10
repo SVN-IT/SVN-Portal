@@ -3,6 +3,7 @@ using Sigma_Dashboard.Services.Configurations;
 using SVNShareLib.DAL;
 using SVNShareLib.DAL.NewDashboard;
 using SVNShareLib.DTO.NewDashboard;
+using System;
 using System.Globalization;
 
 namespace Sigma_Dashboard.Services.Helpers
@@ -262,6 +263,37 @@ namespace Sigma_Dashboard.Services.Helpers
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
 
+                                var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetDowntimeInfo(item.Operation);
+                                if (equipmentStatusDetail != null && !string.IsNullOrWhiteSpace(equipmentStatusDetail.State) && equipmentStatusDetail.State != "Run")
+                                {
+                                    if (startDatetime >= equipmentStatusDetail.Datetime)
+                                    {
+                                        Duration = 0;
+                                    }
+                                    else
+                                    {
+                                        if (equipmentStatusDetail.State != "Run")
+                                        {
+                                            //viewModel.CanProductionByDowntime = false;
+                                        }
+                                        if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
+                                        {
+                                            //TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
+                                            DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                            DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                            //int totalSeconds = (int)duration.TotalSeconds;
+
+                                            if (endTime <= endDatetime)
+                                            {
+                                                //viewModel.EndDownTime = endTime;
+                                            }
+                                        }
+
+                                    }
+                                }
+
+                                barChartData.DowntimeStatus = $"Downtime: {Math.Round(Duration, 2)}h";
+
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -323,6 +355,45 @@ namespace Sigma_Dashboard.Services.Helpers
                         }
 
                         barChartData.ChartTitle = $"{item.Operation} - {barChartData.Line}";
+
+                        //add workingtime
+                        barChartData.WorkingTimeStatus = $"Working time: {Math.Round(workingTime, 2)}h";
+
+                        //add checklist status
+                        string pdChecked = "🔴";
+                        string mtChecked = "🔴";
+                        string qcChecked = "🔴";
+                        string pdConfirmed = "🔴";
+                        string qcConfirmed = "🔴";
+
+                        var checklistData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(date, item.StoreID);
+                        if (checklistData != null && checklistData.Count != 0) 
+                        { 
+                            var newChecklistData = checklistData[0];
+                            if (newChecklistData.RestaurantStaffs.Contains("PD checked"))
+                            {
+                                pdChecked = "🟢";
+                            }
+                            if (newChecklistData.RestaurantStaffs.Contains("MT checked") || newChecklistData.RestaurantStaffs.Contains("ENG checked"))
+                            {
+                                mtChecked = "🟢";
+                            }
+                            if (newChecklistData.RestaurantStaffs.Contains("QC checked"))
+                            {
+                                qcChecked = "🟢";
+                            }
+                            if (newChecklistData.ConfirmStatus == "Y")
+                            {
+                                pdConfirmed = "🟢";
+                            }
+                            if (newChecklistData.PointBSC >= 3)
+                            {
+                                qcConfirmed = "🟢";
+                            }
+                        }
+                        barChartData.CheckListStatus = $"CheckList status: {pdChecked} PD - {mtChecked} MT - {qcChecked} QC checked | {pdConfirmed} PD - {qcConfirmed} QC confirmed";
+                        
+                        
 
                         dashboardData.BarChartData.Add(barChartData);
                     }

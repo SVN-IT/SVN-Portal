@@ -168,6 +168,13 @@
                     </div>
                     <!-- ./card-body -->
                     <div class="card-footer">
+                        <div class="row">
+                            <div class="col-12">
+                                <strong>
+                                    <span id="checklist_@charID">@item.CheckListStatus</span> | <span id="workingtime_@charID">@item.WorkingTimeStatus</span> | <span id="downtime_@charID">@item.DowntimeStatus</span>
+                                </strong>
+                            </div>
+                        </div>
                     </div>
                     <!-- /.card-footer -->
                 </div>
@@ -340,12 +347,28 @@
             },
             success: function (model) {
                 if (model && model.barChartData) {
-                    // Duyệt qua danh sách BarChartData để vẽ lại từng chart
-                    model.barChartData.forEach(function (item) {
-                        console.log("Đang xử lý item:", item.operation);
-                        updateSingleChart(item, model.sections);
-                    });
-                    console.log("Cập nhật Dashboard thành công!");
+                    // 1. Đếm số lượng phần tử có class là 'card' đang hiển thị trên giao diện
+                    var cardCount = $('.card').length;
+
+                    // 2. Lấy số lượng item dữ liệu trả về từ API
+                    var dataCount = model.barChartData.length;
+
+                    console.log("Số lượng class card hiện tại:", cardCount);
+                    console.log("Số lượng dữ liệu nhận được:", dataCount);
+
+                    // 3. So sánh số lượng
+                    if (cardCount === dataCount) {
+                        // Nếu số lượng bằng nhau -> Chạy vòng lặp để cập nhật chart
+                        model.barChartData.forEach(function (item) {
+                            console.log("Đang xử lý item:", item.operation);
+                            updateSingleChart(item, model.sections);
+                        });
+                        console.log("Cập nhật Dashboard thành công!");
+                    } else {
+                        // Nếu số lượng KHÁC nhau -> Load lại trang
+                        console.warn("Số lượng card và dữ liệu không khớp! Đang reload lại trang...");
+                        location.reload();
+                    }
                 }
             },
             error: function (err) {
@@ -466,5 +489,10 @@
             pieChart.data.datasets[0].data = item.defectData;
             pieChart.update(); *@
         }
+
+    @*Cập nhật lại checklist, workingtime, downtime status*@
+        $("#checklist_" + item.chartID).text(item.checkListStatus);
+        $("#workingtime_" + item.chartID).text(item.workingTimeStatus);
+        $("#downtime_" + item.chartID).text(item.downtimeStatus);
     }
 </script>

@@ -30,6 +30,9 @@
         public string UPPHPercent { get; set; }
         public string DefectInfo { get; set; }
         public string DefectPercent { get; set; }
+        public string CheckListStatus { get; set; }
+        public string WorkingTimeStatus { get; set; }
+        public string DowntimeStatus { get; set; }
     }
 
     public class DefectData
