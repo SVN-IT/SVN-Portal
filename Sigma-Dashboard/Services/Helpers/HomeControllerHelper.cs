@@ -242,6 +242,8 @@ namespace Sigma_Dashboard.Services.Helpers
 
                             sectionTimes = sectionTimeServices.GetListSectionTime(listSection, today, currentDate);
 
+                            dashboardData.IsWorkingTime = sectionTimes.FirstOrDefault(x => x.StartTime <= curDateTime && x.EndTime >= curDateTime) != null;
+
                             HPlanTarget = sectionTimeServices.GetTotalTargetUntilNow(sectionTimes, DateTime.Now);
 
                             var minStartSection = sectionTimes.FirstOrDefault() != null ? sectionTimes.FirstOrDefault().StartTime : DateTime.MinValue;

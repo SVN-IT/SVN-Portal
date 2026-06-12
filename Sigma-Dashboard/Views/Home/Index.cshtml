@@ -376,7 +376,7 @@
                         // Nếu số lượng bằng nhau -> Chạy vòng lặp để cập nhật chart
                         model.barChartData.forEach(function (item) {
                             console.log("Đang xử lý item:", item.operation);
-                            updateSingleChart(item, model.sections);
+                            updateSingleChart(item, model.sections, model.isWorkingTime);
                         });
                         console.log("Cập nhật Dashboard thành công!");
                     } else {
@@ -405,15 +405,27 @@
         return null;
     };
 
-    function getJsStatus(percentStr) {
-        var val = parseFloat(percentStr.replace('%', ''));
-        if (val >= 100) return 'bg-primary';
-        if (val >= 92 && val < 100) return 'bg-success';
-        if (val >= 75 && val < 92) return 'bg-warning';
-        return 'bg-danger';
+    function getJsStatus(percentStr, isWorkingTime, typeInfo) {
+        if (isWorkingTime) {
+            return 'bg-primary';
+        }
+        if (typeInfo === "Defect") {
+            var val = parseFloat(percentStr.replace('%', ''));
+            if (val >= 100) return 'bg-danger';
+            if (val >= 92 && val < 100) return 'bg-warning';
+            if (val >= 75 && val < 92) return 'bg-success';
+            return 'bg-primary';
+        }
+        else{
+            var val = parseFloat(percentStr.replace('%', ''));
+            if (val >= 100) return 'bg-primary';
+            if (val >= 92 && val < 100) return 'bg-success';
+            if (val >= 75 && val < 92) return 'bg-warning';
+            return 'bg-danger';
+        }
     }
 
-    function updateProductionInfo(processBarTitle_id, processBarStatus_id, textData, statusData){
+    function updateProductionInfo(processBarTitle_id, processBarStatus_id, textData, statusData, isWorkingTime, typeInfo){
         var title = $(processBarTitle_id);
         var status = $(processBarStatus_id);
 
@@ -438,11 +450,11 @@
 
             // Cập nhật màu sắc dựa trên phần trăm
             status.removeClass('bg-primary bg-success bg-warning bg-danger');
-            status.addClass(getJsStatus(percent));
+            status.addClass(getJsStatus(percent, isWorkingTime, typeInfo));
         }
     }
 
-    function updateSingleChart(item, sections) {
+    function updateSingleChart(item, sections, isWorkingTime) {
         var chartId = "barChart_" + item.chartID;
 
         var textPlan = "#textHourlyPlan_" + item.chartID;
@@ -454,10 +466,10 @@
         var textDefect = "#textDefect_" + item.chartID;
         var barDefect = "#barDefect_" + item.chartID;
 
-        updateProductionInfo(textPlan, barPlan, item.hourlyPlanData, item.hourlyPlanPercent);
-        updateProductionInfo(textUPH, barUPH, item.uphData, item.uphPercent);
-        updateProductionInfo(textUPPH, barUPPH, item.upphData, item.upphPercent);
-        updateProductionInfo(textDefect, barDefect, item.defectInfo, item.defectPercent);
+        updateProductionInfo(textPlan, barPlan, item.hourlyPlanData, item.hourlyPlanPercent, isWorkingTime, 'Plan');
+        updateProductionInfo(textUPH, barUPH, item.uphData, item.uphPercent, isWorkingTime, 'UPH');
+        updateProductionInfo(textUPPH, barUPPH, item.upphData, item.upphPercent, isWorkingTime, 'UPPH');
+        updateProductionInfo(textDefect, barDefect, item.defectInfo, item.defectPercent, isWorkingTime, 'Defect');
         
         var barChart = getChartByCanvasId(chartId);
 

@@ -16,6 +16,7 @@
             BarChartData = new List<BarChartData>();
         }
         public string[] Sections { get; set; }
+        public bool IsWorkingTime { get; set; }
         public List<BarChartData> BarChartData { get; set; }
     }
 
