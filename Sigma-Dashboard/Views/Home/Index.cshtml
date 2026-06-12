@@ -379,7 +379,7 @@
                         // Nếu số lượng bằng nhau -> Chạy vòng lặp để cập nhật chart
                         model.barChartData.forEach(function (item) {
                             console.log("Đang xử lý item:", item.operation);
-                            updateSingleChart(item, model.sections, model.isWorkingTime);
+                            updateSingleChart(item, model.sections, item.isWorkingTime);
                         });
                         console.log("Cập nhật Dashboard thành công!");
                     } else {

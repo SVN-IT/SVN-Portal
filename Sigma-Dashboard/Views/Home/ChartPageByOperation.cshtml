@@ -384,7 +384,7 @@
                         // Nếu số lượng bằng nhau -> Chạy vòng lặp để cập nhật chart
                         model.barChartData.forEach(function (item) {
                             console.log("Đang xử lý item:", item.operation);
-                            updateSingleChart(item, model.sections, model.isWorkingTime);
+                            updateSingleChart(item, model.sections, item.isWorkingTime);
                         });
                         console.log("Cập nhật Dashboard thành công!");
                     } else {
@@ -520,15 +520,36 @@
 
                 console.warn("Dữ liệu Defect của " + item.operation + " đang bị null");
             }
-    @* pieChart.data.labels = item.defectLabel;
+            @* pieChart.data.labels = item.defectLabel;
             pieChart.data.datasets[0].data = item.defectData;
             pieChart.update(); *@
         }
 
-    @*Cập nhật lại checklist, workingtime, downtime status*@
+        @*Cập nhật lại checklist, workingtime, downtime status*@
         $("#checklist_" + item.chartID).text(item.checkListStatus);
         $("#workingtime_" + item.chartID).text(item.workingTimeStatus);
         $("#downtime_" + item.chartID).text(item.downtimeStatus);
+
+        $("#overlay-" + item.chartID).removeClass('d-none');
+        if(!item.isChecklist || !item.isDowntime){
+            $("#overlay-" + item.chartID).removeClass('d-none');
+            if(!item.isChecklist && item.isDowntime)
+            {
+                $("#overlay-content-" + item.chartID).text("Checklist incomplete");
+            }
+            else if(item.isChecklist && !item.isDowntime)
+            {
+                $("#overlay-content-" + item.chartID).text(item.downtimeInfo);
+            }
+            else
+            {
+                $("#overlay-content-" + item.chartID).text("Checklist incomplete" + "\n" + item.downtimeInfo);
+            }
+
+        }
+        else{
+            $("#overlay-" + item.chartID).addClass('d-none');
+        }
     }
 
     $('#carouselExampleSlidesOnly').carousel({

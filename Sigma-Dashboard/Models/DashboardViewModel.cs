@@ -16,7 +16,7 @@
             BarChartData = new List<BarChartData>();
         }
         public string[] Sections { get; set; }
-        public bool IsWorkingTime { get; set; }
+        
         public List<BarChartData> BarChartData { get; set; }
     }
 
@@ -46,6 +46,7 @@
         public bool IsChecklist { get; set; }
         public bool IsDowntime { get; set; }
         public string DowntimeInfo { get; set; }
+        public bool IsWorkingTime { get; set; }
     }
 
     public class DefectData
