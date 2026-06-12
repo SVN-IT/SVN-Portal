@@ -527,6 +527,40 @@
     "ColWidth": 4
   },
   {
+    "Operation": "Walter-WSS03-00342",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1225 ],
+    "ColWidth": 4
+  },
+  {
+    "Operation": "Walter-WSS03-00536",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [ 1495 ],
+    "ColWidth": 4
+  },
+  {
     "Operation": "Walter-WSS03-00341",
     "Name": "",
     "Price": 0,
