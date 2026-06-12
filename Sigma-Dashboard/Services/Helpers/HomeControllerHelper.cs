@@ -270,20 +270,25 @@ namespace Sigma_Dashboard.Services.Helpers
                                 {
                                     if (startDatetime >= equipmentStatusDetail.Datetime)
                                     {
+                                        barChartData.IsDowntime = true;
                                         Duration = 0;
                                     }
                                     else
                                     {
                                         if (equipmentStatusDetail.State != "Run")
                                         {
+                                            barChartData.IsDowntime = false;
                                             //viewModel.CanProductionByDowntime = false;
                                         }
+                                        barChartData.DowntimeInfo = "Machine maintenance";
                                         if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
                                         {
                                             //TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
                                             DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                                             DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
                                             //int totalSeconds = (int)duration.TotalSeconds;
+
+                                            barChartData.DowntimeInfo = $"Machine maintenance until {endTime}";
 
                                             if (endTime <= endDatetime)
                                             {
@@ -292,6 +297,10 @@ namespace Sigma_Dashboard.Services.Helpers
                                         }
 
                                     }
+                                }
+                                else
+                                {
+                                    barChartData.IsDowntime = true;
                                 }
 
                                 barChartData.DowntimeStatus = $"Downtime: {Math.Round(Duration, 2)}h";
@@ -394,6 +403,10 @@ namespace Sigma_Dashboard.Services.Helpers
                             }
                         }
                         barChartData.CheckListStatus = $"CheckList status: {pdChecked} PD - {mtChecked} MT - {qcChecked} QC checked | {pdConfirmed} PD - {qcConfirmed} QC confirmed";
+                        if(pdChecked == "🟢" && mtChecked == "🟢" && qcChecked == "🟢" && pdConfirmed == "🟢" && qcConfirmed == "🟢")
+                        {
+                            barChartData.IsChecklist = true ;
+                        }
                         
                         
 

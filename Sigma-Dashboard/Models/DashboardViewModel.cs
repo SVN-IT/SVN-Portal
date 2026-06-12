@@ -43,6 +43,9 @@
         public string CheckListStatus { get; set; }
         public string WorkingTimeStatus { get; set; }
         public string DowntimeStatus { get; set; }
+        public bool IsChecklist { get; set; }
+        public bool IsDowntime { get; set; }
+        public string DowntimeInfo { get; set; }
     }
 
     public class DefectData

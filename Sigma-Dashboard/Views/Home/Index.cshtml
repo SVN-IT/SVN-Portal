@@ -177,6 +177,9 @@
                                             <!-- /.col -->
                                         </div>
                                         <!-- /.row -->
+                                        <div id="overlay-@charID" class="overlay-checklist d-none">
+                                            <span id="overlay-content-@charID"></span>
+                                        </div>
                                     </div>
                                     <!-- ./card-body -->
                                     <div class="card-footer">
@@ -521,6 +524,27 @@
         $("#checklist_" + item.chartID).text(item.checkListStatus);
         $("#workingtime_" + item.chartID).text(item.workingTimeStatus);
         $("#downtime_" + item.chartID).text(item.downtimeStatus);
+
+        $("#overlay-" + item.chartID).removeClass('d-none');
+        if(!item.isChecklist || !item.isDowntime){
+            $("#overlay-" + item.chartID).removeClass('d-none');
+            if(!item.isChecklist && item.isDowntime)
+            {
+                $("#overlay-content-" + item.chartID).text("Checklist incomplete");
+            }
+            else if(item.isChecklist && !item.isDowntime)
+            {
+                $("#overlay-content-" + item.chartID).text(item.downtimeInfo);
+            }
+            else
+            {
+                $("#overlay-content-" + item.chartID).text("Checklist incomplete" + "\n" + item.downtimeInfo);
+            }
+            
+        }
+        else{
+            $("#overlay-" + item.chartID).addClass('d-none');
+        }
     }
 
     $('#carouselExampleSlidesOnly').carousel({
