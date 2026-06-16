@@ -1,11 +1,11 @@
 {
   "ok": false,
-  "message": "04/06/2026 12:07:07 | Đồng bộ hoàn tất với 210 bản ghi thành công và 57 bản ghi lỗi",
+  "message": "15/06/2026 05:17:33 | Đồng bộ hoàn tất với 271 bản ghi thành công và 1 bản ghi lỗi",
   "numOfRow": 0,
   "content": [
     {
       "ok": true,
-      "message": "NM/MO/03253-3085 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:22:03 - NM/MO/03405-3573 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -15,7 +15,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3086 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:22:51 - NM/MO/03406-3622 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -25,7 +25,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3087 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:23:56 - NM/MO/03405-3574 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -35,7 +35,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3010 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:24:43 - NM/MO/03406-3623 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -45,7 +45,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3088 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:25:49 - NM/MO/03405-3575 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -55,7 +55,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3011 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:26:58 - NM/MO/03404-3544 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -65,7 +65,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3089 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:27:45 - NM/MO/03406-3624 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -75,7 +75,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3012 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:28:51 - NM/MO/03405-3576 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -85,7 +85,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3013 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:30:00 - NM/MO/03404-3545 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -95,7 +95,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3090 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:30:48 - NM/MO/03406-3625 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -105,7 +105,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3014 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:31:37 - NM/MO/03406-3626 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -115,7 +115,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3091 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:32:42 - NM/MO/03405-3577 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -125,7 +125,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3015 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:33:30 - NM/MO/03406-3627 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -135,7 +135,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3016 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:34:35 - NM/MO/03405-3578 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -145,7 +145,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3017 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:35:41 - NM/MO/03405-3579 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -155,7 +155,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3092 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:36:47 - NM/MO/03405-3580 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -165,7 +165,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3018 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:37:52 - NM/MO/03405-3581 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -175,7 +175,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3093 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:38:57 - NM/MO/03405-3582 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -185,7 +185,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3094 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:40:02 - NM/MO/03405-3583 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -195,7 +195,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3019 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:41:08 - NM/MO/03405-3584 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -205,7 +205,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3020 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:42:14 - NM/MO/03405-3585 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -215,7 +215,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3095 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:43:20 - NM/MO/03405-3586 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -225,7 +225,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3021 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:44:08 - NM/MO/03406-3628 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -235,7 +235,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3096 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:45:13 - NM/MO/03405-3587 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -245,7 +245,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3022 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:46:01 - NM/MO/03406-3629 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -255,7 +255,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3097 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:46:49 - NM/MO/03406-3630 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -265,7 +265,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3098 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:47:37 - NM/MO/03406-3631 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -275,7 +275,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3023 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:48:24 - NM/MO/03406-3632 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -285,7 +285,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3024 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:49:11 - NM/MO/03406-3633 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -295,7 +295,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3099 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:49:59 - NM/MO/03406-3634 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -305,7 +305,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3025 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:51:08 - NM/MO/03404-3546 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -315,7 +315,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3100 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:52:16 - NM/MO/03404-3547 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -325,7 +325,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3101 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:53:24 - NM/MO/03404-3548 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -335,7 +335,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3102 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:54:32 - NM/MO/03404-3549 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -345,7 +345,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3026 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:55:38 - NM/MO/03404-3550 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -355,7 +355,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3027 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:56:45 - NM/MO/03404-3551 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -365,7 +365,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3103 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:58:01 - NM/MO/03404-3552 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -375,7 +375,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3104 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:59:07 - NM/MO/03404-3553 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -385,7 +385,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3028 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 12:59:55 - NM/MO/03406-3635 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -395,7 +395,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3105 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:01:03 - NM/MO/03404-3554 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -405,7 +405,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3029 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:01:51 - NM/MO/03406-3636 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -415,7 +415,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3030 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:03:01 - NM/MO/03404-3555 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -425,7 +425,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3031 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:04:09 - NM/MO/03404-3556 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -435,7 +435,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3032 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:04:58 - NM/MO/03406-3637 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -445,7 +445,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3106 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:06:06 - NM/MO/03404-3557 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -455,7 +455,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3033 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:07:14 - NM/MO/03405-3588 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -465,7 +465,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3107 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:08:24 - NM/MO/03404-3558 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -475,7 +475,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3108 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:09:12 - NM/MO/03406-3638 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -485,7 +485,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3109 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:10:25 - NM/MO/03404-3559 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -495,7 +495,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3110 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:11:32 - NM/MO/03405-3589 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -505,7 +505,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3034 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:13:04 - NM/MO/03404-3560 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -515,7 +515,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3111 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:14:12 - NM/MO/03405-3590 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -525,7 +525,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3035 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:15:38 - NM/MO/03404-3561 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -535,7 +535,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3036 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:16:53 - NM/MO/03404-3562 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -545,7 +545,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3112 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:18:00 - NM/MO/03405-3591 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -555,7 +555,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3037 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:18:50 - NM/MO/03406-3639 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -565,7 +565,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3113 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:19:58 - NM/MO/03405-3592 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -575,7 +575,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3038 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:21:12 - NM/MO/03404-3563 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -585,7 +585,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3114 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:22:20 - NM/MO/03405-3593 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -595,7 +595,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3039 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:23:27 - NM/MO/03405-3594 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -605,7 +605,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3040 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:24:38 - NM/MO/03404-3564 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -615,7 +615,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3041 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:25:28 - NM/MO/03406-3640 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -625,7 +625,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3115 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:26:35 - NM/MO/03405-3595 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -635,7 +635,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3116 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:27:46 - NM/MO/03404-3565 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -645,7 +645,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3042 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:28:55 - NM/MO/03405-3596 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -655,7 +655,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3043 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:29:43 - NM/MO/03406-3641 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -665,7 +665,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3117 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:30:51 - NM/MO/03405-3597 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -675,7 +675,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3044 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:32:14 - NM/MO/03404-3566 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -685,7 +685,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3118 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:33:04 - NM/MO/03406-3642 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -695,7 +695,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3045 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:34:12 - NM/MO/03405-3598 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -705,7 +705,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3119 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:35:20 - NM/MO/03405-3599 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -715,7 +715,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3046 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:36:28 - NM/MO/03405-3600 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -725,7 +725,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3120 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:37:36 - NM/MO/03405-3601 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -735,7 +735,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3121 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:38:25 - NM/MO/03406-3643 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -745,7 +745,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3122 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:39:32 - NM/MO/03405-3602 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -755,7 +755,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3047 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:40:20 - NM/MO/03406-3644 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -765,7 +765,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3123 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:41:09 - NM/MO/03406-3645 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -775,7 +775,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3124 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:41:58 - NM/MO/03406-3646 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -785,7 +785,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3125 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:43:22 - NM/MO/03404-3567 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -795,7 +795,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3126 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:44:33 - NM/MO/03404-3568 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -805,7 +805,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3048 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:45:22 - NM/MO/03406-3647 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -815,7 +815,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3127 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:46:34 - NM/MO/03404-3569 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -825,7 +825,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3128 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:47:23 - NM/MO/03406-3648 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -835,7 +835,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3129 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:48:36 - NM/MO/03405-3603 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -845,7 +845,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3049 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:49:49 - NM/MO/03404-3570 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -855,7 +855,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3050 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:50:38 - NM/MO/03406-3649 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -865,7 +865,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3130 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:51:46 - NM/MO/03405-3604 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -875,7 +875,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3051 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:52:58 - NM/MO/03404-3571 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -885,7 +885,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3131 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:54:07 - NM/MO/03405-3605 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -895,7 +895,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3132 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:55:27 - NM/MO/03404-3572 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -905,7 +905,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3052 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:56:18 - NM/MO/03406-3650 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -915,7 +915,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3053 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:57:33 - NM/MO/03404-3573 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -925,7 +925,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3054 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:58:24 - NM/MO/03406-3651 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -935,7 +935,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3133 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 01:59:31 - NM/MO/03405-3606 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -945,7 +945,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3134 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:00:49 - NM/MO/03404-3574 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -955,7 +955,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3135 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:01:38 - NM/MO/03406-3652 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -965,7 +965,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3055 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:02:48 - NM/MO/03405-3607 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -975,7 +975,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3136 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:04:01 - NM/MO/03404-3575 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -985,7 +985,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3137 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:04:52 - NM/MO/03406-3653 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -995,7 +995,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3056 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:06:04 - NM/MO/03404-3576 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1005,7 +1005,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3138 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:07:16 - NM/MO/03404-3577 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1015,7 +1015,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3057 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:08:26 - NM/MO/03405-3608 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1025,7 +1025,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3058 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:09:16 - NM/MO/03406-3654 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1035,7 +1035,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3139 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:10:30 - NM/MO/03404-3578 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1045,7 +1045,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3059 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:11:37 - NM/MO/03405-3609 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1055,7 +1055,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3140 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:12:45 - NM/MO/03405-3610 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1065,7 +1065,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3141 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:13:34 - NM/MO/03406-3655 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1075,7 +1075,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3060 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:14:44 - NM/MO/03405-3611 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1085,7 +1085,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3061 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:15:57 - NM/MO/03404-3579 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1095,7 +1095,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3142 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:16:47 - NM/MO/03406-3656 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1105,7 +1105,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3143 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:17:56 - NM/MO/03405-3612 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1115,7 +1115,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3144 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:19:09 - NM/MO/03404-3580 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1125,7 +1125,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3062 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:19:58 - NM/MO/03406-3657 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1135,7 +1135,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3063 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:21:12 - NM/MO/03404-3581 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1145,7 +1145,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3145 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:22:28 - NM/MO/03404-3582 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1155,7 +1155,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3146 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:23:18 - NM/MO/03406-3658 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1165,7 +1165,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3064 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:24:26 - NM/MO/03405-3613 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1175,7 +1175,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3147 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:25:41 - NM/MO/03404-3583 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1185,7 +1185,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3065 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:26:57 - NM/MO/03404-3584 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1195,7 +1195,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3066 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:28:06 - NM/MO/03405-3614 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1205,7 +1205,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3148 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:28:59 - NM/MO/03406-3659 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1215,7 +1215,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3149 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:30:07 - NM/MO/03405-3615 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1225,7 +1225,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3067 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:30:56 - NM/MO/03406-3660 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1235,7 +1235,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3150 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:32:07 - NM/MO/03405-3616 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1245,7 +1245,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3068 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:32:58 - NM/MO/03406-3661 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1255,7 +1255,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3151 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:34:34 - NM/MO/03404-3585 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1265,7 +1265,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3152 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:35:42 - NM/MO/03405-3617 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1275,7 +1275,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3069 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:36:33 - NM/MO/03406-3662 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1285,7 +1285,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3153 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:37:44 - NM/MO/03405-3618 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1295,7 +1295,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3070 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:38:35 - NM/MO/03406-3663 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1305,7 +1305,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3071 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:39:46 - NM/MO/03405-3619 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1315,7 +1315,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3072 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:41:12 - NM/MO/03404-3586 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1325,7 +1325,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3073 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:42:02 - NM/MO/03406-3664 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1335,7 +1335,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3154 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:43:10 - NM/MO/03405-3620 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1345,7 +1345,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3074 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:44:01 - NM/MO/03406-3665 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1355,7 +1355,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3155 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:45:16 - NM/MO/03404-3587 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1365,7 +1365,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3156 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:46:06 - NM/MO/03406-3666 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1375,7 +1375,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3075 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:47:14 - NM/MO/03405-3621 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1385,7 +1385,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3157 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:48:03 - NM/MO/03406-3667 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1395,7 +1395,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3076 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:49:13 - NM/MO/03405-3622 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1405,7 +1405,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3077 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:50:04 - NM/MO/03406-3668 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1415,7 +1415,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3078 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:51:13 - NM/MO/03405-3623 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1425,7 +1425,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3158 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:52:04 - NM/MO/03406-3669 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1435,7 +1435,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3079 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:53:16 - NM/MO/03404-3588 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1445,7 +1445,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3080 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:54:27 - NM/MO/03404-3589 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1455,7 +1455,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3159 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:55:20 - NM/MO/03406-3670 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1465,7 +1465,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3160 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:56:10 - NM/MO/03406-3671 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1475,7 +1475,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3161 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:57:24 - NM/MO/03404-3590 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1485,7 +1485,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3162 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:58:14 - NM/MO/03406-3672 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1495,7 +1495,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3163 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 02:59:25 - NM/MO/03405-3624 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1505,7 +1505,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3081 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:00:52 - NM/MO/03404-3591 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1515,7 +1515,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3082 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:02:00 - NM/MO/03406-3673 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1525,7 +1525,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3164 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:03:14 - NM/MO/03405-3625 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1535,7 +1535,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3083 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:04:04 - NM/MO/03406-3674 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1545,7 +1545,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3084 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:05:34 - NM/MO/03404-3592 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1555,7 +1555,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3085 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:06:47 - NM/MO/03404-3593 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1565,7 +1565,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3086 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:08:11 - NM/MO/03405-3626 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1575,7 +1575,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3165 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:09:21 - NM/MO/03404-3594 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1585,7 +1585,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3166 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:10:13 - NM/MO/03406-3675 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1595,7 +1595,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3087 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:11:22 - NM/MO/03405-3627 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1605,7 +1605,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3088 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:12:34 - NM/MO/03404-3595 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1615,7 +1615,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3167 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:13:25 - NM/MO/03406-3676 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1625,7 +1625,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3089 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:14:34 - NM/MO/03405-3628 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1635,7 +1635,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3090 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:15:48 - NM/MO/03404-3596 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1645,7 +1645,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3168 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:16:39 - NM/MO/03406-3677 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1655,7 +1655,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3169 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:17:50 - NM/MO/03405-3629 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1665,7 +1665,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3091 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:19:27 - NM/MO/03404-3597 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1675,7 +1675,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3092 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:20:52 - NM/MO/03404-3598 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1685,7 +1685,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3170 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:22:08 - NM/MO/03404-3599 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1695,7 +1695,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3093 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:23:20 - NM/MO/03405-3630 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1705,7 +1705,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3094 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:24:37 - NM/MO/03404-3600 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1715,7 +1715,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3171 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:25:51 - NM/MO/03404-3601 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1725,7 +1725,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3172 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:26:59 - NM/MO/03405-3631 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1735,7 +1735,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3173 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:28:16 - NM/MO/03404-3602 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1745,7 +1745,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3174 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:29:26 - NM/MO/03405-3632 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1755,7 +1755,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3095 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:30:16 - NM/MO/03406-3678 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1765,7 +1765,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3096 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:31:24 - NM/MO/03405-3633 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1775,7 +1775,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3175 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:32:33 - NM/MO/03405-3634 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1785,7 +1785,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3097 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:33:50 - NM/MO/03404-3603 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1795,7 +1795,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3098 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:35:07 - NM/MO/03404-3604 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1805,7 +1805,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3099 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:36:17 - NM/MO/03405-3635 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1815,7 +1815,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3176 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:37:26 - NM/MO/03405-3636 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1825,7 +1825,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3177 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:38:35 - NM/MO/03405-3637 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1835,7 +1835,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3178 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:39:45 - NM/MO/03405-3638 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1845,7 +1845,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3179 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:40:56 - NM/MO/03405-3639 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1855,7 +1855,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3100 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:42:05 - NM/MO/03405-3640 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1865,7 +1865,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3180 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:43:17 - NM/MO/03405-3641 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1875,7 +1875,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3101 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:44:24 - NM/MO/03405-3642 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1885,7 +1885,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3181 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:45:55 - NM/MO/03404-3605 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1895,7 +1895,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3102 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:47:05 - NM/MO/03405-3643 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1905,7 +1905,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3103 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:48:12 - NM/MO/03405-3644 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1915,7 +1915,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3104 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:49:33 - NM/MO/03404-3606 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1925,7 +1925,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3105 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:50:25 - NM/MO/03406-3679 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1935,7 +1935,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3106 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:51:35 - NM/MO/03405-3645 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1945,7 +1945,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3182 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:52:45 - NM/MO/03405-3646 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1955,7 +1955,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3183 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:54:15 - NM/MO/03404-3607 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1965,7 +1965,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3184 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:55:32 - NM/MO/03404-3608 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1975,7 +1975,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3107 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:56:41 - NM/MO/03405-3647 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1985,7 +1985,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3185 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:57:49 - NM/MO/03405-3648 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -1995,7 +1995,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3108 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 03:59:05 - NM/MO/03404-3609 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2005,7 +2005,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3109 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 04:00:13 - NM/MO/03405-3649 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2015,7 +2015,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3186 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 04:01:21 - NM/MO/03405-3650 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2025,7 +2025,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3187 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 04:02:30 - NM/MO/03405-3651 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2035,7 +2035,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03253-3188 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 04:03:42 - NM/MO/03405-3652 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2045,57 +2045,7 @@
     },
     {
       "ok": true,
-      "message": "NM/MO/03252-3110 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 0,
-      "odooUserID": 0,
-      "dataType": null
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-3111 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 0,
-      "odooUserID": 0,
-      "dataType": null
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-3112 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 0,
-      "odooUserID": 0,
-      "dataType": null
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-3113 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 0,
-      "odooUserID": 0,
-      "dataType": null
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03253-3189 - Hoàn thành lệnh sản xuất",
-      "numOfRow": 0,
-      "content": null,
-      "errorNumber": 0,
-      "userID": 0,
-      "odooUserID": 0,
-      "dataType": null
-    },
-    {
-      "ok": true,
-      "message": "NM/MO/03252-3114 - Hoàn thành lệnh sản xuất",
+      "message": "15/06/2026 04:04:52 - NM/MO/03405-3653 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2105,7 +2055,7 @@
     },
     {
       "ok": false,
-      "message": "NM/MO/03253-3190 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "message": "15/06/2026 04:04:59 - NM/MO/03406-3680 - Mã lô 112552622000155 đã được sử dụng cho lệnh sản xuất NM/MO/03406-3668",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2114,8 +2064,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3115 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:06:30 - NM/MO/03404-3610 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2124,8 +2074,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3191 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:07:39 - NM/MO/03405-3654 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2134,8 +2084,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3192 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:08:48 - NM/MO/03405-3655 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2144,8 +2094,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3193 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:09:57 - NM/MO/03405-3656 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2154,8 +2104,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3194 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:11:07 - NM/MO/03405-3657 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2164,8 +2114,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3116 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:12:15 - NM/MO/03405-3658 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2174,8 +2124,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3195 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:13:25 - NM/MO/03405-3659 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2184,8 +2134,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3117 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:14:34 - NM/MO/03405-3660 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2194,8 +2144,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3118 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:15:26 - NM/MO/03406-3681 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2204,8 +2154,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3119 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:16:38 - NM/MO/03405-3661 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2214,8 +2164,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3120 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:17:48 - NM/MO/03405-3662 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2224,8 +2174,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3196 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:18:58 - NM/MO/03405-3663 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2234,8 +2184,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3121 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:20:06 - NM/MO/03405-3664 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2244,8 +2194,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3122 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:20:57 - NM/MO/03406-3682 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2254,8 +2204,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3197 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:22:24 - NM/MO/03404-3611 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2264,8 +2214,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3123 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:23:15 - NM/MO/03406-3683 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2274,8 +2224,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3198 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:24:08 - NM/MO/03406-3684 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2284,8 +2234,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3124 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:25:29 - NM/MO/03404-3612 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2294,8 +2244,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3199 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:26:22 - NM/MO/03406-3685 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2304,8 +2254,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3125 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:27:42 - NM/MO/03404-3613 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2314,8 +2264,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3126 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:28:57 - NM/MO/03404-3614 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2324,8 +2274,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3200 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:29:50 - NM/MO/03406-3686 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2334,8 +2284,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3201 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:31:08 - NM/MO/03404-3615 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2344,8 +2294,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3127 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:32:25 - NM/MO/03404-3616 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2354,8 +2304,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3128 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:33:41 - NM/MO/03404-3617 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2364,8 +2314,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3129 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:34:33 - NM/MO/03406-3687 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2374,8 +2324,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3130 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:35:55 - NM/MO/03404-3618 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2384,8 +2334,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3202 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:37:08 - NM/MO/03404-3619 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2394,8 +2344,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3203 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:38:21 - NM/MO/03404-3620 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2404,8 +2354,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3204 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:39:11 - NM/MO/03406-3688 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2414,8 +2364,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3205 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:40:27 - NM/MO/03404-3621 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2424,8 +2374,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3206 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:41:42 - NM/MO/03404-3622 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2434,8 +2384,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3131 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:42:52 - NM/MO/03405-3665 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2444,8 +2394,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3132 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:43:43 - NM/MO/03406-3689 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2454,8 +2404,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3133 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:44:53 - NM/MO/03405-3666 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2464,8 +2414,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3134 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:46:04 - NM/MO/03405-3667 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2474,8 +2424,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3135 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:47:16 - NM/MO/03405-3668 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2484,8 +2434,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3207 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:48:27 - NM/MO/03405-3669 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2494,8 +2444,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3208 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:49:37 - NM/MO/03405-3670 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2504,8 +2454,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3209 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:50:46 - NM/MO/03405-3671 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2514,8 +2464,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3210 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:51:38 - NM/MO/03406-3690 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2524,8 +2474,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3136 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:53:00 - NM/MO/03404-3623 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2534,8 +2484,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3211 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:54:18 - NM/MO/03404-3624 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2544,8 +2494,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3212 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:55:35 - NM/MO/03404-3625 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2554,8 +2504,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3137 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:56:48 - NM/MO/03404-3626 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2564,8 +2514,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3138 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:57:38 - NM/MO/03406-3691 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2574,8 +2524,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3213 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 04:58:55 - NM/MO/03404-3627 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2584,8 +2534,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3139 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:00:08 - NM/MO/03404-3628 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2594,8 +2544,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3214 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:01:23 - NM/MO/03404-3629 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2604,8 +2554,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3140 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:02:14 - NM/MO/03406-3692 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2614,8 +2564,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3141 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:03:29 - NM/MO/03404-3630 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2624,8 +2574,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3215 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:04:42 - NM/MO/03404-3631 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2634,8 +2584,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3142 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:05:54 - NM/MO/03404-3632 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2644,8 +2594,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03253-3216 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:06:44 - NM/MO/03406-3693 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2654,8 +2604,8 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3143 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:07:55 - NM/MO/03404-3633 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
@@ -2664,8 +2614,108 @@
       "dataType": null
     },
     {
-      "ok": false,
-      "message": "NM/MO/03252-3144 - Unexpected character encountered while parsing value: <. Path '', line 0, position 0.",
+      "ok": true,
+      "message": "15/06/2026 05:09:05 - NM/MO/03404-3634 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:09:56 - NM/MO/03406-3694 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:10:47 - NM/MO/03406-3695 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:11:38 - NM/MO/03406-3696 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:12:29 - NM/MO/03406-3697 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:13:19 - NM/MO/03406-3698 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:14:10 - NM/MO/03406-3699 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:15:01 - NM/MO/03406-3700 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:15:51 - NM/MO/03406-3701 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:16:42 - NM/MO/03406-3702 - Hoàn thành lệnh sản xuất",
+      "numOfRow": 0,
+      "content": null,
+      "errorNumber": 0,
+      "userID": 0,
+      "odooUserID": 0,
+      "dataType": null
+    },
+    {
+      "ok": true,
+      "message": "15/06/2026 05:17:33 - NM/MO/03406-3703 - Hoàn thành lệnh sản xuất",
       "numOfRow": 0,
       "content": null,
       "errorNumber": 0,
