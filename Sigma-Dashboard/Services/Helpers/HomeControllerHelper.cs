@@ -376,37 +376,48 @@ namespace Sigma_Dashboard.Services.Helpers
                         string qcChecked = "🔴";
                         string pdConfirmed = "🔴";
                         string qcConfirmed = "🔴";
-
-                        var checklistData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(date, item.StoreID);
-                        if (checklistData != null && checklistData.Count != 0) 
-                        { 
-                            var newChecklistData = checklistData[0];
-                            if (newChecklistData.RestaurantStaffs.Contains("PD checked"))
+                        if (!item.Operation.Contains("(SM)") && !item.Operation.Contains("(ITA)"))
+                        {
+                            var checklistData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(date, item.StoreID);
+                            if (checklistData != null && checklistData.Count != 0)
                             {
-                                pdChecked = "🟢";
+                                var newChecklistData = checklistData[0];
+                                if (newChecklistData.RestaurantStaffs.Contains("PD checked"))
+                                {
+                                    pdChecked = "🟢";
+                                }
+                                if (newChecklistData.RestaurantStaffs.Contains("MT checked") || newChecklistData.RestaurantStaffs.Contains("ENG checked"))
+                                {
+                                    mtChecked = "🟢";
+                                }
+                                if (newChecklistData.RestaurantStaffs.Contains("QC checked"))
+                                {
+                                    qcChecked = "🟢";
+                                }
+                                if (newChecklistData.ConfirmStatus == "Y")
+                                {
+                                    pdConfirmed = "🟢";
+                                }
+                                if (newChecklistData.PointBSC >= 3)
+                                {
+                                    qcConfirmed = "🟢";
+                                }
                             }
-                            if (newChecklistData.RestaurantStaffs.Contains("MT checked") || newChecklistData.RestaurantStaffs.Contains("ENG checked"))
-                            {
-                                mtChecked = "🟢";
-                            }
-                            if (newChecklistData.RestaurantStaffs.Contains("QC checked"))
-                            {
-                                qcChecked = "🟢";
-                            }
-                            if (newChecklistData.ConfirmStatus == "Y")
-                            {
-                                pdConfirmed = "🟢";
-                            }
-                            if (newChecklistData.PointBSC >= 3)
-                            {
-                                qcConfirmed = "🟢";
-                            }
+                        }
+                        else 
+                        {
+                            pdChecked = "🟢";
+                            mtChecked = "🟢";
+                            qcChecked = "🟢";
+                            pdConfirmed = "🟢";
+                            qcConfirmed = "🟢";
                         }
                         barChartData.CheckListStatus = $"CheckList status: {pdChecked} PD - {mtChecked} MT - {qcChecked} QC checked | {pdConfirmed} PD - {qcConfirmed} QC confirmed";
-                        if(pdChecked == "🟢" && mtChecked == "🟢" && qcChecked == "🟢" && pdConfirmed == "🟢" && qcConfirmed == "🟢")
+                        if (pdChecked == "🟢" && mtChecked == "🟢" && qcChecked == "🟢" && pdConfirmed == "🟢" && qcConfirmed == "🟢")
                         {
-                            barChartData.IsChecklist = true ;
+                            barChartData.IsChecklist = true;
                         }
+                        
                         
                         
 
