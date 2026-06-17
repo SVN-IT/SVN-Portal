@@ -87,6 +87,7 @@ namespace Sigma_Dashboard.Services.Helpers
                 if (dataUI != null && dataUI.Count > 0)
                 {
                     dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList(); //lọc dữ liệu thực tế theo ca hiện tại
+                    //opers = opers.Where(x => x.Operation == "Spa regular(SM)").ToList(); //test
                     foreach (var item in opers) 
                     {
                         double workingTime = 0;

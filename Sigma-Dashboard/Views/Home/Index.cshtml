@@ -153,7 +153,14 @@
                                         <div class="row">
                                             <div class="col-md-8 col-12">
                                                 <p class="text-center header-font-size">
-                                                    <strong>Nguyễn Văn Hướng (SVN0005) - Phạm Thị Thủy (SVN0132)</strong>
+                                                    @if (item.Operation.Contains("(SM)"))
+                                                    {
+                                                        <strong>寇林林 - S胡雄</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <strong>Nguyễn Văn Hướng (SVN0005) - Phạm Thị Thủy (SVN0132)</strong>
+                                                    }
                                                 </p>
 
                                                 <div class="chart">
