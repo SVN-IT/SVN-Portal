@@ -2361,5 +2361,141 @@
     "StoreID": 10,
     "Produce_id": [ 1432 ],
     "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414487",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1460 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414321",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1461 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414378",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1463 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414304",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1466 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414350",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1470 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414428",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1469 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414593",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1472 ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Twist-7100414290",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Twist",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 10,
+    "Produce_id": [ 1467 ],
+    "ColWidth": 6
   }
 ]
