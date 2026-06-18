@@ -286,6 +286,20 @@
                                     responsive              : true,
                                     maintainAspectRatio     : false,
                                     datasetFill             : false,
+                                    // ==================== ĐOẠN ĐÃ SỬA CHO CHART.JS 2.9 ====================
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            },
+                                            // Hàm này chạy ngay sau khi Chart.js xác định được giới hạn dữ liệu (Min/Max)
+                                            // Nó sẽ tự động kích max của trục Y lên 15% cho TẤT CẢ các biểu đồ
+                                            afterDataLimits: function(axis) {
+                                                axis.max = axis.max * 1.15;
+                                            }
+                                        }]
+                                    },
+                                    // =====================================================================
                                     plugins: {
                                         datalabels: {
                                             display: true,
