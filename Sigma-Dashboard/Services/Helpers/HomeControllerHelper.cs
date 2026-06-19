@@ -94,6 +94,12 @@ namespace Sigma_Dashboard.Services.Helpers
                         List<DefectData> defectDatas = new List<DefectData>();
                         BarChartData barChartData = new BarChartData();
                         barChartData.Operation = item.Operation;
+                        barChartData.QCName = item.QCName;
+                        barChartData.QCURL = item.QCURL;
+                        barChartData.PDName = item.PDName;
+                        barChartData.PDURL = item.PDURL;
+                        barChartData.TechName = item.TechName;
+                        barChartData.TechURL = item.TechURL;
 
                         string charID = item.Operation;
                         charID = charID.Replace("-", "");

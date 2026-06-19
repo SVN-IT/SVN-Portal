@@ -17,6 +17,12 @@
         public int ColWidth { get; set; }
         public int StoreID { get; set; }
         public int Top_row { get; set; }
+        public string QCName { get; set; }
+        public string PDName { get; set; }
+        public string TechName { get; set; }
+        public string QCURL { get; set; }
+        public string PDURL { get; set; }
+        public string TechURL { get; set; }
     }
 
     public class WC

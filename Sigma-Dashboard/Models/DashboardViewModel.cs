@@ -47,6 +47,12 @@
         public bool IsDowntime { get; set; }
         public string DowntimeInfo { get; set; }
         public bool IsWorkingTime { get; set; }
+        public string QCName { get; set; }
+        public string PDName { get; set; }
+        public string TechName { get; set; }
+        public string QCURL { get; set; }
+        public string PDURL { get; set; }
+        public string TechURL { get; set; }
     }
 
     public class DefectData

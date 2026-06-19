@@ -3909,5 +3909,138 @@
       539
     ],
     "ColWidth": 6
+  },
+  {
+    "Operation": "Osprey_sleep_cover(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Osprey_sleep_cover(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Osprey_Stylus(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Osprey_Stylus(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Hand_Strap(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Hand_Strap(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "Traditional(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "Traditional(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "iPAD(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "iPAD(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "POP(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "POP(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
+  },
+  {
+    "Operation": "New_Hand_Strap(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "New_Hand_Strap(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 1,
+    "Produce_id": [
+      539
+    ],
+    "ColWidth": 6
   }
 ]

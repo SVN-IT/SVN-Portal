@@ -41,6 +41,12 @@ a {
     height: 500px;
 }
 
+.line-manager-img {
+    border-radius: 50%;
+    /* float: left; */
+    width: 40px;
+}
+
 /* Container chứa biểu đồ */
 .chart-progress-wrapper {
     position: relative;
