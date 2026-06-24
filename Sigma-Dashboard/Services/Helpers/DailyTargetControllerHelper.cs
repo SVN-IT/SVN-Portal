@@ -240,6 +240,12 @@ namespace Sigma_Dashboard.Services.Helpers
                         processResult.Message = processResult.Message + " Failed to update data.";
                     }
                 }
+
+                if(InsertTargetData.Count > 0 && UpdateTargetData.Count > 0)
+                {
+                    processResult.OK = true;
+                    processResult.Message = "Data inserted and updated successfully.";
+                }
             }
             catch (Exception ex)
             {

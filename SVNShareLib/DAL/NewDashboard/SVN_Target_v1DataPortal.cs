@@ -254,7 +254,7 @@ namespace SVNShareLib.DAL.NewDashboard
                     string sql = string.Empty;
                     var param = new object();
                     sql = "select * from SVN_target WHERE Date_time = @date";
-                    param = new { date, };
+                    param = new { date };
                     var data = await conn.QueryAsync<SVN_target_v1UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     dataUI = data.ToList();
                 }
@@ -281,8 +281,8 @@ namespace SVNShareLib.DAL.NewDashboard
                 {
                     string sql = string.Empty;
                     var param = new object();
-                    sql = "select * from SVN_target WHERE Date_time = @date";
-                    param = new { date, };
+                    sql = "select * from SVN_target WHERE Date_time = @date And Operation = @operation";
+                    param = new { date, operation };
                     var data = await conn.QueryFirstOrDefaultAsync<SVN_target_v1UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     dataUI = data;
                 }

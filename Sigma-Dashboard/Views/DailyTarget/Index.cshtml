@@ -9,13 +9,17 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Daily Target</h3>
+
             <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" onchange="uploadExcel()" />
-            <button type="button" class="btn btn-info mr-2" onclick="$('#excelFile').click()">
-                <i class="fas fa-file-import"></i>
-            </button>
-            <button type="button" class="btn btn-success ml-auto" onclick="openCreateModal()">
-                <i class="fas fa-plus"></i>
-            </button>
+
+            <div class="d-flex ml-auto">
+                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFile').click()">
+                    <i class="fas fa-file-import"></i>
+                </button>
+                <button type="button" class="btn btn-success" onclick="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <table id="example1" class="table table-bordered table-striped">
@@ -162,7 +166,7 @@
 
         // 3. Mở khóa ô Operation, gán giá trị mặc định cho Date_time và Khóa lại
         $('#txtOperation').prop('disabled', false);
-        $('#txtDateTime').val('20260624').prop('disabled', true);
+        $('#txtDateTime').val('@stringDate').prop('disabled', true);
 
         // 4. Hiển thị Modal lên màn hình
         $('#targetModal').modal('show');
@@ -248,50 +252,78 @@
         }
     }
 
+    // --- HÀM IMPORT EXCEL HYBRID CHUẨN XÁC ---
     function uploadExcel() {
         var fileInput = $('#excelFile')[0].files[0];
         if (!fileInput) return;
 
         var formData = new FormData();
         formData.append("file", fileInput);
-        
+
+        if (typeof showLoader === "function") showLoader();
+
         $.ajax({
             url: '/DailyTarget/ImportExcel',
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
-            xhrFields: {
-                responseType: 'blob' // Quan trọng: Để bắt được file Excel trả về nếu có lỗi
-            },
+            // XÓA BỎ HOÀN TOÀN dòng xhrFields: { responseType: 'blob' } gây lỗi
             success: function (data, status, xhr) {
-                // Kiểm tra xem Server trả về JSON thông báo thành công hay trả về File Excel lỗi
-                var contentType = xhr.getResponseHeader("content-type");
+                var contentType = xhr.getResponseHeader("content-type") || "";
 
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    // Thành công (Cần convert từ blob sang text để đọc mgs)
-                    var reader = new FileReader();
-                    reader.onload = function() {
-                        var res = JSON.parse(this.result);
-                        alert(res.message);
-                        location.reload();
-                    };
-                    reader.readAsText(data);
-                } else {
-                    // Có lỗi hệ thống dữ liệu: Tự động tải file Excel chứa cột "Options" báo lỗi về máy
-                    alert("Import thất bại! Hệ thống đang tải về file Excel ghi chi tiết lỗi tại cột Options.");
-                    var blob = new Blob([data], { type: contentType });
+                // Trường hợp 1: Nếu Server trả về JSON (Thành công hoặc lỗi DB)
+                if (contentType.toLowerCase().indexOf("json") !== -1) {
+                    try {
+                        // Vì dữ liệu nhận về dạng text mặc định, ta parse thẳng không cần FileReader
+                        var res = (typeof data === "object") ? data : JSON.parse(data);
+
+                        if (res.success === true || res.success === "true") {
+                            alert(res.message);
+                            location.reload();
+                        } else {
+                            alert("Thất bại: " + res.message);
+                        }
+                    } catch (e) {
+                        alert("Lỗi cấu trúc dữ liệu JSON từ Server.");
+                    }
+                }
+                // Trường hợp 2: Nếu Server trả về File Excel lỗi
+                else {
+                    alert("Import thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất file Excel kèm ghi chú tại cột Options.");
+
+                    // Giải pháp cưỡng bức: Tự convert chuỗi byte nhận được sang mảng Uint8Array để tạo Blob chuẩn cho file Excel
+                    var sliceSize = 512;
+                    var byteCharacters = data; // Dữ liệu thô từ Server
+                    var byteArrays = [];
+
+                    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                        var slice = byteCharacters.slice(offset, offset + sliceSize);
+                        var byteNumbers = new Array(slice.length);
+                        for (var i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i) & 0xff; // Lấy mã bit chuẩn
+                        }
+                        var byteArray = new Uint8Array(byteNumbers);
+                        byteArrays.push(byteArray);
+                    }
+
+                    var blob = new Blob(byteArrays, { type: contentType });
                     var link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
                     link.download = "Import_DailyTarget_Errors.xlsx";
+                    document.body.appendChild(link);
                     link.click();
+                    document.body.removeChild(link);
                 }
             },
-            error: function () {
-                alert("Đã xảy ra lỗi trong quá trình upload file.");
+            error: function (xhr, status, error) {
+                // Log chi tiết ra mã lỗi để kiểm tra nếu còn bị sập
+                console.error("Mã trạng thái:", xhr.status);
+                console.error("Nội dung lỗi:", xhr.responseText);
+                alert("Đã xảy ra lỗi kết nối hệ thống. (Mã lỗi: " + xhr.status + ")");
             },
             complete: function () {
-                $('#excelFile').val(''); // Reset input file
+                $('#excelFile').val('');
                 if (typeof hideLoader === "function") hideLoader();
             }
         });
