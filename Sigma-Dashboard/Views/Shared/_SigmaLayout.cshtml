@@ -18,6 +18,9 @@
     <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
     <!-- JQVMap -->
     <link href="~/plugins/jqvmap/jqvmap.min.css" rel="stylesheet" />
+
+    
+
     <!-- Theme style -->
     <link href="~/dist/css/adminlte.min.css" rel="stylesheet" />
     <!-- overlayScrollbars -->
@@ -46,9 +49,11 @@
             DateTime date = ViewBag.date;
             string shift = ViewBag.shift;
             string companyCode = ViewBag.CompanyCode;
-            int pageSize = ViewBag.PageSize;
+            string titleName = ViewBag.TitleName;
+            
             string selectedMasterOperation = ViewBag.SelectedMasterOperation;
 
+            string controllerName = ViewBag.ControllerName;
             string indexPage = ViewBag.IndexPage;
             if (string.IsNullOrWhiteSpace(indexPage))
             {
@@ -101,8 +106,9 @@
                     <div class="navbar-search-block">
                         <form method="post" class="form-inline">
                             <div class="input-group input-group-sm">
-                                @if (indexPage == "Index" || indexPage == "ChartPageByOperation")
+                                @if ((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home")
                                 {
+                                    int pageSize = ViewBag.PageSize;
                                     <select class="form-control form-control-navbar" name="pageSize">
                                         <option value="3" selected="@(pageSize == 3)">3</option>
                                         <option value="6" selected="@(pageSize == 6)">6</option>
@@ -123,7 +129,7 @@
                                 </select>
                                 <input id="inputDate" class="form-control form-control-navbar" type="date" name="date" value="@date.ToString("yyyy-MM-dd")">
                                 <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit" asp-controller="Home" asp-action="@indexPage" 
+                                    <button class="btn btn-navbar" type="submit" asp-controller="@controllerName" asp-action="@indexPage"
                                         asp-route-masterOperation="@selectedMasterOperation"
                                         asp-route-isManualLoad=true>
                                         <i class="fas fa-search"></i>
@@ -220,7 +226,7 @@
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Dashboard</h1>
+                            <h1 class="m-0">@titleName</h1>
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
@@ -277,6 +283,9 @@
     <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
     <!-- overlayScrollbars -->
     <script src="~/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+
+    
+
     <!-- AdminLTE App -->
     <script src="~/dist/js/adminlte.js"></script>
 

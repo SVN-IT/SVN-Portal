@@ -49,7 +49,9 @@ public class HomeController : Controller
 
             ViewBag.date = date;
             ViewBag.shift = shift;
+            ViewBag.ControllerName = "Home";
             ViewBag.IndexPage = "Index";
+            ViewBag.TitleName = $"Main Dashboard - {date.ToString("dd/MM/yyyy")}";
             ViewBag.PageSize = pageSize;
             strdate = date.ToString("yyyyMMdd");
 
@@ -114,7 +116,9 @@ public class HomeController : Controller
             }
             ViewBag.date = date;
             ViewBag.shift = shift;
+            ViewBag.ControllerName = "Home";
             ViewBag.IndexPage = "ChartPageByOperation";
+            ViewBag.TitleName = $"Dashboard - {masterOperation} - {date.ToString("dd/MM/yyyy")}";
             ViewBag.PageSize = pageSize;
             strdate = date.ToString("yyyyMMdd");
             int hours = 7;

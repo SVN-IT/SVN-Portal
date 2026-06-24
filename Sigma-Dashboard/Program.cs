@@ -21,6 +21,7 @@ builder.Services.AddSingleton<SectionTimeServices>();
 
 //Add Helper
 builder.Services.AddSingleton<HomeControllerHelper>();
+builder.Services.AddSingleton<DailyTargetControllerHelper>();
 
 var app = builder.Build();
 

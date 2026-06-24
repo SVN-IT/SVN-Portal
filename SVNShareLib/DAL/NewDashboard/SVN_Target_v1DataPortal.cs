@@ -96,7 +96,7 @@ namespace SVNShareLib.DAL.NewDashboard
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<SVN_target_v1UI>> ReadListTargetByDate(string date)
+        public async Task<List<SVN_target_v1UI>> ReadListDailyTargetByDate(string date)
         {
             List<SVN_target_v1UI> dataUI = new List<SVN_target_v1UI>();
             int timeOut = 1000;
@@ -235,6 +235,213 @@ namespace SVNShareLib.DAL.NewDashboard
             {
                 // Ghi log lỗi nếu cần: Console.WriteLine(ex.Message);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Hàm lấy dữ liệu target theo ngày
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<List<SVN_target_v1UI>> ReadListTargetByDate(string date)
+        {
+            List<SVN_target_v1UI> dataUI = new List<SVN_target_v1UI>();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    string sql = string.Empty;
+                    var param = new object();
+                    sql = "select * from SVN_target WHERE Date_time = @date";
+                    param = new { date, };
+                    var data = await conn.QueryAsync<SVN_target_v1UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    dataUI = data.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Hàm lấy dữ liệu target theo ngày và operation
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<SVN_target_v1UI> ReadTargetByDateAndOperation(string date, string operation)
+        {
+            SVN_target_v1UI dataUI = new SVN_target_v1UI();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    string sql = string.Empty;
+                    var param = new object();
+                    sql = "select * from SVN_target WHERE Date_time = @date";
+                    param = new { date, };
+                    var data = await conn.QueryFirstOrDefaultAsync<SVN_target_v1UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    dataUI = data;
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Hàm chèn dữ liệu target hàng loạt
+        /// </summary>
+        /// <param name="sVN_Targets"></param>
+        /// <returns></returns>
+        public int InsertTargetBulk(List<SVN_target_v1UI> sVN_Targets)
+        {
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    if (connection.State != ConnectionState.Open)
+                    {
+                        connection.Open();
+                    }
+                    using (var trans = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var insertResult = connection.Execute("INSERT INTO [dbo].[SVN_target]([Operation],[Daily_plan],[UPH],[UPPH],[Labor],[Date_time],[Defect],[Workingtime],[Shift])VALUES(@Operation,@Daily_plan,@UPH,@UPPH,@Labor,@Date_time,@Defect,@Workingtime,@Shift)", sVN_Targets, trans, commandTimeout: timeOut);
+                            if (insertResult <= 0)
+                            {
+                                trans.Rollback();
+                                return -1;
+                            }
+                            else
+                            {
+                                trans.Commit();
+                                return insertResult;
+                            }
+                        }
+                        catch
+                        {
+                            trans.Rollback();
+                            return -1;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Hàm cập nhật dữ liệu target hàng loạt dựa trên cặp khóa Operation và Date_time
+        /// </summary>
+        /// <param name="sVN_Targets"></param>
+        /// <returns></returns>
+        public int UpdateTargetBulk(List<SVN_target_v1UI> sVN_Targets)
+        {
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    if (connection.State != ConnectionState.Open)
+                    {
+                        connection.Open();
+                    }
+                    using (var trans = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Câu lệnh UPDATE sử dụng cặp khóa ở mệnh đề WHERE
+                            string updateSql = @"UPDATE [dbo].[SVN_target] 
+                                         SET [Daily_plan] = @Daily_plan,
+                                             [UPH] = @UPH,
+                                             [UPPH] = @UPPH,
+                                             [Labor] = @Labor,
+                                             [Defect] = @Defect,
+                                             [Workingtime] = @Workingtime,
+                                             [Shift] = @Shift
+                                         WHERE [Operation] = @Operation AND [Date_time] = @Date_time";
+
+                            // Dapper tự động lặp qua toàn bộ danh sách sVN_Targets để thực hiện lệnh
+                            var updateResult = connection.Execute(updateSql, sVN_Targets, trans, commandTimeout: timeOut);
+
+                            if (updateResult <= 0)
+                            {
+                                trans.Rollback();
+                                return -1;
+                            }
+                            else
+                            {
+                                trans.Commit();
+                                return updateResult; // Trả về tổng số dòng đã cập nhật thành công
+                            }
+                        }
+                        catch
+                        {
+                            trans.Rollback();
+                            return -1;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Xóa dữ liệu
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public int DeleteTarget(string date, string operation)
+        {
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    if (connection.State != ConnectionState.Open)
+                    {
+                        connection.Open();
+                    }
+                    using (var trans = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var deleteResult = connection.Execute("DELETE FROM SVN_target WHERE Date_time = @date AND Operation = @operation", new { date, operation }, trans, commandTimeout: timeOut);
+                            if (deleteResult <= 0)
+                            {
+                                trans.Rollback();
+                                return -1;
+                            }
+                            else
+                            {
+                                trans.Commit();
+                                return deleteResult;
+                            }
+                        }
+                        catch
+                        {
+                            trans.Rollback();
+                            return -1;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return -1;
             }
         }
     }
