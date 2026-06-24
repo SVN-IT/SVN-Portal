@@ -383,7 +383,7 @@ namespace Sigma_Dashboard.Services.Helpers
                         string qcChecked = "🔴";
                         string pdConfirmed = "🔴";
                         string qcConfirmed = "🔴";
-                        if (!item.Operation.Contains("(SM)") || !item.Operation.Contains("(ITA)"))
+                        if (!item.Operation.Contains("(SM)") && !item.Operation.Contains("(ITA)"))
                         {
                             var checklistData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(date, item.StoreID);
                             if (checklistData != null && checklistData.Count != 0)
