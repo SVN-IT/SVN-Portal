@@ -184,6 +184,11 @@ namespace Sigma_Dashboard.Services.Helpers
             SVN_Target_v1DataPortal dataPortal = new SVN_Target_v1DataPortal(connectionString);
             List<SVN_target_v1UI> InsertTargetData = new List<SVN_target_v1UI>();
             List<SVN_target_v1UI> UpdateTargetData = new List<SVN_target_v1UI>();
+
+            // Mặc định ban đầu coi như chuẩn bị xử lý thành công
+            processResult.OK = true;
+            processResult.Message = "";
+
             try
             {
                 foreach (var model in viewModels)
@@ -221,30 +226,53 @@ namespace Sigma_Dashboard.Services.Helpers
                     }
                 }
 
-                if(InsertTargetData.Count > 0)
+                List<string> successMessages = new List<string>();
+                List<string> errorMessages = new List<string>();
+
+                // 2. Thực thi Bulk Insert nếu có dữ liệu mới
+                if (InsertTargetData.Count > 0)
                 {
+                    // Lưu ý: Nếu hàm Bulk của bạn là Async, hãy thêm "await" phía trước
                     var insertResult = dataPortal.InsertTargetBulk(InsertTargetData);
-                    if (insertResult <= 0)
+                    if (insertResult > 0)
+                    {
+                        successMessages.Add($"Thêm mới thành công {InsertTargetData.Count} dòng.");
+                    }
+                    else
                     {
                         processResult.OK = false;
-                        processResult.Message = "Failed to insert data.";
+                        errorMessages.Add("Lỗi: Không thể thêm mới dữ liệu vào hệ thống.");
                     }
                 }
 
+                // 3. Thực thi Bulk Update nếu có dữ liệu trùng khóa
                 if (UpdateTargetData.Count > 0)
                 {
+                    // Lưu ý: Nếu hàm Bulk của bạn là Async, hãy thêm "await" phía trước
                     var updateResult = dataPortal.UpdateTargetBulk(UpdateTargetData);
-                    if (updateResult <= 0)
+                    if (updateResult > 0)
+                    {
+                        successMessages.Add($"Cập nhật thành công {UpdateTargetData.Count} dòng.");
+                    }
+                    else
                     {
                         processResult.OK = false;
-                        processResult.Message = processResult.Message + " Failed to update data.";
+                        errorMessages.Add("Lỗi: Không thể cập nhật dữ liệu vào hệ thống.");
                     }
                 }
 
-                if(InsertTargetData.Count > 0 && UpdateTargetData.Count > 0)
+                // 4. Tổng hợp và chuẩn hóa thông báo phản hồi (Message) trả về Client
+                if (processResult.OK)
                 {
-                    processResult.OK = true;
-                    processResult.Message = "Data inserted and updated successfully.";
+                    // Trường hợp 1: Tất cả các tác vụ đều thành công 100%
+                    processResult.Message = successMessages.Count > 0
+                        ? string.Join(" ", successMessages)
+                        : "Không có dữ liệu nào được thay đổi.";
+                }
+                else
+                {
+                    // Trường hợp 2: Có lỗi phát sinh ở một trong hai hoặc cả hai tác vụ
+                    processResult.Message = string.Join(" ", errorMessages);
                 }
             }
             catch (Exception ex)

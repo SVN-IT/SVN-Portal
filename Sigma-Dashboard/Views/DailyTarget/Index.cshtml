@@ -252,7 +252,6 @@
         }
     }
 
-    // --- HÀM IMPORT EXCEL HYBRID CHUẨN XÁC ---
     function uploadExcel() {
         var fileInput = $('#excelFile')[0].files[0];
         if (!fileInput) return;
@@ -268,16 +267,21 @@
             data: formData,
             contentType: false,
             processData: false,
-            // XÓA BỎ HOÀN TOÀN dòng xhrFields: { responseType: 'blob' } gây lỗi
-            success: function (data, status, xhr) {
+            // Cấu hình nhận stream ký tự mã hóa thô, ngăn chặn jQuery tự ép kiểu gây lỗi
+            mimeType: 'text/plain; charset=x-user-defined',
+            success: function (rawData, status, xhr) {
                 var contentType = xhr.getResponseHeader("content-type") || "";
 
-                // Trường hợp 1: Nếu Server trả về JSON (Thành công hoặc lỗi DB)
+                // TRƯỜNG HỢP 1: Server trả về JSON (Thành công hoặc lỗi DB)
                 if (contentType.toLowerCase().indexOf("json") !== -1) {
                     try {
-                        // Vì dữ liệu nhận về dạng text mặc định, ta parse thẳng không cần FileReader
-                        var res = (typeof data === "object") ? data : JSON.parse(data);
+                        // Giải mã chuỗi thô về chuỗi Unicode tiêu chuẩn trước khi parse JSON
+                        var jsonText = "";
+                        for (var i = 0; i < rawData.length; i++) {
+                            jsonText += String.fromCharCode(rawData.charCodeAt(i) & 0xff);
+                        }
 
+                        var res = JSON.parse(jsonText);
                         if (res.success === true || res.success === "true") {
                             alert(res.message);
                             location.reload();
@@ -288,39 +292,29 @@
                         alert("Lỗi cấu trúc dữ liệu JSON từ Server.");
                     }
                 }
-                // Trường hợp 2: Nếu Server trả về File Excel lỗi
+                // TRƯỜNG HỢP 2: Server trả về File Excel lỗi (Dữ liệu không hợp lệ)
                 else {
-                    alert("Import thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất file Excel kèm ghi chú tại cột Options.");
+                    alert("Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin Excel kèm ghi chú tại cột Options.");
 
-                    // Giải pháp cưỡng bức: Tự convert chuỗi byte nhận được sang mảng Uint8Array để tạo Blob chuẩn cho file Excel
-                    var sliceSize = 512;
-                    var byteCharacters = data; // Dữ liệu thô từ Server
-                    var byteArrays = [];
-
-                    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                        var slice = byteCharacters.slice(offset, offset + sliceSize);
-                        var byteNumbers = new Array(slice.length);
-                        for (var i = 0; i < slice.length; i++) {
-                            byteNumbers[i] = slice.charCodeAt(i) & 0xff; // Lấy mã bit chuẩn
-                        }
-                        var byteArray = new Uint8Array(byteNumbers);
-                        byteArrays.push(byteArray);
+                    // Đọc chuỗi ký tự thô mã hóa gốc và chuyển đổi thành mảng byte chuẩn OpenXML
+                    var bytes = new Uint8Array(rawData.length);
+                    for (var i = 0; i < rawData.length; i++) {
+                        bytes[i] = rawData.charCodeAt(i) & 0xff; // Giữ nguyên bit nhị phân gốc của file Excel
                     }
 
-                    var blob = new Blob(byteArrays, { type: contentType });
+                    var blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
                     var link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
                     link.download = "Import_DailyTarget_Errors.xlsx";
+
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                    window.URL.revokeObjectURL(link.href);
                 }
             },
             error: function (xhr, status, error) {
-                // Log chi tiết ra mã lỗi để kiểm tra nếu còn bị sập
-                console.error("Mã trạng thái:", xhr.status);
-                console.error("Nội dung lỗi:", xhr.responseText);
-                alert("Đã xảy ra lỗi kết nối hệ thống. (Mã lỗi: " + xhr.status + ")");
+                alert("Đã xảy ra lỗi kết nối đường truyền mạng hoặc máy chủ phản hồi lỗi 500.");
             },
             complete: function () {
                 $('#excelFile').val('');
