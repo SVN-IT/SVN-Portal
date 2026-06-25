@@ -43,7 +43,7 @@ namespace Sigma_Dashboard.Services.Helpers
                         WORunning = p.WORunning,
                         Product = p.Product,
                         Customer = p.Customer,
-                        Shift = p.Shift
+                        Shift = !string.IsNullOrWhiteSpace(p.Shift) ? p.Shift.Trim() : shift
                     }).ToList();
                 }
             }
