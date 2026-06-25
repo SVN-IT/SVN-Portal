@@ -233,6 +233,12 @@
                                             <p>Daily Target</p>
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a asp-controller="HourlyTarget" asp-action="Index" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "HourlyTarget" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Hourly Target</p>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         })

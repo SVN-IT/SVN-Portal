@@ -147,7 +147,7 @@ namespace Sigma_Dashboard.Controllers
                         // Lấy dòng cuối cùng có chứa dữ liệu
                         int rowCount = worksheet.LastRowUsed()?.RowNumber() ?? 0;
 
-                        if (rowCount < 2)
+                        if (rowCount < 3)
                         {
                             return Json(new { success = false, message = "File Excel không có dữ liệu." });
                         }

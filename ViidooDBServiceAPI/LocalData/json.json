@@ -1904,23 +1904,6 @@
     "ColWidth": 4
   },
   {
-    "Operation": "Toast-WSS03-00451",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Toast",
-    "WCType": "WIP",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 7,
-    "Produce_id": [ 1322 ],
-    "ColWidth": 4
-  },
-  {
     "Operation": "Toast-WSS03-00453",
     "Name": "",
     "Price": 0,

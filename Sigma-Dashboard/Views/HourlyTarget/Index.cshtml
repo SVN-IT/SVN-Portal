@@ -1,0 +1,377 @@
+﻿@model IEnumerable<Sigma_Dashboard.Models.HourlyTargetViewModel>
+<link href="~/plugins/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+@{
+    ViewData["Title"] = "Hourly Target";
+    string stringDate = ViewBag.stringDate;
+}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Hourly Target</h3>
+
+            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" onchange="uploadExcel()" />
+
+            <div class="d-flex ml-auto">
+                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFile').click()" title="Import Excel">
+                    <i class="fas fa-file-import"></i>
+                </button>
+                <button type="button" class="btn btn-success" onclick="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>Type_value</th>
+                        <th>Time1</th>
+                        <th>Time2</th>
+                        <th>Time3</th>
+                        <th>Time4</th>
+                        <th>Time5</th>
+                        <th>Time6</th>
+                        <th>Date_time</th>
+                        <th>WC</th>
+                        <th>Achieve</th>
+                        <th>Line</th>
+                        <th>Shift</th>
+                        <th style="width: 120px;">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            // Tạo ID dòng duy nhất dựa trên tổ hợp khóa chính để không bị trùng lặp DOM
+                            var rowId = $"row_{item.Operation}_{item.Date_time}_{item.Shift}_{item.Type_value}";
+                            <tr id="@rowId">
+                                <td>@item.Operation</td>
+                                <td>@item.Type_value</td>
+                                <td>@item.Time1</td>
+                                <td>@item.Time2</td>
+                                <td>@item.Time3</td>
+                                <td>@item.Time4</td>
+                                <td>@item.Time5</td>
+                                <td>@item.Time6</td>
+                                <td>@item.Date_time</td>
+                                <td>@item.WC</td>
+                                <td>@item.Achieve</td>
+                                <td>@item.Product</td>
+                                <td>@item.Shift</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary mr-1"
+                                            onclick="openEditModal(this)"
+                                            data-operation="@item.Operation"
+                                            data-typevalue="@item.Type_value"
+                                            data-time1="@item.Time1"
+                                            data-time2="@item.Time2"
+                                            data-time3="@item.Time3"
+                                            data-time4="@item.Time4"
+                                            data-time5="@item.Time5"
+                                            data-time6="@item.Time6"
+                                            data-datetime="@item.Date_time"
+                                            data-wc="@item.WC"
+                                            data-achieve="@item.Achieve"
+                                            data-product="@item.Product"
+                                            data-shift="@item.Shift">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time', '@item.Shift', '@item.Type_value')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="14" class="text-center">No data available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="hourlyModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm Mới Hourly Target</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="hourlyForm">
+                <div class="modal-body">
+                    <input type="hidden" id="isEditMode" value="false" />
+
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label>Operation <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="txtOperation" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Date Time <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="txtDateTime" placeholder="YYYYMMDD" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Type Value <span class="text-danger">*</span></label>
+                            <select class="form-control" id="txtTypeValue" required>
+                                <option value="Target">Target</option>
+                                <option value="Man Q'ty">Man Q'ty</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Shift <span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlShift" required>
+                                <option value="day">day</option>
+                                <option value="night">night</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-2"><label>Time 1</label><input type="number" step="0.01" class="form-control" id="txtTime1"></div>
+                        <div class="form-group col-md-2"><label>Time 2</label><input type="number" step="0.01" class="form-control" id="txtTime2"></div>
+                        <div class="form-group col-md-2"><label>Time 3</label><input type="number" step="0.01" class="form-control" id="txtTime3"></div>
+                        <div class="form-group col-md-2"><label>Time 4</label><input type="number" step="0.01" class="form-control" id="txtTime4"></div>
+                        <div class="form-group col-md-2"><label>Time 5</label><input type="number" step="0.01" class="form-control" id="txtTime5"></div>
+                        <div class="form-group col-md-2"><label>Time 6</label><input type="number" step="0.01" class="form-control" id="txtTime6"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-4"><label>Work Center (WC)</label><input type="text" class="form-control" id="txtWC"></div>
+                        <div class="form-group col-md-4"><label>Achieve</label><input type="number" step="0.01" class="form-control" id="txtAchieve"></div>
+                        <div class="form-group col-md-4"><label>Line</label><input type="text" class="form-control" id="txtProduct"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- KHỞI TẠO ĐIỀU HƯỚNG MODAL ---
+    function openCreateModal() {
+        $('#hourlyForm')[0].reset();
+        $('#isEditMode').val('false');
+        $('#modalTitle').text('Thêm Mới Hourly Target');
+
+        // Chế độ thêm mới: Mở khóa các ô thuộc tính định danh
+        $('#txtOperation, #txtTypeValue, #ddlShift').prop('disabled', false);
+        $('#txtDateTime').val('@stringDate').prop('disabled', true);
+        $('#hourlyModal').modal('show');
+    }
+
+    function openEditModal(btn) {
+        $('#hourlyForm')[0].reset();
+        $('#isEditMode').val('true');
+        $('#modalTitle').text('Cập Nhật Hourly Target');
+
+        // Khóa cứng tổ hợp định danh (Composite Key) không cho phép sửa đổi khi Update
+        $('#txtOperation').val($(btn).data('operation')).prop('disabled', true);
+        $('#txtDateTime').val($(btn).data('datetime')).prop('disabled', true);
+        $('#txtTypeValue').val($(btn).data('typevalue')).prop('disabled', true);
+        $('#ddlShift').val($(btn).data('shift')).prop('disabled', true);
+
+        // Đổ dữ liệu biến đổi từ các thuộc tính data- vào Form
+        $('#txtTime1').val($(btn).data('time1'));
+        $('#txtTime2').val($(btn).data('time2'));
+        $('#txtTime3').val($(btn).data('time3'));
+        $('#txtTime4').val($(btn).data('time4'));
+        $('#txtTime5').val($(btn).data('time5'));
+        $('#txtTime6').val($(btn).data('time6'));
+        $('#txtWC').val($(btn).data('wc'));
+        $('#txtAchieve').val($(btn).data('achieve'));
+        $('#txtProduct').val($(btn).data('product'));
+
+        $('#hourlyModal').modal('show');
+    }
+
+    // --- HÀM 1: THÊM MỚI VÀ CẬP NHẬT ĐƠN LẺ (CHỈ LẤY CÁC TRƯỜNG TRÊN BẢNG) ---
+    $('#hourlyForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var isEdit = $('#isEditMode').val() === 'true';
+        var urlAction = isEdit ? '/HourlyTarget/Update' : '/HourlyTarget/Create';
+
+        var modelData = {
+            Operation: $('#txtOperation').val(),
+            Date_time: $('#txtDateTime').val(),
+            Type_value: $('#txtTypeValue').val(),
+            Shift: $('#ddlShift').val(),
+            Time1: parseFloat($('#txtTime1').val()) || 0,
+            Time2: parseFloat($('#txtTime2').val()) || 0,
+            Time3: parseFloat($('#txtTime3').val()) || 0,
+            Time4: parseFloat($('#txtTime4').val()) || 0,
+            Time5: parseFloat($('#txtTime5').val()) || 0,
+            Time6: parseFloat($('#txtTime6').val()) || 0,
+            WC: $('#txtWC').val(),
+            Achieve: parseFloat($('#txtAchieve').val()) || 0,
+            Product: $('#txtProduct').val()
+        };
+
+        if (typeof showLoader === "function") showLoader();
+
+        $.ajax({
+            url: urlAction,
+            type: 'POST',
+            data: modelData,
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert("Thất bại: " + res.message);
+                }
+            },
+            error: function () {
+                alert("Đã xảy ra lỗi hệ thống khi xử lý dữ liệu.");
+            },
+            complete: function () {
+                if (typeof hideLoader === "function") hideLoader();
+            }
+        });
+    });
+
+    // --- HÀM 2: XÓA DỮ LIỆU ĐỒNG BỘ ---
+    function deleteTarget(operation, dateTime, shift, typeValue) {
+        if (!confirm("Bạn có chắc chắn muốn xóa bản ghi Hourly Target được chọn này không?")) return;
+
+        if (typeof showLoader === "function") showLoader();
+
+        $.ajax({
+            url: '/HourlyTarget/Delete',
+            type: 'POST',
+            data: {
+                dateTime: dateTime,
+                operation: operation,
+                shift: shift,
+                typeValue: typeValue
+            },
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert("Xóa thất bại: " + res.message);
+                }
+            },
+            error: function () {
+                alert("Hệ thống đường truyền gặp sự cố khi thực hiện lệnh xóa.");
+            },
+            complete: function () {
+                if (typeof hideLoader === "function") hideLoader();
+            }
+        });
+    }
+
+    // --- HÀM 3: IMPORT FILE EXCEL (GIỮ NGUYÊN CƠ CHẾ HYBRID ĐẶC TRỊ) ---
+    function uploadExcel() {
+        var fileInput = $('#excelFile')[0].files[0];
+        if (!fileInput) return;
+
+        var formData = new FormData();
+        formData.append("file", fileInput);
+
+        if (typeof showLoader === "function") showLoader();
+
+        $.ajax({
+            url: '/HourlyTarget/ImportExcel',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            mimeType: 'text/plain; charset=x-user-defined',
+            success: function (rawData, status, xhr) {
+                var contentType = xhr.getResponseHeader("content-type") || "";
+
+                if (contentType.toLowerCase().indexOf("json") !== -1) {
+                    try {
+                        var jsonText = "";
+                        for (var i = 0; i < rawData.length; i++) {
+                            jsonText += String.fromCharCode(rawData.charCodeAt(i) & 0xff);
+                        }
+                        var res = JSON.parse(jsonText);
+                        if (res.success === true || res.success === "true") {
+                            alert(res.message);
+                            location.reload();
+                        } else {
+                            alert("Thất bại: " + res.message);
+                        }
+                    } catch (e) {
+                        alert("Lỗi cấu trúc xử lý gói tin JSON.");
+                    }
+                }
+                else {
+                    alert("Import thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin lỗi kèm ghi chú.");
+
+                    var bytes = new Uint8Array(rawData.length);
+                    for (var i = 0; i < rawData.length; i++) {
+                        bytes[i] = rawData.charCodeAt(i) & 0xff;
+                    }
+
+                    var blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = "Import_HourlyTarget_Errors.xlsx";
+
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(link.href);
+                }
+            },
+            error: function () {
+                alert("Đã xảy ra lỗi đường truyền mạng hoặc máy chủ phản hồi mã lỗi 500.");
+            },
+            complete: function () {
+                $('#excelFile').val('');
+                if (typeof hideLoader === "function") hideLoader();
+            }
+        });
+    }
+</script>
+
+<script src="~/plugins/datatables/jquery.datatables.min.js"></script>
+<script src="~/plugins/datatables-bs4/js/datatables.bootstrap4.min.js"></script>
+<script src="~/plugins/datatables-responsive/js/datatables.responsive.min.js"></script>
+<script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/datatables.buttons.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/plugins/jszip/jszip.min.js"></script>
+<script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.colvis.min.js"></script>
+
+<script>
+    $(function () {
+      $("#example1").DataTable({
+        "responsive": true, "lengthChange": false, "autoWidth": false,
+        "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+      $('#example2').DataTable({
+        "paging": true,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "responsive": true,
+      });
+    });
+</script>

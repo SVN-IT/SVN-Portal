@@ -59,6 +59,7 @@ namespace Sigma_Dashboard.Services.Helpers
                 {
                     processResult.OK = false;
                     processResult.Message = $"Data for Operation '{viewModel.Operation}' on Date '{viewModel.Date_time}' already exists.";
+                    return processResult;
                 }
            
 
