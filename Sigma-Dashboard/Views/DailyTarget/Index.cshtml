@@ -259,6 +259,7 @@
 
         var formData = new FormData();
         formData.append("file", fileInput);
+        formData.append("stringDate", '@stringDate');
 
         if (typeof showLoader === "function") showLoader();
 

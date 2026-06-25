@@ -116,7 +116,7 @@ namespace Sigma_Dashboard.Controllers
         /// 4. XỬ LÝ UPLOAD VÀ PARSE FILE EXCEL (IMPORT EXCEL)
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile file)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
         {
             if (file == null || file.Length == 0)
             {

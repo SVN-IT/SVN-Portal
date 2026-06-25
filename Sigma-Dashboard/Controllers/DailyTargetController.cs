@@ -122,7 +122,7 @@ namespace Sigma_Dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile file)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
         {
             try
             {

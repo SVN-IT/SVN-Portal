@@ -113,12 +113,12 @@ namespace Sigma_Dashboard.Services.Helpers
                     insertData.Add(productionDataUI);
                 }
 
-                var manQtyData = await dataPortal.ReadTypeValueByOperation(viewModel.Date_time, viewModel.Operation, viewModel.Shift, "Man Q'ty");
+                var manQtyData = await dataPortal.ReadTypeValueByOperation(viewModel.Date_time, viewModel.Operation, viewModel.Shift, "NG_Qty");
                 if (manQtyData == null) 
                 {
                     manQtyDataUI = new SVN_production_result_v1UI
                     {
-                        Type_value = "Man Q'ty",
+                        Type_value = "NG_Qty",
                         Time1 = 0,
                         Time2 = 0,
                         Time3 = 0,
@@ -223,12 +223,12 @@ namespace Sigma_Dashboard.Services.Helpers
                 }
 
                 // 4. KIỂM TRA & TỰ ĐỘNG KHỞI TẠO DÒNG "Man Q'ty" NẾU CHƯA CÓ
-                var manQtyData = await dataPortal.ReadTypeValueByOperation(viewModel.Date_time, viewModel.Operation, viewModel.Shift, "Man Q'ty");
+                var manQtyData = await dataPortal.ReadTypeValueByOperation(viewModel.Date_time, viewModel.Operation, viewModel.Shift, "NG_Qty");
                 if (manQtyData == null)
                 {
                     insertData.Add(new SVN_production_result_v1UI
                     {
-                        Type_value = "Man Q'ty",
+                        Type_value = "NG_Qty",
                         Time1 = 0,
                         Time2 = 0,
                         Time3 = 0,
@@ -291,7 +291,7 @@ namespace Sigma_Dashboard.Services.Helpers
             return processResult;
         }
 
-        public async Task<BODataProcessResult> DeleteData(string date, string operation, string shift, string type_value)
+        public async Task<BODataProcessResult> DeleteData(string date, string operation, string type_value, string shift)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             SVN_production_result_v1DataPortal dataPortal = new SVN_production_result_v1DataPortal(connectionString);
@@ -414,13 +414,13 @@ namespace Sigma_Dashboard.Services.Helpers
 
                     // Khởi tạo phụ trợ 2: "Man Q'ty" (nếu DB chưa có dòng này của công đoạn đó)
                     var manQtyData = await dataPortal.ReadTypeValueByOperation(
-                        viewModel.Date_time, viewModel.Operation, viewModel.Shift, "Man Q'ty"
+                        viewModel.Date_time, viewModel.Operation, viewModel.Shift, "NG_Qty"
                     );
-                    if (manQtyData == null && !finalInsertList.Any(x => x.Operation == viewModel.Operation && x.Date_time == viewModel.Date_time && x.Shift == viewModel.Shift && x.Type_value == "Man Q'ty"))
+                    if (manQtyData == null && !finalInsertList.Any(x => x.Operation == viewModel.Operation && x.Date_time == viewModel.Date_time && x.Shift == viewModel.Shift && x.Type_value == "NG_Qty"))
                     {
                         finalInsertList.Add(new SVN_production_result_v1UI
                         {
-                            Type_value = "Man Q'ty",
+                            Type_value = "NG_Qty",
                             Time1 = 0,
                             Time2 = 0,
                             Time3 = 0,

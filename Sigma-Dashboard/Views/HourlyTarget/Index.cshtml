@@ -47,8 +47,7 @@
                     {
                         foreach (var item in Model)
                         {
-                            // Tạo ID dòng duy nhất dựa trên tổ hợp khóa chính để không bị trùng lặp DOM
-                            var rowId = $"row_{item.Operation}_{item.Date_time}_{item.Shift}_{item.Type_value}";
+                            var rowId = $"row_{item.Operation}_{item.Date_time}_{item.Shift}_{item.Type_value.Replace('\'', ' ')}";
                             <tr id="@rowId">
                                 <td>@item.Operation</td>
                                 <td>@item.Type_value</td>
@@ -81,7 +80,12 @@
                                             data-shift="@item.Shift">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time', '@item.Shift', '@item.Type_value')">
+                                    <button class="btn btn-sm btn-danger"
+                                            onclick="deleteTarget(this)"
+                                            data-operation="@item.Operation"
+                                            data-datetime="@item.Date_time"
+                                            data-shift="@item.Shift"
+                                            data-typevalue="@item.Type_value">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -122,13 +126,18 @@
                             <label>Date Time <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="txtDateTime" placeholder="YYYYMMDD" required>
                         </div>
+
                         <div class="form-group col-md-3">
                             <label>Type Value <span class="text-danger">*</span></label>
-                            <select class="form-control" id="txtTypeValue" required>
+
+                            <select class="form-control" id="txtTypeValueSelect">
                                 <option value="Target">Target</option>
                                 <option value="Man Q'ty">Man Q'ty</option>
                             </select>
+
+                            <input type="text" class="form-control" id="txtTypeValueText" style="display: none;" disabled>
                         </div>
+
                         <div class="form-group col-md-3">
                             <label>Shift <span class="text-danger">*</span></label>
                             <select class="form-control" id="ddlShift" required>
@@ -163,15 +172,19 @@
 </div>
 
 <script>
-    // --- KHỞI TẠO ĐIỀU HƯỚNG MODAL ---
     function openCreateModal() {
         $('#hourlyForm')[0].reset();
         $('#isEditMode').val('false');
         $('#modalTitle').text('Thêm Mới Hourly Target');
 
-        // Chế độ thêm mới: Mở khóa các ô thuộc tính định danh
-        $('#txtOperation, #txtTypeValue, #ddlShift').prop('disabled', false);
+        // Mở khóa các trường nhập khóa chính
+        $('#txtOperation, #ddlShift').prop('disabled', false);
         $('#txtDateTime').val('@stringDate').prop('disabled', true);
+
+        // HIỂN THỊ: Hiện Select Box, Ẩn Text Box
+        $('#txtTypeValueSelect').show().prop('disabled', false);
+        $('#txtTypeValueText').hide();
+
         $('#hourlyModal').modal('show');
     }
 
@@ -180,13 +193,17 @@
         $('#isEditMode').val('true');
         $('#modalTitle').text('Cập Nhật Hourly Target');
 
-        // Khóa cứng tổ hợp định danh (Composite Key) không cho phép sửa đổi khi Update
+        // Khóa các trường định danh dữ liệu cũ
         $('#txtOperation').val($(btn).data('operation')).prop('disabled', true);
         $('#txtDateTime').val($(btn).data('datetime')).prop('disabled', true);
-        $('#txtTypeValue').val($(btn).data('typevalue')).prop('disabled', true);
         $('#ddlShift').val($(btn).data('shift')).prop('disabled', true);
 
-        // Đổ dữ liệu biến đổi từ các thuộc tính data- vào Form
+        // HIỂN THỊ: Ẩn Select Box, Hiện Text Box và gán giá trị chuỗi (kể cả "Production Qty")
+        var typeValue = $(btn).data('typevalue');
+        $('#txtTypeValueSelect').hide();
+        $('#txtTypeValueText').val(typeValue).show(); // TextBox luôn ở trạng thái disabled sẵn từ HTML
+
+        // Đổ các mốc dữ liệu còn lại
         $('#txtTime1').val($(btn).data('time1'));
         $('#txtTime2').val($(btn).data('time2'));
         $('#txtTime3').val($(btn).data('time3'));
@@ -200,17 +217,19 @@
         $('#hourlyModal').modal('show');
     }
 
-    // --- HÀM 1: THÊM MỚI VÀ CẬP NHẬT ĐƠN LẺ (CHỈ LẤY CÁC TRƯỜNG TRÊN BẢNG) ---
     $('#hourlyForm').on('submit', function (e) {
         e.preventDefault();
 
         var isEdit = $('#isEditMode').val() === 'true';
         var urlAction = isEdit ? '/HourlyTarget/Update' : '/HourlyTarget/Create';
 
+        // LẤY DỮ LIỆU THÔNG MINH: Nếu Edit thì lấy từ ô Text, nếu Create thì lấy từ ô Select
+        var finalTypeValue = isEdit ? $('#txtTypeValueText').val() : $('#txtTypeValueSelect').val();
+
         var modelData = {
             Operation: $('#txtOperation').val(),
             Date_time: $('#txtDateTime').val(),
-            Type_value: $('#txtTypeValue').val(),
+            Type_value: finalTypeValue,
             Shift: $('#ddlShift').val(),
             Time1: parseFloat($('#txtTime1').val()) || 0,
             Time2: parseFloat($('#txtTime2').val()) || 0,
@@ -246,9 +265,15 @@
         });
     });
 
-    // --- HÀM 2: XÓA DỮ LIỆU ĐỒNG BỘ ---
-    function deleteTarget(operation, dateTime, shift, typeValue) {
-        if (!confirm("Bạn có chắc chắn muốn xóa bản ghi Hourly Target được chọn này không?")) return;
+    function deleteTarget(btn) {
+        var operation = $(btn).data('operation');
+        var dateTime = $(btn).data('datetime');
+        var shift = $(btn).data('shift');
+        var typeValue = $(btn).data('typevalue'); // jQuery tự động xử lý dấu nháy đơn an toàn ở đây
+
+        if (!confirm("Bạn có chắc chắn muốn xóa bản ghi [" + typeValue + "] thuộc công đoạn " + operation + " không?")) {
+            return;
+        }
 
         if (typeof showLoader === "function") showLoader();
 
@@ -278,13 +303,13 @@
         });
     }
 
-    // --- HÀM 3: IMPORT FILE EXCEL (GIỮ NGUYÊN CƠ CHẾ HYBRID ĐẶC TRỊ) ---
     function uploadExcel() {
         var fileInput = $('#excelFile')[0].files[0];
         if (!fileInput) return;
 
         var formData = new FormData();
         formData.append("file", fileInput);
+        formData.append("stringDate", '@stringDate');
 
         if (typeof showLoader === "function") showLoader();
 
@@ -312,22 +337,19 @@
                             alert("Thất bại: " + res.message);
                         }
                     } catch (e) {
-                        alert("Lỗi cấu trúc xử lý gói tin JSON.");
+                        alert("Lỗi cấu trúc dữ liệu JSON.");
                     }
                 }
                 else {
-                    alert("Import thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin lỗi kèm ghi chú.");
-
+                    alert("Import thất bại! Hệ thống đã xuất bản tệp tin lỗi.");
                     var bytes = new Uint8Array(rawData.length);
                     for (var i = 0; i < rawData.length; i++) {
                         bytes[i] = rawData.charCodeAt(i) & 0xff;
                     }
-
                     var blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
                     var link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
                     link.download = "Import_HourlyTarget_Errors.xlsx";
-
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -335,7 +357,7 @@
                 }
             },
             error: function () {
-                alert("Đã xảy ra lỗi đường truyền mạng hoặc máy chủ phản hồi mã lỗi 500.");
+                alert("Đã xảy ra lỗi máy chủ.");
             },
             complete: function () {
                 $('#excelFile').val('');
