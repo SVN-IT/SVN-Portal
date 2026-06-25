@@ -50,6 +50,7 @@
             string shift = ViewBag.shift;
             string companyCode = ViewBag.CompanyCode;
             string titleName = ViewBag.TitleName;
+            string accessMode = ViewBag.AccessMode;
             
             string selectedMasterOperation = ViewBag.SelectedMasterOperation;
 
@@ -183,35 +184,58 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                              with font-awesome or any other icon font library -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon  fas fa-chart-pie"></i>
-                                <p>
-                                    Dashboard
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="nav-link @(indexPage == "Index" ? "active":"")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Main</p>
-                                    </a>
-                                </li>
-                                @if (masterOperList != null && masterOperList.Count > 0)
-                                {
-                                    foreach (var oper in masterOperList)
+                        @if (accessMode == "Dashboard")
+                        {
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon  fas fa-chart-pie"></i>
+                                    <p>
+                                        Dashboard
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="nav-link @(controllerName == "Home" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Main</p>
+                                        </a>
+                                    </li>
+                                    @if (masterOperList != null && masterOperList.Count > 0)
                                     {
-                                        <li class="nav-item">
-                                            <a asp-controller="Home" asp-action="ChartPageByOperation" asp-route-masterOperation="@oper" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false asp-route-oper=oper class="nav-link @(selectedMasterOperation == oper ? "active":"")">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>@oper</p>
-                                            </a>
-                                        </li>
+                                        foreach (var oper in masterOperList)
+                                        {
+                                            <li class="nav-item">
+                                                <a asp-controller="Home" asp-action="ChartPageByOperation" asp-route-masterOperation="@oper" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false asp-route-oper=oper class="nav-link @(selectedMasterOperation == oper ? "active":"")">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>@oper</p>
+                                                </a>
+                                            </li>
+                                        }
                                     }
-                                })
-                            </ul>
-                        </li>
+                                </ul>
+                            </li>
+                        }
+                        else if (accessMode == "PMC")
+                        {
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon fas fa-file-alt"></i>
+                                    <p>
+                                        Target Input
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="DailyTarget" asp-action="Index" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "DailyTarget" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Daily Target</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        })
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -231,7 +255,7 @@
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Main Dashboard</li>
+                                <li class="breadcrumb-item active">@titleName</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
