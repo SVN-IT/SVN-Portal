@@ -392,7 +392,10 @@
                 }
             },
             error: function (xhr, status, error) {
-                alert("Đã xảy ra lỗi máy chủ.");
+                console.error("Mã lỗi HTTP:", xhr.status);
+                console.error("Nội dung lỗi chi tiết từ Server:", xhr.responseText);
+
+                alert("Đã xảy ra lỗi kết nối đường truyền mạng hoặc máy chủ phản hồi lỗi " + xhr.status);
             },
             complete: function () {
                 $('#excelFile').val('');
