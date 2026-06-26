@@ -50,6 +50,29 @@ namespace Sigma_Dashboard.Controllers
             try
             {
                 viewModels = await controllerHelper.GetDailyTargetData(date, shift, companyCode);
+                if (viewModels != null && viewModels.Count != 0)
+                {
+                    if (!string.IsNullOrWhiteSpace(companyCode))
+                    {
+                        switch (companyCode)
+                        {
+                            case "SM":
+                                // Lọc các item có đuôi (SM)
+                                viewModels = viewModels.Where(x => x.Operation.Contains("(SM)")).ToList();
+                                break;
+
+                            case "ITA":
+                                // Lọc các item có đuôi (ITA)
+                                viewModels = viewModels.Where(x => x.Operation.Contains("(ITA)")).ToList();
+                                break;
+
+                            case "SVN":
+                                // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                                viewModels = viewModels.Where(x => !x.Operation.Contains("(SM)") && !x.Operation.Contains("(ITA)")).ToList();
+                                break;
+                        }
+                    }
+                }
             }
             catch
             {
@@ -128,7 +151,7 @@ namespace Sigma_Dashboard.Controllers
             {
                 if (file == null || file.Length == 0)
                 {
-                    return Json(new { success = false, message = "Vui lòng chọn file Excel hợp lệ." });
+                    return Json(new { success = false, message = "Pls choose valid excel file" });
                 }
 
                 var listTargets = new List<DailyTargetViewModel>();
@@ -149,7 +172,7 @@ namespace Sigma_Dashboard.Controllers
 
                         if (rowCount < 3)
                         {
-                            return Json(new { success = false, message = "File Excel không có dữ liệu." });
+                            return Json(new { success = false, message = "Excel file is empty or have no data" });
                         }
 
                         // Vòng lặp quét dữ liệu từ dòng 3
@@ -169,17 +192,37 @@ namespace Sigma_Dashboard.Controllers
                             string shift = worksheet.Cell(row, 9).GetValue<string>()?.Trim();
 
                             // --- VALIDATION LOGIC ---
-                            if (string.IsNullOrEmpty(operation)) rowErrors.Add("Operation không được để trống.");
-                            if (string.IsNullOrEmpty(dateTime)) rowErrors.Add("Date_time không được để trống.");
+                            if (string.IsNullOrWhiteSpace(operation)) rowErrors.Add("Operation col is Empty");
+
+                            // KIỂM TRA NGÀY THÁNG HỢP LỆ VÀ ĐỒNG BỘ VỚI VIEW
+                            if (string.IsNullOrWhiteSpace(dateTime))
+                            {
+                                rowErrors.Add("Date_time col is Empty");
+                            }
+                            else if (!string.IsNullOrWhiteSpace(stringDate) && dateTime != stringDate)
+                            {
+                                // CHẮT LỌC LỖI: Phát hiện ngày trong file lệch với ngày đang chọn ngoài giao diện
+                                rowErrors.Add($"Datetime '{dateTime}' is incorrect , pls input '{stringDate}'.");
+                            }
+
+                            if (string.IsNullOrWhiteSpace(shift))
+                            {
+                                rowErrors.Add("Shift (day/night) col is empty");
+                            }
+                            else if (shift.ToLower() != "day" && shift.ToLower() != "night")
+                            {
+                                // THÊM MỚI: Bắt buộc giá trị cột Shift phải thuộc 1 trong 2 từ khóa cố định
+                                rowErrors.Add($"Shift '{shift}' not valid (Must input 'day' or 'night').");
+                            }
 
                             double dailyPlan = 0, uph = 0, upph = 0, labor = 0, defect = 0, workingTime = 0;
 
-                            if (!string.IsNullOrEmpty(dailyPlanRaw) && !double.TryParse(dailyPlanRaw, out dailyPlan)) rowErrors.Add("Daily_plan phải là số.");
-                            if (!string.IsNullOrEmpty(uphRaw) && !double.TryParse(uphRaw, out uph)) rowErrors.Add("UPH phải là số.");
-                            if (!string.IsNullOrEmpty(upphRaw) && !double.TryParse(upphRaw, out upph)) rowErrors.Add("UPPH phải là số.");
-                            if (!string.IsNullOrEmpty(laborRaw) && !double.TryParse(laborRaw, out labor)) rowErrors.Add("Labor phải là số.");
-                            if (!string.IsNullOrEmpty(defectRaw) && !double.TryParse(defectRaw, out defect)) rowErrors.Add("Defect phải là số.");
-                            if (!string.IsNullOrEmpty(workingTimeRaw) && !double.TryParse(workingTimeRaw, out workingTime)) rowErrors.Add("Workingtime phải là số.");
+                            if (!string.IsNullOrWhiteSpace(dailyPlanRaw) && !double.TryParse(dailyPlanRaw, out dailyPlan)) rowErrors.Add("Daily_plan pls input number.");
+                            if (!string.IsNullOrWhiteSpace(uphRaw) && !double.TryParse(uphRaw, out uph)) rowErrors.Add("UPH pls input number.");
+                            if (!string.IsNullOrWhiteSpace(upphRaw) && !double.TryParse(upphRaw, out upph)) rowErrors.Add("UPPH pls input number.");
+                            if (!string.IsNullOrWhiteSpace(laborRaw) && !double.TryParse(laborRaw, out labor)) rowErrors.Add("Labor pls input number.");
+                            if (!string.IsNullOrWhiteSpace(defectRaw) && !double.TryParse(defectRaw, out defect)) rowErrors.Add("Defect pls input number.");
+                            if (!string.IsNullOrWhiteSpace(workingTimeRaw) && !double.TryParse(workingTimeRaw, out workingTime)) rowErrors.Add("Workingtime pls input number.");
 
                             // Nếu dòng này có lỗi -> Ghi chú trực tiếp vào cột 10 (Cột J)
                             if (rowErrors.Any())
@@ -212,7 +255,7 @@ namespace Sigma_Dashboard.Controllers
                         {
                             // Tạo Header cho cột lỗi J
                             var headerCell = worksheet.Cell(1, 10);
-                            headerCell.Value = "Options (Lỗi hệ thống)";
+                            headerCell.Value = "Options (Import Error)";
                             headerCell.Style.Font.SetBold(true);
                             headerCell.Style.Font.SetFontColor(XLColor.DarkRed);
                             worksheet.Column(10).AdjustToContents(); // Tự động dãn độ rộng cột J theo nội dung lỗi
@@ -236,12 +279,12 @@ namespace Sigma_Dashboard.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return Json(new { success = false, message = "Lỗi trong quá trình lưu CSDL: " + ex.Message });
+                    return Json(new { success = false, message = ex.Message });
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi trong quá trình xử lý file Excel: " + ex.Message });
+                return Json(new { success = false, message = "System error: " + ex.Message });
             }
         }
     }

@@ -5,6 +5,35 @@
 @{
     ViewData["Title"] = "Hourly Target";
     string stringDate = ViewBag.stringDate;
+
+    // Khởi tạo biến cờ (Mặc định ban đầu coi như là ngày hiện tại hoặc tương lai)
+    bool isToday = true;
+
+    if (!string.IsNullOrEmpty(stringDate))
+    {
+        // 2. Ép kiểu chuỗi "yyyyMMdd" sang DateTime một cách an toàn
+        if (DateTime.TryParseExact(stringDate.Trim(), "yyyyMMdd",
+                                   System.Globalization.CultureInfo.InvariantCulture,
+                                   System.Globalization.DateTimeStyles.None,
+                                   out DateTime parsedDate))
+        {
+            // 3. So sánh với ngày hiện tại (chỉ lấy phần Ngày, bỏ qua Giờ)
+            if (parsedDate < DateTime.Today)
+            {
+                isToday = false; // Nhỏ hơn ngày hôm nay thì gán bằng false
+            }
+        }
+        else
+        {
+            // Trường hợp chuỗi truyền vào không đúng định dạng 8 chữ số
+            isToday = false;
+        }
+    }
+    else
+    {
+        // Trường hợp ViewBag.stringDate bị null hoặc rỗng
+        isToday = false;
+    }
 }
 <div class="container-fluid">
     <div class="card">
@@ -63,31 +92,37 @@
                                 <td>@item.Product</td>
                                 <td>@item.Shift</td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary mr-1"
-                                            onclick="openEditModal(this)"
-                                            data-operation="@item.Operation"
-                                            data-typevalue="@item.Type_value"
-                                            data-time1="@item.Time1"
-                                            data-time2="@item.Time2"
-                                            data-time3="@item.Time3"
-                                            data-time4="@item.Time4"
-                                            data-time5="@item.Time5"
-                                            data-time6="@item.Time6"
-                                            data-datetime="@item.Date_time"
-                                            data-wc="@item.WC"
-                                            data-achieve="@item.Achieve"
-                                            data-product="@item.Product"
-                                            data-shift="@item.Shift">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger"
-                                            onclick="deleteTarget(this)"
-                                            data-operation="@item.Operation"
-                                            data-datetime="@item.Date_time"
-                                            data-shift="@item.Shift"
-                                            data-typevalue="@item.Type_value">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    @if (isToday)
+                                    {
+                                        @if (item.Type_value == "Target" || item.Type_value == "Man Q'ty")
+                                        {
+                                            <button class="btn btn-sm btn-primary mr-1"
+                                                    onclick="openEditModal(this)"
+                                                    data-operation="@item.Operation"
+                                                    data-typevalue="@item.Type_value"
+                                                    data-time1="@item.Time1"
+                                                    data-time2="@item.Time2"
+                                                    data-time3="@item.Time3"
+                                                    data-time4="@item.Time4"
+                                                    data-time5="@item.Time5"
+                                                    data-time6="@item.Time6"
+                                                    data-datetime="@item.Date_time"
+                                                    data-wc="@item.WC"
+                                                    data-achieve="@item.Achieve"
+                                                    data-product="@item.Product"
+                                                    data-shift="@item.Shift">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger"
+                                                    onclick="deleteTarget(this)"
+                                                    data-operation="@item.Operation"
+                                                    data-datetime="@item.Date_time"
+                                                    data-shift="@item.Shift"
+                                                    data-typevalue="@item.Type_value">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
+                                    }
                                 </td>
                             </tr>
                         }
@@ -108,7 +143,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Thêm Mới Hourly Target</h5>
+                <h5 class="modal-title" id="modalTitle">Add New Hourly Target</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

@@ -5,6 +5,35 @@
 @{
     ViewData["Title"] = "Daily Target";
     string stringDate = ViewBag.stringDate;
+
+    // Khởi tạo biến cờ (Mặc định ban đầu coi như là ngày hiện tại hoặc tương lai)
+    bool isToday = true;
+
+    if (!string.IsNullOrEmpty(stringDate))
+    {
+        // 2. Ép kiểu chuỗi "yyyyMMdd" sang DateTime một cách an toàn
+        if (DateTime.TryParseExact(stringDate.Trim(), "yyyyMMdd",
+                                   System.Globalization.CultureInfo.InvariantCulture,
+                                   System.Globalization.DateTimeStyles.None,
+                                   out DateTime parsedDate))
+        {
+            // 3. So sánh với ngày hiện tại (chỉ lấy phần Ngày, bỏ qua Giờ)
+            if (parsedDate < DateTime.Today)
+            {
+                isToday = false; // Nhỏ hơn ngày hôm nay thì gán bằng false
+            }
+        }
+        else
+        {
+            // Trường hợp chuỗi truyền vào không đúng định dạng 8 chữ số
+            isToday = false;
+        }
+    }
+    else
+    {
+        // Trường hợp ViewBag.stringDate bị null hoặc rỗng
+        isToday = false;
+    }
 }
 <div class="container-fluid">
     <div class="card">
@@ -54,22 +83,25 @@
                                 <td>@item.Workingtime</td>
                                 <td>@item.Shift</td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary"
-                                            onclick="openEditModal(this)"
-                                            data-operation="@item.Operation"
-                                            data-dailyplan="@item.Daily_plan"
-                                            data-uph="@item.UPH"
-                                            data-upph="@item.UPPH"
-                                            data-labor="@item.Labor"
-                                            data-datetime="@item.Date_time"
-                                            data-defect="@item.Defect"
-                                            data-workingtime="@item.Workingtime"
-                                            data-shift="@item.Shift">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    @if (isToday)
+                                    {
+                                        <button class="btn btn-sm btn-primary"
+                                                onclick="openEditModal(this)"
+                                                data-operation="@item.Operation"
+                                                data-dailyplan="@item.Daily_plan"
+                                                data-uph="@item.UPH"
+                                                data-upph="@item.UPPH"
+                                                data-labor="@item.Labor"
+                                                data-datetime="@item.Date_time"
+                                                data-defect="@item.Defect"
+                                                data-workingtime="@item.Workingtime"
+                                                data-shift="@item.Shift">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
                                 </td>
                             </tr>
                         }
