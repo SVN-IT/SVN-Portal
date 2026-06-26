@@ -54,7 +54,7 @@ namespace Sigma_Dashboard.Services.Helpers
             SVN_Target_v1DataPortal dataPortal = new SVN_Target_v1DataPortal(connectionString);
             try
             {
-                var existingData = await dataPortal.ReadTargetByDateAndOperation(viewModel.Date_time, viewModel.Operation);
+                var existingData = await dataPortal.ReadTargetByDateAndOperation(viewModel.Date_time, viewModel.Operation, viewModel.Shift);
                 if (existingData != null) 
                 {
                     processResult.OK = false;
@@ -104,7 +104,7 @@ namespace Sigma_Dashboard.Services.Helpers
             SVN_Target_v1DataPortal dataPortal = new SVN_Target_v1DataPortal(connectionString);
             try
             {
-                var existingData = await dataPortal.ReadTargetByDateAndOperation(viewModel.Date_time, viewModel.Operation);
+                var existingData = await dataPortal.ReadTargetByDateAndOperation(viewModel.Date_time, viewModel.Operation, viewModel.Shift);
                 if (existingData == null)
                 {
                     processResult.OK = false;
@@ -146,20 +146,20 @@ namespace Sigma_Dashboard.Services.Helpers
             return processResult;
         }
 
-        public async Task<BODataProcessResult> DeleteData(string date, string operation)
+        public async Task<BODataProcessResult> DeleteData(string date, string operation, string shift)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             SVN_Target_v1DataPortal dataPortal = new SVN_Target_v1DataPortal(connectionString);
             try
             {
-                var existingData = await dataPortal.ReadTargetByDateAndOperation(date, operation);
+                var existingData = await dataPortal.ReadTargetByDateAndOperation(date, operation, shift);
                 if (existingData == null)
                 {
                     processResult.OK = false;
                     processResult.Message = $"No existing data found for Operation '{operation}' on Date '{date}'.";
                     return processResult;
                 }
-                var result = dataPortal.DeleteTarget(date, operation);
+                var result = dataPortal.DeleteTarget(date, operation, shift);
                 if (result > 0)
                 {
                     processResult.OK = true;
@@ -194,7 +194,7 @@ namespace Sigma_Dashboard.Services.Helpers
             {
                 foreach (var model in viewModels)
                 {
-                    var existData = await dataPortal.ReadTargetByDateAndOperation(model.Date_time, model.Operation);
+                    var existData = await dataPortal.ReadTargetByDateAndOperation(model.Date_time, model.Operation, model.Shift);
                     if(existData != null)
                     {
                         UpdateTargetData.Add(new SVN_target_v1UI()

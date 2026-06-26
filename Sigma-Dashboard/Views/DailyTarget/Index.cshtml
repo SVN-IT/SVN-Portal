@@ -98,7 +98,7 @@
                                                 data-shift="@item.Shift">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time')">
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time', '@item.Shift')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     }
@@ -221,7 +221,7 @@
         $('#txtWorkingTime').val($(btn).data('workingtime'));
 
         // Gán giá trị được chọn cho Select Box Shift
-        $('#ddlShift').val($(btn).data('shift'));
+        $('#ddlShift').val($(btn).data('shift')).prop('disabled', true);
 
         $('#targetModal').modal('show');
     }
@@ -264,12 +264,12 @@
         });
     });
 
-    function deleteTarget(operation, datetime) {
+    function deleteTarget(operation, datetime, shift) {
         if (confirm("Bạn có chắc chắn muốn xóa dữ liệu của Operation " + operation + " không?")) {
             $.ajax({
                 url: '/DailyTarget/Delete',
                 type: 'POST',
-                data: { operation: operation, datetime: datetime },
+                data: { operation: operation, datetime: datetime, shift: shift },
                 success: function (res) {
                     if (res.success) {
                         alert(res.message);

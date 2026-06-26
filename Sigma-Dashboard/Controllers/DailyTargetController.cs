@@ -125,7 +125,7 @@ namespace Sigma_Dashboard.Controllers
 
         // 3. ACTION XÓA (Nhận Key đơn lẻ)
         [HttpPost]
-        public async Task<IActionResult> Delete(string operation, string datetime)
+        public async Task<IActionResult> Delete(string operation, string datetime, string shift)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace Sigma_Dashboard.Controllers
                     return Json(new { success = false, message = "Data invalid" });
                 }
 
-                var result = await controllerHelper.DeleteData(datetime, operation); 
+                var result = await controllerHelper.DeleteData(datetime, operation, shift); 
 
                 return Json(new { success = true, message = "Đã xóa bản ghi thành công!" });
             }

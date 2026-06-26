@@ -271,7 +271,7 @@ namespace SVNShareLib.DAL.NewDashboard
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<SVN_target_v1UI> ReadTargetByDateAndOperation(string date, string operation)
+        public async Task<SVN_target_v1UI> ReadTargetByDateAndOperation(string date, string operation, string shift)
         {
             SVN_target_v1UI dataUI = new SVN_target_v1UI();
             int timeOut = 1000;
@@ -281,8 +281,8 @@ namespace SVNShareLib.DAL.NewDashboard
                 {
                     string sql = string.Empty;
                     var param = new object();
-                    sql = "select * from SVN_target WHERE Date_time = @date And Operation = @operation";
-                    param = new { date, operation };
+                    sql = "select * from SVN_target WHERE Date_time = @date And Operation = @operation And Shift = @shift";
+                    param = new { date, operation, shift };
                     var data = await conn.QueryFirstOrDefaultAsync<SVN_target_v1UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
                     dataUI = data;
                 }
@@ -369,7 +369,7 @@ namespace SVNShareLib.DAL.NewDashboard
                                              [Defect] = @Defect,
                                              [Workingtime] = @Workingtime,
                                              [Shift] = @Shift
-                                         WHERE [Operation] = @Operation AND [Date_time] = @Date_time";
+                                         WHERE [Operation] = @Operation AND [Date_time] = @Date_time AND [Shift] = @Shift";
 
                             // Dapper tự động lặp qua toàn bộ danh sách sVN_Targets để thực hiện lệnh
                             var updateResult = connection.Execute(updateSql, sVN_Targets, trans, commandTimeout: timeOut);
@@ -404,7 +404,7 @@ namespace SVNShareLib.DAL.NewDashboard
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public int DeleteTarget(string date, string operation)
+        public int DeleteTarget(string date, string operation, string shift)
         {
             int timeOut = 1000;
             try
@@ -419,7 +419,7 @@ namespace SVNShareLib.DAL.NewDashboard
                     {
                         try
                         {
-                            var deleteResult = connection.Execute("DELETE FROM SVN_target WHERE Date_time = @date AND Operation = @operation", new { date, operation }, trans, commandTimeout: timeOut);
+                            var deleteResult = connection.Execute("DELETE FROM SVN_target WHERE Date_time = @date AND Operation = @operation AND Shift = @shift", new { date, operation, shift }, trans, commandTimeout: timeOut);
                             if (deleteResult <= 0)
                             {
                                 trans.Rollback();
