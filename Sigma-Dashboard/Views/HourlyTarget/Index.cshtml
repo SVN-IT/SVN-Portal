@@ -391,7 +391,7 @@
                     window.URL.revokeObjectURL(link.href);
                 }
             },
-            error: function () {
+            error: function (xhr, status, error) {
                 alert("Đã xảy ra lỗi máy chủ.");
             },
             complete: function () {
