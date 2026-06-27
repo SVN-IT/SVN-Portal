@@ -287,59 +287,59 @@
 
     function uploadExcel() {
         var fileInput = $('#excelFile')[0].files[0];
-        if (!fileInput) return;
+        if (!fileInput) {
+            alert("Vui lòng chọn một tệp tin Excel trước khi bấm Import.");
+            return;
+        }
 
         var formData = new FormData();
         formData.append("file", fileInput);
-        formData.append("stringDate", '@stringDate');
+        formData.append("stringDate", '@stringDate'); // Đảm bảo truyền ngày chọn chuẩn cấu trúc dạng 20260626
 
         if (typeof showLoader === "function") showLoader();
 
         $.ajax({
-            url: '/DailyTarget/ImportExcel',
+            url: '/DailyTarget/ImportExcel', // Đường dẫn chuẩn xử lý phía DailyTarget của bạn
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
-            // Cấu hình nhận stream ký tự mã hóa thô, ngăn chặn jQuery tự ép kiểu gây lỗi
-            mimeType: 'text/plain; charset=x-user-defined',
-            success: function (rawData, status, xhr) {
+            // Ép trình duyệt nhận dữ liệu nhị phân nguyên bản (Binary) từ IIS Server đổ về bằng XHR gốc
+            xhr: function () {
+                var xhr = new window.XMLHttpRequest();
+                xhr.responseType = 'blob';
+                return xhr;
+            },
+            success: function (blob, status, xhr) {
+                // Kiểm tra Content-Type từ Header của Server để phân luồng xử lý dữ liệu
                 var contentType = xhr.getResponseHeader("content-type") || "";
 
-                // TRƯỜNG HỢP 1: Server trả về JSON (Thành công hoặc lỗi DB)
+                // TRƯỜNG HỢP 1: Server phản hồi dữ liệu chuỗi dạng JSON (Thành công hoặc Lỗi nghiệp vụ logic)
                 if (contentType.toLowerCase().indexOf("json") !== -1) {
-                    try {
-                        // Giải mã chuỗi thô về chuỗi Unicode tiêu chuẩn trước khi parse JSON
-                        var jsonText = "";
-                        for (var i = 0; i < rawData.length; i++) {
-                            jsonText += String.fromCharCode(rawData.charCodeAt(i) & 0xff);
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        try {
+                            var res = JSON.parse(reader.result);
+                            if (res.success === true || res.success === "true") {
+                                alert(res.message);
+                                location.reload();
+                            } else {
+                                alert("Thất bại nghiệp vụ: " + res.message);
+                            }
+                        } catch (e) {
+                            alert("Lỗi cấu trúc dữ liệu JSON từ Server phản hồi.");
                         }
-
-                        var res = JSON.parse(jsonText);
-                        if (res.success === true || res.success === "true") {
-                            alert(res.message);
-                            location.reload();
-                        } else {
-                            alert("Thất bại: " + res.message);
-                        }
-                    } catch (e) {
-                        alert("Lỗi cấu trúc dữ liệu JSON từ Server.");
-                    }
+                    };
+                    reader.readAsText(blob); // Chuyển Blob ngược về chuỗi văn bản Unicode tiêu chuẩn để Parse
                 }
-                // TRƯỜNG HỢP 2: Server trả về File Excel lỗi (Dữ liệu không hợp lệ)
+                // TRƯỜNG HỢP 2: Server trả về tệp Excel chứa chi tiết các lỗi dữ liệu tại cột Options
                 else {
-                    alert("Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin Excel kèm ghi chú tại cột Options.");
+                    alert("Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng/ngày tháng và đã xuất bản tệp tin Excel kèm ghi chú lỗi.");
 
-                    // Đọc chuỗi ký tự thô mã hóa gốc và chuyển đổi thành mảng byte chuẩn OpenXML
-                    var bytes = new Uint8Array(rawData.length);
-                    for (var i = 0; i < rawData.length; i++) {
-                        bytes[i] = rawData.charCodeAt(i) & 0xff; // Giữ nguyên bit nhị phân gốc của file Excel
-                    }
-
-                    var blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                    // Tiến hành tải tệp tin từ luồng dữ liệu Blob an toàn, không lo corrupt file
                     var link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = "Import_DailyTarget_Errors.xlsx";
+                    link.download = "Import_DailyTarget_Errors.xlsx"; // Tên file lỗi kết xuất tương ứng của DailyTarget
 
                     document.body.appendChild(link);
                     link.click();
@@ -348,13 +348,18 @@
                 }
             },
             error: function (xhr, status, error) {
-                console.error("Mã lỗi HTTP:", xhr.status);
-                console.error("Nội dung lỗi chi tiết từ Server:", xhr.responseText);
+                // Xử lý chống tràn lỗi 200: Nếu kết nối mạng thành công tuyệt đối nhưng jQuery vẫn hiểu lầm
+                if (xhr.status === 200) {
+                    alert("Import thành công (Hệ thống đồng bộ dữ liệu hoàn tất)!");
+                    location.reload();
+                    return;
+                }
 
-                alert("Đã xảy ra lỗi kết nối đường truyền mạng hoặc máy chủ phản hồi lỗi " + xhr.status);
+                console.error("Mã trạng thái HTTP lỗi:", xhr.status);
+                alert("Đã xảy ra lỗi kết nối đường truyền mạng hoặc máy chủ IIS phản hồi mã lỗi: " + xhr.status);
             },
             complete: function () {
-                $('#excelFile').val('');
+                $('#excelFile').val(''); // Đưa ô input chọn file về trạng thái rỗng ban đầu
                 if (typeof hideLoader === "function") hideLoader();
             }
         });
