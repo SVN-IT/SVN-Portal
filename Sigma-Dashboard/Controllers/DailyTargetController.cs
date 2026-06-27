@@ -145,6 +145,7 @@ namespace Sigma_Dashboard.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
         {
             try
