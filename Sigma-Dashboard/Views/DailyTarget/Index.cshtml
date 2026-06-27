@@ -41,6 +41,7 @@
             <h3 class="card-title">Daily Target</h3>
 
             <form asp-controller="DailyTarget" asp-action="ImportExcel" method="post" enctype="multipart/form-data" id="importExcelForm" style="display: none;">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="stringDate" value="@stringDate" />
                 <input type="hidden" name="companyCode" value="@companyCode" />
 
