@@ -294,72 +294,38 @@
 
         var formData = new FormData();
         formData.append("file", fileInput);
-        formData.append("stringDate", '@stringDate'); // Đảm bảo truyền ngày chọn chuẩn cấu trúc dạng 20260626
+        formData.append("stringDate", '@stringDate');
 
         if (typeof showLoader === "function") showLoader();
 
         $.ajax({
-            url: '/DailyTarget/ImportExcel', // Đường dẫn chuẩn xử lý phía DailyTarget của bạn
+            url: '/DailyTarget/ImportExcel', // Hoặc /HourlyTarget/ImportExcel
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
-            // Ép trình duyệt nhận dữ liệu nhị phân nguyên bản (Binary) từ IIS Server đổ về bằng XHR gốc
-            xhr: function () {
-                var xhr = new window.XMLHttpRequest();
-                xhr.responseType = 'blob';
-                return xhr;
-            },
-            success: function (blob, status, xhr) {
-                // Kiểm tra Content-Type từ Header của Server để phân luồng xử lý dữ liệu
-                var contentType = xhr.getResponseHeader("content-type") || "";
-
-                // TRƯỜNG HỢP 1: Server phản hồi dữ liệu chuỗi dạng JSON (Thành công hoặc Lỗi nghiệp vụ logic)
-                if (contentType.toLowerCase().indexOf("json") !== -1) {
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        try {
-                            var res = JSON.parse(reader.result);
-                            if (res.success === true || res.success === "true") {
-                                alert(res.message);
-                                location.reload();
-                            } else {
-                                alert("Thất bại nghiệp vụ: " + res.message);
-                            }
-                        } catch (e) {
-                            alert("Lỗi cấu trúc dữ liệu JSON từ Server phản hồi.");
-                        }
-                    };
-                    reader.readAsText(blob); // Chuyển Blob ngược về chuỗi văn bản Unicode tiêu chuẩn để Parse
-                }
-                // TRƯỜNG HỢP 2: Server trả về tệp Excel chứa chi tiết các lỗi dữ liệu tại cột Options
-                else {
-                    alert("Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng/ngày tháng và đã xuất bản tệp tin Excel kèm ghi chú lỗi.");
-
-                    // Tiến hành tải tệp tin từ luồng dữ liệu Blob an toàn, không lo corrupt file
-                    var link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = "Import_DailyTarget_Errors.xlsx"; // Tên file lỗi kết xuất tương ứng của DailyTarget
-
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(link.href);
+            dataType: 'json', // Nhận JSON bình thường như mọi hàm AJAX khác trong hệ thống
+            success: function (res) {
+                if (res.success === true || res.success === "true") {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    // Nếu Backend báo có file Excel lỗi đi kèm
+                    if (res.hasExcelError) {
+                        alert(res.message);
+                        // Lệnh tiêu chuẩn để trình duyệt tự mở luồng tải file về máy Client
+                        window.location.href = res.downloadUrl;
+                    } else {
+                        alert("Thất bại: " + res.message);
+                    }
                 }
             },
             error: function (xhr, status, error) {
-                // Xử lý chống tràn lỗi 200: Nếu kết nối mạng thành công tuyệt đối nhưng jQuery vẫn hiểu lầm
-                if (xhr.status === 200) {
-                    alert("Import thành công (Hệ thống đồng bộ dữ liệu hoàn tất)!");
-                    location.reload();
-                    return;
-                }
-
-                console.error("Mã trạng thái HTTP lỗi:", xhr.status);
-                alert("Đã xảy ra lỗi kết nối đường truyền mạng hoặc máy chủ IIS phản hồi mã lỗi: " + xhr.status);
+                console.error("Lỗi hệ thống:", error);
+                alert("Đã xảy ra lỗi máy chủ (Mã lỗi: " + xhr.status + ").");
             },
             complete: function () {
-                $('#excelFile').val(''); // Đưa ô input chọn file về trạng thái rỗng ban đầu
+                $('#excelFile').val('');
                 if (typeof hideLoader === "function") hideLoader();
             }
         });

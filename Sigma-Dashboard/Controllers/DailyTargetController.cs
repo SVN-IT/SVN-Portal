@@ -253,19 +253,30 @@ namespace Sigma_Dashboard.Controllers
                         // THÀNH PHẦN XUẤT LỖI: Nếu phát hiện bất kỳ dòng nào lỗi, dừng tiến trình và trả file
                         if (hasError)
                         {
-                            // Tạo Header cho cột lỗi J
-                            var headerCell = worksheet.Cell(1, 10);
-                            headerCell.Value = "Options (Import Error)";
-                            headerCell.Style.Font.SetBold(true);
-                            headerCell.Style.Font.SetFontColor(XLColor.DarkRed);
-                            worksheet.Column(10).AdjustToContents(); // Tự động dãn độ rộng cột J theo nội dung lỗi
+                            var headerCell = worksheet.Cell(2, 10);
+                            headerCell.Value = "Options (Chi tiết lỗi Import)";
+                            headerCell.Style.Font.SetBold(true).Font.SetFontColor(XLColor.DarkRed);
+                            worksheet.Column(14).AdjustToContents();
 
-                            using (var errorStream = new MemoryStream())
+                            // Tạo thư mục tạm "downloads" trên server để chứa file lỗi
+                            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
+                            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                            // Tạo tên file duy nhất để không bị trùng lặp khi nhiều người dùng cùng nhấn
+                            string fileName = $"Import_Errors_{Guid.NewGuid()}.xlsx";
+                            string fullPath = Path.Combine(folderPath, fileName);
+
+                            // Lưu file Excel lỗi vật lý xuống Server
+                            workbook.SaveAs(fullPath);
+
+                            // TRẢ VỀ JSON BÌNH THƯỜNG chứa đường dẫn file để Ajax kích hoạt download
+                            return Json(new
                             {
-                                workbook.SaveAs(errorStream);
-                                var errorFileBytes = errorStream.ToArray();
-                                return File(errorFileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Import_DailyTarget_Errors.xlsx");
-                            }
+                                success = false,
+                                hasExcelError = true,
+                                downloadUrl = $"/downloads/{fileName}",
+                                message = "Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin Excel kèm ghi chú."
+                            });
                         }
                     }
                 }

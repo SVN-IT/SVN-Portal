@@ -347,71 +347,38 @@
 
         var formData = new FormData();
         formData.append("file", fileInput);
-        formData.append("stringDate", '@stringDate'); // Chuỗi ngày chọn từ giao diện (vd: 20260626)
+        formData.append("stringDate", '@stringDate');
 
         if (typeof showLoader === "function") showLoader();
 
         $.ajax({
-            url: '/HourlyTarget/ImportExcel',
+            url: '/HourlyTarget/ImportExcel', // Đường dẫn gọi sang HourlyTarget
             type: 'POST',
             data: formData,
             contentType: false,
             processData: false,
-            // Dùng thuộc tính native của trình duyệt để ép kiểu nhận dữ liệu nhị phân thô
-            xhr: function () {
-                var xhr = new window.XMLHttpRequest();
-                xhr.responseType = 'blob';
-                return xhr;
-            },
-            success: function (blob, status, xhr) {
-                // Đọc Header để biết Server trả về loại dữ liệu nào công nghiệp
-                var contentType = xhr.getResponseHeader("content-type") || "";
-
-                // TRƯỜNG HỢP 1: Server trả về chuỗi JSON (Thành công / Hoặc lỗi nghiệp vụ)
-                if (contentType.toLowerCase().indexOf("json") !== -1) {
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        try {
-                            var res = JSON.parse(reader.result);
-                            if (res.success === true || res.success === "true") {
-                                alert(res.message);
-                                location.reload();
-                            } else {
-                                alert("Thất bại nghiệp vụ: " + res.message);
-                            }
-                        } catch (e) {
-                            alert("Lỗi cấu trúc dữ liệu JSON từ Server.");
-                        }
-                    };
-                    reader.readAsText(blob);
-                }
-                // TRƯỜNG HỢP 2: Server trả về File Excel chứa danh sách các dòng bị lỗi dữ liệu
-                else {
-                    alert("Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng/ngày tháng và đã xuất bản tệp tin Excel kèm ghi chú lỗi tại cột Options.");
-
-                    var link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = "Import_HourlyTarget_Errors.xlsx";
-
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(link.href);
+            dataType: 'json', // Nhận JSON thuần túy chuẩn jQuery truyền thống
+            success: function (res) {
+                if (res.success === true || res.success === "true") {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    // Nếu Backend phát hiện lỗi định dạng và sinh file Excel tạm
+                    if (res.hasExcelError) {
+                        alert(res.message);
+                        // Kích hoạt trình duyệt tự động tải file từ URL tạm về máy Client
+                        window.location.href = res.downloadUrl;
+                    } else {
+                        alert("Thất bại: " + res.message);
+                    }
                 }
             },
             error: function (xhr, status, error) {
-                // Xử lý chống tràn lỗi 200: Nếu kết nối mạng thành công nhưng jQuery vẫn hiểu lầm là error
-                if (xhr.status === 200) {
-                    alert("Import thành công (Xử lý đồng bộ hệ thống)!");
-                    location.reload();
-                    return;
-                }
-
-                console.error("Mã trạng thái HTTP lỗi:", xhr.status);
-                alert("Đã xảy ra lỗi kết nối đường truyền mạng hoặc máy chủ phản hồi lỗi " + xhr.status);
+                console.error("Lỗi hệ thống:", error);
+                alert("Đã xảy ra lỗi máy chủ HourlyTarget (Mã lỗi: " + xhr.status + ").");
             },
             complete: function () {
-                $('#excelFile').val(''); // Reset sạch input file
+                $('#excelFile').val('');
                 if (typeof hideLoader === "function") hideLoader();
             }
         });

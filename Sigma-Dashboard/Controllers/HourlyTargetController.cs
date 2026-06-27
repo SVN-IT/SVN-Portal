@@ -275,17 +275,34 @@ namespace Sigma_Dashboard.Controllers
                         // Nếu có bất kì dòng nào dính lỗi (bao gồm cả lỗi sai Date_time), ngắt tiến trình lưu DB và trả file Excel về ngay
                         if (hasError)
                         {
-                            // Đặt tiêu đề cột lỗi ở dòng 2 (Vì dữ liệu đọc từ dòng 3 nên Header thực tế nằm ở dòng 2)
                             var headerCell = worksheet.Cell(2, 14);
-                            headerCell.Value = "Options (Import Error)";
+                            headerCell.Value = "Options (Chi tiết lỗi Import)";
                             headerCell.Style.Font.SetBold(true).Font.SetFontColor(XLColor.DarkRed);
                             worksheet.Column(14).AdjustToContents();
 
-                            using (var errorStream = new MemoryStream())
+                            // 1. Tạo thư mục tạm "downloads" trong wwwroot trên server nếu chưa có
+                            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
+                            if (!Directory.Exists(folderPath))
                             {
-                                workbook.SaveAs(errorStream);
-                                return File(errorStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Import_HourlyTarget_Errors.xlsx");
+                                Directory.CreateDirectory(folderPath);
                             }
+
+                            // 2. Tạo tên file riêng biệt dựa trên loại Target để không bị đè dữ liệu
+                            // Bạn đổi thành "Import_HourlyTarget_Errors_..." cho bên Hourly Target nhé
+                            string fileName = $"Import_DailyTarget_Errors_{Guid.NewGuid()}.xlsx";
+                            string fullPath = Path.Combine(folderPath, fileName);
+
+                            // 3. Lưu file Excel vật lý xuống Server thật
+                            workbook.SaveAs(fullPath);
+
+                            // 4. TRẢ VỀ JSON BÌNH THƯỜNG TRUYỀN THỐNG (IIS không bao giờ chặn gói tin này)
+                            return Json(new
+                            {
+                                success = false,
+                                hasExcelError = true,
+                                downloadUrl = $"/downloads/{fileName}",
+                                message = "Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin Excel lỗi kèm ghi chú tại cột Options."
+                            });
                         }
                     }
                 }
