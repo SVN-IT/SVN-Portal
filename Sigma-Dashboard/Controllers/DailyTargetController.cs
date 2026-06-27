@@ -145,7 +145,7 @@ namespace Sigma_Dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate, string companyCode)
         {
             try
             {
@@ -258,25 +258,15 @@ namespace Sigma_Dashboard.Controllers
                             headerCell.Style.Font.SetBold(true).Font.SetFontColor(XLColor.DarkRed);
                             worksheet.Column(14).AdjustToContents();
 
-                            // Tạo thư mục tạm "downloads" trên server để chứa file lỗi
-                            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
-                            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-                            // Tạo tên file duy nhất để không bị trùng lặp khi nhiều người dùng cùng nhấn
-                            string fileName = $"Import_Errors_{Guid.NewGuid()}.xlsx";
-                            string fullPath = Path.Combine(folderPath, fileName);
-
-                            // Lưu file Excel lỗi vật lý xuống Server
-                            workbook.SaveAs(fullPath);
-
-                            // TRẢ VỀ JSON BÌNH THƯỜNG chứa đường dẫn file để Ajax kích hoạt download
-                            return Json(new
+                            using (var errorStream = new MemoryStream())
                             {
-                                success = false,
-                                hasExcelError = true,
-                                downloadUrl = $"/downloads/{fileName}",
-                                message = "Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin Excel kèm ghi chú."
-                            });
+                                workbook.SaveAs(errorStream);
+
+                                // TRẢ VỀ FILE TRỰC TIẾP: Trình duyệt tự hiểu và tải file .xlsx về, không đổi trang
+                                return File(errorStream.ToArray(),
+                                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                            "Import_Target_Errors.xlsx");
+                            }
                         }
                     }
                 }
@@ -286,17 +276,31 @@ namespace Sigma_Dashboard.Controllers
                 {
                     var result = await controllerHelper.InsertAndUpdateData(listTargets);
 
-                    return Json(new { success = result.OK, message = result.Message });
+                    if (result.OK)
+                    {
+                        TempData["SuccessMessage"] = result.Message; // "Import dữ liệu thành công!"
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = result.Message;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    return Json(new { success = false, message = ex.Message });
+                    TempData["ErrorMessage"] = "Lỗi hệ thống: " + ex.Message;
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "System error: " + ex.Message });
+                TempData["ErrorMessage"] = "Lỗi hệ thống: " + ex.Message;
             }
+
+            DateTime.TryParseExact(stringDate, "yyyyMMdd",
+                           System.Globalization.CultureInfo.InvariantCulture,
+                           System.Globalization.DateTimeStyles.None,
+                           out DateTime parsedDate);
+
+            return RedirectToAction(nameof(Index), new { date = parsedDate, companyCode = companyCode });
         }
     }
 }

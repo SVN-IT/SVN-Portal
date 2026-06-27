@@ -139,7 +139,7 @@ namespace Sigma_Dashboard.Controllers
         /// 4. XỬ LÝ UPLOAD VÀ PARSE FILE EXCEL (IMPORT EXCEL)
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate, string companyCode)
         {
             if (file == null || file.Length == 0)
             {
@@ -280,29 +280,16 @@ namespace Sigma_Dashboard.Controllers
                             headerCell.Style.Font.SetBold(true).Font.SetFontColor(XLColor.DarkRed);
                             worksheet.Column(14).AdjustToContents();
 
-                            // 1. Tạo thư mục tạm "downloads" trong wwwroot trên server nếu chưa có
-                            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
-                            if (!Directory.Exists(folderPath))
+                            using (var errorStream = new MemoryStream())
                             {
-                                Directory.CreateDirectory(folderPath);
+                                workbook.SaveAs(errorStream);
+
+                                // TRẢ VỀ FILE TRỰC TIẾP TRÊN LUỒNG RESPONSE: 
+                                // Trình duyệt tự động download file "Import_HourlyTarget_Errors.xlsx", giao diện giữ nguyên không đổi trang.
+                                return File(errorStream.ToArray(),
+                                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                            "Import_HourlyTarget_Errors.xlsx");
                             }
-
-                            // 2. Tạo tên file riêng biệt dựa trên loại Target để không bị đè dữ liệu
-                            // Bạn đổi thành "Import_HourlyTarget_Errors_..." cho bên Hourly Target nhé
-                            string fileName = $"Import_DailyTarget_Errors_{Guid.NewGuid()}.xlsx";
-                            string fullPath = Path.Combine(folderPath, fileName);
-
-                            // 3. Lưu file Excel vật lý xuống Server thật
-                            workbook.SaveAs(fullPath);
-
-                            // 4. TRẢ VỀ JSON BÌNH THƯỜNG TRUYỀN THỐNG (IIS không bao giờ chặn gói tin này)
-                            return Json(new
-                            {
-                                success = false,
-                                hasExcelError = true,
-                                downloadUrl = $"/downloads/{fileName}",
-                                message = "Import dữ liệu thất bại! Hệ thống phát hiện dòng dữ liệu sai định dạng và đã xuất bản tệp tin Excel lỗi kèm ghi chú tại cột Options."
-                            });
                         }
                     }
                 }
@@ -311,12 +298,26 @@ namespace Sigma_Dashboard.Controllers
                 // Đến đây toàn bộ listDữLiệu đều trùng khớp Date_time với UI 100%
                 var result = await controllerHelper.InsertAndUpdateData(listHourlyTargets);
 
-                return Json(new { success = result.OK, message = result.Message });
+                if (result.OK)
+                {
+                    TempData["SuccessMessage"] = result.Message; // Gán thông báo thành công
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "System error: " + ex.Message });
+                TempData["ErrorMessage"] = "Lỗi xử lý hệ thống trên Server: " + ex.Message;
             }
+
+            DateTime.TryParseExact(stringDate, "yyyyMMdd",
+                           System.Globalization.CultureInfo.InvariantCulture,
+                           System.Globalization.DateTimeStyles.None,
+                           out DateTime parsedDate);
+
+            return RedirectToAction(nameof(Index), new { date = parsedDate, companyCode = companyCode });
         }
     }
 }

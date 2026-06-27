@@ -264,6 +264,27 @@
                                 <li class="breadcrumb-item active">@titleName</li>
                             </ol>
                         </div><!-- /.col -->
+                        <div class="col-12">
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>🟢 Thành công!</strong> @TempData["SuccessMessage"]
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>🔴 Thất bại!</strong> @TempData["ErrorMessage"]
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     </div><!-- /.row -->
                 </div><!-- /.container-fluid -->
             </div>

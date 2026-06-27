@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Hourly Target";
     string stringDate = ViewBag.stringDate;
-
+    string companyCode = ViewBag.CompanyCode;
     // Khởi tạo biến cờ (Mặc định ban đầu coi như là ngày hiện tại hoặc tương lai)
     bool isToday = true;
 
@@ -40,12 +40,18 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Hourly Target</h3>
 
-            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" onchange="uploadExcel()" />
+            <form action="/HourlyTarget/ImportExcel" method="post" enctype="multipart/form-data" id="importHourlyForm" style="display: none;">
+                <input type="hidden" name="stringDate" value="@stringDate" />
+                <input type="hidden" name="companyCode" value="@companyCode" />
+
+                <input type="file" name="file" id="excelFileHourly" accept=".xlsx, .xls" onchange="handleHourlyFileSubmit()" />
+            </form>
 
             <div class="d-flex ml-auto">
-                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFile').click()" title="Import Excel">
+                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFileHourly').click()">
                     <i class="fas fa-file-import"></i>
                 </button>
+
                 <button type="button" class="btn btn-success" onclick="openCreateModal()">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -338,50 +344,17 @@
         });
     }
 
-    function uploadExcel() {
-        var fileInput = $('#excelFile')[0].files[0];
+    function handleHourlyFileSubmit() {
+        var fileInput = $('#excelFileHourly')[0].files[0];
         if (!fileInput) {
-            alert("Vui lòng chọn một tệp tin Excel trước khi bấm Import.");
-            return;
+            return; // Người dùng hủy chọn file thì không làm gì cả
         }
 
-        var formData = new FormData();
-        formData.append("file", fileInput);
-        formData.append("stringDate", '@stringDate');
-
+        // Hiển thị loader quay quay nếu hệ thống của bạn có cấu hình hàm này
         if (typeof showLoader === "function") showLoader();
 
-        $.ajax({
-            url: '/HourlyTarget/ImportExcel', // Đường dẫn gọi sang HourlyTarget
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            dataType: 'json', // Nhận JSON thuần túy chuẩn jQuery truyền thống
-            success: function (res) {
-                if (res.success === true || res.success === "true") {
-                    alert(res.message);
-                    location.reload();
-                } else {
-                    // Nếu Backend phát hiện lỗi định dạng và sinh file Excel tạm
-                    if (res.hasExcelError) {
-                        alert(res.message);
-                        // Kích hoạt trình duyệt tự động tải file từ URL tạm về máy Client
-                        window.location.href = res.downloadUrl;
-                    } else {
-                        alert("Thất bại: " + res.message);
-                    }
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("Lỗi hệ thống:", error);
-                alert("Đã xảy ra lỗi máy chủ HourlyTarget (Mã lỗi: " + xhr.status + ").");
-            },
-            complete: function () {
-                $('#excelFile').val('');
-                if (typeof hideLoader === "function") hideLoader();
-            }
-        });
+        // Thực hiện submit form truyền thống lên thẳng Server IIS, bypass hoàn toàn AJAX
+        $('#importHourlyForm').submit();
     }
 </script>
 
