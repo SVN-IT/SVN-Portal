@@ -40,7 +40,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Hourly Target</h3>
 
-            <form action="/HourlyTarget/ImportExcel" method="post" enctype="multipart/form-data" id="importHourlyForm" style="display: none;">
+            <form asp-controller="HourlyTarget" asp-action="ImportExcel" method="post" enctype="multipart/form-data" id="importHourlyForm" style="display: none;">
                 <input type="hidden" name="stringDate" value="@stringDate" />
                 <input type="hidden" name="companyCode" value="@companyCode" />
 
