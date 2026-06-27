@@ -40,19 +40,12 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Hourly Target</h3>
 
-            <form asp-controller="HourlyTarget" asp-action="ImportExcel" method="post" enctype="multipart/form-data" id="importHourlyForm" style="display: none;">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="stringDate" value="@stringDate" />
-                <input type="hidden" name="companyCode" value="@companyCode" />
-
-                <input type="file" name="file" id="excelFileHourly" accept=".xlsx, .xls" onchange="handleHourlyFileSubmit()" />
-            </form>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" onchange="uploadExcelWithAjax()" />
 
             <div class="d-flex ml-auto">
-                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFileHourly').click()">
+                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFile').click()">
                     <i class="fas fa-file-import"></i>
                 </button>
-
                 <button type="button" class="btn btn-success" onclick="openCreateModal()">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -345,17 +338,67 @@
         });
     }
 
-    function handleHourlyFileSubmit() {
-        var fileInput = $('#excelFileHourly')[0].files[0];
-        if (!fileInput) {
-            return; // Người dùng hủy chọn file thì không làm gì cả
-        }
+    function uploadExcelWithAjax() {
+        var fileInput = $('#excelFile')[0].files[0];
+        if (!fileInput) return;
 
-        // Hiển thị loader quay quay nếu hệ thống của bạn có cấu hình hàm này
+        var formData = new FormData();
+        formData.append("file", fileInput);
+        formData.append("stringDate", '@stringDate');
+
         if (typeof showLoader === "function") showLoader();
 
-        // Thực hiện submit form truyền thống lên thẳng Server IIS, bypass hoàn toàn AJAX
-        $('#importHourlyForm').submit();
+        $.ajax({
+            url: '/HourlyTarget/ImportExcel', // Hoặc DailyTarget/ImportExcel
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: 'json', // Nhận JSON truyền thống 100%, không lo IIS chặn
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    if (res.hasExcelError) {
+                        alert(res.message);
+
+                        // 🌟 Mẹo đỉnh cao: Trình duyệt tự sinh file Excel từ chuỗi Base64 mà không cần gọi link tải từ Server
+                        var sampleBytes = base64ToArrayBuffer(res.fileBase64);
+                        saveByteArray(res.fileName, sampleBytes);
+                    } else {
+                        alert("Thất bại nghiệp vụ: " + res.message);
+                    }
+                }
+            },
+            error: function (xhr) {
+                alert("Lỗi kết nối Server hạ tầng IIS (Mã lỗi: " + xhr.status + ").");
+            },
+            complete: function () {
+                $('#excelFile').val('');
+                if (typeof hideLoader === "function") hideLoader();
+            }
+        });
+    }
+
+    // ─── HÀM BỔ SUNG ĐỂ GIẢI MÃ BASE64 THÀNH FILE EXCEL NGAY TRÊN TRÌNH DUYỆT CỦA USER ───
+    function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    function saveByteArray(reportName, byte) {
+        var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = reportName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
     }
 </script>
 

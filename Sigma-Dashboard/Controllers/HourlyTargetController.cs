@@ -139,7 +139,7 @@ namespace Sigma_Dashboard.Controllers
         /// 4. XỬ LÝ UPLOAD VÀ PARSE FILE EXCEL (IMPORT EXCEL)
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate, string companyCode)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
         {
             if (file == null || file.Length == 0)
             {
@@ -273,6 +273,7 @@ namespace Sigma_Dashboard.Controllers
                         }
 
                         // Nếu có bất kì dòng nào dính lỗi (bao gồm cả lỗi sai Date_time), ngắt tiến trình lưu DB và trả file Excel về ngay
+                        // ─── NẾU CÓ DÒNG LỖI: Mã hóa file Excel thành chuỗi Base64 ───
                         if (hasError)
                         {
                             var headerCell = worksheet.Cell(2, 14);
@@ -283,12 +284,19 @@ namespace Sigma_Dashboard.Controllers
                             using (var errorStream = new MemoryStream())
                             {
                                 workbook.SaveAs(errorStream);
+                                byte[] fileBytes = errorStream.ToArray();
 
-                                // TRẢ VỀ FILE TRỰC TIẾP TRÊN LUỒNG RESPONSE: 
-                                // Trình duyệt tự động download file "Import_HourlyTarget_Errors.xlsx", giao diện giữ nguyên không đổi trang.
-                                return File(errorStream.ToArray(),
-                                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                            "Import_HourlyTarget_Errors.xlsx");
+                                // Chuyển toàn bộ file Excel thành chuỗi chữ an toàn để nhét vào JSON
+                                string base64File = Convert.ToBase64String(fileBytes);
+
+                                return Json(new
+                                {
+                                    success = false,
+                                    hasExcelError = true,
+                                    fileBase64 = base64File,
+                                    fileName = "Import_HourlyTarget_Errors.xlsx",
+                                    message = "Import dữ liệu thất bại! Hệ thống đã tự động xuất bản tệp tin lỗi."
+                                });
                             }
                         }
                     }
@@ -298,26 +306,12 @@ namespace Sigma_Dashboard.Controllers
                 // Đến đây toàn bộ listDữLiệu đều trùng khớp Date_time với UI 100%
                 var result = await controllerHelper.InsertAndUpdateData(listHourlyTargets);
 
-                if (result.OK)
-                {
-                    TempData["SuccessMessage"] = result.Message; // Gán thông báo thành công
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = result.Message;
-                }
+                return Json(new { success = result.OK, message = result.Message });
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi xử lý hệ thống trên Server: " + ex.Message;
+                return Json(new { success = false, message = "Lỗi Server thật: " + ex.Message });
             }
-
-            DateTime.TryParseExact(stringDate, "yyyyMMdd",
-                           System.Globalization.CultureInfo.InvariantCulture,
-                           System.Globalization.DateTimeStyles.None,
-                           out DateTime parsedDate);
-
-            return RedirectToAction(nameof(Index), new { date = parsedDate, companyCode = companyCode });
         }
     }
 }

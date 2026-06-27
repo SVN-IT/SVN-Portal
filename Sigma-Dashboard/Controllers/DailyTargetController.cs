@@ -145,7 +145,7 @@ namespace Sigma_Dashboard.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate, string companyCode)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
         {
             try
             {
@@ -261,11 +261,19 @@ namespace Sigma_Dashboard.Controllers
                             using (var errorStream = new MemoryStream())
                             {
                                 workbook.SaveAs(errorStream);
+                                byte[] fileBytes = errorStream.ToArray();
 
-                                // TRẢ VỀ FILE TRỰC TIẾP: Trình duyệt tự hiểu và tải file .xlsx về, không đổi trang
-                                return File(errorStream.ToArray(),
-                                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                            "Import_Target_Errors.xlsx");
+                                // Mã hóa mảng byte trên RAM thành chuỗi Base64 an toàn tuyệt đối
+                                string base64File = Convert.ToBase64String(fileBytes);
+
+                                return Json(new
+                                {
+                                    success = false,
+                                    hasExcelError = true,
+                                    fileBase64 = base64File,
+                                    fileName = "Import_DailyTarget_Errors.xlsx",
+                                    message = "Import dữ liệu thất bại! Phát hiện dòng dữ liệu sai định dạng. Hệ thống đã tự động kết xuất tệp Excel ghi chú lỗi."
+                                });
                             }
                         }
                     }
@@ -276,31 +284,17 @@ namespace Sigma_Dashboard.Controllers
                 {
                     var result = await controllerHelper.InsertAndUpdateData(listTargets);
 
-                    if (result.OK)
-                    {
-                        TempData["SuccessMessage"] = result.Message; // "Import dữ liệu thành công!"
-                    }
-                    else
-                    {
-                        TempData["ErrorMessage"] = result.Message;
-                    }
+                    return Json(new { success = result.OK, message = result.Message });
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Lỗi hệ thống: " + ex.Message;
+                    return Json(new { success = false, message = "Lỗi xử lý Server: " + ex.Message });
                 }
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi hệ thống: " + ex.Message;
+                return Json(new { success = false, message = "Lỗi xử lý Server: " + ex.Message });
             }
-
-            DateTime.TryParseExact(stringDate, "yyyyMMdd",
-                           System.Globalization.CultureInfo.InvariantCulture,
-                           System.Globalization.DateTimeStyles.None,
-                           out DateTime parsedDate);
-
-            return RedirectToAction(nameof(Index), new { date = parsedDate, companyCode = companyCode });
         }
     }
 }
