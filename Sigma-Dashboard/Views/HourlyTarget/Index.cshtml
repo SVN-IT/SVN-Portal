@@ -256,7 +256,7 @@
         e.preventDefault();
 
         var isEdit = $('#isEditMode').val() === 'true';
-        var urlAction = isEdit ? '/HourlyTarget/Update' : '/HourlyTarget/Create';
+        var urlAction = isEdit ? '@Url.Action("Update", "HourlyTarget")' : '@Url.Action("Create", "HourlyTarget")';
 
         // LẤY DỮ LIỆU THÔNG MINH: Nếu Edit thì lấy từ ô Text, nếu Create thì lấy từ ô Select
         var finalTypeValue = isEdit ? $('#txtTypeValueText').val() : $('#txtTypeValueSelect').val();
@@ -313,7 +313,7 @@
         if (typeof showLoader === "function") showLoader();
 
         $.ajax({
-            url: '/HourlyTarget/Delete',
+            url: '@Url.Action("Delete", "HourlyTarget")',
             type: 'POST',
             data: {
                 dateTime: dateTime,
@@ -349,7 +349,7 @@
         if (typeof showLoader === "function") showLoader();
 
         $.ajax({
-            url: '/HourlyTarget/ImportExcel', // Hoặc DailyTarget/ImportExcel
+            url: '@Url.Action("ImportExcel", "HourlyTarget")', // Hoặc DailyTarget/ImportExcel
             type: 'POST',
             data: formData,
             contentType: false,

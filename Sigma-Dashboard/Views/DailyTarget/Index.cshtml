@@ -242,7 +242,7 @@
         };
 
         var isEdit = $('#isEditMode').val() === 'true';
-        var url = isEdit ? '/DailyTarget/Edit' : '/DailyTarget/Create';
+        var url = isEdit ? '@Url.Action("Edit", "DailyTarget")' : '@Url.Action("Create", "DailyTarget")';
 
         $.ajax({
             url: url,
@@ -267,7 +267,7 @@
     function deleteTarget(operation, datetime, shift) {
         if (confirm("Bạn có chắc chắn muốn xóa dữ liệu của Operation " + operation + " không?")) {
             $.ajax({
-                url: '/DailyTarget/Delete',
+                url: '@Url.Action("Delete", "DailyTarget")',
                 type: 'POST',
                 data: { operation: operation, datetime: datetime, shift: shift },
                 success: function (res) {
