@@ -140,24 +140,43 @@ namespace Sigma_Dashboard.Controllers
         /// </summary>
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
+        public async Task<IActionResult> ImportExcel([FromBody] ExcelUploadRequest request)
         {
-            if (file == null || file.Length == 0)
+            if (request == null || string.IsNullOrEmpty(request.FileBase64))
             {
-                return Json(new { success = false, message = "Pls choose valid excel file" });
+                return Json(new { success = false, message = "Không nhận được dữ liệu tệp tin từ trình duyệt." });
             }
 
-            // Làm sạch chuỗi ngày truyền từ View vào (bỏ khoảng trắng thừa)
-            stringDate = stringDate?.Trim();
+            // 1. Chuyển chuỗi Base64 ngược về mảng byte thô xử lý trực tiếp trên RAM
+            byte[] fileBytes = Convert.FromBase64String(request.FileBase64);
+
+            // 2. Ép kiểu và kiểm tra ngày tháng an toàn tuyệt đối bằng TryParseExact
+            bool isToday = true;
+            string stringDate = request.StringDate?.Trim();
+            if (DateTime.TryParseExact(stringDate, "yyyyMMdd",
+                                       System.Globalization.CultureInfo.InvariantCulture,
+                                       System.Globalization.DateTimeStyles.None,
+                                       out DateTime parsedDate))
+            {
+                if (parsedDate < DateTime.Today) isToday = false;
+            }
+            else
+            {
+                isToday = false;
+            }
+
+            if (!isToday)
+            {
+                return Json(new { success = false, message = $"Không được phép Import/Cập nhật dữ liệu cho các ngày trong quá khứ (Ngày chọn: {stringDate})." });
+            }
 
             var listHourlyTargets = new List<HourlyTargetViewModel>(); // Khởi tạo list model nhận dữ liệu sạch mang đi Bulk
             bool hasError = false;
 
             try
             {
-                using (var stream = new MemoryStream())
+                using (var stream = new MemoryStream(fileBytes))
                 {
-                    await file.CopyToAsync(stream);
                     using (var workbook = new XLWorkbook(stream))
                     {
                         var worksheet = workbook.Worksheets.First();
@@ -285,10 +304,9 @@ namespace Sigma_Dashboard.Controllers
                             using (var errorStream = new MemoryStream())
                             {
                                 workbook.SaveAs(errorStream);
-                                byte[] fileBytes = errorStream.ToArray();
 
-                                // Chuyển toàn bộ file Excel thành chuỗi chữ an toàn để nhét vào JSON
-                                string base64File = Convert.ToBase64String(fileBytes);
+                                // Biến đổi cấu trúc Workbook lỗi thành chuỗi Base64 an toàn trả về dạng văn bản JSON
+                                string base64File = Convert.ToBase64String(errorStream.ToArray());
 
                                 return Json(new
                                 {
@@ -296,7 +314,7 @@ namespace Sigma_Dashboard.Controllers
                                     hasExcelError = true,
                                     fileBase64 = base64File,
                                     fileName = "Import_HourlyTarget_Errors.xlsx",
-                                    message = "Import dữ liệu thất bại! Hệ thống đã tự động xuất bản tệp tin lỗi."
+                                    message = "Import dữ liệu thất bại! Phát hiện dòng dữ liệu sai định dạng. Hệ thống đã tự động kết xuất tệp ghi chú lỗi chi tiết."
                                 });
                             }
                         }

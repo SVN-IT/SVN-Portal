@@ -40,10 +40,10 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Hourly Target</h3>
 
-            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display: none;" onchange="uploadExcelWithAjax()" />
+            <input type="file" id="excelFileHourly" accept=".xlsx, .xls" style="display: none;" onchange="uploadHourlyExcelWithAjax()" />
 
             <div class="d-flex ml-auto">
-                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFile').click()">
+                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFileHourly').click()">
                     <i class="fas fa-file-import"></i>
                 </button>
                 <button type="button" class="btn btn-success" onclick="openCreateModal()">
@@ -338,51 +338,66 @@
         });
     }
 
-    function uploadExcelWithAjax() {
-        var fileInput = $('#excelFile')[0].files[0];
+    function uploadHourlyExcelWithAjax() {
+        var fileInput = $('#excelFileHourly')[0].files[0];
         if (!fileInput) return;
-
-        var formData = new FormData();
-        formData.append("file", fileInput);
-        formData.append("stringDate", '@stringDate');
 
         if (typeof showLoader === "function") showLoader();
 
-        $.ajax({
-            url: '@Url.Action("ImportExcel", "HourlyTarget")', // Hoặc DailyTarget/ImportExcel
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            dataType: 'json', // Nhận JSON truyền thống 100%, không lo IIS chặn
-            success: function (res) {
-                if (res.success) {
-                    alert(res.message);
-                    location.reload();
-                } else {
-                    if (res.hasExcelError) {
-                        alert(res.message);
+        // Dùng FileReader đọc file Excel thành chuỗi Base64 ngay tại máy Client
+        var reader = new FileReader();
+        reader.readAsDataURL(fileInput);
 
-                        // 🌟 Mẹo đỉnh cao: Trình duyệt tự sinh file Excel từ chuỗi Base64 mà không cần gọi link tải từ Server
-                        var sampleBytes = base64ToArrayBuffer(res.fileBase64);
-                        saveByteArray(res.fileName, sampleBytes);
+        reader.onload = function () {
+            // Tách bỏ cụm mã header đầu chuỗi, chỉ giữ lại nội dung mã hóa Base64 thực tế
+            var base64String = reader.result.split(',')[1]; 
+
+            // Đóng gói dữ liệu thành Object JSON
+            var requestData = {
+                fileBase64: base64String,
+                stringDate: '@stringDate'
+            };
+
+            $.ajax({
+                url: '@Url.Action("ImportExcel", "HourlyTarget")', // Tự sinh URL chuẩn xác theo kiến trúc IIS/Nginx
+                type: 'POST',
+                contentType: 'application/json', // Định dạng dữ liệu truyền đi là JSON String thuần túy
+                data: JSON.stringify(requestData),
+                dataType: 'json',
+                success: function (res) {
+                    if (res.success === true || res.success === "true") {
+                        alert(res.message);
+                        location.reload();
                     } else {
-                        alert("Thất bại nghiệp vụ: " + res.message);
+                        if (res.hasExcelError) {
+                            alert(res.message);
+
+                            // Trình duyệt tự tái tạo file Excel lỗi từ RAM máy Client, bypass hạ tầng Server
+                            var sampleBytes = base64ToArrayBufferHourly(res.fileBase64);
+                            saveByteArrayHourly(res.fileName, sampleBytes);
+                        } else {
+                            alert("Thất bại nghiệp vụ: " + res.message);
+                        }
                     }
+                },
+                error: function (xhr) {
+                    alert("Lỗi kết nối hạ tầng Server IIS (Mã lỗi: " + xhr.status + ").");
+                },
+                complete: function () {
+                    $('#excelFileHourly').val(''); // Reset input file
+                    if (typeof hideLoader === "function") hideLoader();
                 }
-            },
-            error: function (xhr) {
-                alert("Lỗi kết nối Server hạ tầng IIS (Mã lỗi: " + xhr.status + ").");
-            },
-            complete: function () {
-                $('#excelFile').val('');
-                if (typeof hideLoader === "function") hideLoader();
-            }
-        });
+            });
+        };
+
+        reader.onerror = function (error) {
+            alert("Lỗi đọc file từ máy tính Client: " + error);
+            if (typeof hideLoader === "function") hideLoader();
+        };
     }
 
-    // ─── HÀM BỔ SUNG ĐỂ GIẢI MÃ BASE64 THÀNH FILE EXCEL NGAY TRÊN TRÌNH DUYỆT CỦA USER ───
-    function base64ToArrayBuffer(base64) {
+    // Các hàm xử lý dữ liệu nhị phân độc lập cho HourlyTarget (Tránh trùng với Daily)
+    function base64ToArrayBufferHourly(base64) {
         var binaryString = window.atob(base64);
         var binaryLen = binaryString.length;
         var bytes = new Uint8Array(binaryLen);
@@ -392,7 +407,7 @@
         return bytes.buffer;
     }
 
-    function saveByteArray(reportName, byte) {
+    function saveByteArrayHourly(reportName, byte) {
         var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         var link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);

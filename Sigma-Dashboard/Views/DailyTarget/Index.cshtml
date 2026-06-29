@@ -289,48 +289,61 @@
         var fileInput = $('#excelFileDaily')[0].files[0];
         if (!fileInput) return;
 
-        var formData = new FormData();
-        // Tên key bắt buộc phải là "file" viết thường để khớp với Controller
-        formData.append("file", fileInput);
-        formData.append("stringDate", '@stringDate');
-
         if (typeof showLoader === "function") showLoader();
 
-        $.ajax({
-            // Tự động sinh URL chuẩn theo hạ tầng Server (kể cả khi chạy sub-path/Nginx)
-            url: '@Url.Action("ImportExcel", "DailyTarget")', 
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            dataType: 'json', // Nhận JSON thuần túy chữ, IIS thông luồng 100%
-            success: function (res) {
-                if (res.success === true || res.success === "true") {
-                    alert(res.message);
-                    location.reload();
-                } else {
-                    if (res.hasExcelError) {
-                        alert(res.message);
+        // Dùng FileReader đọc file Excel thành chuỗi Base64 ngay tại máy người dùng
+        var reader = new FileReader();
+        reader.readAsDataURL(fileInput);
 
-                        // Trình duyệt tự biên dịch chuỗi Base64 thành file Excel ngay tại máy Client
-                        var sampleBytes = base64ToArrayBufferDaily(res.fileBase64);
-                        saveByteArrayDaily(res.fileName, sampleBytes);
+        reader.onload = function () {
+            // Tách bỏ cụm header "data:application/...;base64," chỉ lấy chuỗi mã hóa phía sau
+            var base64String = reader.result.split(',')[1]; 
+
+            // Đóng gói dữ liệu thành Object JSON thuần túy
+            var requestData = {
+                fileBase64: base64String,
+                stringDate: '@stringDate'
+            };
+
+            $.ajax({
+                url: '@Url.Action("ImportExcel", "DailyTarget")', // Tự sinh URL chuẩn theo hạ tầng IIS/Nginx
+                type: 'POST',
+                contentType: 'application/json', // Ép kiểu dữ liệu truyền đi là JSON String
+                data: JSON.stringify(requestData),
+                dataType: 'json',
+                success: function (res) {
+                    if (res.success === true || res.success === "true") {
+                        alert(res.message);
+                        location.reload();
                     } else {
-                        alert("Thất bại: " + res.message);
+                        if (res.hasExcelError) {
+                            alert(res.message);
+
+                            // Tự dựng lại file Excel lỗi từ bộ nhớ trình duyệt, bypass lỗi download của Server
+                            var sampleBytes = base64ToArrayBufferDaily(res.fileBase64);
+                            saveByteArrayDaily(res.fileName, sampleBytes);
+                        } else {
+                            alert("Thất bại nghiệp vụ: " + res.message);
+                        }
                     }
+                },
+                error: function (xhr) {
+                    alert("Lỗi kết nối hạ tầng Server IIS (Mã lỗi: " + xhr.status + ").");
+                },
+                complete: function () {
+                    $('#excelFileDaily').val(''); // Reset input file
+                    if (typeof hideLoader === "function") hideLoader();
                 }
-            },
-            error: function (xhr) {
-                alert("Lỗi kết nối hạ tầng Server IIS (Mã lỗi: " + xhr.status + ").");
-            },
-            complete: function () {
-                $('#excelFileDaily').val(''); // Reset ô chọn file
-                if (typeof hideLoader === "function") hideLoader();
-            }
-        });
+            });
+        };
+
+        reader.onerror = function (error) {
+            alert("Lỗi đọc file từ máy tính Client: " + error);
+            if (typeof hideLoader === "function") hideLoader();
+        };
     }
 
-    // Hàm giải mã Base64 sang ArrayBuffer dành riêng cho Daily
+    // Các hàm giải mã dữ liệu nhị phân độc lập cho DailyTarget
     function base64ToArrayBufferDaily(base64) {
         var binaryString = window.atob(base64);
         var binaryLen = binaryString.length;
@@ -341,7 +354,6 @@
         return bytes.buffer;
     }
 
-    // Hàm kích hoạt trình duyệt tự download file đệm từ bộ nhớ máy Client
     function saveByteArrayDaily(reportName, byte) {
         var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         var link = document.createElement('a');
