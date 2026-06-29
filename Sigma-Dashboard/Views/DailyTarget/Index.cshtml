@@ -292,7 +292,7 @@
         var formData = new FormData();
         // Tên key bắt buộc phải là "file" viết thường để khớp với Controller
         formData.append("file", fileInput);
-        //formData.append("stringDate", '@stringDate');
+        formData.append("stringDate", '@stringDate');
 
         if (typeof showLoader === "function") showLoader();
 

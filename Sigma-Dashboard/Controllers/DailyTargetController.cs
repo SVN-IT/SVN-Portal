@@ -146,11 +146,10 @@ namespace Sigma_Dashboard.Controllers
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> ImportExcel(IFormFile file)
+        public async Task<IActionResult> ImportExcel(IFormFile file, string stringDate)
         {
             try
             {
-                string stringDate = "20260629";
                 if (file == null || file.Length == 0)
                 {
                     return Json(new { success = false, message = "Pls choose valid excel file" });
