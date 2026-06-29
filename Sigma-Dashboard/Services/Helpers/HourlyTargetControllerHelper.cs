@@ -58,6 +58,7 @@ namespace Sigma_Dashboard.Services.Helpers
         {
             BODataProcessResult processResult = new BODataProcessResult();
             SVN_production_result_v1DataPortal dataPortal = new SVN_production_result_v1DataPortal(connectionString);
+            SVN_Sync_result_DataPortal sync_Result_DataPortal = new SVN_Sync_result_DataPortal(connectionString);
 
             List<SVN_production_result_v1UI> insertData = new List<SVN_production_result_v1UI>();
             SVN_production_result_v1UI typeValueDataUI = new SVN_production_result_v1UI
@@ -139,6 +140,8 @@ namespace Sigma_Dashboard.Services.Helpers
                 {
                     processResult.OK = true;
                     processResult.Message = "Data inserted successfully.";
+
+                    await sync_Result_DataPortal.SyncResult();
                 }
                 else
                 {
@@ -158,6 +161,7 @@ namespace Sigma_Dashboard.Services.Helpers
         {
             BODataProcessResult processResult = new BODataProcessResult();
             SVN_production_result_v1DataPortal dataPortal = new SVN_production_result_v1DataPortal(connectionString);
+            SVN_Sync_result_DataPortal sync_Result_DataPortal = new SVN_Sync_result_DataPortal(connectionString);
 
             List<SVN_production_result_v1UI> updateData = new List<SVN_production_result_v1UI>();
             List<SVN_production_result_v1UI> insertData = new List<SVN_production_result_v1UI>();
@@ -275,6 +279,7 @@ namespace Sigma_Dashboard.Services.Helpers
                     {
                         processResult.Message = "Cập nhật dữ liệu Hourly Target thành công.";
                     }
+                    await sync_Result_DataPortal.SyncResult();
                 }
                 else
                 {
@@ -294,6 +299,8 @@ namespace Sigma_Dashboard.Services.Helpers
         public async Task<BODataProcessResult> DeleteData(string date, string operation, string type_value, string shift)
         {
             BODataProcessResult processResult = new BODataProcessResult();
+            SVN_Sync_result_DataPortal sync_Result_DataPortal = new SVN_Sync_result_DataPortal(connectionString);
+
             SVN_production_result_v1DataPortal dataPortal = new SVN_production_result_v1DataPortal(connectionString);
             try
             {
@@ -309,6 +316,8 @@ namespace Sigma_Dashboard.Services.Helpers
                 {
                     processResult.OK = true;
                     processResult.Message = "Data deleted successfully.";
+
+                    await sync_Result_DataPortal.SyncResult();
                 }
                 else
                 {
@@ -335,6 +344,7 @@ namespace Sigma_Dashboard.Services.Helpers
             }
 
             SVN_production_result_v1DataPortal dataPortal = new SVN_production_result_v1DataPortal(connectionString);
+            SVN_Sync_result_DataPortal sync_Result_DataPortal = new SVN_Sync_result_DataPortal(connectionString);
 
             // Khởi tạo các rổ chứa dữ liệu phân loại sau khi quét
             List<SVN_production_result_v1UI> finalUpdateList = new List<SVN_production_result_v1UI>();
@@ -459,6 +469,8 @@ namespace Sigma_Dashboard.Services.Helpers
                 // Trả về báo cáo tổng hợp số lượng xử lý thực tế
                 processResult.OK = true;
                 processResult.Message = $"Xử lý dữ liệu hoàn tất! Hệ thống đã cập nhật thành công {totalUpdated} bản ghi cũ và thêm mới thành công {totalInserted} bản ghi (bao gồm dữ liệu mới và dòng phụ trợ sinh tự động).";
+
+                await sync_Result_DataPortal.SyncResult();
             }
             catch (Exception ex)
             {
