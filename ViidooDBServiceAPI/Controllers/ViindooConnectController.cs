@@ -1025,6 +1025,11 @@ namespace ViidooDBServiceAPI.Controllers
                         bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công";
                     }
                 }
+                else
+                {
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Không tìm thấy dữ liệu cần đồng bộ";
+                }
             }
             catch (Exception ex)
             {
