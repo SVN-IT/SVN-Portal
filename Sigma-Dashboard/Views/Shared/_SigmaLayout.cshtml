@@ -315,6 +315,44 @@
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
         $.widget.bridge('uibutton', $.ui.button)
+
+        $(document).ready(function () {
+            // 1. TÌM Ô CHECKBOX DARK MODE DỰA TRÊN TEXT "Dark Mode" Ở THẺ SPAN CẠNH NÓ
+            var $darkModeCheckbox = $('span:contains("Dark Mode")').siblings('input[type="checkbox"]');
+
+            // Nếu không tìm thấy bằng cách trên, thử tìm thẻ div bao ngoài theo cấu trúc của AdminLTE
+            if ($darkModeCheckbox.length === 0) {
+                $darkModeCheckbox = $('.mb-4 input[type="checkbox"]').filter(function() {
+                    return $(this).next('span').text().trim() === "Dark Mode";
+                });
+            }
+
+            // 2. KHI VỪA LOAD TRANG: Kiểm tra trạng thái đã lưu trong LocalStorage
+            var savedDarkMode = localStorage.getItem('theme-dark-mode');
+
+            if (savedDarkMode === 'true') {
+                // Nếu trước đó đã bật -> Thêm class dark-mode vào body và tích chọn sẵn ô checkbox
+                $('body').addClass('dark-mode');
+                $darkModeCheckbox.prop('checked', true);
+            } else {
+                // Nếu trước đó tắt (hoặc lần đầu vào trang) -> Gỡ bỏ class và bỏ tích chọn
+                $('body').removeClass('dark-mode');
+                $darkModeCheckbox.prop('checked', false);
+            }
+
+            // 3. KHI NGƯỜI DÙNG CLICK THAY ĐỔI Ô CHECKBOX (BẬT/TẮT)
+            $darkModeCheckbox.on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Người dùng TÍCH CHỌN -> Bật Dark Mode + Lưu 'true' vào LocalStorage
+                    $('body').addClass('dark-mode');
+                    localStorage.setItem('theme-dark-mode', 'true');
+                } else {
+                    // Người dùng BỎ TÍCH -> Tắt Dark Mode + Lưu 'false' vào LocalStorage
+                    $('body').removeClass('none-dark-mode').removeClass('dark-mode');
+                    localStorage.setItem('theme-dark-mode', 'false');
+                }
+            });
+        });
     </script>
     
 
