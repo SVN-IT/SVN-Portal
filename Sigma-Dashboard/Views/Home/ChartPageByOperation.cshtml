@@ -53,6 +53,38 @@
         return status;
     }
 }
+@functions {
+    public string ShortenNameWithCode(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return "";
+
+        fullName = fullName.Trim();
+        string staffCode = "";
+
+        // 1. Kiểm tra xem chuỗi có chứa dấu đóng mở ngoặc đơn của mã NV không
+        if (fullName.Contains("(") && fullName.EndsWith(")"))
+        {
+            int openBracketIndex = fullName.LastIndexOf("(");
+            // Cắt lấy cụm mã nhân viên kèm ngoặc (Ví dụ: " (SVN0005)")
+            staffCode = " " + fullName.Substring(openBracketIndex);
+            // Cắt phần tên đầy đủ phía trước ra để xử lý rút gọn (Ví dụ: "Nguyễn Văn Hướng")
+            fullName = fullName.Substring(0, openBracketIndex).Trim();
+        }
+
+        // 2. Tiến hành rút gọn phần chữ tên như cũ
+        var words = fullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length <= 1) return fullName + staffCode;
+
+        string shortParts = "";
+        for (int i = 0; i < words.Length - 1; i++)
+        {
+            shortParts += words[i].Substring(0, 1).ToUpper() + ".";
+        }
+
+        // 3. Kết quả trả về = Chữ viết tắt + Tên chính + Mã nhân viên ban đầu
+        return shortParts + words[words.Length - 1] + staffCode;
+    }
+}
 <div class="container-fluid">
     <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner">
@@ -163,7 +195,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <strong><img class="line-manager-img" src="@item.PDURL" alt="User Avatar">@item.PDName - <img class="line-manager-img" src="@item.QCURL" alt="User Avatar">@item.QCName</strong>
+                                                        <strong><img class="line-manager-img" src="@item.PDURL" alt="User Avatar">@ShortenNameWithCode(item.PDName) - <img class="line-manager-img" src="@item.QCURL" alt="User Avatar">@ShortenNameWithCode(item.QCName)</strong>
                                                     }
                                                 </p>
 
