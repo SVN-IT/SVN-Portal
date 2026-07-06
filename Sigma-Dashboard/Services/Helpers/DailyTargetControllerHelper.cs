@@ -237,12 +237,12 @@ namespace Sigma_Dashboard.Services.Helpers
                     var insertResult = dataPortal.InsertTargetBulk(InsertTargetData);
                     if (insertResult > 0)
                     {
-                        successMessages.Add($"Thêm mới thành công {InsertTargetData.Count} dòng.");
+                        successMessages.Add($"Insert success {InsertTargetData.Count} rows.");
                     }
                     else
                     {
                         processResult.OK = false;
-                        errorMessages.Add("Lỗi: Không thể thêm mới dữ liệu vào hệ thống.");
+                        errorMessages.Add("Insert failed");
                     }
                 }
 
@@ -253,12 +253,12 @@ namespace Sigma_Dashboard.Services.Helpers
                     var updateResult = dataPortal.UpdateTargetBulk(UpdateTargetData);
                     if (updateResult > 0)
                     {
-                        successMessages.Add($"Cập nhật thành công {UpdateTargetData.Count} dòng.");
+                        successMessages.Add($"Update success {UpdateTargetData.Count} rows.");
                     }
                     else
                     {
                         processResult.OK = false;
-                        errorMessages.Add("Lỗi: Không thể cập nhật dữ liệu vào hệ thống.");
+                        errorMessages.Add("Update failed.");
                     }
                 }
 
@@ -268,7 +268,7 @@ namespace Sigma_Dashboard.Services.Helpers
                     // Trường hợp 1: Tất cả các tác vụ đều thành công 100%
                     processResult.Message = successMessages.Count > 0
                         ? string.Join(" ", successMessages)
-                        : "Không có dữ liệu nào được thay đổi.";
+                        : "Data not change.";
                 }
                 else
                 {

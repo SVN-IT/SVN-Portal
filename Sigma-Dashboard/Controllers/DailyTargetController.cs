@@ -136,7 +136,7 @@ namespace Sigma_Dashboard.Controllers
 
                 var result = await controllerHelper.DeleteData(datetime, operation, shift); 
 
-                return Json(new { success = true, message = "Đã xóa bản ghi thành công!" });
+                return Json(new { success = true, message = "Delete success" });
             }
             catch (Exception ex)
             {
@@ -152,7 +152,7 @@ namespace Sigma_Dashboard.Controllers
             {
                 if (request == null || string.IsNullOrEmpty(request.FileBase64))
                 {
-                    return Json(new { success = false, message = "Không nhận được dữ liệu tệp tin từ Client." });
+                    return Json(new { success = false, message = "Can't get data from Excel file." });
                 }
 
                 // 1. Giải mã chuỗi Base64 ngược thành mảng byte thô trên RAM
@@ -175,7 +175,7 @@ namespace Sigma_Dashboard.Controllers
 
                 if (!isToday)
                 {
-                    return Json(new { success = false, message = $"Không được phép Import dữ liệu quá khứ (Ngày: {stringDate})." });
+                    return Json(new { success = false, message = $"Can't input data for last date (Date: {stringDate})." });
                 }
 
                 var listTargets = new List<DailyTargetViewModel>();
@@ -276,7 +276,7 @@ namespace Sigma_Dashboard.Controllers
                         if (hasError)
                         {
                             var headerCell = worksheet.Cell(2, 10);
-                            headerCell.Value = "Options (Chi tiết lỗi Import)";
+                            headerCell.Value = "Options (Details Import Error)";
                             headerCell.Style.Font.SetBold(true).Font.SetFontColor(XLColor.DarkRed);
                             worksheet.Column(10).AdjustToContents();
 
@@ -293,7 +293,7 @@ namespace Sigma_Dashboard.Controllers
                                     hasExcelError = true,
                                     fileBase64 = base64File,
                                     fileName = "Import_DailyTarget_Errors.xlsx",
-                                    message = "Import thất bại! Phát hiện dữ liệu sai định dạng trong tệp. Hệ thống đang tự động kết xuất tệp chi tiết lỗi."
+                                    message = "Import failed! data invalid. System will export details error file."
                                 });
                             }
                         }
@@ -309,12 +309,12 @@ namespace Sigma_Dashboard.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return Json(new { success = false, message = "Lỗi xử lý Server: " + ex.Message });
+                    return Json(new { success = false, message = "System error: " + ex.Message });
                 }
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi xử lý Server: " + ex.Message });
+                return Json(new { success = false, message = "System error: " + ex.Message });
             }
         }
     }

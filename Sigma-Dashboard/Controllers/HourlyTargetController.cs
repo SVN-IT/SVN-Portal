@@ -144,7 +144,7 @@ namespace Sigma_Dashboard.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.FileBase64))
             {
-                return Json(new { success = false, message = "Không nhận được dữ liệu tệp tin từ trình duyệt." });
+                return Json(new { success = false, message = "Can't get data from Excel file." });
             }
 
             // 1. Chuyển chuỗi Base64 ngược về mảng byte thô xử lý trực tiếp trên RAM
@@ -167,7 +167,7 @@ namespace Sigma_Dashboard.Controllers
 
             if (!isToday)
             {
-                return Json(new { success = false, message = $"Không được phép Import/Cập nhật dữ liệu cho các ngày trong quá khứ (Ngày chọn: {stringDate})." });
+                return Json(new { success = false, message = $"Can't input data for last date (Date: {stringDate})." });
             }
 
             var listHourlyTargets = new List<HourlyTargetViewModel>(); // Khởi tạo list model nhận dữ liệu sạch mang đi Bulk
@@ -297,7 +297,7 @@ namespace Sigma_Dashboard.Controllers
                         if (hasError)
                         {
                             var headerCell = worksheet.Cell(2, 14);
-                            headerCell.Value = "Options (Chi tiết lỗi Import)";
+                            headerCell.Value = "Options (Details Import Error)";
                             headerCell.Style.Font.SetBold(true).Font.SetFontColor(XLColor.DarkRed);
                             worksheet.Column(14).AdjustToContents();
 
@@ -314,7 +314,7 @@ namespace Sigma_Dashboard.Controllers
                                     hasExcelError = true,
                                     fileBase64 = base64File,
                                     fileName = "Import_HourlyTarget_Errors.xlsx",
-                                    message = "Import dữ liệu thất bại! Phát hiện dòng dữ liệu sai định dạng. Hệ thống đã tự động kết xuất tệp ghi chú lỗi chi tiết."
+                                    message = "Import failed! data invalid. System will export details error file."
                                 });
                             }
                         }
@@ -329,7 +329,7 @@ namespace Sigma_Dashboard.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi Server thật: " + ex.Message });
+                return Json(new { success = false, message = "System error: " + ex.Message });
             }
         }
     }

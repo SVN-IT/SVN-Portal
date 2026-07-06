@@ -255,17 +255,17 @@
                     $('#targetModal').modal('hide');
                     location.reload();
                 } else {
-                    alert("Lỗi: " + res.message);
+                    alert("System error: " + res.message);
                 }
             },
             error: function () {
-                alert("Đã xảy ra lỗi kết nối mạng.");
+                alert("Connection error.");
             }
         });
     });
 
     function deleteTarget(operation, datetime, shift) {
-        if (confirm("Bạn có chắc chắn muốn xóa dữ liệu của Operation " + operation + " không?")) {
+        if (confirm("Are you sure to delete data for Operation " + operation + " ?")) {
             $.ajax({
                 url: '@Url.Action("Delete", "DailyTarget")',
                 type: 'POST',
@@ -275,11 +275,11 @@
                         alert(res.message);
                         $('#row_' + operation).remove();
                     } else {
-                        alert("Lỗi: " + res.message);
+                        alert("Error: " + res.message);
                     }
                 },
                 error: function () {
-                    alert("Không thể thực hiện lệnh xóa.");
+                    alert("Delete failed.");
                 }
             });
         }
@@ -323,12 +323,12 @@
                             var sampleBytes = base64ToArrayBufferDaily(res.fileBase64);
                             saveByteArrayDaily(res.fileName, sampleBytes);
                         } else {
-                            alert("Thất bại nghiệp vụ: " + res.message);
+                            alert("Error: " + res.message);
                         }
                     }
                 },
                 error: function (xhr) {
-                    alert("Lỗi kết nối hạ tầng Server IIS (Mã lỗi: " + xhr.status + ").");
+                    alert("System error (Error code: " + xhr.status + ").");
                 },
                 complete: function () {
                     $('#excelFileDaily').val(''); // Reset input file
@@ -338,7 +338,7 @@
         };
 
         reader.onerror = function (error) {
-            alert("Lỗi đọc file từ máy tính Client: " + error);
+            alert("Import file error: " + error);
             if (typeof hideLoader === "function") hideLoader();
         };
     }

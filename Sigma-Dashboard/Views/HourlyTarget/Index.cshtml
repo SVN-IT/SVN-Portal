@@ -288,11 +288,11 @@
                     alert(res.message);
                     location.reload();
                 } else {
-                    alert("Thất bại: " + res.message);
+                    alert("System error: " + res.message);
                 }
             },
             error: function () {
-                alert("Đã xảy ra lỗi hệ thống khi xử lý dữ liệu.");
+                alert("Connection error.");
             },
             complete: function () {
                 if (typeof hideLoader === "function") hideLoader();
@@ -306,7 +306,7 @@
         var shift = $(btn).data('shift');
         var typeValue = $(btn).data('typevalue'); // jQuery tự động xử lý dấu nháy đơn an toàn ở đây
 
-        if (!confirm("Bạn có chắc chắn muốn xóa bản ghi [" + typeValue + "] thuộc công đoạn " + operation + " không?")) {
+        if (!confirm("Are you sure to delete data [" + typeValue + "] for operation " + operation + " ?")) {
             return;
         }
 
@@ -326,11 +326,11 @@
                     alert(res.message);
                     location.reload();
                 } else {
-                    alert("Xóa thất bại: " + res.message);
+                    alert("Error: " + res.message);
                 }
             },
             error: function () {
-                alert("Hệ thống đường truyền gặp sự cố khi thực hiện lệnh xóa.");
+                alert("Delete failed.");
             },
             complete: function () {
                 if (typeof hideLoader === "function") hideLoader();
@@ -376,12 +376,12 @@
                             var sampleBytes = base64ToArrayBufferHourly(res.fileBase64);
                             saveByteArrayHourly(res.fileName, sampleBytes);
                         } else {
-                            alert("Thất bại nghiệp vụ: " + res.message);
+                            alert("Error: " + res.message);
                         }
                     }
                 },
                 error: function (xhr) {
-                    alert("Lỗi kết nối hạ tầng Server IIS (Mã lỗi: " + xhr.status + ").");
+                    alert("System error (Error code: " + xhr.status + ").");
                 },
                 complete: function () {
                     $('#excelFileHourly').val(''); // Reset input file
@@ -391,7 +391,7 @@
         };
 
         reader.onerror = function (error) {
-            alert("Lỗi đọc file từ máy tính Client: " + error);
+            alert("Import file error: " + error);
             if (typeof hideLoader === "function") hideLoader();
         };
     }

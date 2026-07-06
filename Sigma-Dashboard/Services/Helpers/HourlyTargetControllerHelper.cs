@@ -194,7 +194,7 @@ namespace Sigma_Dashboard.Services.Helpers
                 if (existingData == null)
                 {
                     processResult.OK = false;
-                    processResult.Message = $"Không tìm thấy dữ liệu của Công đoạn '{viewModel.Operation}' ngày '{viewModel.Date_time}' ca '{viewModel.Shift}' loại '{viewModel.Type_value}' để cập nhật.";
+                    processResult.Message = $"No existing data found for Operation '{viewModel.Operation}' on Date '{viewModel.Date_time}' Shift '{viewModel.Shift}' Type '{viewModel.Type_value}'.";
                     return processResult;
                 }
 
@@ -273,24 +273,24 @@ namespace Sigma_Dashboard.Services.Helpers
                     processResult.OK = true;
                     if (rowsInserted > 0)
                     {
-                        processResult.Message = $"Cập nhật thành công dòng dữ liệu chính và tự động tạo mới {rowsInserted} dòng cấu hình phụ trợ hệ thống.";
+                        processResult.Message = $"Update data success and auto cupdate {rowsInserted} system rows.";
                     }
                     else
                     {
-                        processResult.Message = "Cập nhật dữ liệu Hourly Target thành công.";
+                        processResult.Message = "Update success.";
                     }
                     await sync_Result_DataPortal.SyncResult();
                 }
                 else
                 {
                     processResult.OK = false;
-                    processResult.Message = "Quá trình cập nhật dữ liệu thất bại, không có dòng nào được thay đổi dưới DB.";
+                    processResult.Message = "Failed to update data.";
                 }
             }
             catch (Exception ex)
             {
                 processResult.OK = false;
-                processResult.Message = $"Đã xảy ra lỗi trong tiến trình xử lý DB (Update/Insert): {ex.Message}";
+                processResult.Message = $"Error updating data: {ex.Message}";
             }
 
             return processResult;
@@ -339,7 +339,7 @@ namespace Sigma_Dashboard.Services.Helpers
             if (listViewModels == null || !listViewModels.Any())
             {
                 processResult.OK = true;
-                processResult.Message = "Không có dữ liệu nào cần xử lý.";
+                processResult.Message = "Data not exist.";
                 return processResult;
             }
 
@@ -468,14 +468,14 @@ namespace Sigma_Dashboard.Services.Helpers
 
                 // Trả về báo cáo tổng hợp số lượng xử lý thực tế
                 processResult.OK = true;
-                processResult.Message = $"Xử lý dữ liệu hoàn tất! Hệ thống đã cập nhật thành công {totalUpdated} bản ghi cũ và thêm mới thành công {totalInserted} bản ghi (bao gồm dữ liệu mới và dòng phụ trợ sinh tự động).";
+                processResult.Message = $"Update success {totalUpdated} rows and update success {totalInserted} rows.";
 
                 await sync_Result_DataPortal.SyncResult();
             }
             catch (Exception ex)
             {
                 processResult.OK = false;
-                processResult.Message = $"Gặp sự cố lỗi trong quá trình đồng bộ dữ liệu Bulk: {ex.Message}";
+                processResult.Message = $"System error: {ex.Message}";
             }
 
             return processResult;
