@@ -2552,10 +2552,10 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
   },
   {
-    "Operation": "TG3PU-FG-TRO-CE-0006-00",
+    "Operation": "Toast-FG-TRO-CE-0006-00",
     "Name": "",
     "Price": 8.76,
-    "MasterOperation": "TG3PU",
+    "MasterOperation": "Toast",
     "WCType": "FG",
     "WC": [
       {
@@ -2564,7 +2564,7 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 9,
+    "StoreID": 7,
     "Produce_id": [
       1317
     ],
@@ -2598,10 +2598,10 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
   },
   {
-    "Operation": "TG3PU-WSS03-00453",
+    "Operation": "Toast-WSS03-00453",
     "Name": "",
     "Price": 0,
-    "MasterOperation": "TG3PU",
+    "MasterOperation": "Toast",
     "WCType": "WIP",
     "WC": [
       {
@@ -2610,7 +2610,7 @@
         "Top_row": 5
       }
     ],
-    "StoreID": 9,
+    "StoreID": 7,
     "Produce_id": [
       1342
     ],
@@ -3200,6 +3200,56 @@
     "Name": "Sakura Folio Case,Midnight Blue,RM15A-1000NW",
     "Price": 0,
     "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1257
+    ],
+    "ColWidth": 4,
+    "QCName": "胡雄",
+    "PDName": "寇林林",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1095/39bb1936-fe2a-47ac-9da9-a94f2f98f6b9",
+    "PDURL": "https://sigmaworldwide.io/en/document/share/content/1023/f311ad70-cb7d-4fa0-9dc9-a5a8a1bb98bd",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
+  },
+  {
+    "Operation": "AirPods_Pro_4(SM)",
+    "Name": "AirPods_Pro_4(SM)",
+    "Price": 0,
+    "MasterOperation": "AirPods_Pro_4(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1257
+    ],
+    "ColWidth": 4,
+    "QCName": "胡雄",
+    "PDName": "寇林林",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1095/39bb1936-fe2a-47ac-9da9-a94f2f98f6b9",
+    "PDURL": "https://sigmaworldwide.io/en/document/share/content/1023/f311ad70-cb7d-4fa0-9dc9-a5a8a1bb98bd",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
+  },
+  {
+    "Operation": "Monza_Stylus_Cover(SM)",
+    "Name": "Monza Stylus Cover(SM)",
+    "Price": 0,
+    "MasterOperation": "Monza_Stylus_Cover(SM)",
     "WCType": "FG",
     "WC": [
       {
