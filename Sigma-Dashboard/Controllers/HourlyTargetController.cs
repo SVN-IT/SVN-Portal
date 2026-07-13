@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Sigma_Dashboard.Models;
 using Sigma_Dashboard.Services.Configurations;
 using Sigma_Dashboard.Services.Helpers;
+using SVNShareLib;
+using System.Threading.Tasks;
 
 namespace Sigma_Dashboard.Controllers
 {
@@ -10,10 +12,13 @@ namespace Sigma_Dashboard.Controllers
     {
         AppConfig appConfig;
         HourlyTargetControllerHelper controllerHelper;
-        public HourlyTargetController(AppConfig appConfig, HourlyTargetControllerHelper controllerHelper)
+        DailyTargetControllerHelper dailyTargetControllerHelper;
+        public HourlyTargetController(AppConfig appConfig, HourlyTargetControllerHelper controllerHelper, 
+            DailyTargetControllerHelper dailyTargetControllerHelper)
         {
             this.appConfig = appConfig;
             this.controllerHelper = controllerHelper;
+            this.dailyTargetControllerHelper = dailyTargetControllerHelper;
         }
         public async Task<IActionResult> Index(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
@@ -88,6 +93,11 @@ namespace Sigma_Dashboard.Controllers
         {
             try
             {
+                var validationResult = await ValidUpdateData(model);
+                if (!validationResult.OK)
+                {
+                    return Json(new { success = false, message = validationResult.Message });
+                }
                 // Đồng bộ ép các trường không có trong bảng về giá trị an toàn/mặc định dưới DB
                 model.Forecast = 0;
                 model.WORunning = "";
@@ -109,6 +119,11 @@ namespace Sigma_Dashboard.Controllers
         {
             try
             {
+                var validationResult = await ValidUpdateData(model);
+                if (!validationResult.OK)
+                {
+                    return Json(new { success = false, message = validationResult.Message });
+                }
                 var result = await controllerHelper.UpdateData(model);
                 return Json(new { success = result.OK, message = result.Message });
             }
@@ -249,15 +264,35 @@ namespace Sigma_Dashboard.Controllers
                             }
 
                             // Ép kiểu dữ liệu số an toàn
-                            double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, achieve = 0;
+                            int t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0; 
+                            double achieve = 0;
 
-                            if (!string.IsNullOrWhiteSpace(t1Raw) && !double.TryParse(t1Raw, out t1)) rowErrors.Add("Time1 pls input number.");
-                            if (!string.IsNullOrWhiteSpace(t2Raw) && !double.TryParse(t2Raw, out t2)) rowErrors.Add("Time2 pls input number.");
-                            if (!string.IsNullOrWhiteSpace(t3Raw) && !double.TryParse(t3Raw, out t3)) rowErrors.Add("Time3 pls input number.");
-                            if (!string.IsNullOrWhiteSpace(t4Raw) && !double.TryParse(t4Raw, out t4)) rowErrors.Add("Time4 pls input number.");
-                            if (!string.IsNullOrWhiteSpace(t5Raw) && !double.TryParse(t5Raw, out t5)) rowErrors.Add("Time5 pls input number.");
-                            if (!string.IsNullOrWhiteSpace(t6Raw) && !double.TryParse(t6Raw, out t6)) rowErrors.Add("Time6 pls input number.");
+                            if (!string.IsNullOrWhiteSpace(t1Raw) && !int.TryParse(t1Raw, out t1)) rowErrors.Add("Time1 pls input integer.");
+                            if (!string.IsNullOrWhiteSpace(t2Raw) && !int.TryParse(t2Raw, out t2)) rowErrors.Add("Time2 pls input integer.");
+                            if (!string.IsNullOrWhiteSpace(t3Raw) && !int.TryParse(t3Raw, out t3)) rowErrors.Add("Time3 pls input integer.");
+                            if (!string.IsNullOrWhiteSpace(t4Raw) && !int.TryParse(t4Raw, out t4)) rowErrors.Add("Time4 pls input integer.");
+                            if (!string.IsNullOrWhiteSpace(t5Raw) && !int.TryParse(t5Raw, out t5)) rowErrors.Add("Time5 pls input integer.");
+                            if (!string.IsNullOrWhiteSpace(t6Raw) && !int.TryParse(t6Raw, out t6)) rowErrors.Add("Time6 pls input integer.");
                             if (!string.IsNullOrWhiteSpace(achieveRaw) && !double.TryParse(achieveRaw, out achieve)) rowErrors.Add("Achieve pls input number.");
+
+                            if(typeValue == "Target")
+                            {
+                                // Nếu Type_value = Target thì các giá trị Time1..Time6 phải >= 0
+                                if (t1 < 0 || t2 < 0 || t3 < 0 || t4 < 0 || t5 < 0 || t6 < 0)
+                                {
+                                    rowErrors.Add("Values must be non-negative.");
+                                }
+                                var dallyTotal = t1 + t2 + t3 + t4 + t5 + t6;
+                                var dailyTarget = await dailyTargetControllerHelper.GetDailyTargetByDateAndOperation(dateTime, operation, shift);
+                                if (dailyTarget != null && !string.IsNullOrWhiteSpace(dailyTarget.Operation) && dallyTotal != dailyTarget.Daily_plan)
+                                {
+                                    rowErrors.Add($"Total hourly target ({dallyTotal}) exceeds daily target ({dailyTarget.Daily_plan}).");
+                                }
+                                if (dailyTarget == null || (dailyTarget != null && string.IsNullOrWhiteSpace(dailyTarget.Operation)))
+                                {
+                                    rowErrors.Add($"Daily target not found for operation {operation} on date {dateTime}. Pls insert Daily Target firt.");
+                                }
+                            }
 
                             // ─── XỬ LÝ GHI FILE LỖI NẾU CÓ DÒNG THẤT BẠI ───
                             if (rowErrors.Any())
@@ -331,6 +366,60 @@ namespace Sigma_Dashboard.Controllers
             {
                 return Json(new { success = false, message = "System error: " + ex.Message });
             }
+        }
+
+        private async Task<BODataProcessResult> ValidUpdateData(HourlyTargetViewModel model)
+        {
+            var result = new BODataProcessResult();
+            result.OK = true;
+            if (string.IsNullOrWhiteSpace(model.Operation))
+            {
+                result.OK = false;
+                result.Message = "Operation is empty.";
+                return result;
+            }
+            if (string.IsNullOrWhiteSpace(model.Type_value))
+            {
+                result.OK = false;
+                result.Message = "Type_value is empty.";
+                return result;
+            }
+            if (string.IsNullOrWhiteSpace(model.Date_time))
+            {
+                result.OK = false;
+                result.Message = "Date_time is empty.";
+                return result;
+            }
+            if (string.IsNullOrWhiteSpace(model.Shift))
+            {
+                result.OK = false;
+                result.Message = "Shift is empty.";
+                return result;
+            }
+            if (model.Type_value == "Target")
+            {
+                if (model.Time1 < 0 || model.Time2 < 0 || model.Time3 < 0 || model.Time4 < 0 || model.Time5 < 0 || model.Time6 < 0)
+                {
+                    result.OK = false;
+                    result.Message = "Values must be non-negative.";
+                    return result;
+                }
+                var dallyTotal = model.Time1 + model.Time2 + model.Time3 + model.Time4 + model.Time5 + model.Time6;
+                var dailyTarget = await dailyTargetControllerHelper.GetDailyTargetByDateAndOperation(model.Date_time, model.Operation, model.Shift);
+                if (dailyTarget != null && !string.IsNullOrWhiteSpace(dailyTarget.Operation) && dallyTotal != dailyTarget.Daily_plan)
+                {
+                    result.OK = false;
+                    result.Message = $"Total hourly target ({dallyTotal}) exceeds daily target ({dailyTarget.Daily_plan}).";
+                    return result;
+                }
+                if(dailyTarget == null || (dailyTarget != null && string.IsNullOrWhiteSpace(dailyTarget.Operation)))
+                {
+                    result.OK = false;
+                    result.Message = $"Daily target not found for operation {model.Operation} on date {model.Date_time}.  Pls insert Daily Target firt.";
+                    return result;
+                }
+            }
+            return result;
         }
     }
 }

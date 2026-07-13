@@ -48,6 +48,36 @@ namespace Sigma_Dashboard.Services.Helpers
             return dailyTargetData;
         }
 
+        public async Task<DailyTargetViewModel> GetDailyTargetByDateAndOperation(string date_Time, string operation, string shift)
+        {
+            DailyTargetViewModel dailyTargetData = new DailyTargetViewModel();
+            SVN_Target_v1DataPortal dataPortal = new SVN_Target_v1DataPortal(connectionString);
+            try
+            {
+                var svnTargetData = await dataPortal.ReadTargetByDateAndOperation(date_Time, operation, shift);
+                if (svnTargetData != null)
+                {
+                    dailyTargetData = new DailyTargetViewModel
+                    {
+                        Operation = svnTargetData.Operation,
+                        Daily_plan = svnTargetData.Daily_plan,
+                        UPH = svnTargetData.UPH,
+                        UPPH = svnTargetData.UPPH,
+                        Labor = svnTargetData.Labor,
+                        Date_time = svnTargetData.Date_time,
+                        Defect = svnTargetData.Defect,
+                        Workingtime = svnTargetData.Workingtime,
+                        Shift = !string.IsNullOrWhiteSpace(svnTargetData.Shift) ? svnTargetData.Shift.Trim() : shift
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and log errors as needed
+            }
+            return dailyTargetData;
+        }
+
         public async Task<BODataProcessResult> InsertData(DailyTargetViewModel viewModel)
         {
             BODataProcessResult processResult = new BODataProcessResult();
