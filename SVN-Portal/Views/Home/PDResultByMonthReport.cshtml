@@ -23,7 +23,7 @@
                             <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
                         <div class="col-3">
-                            <button type="submit" asp-action="PDResultByMonthReport" class="btn btn-primary">
+                            <button type="submit" asp-action="PDResultByMonthReport" asp-route-companyCode="@ViewBag.CompanyCode" class="btn btn-primary">
                                 Search
                             </button>
                         </div>

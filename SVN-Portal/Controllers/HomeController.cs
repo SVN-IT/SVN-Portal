@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -52,7 +53,7 @@ namespace SVN_Portal.Controllers
             this.aPIConfiguration = aPIConfiguration;
         }
 
-        public async Task<IActionResult> Index(DateTime date)
+        public async Task<IActionResult> Index(DateTime date, string shift = "Day", string companyCode = "SVN")
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
@@ -67,9 +68,18 @@ namespace SVN_Portal.Controllers
                 ViewBag.date = date;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, 7);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -79,6 +89,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                 }
@@ -102,11 +113,15 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResult(DateTime date)
+        public async Task<IActionResult> ProductionResult(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
             {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -114,12 +129,48 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
+
+                if (!isManualLoad)
+                {
+                    if (date.Hour >= 20)
+                    {
+                        shift = "Night";
+                    }
+                    else
+                    {
+                        shift = "Day";
+                    }
+                }
+
                 ViewBag.date = date;
+                ViewBag.shift = shift;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, hours);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -129,21 +180,40 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
 
-                    models = models
-                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
-                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
-                    .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
-                    .ThenBy(x => x.Line)
-                    .ThenBy(x => x.ViewModels
-                        .Where(i => i.Target != 0)
-                        .Select(i => GetStartTime(i.Time))
-                        .DefaultIfEmpty(TimeSpan.MaxValue)
-                        .Min())
-                    .ToList();
+                    if (companyCode == "ITA")
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Line != 0))
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
+                    else
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
                 }
 
                 var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
@@ -154,7 +224,7 @@ namespace SVN_Portal.Controllers
                     
                     int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
                     //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
-                    int arrangeQty = ArrangingNumber(models);
+                    int arrangeQty = ArrangingNumber(models, curSectionList);
 
                     decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
 
@@ -182,12 +252,17 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ProductionResultV1(DateTime date)
+        public async Task<IActionResult> ProductionResultV1(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
             {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
+
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -195,12 +270,208 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
+
+                if (!isManualLoad)
+                {
+                    if (date.Hour >= 20)
+                    {
+                        shift = "Night";
+                    }
+                    else
+                    {
+                        shift = "Day";
+                    }
+                }
+                
+
                 ViewBag.date = date;
+                ViewBag.shift = shift;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                //if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SM")
+                //{
+                //    opers = opers.Where(x => x.Operation.Contains("SM")).ToList();
+                //    ViewBag.NextCompany = "SVN";
+                //}
+                //else if (!string.IsNullOrWhiteSpace(companyCode) && companyCode == "SVN")
+                //{
+                //    opers = opers.Where(x => !x.Operation.Contains("SM")).ToList();
+                //    ViewBag.NextCompany = "SM";
+                //}
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, hours);
+                if (models != null && models.Count > 0)
+                {
+                    foreach (var model in models)
+                    {
+                        var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        if (userInfo != null)
+                        {
+                            model.PDName = userInfo.PDName;
+                            model.QCName = userInfo.QCName;
+                        }
+                    }
+                    models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
+                    if(companyCode == "ITA")
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Line != 0))
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
+                    else
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) == x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.ViewModels.Sum(i => i.Line) > x.ViewModels.Sum(i => i.Target))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }  
+
+                    //chuẩn bị xong nguyên liệu, bây giờ thì cook :)))
+                    int pageSize = 9;
+                    for (int i = 0; i < models.Count; i += pageSize)
+                    {
+                        var slide = new QtyPDByOperVMPerSlide();
+
+                        slide.OperViewModels = models
+                            .Skip(i)
+                            .Take(pageSize)
+                            .ToList();
+
+                        qtyPDByOperVMPerSlides.Add(slide);
+                    }
+                }
+
+                var compareDataPortal = new SVN_Compare_peopleDataPortal(connectionString);
+                var compareUI = await compareDataPortal.ReadList(strdate);
+
+                if (compareUI != null && compareUI.Count > 0)
+                {
+
+                    int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
+                    //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
+                    int arrangeQty = ArrangingNumber(models, curSectionList);
+
+                    decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
+
+                    string comparePeople = "👷‍👷‍ Check-in: " + checkingQty + " /Arranging: " + arrangeQty + " /Rate: " + rate + "%";
+                    ViewBag.ComparePeople = comparePeople;
+                }
+
+                return View(qtyPDByOperVMPerSlides);
+            }
+            catch (Exception ex)
+            {
+                List<QtyPDByOperVMPerSlide> vMPerSlides = new List<QtyPDByOperVMPerSlide>();
+                return View(vMPerSlides);
+
+            }
+        }
+
+        /// <summary>
+        /// dashboard thêm phần chia biểu đồ ra các slide
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> ProductionResultV2(DateTime date, string shift = "Day", string companyCode = "SM", bool isManualLoad = false)
+        {
+            List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
+            List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            var targetDataPortal = new SVN_TargetDataPortal(connectionString);
+            int addHours = await GetAddHourByCompanyCode(companyCode);
+            var synchResult = await targetDataPortal.ExecuteSyncProduction(addHours);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
+
+                string storedProceduce = "SVN_Pro_CalTarget_New_Table_Viindoo";
+                string strdate = "20241220";
+                string tableName = "SVN_Production_result_ViindooV1";
+                if (date == DateTime.MinValue)
+                {
+                    date = DateTime.Now;
+                }
+
+                if (!isManualLoad)
+                {
+                    if (date.Hour >= 20)
+                    {
+                        shift = "Night";
+                    }
+                    else
+                    {
+                        shift = "Day";
+                    }
+                }
+
+                ViewBag.date = date;
+                ViewBag.shift = shift;
+                strdate = date.ToString("yyyyMMdd");
+                //List<string> opers = appConfig.OperList.Split(",").ToList();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, hours);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -249,7 +520,7 @@ namespace SVN_Portal.Controllers
 
                     int checkingQty = compareUI.Where(x => x.type_value == "Qty_check_in").Sum(x => x.Qty);
                     //int arrangeQty = compareUI.Where(x => x.type_value == "PD_arrange").Sum(x => x.Qty);
-                    int arrangeQty = ArrangingNumber(models);
+                    int arrangeQty = ArrangingNumber(models, curSectionList);
 
                     decimal rate = checkingQty != 0 ? arrangeQty * 100 / checkingQty : 0;
 
@@ -296,7 +567,7 @@ namespace SVN_Portal.Controllers
 
 
 
-        public async Task<IActionResult> ChartPerOper(DateTime date, string oper)
+        public async Task<IActionResult> ChartPerOper(DateTime date, string oper, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
@@ -308,14 +579,49 @@ namespace SVN_Portal.Controllers
                 {
                     date = DateTime.Now;
                 }
+
+                if (!isManualLoad)
+                {
+                    if (date.Hour >= 20)
+                    {
+                        shift = "Night";
+                    }
+                    else
+                    {
+                        shift = "Day";
+                    }
+                }
+
                 ViewBag.date = date;
+                ViewBag.shift = shift;
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
                 opers = opers.Where(x => x.Operation == oper).ToList();
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, hours);
                 if (models.Count > 0)
                 {
                     foreach (var model in models)
@@ -325,6 +631,7 @@ namespace SVN_Portal.Controllers
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                     }
                 }
@@ -355,6 +662,11 @@ namespace SVN_Portal.Controllers
             var finalCurrency = "USD";
             try
             {
+                if (string.IsNullOrWhiteSpace(companyCode))
+                {
+                    companyCode = appConfig.DefaultCompany;
+                }
+
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string strdate = "20241220";
                 string tableName = "SVN_Production_result_Viindoo";
@@ -369,8 +681,21 @@ namespace SVN_Portal.Controllers
 
                 //Thay đổi đọc setting từ csdl
                 List<OperInfo> opers = operInfo.OperInfo;
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
                 {
                     pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
@@ -412,13 +737,13 @@ namespace SVN_Portal.Controllers
                 var yesterday = date.AddDays(-1);
                 string stryesterday = yesterday.ToString("yyyyMMdd");
                 List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
-                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
 
                 while(previousmodels == null || previousmodels.Count == 0)
                 {
                     yesterday = yesterday.AddDays(-1);
                     stryesterday = yesterday.ToString("yyyyMMdd");
-                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 }
                 if(previousmodels != null && previousmodels.Count > 0)
                 {
@@ -452,7 +777,7 @@ namespace SVN_Portal.Controllers
                 var yearlyTarget = await svnTargetDataPortal.ReadListTargetByDate(companyStartDate, currentDate);
                 if(yearlyTarget != null)
                 {
-                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfoConfig, localCurrency, vndRate);
+                    var costYearlyResult = GetCostPerYear(yearlyTarget, operInfo, localCurrency, vndRate);
                     if(costYearlyResult != null)
                     {
                         //var finalYearlyCostResult = await GetAmountByCurrency(yearCost, "USD", localCurrency);
@@ -588,7 +913,7 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ChartPerOperNew(DateTime date, string oper)
+        public async Task<IActionResult> ChartPerOperNew(DateTime date, string oper, string shift = "Day", string companyCode = "SVN")
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             try
@@ -604,8 +929,13 @@ namespace SVN_Portal.Controllers
                 ViewBag.oper = oper;
                 strdate = date.ToString("yyyyMMdd");
 
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+                //var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+
+                var singleOper = operInfo1.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -621,8 +951,19 @@ namespace SVN_Portal.Controllers
                     }
                 }
 
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //Lấy múi giờ theo SM hoặc SVN
+                int hours = 7; //default
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
 
                 if (models != null && models.Count > 0)
                 {
@@ -630,11 +971,12 @@ namespace SVN_Portal.Controllers
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                         }
                         if (operInfo != null)
                         {
@@ -660,16 +1002,33 @@ namespace SVN_Portal.Controllers
         /// <param name="date"></param>
         /// <param name="oper"></param>
         /// <returns></returns>
-        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline)
+        public async Task<IActionResult> ChartInfoPerOper(DateTime date, string operline, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var inputItemsDataPortal = new SVN_InputItemsStatusDataPortal(connectionString);
+
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
+            List<SVN_InputItemsStatusUI> inputItemsStatusUIs = new List<SVN_InputItemsStatusUI>();
             if (date == DateTime.MinValue)
             {
                 date = DateTime.Now;
             }
+
+            if (!isManualLoad)
+            {
+                if (date.Hour >= 20)
+                {
+                    shift = "Night";
+                }
+                else
+                {
+                    shift = "Day";
+                }
+            }
+
             ViewBag.date = date;
             ViewBag.oper = operline;
+            ViewBag.shift = shift;
             //Check xem truyền có đang setup hay không
             var operSetupInProcess = appSettingDataPortal.GetOperationSetupInProcess().Result.Split(",").FirstOrDefault(x => x == operline);
             var setupNote = await appSettingDataPortal.GetOperationInSetupStatus();
@@ -698,8 +1057,24 @@ namespace SVN_Portal.Controllers
                 
                 strdate = date.ToString("yyyyMMdd");
 
+                //if (oper.Contains("SM"))
+                //{
+                //    ViewBag.NextCompany = "SVN";
+                //    ViewBag.CompanyCode = "SM";
+                //}
+                //else if (oper.Contains("SVN"))
+                //{
+                //    ViewBag.NextCompany = "SM";
+                //    ViewBag.CompanyCode = "SVN";
+                //}
+                ViewBag.CompanyCode = companyCode;
+
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
                 List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
+                //var singleOper = operInfoConfig.OperInfo.Where(x => x.MasterOperation == oper).ToList();
+
+                var singleOper = operInfo1.OperInfo.Where(x => x.MasterOperation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -715,8 +1090,24 @@ namespace SVN_Portal.Controllers
                     }
                 }
 
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
+                inputItemsStatusUIs = await inputItemsDataPortal.ReadList(strdate, operline);
+                ViewBag.InputItemsStatus = inputItemsStatusUIs;
 
                 //Lọc dữ liệu lấy dc theo line
                 if (!string.IsNullOrWhiteSpace(line))
@@ -739,13 +1130,15 @@ namespace SVN_Portal.Controllers
                     foreach (var model in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             model.PDName = userInfo.PDName;
                             model.QCName = userInfo.QCName;
+                            model.TechName = userInfo.TechName;
                             model.PDURL = userInfo.PDURL;
                             model.QCURL = userInfo.QCURL;
+                            model.TechURL = userInfo.TechURL;
                         }
                         if (operInfo != null)
                         {
@@ -755,15 +1148,31 @@ namespace SVN_Portal.Controllers
 
                     models = models.Where(x => x.IsProduction).OrderByDescending(x => x.CanProductionByCheclist).OrderByDescending(x => x.IsProduction).ToList();
 
-                    models = models
-                    .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
-                    .ThenBy(x => x.Line)
-                    .ThenBy(x => x.ViewModels
-                        .Where(i => i.Target != 0)
-                        .Select(i => GetStartTime(i.Time))
-                        .DefaultIfEmpty(TimeSpan.MaxValue)
-                        .Min())
-                    .ToList();
+                    if(companyCode == "ITA")
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Line != 0))
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }
+                    else
+                    {
+                        models = models
+                        .OrderByDescending(x => x.ViewModels.Any(i => i.Target != 0))
+                        .ThenBy(x => x.Line)
+                        .ThenBy(x => x.ViewModels
+                            .Where(i => i.Target != 0)
+                            .Select(i => GetStartTime(i.Time))
+                            .DefaultIfEmpty(TimeSpan.MaxValue)
+                            .Min())
+                        .ToList();
+                    }   
                 }
                 return View(models);
             }
@@ -777,7 +1186,7 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> AutomationTrackingPerOper(DateTime date, string oper = "Injection")
+        public async Task<IActionResult> AutomationTrackingPerOper(DateTime date, string oper = "Injection", string shift = "Day", string companyCode = "SVN")
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
@@ -794,8 +1203,13 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 ViewBag.date = date;
                 ViewBag.oper = oper;
-                List<OperInfo> opers = new List<OperInfo>();
-                var singleOper = operInfoConfig.OperInfo.Where(x => x.Operation == oper).ToList();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                //List<OperInfo> opers = new List<OperInfo>();
+                var singleOper = operInfo1.OperInfo.Where(x => x.Operation == oper).ToList();
                 foreach (var item in singleOper)
                 {
                     if (item.WC != null && item.WC.Count > 0)
@@ -811,8 +1225,22 @@ namespace SVN_Portal.Controllers
                     }
                 }
 
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
 
                 //Lấy danh sách thiết bị
                 List<SVN_Equipment_InfoUI> equipments = new List<SVN_Equipment_InfoUI>();
@@ -829,13 +1257,15 @@ namespace SVN_Portal.Controllers
                     foreach (var item in models)
                     {
                         var userInfo = qCInfoConfig.UserInfo.FirstOrDefault(x => x.Operation == model.Operation);
-                        var operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
+                        var operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == model.Operation);
                         if (userInfo != null)
                         {
                             item.PDName = userInfo.PDName;
                             item.QCName = userInfo.QCName;
+                            item.TechName = userInfo.TechName;
                             item.PDURL = userInfo.PDURL;
                             item.QCURL = userInfo.QCURL;
+                            item.TechURL = userInfo.TechURL;
                         }
                         if (operInfo != null)
                         {
@@ -855,7 +1285,7 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetDataByOperAndWC(string date, string oper, string wc)
+        public async Task<IActionResult> GetDataByOperAndWC(string date, string oper, string wc, string shift = "Day", string companyCode = "SVN")
         {
             QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
             string strProductionResultTable = string.Empty;
@@ -866,7 +1296,11 @@ namespace SVN_Portal.Controllers
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string tableName = "SVN_Production_result_Viindoo";
                 OperInfo operInfo = new OperInfo();
-                operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == oper);
                 if (operInfo != null)
                 {
                     if (!string.IsNullOrWhiteSpace(wc))
@@ -879,8 +1313,24 @@ namespace SVN_Portal.Controllers
                         }
                     }
                 }
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
                 {
@@ -922,8 +1372,12 @@ namespace SVN_Portal.Controllers
                     //    model.CanProductionByCheclist = true;
                     //}
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
-                    sb.Append("<strong>Checklist status</strong>: ");
-                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    // Tạm cho SM
+                    if (!oper.Contains("(SM)"))
+                    {
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    }
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
                     sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
                     sb.Append(" | <strong>Downtime</strong>: ");
@@ -973,7 +1427,7 @@ namespace SVN_Portal.Controllers
         /// <param name="wc"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> GetDataByOperAndWCMainDashBoard(string date, string oper, string wc)
+        public async Task<IActionResult> GetDataByOperAndWCMainDashBoard(string date, string oper, string wc, string shift = "Day", string companyCode = "SVN")
         {
             QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
             string strForecase = string.Empty;
@@ -984,7 +1438,11 @@ namespace SVN_Portal.Controllers
                 string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
                 string tableName = "SVN_Production_result_Viindoo";
                 OperInfo operInfo = new OperInfo();
-                operInfo = operInfoConfig.OperInfo.FirstOrDefault(x => x.Operation == oper);
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == oper);
                 if (operInfo != null)
                 {
                     if (!string.IsNullOrWhiteSpace(wc))
@@ -992,8 +1450,24 @@ namespace SVN_Portal.Controllers
                         operInfo.WCName = wc;
                     }
                 }
+
+                int hours = 7;
+                try
+                {
+                    var strHours = TempData.Peek("Hours") as string;
+                    hours = int.Parse(strHours);
+                }
+                catch
+                {
+
+                }
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
 
                 //sử dụng stringBuilder để build lại 2 table
                 if (model != null)
@@ -1033,8 +1507,13 @@ namespace SVN_Portal.Controllers
                     //    model.CanProductionByCheclist = true;
                     //}
                     sb.Append("<p style='font-size:20px' class=' text-light'>");
-                    sb.Append("<strong>Checklist status</strong>: ");
-                    sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    // Tạm cho SM
+                    if(!oper.Contains("(SM)"))
+                    {
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    }
+                    
                     sb.Append(" | <strong>Actual WorkingTime</strong>: ");
                     sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
                     sb.Append(" | <strong>Downtime</strong>: ");
@@ -1061,6 +1540,171 @@ namespace SVN_Portal.Controllers
 
                     strForecase = BuildForecastInfo(model.Forecast);
                     strTargetTable = BuildAchievementCard(model, date);
+
+                    // Tạm cho SM
+                    if (oper.Contains("(SM)"))
+                    {
+                        model.CanProductionByCheclist = true;
+                    }
+
+                    return new JsonResult(new
+                    {
+                        result = true,
+                        forecase = strForecase,
+                        targetTable = strTargetTable,
+                        isProduction = model.IsProduction,
+                        canProduction = model.CanProductionByCheclist,
+                        canProductionByDowntime = model.CanProductionByDowntime,
+                        downTimeStatus = downTimeStatus,
+                        checklistStatus = sb.ToString(),
+                        pdmodel = JsonConvert.SerializeObject(model.ViewModels),
+                        defectcalmodel = JsonConvert.SerializeObject(model.DefectByCategoryViewModels)
+                    });
+                }
+                else
+                {
+                    return new JsonResult(new { result = false, message = "No data" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { result = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Hàm build lại dữ liệu cho dashboard bằng cách lấy dữ liệu từ oper và wc bằng Ajax
+        /// Dùng cho view ProductionResultV2
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="oper"></param>
+        /// <param name="wc"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> GetDataByOperAndWCMainDashBoardV1(string date, string oper, string wc, string shift = "Day", string companyCode = "SVN")
+        {
+            QtyProdResultByOperViewModel model = new QtyProdResultByOperViewModel();
+            string strForecase = string.Empty;
+            string strTargetTable = string.Empty;
+
+            try
+            {
+                string storedProceduce = "SVN_Pro_CalTarget_New_Table_Viindoo";
+                string tableName = "SVN_Production_result_ViindooV1";
+                OperInfo operInfo = new OperInfo();
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+
+                operInfo = operInfo1.OperInfo.FirstOrDefault(x => x.Operation == oper);
+                if (operInfo != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(wc))
+                    {
+                        operInfo.WCName = wc;
+                    }
+                }
+
+                int hours = 7;
+                try
+                {
+                    var strHours = TempData.Peek("Hours") as string;
+                    hours = int.Parse(strHours);
+                }
+                catch
+                {
+
+                }
+
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                int addHours = await GetAddHourByCompanyCode(companyCode);
+                var targetdataportal = new SVN_TargetDataPortal(connectionString);
+                var synchresult = await targetdataportal.ExecuteSyncProduction(addHours);
+
+                var dataPortal = new SVN_production_resultDataPortal(connectionString);
+                model = await dataPortal.GetDataByOperAndWC(date, operInfo, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
+
+                //sử dụng stringBuilder để build lại 2 table
+                if (model != null)
+                {
+                    string pdChecked = "🔴";
+                    string mtChecked = "🔴";
+                    string qcChecked = "🔴";
+                    string pdConfirmed = "🔴";
+                    string qcConfirmed = "🔴";
+
+                    if (model.IsPDChecked)
+                    {
+                        pdChecked = "🟢";
+                    }
+                    if (model.IsMTChecked)
+                    {
+                        mtChecked = "🟢";
+                    }
+                    if (model.IsQCChecked)
+                    {
+                        qcChecked = "🟢";
+                    }
+                    if (model.IsPDConfirmed)
+                    {
+                        pdConfirmed = "🟢";
+                    }
+                    if (model.IsQCConfirmed)
+                    {
+                        qcConfirmed = "🟢";
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+
+
+                    //if (!oper.Contains("Walter"))
+                    //{
+                    //    model.CanProductionByCheclist = true;
+                    //}
+                    sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    // Tạm cho SM
+                    if (!oper.Contains("(SM)"))
+                    {
+                        sb.Append("<strong>Checklist status</strong>: ");
+                        sb.Append(pdChecked + " PD - " + mtChecked + " MT - " + qcChecked + " QC Checked | " + pdConfirmed + " PD - " + qcConfirmed + " QC Confirmed");
+                    }
+
+                    sb.Append(" | <strong>Actual WorkingTime</strong>: ");
+                    sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
+                    sb.Append(" | <strong>Downtime</strong>: ");
+                    sb.Append(Math.Round(model.TotalDuration, appConfig.Rounding) + " h");
+                    sb.Append("</p>");
+                    //sb.Append("<p style='font-size:20px' class=' text-light'>");
+                    //sb.Append("<strong>Current WorkingTime</strong>: ");
+                    //sb.Append(Math.Round(model.CurWorkingTime, appConfig.Rounding) + " h");
+                    //sb.Append(" |  <strong>Current Duration</strong>: ");
+                    //sb.Append(Math.Round(model.CurDuration, appConfig.Rounding) + " h");
+                    //sb.Append("</p>");
+                    string downTimeStatus = string.Empty;
+                    if (!model.CanProductionByDowntime)
+                    {
+                        if (model.EndDownTime == DateTime.MinValue)
+                        {
+                            downTimeStatus = "Máy đang bảo trì";
+                        }
+                        else
+                        {
+                            downTimeStatus = "Máy đang bảo trì, dự kiến kết thúc: " + model.EndDownTime.ToString("dd/MM/yyyy HH:mm");
+                        }
+                    }
+
+                    strForecase = BuildForecastInfo(model.Forecast);
+                    strTargetTable = BuildAchievementCard(model, date);
+
+                    // Tạm cho SM
+                    if (oper.Contains("(SM)"))
+                    {
+                        model.CanProductionByCheclist = true;
+                    }
 
                     return new JsonResult(new
                     {
@@ -1645,18 +2289,18 @@ namespace SVN_Portal.Controllers
             return sb.ToString();
         }
 
-        private int ArrangingNumber(List<QtyProdResultByOperViewModel> viewModels)
+        private int ArrangingNumber(List<QtyProdResultByOperViewModel> viewModels, List<string> sessionTimes)
         {
             int number = 0;
             DateTime curDatetine = DateTime.Now;
-            List<string> sessionTimes = new List<string>()
-            {
-                "8h-10h",
-                "10h10-11h30",
-                "12h30-15h",
-                "15h10-17h30",
-                "18h-20h"
-            };
+            //List<string> sessionTimes = new List<string>()
+            //{
+            //    "8h-10h",
+            //    "10h10-11h30",
+            //    "12h30-15h",
+            //    "15h10-17h30",
+            //    "18h-20h"
+            //};
             foreach (var item in sessionTimes) 
             {
                 var times = item.Split('-');
@@ -1719,12 +2363,29 @@ namespace SVN_Portal.Controllers
         }
 
         #region report
-        public IActionResult PDResultByMonthReport(DateTime date)
+        public IActionResult PDResultByMonthReport(DateTime date, string companyCode)
         {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
             List<SVN_production_summaryUI> models = new List<SVN_production_summaryUI>();
             SVN_production_summaryDataPortal dataPortal = new SVN_production_summaryDataPortal(connectionString);
             try
             {
+                //if (companyCode == "SM")
+                //{
+                //    ViewBag.NextCompany = "SVN";
+                //    ViewBag.CompanyCode = "SM";
+                //}
+                //else if (companyCode == "SVN")
+                //{
+                //    ViewBag.NextCompany = "SM";
+                //    ViewBag.CompanyCode = "SVN";
+                //}
+
+                ViewBag.CompanyCode = companyCode;
+
                 if (date == DateTime.MinValue)
                 {
                     date = DateTime.Now;
@@ -1748,12 +2409,12 @@ namespace SVN_Portal.Controllers
             return View(models);
         }
 
-        public async Task<IActionResult> PDResultDailyReport(DateTime fromdate, DateTime todate)
+        public async Task<IActionResult> PDResultDailyReport(DateTime fromdate, DateTime todate, string companyCode)
         {
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyData(fromdate, todate);
+                viewModels = await GetPDResultDailyData(fromdate, todate, companyCode);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -1762,11 +2423,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDaily(DateTime fromdate, DateTime todate)
+        public async Task<IActionResult> ExportPDResultDaily(DateTime fromdate, DateTime todate, string companyCode)
         {
             try
             {
-                var viewModels = await GetPDResultDailyData(fromdate, todate);
+                var viewModels = await GetPDResultDailyData(fromdate, todate, companyCode);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -1839,8 +2500,12 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime fromdate, DateTime todate)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyData(DateTime fromdate, DateTime todate, string companyCode)
         {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             List<PDResultDailyViewModel> dailyViewModels = new List<PDResultDailyViewModel>();
@@ -1877,7 +2542,15 @@ namespace SVN_Portal.Controllers
 
                 ViewBag.FromDate = fromdate;
                 ViewBag.ToDate = todate;
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo.OperInfo;
+
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 models = await dataPortal.GetDataForReport(fromdate, todate, opers, "FG");
                 if (models != null && models.Count > 0)
@@ -2184,12 +2857,12 @@ namespace SVN_Portal.Controllers
         }
 
 
-        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string itemType = "FG")
+        public async Task<IActionResult> PDResultDailyReportV0(DateTime fromdate, DateTime todate, string companyCode, string itemType = "ALL")
         {
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             try
             {
-                viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
+                viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType, companyCode);
                 return View(viewModels);
             }
             catch (Exception ex)
@@ -2198,11 +2871,11 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string itemType = "FG")
+        public async Task<IActionResult> ExportPDResultDailyV0(DateTime fromdate, DateTime todate, string companyCode, string itemType = "ALL")
         {
             try
             {
-                var viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType);
+                var viewModels = await GetPDResultDailyDataV0(fromdate, todate, itemType, companyCode);
                 if (viewModels == null || viewModels.Count == 0)
                 {
                     return RedirectToAction("PDResultDailyReport");
@@ -2286,8 +2959,12 @@ namespace SVN_Portal.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime fromdate, DateTime todate, string itemType)
+        public async Task<List<PDResultDailyViewModel>> GetPDResultDailyDataV0(DateTime fromdate, DateTime todate, string itemType, string companyCode)
         {
+            if (string.IsNullOrWhiteSpace(companyCode))
+            {
+                companyCode = appConfig.DefaultCompany;
+            }
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> viewModels = new List<PDResultDailyViewModel>();
             List<PDResultDailyViewModel> dailyViewModels = new List<PDResultDailyViewModel>();
@@ -2331,7 +3008,23 @@ namespace SVN_Portal.Controllers
                 ViewBag.ItemType = itemType;
 
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
-                List<OperInfo> opers = operInfoConfig.OperInfo;
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                List<OperInfo> opers = operInfo1.OperInfo;
+
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
                 //models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0);
                 models = await dataPortal.GetDataForReport(fromdate, todate, opers, itemType);
@@ -2359,7 +3052,7 @@ namespace SVN_Portal.Controllers
                         var totalLaborRate = totalLaborTarget == 0 ? 0 : (totalLabor / totalLaborTarget) * 100;
 
                         var totalDefect = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Current ?? 0);
-                        var totalDefectTarget = models.Where(x => x.Operation == oper).Average(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
+                        var totalDefectTarget = models.Where(x => x.Operation == oper).Sum(x => x.TargetViewModels.FirstOrDefault(y => y.Item == "Defect")?.Target ?? 0);
                         var totalDefectRate = totalDefectTarget == 0 ? 0 : (totalDefect / totalDefectTarget) * 100;
 
                         totalDefectTarget = totalDefectTarget * 100;
@@ -2395,6 +3088,30 @@ namespace SVN_Portal.Controllers
                         viewModels.Add(viewModel);
                     }
 
+                    //Tính tổng Sản lượng Target và Curent
+                    var sumTotalPlan = viewModels.Sum(x =>
+                    {
+                        return double.TryParse(x.DailyPlanTarget, out var value)
+                            ? value
+                            : 0;
+                    });
+
+                    var sumTotalCurrent = viewModels.Sum(x =>
+                    {
+                        return double.TryParse(x.DailyPlanCurrent, out var value)
+                            ? value
+                            : 0;
+                    });
+
+                    var sumPlanAchieve = sumTotalPlan == 0 ? 0 : (sumTotalCurrent / sumTotalPlan) * 100;
+
+                    PDResultDailyViewModel sumViewModel = new PDResultDailyViewModel();
+                    sumViewModel.OperationActive = "Total Quatity";
+                    sumViewModel.DailyPlanTarget = Math.Round(sumTotalPlan, appConfig.Rounding).ToString();
+                    sumViewModel.DailyPlanCurrent = Math.Round(sumTotalCurrent, appConfig.Rounding).ToString();
+                    sumViewModel.DailyPlanAchieve = Math.Round(sumPlanAchieve, appConfig.Rounding).ToString() + "%";
+                    viewModels.Add(sumViewModel);
+
                     return viewModels;
                 }
                 else
@@ -2408,7 +3125,7 @@ namespace SVN_Portal.Controllers
             }
         }
 
-        public async Task<IActionResult> CostRevenueReport(DateTime date)
+        public async Task<IActionResult> CostRevenueReport(DateTime date, string companyCode)
         {
             List<QtyProdResultByOperViewModel> models = new List<QtyProdResultByOperViewModel>();
             List<PDResultDailyViewModel> pdResultviewModels = new List<PDResultDailyViewModel>();
@@ -2418,7 +3135,7 @@ namespace SVN_Portal.Controllers
             var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
             var operInfo = await appSettingDataPortal.GetOperInfoConfig();
             var cost = await appSettingDataPortal.GetCostPerDay();
-            var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
+            //var companyCode = await appSettingDataPortal.GetLocalCompanyCode();
             var localCurrency = await appSettingDataPortal.GetCurrencyInfoByCode(companyCode);
             var vndRate = await appSettingDataPortal.GetVNDRate();
             var finalCurrency = "USD";
@@ -2439,8 +3156,20 @@ namespace SVN_Portal.Controllers
 
                 //Thay đổi đọc setting từ csdl
                 List<OperInfo> opers = operInfo.OperInfo;
+
+                int hours = 7; //default
+                hours = await GetLocalHourByCompanyCode(companyCode);
+
+                //Xử lý lọc dữ liệu sản xuất theo công ty
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                TempData.Remove("Hours");
+                TempData["Hours"] = hours.ToString();
+                TempData.Keep("Hours");
+
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 if (models != null && models.Count > 0)
                 {
                     pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
@@ -2503,13 +3232,13 @@ namespace SVN_Portal.Controllers
                 var yesterday = date.AddDays(-1);
                 string stryesterday = yesterday.ToString("yyyyMMdd");
                 List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
-                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
 
                 while (previousmodels == null || previousmodels.Count == 0)
                 {
                     yesterday = yesterday.AddDays(-1);
                     stryesterday = yesterday.ToString("yyyyMMdd");
-                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 }
                 if (previousmodels != null && previousmodels.Count > 0)
                 {
@@ -2797,11 +3526,30 @@ namespace SVN_Portal.Controllers
                 strdate = date.ToString("yyyyMMdd");
                 //List<string> opers = appConfig.OperList.Split(",").ToList();
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
+                List<OperInfo> opers = operInfo.OperInfo;
+                ViewBag.CompanyCode = companyCode;
+                opers = GetOpersByCompanyCode(opers, companyCode);
+
+                int hours = 7;
+                try
+                {
+                    hours = int.Parse(TempData.Peek("Hours") as string);
+                }
+                catch
+                {
+
+                }
+                string shift = "Day";
+                List<string> curSectionList = new List<string>();
+                //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+                curSectionList = await GetCurrentSectionConfig(shift, companyCode);
+
+                //List<OperInfo> opers = operInfoConfig.OperInfo;
 
                 //Thay đổi đọc setting từ csdl
-                List<OperInfo> opers = operInfo.OperInfo;
+                //List<OperInfo> opers = operInfo.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryDataV1(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 0, curSectionList, shift, hours);
                 if (models != null && models.Count > 0)
                 {
                     pdResultviewModels = GetPDResultDailyViewModel(models, localCurrency, vndRate, out finalCurrency);
@@ -2864,13 +3612,13 @@ namespace SVN_Portal.Controllers
                 var yesterday = date.AddDays(-1);
                 string stryesterday = yesterday.ToString("yyyyMMdd");
                 List<QtyProdResultByOperViewModel> previousmodels = new List<QtyProdResultByOperViewModel>();
-                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
 
                 while (previousmodels == null || previousmodels.Count == 0)
                 {
                     yesterday = yesterday.AddDays(-1);
                     stryesterday = yesterday.ToString("yyyyMMdd");
-                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3);
+                    previousmodels = await dataPortal.SummaryDataV1(stryesterday, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, hours);
                 }
                 if (previousmodels != null && previousmodels.Count > 0)
                 {
@@ -3116,7 +3864,7 @@ namespace SVN_Portal.Controllers
 
                 ViewBag.StatusList = statusList;
                 ViewBag.LocalCurrency = finalCurrency;
-
+                
                 return View(costRevenueViewModels);
             }
             catch (Exception ex)
@@ -3375,6 +4123,92 @@ namespace SVN_Portal.Controllers
                 : 0;
 
             return new TimeSpan(hour, minute, 0);
+        }
+
+        private async Task<List<string>> GetCurrentSectionConfig(string section, string companyCode)
+        {
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            List<string> curSectionList = new List<string>();
+            //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+            var sectionConfig = await appSettingDataPortal.GetSectionConfigs();
+            if (sectionConfig != null && sectionConfig.Count > 0)
+            {
+                var sectionByCompany = sectionConfig.FirstOrDefault(x => x.CompanyCode == companyCode);
+                if (sectionByCompany != null)
+                {
+                    if (section == "Day")
+                    {
+                        curSectionList = sectionByCompany.DaySection.Split(",").ToList();
+                    }
+                    else if (section == "Night")
+                    {
+                        curSectionList = sectionByCompany.NightSection.Split(",").ToList();
+                    }
+                }
+            }
+            return curSectionList;
+        }
+
+        private async Task<int> GetLocalHourByCompanyCode(string companyCode)
+        {
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            int hours = 7;
+            //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+            var sectionConfig = await appSettingDataPortal.GetSectionConfigs();
+            if (sectionConfig != null && sectionConfig.Count > 0)
+            {
+                var sectionByCompany = sectionConfig.FirstOrDefault(x => x.CompanyCode == companyCode);
+                if (sectionByCompany != null)
+                {
+                    hours = sectionByCompany.Hour;
+                }
+            }
+            return hours;
+        }
+
+        private async Task<int> GetAddHourByCompanyCode(string companyCode)
+        {
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            int addHours = 0;
+            //Lấy ra list ca làm việc theo ca ngày hoặc đêm, và company code
+            var sectionConfig = await appSettingDataPortal.GetSectionConfigs();
+            if (sectionConfig != null && sectionConfig.Count > 0)
+            {
+                var sectionByCompany = sectionConfig.FirstOrDefault(x => x.CompanyCode == companyCode);
+                if (sectionByCompany != null)
+                {
+                    addHours = sectionByCompany.AddHours;
+                }
+            }
+            return addHours;
+        }
+
+        private List<OperInfo> GetOpersByCompanyCode(List<OperInfo> opers, string companyCode)
+        {
+            if (!string.IsNullOrWhiteSpace(companyCode))
+            {
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        opers = opers.Where(x => x.Operation.EndsWith("(SM)")).ToList();
+                        ViewBag.NextCompany = "SVN";
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        opers = opers.Where(x => x.Operation.EndsWith("(ITA)")).ToList();
+                        ViewBag.NextCompany = "SVN";
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)")).ToList();
+                        ViewBag.NextCompany = "SM";
+                        break;
+                }
+            }
+            return opers;
         }
 
         #endregion

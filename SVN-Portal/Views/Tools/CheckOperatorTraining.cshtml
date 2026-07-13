@@ -1,0 +1,351 @@
+﻿@using Newtonsoft.Json
+@using SVNShareLib.DTO
+@model IEnumerable<TrainingOperatorRecordUI>
+@{
+
+    DateTime date = ViewBag.Date;
+    int pageNumber = ViewBag.CurrentPage;
+    int pageSize = ViewBag.PageSize;
+    List<string> paginationList = ViewBag.PaginationList;
+    List<string> operations = ViewBag.Operations;
+    string operation = ViewBag.CurrentOperation;
+    string documentCode = ViewBag.DocumentCode;
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Training Operation Checklist";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-end gap-2">
+                        <div class="m-1 d-none">
+                            <div class="form-group">
+                                <label>Training Date</label>
+                                <input id="txtDate" type="date" name="date"
+                                value="@date.ToString("yyyy-MM-dd")"
+                                class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1 d-none">
+                            <div class="form-group">
+                                <label>Document Code</label>
+                                <input id="txtDocumentCode" type="text" name="documentCode"
+                                value="@documentCode"
+                                class="form-control" />
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Operation</label>
+                                <select id="selectOperation" class="form-control" name="operation">
+                                    @foreach (var item in operations)
+                                    {
+                                        <option value="@item" selected="@(operation == item)">@item</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <label>Page size</label>
+                                <select class="form-control" name="pageSize">
+                                    <option value="10" selected="@(pageSize == 10)">10</option>
+                                    <option value="15" selected="@(pageSize == 15)">15</option>
+                                    <option value="20" selected="@(pageSize == 20)">20</option>
+                                    <option value="25" selected="@(pageSize == 25)">25</option>
+                                    <option value="50" selected="@(pageSize == 50)">50</option>
+                                    <option value="100" selected="@(pageSize == 100)">100</option>
+                                    @if (Model != null && Model.Count() > 100)
+                                    {
+                                        <option value="@Model.Count()" selected="@(pageSize == Model.Count())">All</option>
+                                    })
+                                </select>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                asp-action="CheckOperatorTraining"
+                                class="btn btn-primary">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                    Refresh data
+                                </button>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                <button type="submit"
+                                asp-action="ExportCheckOperatorTraining"
+                                class="btn btn-success">
+                                    <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                    Export excel
+                                </button>
+                            </div>
+                        </div>
+                        <div class="m-1">
+                            <div class="form-group">
+                                @if (!string.IsNullOrWhiteSpace(operation) && operation != "ALL" && Model != null && Model.Count() > 0)
+                                {
+                                    <button type="button"
+                                        class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+                                        <i class="fa fa-qrcode" aria-hidden="true"></i>
+                                        Scan Operator
+                                    </button>
+                                }
+                                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title text-dark" id="exampleModalLabel">Scan Operator QR Code</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <input type="file" id="fileQR" accept="image/*" capture="environment" class="form-control d-none">
+                                                <div class="form-group">
+                                                    <label class="text-dark">Scan Operator Code</label>
+                                                    <input id="txtScanOperatorID" type="text" name="scanOperatorID"
+                                                           class="form-control" />
+                                                </div>
+                                                <div id="divAlert" class="alert" role="alert">
+
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <ul class="pagination float-right">
+                        @foreach (var item in paginationList)
+                        {
+                            if (item == "...")
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item @(item == pageNumber.ToString() ? "active" : "")">
+                                    <button type="submit" class="page-link" asp-action="CheckOperatorTraining" asp-route-pageNumber=@item>@item</button>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-12">
+        <div class="card svn-card">
+            <div class="card-title">
+                <p class="fs-4">Training Operator Checklist</p>
+            </div>
+            <div class="card-body">
+                <div class="row" style="overflow-x: auto; white-space: nowrap;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                @* <th>
+                                    Traning date
+                                </th> *@
+                                <th>
+                                    Training hours
+                                </th>
+                                @* <th>
+                                    Training document code
+                                </th> *@
+                                <th>
+                                    Operation
+                                </th>
+                                <th>
+                                    Supervisor code
+                                </th>
+                                <th>
+                                    Operator code
+                                </th>
+                                <th>
+                                    Operator name
+                                </th>
+                                <th>
+                                    Training Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                string rowClass = "";
+                                string trainingStatus = "";
+                                if (item.Status == "Not OK")
+                                {
+                                    trainingStatus = "text-warning";
+                                }
+                                else if (item.Status == "OK")
+                                {
+                                    trainingStatus = "text-success";
+                                }
+                                <tr style="@rowClass">
+                                    @* <td>
+                                        @item.Traning_date
+                                    </td> *@
+                                    <td>
+                                        @item.Traing_hours
+                                    </td>
+                                    @* <td>
+                                        @item.Training_doc_code
+                                    </td> *@
+                                    <td>
+                                        @item.Operation
+                                    </td>
+                                    <td>
+                                        @item.Supervisor_code
+                                    </td>
+                                    <td>
+                                        @item.Operator_code
+                                    </td>
+                                    <td>
+                                        @item.Operator_name
+                                    </td>
+                                    <td class="@trainingStatus">
+                                        @item.Status
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function CheckOperatorTrained() {
+        // 1. Thu thập dữ liệu từ các input
+        let dateVal = $('#txtDate').val(); // ID của textbox ngày tháng
+        let operationVal = $('#selectOperation').val(); // ID của dropdownlist (select)
+        let documentCodeVal = $('#txtDocumentCode').val(); // ID của textbox mã tài liệu
+        let scanOperatorIDVal = $('#txtScanOperatorID').val();
+        let qrFile = $('#fileQR')[0].files[0]; // ID của input file ảnh
+
+        // Kiểm tra nhanh file
+        // if (!qrFile) {
+        //     alert("Vui lòng chọn hoặc chụp ảnh QR code!");
+        //     return;
+        // }
+
+        // 2. Đóng gói vào FormData
+        let formData = new FormData();
+        formData.append("date", dateVal);
+        formData.append("operation", operationVal);
+        formData.append("documentCode", documentCodeVal);
+        formData.append("scanOperatorID", scanOperatorIDVal);
+        formData.append("qrImage", qrFile); // Phải khớp với tên tham số 'qrImage' trong Controller
+
+        // Hiển thị loader nếu cần
+        if(typeof showLoader === 'function') showLoader();
+
+        // 3. Thực thi Ajax
+        $.ajax({
+            url: '/Tools/CheckOperatorTrained', // Kiểm tra lại đường dẫn Controller/Action
+            type: 'POST',
+            data: formData,
+            processData: false, // Bắt buộc khi dùng FormData
+            contentType: false, // Bắt buộc khi dùng FormData
+            success: function (res) {
+                // Theo code Controller của bạn, kết quả trả về có thể là { result: ..., message: ... }
+                // hoặc { success: ..., message: ... } ở một vài dòng catch lỗi
+                let isSuccess = res.result || res.success;
+
+                if (isSuccess) {
+                    // alert("Success: " + res.message);
+                    // Có thể reload lại danh sách hoặc reset file input ở đây
+                    $('#fileQR').val('');
+                    $('#txtScanOperatorID').val('');
+
+                    $('#divAlert').text(res.message)
+                                      .removeClass("alert-warning")
+                                      .addClass("alert-success")
+                                      .hide()
+                                      .fadeIn(500);
+
+                    let operatorCode = res.operatorCode;
+
+                    $(".table tbody tr").each(function () {
+                        let row = $(this);
+
+                        // Cột Operator code là cột thứ 6 (index là 5)
+                        let codeInTable = row.find("td:eq(3)").text().trim();
+
+                        console.log("Đang so sánh: Table[" + codeInTable + "] với Server[" + operatorCode + "]");
+
+                        if (codeInTable === operatorCode) {
+                            // Cột Training Status là cột thứ 8 (index là 7)
+                            let statusCell = row.find("td:eq(5)");
+
+                            statusCell.text("OK")
+                                      .removeClass("text-warning")
+                                      .addClass("text-success")
+                                      .hide()
+                                      .fadeIn(500);
+
+                            return false; // Dừng vòng lặp khi đã tìm thấy
+                        }
+                    });
+                } else {
+                    // alert("Error: " + res.message);
+                    $('#fileQR').val('');
+                    $('#txtScanOperatorID').val('');
+
+                    $('#divAlert').text(res.message)
+                                      .removeClass("alert-success")
+                                      .addClass("alert-warning")
+                                      .hide()
+                                      .fadeIn(500);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Ajax Error:", error);
+                alert("Có lỗi hệ thống xảy ra khi gửi dữ liệu.");
+            },
+            complete: function() {
+                if(typeof hideLoader === 'function') hideLoader();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        
+        $('#fileQR').on('change', function() {
+            CheckOperatorTrained();
+        });
+
+        $(document).on('keydown', 'input', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // chặn submit form khi bấm Enter
+
+                // Nếu ô hiện tại rỗng => không cho đi tiếp
+                if (!$(this).val().trim()) {
+                    return;
+                }
+
+                if ($(this).attr("name") === "scanOperatorID") {
+                    CheckOperatorTrained();
+                }
+            }
+        });
+    });
+</script>

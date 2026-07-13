@@ -24,8 +24,10 @@ namespace SVN_Portal.Models
         public string WC { get; set; }
         public string PDName { get; set; }
         public string QCName { get; set; }
+        public string TechName { get; set; }
         public string PDURL { get; set; }
         public string QCURL { get; set; }
+        public string TechURL { get; set; }
         public int ColWidth { get; set; }
         public bool IsProduction { get; set; }
         public bool CanProductionByCheclist { get; set; }

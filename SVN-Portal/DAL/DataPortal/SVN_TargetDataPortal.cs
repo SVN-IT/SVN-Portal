@@ -18,7 +18,7 @@ namespace SVN_Portal.DAL.DataPortal
         }
 
 
-        public async Task<List<SVN_target>> ReadList(string date, string storedProceduce = "SVN_Pro_CalTarget")
+        public async Task<List<SVN_target>> ReadList(string date, string shift, string storedProceduce = "SVN_Pro_CalTarget_Viindoo")
         {
             List<SVN_target> dataUI = new List<SVN_target>();
             int timeOut = 1000;
@@ -30,7 +30,8 @@ namespace SVN_Portal.DAL.DataPortal
                     string storedProcedure = storedProceduce;
                     DynamicParameters parameters = new DynamicParameters();
                     parameters.Add("date_time", date);
-                   
+                    parameters.Add("shift", shift);
+
                     var datas = await conn.QueryAsync<SVN_target>(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
                     return datas.ToList();
                 }
@@ -207,6 +208,33 @@ namespace SVN_Portal.DAL.DataPortal
             catch
             {
                 return -1;
+            }
+        }
+
+        public async Task<bool> ExecuteSyncProduction(int add_hour, string storedProceduce = "SVN_Sync_Production_By_Hour_1s")
+        {
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("add_hour", add_hour);
+                    // Sử dụng ExecuteAsync cho thủ tục không có giá trị trả về
+                    // Truyền null cho tham số vì SP không có param
+                    await conn.ExecuteAsync(
+                        storedProceduce,
+                        parameters,
+                        commandType: CommandType.StoredProcedure,
+                        commandTimeout: 1000
+                    );
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi nếu cần: Console.WriteLine(ex.Message);
+                return false;
             }
         }
     }

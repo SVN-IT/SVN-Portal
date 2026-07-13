@@ -1,10 +1,12 @@
 ﻿@using Newtonsoft.Json
 @using SVNShareLib.DTO
+@using SVN_Portal.DAL.DTO
 @using System.Globalization
 @model IEnumerable<QtyProdResultByOperViewModel>
 @{
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
+    string shift = ViewBag.shift;
     double Achieve = 0;
     double Forecast = 0;
     string WORunning = string.Empty;
@@ -14,7 +16,8 @@
     string QCName = string.Empty;
     string PDURL = string.Empty;
     string QCURL = string.Empty;
-
+    string TechName = string.Empty;
+    string TechURL = string.Empty;
     QtyProdResultByOperViewModel defectModel = new QtyProdResultByOperViewModel();
     if(Model != null)
     {
@@ -32,6 +35,8 @@
                 QCName = defectModel.QCName;
                 PDURL = defectModel.PDURL;
                 QCURL = defectModel.QCURL;
+                TechName = defectModel.TechName;
+                TechURL = defectModel.TechURL;
             }
         }
         else
@@ -48,6 +53,8 @@
                 QCName = defectModel.QCName;
                 PDURL = defectModel.PDURL;
                 QCURL = defectModel.QCURL;
+                TechName = defectModel.TechName;
+                TechURL = defectModel.TechURL;
             }
         }
     }
@@ -87,6 +94,8 @@
     {
         inSetupFontSize = "75px";
     }
+
+    List<SVN_InputItemsStatusUI> inputItemsStatusUIs = ViewBag.InputItemsStatus;
 }
 <script>
     function BuildProductionChart(dataParam, chartID){
@@ -121,7 +130,7 @@
 
     "valueAxes": [{
     "id": "a1",
-    "title": "quatity",
+    "title": "Qty",
     "gridAlpha": 0,
     "axisAlpha": 0
     }],
@@ -225,7 +234,7 @@
 
     "valueAxes": [{
     "id": "a1",
-    "title": "quatity",
+    "title": "Qty",
     "gridAlpha": 0,
     "axisAlpha": 0
     }],
@@ -278,13 +287,19 @@
         <div class="col-lg-12">
             <form method="post">
                 <div class="form-group row mt-1">
+                    <div class="col-12 col-sm-6 col-md-2 col-lg-1">
+                        <select class="form-control" name="shift">
+                            <option value="Day" selected="@(shift == "Day")">Day</option>
+                            <option value="Night" selected="@(shift == "Night")">Night</option>
+                        </select>
+                    </div>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                         <div class="row">
                             <div class="col-9">
                                 <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                             </div>
                             <div class="col-3">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" asp-route-operline="@ViewBag.oper" asp-route-isManualLoad=true>
                                     Search
                                 </button>
                             </div>
@@ -295,7 +310,7 @@
         </div>
         <div class="col-lg-12">
             <div class="row">
-                <div class="col-12 col-md-8">
+                <div class="col-12 col-md-4">
                     <div class="row">
                         <div class="col-12">
                             <div class="card svn-card svn-small-card">
@@ -345,7 +360,7 @@
                                                 {
                                                     int stateIndex = Array.IndexOf(machineStates, item.State);
                                                     string colorClass = stateIndex >= 0 ? machineStateColor[stateIndex] : "bg-light";
-                                                    <div class="col-1 mt-2">
+                                                    <div class="col-2 col-md-2 mt-2">
                                                         <button class="btn @colorClass" style="text-overflow: ellipsis; width:95px">@item.Name</button>
                                                     </div>
                                                 }
@@ -359,7 +374,32 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="row">
-                        <div class="col-6">
+                        @{
+                            int colNum = 6;
+                        }
+                        @if (!string.IsNullOrWhiteSpace(TechName))
+                        {
+                            colNum = 4;
+                            <div class="col-@colNum">
+                                <div class="card svn-card svn-small-card">
+                                    <div class="card-body">
+                                        <div class="image-container">
+                                            @if (!string.IsNullOrWhiteSpace(TechURL))
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="@TechURL" alt="Card image cap">
+                                            }
+                                            else
+                                            {
+                                                <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
+                                            }
+                                        </div>
+                                        <h3>Tech: @TechName</h3>
+                                        @* <h3>(SVN0334)</h3> *@
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-@colNum">
                             <div class="card svn-card svn-small-card">
                                 <div class="card-body">
                                     <div class="image-container">
@@ -372,13 +412,13 @@
                                             <img class="card-img-top SVN-card-img-top mt-1" src="~/images/user.jpg" alt="Card image cap">
                                         }
                                     </div>
-                                    <h3>PD: @PDName</h3>
+                                    <h3>PROD: @PDName</h3>
                                 </div>
                             </div>
 
                             @* <h3>(SVN0003)</h3> *@
                         </div>
-                        <div class="col-6">
+                        <div class="col-@colNum">
                             <div class="card svn-card svn-small-card">
                                 <div class="card-body">
                                     <div class="image-container">
@@ -420,6 +460,57 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12 col-md-4">
+                    <div class="card svn-card svn-small-card">
+                        <div class="card-title">
+                            <h4>Input items status</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive fs-table">
+                                <table class="table table-bordered table-hover table-sm align-middle">
+                                    <thead class="text-center">
+                                        <tr>
+                                            <th style="padding:0px!important">Line</th>
+                                            <th style="padding:0px!important" class="text-end">Section</th>
+                                            <th style="padding:0px!important" class="text-end">Input Item</th>
+                                            <th style="padding:0px!important">FAI Status</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @if (inputItemsStatusUIs != null)
+                                        {
+                                            foreach (var item in inputItemsStatusUIs)
+                                            {
+                                                <tr>
+                                                    <td style="padding:0px!important">@item.Line</td>
+                                                    <td style="padding:0px!important" class="text-end">@item.Section</td>
+                                                    <td style="padding:0px!important" class="text-end">@item.ItemInput</td>
+                                                    <td style="padding:0px!important">
+                                                        @if (!string.IsNullOrWhiteSpace(item.FAIStatus) && item.FAIStatus.ToLower() == "done")
+                                                        {
+                                                            <span class="text-success">✔️ Done</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-danger">❌ Not yet</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4" class="text-center">No data available</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-12 d-none">
                     <div class="card svn-card">
                         <div class="card-title">
@@ -430,7 +521,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 ">
+                <div class="col-12">
                     <div id="disableCard" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
                     <div id="bigCard" class="card svn-card">
                         <div class="card-title">
@@ -494,6 +585,14 @@
                                         {
                                             charID = "chartdiv" + item.Operation + item.WC;
                                             charID = charID.Replace("-", "");
+                                            if (charID.Contains("(SM)"))
+                                            {
+                                                charID = charID.Replace("(SM)", "");
+                                            }
+                                            if (charID.Contains("(ITA)"))
+                                            {
+                                                charID = charID.Replace("(ITA)", "");
+                                            }
                                         }
                                         string jsonData = string.Empty;
                                         jsonData = JsonConvert.SerializeObject(item.ViewModels);
@@ -531,7 +630,8 @@
                                                     textHeaderColor = "text-light";
                                                 }
                                             }
-                                            <h1 class="@textHeaderColor">@item.Operation @productName - (@item.Line)</h1>
+                                            <h1 class="@textHeaderColor">@item.Operation - (@item.Line)</h1>
+                                            <h1 class="@textHeaderColor">@productName</h1>
                                             @* <button class="btn btn-primary" onclick="Test('@item.Operation', '@item.WC')">Test</button> *@
                                             <div class="row">
                                                 <div id="checklistStatus-@charID" class="col-12">
@@ -1021,7 +1121,7 @@
         }, 500); // Adjust timing to ensure smooth reset
     }, 1500); // Repeat every 5 seconds
 
-    function fetchChartData(charID, date, oper, wc) {
+    function fetchChartData(charID, date, oper, wc, shift) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: '/Home/GetDataByOperAndWC',
@@ -1029,7 +1129,8 @@
                 data: {
                     date: date,
                     oper: oper,
-                    wc: wc
+                    wc: wc,
+                    shift: shift
                 },
                 success: function (response) {
                     if (response.result) {
@@ -1118,14 +1219,14 @@
         var dataParam = @Html.Raw(defectJsonData);
         BuildDefectChart(dataParam, "defectchart")
         
-
+        var shiftValue = $('select[name="shift"]').val();
         // setInterval(function () {
         //     BuildDefectChart(dataParam, "defectchart")
         // }, 10000); // Repeat every 5 seconds
 
         async function executeSequentialCalls(charIDs) {
             for (const charID of charIDs) {
-                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+                await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc, shiftValue);
             }
             setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
         }

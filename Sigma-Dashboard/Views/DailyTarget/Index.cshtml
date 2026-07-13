@@ -1,0 +1,396 @@
+﻿@model IEnumerable<Sigma_Dashboard.Models.DailyTargetViewModel>
+<link href="~/plugins/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+@{
+    ViewData["Title"] = "Daily Target";
+    string stringDate = ViewBag.stringDate;
+    string companyCode = ViewBag.CompanyCode;
+    // Khởi tạo biến cờ (Mặc định ban đầu coi như là ngày hiện tại hoặc tương lai)
+    bool isToday = true;
+
+    if (!string.IsNullOrEmpty(stringDate))
+    {
+        // 2. Ép kiểu chuỗi "yyyyMMdd" sang DateTime một cách an toàn
+        if (DateTime.TryParseExact(stringDate.Trim(), "yyyyMMdd",
+                                   System.Globalization.CultureInfo.InvariantCulture,
+                                   System.Globalization.DateTimeStyles.None,
+                                   out DateTime parsedDate))
+        {
+            // 3. So sánh với ngày hiện tại (chỉ lấy phần Ngày, bỏ qua Giờ)
+            if (parsedDate < DateTime.Today)
+            {
+                isToday = false; // Nhỏ hơn ngày hôm nay thì gán bằng false
+            }
+        }
+        else
+        {
+            // Trường hợp chuỗi truyền vào không đúng định dạng 8 chữ số
+            isToday = false;
+        }
+    }
+    else
+    {
+        // Trường hợp ViewBag.stringDate bị null hoặc rỗng
+        isToday = false;
+    }
+}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Daily Target</h3>
+
+            <input type="file" id="excelFileDaily" accept=".xlsx, .xls" style="display: none;" onchange="uploadDailyExcelWithAjax()" />
+
+            <div class="d-flex ml-auto">
+                <button type="button" class="btn btn-success mr-2" onclick="$('#excelFileDaily').click()">
+                    <i class="fas fa-file-import"></i>
+                </button>
+                <button type="button" class="btn btn-success" onclick="openCreateModal()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>Daily_plan</th>
+                        <th>UPH</th>
+                        <th>UPPH</th>
+                        <th>Labor</th>
+                        <th>Date_time</th>
+                        <th>Defect</th>
+                        <th>Workingtime</th>
+                        <th>Shift</th>
+                        <th style="width: 120px;">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr id="row_@item.Operation">
+                                <td>@item.Operation</td>
+                                <td>@item.Daily_plan</td>
+                                <td>@item.UPH</td>
+                                <td>@item.UPPH</td>
+                                <td>@item.Labor</td>
+                                <td>@item.Date_time</td>
+                                <td>@item.Defect</td>
+                                <td>@item.Workingtime</td>
+                                <td>@item.Shift</td>
+                                <td>
+                                    @if (isToday)
+                                    {
+                                        <button class="btn btn-sm btn-primary"
+                                                onclick="openEditModal(this)"
+                                                data-operation="@item.Operation"
+                                                data-dailyplan="@item.Daily_plan"
+                                                data-uph="@item.UPH"
+                                                data-upph="@item.UPPH"
+                                                data-labor="@item.Labor"
+                                                data-datetime="@item.Date_time"
+                                                data-defect="@item.Defect"
+                                                data-workingtime="@item.Workingtime"
+                                                data-shift="@item.Shift">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTarget('@item.Operation', '@item.Date_time', '@item.Shift')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center">No data available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="targetModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add New Target</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="targetForm">
+                <div class="modal-body">
+                    <input type="hidden" id="isEditMode" value="false" />
+
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Operation <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="txtOperation" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Date Time (yyyyMMdd) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="txtDateTime" placeholder="Ví dụ: @stringDate" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Daily Plan</label>
+                            <input type="number" class="form-control" id="txtDailyPlan">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Shift</label>
+                            <select class="form-control" id="ddlShift">
+                                <option value="day">day</option>
+                                <option value="night">night</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label>UPH</label>
+                            <input type="number" step="0.001" class="form-control" id="txtUPH">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>UPPH</label>
+                            <input type="number" step="0.001" class="form-control" id="txtUPPH">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Labor</label>
+                            <input type="number" class="form-control" id="txtLabor">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Defect</label>
+                            <input type="text" class="form-control" id="txtDefect">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Working Time</label>
+                            <input type="number" step="0.001" class="form-control" id="txtWorkingTime">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSave">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCreateModal() {
+        // 1. Reset form về trống rỗng TRƯỚC
+        $('#targetForm')[0].reset();
+
+        // 2. Định nghĩa chế độ Thêm mới và tiêu đề
+        $('#isEditMode').val('false');
+        $('#modalTitle').text('Add New Target');
+
+        // 3. Mở khóa ô Operation, gán giá trị mặc định cho Date_time và Khóa lại
+        $('#txtOperation').prop('disabled', false);
+        $('#txtDateTime').val('@stringDate').prop('disabled', true);
+
+        // 4. Hiển thị Modal lên màn hình
+        $('#targetModal').modal('show');
+    }
+
+    function openEditModal(btn) {
+        $('#isEditMode').val('true');
+        $('#modalTitle').text('Update Target');
+
+        // --- KHÓA ĐỒNG THỜI CẢ OPERATION VÀ DATE_TIME KHI EDIT ---
+        $('#txtOperation').val($(btn).data('operation')).prop('disabled', true);
+        $('#txtDateTime').val($(btn).data('datetime')).prop('disabled', true);
+
+        $('#txtDailyPlan').val($(btn).data('dailyplan'));
+        $('#txtUPH').val($(btn).data('uph'));
+        $('#txtUPPH').val($(btn).data('upph'));
+        $('#txtLabor').val($(btn).data('labor'));
+        $('#txtDefect').val($(btn).data('defect'));
+        $('#txtWorkingTime').val($(btn).data('workingtime'));
+
+        // Gán giá trị được chọn cho Select Box Shift
+        $('#ddlShift').val($(btn).data('shift')).prop('disabled', true);
+
+        $('#targetModal').modal('show');
+    }
+
+    $('#targetForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var formData = {
+            Operation: $('#txtOperation').val(),
+            Date_time: $('#txtDateTime').val(), // Lấy chuỗi string trực tiếp
+            Daily_plan: parseInt($('#txtDailyPlan').val()) || 0,
+            UPH: parseFloat($('#txtUPH').val()) || 0,
+            UPPH: parseFloat($('#txtUPPH').val()) || 0,
+            Labor: parseInt($('#txtLabor').val()) || 0,
+            Defect: $('#txtDefect').val(),
+            Workingtime: parseFloat($('#txtWorkingTime').val()) || 0,
+            Shift: $('#ddlShift').val() // Lấy giá trị từ select box
+        };
+
+        var isEdit = $('#isEditMode').val() === 'true';
+        var url = isEdit ? '@Url.Action("Edit", "DailyTarget")' : '@Url.Action("Create", "DailyTarget")';
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    $('#targetModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert("System error: " + res.message);
+                }
+            },
+            error: function () {
+                alert("Connection error.");
+            }
+        });
+    });
+
+    function deleteTarget(operation, datetime, shift) {
+        if (confirm("Are you sure to delete data for Operation " + operation + " ?")) {
+            $.ajax({
+                url: '@Url.Action("Delete", "DailyTarget")',
+                type: 'POST',
+                data: { operation: operation, datetime: datetime, shift: shift },
+                success: function (res) {
+                    if (res.success) {
+                        alert(res.message);
+                        $('#row_' + operation).remove();
+                    } else {
+                        alert("Error: " + res.message);
+                    }
+                },
+                error: function () {
+                    alert("Delete failed.");
+                }
+            });
+        }
+    }
+
+    function uploadDailyExcelWithAjax() {
+        var fileInput = $('#excelFileDaily')[0].files[0];
+        if (!fileInput) return;
+
+        if (typeof showLoader === "function") showLoader();
+
+        // Dùng FileReader đọc file Excel thành chuỗi Base64 ngay tại máy người dùng
+        var reader = new FileReader();
+        reader.readAsDataURL(fileInput);
+
+        reader.onload = function () {
+            // Tách bỏ cụm header "data:application/...;base64," chỉ lấy chuỗi mã hóa phía sau
+            var base64String = reader.result.split(',')[1]; 
+
+            // Đóng gói dữ liệu thành Object JSON thuần túy
+            var requestData = {
+                fileBase64: base64String,
+                stringDate: '@stringDate'
+            };
+
+            $.ajax({
+                url: '@Url.Action("ImportExcel", "DailyTarget")', // Tự sinh URL chuẩn theo hạ tầng IIS/Nginx
+                type: 'POST',
+                contentType: 'application/json', // Ép kiểu dữ liệu truyền đi là JSON String
+                data: JSON.stringify(requestData),
+                dataType: 'json',
+                success: function (res) {
+                    if (res.success === true || res.success === "true") {
+                        alert(res.message);
+                        location.reload();
+                    } else {
+                        if (res.hasExcelError) {
+                            alert(res.message);
+
+                            // Tự dựng lại file Excel lỗi từ bộ nhớ trình duyệt, bypass lỗi download của Server
+                            var sampleBytes = base64ToArrayBufferDaily(res.fileBase64);
+                            saveByteArrayDaily(res.fileName, sampleBytes);
+                        } else {
+                            alert("Error: " + res.message);
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert("System error (Error code: " + xhr.status + ").");
+                },
+                complete: function () {
+                    $('#excelFileDaily').val(''); // Reset input file
+                    if (typeof hideLoader === "function") hideLoader();
+                }
+            });
+        };
+
+        reader.onerror = function (error) {
+            alert("Import file error: " + error);
+            if (typeof hideLoader === "function") hideLoader();
+        };
+    }
+
+    // Các hàm giải mã dữ liệu nhị phân độc lập cho DailyTarget
+    function base64ToArrayBufferDaily(base64) {
+        var binaryString = window.atob(base64);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    function saveByteArrayDaily(reportName, byte) {
+        var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = reportName;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+    }
+</script>
+
+<script src="~/plugins/datatables/jquery.datatables.min.js"></script>
+<script src="~/plugins/datatables-bs4/js/datatables.bootstrap4.min.js"></script>
+<script src="~/plugins/datatables-responsive/js/datatables.responsive.min.js"></script>
+<script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/datatables.buttons.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/plugins/jszip/jszip.min.js"></script>
+<script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/plugins/datatables-buttons/js/buttons.colvis.min.js"></script>
+
+<script>
+    $(function () {
+      $("#example1").DataTable({
+        "responsive": true, "lengthChange": false, "autoWidth": false,
+        "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+      }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+      $('#example2').DataTable({
+        "paging": true,
+        "lengthChange": false,
+        "searching": false,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "responsive": true,
+      });
+    });
+</script>

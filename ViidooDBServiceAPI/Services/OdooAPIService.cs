@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using SVNShareLib.Request;
 
 namespace ViidooDBServiceAPI.Services
 {
@@ -62,6 +63,12 @@ namespace ViidooDBServiceAPI.Services
                         var responseString = await response.Content.ReadAsStringAsync();
 
                         var json = JObject.Parse(responseString);
+                        if (json["error"] != null)
+                        {
+                            //throw new Exception(json["error"]["message"].ToString());
+                            throw new Exception($"LoginAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                        }
+
                         uid = json["result"]?["uid"]?.Value<int>() ?? 0;
 
                         if (response.Headers.TryGetValues("Set-Cookie", out var setCookieValues))
@@ -171,6 +178,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ReadProductionAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 var dictionary = ((JObject)resultArray[0])
@@ -237,6 +250,13 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"LotSearchAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
                 if (resultArray.Count == 0)
                 {
@@ -287,6 +307,13 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_create", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CreateLotAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
                 if (resultArray.Count == 0)
                 {
@@ -363,6 +390,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ReadProductionByProductIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 var dictionary = ((JObject)resultArray[0])
@@ -430,6 +463,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CheckUsedLotIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
 
@@ -514,6 +553,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotByNameAndProductIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
 
@@ -643,7 +688,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetStockMoveLineByLotNameAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
                 try
                 {
@@ -749,6 +802,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetUsedLotForComponemtAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 if (resultArray.Count == 0)
@@ -767,6 +826,74 @@ namespace ViidooDBServiceAPI.Services
                     return null;
                 }
 
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để kiểm tra số lượng tồn kho còn lại của một mã lot.
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="product_id"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<double> GetLotRemainingQtyAsync(string lot_name, int product_id, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.quant",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            // Lọc theo Lot name, Product và chỉ lấy ở các địa điểm Nội bộ (Internal)
+                            domain = new object[] {
+                        new object[] { "lot_id.name", "=", lot_name },
+                        new object[] { "product_id", "=", product_id },
+                        new object[] { "location_id.usage", "=", "internal" }
+                    },
+                            fields = new string[] { "quantity", "reserved_quantity", "location_id" }
+                        }
+                    },
+                    id = DateTime.Now.Ticks
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.quant/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotRemainingQtyAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                if (json["result"] == null) return 0;
+
+                var results = (JArray)json["result"];
+
+                // Cộng dồn tồn kho nếu Lot này nằm ở nhiều vị trí (bin) khác nhau
+                double totalQty = 0;
+                foreach (var item in results)
+                {
+                    totalQty += item["quantity"]?.Value<double>() ?? 0;
+                }
+
+                return totalQty;
             }
         }
 
@@ -827,7 +954,15 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetStockMoveByIDAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"];
 
                 try
@@ -953,9 +1088,11 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move/write", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = JObject.Parse(responseString);
+
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SaveSerialStockMoveAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -1199,7 +1336,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ConsumeMaterialsByBOMAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -1513,7 +1651,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ConsumeMaterialsByBOMAsyncv1 - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -1992,7 +2131,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"ConsumeMaterialsByBOMAsyncv2 - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2057,7 +2197,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SaveProductionOrderAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2132,7 +2273,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SaveProductionOrderAsyncv1 - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2193,7 +2335,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"MarkDoneProductionOrderAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2281,7 +2424,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderOnchange - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2377,6 +2521,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderCreate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var backorder_id = int.Parse(json["result"].ToString());
                 return backorder_id;
             }
@@ -2454,7 +2604,8 @@ namespace ViidooDBServiceAPI.Services
 
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderAction - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
             }
@@ -2557,7 +2708,14 @@ namespace ViidooDBServiceAPI.Services
                 );
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.move.line/read", content);
                 var responseString = await response.Content.ReadAsStringAsync();
+
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"BackOrderCreate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
 
@@ -2633,6 +2791,98 @@ namespace ViidooDBServiceAPI.Services
                 var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
                 var responseString = await response.Content.ReadAsStringAsync();
                 var json = await response.Content.ReadAsStringAsync();
+
+                var jsonString = JObject.Parse(responseString);
+
+                if (jsonString["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotInfo - {jsonString["error"]["code"].ToString()} - {jsonString["error"]["message"].ToString()} - {jsonString["error"]["data"].ToString()}");
+                }
+
+                //var resultArray = (JArray)json["result"];
+                try
+                {
+                    dynamic data = JsonConvert.DeserializeObject(json);
+                    int lotId = data.result[0][0];
+                    string lotName = data.result[0][1];
+
+                    return lotId;
+                }
+                catch (Exception ex)
+                {
+                    return 0;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Check lot có ở trong kho không trc khi tiêu thụ
+        /// </summary>
+        /// <param name="lot_name"></param>
+        /// <param name="mo_id"></param>
+        /// <param name="stockMoveInfo"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<int> GetLotInfoInWarehoure(string lot_name, int product_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 130,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "stock.lot",
+                        method = "name_search",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            name = lot_name,
+                            @operator = "ilike",
+                            args = new object[]
+                            {
+                                "&",
+                                new object[] { "product_id", "=", product_id }
+                            },
+                            limit = 8,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                //active_picking_id = false,
+                                default_product_id = product_id
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/stock.lot/name_search", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync();
+
+                var jsonString = JObject.Parse(responseString);
+
+                if (jsonString["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetLotInfoInWarehoure - {jsonString["error"]["code"].ToString()} - {jsonString["error"]["message"].ToString()} - {jsonString["error"]["data"].ToString()}");
+                }
+
                 //var resultArray = (JArray)json["result"];
                 try
                 {
@@ -2777,9 +3027,696 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CreateLotComponentForMO - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+        #endregion
+
+        #region BOM và sản phẩm
+        /// <summary>
+        /// Hàm API để tạo mới sản phẩm trong Odoo.
+        /// </summary>
+        /// <param name="ItemCode"></param>
+        /// <param name="DisplayName"></param>
+        /// <param name="id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<int> CreateProductTemplate(string ItemCode, string DisplayName, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 160,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new
+                            {
+                                service_type = "manual",
+                                type = "product",
+                                tracking = "none",
+                                priority = "0",
+                                name = DisplayName,
+                                sale_ok = true,
+                                purchase_ok = true,
+                                active = true,
+                                detailed_type = "product",
+                                invoice_policy = "order",
+                                service_policy = "ordered_prepaid",
+                                service_tracking = "no",
+                                expense_policy = "no",
+                                uom_id = 27,
+                                uom_po_id = 27,
+                                list_price = 1,
+                                standard_price = 0,
+                                categ_id = 1,
+                                default_code = ItemCode,
+                                recurring_sale_price = 1,
+                                period_uom = "daily",
+                                responsible_id = 2,
+                                weight = 0,
+                                volume = 0,
+                                produce_delay = 0,
+                                days_to_prepare_mo = 0,
+                                sale_delay = 0,
+                                property_stock_production = 15,
+                                property_stock_inventory = 14,
+
+                                taxes_id = new object[]
+                                {
+                                    new object[] { 6, false, new int[] { 4 } }
+                                },
+
+                                supplier_taxes_id = new object[]
+                                {
+                                    new object[] { 6, false, new int[] { 1 } }
+                                },
+
+                                route_ids = new object[]
+                                {
+                                    new object[] { 6, false, new int[] { 7, 5, 1 } }
+                                },
+
+                                seller_ids = new object[]
+                                {
+                                    new object[]
+                                    {
+                                        0,
+                                        "virtual_7",
+                                        new
+                                        {
+                                            sequence = 1,
+                                            partner_id = 478,
+                                            company_id = 1,
+                                            min_qty = 0,
+                                            price = 0,
+                                            currency_id = 24,
+                                            delay = 1
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                default_company_id = 1
+                            }
+                        },
+                        method = "create",
+                        model = "product.template"
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"CreateProductTemplate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                //var json = JObject.Parse(responseString);
+                //if (json["error"] != null)
+                //{
+                //    throw new Exception(json["error"]["message"].ToString());
+                //}
+                //return json.ToObject<Dictionary<string, object>>();
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                try
+                {
+                    int createID = obj.result;
+                    return createID;
+                }
+                catch
+                {
+                    return 0;
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Kiếm tra tồn tại sản phẩm theo mã hàng
+        /// </summary>
+        /// <param name="itemCode"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<int> SearchProductTemplate(string itemCode, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 135,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.template",
+                        method = "web_search_read",
+                        args = new object[] { },   // rỗng
+                        kwargs = new
+                        {
+                            limit = 80,
+                            offset = 0,
+                            order = "",
+                            count_limit = 81,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                bin_size = true,
+                                default_categ_id = 1,
+                                default_detailed_type = "product"
+                            },
+
+                            domain = new object[]
+                            {
+                                "&",
+                                new object[] { "categ_id", "=", 1 },
+                                "&",
+                                new object[] { "type", "in", new string[] { "consu", "product" } },
+                                "|", "|", "|",
+                                new object[] { "default_code", "ilike", itemCode },
+                                new object[] { "product_variant_ids.default_code", "ilike", itemCode },
+                                new object[] { "name", "ilike", itemCode },
+                                new object[] { "barcode", "ilike", itemCode }
+                            },
+
+                            fields = new string[]
+                            {
+                                "id",
+                                "product_variant_count",
+                                "product_license_version_ids",
+                                "product_licenses_count",
+                                "currency_id",
+                                "activity_state",
+                                "__last_update",
+                                "name",
+                                "priority",
+                                "default_code",
+                                "list_price",
+                                "qty_available",
+                                "uom_id",
+                                "type",
+                                "show_on_hand_qty_status_button"
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/web_search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearchProductTemplate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                //var json = JObject.Parse(responseString);
+                //if (json["error"] != null)
+                //{
+                //    throw new Exception(json["error"]["message"].ToString());
+                //}
+                //return json.ToObject<Dictionary<string, object>>();
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                try
+                {
+                    int id = obj.result.records[0].id;
+                    return id;
+                }
+                catch
+                {
+                    return 0;
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để cập nhật sản phẩm trong Odoo.
+        /// </summary>
+        /// <param name="codeID"></param>
+        /// <param name="ItemCode"></param>
+        /// <param name="DisplayName"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<bool> WriteProductTemplate(int codeID, string ItemCode, string DisplayName, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 137,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.template",
+                        method = "write",
+                        args = new object[]
+                        {
+                            new int[] { codeID },     // list ID
+                            new
+                            {
+                                default_code = ItemCode,
+                                name = DisplayName
+                            }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                default_detailed_type = "product"
+                            }
+                        }
+                    }
+                };
+
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"WriteProductTemplate - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                //if (json["error"] != null)
+                //{
+                //    throw new Exception(json["error"]["message"].ToString());
+                //}
+                //return json.ToObject<Dictionary<string, object>>();
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                try
+                {
+                    bool isUpdate = obj.result;
+                    return isUpdate;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tìm kiếm BOM theo Product Template ID
+        /// </summary>
+        /// <param name="product_template_id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public async Task<dynamic> SearchBOMByProductTemplateID(int product_template_id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 170,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.bom",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                "&", // Phép AND cho toàn bộ điều kiện bên dưới
+                                new object[] { "active", "=", true }, // Chỉ lấy BOM đang enable
+                                "|",
+                                new object[] { "product_tmpl_id", "=", product_template_id },
+                                new object[] { "byproduct_ids.product_id.product_tmpl_id", "=", product_template_id }
+                            },
+                            fields = new string[]
+                            {
+                                "eco_count","active","company_id","product_tmpl_id","product_uom_category_id",
+                                "allow_operation_dependencies","product_id","product_qty","product_uom_id",
+                                "product_packaging_qty","product_packaging_id","code","type","bom_line_ids",
+                                "operation_ids","ready_to_produce","version","previous_bom_id","consumption",
+                                "picking_type_id","display_name", "create_date", "write_date"
+                            },
+                            order = "sequence asc, id desc",
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearchBOMByProductTemplateID - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetBomLinesByIdsAsync(List<int> bomLineIds, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu chi tiết các dòng BOM
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.bom.line",
+                        method = "read",
+                        // Args chứa danh sách ID cần đọc và danh sách các fields cần lấy
+                    args = new object[]
+                    {
+                        bomLineIds, // Ví dụ: [3695, 3696, 3697, 3698, 3699]
+                        new string[]
+                        {
+                            "company_id","sequence","product_id","product_tmpl_id","attachments_count",
+                            "standard_qty","loss_rate","product_qty","product_uom_category_id","parent_product_tmpl_id",
+                            "product_uom_id","possible_bom_product_template_attribute_value_ids","bom_product_template_attribute_value_ids",
+                            "allowed_operation_ids","operation_id","manual_consumption_readonly","manual_consumption","cost_share","bom_id",
+                            "create_date", "write_date"
+                        }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    },
+                    id = 56 // ID request giống trong ảnh Postman của bạn
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                // Lưu ý: URL kết thúc bằng /read vì method gọi là read
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom.line/read", content);
+
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetBomLinesByIdsAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> InsertBOM(BOMDataRequest bOMData, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                var bomLineIds = bOMData.Items
+                    .Select(x => new object[]
+                    {
+                        0,
+                        0,
+                        new
+                        {
+                            sequence = 1,
+                            product_id = x.ProductID,
+                            product_qty = x.Quantity,
+                            product_uom_id = x.ProductUomlID, //27
+                            bom_product_template_attribute_value_ids = new object[]
+                            {
+                                new object[] { 6, 0, new int[] { } }
+                            },
+                            operation_id = false,
+                            manual_consumption = false,
+                            cost_share = 0
+                        }
+                    })
+                    .ToArray();
+
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 200,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.bom",
+                        method = "create",
+                        args = new object[]
+                        {
+                            new
+                            {
+                                active = true,
+                                company_id = 1,
+                                product_tmpl_id = bOMData.ProductTempID,
+                                allow_operation_dependencies = false,
+                                product_id = false,
+                                product_qty = bOMData.Quantity,
+                                product_uom_id = bOMData.ProductUomlID,
+                                code = false,
+                                type = "normal",
+                                bom_line_ids = bomLineIds,
+                                operation_ids = new object[] { },
+                                ready_to_produce = "all_available",
+                                consumption = "warning",
+                                picking_type_id = false
+                            }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.bom/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"InsertBOM - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> SearhProductItem(string itemCode, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 180,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.product",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "default_code", "=", itemCode }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "name", "default_code", "product_tmpl_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.product/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearhProductItem - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> SearhProductTemp(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 180,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.template",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "id", "=", id }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "name", "default_code", "uom_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.template/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearhProductTemp - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
             }
         }
         #endregion
@@ -2834,6 +3771,12 @@ namespace ViidooDBServiceAPI.Services
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetEmployeeCategory - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
 
                 var resultArray = (JArray)json["result"];
                 foreach (var item in resultArray)
@@ -2906,6 +3849,12 @@ namespace ViidooDBServiceAPI.Services
 
                 var json = JObject.Parse(responseString);
 
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetEmployeeInfomation - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
                 var resultArray = (JArray)json["result"]["records"];
                 foreach (var item in resultArray)
                 {
@@ -2975,7 +3924,8 @@ namespace ViidooDBServiceAPI.Services
                 var json = JObject.Parse(responseString);
                 if (json["error"] != null)
                 {
-                    throw new Exception(json["error"]["message"].ToString());
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"GetProductItemByCode - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 var resultArray = (JArray)json["result"];
                 var result = resultArray[0].ToObject<Dictionary<string, string>>();
@@ -2983,6 +3933,95 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        #endregion
+
+
+        #region Đọc dữ kiệu sản xuất
+        public async Task<List<dynamic>> ReadProductionResultAsync(
+            DateTime fromDate,
+            DateTime toDate,
+            List<int> excludeIds,
+            int uid,
+            string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                // Định dạng ngày tháng theo chuẩn Odoo
+                string fromDateStr = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+                string toDateStr = toDate.ToString("yyyy-MM-dd HH:mm:ss");
+
+                // Xây dựng Domain Filter
+                var domain = new List<object>
+                {
+                    new object[] { "date_finished", ">=", fromDateStr },
+                    new object[] { "date_finished", "<=", toDateStr }
+                };
+
+                if (excludeIds != null && excludeIds.Count > 0)
+                {
+                    domain.Add(new object[] { "id", "not in", excludeIds.ToArray() });
+                }
+
+                var payload = new
+                {
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = domain.ToArray(),
+                            fields = new string[]
+                            {
+                                "id", "product_id", "product_uom_id", "lot_producing_id", "bom_id",
+                                "name", "priority", "origin", "state", "reservation_state",
+                                "consumption", "product_qty", "qty_producing", "date_planned_start",
+                                "date_planned_finished", "date_deadline", "date_start", "date_finished",
+                                "product_uom_qty", "x_Svn_customer_SN", "finished_move_line_ids"
+                            },
+                            order = "create_date desc",
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                allowed_company_ids = new List<int> { 1 },
+                                bin_size = true,
+                                uid = uid
+                            }
+                        }
+                    },
+                    id = 100
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"ReadProductionResultAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var resultArray = (JArray)json["result"];
+
+                // Ép kiểu trực tiếp danh sách các phần tử JObject sang danh sách dynamic
+                List<dynamic> dynamicList = resultArray.Cast<dynamic>().ToList();
+
+                return dynamicList;
+            }
+        }
         #endregion
     }
 }

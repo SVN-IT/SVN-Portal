@@ -10,6 +10,7 @@
         public int Rounding { get; set; }
         public string ShowSingleChart { get; set; }
         public int timeChangeTabMainDashboard { get; set; }
+        public string DefaultCompany { get; set; }
         public int AppID { get; set; }
         public int CompanyID { get; set; }
 

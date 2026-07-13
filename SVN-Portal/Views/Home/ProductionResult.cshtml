@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Home Page";
     DateTime date = ViewBag.date;
+    string shift = ViewBag.shift;
 }
 <script>
     var dataParam;
@@ -38,7 +39,7 @@
 
     "valueAxes": [{
     "id": "a1",
-    "title": "quatity",
+    "title": "Qty",
     "gridAlpha": 0,
     "axisAlpha": 0
     }],
@@ -165,13 +166,19 @@
     <div class="col-lg-12">
         <form method="post">
             <div class="form-group row">
+                <div class="col-12 col-sm-6 col-md-2 col-lg-1">
+                    <select class="form-control" name="shift">
+                        <option value="Day" selected="@(shift == "Day")">Day</option>
+                        <option value="Night" selected="@(shift == "Night")">Night</option>
+                    </select>
+                </div>
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="row">
                         <div class="col-9">
                             <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
                         </div>
                         <div class="col-3">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" asp-route-companyCode="@ViewBag.CompanyCode" asp-route-isManualLoad=true class="btn btn-primary">
                                 Search
                             </button>
                         </div>
@@ -227,6 +234,14 @@
             }
             string charID = "chartdiv" + item.Operation;
             charID = charID.Replace("-", "");
+            if (charID.Contains("(SM)"))
+            {
+                charID = charID.Replace("(SM)", "");
+            }
+            if (charID.Contains("(ITA)"))
+            {
+                charID = charID.Replace("(ITA)", "");
+            }
             string jsonData = string.Empty;
             string defectData = string.Empty;
             string disableStatus = string.Empty;
@@ -281,10 +296,15 @@
                         <div class="row">
                             <div class="col-12">
                                 <h4 class="@textHeaderColor">
-                                    @item.Operation @productName - (@item.Line)
+                                    @item.Operation - (@item.Line)
                                     <br />
+                                    @productName
                                     <br />
-                                    <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+                                    @{
+                                        string techName = !string.IsNullOrWhiteSpace(item.TechName) ? " - " + item.TechName : "";
+
+                                    }
+                                    <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName  @techName</p>
                                 </h4>
                             </div>
                             <div id="checklistStatus-@charID" class="col-12">
@@ -633,7 +653,7 @@
     }
 </div>
 <script>
-    function fetchChartData(charID, date, oper, wc) {
+    function fetchChartData(charID, date, oper, wc, shift) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: '/Home/GetDataByOperAndWCMainDashBoard',
@@ -641,7 +661,8 @@
                 data: {
                     date: date,
                     oper: oper,
-                    wc: wc
+                    wc: wc,
+                    shift: shift
                 },
                 success: function (response) {
                     if (response.result) {
@@ -709,10 +730,11 @@
     }
 
     $(document).ready(function () {
+        var shiftValue = $('select[name="shift"]').val();
         async function executeSequentialCalls(charIDs) {
             for (const charID of charIDs) {
                 try{
-                    await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc);
+                    await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc, shiftValue);
                 } catch (error) {
                     // console.error("Error fetching data for " + charID.charID + ": " + error);
                 }

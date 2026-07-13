@@ -9,6 +9,8 @@ namespace SVNShareLib
     public class ViindooDBConfig
     {
         public string ServerUrl { get; set; }
+        public string SessionID { get; set; }
+        public int UserID { get; set; }
         public string OdooServerUrl { get; set; }
         public string DbName { get; set; }
         public string Username { get; set; }

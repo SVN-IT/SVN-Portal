@@ -1,0 +1,395 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+
+    <link rel="icon" type="image/png" sizes="20x20" href="~/dist/img/sigma-logo.svg">
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link href="~/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link href="~/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+    <!-- iCheck -->
+    <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+    <!-- JQVMap -->
+    <link href="~/plugins/jqvmap/jqvmap.min.css" rel="stylesheet" />
+
+    
+
+    <!-- Theme style -->
+    <link href="~/dist/css/adminlte.min.css" rel="stylesheet" />
+    <!-- overlayScrollbars -->
+    <link href="~/plugins/overlayscrollbars/css/overlayscrollbars.min.css" rel="stylesheet" />
+    <!-- Daterange picker -->
+    <link href="~/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <!-- summernote -->
+    <link href="~/plugins/summernote/summernote-bs4.min.css" rel="stylesheet" />
+    <link href="~/css/responsives.css" rel="stylesheet" />
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <!-- ChartJS -->
+    <script src="~/plugins/chart.js/chart.min.js"></script>
+    <script src="~/plugins/chart.js/chartjs-plugin-datalabels.min.js"></script>
+    <script src="~/js/site.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+    <div class="wrapper">
+        @{
+            DateTime date = ViewBag.date;
+            string shift = ViewBag.shift;
+            string companyCode = ViewBag.CompanyCode;
+            string titleName = ViewBag.TitleName;
+            string accessMode = ViewBag.AccessMode;
+            
+            string selectedMasterOperation = ViewBag.SelectedMasterOperation;
+
+            string controllerName = ViewBag.ControllerName;
+            string indexPage = ViewBag.IndexPage;
+            if (string.IsNullOrWhiteSpace(indexPage))
+            {
+                indexPage = "Index";
+            }
+            string masterOperations = await appSettingServices.GetMasterOperList();
+            List<string> masterOperList = masterOperations.Split(',').ToList();
+            if (!string.IsNullOrWhiteSpace(companyCode))
+            {
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(SM)")).ToList();
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(ITA)")).ToList();
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        masterOperList = masterOperList.Where(x => !x.EndsWith("(SM)") && !x.EndsWith("(ITA)")).ToList();
+                        break;
+                }
+            }
+        }
+        <!-- Preloader -->
+        <div class="preloader flex-column justify-content-center align-items-center">
+            <img class="animation__shake img-preloader" src="~/dist/img/sigma-logo.svg" alt="AdminLTELogo">
+        </div>
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <div class="navbar-search-block">
+                        <form method="post" class="form-inline">
+                            <div class="input-group input-group-sm">
+                                @if ((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home")
+                                {
+                                    int pageSize = ViewBag.PageSize;
+                                    <select class="form-control form-control-navbar" name="pageSize">
+                                        <option value="3" selected="@(pageSize == 3)">3</option>
+                                        <option value="6" selected="@(pageSize == 6)">6</option>
+                                        <option value="9" selected="@(pageSize == 9)">9</option>
+                                        <option value="12" selected="@(pageSize == 12)">12</option>
+                                        <option value="15" selected="@(pageSize == 15)">15</option>
+                                        <option value="0" selected="@(pageSize == 0)">All</option>
+                                    </select>
+                                }
+                                <select class="form-control form-control-navbar" name="companyCode">
+                                    <option value="SVN" selected="@(companyCode == "SVN")">SVN</option>
+                                    <option value="SM" selected="@(companyCode == "SM")">SM</option>
+                                    <option value="ITA" selected="@(companyCode == "ITA")">ITA</option>
+                                </select>
+                                <select class="form-control form-control-navbar" name="shift">
+                                    <option value="Day" selected="@(shift == "Day")">Day</option>
+                                    <option value="Night" selected="@(shift == "Night")">Night</option>
+                                </select>
+                                <input id="inputDate" class="form-control form-control-navbar" type="date" name="date" value="@date.ToString("yyyy-MM-dd")">
+                                <div class="input-group-append">
+                                    <button class="btn btn-navbar" type="submit" asp-controller="@controllerName" asp-action="@indexPage"
+                                        asp-route-masterOperation="@selectedMasterOperation"
+                                        asp-route-isManualLoad=true>
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn btn-navbar" type="button" id="btnCloseSearchBar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="brand-link">
+                <img src="~/dist/img/sigma-logo.svg" alt="AdminLTE Logo" class="sigma-brand-image" style="opacity: .8">
+                @* <span class="brand-text font-weight-light">AdminLTE 3</span> *@
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+
+                <!-- SidebarSearch Form -->
+                <div class="form-inline mt-2">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search for menu" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+                             with font-awesome or any other icon font library -->
+                        @if (accessMode == "Dashboard")
+                        {
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon  fas fa-chart-pie"></i>
+                                    <p>
+                                        Dashboard
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="nav-link @(controllerName == "Home" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Main</p>
+                                        </a>
+                                    </li>
+                                    @if (masterOperList != null && masterOperList.Count > 0)
+                                    {
+                                        foreach (var oper in masterOperList)
+                                        {
+                                            <li class="nav-item">
+                                                <a asp-controller="Home" asp-action="ChartPageByOperation" asp-route-masterOperation="@oper" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false asp-route-oper=oper class="nav-link @(selectedMasterOperation == oper ? "active":"")">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>@oper</p>
+                                                </a>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        else if (accessMode == "PMC")
+                        {
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon fas fa-file-alt"></i>
+                                    <p>
+                                        Target Input
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="DailyTarget" asp-action="Index" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "DailyTarget" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Daily Target</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a asp-controller="HourlyTarget" asp-action="Index" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "HourlyTarget" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Hourly Target</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">@titleName</h1>
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active">@titleName</li>
+                            </ol>
+                        </div><!-- /.col -->
+                        <div class="col-12">
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>🟢 Thành công!</strong> @TempData["SuccessMessage"]
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>🔴 Thất bại!</strong> @TempData["ErrorMessage"]
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+            <!-- Main content -->
+            <section class="content">
+                @RenderBody()
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2026 <a href="https://sigmaworldwide.com/">Sigmaworldwide</a>.</strong>
+            All rights reserved.
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 1.0
+            </div>
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+        </aside>
+        <!-- /.control-sidebar -->
+    </div>
+    <!-- ./wrapper -->
+    <!-- REQUIRED SCRIPTS -->
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button)
+
+        $(document).ready(function () {
+            // 1. TÌM Ô CHECKBOX DARK MODE DỰA TRÊN TEXT "Dark Mode" Ở THẺ SPAN CẠNH NÓ
+            var $darkModeCheckbox = $('span:contains("Dark Mode")').siblings('input[type="checkbox"]');
+
+            // Nếu không tìm thấy bằng cách trên, thử tìm thẻ div bao ngoài theo cấu trúc của AdminLTE
+            if ($darkModeCheckbox.length === 0) {
+                $darkModeCheckbox = $('.mb-4 input[type="checkbox"]').filter(function() {
+                    return $(this).next('span').text().trim() === "Dark Mode";
+                });
+            }
+
+            // 2. KHI VỪA LOAD TRANG: Kiểm tra trạng thái đã lưu trong LocalStorage
+            var savedDarkMode = localStorage.getItem('theme-dark-mode');
+
+            if (savedDarkMode === 'true') {
+                // Nếu trước đó đã bật -> Thêm class dark-mode vào body và tích chọn sẵn ô checkbox
+                $('body').addClass('dark-mode');
+                $darkModeCheckbox.prop('checked', true);
+            } else {
+                // Nếu trước đó tắt (hoặc lần đầu vào trang) -> Gỡ bỏ class và bỏ tích chọn
+                $('body').removeClass('dark-mode');
+                $darkModeCheckbox.prop('checked', false);
+            }
+
+            // 3. KHI NGƯỜI DÙNG CLICK THAY ĐỔI Ô CHECKBOX (BẬT/TẮT)
+            $darkModeCheckbox.on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Người dùng TÍCH CHỌN -> Bật Dark Mode + Lưu 'true' vào LocalStorage
+                    $('body').addClass('dark-mode');
+                    localStorage.setItem('theme-dark-mode', 'true');
+                } else {
+                    // Người dùng BỎ TÍCH -> Tắt Dark Mode + Lưu 'false' vào LocalStorage
+                    $('body').removeClass('none-dark-mode').removeClass('dark-mode');
+                    localStorage.setItem('theme-dark-mode', 'false');
+                }
+            });
+        });
+    </script>
+    
+
+    <!-- Sparkline -->
+    <script src="~/plugins/sparklines/sparkline.js"></script>
+    <!-- JQVMap -->
+    <script src="~/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    <!-- jQuery Knob Chart -->
+    <script src="~/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <!-- daterangepicker -->
+    <script src="~/plugins/moment/moment.min.js"></script>
+    <script src="~/plugins/daterangepicker/daterangepicker.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="~/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Summernote -->
+    <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
+    <!-- overlayScrollbars -->
+    <script src="~/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+
+    
+
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.js"></script>
+
+    <!-- PAGE ~/plugins -->
+    <!-- jQuery Mapael -->
+    <script src="~/plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+    <script src="~/plugins/raphael/raphael.min.js"></script>
+    <script src="~/plugins/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="~/plugins/jquery-mapael/maps/usa_states.min.js"></script>
+
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/dist/js/demo.js"></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="~/dist/js/pages/dashboard3.js"></script>
+    <script src="~/dist/js/pages/dashboard2.js"></script>
+    <script src="~/dist/js/pages/dashboard.js"></script>
+</body>
+</html>

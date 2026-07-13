@@ -1,5 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Lextm.SharpSnmpLib.Messaging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +15,7 @@ using SVN_Portal.DAL.DTO;
 using SVN_Portal.Models;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
+using SVN_Portal.Services.Util;
 using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
@@ -22,6 +25,10 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using static SVNShareLib.Utils.LogService;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using ZXing;
+using ClosedXML.Excel;
 
 namespace SVN_Portal.Controllers
 {
@@ -34,12 +41,13 @@ namespace SVN_Portal.Controllers
         APIConfiguration aPIConfiguration;
         TOASTLabelConfiguration labelConfiguration;
         OperInfoConfig operInfoConfig;
+        Pagination pagination;
         public ToolsController(DBConfiguration dBConfiguration,
             ILogger<ToolsController> logger,
             ToolsHelper toolsHelper, 
             APIConfiguration aPIConfiguration,
             OperInfoConfig operInfoConfig,
-            TOASTLabelConfiguration labelConfiguration)
+            TOASTLabelConfiguration labelConfiguration, Pagination pagination)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
@@ -48,12 +56,14 @@ namespace SVN_Portal.Controllers
             this.labelConfiguration = labelConfiguration;
             this.operInfoConfig = operInfoConfig;
             _logger = logger;
+            this.pagination = pagination;
         }
         public IActionResult Index()
         {
             return View();
         }
 
+        #region PrintLabel
         /// <summary>
         /// Màn hình quản lý máy in
         /// </summary>
@@ -190,6 +200,7 @@ namespace SVN_Portal.Controllers
                     printerList = new SelectList(printerConfigData, "ID_Printer", "Name_Printer", selectedPrinterID);
                 }
 
+                string itemName = "Item test";
 
                 products = await productDataPortal.ReadList();
                 if(products == null)
@@ -213,51 +224,71 @@ namespace SVN_Portal.Controllers
                     {
                         product.product_name = item_code + product.product_name;
                     }
-                        return product;
+
+                    if(product.id == selectedProductID)
+                    {
+                        itemName = product.product_name;
+                    }
+                    return product;
                 }).ToList();
                 SelectList productList = new SelectList(products, "id", "product_name");
                 if (selectedProductID != 0)
                 {
                     productList = new SelectList(products, "id", "product_name", selectedProductID);
 
-                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                    //HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
 
-                    ProductDataRequest dataRequest = new ProductDataRequest()
-                    {
-                        product_id = selectedProductID,
-                        lotNumber = "",
-                        count = countRows,
-                        seriNumber = ""
-                    };
+                    //ProductDataRequest dataRequest = new ProductDataRequest()
+                    //{
+                    //    product_id = selectedProductID,
+                    //    lotNumber = "",
+                    //    count = countRows,
+                    //    seriNumber = ""
+                    //};
 
-                    var result = await httpClientHelper.PostRequest(aPIConfiguration.GetLotByMODoneURL, dataRequest, new CancellationToken(false));
-                    if(result != null)
+                    //var result = await httpClientHelper.PostRequest(aPIConfiguration.GetLotByMODoneURL, dataRequest, new CancellationToken(false));
+                    //if(result != null)
+                    //{
+                    //    if(result.OK)
+                    //    {
+                    //        var dataUI = JsonConvert.DeserializeObject<List<svn_lot_infoUI>>(result.Content.ToString());
+                    //        if (dataUI != null)
+                    //        {
+                    //            dataUI = dataUI.Select(item =>
+                    //            {
+                    //                PrintTemViewModel viewModel = new PrintTemViewModel();
+                    //                if (item.item_name.Contains("vi_VN"))
+                    //                {
+                    //                    Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
+                    //                    item.item_name = dictionary["vi_VN"];
+                    //                }
+                    //                else
+                    //                {
+                    //                    item.item_name = item.item_name;
+                    //                }
+                    //                viewModel.item_name = item.item_name;
+                    //                viewModel.lot_code = item.lot_code;
+                    //                viewModel.product_qty = item.product_qty;
+                    //                viewModels.Add(viewModel);
+                    //                return item;
+                    //            }).ToList();
+                    //        }
+                    //    }
+                    //}
+
+                    SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(connectionString);
+                    var logData = await dataPortal.GetListByProductIDAsync(selectedProductID, countRows);
+                    if (logData != null)
                     {
-                        if(result.OK)
+                        logData = logData.Select(log =>
                         {
-                            var dataUI = JsonConvert.DeserializeObject<List<svn_lot_infoUI>>(result.Content.ToString());
-                            if (dataUI != null)
-                            {
-                                dataUI = dataUI.Select(item =>
-                                {
-                                    PrintTemViewModel viewModel = new PrintTemViewModel();
-                                    if (item.item_name.Contains("vi_VN"))
-                                    {
-                                        Dictionary<string, string> dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(item.item_name);
-                                        item.item_name = dictionary["vi_VN"];
-                                    }
-                                    else
-                                    {
-                                        item.item_name = item.item_name;
-                                    }
-                                    viewModel.item_name = item.item_name;
-                                    viewModel.lot_code = item.lot_code;
-                                    viewModel.product_qty = item.product_qty;
-                                    viewModels.Add(viewModel);
-                                    return item;
-                                }).ToList();
-                            }
-                        }
+                            PrintTemViewModel viewModel = new PrintTemViewModel();
+                            viewModel.item_name = itemName;
+                            viewModel.lot_code = log.serial_code;
+                            viewModel.product_qty = log.product_qty;
+                            viewModels.Add(viewModel);
+                            return log;
+                        }).ToList();
                     }
 
                 }
@@ -1019,6 +1050,8 @@ namespace SVN_Portal.Controllers
             
         }
 
+        #endregion
+
         #region Nhập kết quả sản xuất
         public IActionResult WorkOrderInfo(string workOrder)
         {
@@ -1042,6 +1075,21 @@ namespace SVN_Portal.Controllers
         }
 
         public IActionResult WorkOrderInfoWIPWalter(string workOrder)
+        {
+            if (!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
+            return View();
+        }
+
+        /// <summary>
+        /// màn hình nhập kết quả xản xuất cho lệnh sản xuất có kiểm tra lot pouch ở bước FG Check
+        /// </summary>
+        /// <param name="workOrder"></param>
+        /// <returns></returns>
+        public IActionResult WorkOrderInfoFGCheckLotPouch(string workOrder)
         {
             if (!string.IsNullOrWhiteSpace(workOrder))
             {
@@ -1137,9 +1185,11 @@ namespace SVN_Portal.Controllers
                         TempData["RemainQty"] = workOrderInfo.OrderInfo["product_qty"] as string;
                         TempData.Keep("RemainQty");
 
+                        var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                        var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                        List<OperInfo> opers = operInfo1.OperInfo;
 
-
-                        List<OperInfo> opers = operInfoConfig.OperInfo;
+                        //List<OperInfo> opers = operInfoConfig.OperInfo;
                         var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
                         if (currentOper != null)
                         {
@@ -1211,7 +1261,7 @@ namespace SVN_Portal.Controllers
         /// <param name="workOrderCode"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CheckLotSerialComponemt(string serial, string productId, string masterMOName)
+        public async Task<IActionResult> CheckLotSerialComponemt(string serial, string productId, string masterMOName, string hasTracking)
         {
             BODataProcessResult processResult = new BODataProcessResult();
             HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
@@ -1221,7 +1271,8 @@ namespace SVN_Portal.Controllers
                 {
                     lotNumber = serial,
                     seriNumber = masterMOName,
-                    product_id = int.Parse(productId)
+                    product_id = int.Parse(productId),
+                    hasTracking = hasTracking
                 };
                 var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
                 if (result != null)
@@ -1270,12 +1321,64 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Kiểm tra để nhập số lượng sản phẩm theo mã Lot Pouch ở bước FG Check
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult CheckScanQuantitySerialFGPouch(string serial, string productionCode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(productionCode))
+                {
+                    string message = "Chưa nhập mã lot đang sản xuất";
+                    return Json(new { result = false, message = message.ToUpper(), productionCode = productionCode });
+                }
+
+                if(serial == productionCode)
+                {
+                    string message = "Mã lot khớp, Hãy scan mã Lot tiếp theo";
+                    return Json(new { result = true, message = message.ToUpper(), quantity = 1, productionCode = productionCode });
+                }
+                else
+                {
+                    string message = "Mã Lot được nhập không khớp với mã Lot đang sản xuất";
+                    return Json(new { result = false, message = message.ToUpper(), productionCode = productionCode });
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                return Json(new { result = false, message = message.ToUpper(), productionCode = productionCode });
+            }
+        }
+
         private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName)
         {
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             StringBuilder sb = new StringBuilder();
-            sb.Append("<div class=\"col-12\">");
-            sb.Append("<div class=\"form-group\">");
+            sb.Append("<div class=\"col-12 col-md-3\">");
+            if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
+            {
+                if (workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
+                {
+                    sb.Append("<div id=\"divResultLight\" class=\"box-square bg-success\">");
+                }
+                else
+                {
+                    sb.Append("<div id=\"divResultLight\" class=\"box-square bg-warning\">");
+                }
+            }
+            else
+            {
+                sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
+            }
+            sb.Append("</div>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-9 row\">");
+            sb.Append("<div class=\"form-group\" style=\"width: 100%;\">");
             if (!string.IsNullOrWhiteSpace(previousWorkOrderName))
             {
                 if(workOrderInfo.OrderInfo["name"] != previousWorkOrderName)
@@ -1297,7 +1400,6 @@ namespace SVN_Portal.Controllers
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductTracking\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_tracking"] + "\" />");
             sb.Append("</div>");
-            sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
             sb.Append("<h2 class=\"control-label\">Sản phẩm: " + workOrderInfo.OrderInfo["product_name"] + "</h2>");
@@ -1318,7 +1420,7 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
-            if (workOrderInfo.OrderInfo["product_tracking"] == "serial")
+            if (workOrderInfo.OrderInfo["product_tracking"] == "serial" || workOrderInfo.OrderInfo["product_tracking"] == "lot")
             {
                 sb.Append("<div class=\"col-12 col-md-3\">");
             }
@@ -1337,7 +1439,25 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
-            
+
+            // Khi component có tracking là serial hoặc lot thì sẽ không cho phép Upload list serial nữa mà phải scan từng cái một để tránh sai sót
+            var componentsHasTracking = workOrderInfo.StockMoveInfo.Where(x => x["has_tracking"] == "serial" || x["has_tracking"] == "lot").ToList();
+            if (componentsHasTracking == null || componentsHasTracking.Count == 0)
+            {
+                sb.Append("<div class=\"col-12 col-md-4\">");
+                sb.Append("<div class=\"form-group\">");
+                sb.Append("<div class=\"row\">");
+                sb.Append("<div class=\"col-4\">");
+                sb.Append("<label class=\"control-label\">Hoặc Upload file serial:</label>");
+                sb.Append("</div>");
+                sb.Append("<div class=\"col-8\">");
+                sb.Append("<input type=\"file\" id=\"serialFile\" name=\"serialFile\" onchange=\"InputProductionResultWithSearialList()\" class=\"form-control\" accept=\".xlsx, .xls\" />");
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+                sb.Append("</div>");
+            }
+
             sb.Append("<div class=\"col-12\">");
             sb.Append("<table class=\"table\">");
             sb.Append("<thead>");
@@ -1355,13 +1475,17 @@ namespace SVN_Portal.Controllers
                 sb.Append("<tr>");
                 sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
                 sb.Append("<td>" + item["location_name"] + "</td>");
-                if(item["has_tracking"] == "serial")
+                if (item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" class=\"form-control serial-input\" /></td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /></td>");
+                }
+                else if (item["has_tracking"] == "lot")
+                {
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /></td>");
                 }
                 else
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
+                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control  has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"hidden\" class=\"form-control\" />Không áp dụng</td>");
                 }
                 sb.Append("</tr>");
             }
@@ -1373,6 +1497,8 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
+            sb.Append("</div>");
+            
             return sb.ToString();
         }
 
@@ -1388,12 +1514,24 @@ namespace SVN_Portal.Controllers
             try
             {
                 List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
-                data.Products = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
                 {
                     LotScanedRequest lotScaned = new LotScanedRequest
                     {
                         product_id = y.Product_id,
-                        lotNumber = y.Serial_code
+                        lotNumber = y.Serial_code,
+                        tracking = "serial"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "lot"
                     };
                     lotScaneds.Add(lotScaned);
                     return y;
@@ -1470,6 +1608,96 @@ namespace SVN_Portal.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                processResult.Message = ex.Message;
+            }
+            return Json(new { success = false, message = processResult.Message });
+        }
+
+        public async Task<IActionResult> InputProductionResultWithSerialList(ProductionDataWithSerialList data)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
+                var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "serial"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+                var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
+                {
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = y.Serial_code,
+                        tracking = "lot"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+
+                List<string> serialCodes = GetSerialsFromExcel(data.serialFile);
+
+                string inputSerialsSuccessMessage = "Inpputed Serial List Success: ";
+                string inputSerialsFailMessage = "Inpputed Serial List Fail: ";
+                List<string> successSerials = new List<string>();
+                List<string> failSerials = new List<string>();
+
+                if (serialCodes != null && serialCodes.Count > 0)
+                {
+                    foreach (var serial in serialCodes)
+                    {
+                        InputProductDataRequest dataRequest = new InputProductDataRequest()
+                        {
+                            WorkOrderNumber = data.Name,
+                            LotNumber = serial,
+                            Quality = 1,
+                            LotScaneds = lotScaneds
+                        };
+                        var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
+                        if (result != null)
+                        {
+                            TempData.Remove("WorkOrderName");
+                            TempData["WorkOrderName"] = data.SubName;
+                            TempData.Keep("WorkOrderName");
+                            if (result.OK)
+                            {
+                                successSerials.Add(serial);
+
+                            }
+                            else
+                            {
+                                failSerials.Add(serial);
+                            }
+                        }
+                    }
+
+                    string operation = "";
+                    inputSerialsSuccessMessage = inputSerialsSuccessMessage + string.Join(", ", successSerials) + " Count: " + successSerials.Count;
+                    inputSerialsFailMessage = inputSerialsFailMessage + string.Join(", ", failSerials) + " Count: " + failSerials.Count;
+
+                    processResult.OK = true;
+                    processResult.Message = $"{inputSerialsSuccessMessage}{Environment.NewLine}{inputSerialsFailMessage}";
+
+                    return Json(new { result = processResult.OK, message = processResult.Message, operation = operation, workorder = data.Name.Replace("/", "%2f") });
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "File serial không có dữ liệu hoặc sai định dạng";
+                }
+
+                
+            }
+            catch (Exception ex)
             {
                 processResult.Message = ex.Message;
             }
@@ -1566,7 +1794,12 @@ namespace SVN_Portal.Controllers
 
                                         return Json(new { result = processResult.OK, message = processResult.Message });
                                     }
-                                    List<OperInfo> opers = operInfoConfig.OperInfo;
+
+                                    var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+                                    var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+                                    List<OperInfo> opers = operInfo1.OperInfo;
+
+                                    //List<OperInfo> opers = operInfoConfig.OperInfo;
                                     var currentOper = opers.Where(x => x.Produce_id != null && x.Produce_id.Contains(int.Parse(workOrderInfo.OrderInfo["product_id"]))).FirstOrDefault();
                                     if (currentOper != null)
                                     {
@@ -1935,6 +2168,339 @@ namespace SVN_Portal.Controllers
             return Json(new { result = processResult.OK, message = processResult.Message, content = processResult.Content });
         }
 
+        #endregion
+
+        #region Check Operator
+        /// <summary>
+        /// Hàm kiểm tra xem operator đã được đào tạo cho công đoạn đó chưa
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> CheckOperatorTraining(DateTime date, string documentCode, int pageNumber = 1, int pageSize = 10, string operation = "Sakura-FG-RAI-SP-0007-00(SM)")
+        {
+            List<TrainingOperatorRecordUI> pagedData = new List<TrainingOperatorRecordUI>();
+
+            pagedData = GetPageOperatorData(date, operation, documentCode, pageNumber, pageSize);
+
+            var appSettingDataPortal = new SVN_AppSettingDataPortal(connectionString);
+            var operInfo1 = await appSettingDataPortal.GetOperInfoConfig();
+            List<OperInfo> opers = operInfo1.OperInfo;
+            List<string> operations = new List<string>();
+            operations = opers.Select(x => x.Operation).Distinct().ToList();
+            operations.Add("ALL");
+            operations = operations.OrderBy(x => x).ToList();
+
+            ViewBag.Operations = operations;
+            ViewBag.CurrentOperation = operation;
+            ViewBag.DocumentCode = documentCode;
+
+            return View(pagedData);
+        }
+
+        public IActionResult ExportCheckOperatorTraining(DateTime date, string documentCode, int pageNumber = 1, int pageSize = 10, string operation = "Sakura-FG-RAI-SP-0007-00(SM)")
+        {
+            var data = GetPageOperatorData(date, operation, documentCode, 1, int.MaxValue, true);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("WO Analysis");
+
+                // ===== HEADER =====
+                var headers = new[]
+                {
+                    "Operation","Training hours","Supervisor code","Operator code","Operator name","Training Status"
+                };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cell(1, i + 1).Value = headers[i];
+                    worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+                }
+
+                // ===== DATA =====
+                int row = 2;
+
+                foreach (var item in data)
+                {
+                    int col = 1;
+
+                    worksheet.Cell(row, col++).Value = item.Operation;
+                    worksheet.Cell(row, col++).Value = item.Traing_hours;
+                    worksheet.Cell(row, col++).Value = item.Supervisor_code;
+                    worksheet.Cell(row, col++).Value = item.Operator_code;
+                    worksheet.Cell(row, col++).Value = item.Operator_name;
+                    worksheet.Cell(row, col++).Value = item.Status;
+
+                    row++;
+                }
+
+                // ===== FORMAT =====
+                worksheet.Columns().AdjustToContents();
+                worksheet.SheetView.FreezeRows(1);
+                worksheet.RangeUsed().SetAutoFilter();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+
+                    return File(
+                        content,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        $"WOAnalysisReport_{operation}.xlsx"
+                    );
+                }
+            }
+        }
+
+        public List<TrainingOperatorRecordUI> GetPageOperatorData(DateTime date, string operation, string documentCode, int pageNumber = 1, int pageSize = 10, bool isExport = false)
+        {
+            List<TrainingOperatorRecordUI> pagedData = new List<TrainingOperatorRecordUI>();
+            if (date == DateTime.MinValue)
+            {
+                date = DateTime.Now;
+            }
+
+            int totalPages = 0;
+            List<TrainingOperatorRecordUI> trainingOperators = new List<TrainingOperatorRecordUI>();
+            List<TrainingOperatorRecordUI> tempTrainingOperators = new List<TrainingOperatorRecordUI>();
+
+            var dataPortal = new TrainingOperatorRecordDataPortal(connectionString);
+            var targetDataPortal = new SVN_TrainingOperationTargetDataPortal(connectionString);
+            var operatorDataPortal = new SVN_OperatorInfoDataPortal(connectionString);
+
+            var targetList = targetDataPortal.ReadListTargetByOperation(operation);
+            var operatorList = operatorDataPortal.ReadList();
+            trainingOperators = dataPortal.ReadListByOperation(operation);
+            tempTrainingOperators = GetListRecordByTarget(targetList, operatorList);
+
+            if (trainingOperators != null && trainingOperators.Count > 0)
+            {
+                var operatorsToAdd = tempTrainingOperators
+                                    .Where(temp => !trainingOperators.Any(t => t.Operator_code == temp.Operator_code))
+                                    .ToList();
+
+                var operatorsToRemove = trainingOperators
+                                        .Where(t => !tempTrainingOperators.Any(temp => temp.Operator_code == t.Operator_code))
+                                        .ToList();
+                int insertResult = 0;
+                int deleteResult = 0;
+                if (operatorsToAdd != null && operatorsToAdd.Count > 0)
+                {
+                    insertResult = dataPortal.InsertBulk(operatorsToAdd);
+                }
+                if(operatorsToRemove != null && operatorsToRemove.Count > 0)
+                {
+                    deleteResult = dataPortal.DeleteBulk(operatorsToRemove);
+                }
+
+                if (insertResult > 0 || deleteResult > 0)
+                {
+                    trainingOperators = dataPortal.ReadListByOperation(operation);
+                }
+
+                trainingOperators = trainingOperators.OrderBy(x => x.Status).ToList();
+
+                if (!isExport)
+                {
+                    pagedData = trainingOperators
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+                }
+                else
+                {
+                    pagedData = trainingOperators;
+                }
+                totalPages = (int)Math.Ceiling((double)trainingOperators.Count / pageSize);
+            }
+            else
+            {
+                //Nếu chưa có dữ liệu đào tạo nào thì lấy danh sách nhân viên theo target để hiển thị, mặc định trạng thái là chưa đạt yêu cầu
+                trainingOperators = new List<TrainingOperatorRecordUI>();
+                trainingOperators = tempTrainingOperators;
+
+                //Thực hiên insert vào CSDL
+                if(trainingOperators != null && trainingOperators.Count > 0)
+                {
+                    var rowsEffect = dataPortal.InsertBulk(trainingOperators);
+                    if (rowsEffect <= 0)
+                    {
+                        trainingOperators = new List<TrainingOperatorRecordUI>();
+                    }
+                    trainingOperators = trainingOperators.OrderBy(x => x.Status).ToList();
+
+                    if (!isExport)
+                    {
+                        pagedData = trainingOperators
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+                    }
+                    else
+                    {
+                        pagedData = trainingOperators;
+                    }
+                    totalPages = (int)Math.Ceiling((double)trainingOperators.Count / pageSize);
+                }
+            }
+            
+            var paginationList = pagination.GeneratePagination(pageNumber, totalPages);
+            ViewBag.Date = date;
+            ViewBag.CurrentPage = pageNumber;
+            ViewBag.PageSize = pageSize;
+            ViewBag.PaginationList = paginationList;
+
+            return pagedData;
+        }
+
+        private List<TrainingOperatorRecordUI> GetListRecordByTarget(List<SVN_TrainingOperationTargetUI> targetUI, List<SVN_OperatorInfoUI> operatorUI)
+        {
+            List<TrainingOperatorRecordUI> trainingOperators = new List<TrainingOperatorRecordUI>();
+            if(targetUI == null || targetUI.Count == 0)
+            {
+                return trainingOperators;
+            }
+            foreach (var target in targetUI)
+            {
+                var operatorInfo = operatorUI.FirstOrDefault(x => x.Operator_code == target.Operator_code);
+                TrainingOperatorRecordUI record = new TrainingOperatorRecordUI();
+                record.Operation = target.Operation;
+                record.Traing_hours = target.Traing_hours;
+                record.Supervisor_code = target.Supervisor_code;
+                record.Operator_code = target.Operator_code;
+                if (operatorInfo != null)
+                {
+                    record.Operator_name = operatorInfo.Operator_name;
+                }
+                record.Status = "Not OK";
+                trainingOperators.Add(record);
+            }
+            return trainingOperators;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckOperatorTrained(DateTime date, string operation, string documentCode, string scanOperatorID, IFormFile qrImage)
+        {
+            var dataPortal = new TrainingOperatorRecordDataPortal(connectionString);
+            string operatorCode = string.Empty;
+            try
+            {
+
+                //if (qrImage == null || qrImage.Length == 0)
+                //    return Json(new { success = false, message = "Chưa chọn ảnh!" });
+                //using var stream = qrImage.OpenReadStream();
+                //using var skBitmap = SkiaSharp.SKBitmap.Decode(stream);
+
+                //var reader = new ZXing.SkiaSharp.BarcodeReader();
+                //var result = reader.Decode(skBitmap);
+                //if (result == null)
+                //{
+                //    return Json(new { result = false, message = "The QR code from the image cannot be read!" });
+                //}
+                //operatorCode = result.Text;
+                if (string.IsNullOrWhiteSpace(scanOperatorID))
+                {
+                    return Json(new { result = false, message = "Please input operator code!" });
+                }
+                operatorCode = scanOperatorID;
+
+                List<TrainingOperatorRecordUI> trainingOperators = GetPageOperatorData(date, operation, documentCode, 1, int.MaxValue, true);
+                if (trainingOperators != null && trainingOperators.Count > 0)
+                {
+                    //Lấy ra nhân viên trong danh sách đào tạo theo QR code
+                    var operatorInfo = trainingOperators.FirstOrDefault(x => x.Operator_code == operatorCode);
+                    if (operatorInfo != null)
+                    {
+                        //Nếu nhân viên chưa được training thì cập nhật trạng thái training cho nhân viên đó
+                        if (operatorInfo.Status == "Not OK")
+                        {
+                            operatorInfo.Status = "OK";
+                            var resultUpdate = await dataPortal.Update(operatorInfo);
+                            if(resultUpdate > 0)
+                            {
+                                return Json(new { result = true, message = $"The operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name} has been successfully marked as trained.", operatorCode = operatorInfo.Operator_code });
+                            }
+                            else
+                            {
+                                return Json(new { result = false, message = $"Failed to update training status for operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name}. Please try again or report to admin." });
+                            }
+                            
+                        }
+                        else
+                        {
+                            return Json(new { result = false, message = $"The operator {operatorInfo.Operator_code} - {operatorInfo.Operator_name} has already been marked as trained." });
+                        }
+                    }
+                    else
+                    {
+                        return Json(new { result = false, message = $"The operator {operatorCode} has not been trained for this operation or does not exist on the training list." });
+                    }
+                }
+                return Json(new { result = true, message = "Training list not found" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+        #region hàm xử lý input excel danh sách serial
+        private List<string> GetSerialsFromExcel(IFormFile file)
+        {
+            List<string> serials = new List<string>();
+
+            using (var stream = file.OpenReadStream())
+            {
+                using (SpreadsheetDocument doc = SpreadsheetDocument.Open(stream, false))
+                {
+                    // Lấy Sheet đầu tiên
+                    WorkbookPart workbookPart = doc.WorkbookPart;
+                    SharedStringTablePart sstpart = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+                    SharedStringTable sst = sstpart?.SharedStringTable;
+
+                    WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
+                    Worksheet sheet = worksheetPart.Worksheet;
+
+                    // Lấy tất cả các dòng (Rows)
+                    var rows = sheet.Descendants<Row>();
+
+                    foreach (Row row in rows)
+                    {
+                        // Lấy cell đầu tiên của mỗi dòng (Cột A)
+                        Cell cell = row.Elements<Cell>().FirstOrDefault();
+                        if (cell != null)
+                        {
+                            string value = GetCellValue(cell, sst);
+                            if (!string.IsNullOrWhiteSpace(value) && value != "serial_code") // Bỏ qua tiêu đề nếu có
+                            {
+                                serials.Add(value.Trim());
+                            }
+                        }
+                    }
+                }
+            }
+            return serials;
+        }
+
+        // Hàm bổ trợ để đọc giá trị thực tế của Cell (Xử lý trường hợp SharedString)
+        private string GetCellValue(Cell cell, SharedStringTable sst)
+        {
+            if (cell.CellValue == null) return string.Empty;
+
+            string value = cell.CellValue.InnerText;
+
+            // Nếu cell là kiểu SharedString (chuỗi dùng chung), phải tra cứu trong bảng sst
+            if (cell.DataType != null && cell.DataType == CellValues.SharedString && sst != null)
+            {
+                return sst.ElementAt(int.Parse(value)).InnerText;
+            }
+
+            return value;
+        }
         #endregion
     }
 

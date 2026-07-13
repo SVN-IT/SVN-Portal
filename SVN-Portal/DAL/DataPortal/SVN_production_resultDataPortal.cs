@@ -9,6 +9,7 @@ using SVNShareLib.DAL;
 using System.Globalization;
 using SVN_Portal.Services.ObjectClasses;
 using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace SVN_Portal.DAL.DataPortal
 {
@@ -108,7 +109,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, List<string> curSectionList, string shift, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -130,18 +131,58 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 currentDate = DateTime.Now;
             }
+
+            string section1 = "section1";
+            string section2 = "section2";
+            string section3 = "section3";
+            string section4 = "section4";
+            string section5 = "section5";
+            if(curSectionList != null && curSectionList.Count > 0)
+            {
+                if (curSectionList.Count >= 1)
+                {
+                    section1 = curSectionList[0];
+                }
+                if (curSectionList.Count >= 2)
+                {
+                    section2 = curSectionList[1];
+                }
+                if (curSectionList.Count >= 3)
+                {
+                    section3 = curSectionList[2];
+                }
+                if (curSectionList.Count >= 4)
+                {
+                    section4 = curSectionList[3];
+                }
+                if (curSectionList.Count >= 5)
+                {
+                    section5 = curSectionList[4];
+                }
+            }
+
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                dataUI = await ReadList(date, tableName);
+                dataUI = await ReadListByOperationsRunning(date, tableName);
 
+                if(targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
+                    //Lấy ra các Operation có target để hiển thị trên UI
+                    var operHaveTarget = targetDataUI.Select(x => x.Operation).Distinct().ToList();
+                    opers = opers.Where(x => operHaveTarget.Contains(x.Operation)).ToList();
+                }
 
                 if (dataUI != null && dataUI.Count > 0) 
                 {
                     //Lấy Data có WC = null hoặc WC contain FG
                     dataUI = dataUI.Where(x => string.IsNullOrWhiteSpace(x.WC) || x.WC.Contains("FG")).ToList();
+
+                    dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
 
                     foreach (var item in opers)
                     {
@@ -152,11 +193,11 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
-                        val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
-                        val3.Time = "12h30-15h";
-                        val4.Time = "15h10-17h30";
-                        val5.Time = "18h-20h";
+                        val1.Time = section1;
+                        val2.Time = section2;
+                        val3.Time = section3;
+                        val4.Time = section4;
+                        val5.Time = section5;
 
                         viewModel.MasterOperation = item.MasterOperation;
                         viewModel.Operation = item.Operation;
@@ -285,46 +326,7 @@ namespace SVN_Portal.DAL.DataPortal
                             double gapTime = 0; // Khoảng thời gian trống gữa các ca
                             List<SectionTime> sectionTimes = new List<SectionTime>();
                             var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
-                            listSection = listSection.Select(x =>
-                            {
-                                var times = x.Time.Split('-');
-
-                                // Chuyển đổi thành định dạng HH:mm
-                                string startTime = times[0].Replace("h", ":");
-                                if (startTime.Last() == ':')
-                                {
-                                    startTime = startTime + "00";
-                                }
-                                if (startTime.Length == 4)
-                                {
-                                    startTime = "0" + startTime;
-                                }
-                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-                                string endTime = times[1].Replace("h", ":");
-                                if (endTime.Last() == ':')
-                                {
-                                    endTime = endTime + "00";
-                                }
-                                if (endTime.Length == 4)
-                                {
-                                    endTime = "0" + endTime;
-                                }
-                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-
-                                //2025-12-19: Lấy target output theo ca hiện tại
-                                if (currentDate >= startDatetime && currentDate <= endDatetime)
-                                {
-                                    HPlanTarget = x.Target;
-                                }
-
-                                SectionTime sectionTime = new SectionTime();
-                                sectionTime.StartTime = startDatetime;
-                                sectionTime.EndTime = endDatetime;
-                                sectionTime.Target = x.Target;
-                                sectionTimes.Add(sectionTime);
-                                return x;
-                            }).ToList();
+                            sectionTimes = GetListSectionTime(listSection, today, currentDate, HPlanTarget);
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
 
@@ -371,7 +373,6 @@ namespace SVN_Portal.DAL.DataPortal
                                 //    }
                                 //}
 
-
                                 if (curDateTime < startDatetime)
                                 {
                                     workingTime = 0;
@@ -379,7 +380,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
                                     workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -411,6 +412,18 @@ namespace SVN_Portal.DAL.DataPortal
                                     //    {
                                     //        workingTime = 0;
                                     //    }
+                                    //}
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
                                     //}
 
                                 }
@@ -448,8 +461,20 @@ namespace SVN_Portal.DAL.DataPortal
                                     }
                                     workingTime = dataUIByOper.Workingtime; // - Duration
 
-                                }
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : endDatetime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = endDatetime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    //workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
 
+                                }
                                 // Tính Current UPH và UPPH
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
@@ -559,7 +584,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="checkListConnection"></param>
         /// <param name="topDefect"></param>
         /// <returns></returns>
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryDataV1(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryDataV1(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -583,7 +608,7 @@ namespace SVN_Portal.DAL.DataPortal
             }
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, "day", storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
                 dataUI = await ReadListByOperationsRunning(date, tableName);
@@ -607,10 +632,10 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                         val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
-                        val3.Time = "12h30-15h";
-                        val4.Time = "15h10-17h30";
-                        val5.Time = "18h-20h";
+                        val2.Time = "10h-12h";
+                        val3.Time = "13h30-15h30";
+                        val4.Time = "15h30-17h30";
+                        val5.Time = "18h30-21h";
 
                         viewModel.MasterOperation = item.MasterOperation;
                         viewModel.Operation = item.Operation;
@@ -860,6 +885,18 @@ namespace SVN_Portal.DAL.DataPortal
                                     //    }
                                     //}
 
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
+
                                 }
                                 else if (endDatetime < curDateTime)
                                 {
@@ -895,6 +932,13 @@ namespace SVN_Portal.DAL.DataPortal
                                     }
                                     //workingTime = dataUIByOper.Workingtime - Duration;
 
+                                    //    workingTime = Math.Round(dataUIByOper.Workingtime, 2) - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
+                                    //}
+
                                 }
                                 workingTime = dataUIByOper.Workingtime; // - Duration
 
@@ -902,7 +946,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 UPHCurrent = workingTime != 0 ? Math.Round(dataUIByOper.Total_Qty / workingTime, 2) : 0;
                                 UPPHCurrent = Math.Round(UPHCurrent / dataUIByOper.MaxLabor, 2);
                                 // Target by Hour
-                                HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
+                                //HPlanTarget = Math.Round(dataUIByOper.UPH * workingTime);
                             }
 
                             //tạo dong Daiily plan của 1 operation
@@ -985,7 +1029,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="checkListConnection"></param>
         /// <param name="topDefect"></param>
         /// <returns></returns>
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryDatav2(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryDatav2(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, int topDefect, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1009,10 +1053,10 @@ namespace SVN_Portal.DAL.DataPortal
             }
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                targetDataUI = await targetdataportal.ReadList(date, "day", storedProceduce);//lấy dữ liệu target từ csdl 
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                dataUI = await ReadList(date, tableName);
+                dataUI = await ReadListByOperationsRunning(date, tableName);
 
 
                 if (dataUI.Count > 0)
@@ -1030,10 +1074,10 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
                         val1.Time = "8h-10h";
-                        val2.Time = "10h10-11h30";
-                        val3.Time = "12h30-15h";
-                        val4.Time = "15h10-17h30";
-                        val5.Time = "18h-20h";
+                        val2.Time = "10h-12h";
+                        val3.Time = "13h30-15h30";
+                        val4.Time = "15h30-17h30";
+                        val5.Time = "18h30-21h";
 
                         viewModel.MasterOperation = item.MasterOperation;
                         viewModel.Operation = item.Operation;
@@ -1252,7 +1296,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
                                     workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -1284,6 +1328,18 @@ namespace SVN_Portal.DAL.DataPortal
                                     //    {
                                     //        workingTime = 0;
                                     //    }
+                                    //}
+
+                                    //    finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
+                                    //    // Lấy hiệu 2 thời điểm
+                                    //    //TimeSpan diff = curDateTime - startDatetime;
+                                    //    gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
+                                    //    TimeSpan diff = finishedTime - startDatetime;
+                                    //    workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime - Duration;
+                                    //}
+                                    //else
+                                    //{
+                                    //    workingTime = 0;
                                     //}
 
                                 }
@@ -1508,7 +1564,7 @@ namespace SVN_Portal.DAL.DataPortal
             return viewModels;
         }
 
-        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<List<QtyProdResultByOperViewModel>> SummaryData_Viindoo(string date, List<OperInfo> opers, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift, int hours)
         {
             List<QtyProdResultByOperViewModel> viewModels = new List<QtyProdResultByOperViewModel>();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
@@ -1526,12 +1582,54 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 currentDate = DateTime.Now;
             }
+
+            string section1 = "section1";
+            string section2 = "section2";
+            string section3 = "section3";
+            string section4 = "section4";
+            string section5 = "section5";
+            if (curSectionList != null && curSectionList.Count > 0)
+            {
+                if (curSectionList.Count >= 1)
+                {
+                    section1 = curSectionList[0];
+                }
+                if (curSectionList.Count >= 2)
+                {
+                    section2 = curSectionList[1];
+                }
+                if (curSectionList.Count >= 3)
+                {
+                    section3 = curSectionList[2];
+                }
+                if (curSectionList.Count >= 4)
+                {
+                    section4 = curSectionList[3];
+                }
+                if (curSectionList.Count >= 5)
+                {
+                    section5 = curSectionList[4];
+                }
+            }
+
             try
             {
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadList(date, tableName);
+                targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
+                dataUI = await ReadListByOperationsRunning(date, tableName);
+
+                if (targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
+                    //Lấy ra các Operation có target để hiển thị trên UI
+                    var operHaveTarget = targetDataUI.Select(x => x.Operation).Distinct().ToList();
+                    opers = opers.Where(x => operHaveTarget.Contains(x.Operation)).ToList();
+                }
+
                 if (dataUI.Count > 0)
                 {
+                    dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
                     foreach (var item in opers)
                     {
                         QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
@@ -1541,11 +1639,11 @@ namespace SVN_Portal.DAL.DataPortal
                         QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                         QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
-                        val1.Time = "8h-10h";
-                        val2.Time = "10h10-12h";
-                        val3.Time = "13h-15h";
-                        val4.Time = "15h10-17h30";
-                        val5.Time = "18h-20h";
+                        val1.Time = section1;
+                        val2.Time = section2;
+                        val3.Time = section3;
+                        val4.Time = section4;
+                        val5.Time = section5;
 
                         viewModel.Operation = item.Operation;
                         viewModel.Name = item.Name;
@@ -1660,40 +1758,41 @@ namespace SVN_Portal.DAL.DataPortal
                             double gapTime = 0; // Khoảng thời gian trống gữa các ca
                             List<SectionTime> sectionTimes = new List<SectionTime>();
                             var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
-                            listSection = listSection.Select(x =>
-                            {
-                                var times = x.Time.Split('-');
+                            sectionTimes = GetListSectionTime(listSection, today, currentDate, HPlanTarget);
+                            //listSection = listSection.Select(x =>
+                            //{
+                            //    var times = x.Time.Split('-');
 
-                                // Chuyển đổi thành định dạng HH:mm
-                                string startTime = times[0].Replace("h", ":");
-                                if (startTime.Last() == ':')
-                                {
-                                    startTime = startTime + "00";
-                                }
-                                if (startTime.Length == 4)
-                                {
-                                    startTime = "0" + startTime;
-                                }
-                                DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            //    // Chuyển đổi thành định dạng HH:mm
+                            //    string startTime = times[0].Replace("h", ":");
+                            //    if (startTime.Last() == ':')
+                            //    {
+                            //        startTime = startTime + "00";
+                            //    }
+                            //    if (startTime.Length == 4)
+                            //    {
+                            //        startTime = "0" + startTime;
+                            //    }
+                            //    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                                string endTime = times[1].Replace("h", ":");
-                                if (endTime.Last() == ':')
-                                {
-                                    endTime = endTime + "00";
-                                }
-                                if (endTime.Length == 4)
-                                {
-                                    endTime = "0" + endTime;
-                                }
-                                DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                            //    string endTime = times[1].Replace("h", ":");
+                            //    if (endTime.Last() == ':')
+                            //    {
+                            //        endTime = endTime + "00";
+                            //    }
+                            //    if (endTime.Length == 4)
+                            //    {
+                            //        endTime = "0" + endTime;
+                            //    }
+                            //    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                                SectionTime sectionTime = new SectionTime();
-                                sectionTime.StartTime = startDatetime;
-                                sectionTime.EndTime = endDatetime;
-                                sectionTime.Target = x.Target;
-                                sectionTimes.Add(sectionTime);
-                                return x;
-                            }).ToList();
+                            //    SectionTime sectionTime = new SectionTime();
+                            //    sectionTime.StartTime = startDatetime;
+                            //    sectionTime.EndTime = endDatetime;
+                            //    sectionTime.Target = x.Target;
+                            //    sectionTimes.Add(sectionTime);
+                            //    return x;
+                            //}).ToList();
 
                             sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
 
@@ -1748,7 +1847,7 @@ namespace SVN_Portal.DAL.DataPortal
                                 else if (startDatetime < curDateTime && curDateTime < endDatetime)
                                 {
                                     workingTime = CalculateWorkingTime(item.Produce_id, startDatetime, finishedTime, minStartSection,
-                                            curDateTime, sectionTimes, gapTime, Duration);
+                                            curDateTime, sectionTimes, gapTime, Duration, hours);
                                     //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                     //if (item.Operation == "POP" || item.Operation == "Injection_POP" || item.Operation == "Injection_Toast")
@@ -1917,7 +2016,7 @@ namespace SVN_Portal.DAL.DataPortal
         /// <param name="storedProceduce"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection)
+        public async Task<QtyProdResultByOperViewModel> GetDataByOperAndWC(string date, OperInfo oper, string storedProceduce, string tableName, string checkListConnection, List<string> curSectionList, string shift, int hours)
         {
             DateTime currentDate = DateTime.Now;
             try
@@ -1928,6 +2027,36 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 currentDate = DateTime.Now;
             }
+
+            string section1 = "section1";
+            string section2 = "section2";
+            string section3 = "section3";
+            string section4 = "section4";
+            string section5 = "section5";
+            if (curSectionList != null && curSectionList.Count > 0)
+            {
+                if (curSectionList.Count >= 1)
+                {
+                    section1 = curSectionList[0];
+                }
+                if (curSectionList.Count >= 2)
+                {
+                    section2 = curSectionList[1];
+                }
+                if (curSectionList.Count >= 3)
+                {
+                    section3 = curSectionList[2];
+                }
+                if (curSectionList.Count >= 4)
+                {
+                    section4 = curSectionList[3];
+                }
+                if (curSectionList.Count >= 5)
+                {
+                    section5 = curSectionList[4];
+                }
+            }
+
             QtyProdResultByOperViewModel viewModel = new QtyProdResultByOperViewModel();
             List<SVN_production_resultUI> dataUI = new List<SVN_production_resultUI>();
             List<SVN_target> targetDataUI = new List<SVN_target>(); // khai báo lớp dto để hứng dữ liệu
@@ -1943,22 +2072,32 @@ namespace SVN_Portal.DAL.DataPortal
             {
                 defect_RecordUI = await defectdataportal.ReadList(date);
                 quantity_ReasonUI = await quntityreasondataportal.ReadList();
-                targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
-                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName);
+                //targetDataUI = await targetdataportal.ReadList(date, storedProceduce);//lấy dữ liệu target từ csdl 
+                //dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
+                targetDataUI = await targetdataportal.ReadList(date, shift.ToLower(), storedProceduce);//lấy dữ liệu target từ csdl 
+                dataUI = await ReadListByOperAndWC(date, oper.Operation, oper.WCName, tableName);
                 viewModel.CanProductionByDowntime = true;
+
+                if (targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+                }
+
                 if (dataUI.Count > 0)
                 {
+                    dataUI = dataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
+
                     QtyProdResultViewModel val1 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val2 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val3 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val4 = new QtyProdResultViewModel();
                     QtyProdResultViewModel val5 = new QtyProdResultViewModel();
 
-                    val1.Time = "8h-10h";
-                    val2.Time = "10h10-11h30";
-                    val3.Time = "12h30-15h";
-                    val4.Time = "15h10-17h30";
-                    val5.Time = "18h-20h";
+                    val1.Time = section1;
+                    val2.Time = section2;
+                    val3.Time = section3;
+                    val4.Time = section4;
+                    val5.Time = section5;
 
                     viewModel.Operation = oper.Operation;
                     
@@ -1989,7 +2128,8 @@ namespace SVN_Portal.DAL.DataPortal
 
                     //sai ở đây
                     //dùng linq mà list đang bị null
-                    var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName);//Lấy ra 1 dòng target theo opearation
+                    //var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName);//Lấy ra 1 dòng target theo opearation
+                    var dataUIByOper = targetDataUI.FirstOrDefault(x => x.Operation == oper.Operation);
 
                     var dataUIbyOperTarget = dataUI.FirstOrDefault(x => x.Operation == oper.Operation && x.WC == oper.WCName && x.Type_value == "Target");
                     if (dataUIbyOperTarget != null)
@@ -2139,40 +2279,41 @@ namespace SVN_Portal.DAL.DataPortal
                         double gapTime = 0; // Khoảng thời gian trống gữa các ca
                         List<SectionTime> sectionTimes = new List<SectionTime>();
                         var listSection = viewModel.ViewModels.Where(x => x.Target != 0).ToList();
-                        listSection = listSection.Select(x =>
-                        {
-                            var times = x.Time.Split('-');
+                        sectionTimes = GetListSectionTime(listSection, today, currentDate, HPlanTarget);
+                        //listSection = listSection.Select(x =>
+                        //{
+                        //    var times = x.Time.Split('-');
 
-                            // Chuyển đổi thành định dạng HH:mm
-                            string startTime = times[0].Replace("h", ":");
-                            if (startTime.Last() == ':')
-                            {
-                                startTime = startTime + "00";
-                            }
-                            if (startTime.Length == 4)
-                            {
-                                startTime = "0" + startTime;
-                            }
-                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                        //    // Chuyển đổi thành định dạng HH:mm
+                        //    string startTime = times[0].Replace("h", ":");
+                        //    if (startTime.Last() == ':')
+                        //    {
+                        //        startTime = startTime + "00";
+                        //    }
+                        //    if (startTime.Length == 4)
+                        //    {
+                        //        startTime = "0" + startTime;
+                        //    }
+                        //    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                            string endTime = times[1].Replace("h", ":");
-                            if (endTime.Last() == ':')
-                            {
-                                endTime = endTime + "00";
-                            }
-                            if (endTime.Length == 4)
-                            {
-                                endTime = "0" + endTime;
-                            }
-                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                        //    string endTime = times[1].Replace("h", ":");
+                        //    if (endTime.Last() == ':')
+                        //    {
+                        //        endTime = endTime + "00";
+                        //    }
+                        //    if (endTime.Length == 4)
+                        //    {
+                        //        endTime = "0" + endTime;
+                        //    }
+                        //    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-                            SectionTime sectionTime = new SectionTime();
-                            sectionTime.StartTime = startDatetime;
-                            sectionTime.EndTime = endDatetime;
-                            sectionTime.Target = x.Target;
-                            sectionTimes.Add(sectionTime);
-                            return x;
-                        }).ToList();
+                        //    SectionTime sectionTime = new SectionTime();
+                        //    sectionTime.StartTime = startDatetime;
+                        //    sectionTime.EndTime = endDatetime;
+                        //    sectionTime.Target = x.Target;
+                        //    sectionTimes.Add(sectionTime);
+                        //    return x;
+                        //}).ToList();
 
                         sectionTimes = sectionTimes.OrderBy(x => x.StartTime).ToList();
 
@@ -2256,7 +2397,7 @@ namespace SVN_Portal.DAL.DataPortal
                             else if (startDatetime < curDateTime && curDateTime < endDatetime)
                             {
                                 workingTime = CalculateWorkingTime(oper.Produce_id, startDatetime, finishedTime, minStartSection,
-                                        curDateTime, sectionTimes, gapTime, Duration);
+                                        curDateTime, sectionTimes, gapTime, Duration, hours);
                                 //11/12/2025: Đổi lại logic cũ không tính theo cách này nữa
 
                                 //if (oper.Operation == "POP" || oper.Operation == "Injection_POP" || oper.Operation == "Injection_Toast")
@@ -2515,7 +2656,7 @@ namespace SVN_Portal.DAL.DataPortal
 
         private double CalculateWorkingTime(List<int> product_id, DateTime startDatetime, DateTime finishedTime, 
             DateTime minStartSection, DateTime curDateTime,
-            List<SectionTime> sectionTimes, double gapTime, double Duration)
+            List<SectionTime> sectionTimes, double gapTime, double Duration, int hours)
         {
             double workingTime = 0;
             //var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
@@ -2544,21 +2685,88 @@ namespace SVN_Portal.DAL.DataPortal
             //}
 
             var mrp_productionDataPortal = new mrp_productionDataPortal(connectionString);
-            var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(product_id, startDatetime, curDateTime);
+            var productionUI = mrp_productionDataPortal.GetDataByProduct_IDInSection(product_id, startDatetime, curDateTime, hours);
             startDatetime = minStartSection;
             startDatetime = GetStartTime(sectionTimes, startDatetime);
             if (productionUI != null)
             {
-                finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(7) : curDateTime;
+                finishedTime = productionUI.date_finished != null ? productionUI.date_finished.Value.AddHours(hours) : curDateTime;
             }
             else
             {
+                DateTimeOffset timeAtPlusHour = new DateTimeOffset(curDateTime, TimeSpan.FromHours(7))
+                              .ToOffset(TimeSpan.FromHours(hours));
+                curDateTime = timeAtPlusHour.DateTime;
+
                 finishedTime = curDateTime;
             }
             gapTime = Math.Round(GetTotalGapv1(sectionTimes, finishedTime).TotalMinutes / 60.0, 2);
             TimeSpan diff = finishedTime - startDatetime;
             workingTime = Math.Round(diff.TotalMinutes / 60.0, 2) - gapTime; // - Duration
             return workingTime;
+        }
+
+        private List<SectionTime> GetListSectionTime(List<QtyProdResultViewModel> listSection, DateTime today, DateTime currentDate, double HPlanTarget) 
+        {
+            List<SectionTime> sectionTimes = new List<SectionTime>();
+            listSection = listSection.Select(x =>
+            {
+                var times = x.Time.Split('-');
+
+                // Hàm phụ để chuẩn hóa chuỗi "8h" hoặc "8:30" thành "08:30"
+                string NormalizeTime(string t)
+                {
+                    t = t.Replace("h", ":");
+                    if (t.EndsWith(":")) t += "00";
+                    if (t.Length <= 4 && !t.Contains(":")) t += ":00"; // Xử lý trường hợp chỉ có số "8"
+                    if (t.IndexOf(":") == 1) t = "0" + t;
+                    return t;
+                }
+
+                string sTime = NormalizeTime(times[0]);
+                string eTime = NormalizeTime(times[1]);
+
+                string dateString = today.ToString("yyyy-MM-dd");
+
+                // Parse thời gian bắt đầu
+                DateTime startDatetime = DateTime.ParseExact(dateString + " " + sTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                // Parse thời gian kết thúc
+                DateTime endDatetime = DateTime.ParseExact(dateString + " " + eTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                // LOGIC QUAN TRỌNG: 
+                // Nếu thời gian kết thúc nhỏ hơn thời gian bắt đầu (VD: 22:00 - 02:00)
+                // Hoặc nếu cả hai đều nhỏ hơn một mốc buổi sáng trong khi ca bắt đầu từ tối (ca đêm)
+                if (endDatetime <= startDatetime)
+                {
+                    endDatetime = endDatetime.AddDays(1);
+                }
+
+                // Trường hợp đặc biệt: Nếu cả Start và End đều thuộc ngày hôm sau (VD: 00:30 - 03:00)
+                // Giả sử ca đêm bắt đầu từ 20h, bất kỳ mốc nào < 8h sáng nên được hiểu là ngày hôm sau
+                if (startDatetime.Hour < 8 && startDatetime.Hour >= 0)
+                {
+                    // Kiểm tra nếu thực sự là đang chạy ca đêm (thường dựa vào giờ bắt đầu ca lớn)
+                    // Ở đây ta cộng thêm 1 ngày cho cả hai nếu chúng nằm trong khung giờ sáng sớm
+                    startDatetime = startDatetime.AddDays(1);
+                    endDatetime = endDatetime.AddDays(1);
+                }
+
+                // 2025-12-19: Lấy target output theo ca hiện tại
+                if (currentDate >= startDatetime && currentDate <= endDatetime)
+                {
+                    HPlanTarget = x.Target;
+                }
+
+                SectionTime sectionTime = new SectionTime();
+                sectionTime.StartTime = startDatetime;
+                sectionTime.EndTime = endDatetime;
+                sectionTime.Target = x.Target;
+                sectionTimes.Add(sectionTime);
+
+                return x;
+            }).ToList();
+            return sectionTimes;
         }
 
         private double CalculateWorkingTimeNewRules(SVN_ACT_downtimeUI downtimeByOper, DateTime startDatetime, DateTime finishedTime, DateTime minStartSection, DateTime curDateTime,

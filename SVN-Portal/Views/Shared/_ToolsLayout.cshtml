@@ -96,17 +96,26 @@
                         <li class="nav-devider"></li>
                         <li class="nav-label"></li>
                         <li>
-                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">9</span></span></a>
+                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Tools <span class="label label-rouded label-primary pull-right">2</span></span></a>
                             <ul aria-expanded="false" class="collapse">
-                                <li><a asp-controller="Tools" asp-action="PrinterManager">Quản lý máy in</a></li>
+                                @* <li><a asp-controller="Tools" asp-action="PrinterManager">Quản lý máy in</a></li>
                                 <li><a asp-controller="Tools" asp-action="PrintTem">In tem</a></li>
                                 <li><a asp-controller="Tools" asp-action="PrintShippingLabelBySeriNumber">In Shipping Label</a></li>
                                 <li><a asp-controller="Tools" asp-action="PrintAstroLabel">Print Astro Label</a></li>
                                 <li><a asp-controller="Tools" asp-action="PrintToastLabel">Print Toast Label</a></li>
-                                <li><a asp-controller="Tools" asp-action="ProductionUpdateQty">Update số lượng</a></li>
+                                <li><a asp-controller="Tools" asp-action="ProductionUpdateQty">Update số lượng</a></li> *@
                                 <li><a asp-controller="Tools" asp-action="WorkOrderInfo">Lệnh sản xuất</a></li>
                                 <li><a asp-controller="Tools" asp-action="WorkOrderInfoWIPWalter">Lệnh sản xuất WIP Walter</a></li>
-                                <li><a asp-controller="Tools" asp-action="CheckBOMFollowOrder">Kiểm tra thành phần</a></li>
+                                <li><a asp-controller="Tools" asp-action="WorkOrderInfoFGCheckLotPouch">Lệnh sản xuất FG Pouch</a></li>
+                                @* <li><a asp-controller="Tools" asp-action="CheckBOMFollowOrder">Kiểm tra thành phần</a></li> *@
+                                <li><a asp-controller="Production" asp-action="Index">Lệnh sản xuất mới</a></li>
+                                @* <li><a asp-controller="Tools" asp-action="CheckBOMFollowOrder">Kiểm tra thành phần</a></li> *@
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="has-arrow  " href="#" aria-expanded="false"><i class="fa fa-file-text"></i><span class="hide-menu">Training Operators <span class="label label-rouded label-primary pull-right">2</span></span></a>
+                            <ul aria-expanded="false" class="collapse">
+                                <li><a asp-controller="Tools" asp-action="CheckOperatorTraining">Checklist</a></li>
                             </ul>
                         </li>
                     </ul>

@@ -2,6 +2,7 @@
 using SVN_Portal.Services.Helpers;
 using Serilog;
 using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.Services.Util;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 
@@ -53,6 +54,7 @@ builder.Services.AddSingleton(operInfoConfig);
 builder.Services.AddSingleton(aPIConfiguration);
 builder.Services.AddSingleton(labelConfiguration);
 builder.Services.AddSingleton<ToolsHelper>();
+builder.Services.AddSingleton<Pagination>();
 
 var app = builder.Build();
 

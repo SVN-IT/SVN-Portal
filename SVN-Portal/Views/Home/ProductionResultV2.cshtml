@@ -1,0 +1,835 @@
+﻿@using Newtonsoft.Json
+@using System.Globalization
+@using SVN_Portal.DAL.DataPortal
+@model IEnumerable<QtyPDByOperVMPerSlide>
+@{
+    ViewData["Title"] = "Home Page";
+    string shift = ViewBag.shift;
+    DateTime date = ViewBag.date;
+    string companyCode = ViewBag.CompanyCode;
+    List<QtyPDByOperVMPerSlide> qtyPDByOperVMPerSlides = new List<QtyPDByOperVMPerSlide>();
+    if (Model != null)
+    {
+        qtyPDByOperVMPerSlides = Model.ToList();
+    }
+    else
+    {
+        qtyPDByOperVMPerSlides = null;
+    }
+
+    var appSettingDataPortal = new SVN_AppSettingDataPortal(dBConfiguration.GetConnectionString());
+    string strTimeChangeTabMainDashboard = await appSettingDataPortal.GetTimeChangeTabMainDashboard();
+    if (!string.IsNullOrWhiteSpace(strTimeChangeTabMainDashboard) && int.TryParse(strTimeChangeTabMainDashboard, out int timeChangeTabMainDashboard))
+    {
+        appConfig.timeChangeTabMainDashboard = timeChangeTabMainDashboard;
+    }
+    int intervalSlide = appConfig.timeChangeTabMainDashboard;
+    if (intervalSlide == 0)
+    {
+        intervalSlide = 10000;
+    }
+}
+<script>
+    var dataParam;
+    function BuildProductionChart(dataParam, chartID){
+    dataParam = dataParam.map(item => ({
+    ...item,
+    Time: `${item.Time}\nLine: ${item.Line}` // Concatenate Line value with Time
+    }));
+    var chart = AmCharts.makeChart(chartID, {
+    "type": "serial",
+    "theme": "light",
+
+    "dataDateFormat": "YYYY-MM-DD",
+    "dataProvider": dataParam,
+
+    "addClassNames": true,
+    "startDuration": 0,
+    "color": "#FFFFFF",
+    "fontSize": 20,
+    "marginLeft": 0,
+
+    "categoryField": "Time",
+    "categoryAxis": {
+    "parseDates": false,
+    // "minPeriod": "DD",
+    "autoGridCount": false,
+    "gridCount": 50,
+    "gridAlpha": 0.1,
+    "gridColor": "#FFFFFF",
+    "axisColor": "#555555"
+    },
+
+    "valueAxes": [{
+    "id": "a1",
+    "title": "quatity",
+    "gridAlpha": 0,
+    "axisAlpha": 0
+    }],
+    "graphs": [{
+    "id": "g1",
+    "valueField": "Line",
+    "title": "Line",
+    "type": "column",
+    "fillAlphas": 0.9,
+    "valueAxis": "a1",
+    "balloonText": "[[value]] qty",
+    "legendValueText": "[[value]] qty",
+    "legendPeriodValueText": "total: [[value.sum]]",
+    "lineColor": "#428bca",
+    "alphaField": "alpha"
+    }, {
+    "id": "g2",
+    "valueField": "ManQuantity",
+    "classNameField": "bulletClass",
+    "title": "Labor",
+    "type": "line",
+    "valueAxis": "a1",
+    "lineColor": "#FF0000",
+    "lineThickness": 1,
+    "legendValueText": "[[value]]",
+    "legendPeriodValueText": "[[value]]",
+    "bullet": "round",
+    "bulletBorderColor": "#FF0000",
+    "bulletBorderAlpha": 1,
+    "bulletBorderThickness": 1,
+    "bulletColor": "#FF0000",
+    "labelPosition": "right",
+    "balloonText": "Man Qty:[[value]]",
+    "showBalloon": true,
+    "animationPlayed": false,
+    "labelText": "[[value]]",
+    "labelPosition": "bottom", // Giá trị nằm trên điểm của đường
+    "labelColor": "#FF0000", // Màu chữ trên đường
+    }, {
+    "id": "g3",
+    "title": "Target",
+    "valueField": "Target",
+    "type": "line",
+    "valueAxis": "a1",
+    "lineColor": "#006600",
+    "balloonText": "[[value]]",
+    "lineThickness": 4,
+    "legendValueText": "[[value]]",
+    "legendPeriodValueText": "total: [[value.sum]]",
+    "bullet": "square",
+    "bulletBorderColor": "#006600",
+    "bulletBorderThickness": 1,
+    "bulletBorderAlpha": 1,
+    "dashLengthField": "dashLength",
+    "animationPlayed": false,
+    "labelText": "[[value]]",
+    "labelPosition": "top", // Giá trị nằm trên điểm của đường
+    "labelColor": "#006600", // Màu chữ trên đường
+    }],
+
+    "chartCursor": {
+    "zoomable": false,
+    "categoryBalloonDateFormat": "DD",
+    "cursorAlpha": 0,
+    "valueBalloonsEnabled": false
+    },
+    "legend": {
+    "bulletType": "round",
+    "equalWidths": false,
+    "valueWidth": 120,
+    "useGraphSettings": true,
+    "color": "#FFFFFF"
+    }
+    });
+    }
+
+    function BuildDefectPieChart(dataParam, chartID) {
+    var chart = AmCharts.makeChart(chartID, {
+    "type": "pie",
+    "addClassNames": true,
+    "startDuration": 0,
+    // "classNameField": "class",
+    "dataProvider": dataParam,
+    "valueField": "value",
+    "categoryField": "category",
+    "labelRadius": 10,  // Adjust label radius
+    "radius": "42%",
+    "innerRadius": "60%",
+    "labelText": "", //[[category]]
+    "labelColorField": "color",
+    "labelFontSize": 14,
+    "labelColor": "#FFFFFF",
+    // "export": {
+    //     "enabled": true
+    // },
+    "labelPosition": "outside",
+    "fontSize": 14,
+    "fontColor": "#FFFFFF",
+    "animationPlayed": false,
+    "color": "#FFFFFF",
+    "colors": ["#4680ff", "#0ca6dc", "#6845fb"],
+    // Configure legend
+    "legend": {
+    "enabled": true,                        // Bật legend
+    "position": "bottom",                   // Đặt legend ở dưới biểu đồ
+    "marginTop": 10,                        // Khoảng cách trên cùng của legend
+    "marginBottom": 10,                     // Khoảng cách dưới cùng của legend
+    "labelWidth": 150,                      // Độ rộng của nhãn trong legend
+    "markerType": "circle",                 // Loại marker trong legend (có thể là "square", "circle", v.v.)
+    "fontSize": 14,                         // Kích thước font chữ của legend
+    "color": "#FFFFFF",                     // Màu chữ của legend
+    "valueText": "[[category]]: [[value]]", // Định dạng giá trị hiển thị trong legend
+    "valueWidth": 100,                      // Độ rộng của phần hiển thị giá trị trong legend
+    "markerLabelGap": 10,
+    "valueAlign": "left"
+    }
+    });
+    }
+
+    var charIDs = [];
+</script>
+
+<div class="row">
+    <div class="col-lg-12">
+        <form method="post">
+            <div class="form-group row">
+                <div class="col-12 col-sm-6 col-md-2 col-lg-1">
+                    <select class="form-control" name="shift">
+                        <option value="Day" selected="@(shift == "Day")">Day</option>
+                        <option value="Night" selected="@(shift == "Night")">Night</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="row">
+                        <div class="col-9">
+                            <input type="date" name="date" value="@date.ToString("yyyy-MM-dd")" class="form-control" />
+                        </div>
+                        <div class="col-3">
+                            <button type="submit" class="btn btn-primary" asp-route-companyCode="@ViewBag.CompanyCode" asp-route-isManualLoad=true>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-8 col-lg-9">
+                    <h1 class="float-right d-none">@ViewBag.ComparePeople</h1>
+                </div>
+            </div>
+        </form>
+    </div>
+    @if (qtyPDByOperVMPerSlides != null)
+    {
+        <div class="col-12">
+            <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < qtyPDByOperVMPerSlides.Count(); i++)
+                    {
+                        string activeClass = i == 0 ? "active" : "";
+                        <div class="carousel-item @activeClass">
+                            <div class="row">
+                                @foreach (var item in qtyPDByOperVMPerSlides[i].OperViewModels)
+                                {
+                                    string currentTime = string.Empty;
+                                    foreach (var subitem in item.ViewModels)
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(subitem.Time))
+                                        {
+                                            var times = subitem.Time.Split('-');
+                                            DateTime today = date;
+
+                                            // Chuyển đổi thành định dạng HH:mm
+                                            string startTime = times[0].Replace("h", ":");
+                                            if (startTime.Last() == ':')
+                                            {
+                                                startTime = startTime + "00";
+                                            }
+                                            if (startTime.Length == 4)
+                                            {
+                                                startTime = "0" + startTime;
+                                            }
+
+                                            string endTime = times[1].Replace("h", ":");
+                                            if (endTime.Last() == ':')
+                                            {
+                                                endTime = endTime + "00";
+                                            }
+                                            if (endTime.Length == 4)
+                                            {
+                                                endTime = "0" + endTime;
+                                            }
+
+                                            // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                            DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                            DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                            if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                            {
+                                                currentTime = subitem.Time;
+                                            }
+                                        }
+                                    }
+                                    string charID = "chartdiv" + item.Operation;
+                                    charID = charID.Replace("-", "").Replace("(SM)", "");
+                                    string jsonData = string.Empty;
+                                    string defectData = string.Empty;
+                                    string disableStatus = string.Empty;
+                                    string hideStatus = string.Empty;
+                                    jsonData = JsonConvert.SerializeObject(item.ViewModels);
+                                    defectData = JsonConvert.SerializeObject(item.DefectByCategoryViewModels);
+                                    if (item.IsProduction == false)
+                                    {
+                                        disableStatus = "card-disable";
+                                    }
+                                    @* else
+                                    {
+                                        hideStatus = "d-none";
+                                    } *@
+                                    <style>
+                                        #@charID {
+                                            height: 500px;
+                                            width: 100%;
+                                        }
+
+                                        #chartPie_@charID {
+                                            height: 290px;
+                                            width: 100%;
+                                        }
+                                    </style>
+                                    <div class="col-lg-@appConfig.ChartCol">
+                                        <div id="disableCard_@charID" class="no-production d-none">Chưa làm Checklist</div>@* Chưa làm Checklist *@
+                                        <div id="disableCardDowntime_@charID" class="no-production-by-downtime d-none"></div>
+                                        <div id="bigCard_@charID" class="card svn-card @disableStatus">
+
+                                            <div class="card-title">
+                                                @{
+                                                    string productName = string.Empty;
+                                                    if (!string.IsNullOrWhiteSpace(item.Name))
+                                                    {
+                                                        productName = "(" + item.Name + ")";
+                                                    }
+                                                    string textHeaderColor = string.Empty;
+                                                    if (item.Line == "line 1")
+                                                    {
+                                                        textHeaderColor = "text-primary";
+                                                    }
+                                                    else if (item.Line == "line 2")
+                                                    {
+                                                        textHeaderColor = "text-warning";
+                                                    }
+                                                    else
+                                                    {
+                                                        textHeaderColor = "text-light";
+                                                    }
+                                                }
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h4 class="@textHeaderColor">
+                                                            @item.Operation - (@item.Line)
+                                                            <br />
+                                                            @productName
+                                                            <br />
+                                                            <p style="font-size:20px" class=" text-light"> @item.PDName - @item.QCName </p>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="checklistStatus-@charID" class="col-12">
+                                                        @* <p style="font-size:20px" class=" text-light"> <strong>Checklist status</strong>: 🔴 PD - 🔴 MT - 🔴 QC Checked | 🔴 PD - 🔴 QC Confirmed </p> *@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div id="achieveCard_@charID" class="target-container">
+                                                        @foreach (var subitem in item.TargetViewModels)
+                                                        {
+                                                            string textColor = string.Empty;
+                                                            @* if (subitem.Item == "Hourly Plan")
+                                    {
+                                        textColor = "text-dailyPlan";
+                                    }
+                                    else if (subitem.Item == "UPH")
+                                    {
+                                        textColor = "text-uph";
+                                    }
+                                    else if (subitem.Item == "UPPH")
+                                    {
+                                        textColor = "text-upph";
+                                    }
+                                    else if (subitem.Item == "Labor")
+                                    {
+                                        textColor = "text-labor";
+                                    }
+                                    else if (subitem.Item == "Defect")
+                                    {
+                                        textColor = "text-defect";
+                                    } *@
+
+                                                            string status = string.Empty;
+                                                            string alert = string.Empty;
+                                                            if (subitem.Item == "Defect")
+                                                            {
+                                                                if (subitem.Percent > 100)
+                                                                {
+
+                                                                    status = "bg-danger";
+                                                                    if (item.IsProduction)
+                                                                    {
+                                                                        alert = "blinking";
+                                                                    }
+                                                                }
+                                                                else if (subitem.Percent > 75 && subitem.Percent <= 100)
+                                                                {
+                                                                    status = "bg-warning";
+                                                                }
+                                                                else
+                                                                {
+                                                                    status = "bg-primary";
+                                                                }
+                                                            }
+                                                            else if (subitem.Item == "H.Plan" || subitem.Item == "UPH" || subitem.Item == "UPPH" || subitem.Item == "OEE")
+                                                            {
+                                                                if (!string.IsNullOrWhiteSpace(currentTime))
+                                                                {
+                                                                    var times = currentTime.Split('-');
+                                                                    DateTime today = date;
+
+                                                                    // Chuyển đổi thành định dạng HH:mm
+                                                                    string startTime = times[0].Replace("h", ":");
+                                                                    if (startTime.Last() == ':')
+                                                                    {
+                                                                        startTime = startTime + "00";
+                                                                    }
+                                                                    if (startTime.Length == 4)
+                                                                    {
+                                                                        startTime = "0" + startTime;
+                                                                    }
+
+                                                                    string endTime = times[1].Replace("h", ":");
+                                                                    if (endTime.Last() == ':')
+                                                                    {
+                                                                        endTime = endTime + "00";
+                                                                    }
+                                                                    if (endTime.Length == 4)
+                                                                    {
+                                                                        endTime = "0" + endTime;
+                                                                    }
+
+                                                                    // Tạo đối tượng DateTime với ngày hôm nay và giờ từ chuỗi
+                                                                    DateTime startDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + startTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                                    DateTime endDatetime = DateTime.ParseExact(today.ToString("yyyy-MM-dd") + " " + endTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                                    if (startDatetime <= DateTime.Now && endDatetime >= DateTime.Now)
+                                                                    {
+                                                                        status = "bg-primary";
+                                                                        if (subitem.Percent > 100)
+                                                                        {
+                                                                            if (subitem.Item == "H.Plan")
+                                                                            {
+                                                                                if (item.IsProduction)
+                                                                                {
+                                                                                    alert = "blinking-warning";
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                                                        {
+                                                                            status = "bg-danger";
+                                                                            if (item.IsProduction)
+                                                                            {
+                                                                                alert = "blinking";
+                                                                            }
+                                                                        }
+                                                                        else if (subitem.Percent > 100)
+                                                                        {
+                                                                            status = "bg-primary";
+                                                                            if (subitem.Item == "H.Plan")
+                                                                            {
+                                                                                if (item.IsProduction)
+                                                                                {
+                                                                                    alert = "blinking-warning";
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                                                        {
+                                                                            status = "bg-warning";
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            status = "bg-primary";
+                                                                        }
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    if (subitem.Percent > 0 && subitem.Percent <= 75)
+                                                                    {
+                                                                        status = "bg-danger";
+                                                                        if (item.IsProduction)
+                                                                        {
+                                                                            alert = "blinking";
+                                                                        }
+                                                                    }
+                                                                    else if (subitem.Percent > 100)
+                                                                    {
+                                                                        status = "bg-primary";
+                                                                        if (subitem.Item == "H.Plan")
+                                                                        {
+                                                                            if (item.IsProduction)
+                                                                            {
+                                                                                alert = "blinking-warning";
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                                                    {
+                                                                        status = "bg-warning";
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        status = "bg-primary";
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+
+                                                                if (subitem.Percent >= 0 && subitem.Percent <= 75)
+                                                                {
+                                                                    status = "bg-danger";
+                                                                    if (item.IsProduction)
+                                                                    {
+                                                                        alert = "blinking";
+                                                                    }
+                                                                }
+                                                                else if (subitem.Percent > 100)
+                                                                {
+                                                                    status = "bg-primary";
+                                                                    if (subitem.Item == "Labor")
+                                                                    {
+                                                                        if (item.IsProduction)
+                                                                        {
+                                                                            alert = "blinking-warning";
+                                                                        }
+                                                                    }
+                                                                }
+                                                                else if (subitem.Percent > 75 && subitem.Percent <= 92)
+                                                                {
+                                                                    status = "bg-warning";
+                                                                }
+                                                                else
+                                                                {
+                                                                    status = "bg-primary";
+                                                                }
+                                                            }
+
+                                                            <div class="target-item bg-primary @alert">
+                                                                <div>
+                                                                    @if (subitem.Item == "H.Plan")
+                                                                    {
+                                                                        <strong class="f-s-26">📅 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "UPH")
+                                                                    {
+                                                                        <strong class="f-s-26">⚙️ <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "UPPH")
+                                                                    {
+                                                                        <strong class="f-s-26">📈 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "Labor")
+                                                                    {
+                                                                        <strong class="f-s-26">👷 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "OEE")
+                                                                    {
+                                                                        <strong class="f-s-26">🎯 <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+                                                                    else if (subitem.Item == "Defect")
+                                                                    {
+                                                                        <strong class="f-s-26">❌ <span class="@textColor">@subitem.Item</span></strong>
+
+                                                                        <br>
+                                                                    }
+
+                                                                    @if (subitem.Item == "Defect")
+                                                                    {
+                                                                        <span>Tar: @Math.Round(subitem.Target, 2) %</span>
+                                                                        <span> | Cur: @Math.Round(subitem.Current, 2) %</span> <br />
+                                                                        <span>
+                                                                            <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
+                                                                        </span>
+                                                                    }
+                                                                    else if (subitem.Item == "OEE")
+                                                                    {
+                                                                        <span>A: @Math.Round(subitem.Availability, 2)</span>
+                                                                        <span> | P: @Math.Round(subitem.Performance, 2)</span>
+                                                                        <span> | Q: @Math.Round(subitem.Quality, 2)</span> <br />
+                                                                        <span>
+                                                                            <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.OEE, 2) %</strong>
+                                                                        </span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span>Tar: @Math.Round(subitem.Target, 2)</span>
+                                                                        <span> | Cur: @Math.Round(subitem.Current, 2)</span> <br />
+                                                                        <span>
+                                                                            <strong class="f-s-23">Rate:</strong> <strong class="rate-box @status f-s-23">@Math.Round(subitem.Percent, 2) %</strong>
+                                                                        </span>
+                                                                    }
+                                                                </div>
+                                                                @* @if (subitem.Item == "Defect")
+                                        {
+                                            <span>
+                                                <strong class="f-s-26">Rate:</strong> <br />
+                                                <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                <strong class="f-s-26">Rate:</strong> <br />
+                                                <strong class="@status f-s-26">@Math.Round(subitem.Percent, 2) %</strong>
+                                            </span>
+                                        } *@
+                                                            </div>
+
+
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12 col-md-9 border-right">
+                                                        <div id=@charID></div>
+                                                    </div>
+                                                    <div class="col-12 col-md-3 row">
+                                                        <div id="divForecast_@charID" class="col-12 text-center border-bottom">
+                                                            @if (item.Forecast > 100)
+                                                            {
+                                                                <span style="font-size:60px;">☀️</span>
+                                                            }
+                                                            else if (item.Forecast > 75 && item.Forecast <= 100)
+                                                            {
+                                                                <span style="font-size:60px;">🌥️</span>
+                                                            }
+                                                            else if (item.Forecast > 50 && item.Forecast <= 75)
+                                                            {
+                                                                <span style="font-size:60px;">☁️</span>
+                                                            }
+                                                            else if (item.Forecast > 30 && item.Forecast <= 50)
+                                                            {
+                                                                <span style="font-size:60px;">🌦️</span>
+                                                            }
+                                                            else if (item.Forecast > 10 && item.Forecast <= 30)
+                                                            {
+                                                                <span style="font-size:60px;">🌧️</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span style="font-size:60px;">⚡</span>
+                                                            }
+
+                                                            <h4 class="mt-3 text-center">@item.Forecast %</h4>
+                                                            <h3 class="mt-3 text-center">Forecast Achievement</h3>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <div id="chartPie_@charID"></div>
+                                                            <h3 class="mt-3 text-center">Defect by category</h3>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <script>
+                                                    $(document).ready(function () {
+                                                        var dataParam = @Html.Raw(jsonData);
+
+                                                        var defectParam = @Html.Raw(defectData);
+
+                                                        BuildProductionChart(dataParam, @charID)
+                                                        BuildDefectPieChart(defectParam, "chartPie_@charID")
+
+                                                        charIDs.push({
+                                                            charID: "@charID",
+                                                            date: "@date.ToString("yyyyMMdd")",
+                                                            oper: "@item.Operation",
+                                                            wc: "@item.WC",
+                                                            shift: "@shift",
+                                                            companyCode: "@ViewBag.CompanyCode"
+                                                        })
+                                                    });
+
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    function fetchChartData(charID, date, oper, wc, shift, companyCode) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/Home/GetDataByOperAndWCMainDashBoardV1',
+                type: 'POST',
+                data: {
+                    date: date,
+                    oper: oper,
+                    wc: wc,
+                    shift: shift,
+                    companyCode: companyCode
+                },
+                success: function (response) {
+                    if (response.result) {
+                        // Clear content first
+                        $(`#achieveCard_${charID}`).empty();
+                        $(`#divForecast_${charID}`).empty();
+
+                        // Populate content after clearing
+                        $(`#achieveCard_${charID}`).html(response.targetTable);
+                        $(`#divForecast_${charID}`).html(response.forecase);
+
+                        var pdData = JSON.parse(response.pdmodel);
+
+                        $('#checklistStatus-' + charID).html(response.checklistStatus);
+
+                        if(response.canProduction)
+                        {
+                            $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
+
+                        if(response.canProductionByDowntime)
+                        {
+                            $(`#disableCardDowntime_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#disableCardDowntime_${charID}`).removeClass("d-none");
+                            $(`#disableCardDowntime_${charID}`).html(response.downTimeStatus);
+                        }
+
+                        if(response.isProduction)
+                        {
+                            $(`#bigCard_${charID}`).removeClass("card-disable");
+                            // $(`#disableCard_${charID}`).addClass("d-none");
+                        }
+                        else
+                        {
+                            $(`#bigCard_${charID}`).addClass("card-disable");
+                            // $(`#disableCard_${charID}`).removeClass("d-none");
+                        }
+
+                        // Build charts for this charID
+                        BuildProductionChart(pdData, charID);
+
+                        var defectParam = JSON.parse(response.defectcalmodel);
+
+                        BuildDefectPieChart(defectParam, "chartPie_" + charID)
+
+                        resolve(); // Mark AJAX call as complete
+                    } else {
+                        // console.error("Error: " + response.message);
+                        reject(response.message); // Handle failure
+                    }
+                },
+                error: function (xhr, status, error) {
+                    // console.error("AJAX Error: " + status + ", " + error);
+                    reject(error); // Reject promise on AJAX error
+                }
+            });
+        });
+    }
+
+    $(document).ready(function () {
+        async function executeSequentialCalls(charIDs) {
+            for (const charID of charIDs) {
+                try{
+                    await fetchChartData(charID.charID, charID.date, charID.oper, charID.wc, charID.shift, charID.companyCode);
+                } catch (error) {
+                    // console.error("Error fetching data for " + charID.charID + ": " + error);
+                }
+            }
+            setTimeout(async () => {await executeSequentialCalls(charIDs)}, 10000);
+        }
+        executeSequentialCalls(charIDs);
+    });
+
+    $('#carouselExampleSlidesOnly').carousel({
+      interval: @intervalSlide,   // 8s
+      pause: false      // không pause khi hover
+    });
+
+    let isPaused = false;
+    $(document).on('keydown', function (e) {
+      if (e.key === 'ArrowLeft') {
+        $('#carouselExampleSlidesOnly').carousel('prev');
+      }
+
+      if (e.key === 'ArrowRight') {
+        $('#carouselExampleSlidesOnly').carousel('next');
+      }
+
+      if (e.key.toLowerCase() === 'p') {
+         isPaused = !isPaused;
+
+         if (isPaused) {
+            $('#carouselExampleSlidesOnly').carousel('pause');
+         } else {
+            $('#carouselExampleSlidesOnly').carousel('cycle');
+         }
+      }
+    });
+    // function smoothScrollTo(targetY, duration) {
+    //         const startY = window.scrollY;
+    //         const change = targetY - startY;
+    //         const startTime = performance.now();
+
+    //         function animateScroll() {
+    //         const currentTime = performance.now();
+    //         const timeElapsed = currentTime - startTime;
+    //         const progress = Math.min(timeElapsed / duration, 1); // Tính toán tiến độ
+
+    //         window.scrollTo(0, startY + change * progress); // Cuộn trang theo tỷ lệ
+
+    //         if (progress < 1) {
+    //             requestAnimationFrame(animateScroll); // Tiếp tục cuộn
+    //         }
+    //         }
+
+    //         requestAnimationFrame(animateScroll); // Bắt đầu hiệu ứng cuộn
+    //     }
+
+    // function autoScroll() {
+    //   const scrollHeight = document.documentElement.scrollHeight;
+    //   const windowHeight = window.innerHeight;
+
+    //   // Cuộn trang xuống cuối
+    //   smoothScrollTo(scrollHeight - windowHeight, 10000); // 10 giây để cuộn xuống
+
+    //   // Sau khi cuộn đến cuối, quay lại đầu trang
+    //   setTimeout(() => {
+    //     smoothScrollTo(0, 10000); // 10 giây để cuộn lên đầu
+    //   }, 5000); // 5 giây nghỉ giữa hai lần cuộn
+    // }
+
+    // // Gọi hàm autoScroll mỗi 20 giây
+    // setInterval(autoScroll, 20000); // Thực hiện auto scroll mỗi 20 giây
+</script>
