@@ -19,6 +19,54 @@ namespace ViidooDBServiceAPI.Controllers
             this.dBConfiguration = dBConfiguration;
         }
 
+        /// <summary>
+        /// Hàm kiểm tra số seri đã được dùng cho lệnh sản xuất khác chưa
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <returns></returns>
+        [HttpPost("CheckLotSerialFG")]
+        public async Task<BODataProcessResult> CheckLotSerialFG(ProductSerial productSerial)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.ConnectionString);
+            try
+            {
+                var existingLog = await dataPortal.GetByProductIDAndSerialCodeAsync(productSerial.Product_id, productSerial.Serial_code);
+                if (existingLog != null)
+                {
+                    if (existingLog.state == "Used")
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"Serial/Lot {productSerial.Serial_code} has been used for the WO {existingLog.wo_code}. Please double-check.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    else if (existingLog.state == "Consumed")
+                    {
+                        processResult.OK = false;
+                        processResult.Message = $"Serial/Lot {productSerial.Serial_code} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    else
+                    {
+                        processResult.OK = true;
+                        processResult.Message = $"Serial/Lot {productSerial.Serial_code} is valid for use.";
+                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                }
+                else
+                {
+                    processResult.OK = true;
+                    processResult.Message = $"Serial/Lot {productSerial.Serial_code} is valid for input.";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
         [HttpPost("InputProductionResultLog")]
         public async Task<BODataProcessResult> InputProductionResultLog(ProductionDataV1 data)
         {
