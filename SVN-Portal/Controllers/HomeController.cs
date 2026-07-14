@@ -321,7 +321,7 @@ namespace SVN_Portal.Controllers
 
                 //List<OperInfo> opers = operInfoConfig.OperInfo;
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, hours);
+                //models = await dataPortal.SummaryData(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, 3, curSectionList, shift, hours);
                 if (models != null && models.Count > 0)
                 {
                     foreach (var model in models)
@@ -1105,7 +1105,7 @@ namespace SVN_Portal.Controllers
                 curSectionList = await GetCurrentSectionConfig(shift, companyCode);
 
                 var dataPortal = new SVN_production_resultDataPortal(connectionString);
-                models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
+                //models = await dataPortal.SummaryData_Viindoo(strdate, opers, storedProceduce, tableName, dBConfiguration.CheckListConnectionString, curSectionList, shift, hours);
                 inputItemsStatusUIs = await inputItemsDataPortal.ReadList(strdate, operline);
                 ViewBag.InputItemsStatus = inputItemsStatusUIs;
 
