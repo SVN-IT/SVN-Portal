@@ -23,6 +23,7 @@ builder.Services.AddSingleton<SectionTimeServices>();
 builder.Services.AddSingleton<HomeControllerHelper>();
 builder.Services.AddSingleton<DailyTargetControllerHelper>();
 builder.Services.AddSingleton<HourlyTargetControllerHelper>();
+builder.Services.AddSingleton<ReportControllerHelper>();
 
 var app = builder.Build();
 
