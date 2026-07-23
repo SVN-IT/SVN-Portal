@@ -1110,6 +1110,8 @@ namespace ViidooDBServiceAPI.Controllers
                     bODataProcessResult.Message = "Mã lô " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
                     return bODataProcessResult;
                 }
+
+                bODataProcessResult.OK = true;
             }
             catch (Exception ex)
             {
