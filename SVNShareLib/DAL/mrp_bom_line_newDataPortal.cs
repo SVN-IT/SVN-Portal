@@ -39,6 +39,27 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public List<mrp_bom_lineUI> GetDataByProductCode(int product_id)
+        {
+            try
+            {
+                List<mrp_bom_lineUI> data = new List<mrp_bom_lineUI>();
+                string sql = "select mbl.id, mbl.product_id, mbl.product_tmpl_id, mbl.company_id, mbl.product_uom_id, mbl.sequence, \r\nmbl.bom_id, mbl.operation_id, mbl.create_uid, mbl.write_uid, mbl.product_qty, mbl.manual_consumption, \r\nmbl.create_date, mbl.write_date, mbl.cost_share, mbl.standard_qty, mbl.loss_rate from SVN_mrp_bom_line_new mbl\r\nInner Join SVN_mrp_bom_new mb On mbl.bom_id = mb.id\r\nInner Join SVN_product_template_1 pt On mb.product_tmpl_id = pt.id\r\nInner Join SVN_product_product pp On pt.id = pp.product_tmpl_id\r\nWhere pp.id = @product_id";
+                var param = new { product_id = product_id };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var dataUI = connection.Query<mrp_bom_lineUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    data = dataUI.ToList();
+                    return data;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public int Insert(mrp_bom_lineUI model)
         {
             try

@@ -381,7 +381,7 @@
 
                 // Nếu đang ở ô Quality thì nhảy sang ô seri đầu tiên
                 if ($(this).attr("name") === "Quantity") {
-                    if(inputs.length > 0){
+                    if(inputs.length > 0 && $('input[name="ProductTracking"]').val() === "none"){
                         inputs.first().focus();
                     }
                     else{

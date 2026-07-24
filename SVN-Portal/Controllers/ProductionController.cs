@@ -407,42 +407,72 @@ namespace SVN_Portal.Controllers
                     }
                     else
                     {
-                        processResult.OK = true;
-                        processResult.Message = $"Serial/Lot {serial} is valid for use.";
+                        if (existingLog.product_type == "lot" && existingLog.remain_qty <= 0)
+                        {
+                            processResult.OK = false;
+                            processResult.Message = $"Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check.";
+                        }
+                        else
+                        {
+                            processResult.OK = true;
+                            processResult.Message = $"Serial/Lot {serial} is valid for use.";
+                        }
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                 }
                 else
                 {
                     // Dùng cho trường hợp các con nvl quản lý theo serial hoặc lot cần nhập kho thì sẽ check trên Viindoo
-                    if (!productName.StartsWith("[W"))
+                    HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                    ProductDataRequest dataRequest = new ProductDataRequest()
                     {
-                        HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
-                        ProductDataRequest dataRequest = new ProductDataRequest()
+                        lotNumber = serial,
+                        seriNumber = masterMOName,
+                        product_id = int.Parse(productId),
+                        hasTracking = hasTracking
+                    };
+                    var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
+                    if (result != null)
+                    {
+                        processResult.OK = result.OK;
+                        processResult.Message = result.Message;
+
+                        //Nếu tìm dc lot trên Viindoo thì sẽ insert vào SVNDB để lần sau ko cần check nữa
+                        decimal totalQty = 0;
+
+                        if (!string.IsNullOrWhiteSpace(processResult.Message))
                         {
-                            lotNumber = serial,
-                            seriNumber = masterMOName,
-                            product_id = int.Parse(productId),
-                            hasTracking = hasTracking
-                        };
-                        var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
-                        if (result != null)
-                        {
-                            processResult.OK = result.OK;
-                            processResult.Message = result.Message;
+                            var messageParts = processResult.Message.Split(':');
+                            if (messageParts.Length == 3 && decimal.TryParse(messageParts[2].Trim(), out decimal parsedQty))
+                            {
+                                totalQty = parsedQty;
+                            }
                         }
-                        else
-                        {
-                            processResult.OK = false;
-                            processResult.Message = $"Serial/Lot {serial} not yet input";
-                        }
+
+
+                        SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
+                        productDataUI.wo_code = "Non WO";
+                        productDataUI.serial_code = serial;
+                        productDataUI.master_wo_code = "Non WO";
+                        productDataUI.product_id = int.Parse(productId);
+                        productDataUI.product_qty = 0;
+                        productDataUI.product_type = hasTracking;
+                        productDataUI.date_finished = DateTime.Now;
+                        productDataUI.state = "Used";
+                        productDataUI.component_list = string.Empty;
+                        productDataUI.API_function = string.Empty;
+                        productDataUI.API_parameters = string.Empty;
+                        productDataUI.status = "Stock";
+                        productDataUI.total_qty = totalQty;
+                        productDataUI.remain_qty = totalQty;
+                        var insertResult = await dataPortal.InsertAsync(productDataUI);
                     }
                     else
                     {
                         processResult.OK = false;
                         processResult.Message = $"Serial/Lot {serial} not yet input";
                     }
-                    
+
                 }
             }
             catch (Exception ex)
@@ -486,8 +516,19 @@ namespace SVN_Portal.Controllers
             BODataProcessResult processResult = new BODataProcessResult();
             HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+
+            mrp_bom_line_newDataPortal mrp_Bom_Line_DataPortal = new mrp_bom_line_newDataPortal(dBConfiguration.GetConnectionString());
+            
             try
             {
+                var bomLine = mrp_Bom_Line_DataPortal.GetDataByProductCode(int.Parse(data.ProductID));
+                if (bomLine == null || bomLine.Count == 0)
+                {
+                    processResult.OK = false;
+                    processResult.Message = $"No BOM found for product ID {data.ProductID}. Please check the BOM configuration.";
+                    return Json(new { result = processResult.OK, message = processResult.Message });
+                }
+
                 List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
                 var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
                 {
@@ -495,6 +536,7 @@ namespace SVN_Portal.Controllers
                     {
                         product_id = y.Product_id,
                         lotNumber = y.Serial_code,
+                        quantity = 1,
                         tracking = "serial"
                     };
                     lotScaneds.Add(lotScaned);
@@ -502,15 +544,33 @@ namespace SVN_Portal.Controllers
                 }).ToList();
                 var dataLot = data.Products.Where(x => x.Has_tracking == "lot").Select(y =>
                 {
+                    decimal consumedQty = 0;
+                    var bomLineForProduct = bomLine.FirstOrDefault(b => b.product_id == y.Product_id);
+                    if (bomLineForProduct != null)
+                    {
+                        consumedQty = bomLineForProduct.product_qty * decimal.Parse(data.Quantity);
+                    }
+
                     LotScanedRequest lotScaned = new LotScanedRequest
                     {
                         product_id = y.Product_id,
                         lotNumber = y.Serial_code,
+                        quantity = consumedQty,
                         tracking = "lot"
                     };
                     lotScaneds.Add(lotScaned);
                     return y;
                 }).ToList();
+
+                //nếu lotScaneds mà có giá trị Quantity = 0 thì hiển thị thông báo lỗi
+                var lotWithZeroQuantity = lotScaneds.FirstOrDefault(l => l.tracking == "lot" && l.quantity <= 0);
+                if (lotWithZeroQuantity != null)
+                {
+                    processResult.OK = false;
+                    processResult.Message = $"The consumed quantity for lot {lotWithZeroQuantity.lotNumber} is zero or negative. Please check the BOM configuration.";
+                    return Json(new { result = processResult.OK, message = processResult.Message });
+                }
+
                 InputProductDataRequest dataRequest = new InputProductDataRequest()
                 {
                     WorkOrderNumber = data.Name,
@@ -543,6 +603,10 @@ namespace SVN_Portal.Controllers
                 productDataUI.API_parameters = JsonConvert.SerializeObject(dataRequest);
                 productDataUI.status = "Not synchronized";
                 productDataUI.total_qty = decimal.Parse(data.TotalQuantity);
+                if(productDataUI.product_type == "lot")
+                {
+                    productDataUI.remain_qty = productDataUI.product_qty;
+                }
                 //productDataUI.remain_qty = decimal.Parse(data.TotalQuantity) - decimal.Parse(data.Quantity);
                 var insertResult = await dataPortal.InsertAsync(productDataUI);
 
@@ -577,7 +641,43 @@ namespace SVN_Portal.Controllers
                         }
                         else if (item.tracking == "lot")
                         {
-
+                            var existComponentLog = await dataPortal.GetByProductIDAndSerialCodeAsync(item.product_id, item.lotNumber);
+                            if(existComponentLog != null)
+                            {
+                                //existComponentLog.state = "Consuming";
+                                existComponentLog.consumed_wo_code = existComponentLog.consumed_wo_code + "," + data.SubName;
+                                if(existComponentLog.remain_qty > 0)
+                                {
+                                    existComponentLog.remain_qty = existComponentLog.remain_qty - item.quantity;
+                                    existComponentLog.state = "Consuming";
+                                    if (existComponentLog.remain_qty < 0)
+                                    {
+                                        existComponentLog.remain_qty = 0;
+                                        existComponentLog.state = "Consumed";
+                                    }
+                                    if (existComponentLog.remain_qty == 0)
+                                    {
+                                        existComponentLog.state = "Consumed";
+                                    }
+                                }
+                                
+                                var updateResult = await dataPortal.UpdateAsync(existComponentLog);
+                                if (updateResult)
+                                {
+                                    processResult.OK = true;
+                                }
+                                else
+                                {
+                                    processResult.OK = false;
+                                    processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with lot {item.lotNumber} as consumed.";
+                                }
+                            }
+                            else
+                            {
+                                //trong trường hợp là nvl nhập kho thì ko cần check nữa vì bên trên đã check rồi
+                                processResult.OK = false;
+                                processResult.Message = processResult.Message + Environment.NewLine + $"Component log with lot {item.lotNumber} not found in the database.";
+                            }
                         }
                     }
                     if (processResult.OK)
