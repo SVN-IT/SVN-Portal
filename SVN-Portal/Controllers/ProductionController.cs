@@ -10,6 +10,8 @@ using SVNShareLib.DAL;
 using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using ZXing;
 
 namespace SVN_Portal.Controllers
@@ -18,10 +20,12 @@ namespace SVN_Portal.Controllers
     {
         APIConfiguration aPIConfiguration;
         DBConfiguration dBConfiguration;
-        public ProductionController(APIConfiguration aPIConfiguration, DBConfiguration dBConfiguration)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public ProductionController(APIConfiguration aPIConfiguration, DBConfiguration dBConfiguration, IHttpClientFactory httpClientFactory)
         {
             this.aPIConfiguration = aPIConfiguration;
             this.dBConfiguration = dBConfiguration;
+            _httpClientFactory = httpClientFactory;
         }
 
         public IActionResult Index(string workOrder)
@@ -876,6 +880,58 @@ namespace SVN_Portal.Controllers
             }
             return Json(new { result = false, message = processResult.Message });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> PrintSerial([FromBody] PrintSerialRequestDto model)
+        {
+            // Validate dữ liệu đầu vào
+            if (model == null || string.IsNullOrWhiteSpace(model.Serial))
+            {
+                return Json(new { success = false, message = "Serial is empty!" });
+            }
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                // 1. Chuẩn bị URL & Request Body
+                string url = "https://ds.sigmaworldwide.io/print/api/external/print/serial";
+                string jsonContent = System.Text.Json.JsonSerializer.Serialize(new { serial = model.Serial });
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                // 2. Gọi API External
+                HttpResponseMessage response = await client.PostAsync(url, content);
+                string responseString = await response.Content.ReadAsStringAsync();
+
+                // 3. Deserialize kết quả từ API ngoài
+                var apiResult = System.Text.Json.JsonSerializer.Deserialize<ExternalPrintResponse>(responseString, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                // 4. Trả về JSON cho Client AJAX
+                if (apiResult != null && apiResult.Ok)
+                {
+                    return Json(new { success = true, message = "Print Serial Success!" });
+                }
+                else
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = apiResult?.Error ?? "Can't send print order to device"
+                    });
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                return Json(new { success = false, message = $"Server error: {ex.Message}" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"System error: {ex.Message}" });
+            }
+        }
         #endregion
 
         #region hàm xử lý input excel danh sách serial
@@ -954,5 +1010,20 @@ namespace SVN_Portal.Controllers
             }
             return string.Empty; // Trả về chuỗi rỗng nếu định dạng không đúng
         }
+    }
+
+    public class PrintSerialRequestDto
+    {
+        public string Serial { get; set; }
+    }
+
+    // Response nhận từ API external
+    public class ExternalPrintResponse
+    {
+        [JsonPropertyName("ok")]
+        public bool Ok { get; set; }
+
+        [JsonPropertyName("error")]
+        public string Error { get; set; }
     }
 }

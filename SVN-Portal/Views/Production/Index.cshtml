@@ -23,6 +23,14 @@
                         <input type="checkbox" class="form-check-input" id="checkScanCode">
                         <label class="form-check-label" for="checkScanCode">MPQ</label>
                     </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkCreateLot">
+                        <label class="form-check-label" for="checkCreateLot">Auto Create lot</label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkPrintLabel">
+                        <label class="form-check-label" for="checkPrintLabel">Auto Print Label</label>
+                    </div>
                     <div id="modalInputQuantityCode" class="modal" tabindex="-1" role="dialog">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -84,6 +92,50 @@
         $("#app-loader").css("display", "none");
     }
 
+    //Hàm generate code
+    function generateUniqueCode(prefix = 'CODE') {
+        // Lấy thời gian hiện tại dưới dạng Timestamp (mili giây)
+        const timestamp = Date.now();
+
+        // Tạo chuỗi ngẫu nhiên 4 ký tự (chữ + số) để đảm bảo tính duy nhất
+        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+
+        // Ghép lại thành mã: [Tiền tố]-[Timestamp]-[Chuỗi ngẫu nhiên]
+        return `${prefix}-${timestamp}-${randomStr}`;
+    }
+
+    function printProductLabel(){
+        var serialInput = $('input[name="Serial"]').val().trim();
+
+            if (!serialInput) {
+                alert('Please input Serial!');
+                return;
+            }
+            
+
+            // Gọi AJAX về C# Backend
+            $.ajax({
+                url: '@Url.Action("PrintSerial", "Production")', // Đường dẫn tới Action trong C# Controller
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({ serial: serialInput }),
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(response.message);
+                },
+                complete: function () {
+                    
+                }
+            });
+    }
+
     function GetProductByWorkOrder(txtworkOrderCode) {
         var workOrderCode = $(txtworkOrderCode).val();
         showLoader();
@@ -108,7 +160,14 @@
 
                     // Focus ban đầu
                     if (product_tracking === "serial") {
+                        //trong trường hợp là số serial mà checkbox tạo mã tự động đươc bật thì chạy trình tạo mã
+
                         $('input[name="Serial"]').focus();
+
+                        if ($('#checkCreateLot').is(':checked')) {
+                            let generatedCode = generateUniqueCode('SERI');
+                            $('input[name="Serial"]').val(generatedCode);
+                        }
                     } else {
                         if ($('#checkScanCode').is(':checked')) {
                             $('#modalInputQuantityCode').modal('show');
@@ -180,6 +239,13 @@
                         $('#divResultLight').removeClass('bg-success').addClass('bg-light');
                     }, 3000);
                     GetProductByWorkOrder('#txtWorkOrderCode');
+
+                    //Nếu checkbox in label dc check thì mới gọi hàm in
+                    if ($('#checkPrintLabel').is(':checked'))
+                    {
+                        printProductLabel();
+                    }
+                    
                 }
                 else{
                     $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
@@ -387,6 +453,12 @@
                     else{
                         if($('input[name="ProductTracking"]').val() === "lot"){
                             $('input[name="Serial"]').focus();
+
+                            //trường hợp là mã HTMLSlotElement thì cx tương tự
+                            if ($('#checkCreateLot').is(':checked')) {
+                                let generatedCode = generateUniqueCode('LOT');
+                                $('input[name="Serial"]').val(generatedCode);
+                            }
                         }
                         else{
                             InputProductionResult();
