@@ -524,9 +524,10 @@ namespace SVN_Portal.Controllers
                 var bomLine = mrp_Bom_Line_DataPortal.GetDataByProductCode(int.Parse(data.ProductID));
                 if (bomLine == null || bomLine.Count == 0)
                 {
-                    processResult.OK = false;
-                    processResult.Message = $"No BOM found for product ID {data.ProductID}. Please check the BOM configuration.";
-                    return Json(new { result = processResult.OK, message = processResult.Message });
+                    bomLine = new List<mrp_bom_lineUI>();
+                    //processResult.OK = false;
+                    //processResult.Message = $"No BOM found for product ID {data.ProductID}. Please check the BOM configuration.";
+                    //return Json(new { result = processResult.OK, message = processResult.Message });
                 }
 
                 List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
