@@ -167,6 +167,19 @@
                         if ($('#checkCreateLot').is(':checked')) {
                             let generatedCode = generateUniqueCode('SERI');
                             $('input[name="Serial"]').val(generatedCode);
+
+                            if ($('input[name="Serial"]')) {
+                                let enterEvent = new KeyboardEvent('keydown', {
+                                    key: 'Enter',
+                                    code: 'Enter',
+                                    keyCode: 13,
+                                    which: 13,
+                                    bubbles: true,     // BẮT BUỘC: Để sự kiện nổi bọt lên $(document)
+                                    cancelable: true   // BẮT BUỘC: Để hàm e.preventDefault() trong code của bạn không bị lỗi
+                                });
+
+                                $('input[name="Serial"]')[0].dispatchEvent(enterEvent);
+                            }
                         }
                     } else {
                         if ($('#checkScanCode').is(':checked')) {
@@ -238,13 +251,16 @@
                     setTimeout(function() {
                         $('#divResultLight').removeClass('bg-success').addClass('bg-light');
                     }, 3000);
-                    GetProductByWorkOrder('#txtWorkOrderCode');
 
                     //Nếu checkbox in label dc check thì mới gọi hàm in
                     if ($('#checkPrintLabel').is(':checked'))
                     {
                         printProductLabel();
                     }
+
+                    GetProductByWorkOrder('#txtWorkOrderCode');
+
+                    
                     
                 }
                 else{
@@ -458,6 +474,19 @@
                             if ($('#checkCreateLot').is(':checked')) {
                                 let generatedCode = generateUniqueCode('LOT');
                                 $('input[name="Serial"]').val(generatedCode);
+
+                                if ($('input[name="Serial"]')) {
+                                let enterEvent = new KeyboardEvent('keydown', {
+                                        key: 'Enter',
+                                        code: 'Enter',
+                                        keyCode: 13,
+                                        which: 13,
+                                        bubbles: true,     // BẮT BUỘC: Để sự kiện nổi bọt lên $(document)
+                                        cancelable: true   // BẮT BUỘC: Để hàm e.preventDefault() trong code của bạn không bị lỗi
+                                    });
+
+                                    $('input[name="Serial"]')[0].dispatchEvent(enterEvent);
+                                }
                             }
                         }
                         else{
