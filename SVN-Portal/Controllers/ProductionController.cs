@@ -99,12 +99,12 @@ namespace SVN_Portal.Controllers
                             if(insertResult > 0)
                             {
                                 processResult.OK = true;
-                                processResult.Message = "Get Work order information successfully";
+                                processResult.Message = "Get Work order information successfully./ 成功获取工单信息";
                             }
                             else
                             {
                                 processResult.OK = false;
-                                processResult.Message = "Failed to save Work order information into local database.";
+                                processResult.Message = "Failed to save Work order information into local database./ 未能将工单信息保存到本地数据库。";
                             }
 
                             currentMasterWorkOrderName = workOrderCode;
@@ -118,7 +118,7 @@ namespace SVN_Portal.Controllers
                     else
                     {
                         processResult.OK = false;
-                        processResult.Message = "Can't get Work order infomation";
+                        processResult.Message = "Can't get Work order infomation./ 无法获取工单信息。";
                     }
                 }
                 else
@@ -129,7 +129,7 @@ namespace SVN_Portal.Controllers
                 if (string.IsNullOrWhiteSpace(woJsonContent))
                 {
                     processResult.OK = false;
-                    processResult.Message = "Can't get Work order infomation";
+                    processResult.Message = "Can't get Work order infomation./ 无法获取工单信息。";
                     return Json(new { result = processResult.OK, message = processResult.Message });
                 }
 
@@ -224,7 +224,7 @@ namespace SVN_Portal.Controllers
             //sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-12 row\">");
             sb.Append("<div class=\"form-group\" style=\"width: 100%;\">");
-            sb.Append("<h1 class=\"control-label\">Work order: " + curWorkOrder + "</h1>");
+            sb.Append("<h1 class=\"control-label\">Work order/ 工作单: " + curWorkOrder + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + curWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
@@ -233,14 +233,14 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
-            sb.Append("<h2 class=\"control-label\">Product: " + workOrderInfo.OrderInfo["product_name"] + " / WO Qty: " + curTotalQty + "</h2>");
+            sb.Append("<h2 class=\"control-label\">Product/ 产品: " + workOrderInfo.OrderInfo["product_name"] + " / WO Qty/ WO 数量: " + curTotalQty + "</h2>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-3\">");
             sb.Append("<div class=\"form-group\">");
             sb.Append("<div class=\"row\">");
             sb.Append("<div class=\"col-3\">");
-            sb.Append("<label class=\"control-label\">Quantity:</label>");
+            sb.Append("<label class=\"control-label\">Quantity/ 数量:</label>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-4\">");
             sb.Append($"<input type=\"text\" name=\"Quantity\" class=\"form-control {isInputStatus}\" />");
@@ -262,7 +262,14 @@ namespace SVN_Portal.Controllers
             sb.Append("<div class=\"form-group\">");
             sb.Append("<div class=\"row\">");
             sb.Append("<div class=\"col-2\">");
-            sb.Append("<label class=\"control-label\">Serial number:</label>");
+            if(workOrderInfo.OrderInfo["product_tracking"] == "serial")
+            {
+                sb.Append("<label class=\"control-label\">Serial/ 序列号:</label>");
+            }
+            else if (workOrderInfo.OrderInfo["product_tracking"] == "lot")
+            {
+                sb.Append("<label class=\"control-label\">Lot/ 很多:</label>");
+            }
             sb.Append("</div>");
             sb.Append("<div class=\"col-10\">");
             sb.Append($"<input type=\"text\" name=\"Serial\" class=\"form-control {isInputStatus}\" />");
@@ -279,7 +286,7 @@ namespace SVN_Portal.Controllers
                 sb.Append("<div class=\"form-group\">");
                 sb.Append("<div class=\"row\">");
                 sb.Append("<div class=\"col-4\">");
-                sb.Append("<label class=\"control-label\">Or Upload file serial:</label>");
+                sb.Append("<label class=\"control-label\">Or Upload file serial/ 或者上传文件序列号:</label>");
                 sb.Append("</div>");
                 sb.Append("<div class=\"col-8\">");
                 sb.Append($"<input type=\"file\" id=\"serialFile\" name=\"serialFile\" onchange=\"InputProductionResultWithSearialList()\" class=\"form-control {isInputStatus}\" accept=\".xlsx, .xls\" />");
@@ -293,9 +300,9 @@ namespace SVN_Portal.Controllers
             sb.Append("<table class=\"table\">");
             sb.Append("<thead>");
             sb.Append("<tr>");
-            sb.Append("<th scope=\"col\">Product</th>");
-            sb.Append("<th scope=\"col\">From</th>");
-            sb.Append("<th scope=\"col\">Serial number</th>");
+            sb.Append("<th scope=\"col\">Product/ 产品</th>");
+            sb.Append("<th scope=\"col\">From/ 从</th>");
+            sb.Append("<th scope=\"col\">Serial/Lot / 序列号/批次</th>");
             sb.Append("</tr>");
             sb.Append("</thead>");
             sb.Append("<tbody>");
@@ -324,7 +331,7 @@ namespace SVN_Portal.Controllers
             sb.Append("</table>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\" style=\"margin-top:33px\">");
-            sb.Append("<button type=\"button\" class=\"btn btn-primary\" onclick=\"InputProductionResult()\">Confirm</button>");
+            sb.Append("<button type=\"button\" class=\"btn btn-primary\" onclick=\"InputProductionResult()\">Confirm/ 确认</button>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("</div>");
@@ -351,26 +358,26 @@ namespace SVN_Portal.Controllers
                     if (existingLog.state == "Used")
                     {
                         processResult.OK = false;
-                        processResult.Message = $"Serial/Lot {serial} has been used for the WO {existingLog.wo_code}. Please double-check.";
+                        processResult.Message = $"Serial/Lot {serial} has been used for the WO {existingLog.wo_code}. Please double-check./ 工单 {existingLog.wo_code} 已使用序列号/批号 {serial}。请仔细核对。";
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                     else if (existingLog.state == "Consumed")
                     {
                         processResult.OK = false;
-                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
+                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check./ 序列号/批号 {serial} 已用于工单 {existingLog.consumed_wo_code}。请仔细核对。";
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                     else
                     {
                         processResult.OK = true;
-                        processResult.Message = $"Serial/Lot {serial} is valid for use.";
+                        processResult.Message = $"Serial/Lot {serial} is valid for use./ 序列号/批号 {serial} 可用。";
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                 }
                 else
                 {
                     processResult.OK = true;
-                    processResult.Message = $"Serial/Lot {serial} is valid for input.";
+                    processResult.Message = $"Serial/Lot {serial} is valid for input./ 序列号/批号 {serial} 可作为有效输入。";
                 }
             }
             catch (Exception ex)
@@ -406,7 +413,7 @@ namespace SVN_Portal.Controllers
                     if (existingLog.state == "Consumed")
                     {
                         processResult.OK = false;
-                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check.";
+                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check./ 序列号/批号 {serial} 已用于工单 {existingLog.consumed_wo_code}。请仔细核对。";
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                     else
@@ -414,12 +421,12 @@ namespace SVN_Portal.Controllers
                         if (existingLog.product_type == "lot" && existingLog.remain_qty <= 0)
                         {
                             processResult.OK = false;
-                            processResult.Message = $"Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check.";
+                            processResult.Message = $"Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check./ 批次 {serial} 已用于工单 {existingLog.consumed_wo_code}，当前剩余数量：{existingLog.remain_qty}。请再次核对。";
                         }
                         else
                         {
                             processResult.OK = true;
-                            processResult.Message = $"Serial/Lot {serial} is valid for use.";
+                            processResult.Message = $"Serial/Lot {serial} is valid for use./ 序列号/批号 {serial} 可用。";
                         }
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
@@ -474,7 +481,7 @@ namespace SVN_Portal.Controllers
                     else
                     {
                         processResult.OK = false;
-                        processResult.Message = $"Serial/Lot {serial} not yet input";
+                        processResult.Message = $"Serial/Lot {serial} not yet input./ 序列号/批号 {serial} 尚未输入。";
                     }
 
                 }
@@ -501,11 +508,11 @@ namespace SVN_Portal.Controllers
                 var dataUI = await dataPortal.ReadByCode(serial);
                 if (dataUI != null)
                 {
-                    return Json(new { result = true, message = "Tìm thấy mã serial", quantity = dataUI.SelectedQuantity });
+                    return Json(new { result = true, message = "Serial has found./ 序列号已找到。", quantity = dataUI.SelectedQuantity });
                 }
                 else
                 {
-                    return Json(new { result = false, message = "Không tìm thấy mã serial" });
+                    return Json(new { result = false, message = "Serial not found./ 未找到序列号。" });
                 }
             }
             catch (Exception ex)
@@ -572,7 +579,7 @@ namespace SVN_Portal.Controllers
                 if (lotWithZeroQuantity != null)
                 {
                     processResult.OK = false;
-                    processResult.Message = $"The consumed quantity for lot {lotWithZeroQuantity.lotNumber} is zero or negative. Please check the BOM configuration.";
+                    processResult.Message = $"The consumed quantity for lot {lotWithZeroQuantity.lotNumber} is zero or negative. Please check the BOM configuration./ 批次 {lotWithZeroQuantity.lotNumber} 的消耗数量为零或负数。请检查物料清单配置。";
                     return Json(new { result = processResult.OK, message = processResult.Message });
                 }
 
@@ -635,7 +642,7 @@ namespace SVN_Portal.Controllers
                                 else
                                 {
                                     processResult.OK = false;
-                                    processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with serial {item.lotNumber} as consumed.";
+                                    processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with serial {item.lotNumber} as consumed./ 未能使用序列号 {item.lotNumber} 更新组件日志，该序列号已被消耗。";
                                 }
                             }
                             else
@@ -674,20 +681,20 @@ namespace SVN_Portal.Controllers
                                 else
                                 {
                                     processResult.OK = false;
-                                    processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with lot {item.lotNumber} as consumed.";
+                                    processResult.Message = processResult.Message + Environment.NewLine + $"Failed to update component log with lot {item.lotNumber} as consumed./ 未能将批次 {item.lotNumber} 更新为已消耗的组件日志。";
                                 }
                             }
                             else
                             {
                                 //trong trường hợp là nvl nhập kho thì ko cần check nữa vì bên trên đã check rồi
                                 processResult.OK = false;
-                                processResult.Message = processResult.Message + Environment.NewLine + $"Component log with lot {item.lotNumber} not found in the database.";
+                                processResult.Message = processResult.Message + Environment.NewLine + $"Component log with lot {item.lotNumber} not found in the database./ 数据库中找不到批号为 {item.lotNumber} 的组件日志。";
                             }
                         }
                     }
                     if (processResult.OK)
                     {
-                        processResult.Message = "Input production result successfully";
+                        processResult.Message = "Input production result successfully./ 输入生产结果成功。";
                     }
                 }
                 else
@@ -695,12 +702,12 @@ namespace SVN_Portal.Controllers
                     if (insertResult > 0)
                     {
                         processResult.OK = true;
-                        processResult.Message = "Input production result successfully";
+                        processResult.Message = "Input production result successfully./ 输入生产结果成功。";
                     }
                     else
                     {
                         processResult.OK = false;
-                        processResult.Message = "Failed to input production result into local database.";
+                        processResult.Message = "Failed to input production result into local database./ 无法将生产结果输入本地数据库。";
                     }
                 }
 
@@ -733,7 +740,7 @@ namespace SVN_Portal.Controllers
                             }
                             else
                             {
-                                processResult.Message = "Không có dữ liệu";
+                                processResult.Message = "No data./ 无数据。";
                             }
 
                         }
@@ -887,7 +894,7 @@ namespace SVN_Portal.Controllers
             // Validate dữ liệu đầu vào
             if (model == null || string.IsNullOrWhiteSpace(model.Serial))
             {
-                return Json(new { success = false, message = "Serial is empty!" });
+                return Json(new { success = false, message = "Serial is empty./ 序列号为空。" });
             }
 
             try
@@ -895,7 +902,7 @@ namespace SVN_Portal.Controllers
                 var client = _httpClientFactory.CreateClient();
 
                 // 1. Chuẩn bị URL & Request Body
-                string url = "https://ds.sigmaworldwide.io/print/api/external/print/serial";
+                string url = "https://ds.sigmaworldwide.io/print/api/external/print/serial/queue";
                 string jsonContent = System.Text.Json.JsonSerializer.Serialize(new { serial = model.Serial });
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -912,24 +919,24 @@ namespace SVN_Portal.Controllers
                 // 4. Trả về JSON cho Client AJAX
                 if (apiResult != null && apiResult.Ok)
                 {
-                    return Json(new { success = true, message = "Print Serial Success!" });
+                    return Json(new { success = true, message = "Print Serial Success./ 打印序列号成功。" });
                 }
                 else
                 {
                     return Json(new
                     {
                         success = false,
-                        message = apiResult?.Error ?? "Can't send print order to device"
+                        message = apiResult?.Error ?? "Can't send print order to device./ 无法将打印订单发送到设备。"
                     });
                 }
             }
             catch (HttpRequestException ex)
             {
-                return Json(new { success = false, message = $"Server error: {ex.Message}" });
+                return Json(new { success = false, message = $"Server error/ 服务器错误: {ex.Message}" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"System error: {ex.Message}" });
+                return Json(new { success = false, message = $"System error/ 系统错误: {ex.Message}" });
             }
         }
         #endregion

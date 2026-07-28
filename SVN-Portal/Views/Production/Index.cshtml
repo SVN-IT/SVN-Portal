@@ -16,26 +16,26 @@
 </style>
 <form method="post">
     <div class="row">
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-12">
             <div class="row">
                 <div class="col-12">
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="checkScanCode">
-                        <label class="form-check-label" for="checkScanCode">MPQ</label>
+                        <label class="form-check-label" for="checkScanCode">MPQ/ 最低生产数量</label>
                     </div>
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="checkCreateLot">
-                        <label class="form-check-label" for="checkCreateLot">Auto Create lot</label>
+                        <label class="form-check-label" for="checkCreateLot">Auto Create lot/ 自动创建批次</label>
                     </div>
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="checkPrintLabel">
-                        <label class="form-check-label" for="checkPrintLabel">Auto Print Label</label>
+                        <label class="form-check-label" for="checkPrintLabel">Auto Print Label/ 自动打印标签</label>
                     </div>
                     <div id="modalInputQuantityCode" class="modal" tabindex="-1" role="dialog">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" style="color:#455a64!important">Quét số serial để nhập số lượng</h5>
+                                    <h5 class="modal-title" style="color:#455a64!important">Scan the serial number to enter the quantity/ 扫描序列号以输入数量。</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -44,8 +44,8 @@
                                     <input id="txtInputQuantityCode" type="text" name="txtInputQuantityCode" class="form-control" />
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary">Xác nhận</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                    <button type="button" class="btn btn-primary">Confirm/ 确认</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close/ 关闭</button>
                                 </div>
                             </div>
                         </div>
@@ -53,18 +53,18 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="form-group">
-                        <label class="control-label">Lệnh sản xuất</label>
+                        <label class="control-label">Work Order/ 工作单</label>
                         <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" value="@masterWorkOrder" />
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="form-group" style="margin-top:33px">
-                        <button id="btnSearch" class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Tìm kiếm</button>
+                        <button id="btnSearch" class="btn btn-success" type="button" onclick="GetProductByWorkOrder('#txtWorkOrderCode')"><i class="fa fa-pencil"></i> Search/ 搜索</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-4 d-none">
             <h4>Key 1 (Numeric keypad) - ✅ Scan serial number to enter quantity</h4>
             <h4>Key 2 (Numeric keypad) - Enter new production order</h4>
             <h4>Key 3 (Numeric keypad) - Open label printing page</h4>
