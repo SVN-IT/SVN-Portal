@@ -136,6 +136,26 @@
             });
     }
 
+    async function checkAutoFillComponent(productId, componentProductId) {
+        try {
+            const res = await $.ajax({
+                url: '/Production/CheckAutoFillComponentByFGLotSerial',
+                type: 'POST',
+                data: {
+                    product_id: productId,
+                    component_product_id: componentProductId
+                }
+            });
+
+            // Trả về giá trị res.result (true/false)
+            return res.result; 
+
+        } catch (error) {
+            console.error("Lỗi API:", error);
+            return false;
+        }
+    }
+
     function GetProductByWorkOrder(txtworkOrderCode) {
         var workOrderCode = $(txtworkOrderCode).val();
         showLoader();
@@ -406,7 +426,7 @@
         // ===================================================================
 
         // Bắt phím Enter
-        $(document).on('keydown', 'input', function (e) {
+        $(document).on('keydown', 'input', async function (e) {
             if (e.key === "Enter") {
                 e.preventDefault(); // chặn submit form khi bấm Enter
 
@@ -465,6 +485,31 @@
                 if ($(this).attr("name") === "Quantity") {
                     if(inputs.length > 0 && $('input[name="ProductTracking"]').val() === "none"){
                         inputs.first().focus();
+                        // Lấy productId của dòng serial-input đầu tiên
+                        let $firstInput = inputs.first();
+                        let firstProductId = $firstInput.closest('td').find('.product-id').val();
+                        let trackingType = $firstInput.closest('td').find('.has-tracking').val();
+                        let masterProductID = $('input[name="ProductID"]').val();
+                        let masterProductTracking = $('input[name="ProductTracking"]').val();
+
+                        if((masterProductTracking == "serial" || masterProductTracking == "lot") && masterProductTracking == trackingType){
+                            let isAutoFillValid = await checkAutoFillComponent(masterProductID, firstProductId);
+                            if(isAutoFillValid){
+                                var masterSerial = $('input[name="Serial"]').val().trim();
+                                inputs.first().val(masterSerial);
+
+                                let enterEvent = new KeyboardEvent('keydown', {
+                                    key: 'Enter',
+                                    code: 'Enter',
+                                    keyCode: 13,
+                                    which: 13,
+                                    bubbles: true,     // BẮT BUỘC: Để sự kiện nổi bọt lên $(document)
+                                    cancelable: true   // BẮT BUỘC: Để hàm e.preventDefault() trong code của bạn không bị lỗi
+                                });
+
+                                inputs.first()[0].dispatchEvent(enterEvent);
+                            }
+                        }
                     }
                     else{
                         if($('input[name="ProductTracking"]').val() === "lot"){
@@ -508,7 +553,7 @@
                         url: '/Production/CheckLotSerialFG', // API check
                         type: 'POST',
                         data: { serial: serialValue, masterMOName: masterMOName, productID: productID },
-                        success: function (res) {
+                        success: async function (res) {
                             if (res.result) {
                                 // Nếu pass -> set Quality = 1 rồi đi tiếp
                                 if($('input[name="ProductTracking"]').val() === "serial"){
@@ -516,6 +561,30 @@
                                 }
                                 if(inputs.length > 0){
                                     inputs.first().focus();
+                                    let $firstInput = inputs.first();
+                                    let firstProductId = $firstInput.closest('td').find('.product-id').val();
+                                    let trackingType = $firstInput.closest('td').find('.has-tracking').val();
+                                    let masterProductID = $('input[name="ProductID"]').val();
+                                    let masterProductTracking = $('input[name="ProductTracking"]').val();
+
+                                    if((masterProductTracking == "serial" || masterProductTracking == "lot") && masterProductTracking == trackingType){
+                                        let isAutoFillValid = await checkAutoFillComponent(masterProductID, firstProductId);
+                                        if(isAutoFillValid){
+                                            var masterSerial = $('input[name="Serial"]').val().trim();
+                                            inputs.first().val(masterSerial);
+
+                                            let enterEvent = new KeyboardEvent('keydown', {
+                                                key: 'Enter',
+                                                code: 'Enter',
+                                                keyCode: 13,
+                                                which: 13,
+                                                bubbles: true,     // BẮT BUỘC: Để sự kiện nổi bọt lên $(document)
+                                                cancelable: true   // BẮT BUỘC: Để hàm e.preventDefault() trong code của bạn không bị lỗi
+                                            });
+
+                                            inputs.first()[0].dispatchEvent(enterEvent);
+                                        }
+                                    }
                                 }
                                 else{
                                     InputProductionResult();

@@ -233,7 +233,7 @@ namespace SVN_Portal.Controllers
             sb.Append("</div>");
             sb.Append("<div class=\"col-12\">");
             sb.Append("<div class=\"form-group\">");
-            sb.Append("<h2 class=\"control-label\">Product/ 产品: " + workOrderInfo.OrderInfo["product_name"] + " / WO Qty/ WO 数量: " + curTotalQty + "</h2>");
+            sb.Append("<h1 class=\"control-label text-primary\"><strong>Product/ 产品: " + workOrderInfo.OrderInfo["product_name"] + " / WO Qty/ WO 数量: " + curTotalQty + "</strong></h1>");
             sb.Append("</div>");
             sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-3\">");
@@ -938,6 +938,46 @@ namespace SVN_Portal.Controllers
             {
                 return Json(new { success = false, message = $"System error/ 系统错误: {ex.Message}" });
             }
+        }
+
+        [HttpPost]
+        public IActionResult CheckAutoFillComponentByFGLotSerial(string product_id, string component_product_id)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            SVN_product_id_componentDataPortal dataPortal = new SVN_product_id_componentDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                var existingLog = dataPortal.GetByProductId(product_id);
+                if (existingLog != null)
+                {
+                    if(!string.IsNullOrWhiteSpace(existingLog.component_product_ids))
+                    {
+                        
+                        var componentIds = existingLog.component_product_ids.Split(',').Select(id => id.Trim()).ToList();
+                        if (componentIds.Contains(component_product_id))
+                        {
+                            processResult.OK = true;
+                            processResult.Message = $"Component product ID {component_product_id} is valid for auto-fill./ 组件产品ID {component_product_id} 可用于自动填充。";
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = $"Component product ID {component_product_id} is NOT valid for auto-fill./ 组件产品ID {component_product_id} 不可用于自动填充。";
+                        }
+                    }
+                }
+                else
+                {
+                    processResult.OK = false;
+                    processResult.Message = "Không có product_id trong đây thì không có fill thôi";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return Json(new { result = processResult.OK, message = processResult.Message });
         }
         #endregion
 
