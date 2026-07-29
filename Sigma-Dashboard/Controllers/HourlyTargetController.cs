@@ -247,10 +247,14 @@ namespace Sigma_Dashboard.Controllers
                             {
                                 rowErrors.Add("Date_time col is Empty");
                             }
-                            else if (!string.IsNullOrWhiteSpace(stringDate) && dateTime != stringDate)
+                            else if (!string.IsNullOrWhiteSpace(stringDate))
                             {
-                                // CHẮT LỌC LỖI: Phát hiện ngày trong file lệch với ngày đang chọn ngoài giao diện
-                                rowErrors.Add($"Datetime '{dateTime}' is incorrect , pls input '{stringDate}'.");
+                                DateTime rowDateTime = DateTime.ParseExact(dateTime, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                                DateTime curDateTime = DateTime.ParseExact(stringDate, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                                if (rowDateTime < curDateTime)
+                                {
+                                    rowErrors.Add($"Datetime '{dateTime}' is invalid (must be >= '{stringDate}').");
+                                }
                             }
 
                             // Kiểm tra giá trị select box Type Value hợp lệ
