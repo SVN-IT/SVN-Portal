@@ -217,6 +217,11 @@ namespace SVN_Portal.Controllers
             {
                 isInputStatus = "d-none pe-none";
             }
+            string isInputQtyStatus = string.Empty;
+            if(workOrderInfo.OrderInfo["product_tracking"] == "serial")
+            {
+                isInputQtyStatus = "pe-none";
+            }
             StringBuilder sb = new StringBuilder();
             //sb.Append("<div class=\"col-12 col-md-3\">");
             //sb.Append("<div id=\"divResultLight\" class=\"box-square bg-light\">");
@@ -224,7 +229,7 @@ namespace SVN_Portal.Controllers
             //sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-12 row\">");
             sb.Append("<div class=\"form-group\" style=\"width: 100%;\">");
-            sb.Append("<h1 class=\"control-label\">Work order/ 工作单: " + curWorkOrder + "</h1>");
+            sb.Append("<h1 class=\"control-label d-none\">Work order/ 工作单: " + curWorkOrder + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"SubName\" class=\"form-control\" value=\"" + curWorkOrder + "\" />");
             sb.Append("<input type=\"hidden\" name=\"ProductID\" class=\"form-control\" value=\"" + workOrderInfo.OrderInfo["product_id"] + "\" />");
@@ -242,7 +247,7 @@ namespace SVN_Portal.Controllers
             sb.Append("<div class=\"col-3\">");
             sb.Append("<label class=\"control-label\">Quantity/ 数量:</label>");
             sb.Append("</div>");
-            sb.Append("<div class=\"col-4\">");
+            sb.Append($"<div class=\"col-4 {isInputQtyStatus}\">");
             sb.Append($"<input type=\"text\" name=\"Quantity\" class=\"form-control {isInputStatus}\" />");
             sb.Append("</div>");
             sb.Append("<div class=\"col-5\">");
