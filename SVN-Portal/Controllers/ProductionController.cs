@@ -180,6 +180,17 @@ namespace SVN_Portal.Controllers
         /// <returns></returns>
         private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName, string masterWorkOrderLog, decimal totalQty, decimal remainQty)
         {
+            SVN_product_id_componentDataPortal dataPortal = new SVN_product_id_componentDataPortal(dBConfiguration.GetConnectionString());
+            List<string> componentIds = new List<string>();
+            var existingLog = dataPortal.GetByProductId(workOrderInfo.OrderInfo["product_id"]);
+            if (existingLog != null)
+            {
+                if (!string.IsNullOrWhiteSpace(existingLog.component_product_ids))
+                {
+                    componentIds = existingLog.component_product_ids.Split(',').Select(id => id.Trim()).ToList();
+                }
+            }
+
             string masterWorkOrder = workOrderInfo.OrderInfo["name"].Split("-")[0];
             string curWorkOrder = workOrderInfo.OrderInfo["name"];
             string curRemainQty = workOrderInfo.OrderInfo["product_qty"];
@@ -318,13 +329,20 @@ namespace SVN_Portal.Controllers
                 sb.Append("<tr>");
                 sb.Append("<th scope=\"row\">" + item["product_name"] + "</th>");
                 sb.Append("<td>" + item["location_name"] + "</td>");
+
+                string isAutoFillSerial = string.Empty;
+                if(componentIds.Contains(item["product_id"]))
+                {
+                    isAutoFillSerial = "pe-none";
+                }
+
                 if (item["has_tracking"] == "serial")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /></td>");
+                    sb.Append($"<td class=\"{isAutoFillSerial}\"><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Serial code\" class=\"form-control serial-input\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /></td>");
                 }
                 else if (item["has_tracking"] == "lot")
                 {
-                    sb.Append("<td><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /></td>");
+                    sb.Append($"<td class=\"{isAutoFillSerial}\"><input type=\"hidden\" class=\"form-control product-id\" value=\"" + item["product_id"] + "\" /><input type=\"hidden\" class=\"form-control has-tracking\" value=\"" + item["has_tracking"] + "\" /><input type=\"text\" placeholder=\"Scan Lot code\" class=\"form-control serial-input\" /><input type=\"hidden\" class=\"form-control product_name\" value=\"" + item["product_name"] + "\" /></td>");
                 }
                 else
                 {
