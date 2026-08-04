@@ -43,7 +43,7 @@ namespace Sigma_Dashboard.Controllers
             ViewBag.shift = shift;
             ViewBag.ControllerName = "DailyTarget";
             ViewBag.IndexPage = "Index";
-            ViewBag.TitleName = $"Daily Target - {date.ToString("dd/MM/yyyy")}";
+            ViewBag.TitleName = $"Daily Target"; //date.ToString("dd/MM/yyyy")
             ViewBag.CompanyCode = companyCode;
             ViewBag.AccessMode = "PMC";
             List<DailyTargetViewModel> viewModels = new List<DailyTargetViewModel>();

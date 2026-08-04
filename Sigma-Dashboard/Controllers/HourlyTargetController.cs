@@ -47,7 +47,7 @@ namespace Sigma_Dashboard.Controllers
             ViewBag.shift = shift;
             ViewBag.ControllerName = "HourlyTarget";
             ViewBag.IndexPage = "Index";
-            ViewBag.TitleName = $"Hourly Target - {date.ToString("dd/MM/yyyy")}";
+            ViewBag.TitleName = $"Hourly Target"; //date.ToString("dd/MM/yyyy")
             ViewBag.CompanyCode = companyCode;
             ViewBag.AccessMode = "PMC";
             List<HourlyTargetViewModel> viewModels = new List<HourlyTargetViewModel>();
