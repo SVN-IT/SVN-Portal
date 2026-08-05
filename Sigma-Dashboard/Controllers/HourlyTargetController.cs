@@ -262,10 +262,10 @@ namespace Sigma_Dashboard.Controllers
                             {
                                 rowErrors.Add("Type_value col is empty.");
                             }
-                            else if (typeValue != "Target" && typeValue != "Man Q'ty")
-                            {
-                                rowErrors.Add("Type_value pls input 'Target' or 'Man Q'ty'.");
-                            }
+                            //else if (typeValue != "Target" && typeValue != "Man Q'ty")
+                            //{
+                            //    rowErrors.Add("Type_value pls input 'Target' or 'Man Q'ty'.");
+                            //}
 
                             // Ép kiểu dữ liệu số an toàn
                             int t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0; 
@@ -288,10 +288,10 @@ namespace Sigma_Dashboard.Controllers
                                 }
                                 var dallyTotal = t1 + t2 + t3 + t4 + t5 + t6;
                                 var dailyTarget = await dailyTargetControllerHelper.GetDailyTargetByDateAndOperation(dateTime, operation, shift);
-                                if (dailyTarget != null && !string.IsNullOrWhiteSpace(dailyTarget.Operation) && dallyTotal != dailyTarget.Daily_plan)
-                                {
-                                    rowErrors.Add($"Total hourly target ({dallyTotal}) exceeds daily target ({dailyTarget.Daily_plan}).");
-                                }
+                                //if (dailyTarget != null && !string.IsNullOrWhiteSpace(dailyTarget.Operation) && dallyTotal != dailyTarget.Daily_plan)
+                                //{
+                                //    rowErrors.Add($"Total hourly target ({dallyTotal}) exceeds daily target ({dailyTarget.Daily_plan}).");
+                                //}
                                 if (dailyTarget == null || (dailyTarget != null && string.IsNullOrWhiteSpace(dailyTarget.Operation)))
                                 {
                                     rowErrors.Add($"Daily target not found for operation {operation} on date {dateTime}. Pls insert Daily Target firt.");
@@ -308,26 +308,30 @@ namespace Sigma_Dashboard.Controllers
                             }
                             else
                             {
-                                // Nếu dữ liệu dòng này chuẩn, map vào list để chuẩn bị lưu DB
-                                listHourlyTargets.Add(new HourlyTargetViewModel
+                                if(typeValue == "Target" || typeValue == "Man Q'ty")
                                 {
-                                    Operation = operation,
-                                    Type_value = typeValue,
-                                    Time1 = t1,
-                                    Time2 = t2,
-                                    Time3 = t3,
-                                    Time4 = t4,
-                                    Time5 = t5,
-                                    Time6 = t6,
-                                    Date_time = dateTime,
-                                    WC = wc,
-                                    Achieve = achieve,
-                                    Product = product,
-                                    Shift = shift,
-                                    Forecast = 0,     // Gán giá trị rỗng/mặc định cho các trường không dùng ngoài bảng
-                                    WORunning = "",
-                                    Customer = ""
-                                });
+                                    // Nếu dữ liệu dòng này chuẩn, map vào list để chuẩn bị lưu DB
+                                    listHourlyTargets.Add(new HourlyTargetViewModel
+                                    {
+                                        Operation = operation,
+                                        Type_value = typeValue,
+                                        Time1 = t1,
+                                        Time2 = t2,
+                                        Time3 = t3,
+                                        Time4 = t4,
+                                        Time5 = t5,
+                                        Time6 = t6,
+                                        Date_time = dateTime,
+                                        WC = wc,
+                                        Achieve = achieve,
+                                        Product = product,
+                                        Shift = shift,
+                                        Forecast = 0,     // Gán giá trị rỗng/mặc định cho các trường không dùng ngoài bảng
+                                        WORunning = "",
+                                        Customer = ""
+                                    });
+                                }    
+                                
                             }
                         }
 
