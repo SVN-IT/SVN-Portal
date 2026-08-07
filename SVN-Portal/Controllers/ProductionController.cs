@@ -472,34 +472,37 @@ namespace SVN_Portal.Controllers
                         processResult.Message = result.Message;
 
                         //Nếu tìm dc lot trên Viindoo thì sẽ insert vào SVNDB để lần sau ko cần check nữa
-                        decimal totalQty = 0;
-
-                        if (!string.IsNullOrWhiteSpace(processResult.Message))
+                        if(processResult.OK == true)
                         {
-                            var messageParts = processResult.Message.Split(':');
-                            if (messageParts.Length == 3 && decimal.TryParse(messageParts[2].Trim(), out decimal parsedQty))
+                            decimal totalQty = 0;
+
+                            if (!string.IsNullOrWhiteSpace(processResult.Message))
                             {
-                                totalQty = parsedQty;
+                                var messageParts = processResult.Message.Split(':');
+                                if (messageParts.Length == 3 && decimal.TryParse(messageParts[2].Trim(), out decimal parsedQty))
+                                {
+                                    totalQty = parsedQty;
+                                }
                             }
+
+
+                            SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
+                            productDataUI.wo_code = "Non WO";
+                            productDataUI.serial_code = serial;
+                            productDataUI.master_wo_code = "Non WO";
+                            productDataUI.product_id = int.Parse(productId);
+                            productDataUI.product_qty = 0;
+                            productDataUI.product_type = hasTracking;
+                            productDataUI.date_finished = DateTime.Now;
+                            productDataUI.state = "Used";
+                            productDataUI.component_list = string.Empty;
+                            productDataUI.API_function = string.Empty;
+                            productDataUI.API_parameters = string.Empty;
+                            productDataUI.status = "Stock";
+                            productDataUI.total_qty = totalQty;
+                            productDataUI.remain_qty = totalQty;
+                            var insertResult = await dataPortal.InsertAsync(productDataUI);
                         }
-
-
-                        SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
-                        productDataUI.wo_code = "Non WO";
-                        productDataUI.serial_code = serial;
-                        productDataUI.master_wo_code = "Non WO";
-                        productDataUI.product_id = int.Parse(productId);
-                        productDataUI.product_qty = 0;
-                        productDataUI.product_type = hasTracking;
-                        productDataUI.date_finished = DateTime.Now;
-                        productDataUI.state = "Used";
-                        productDataUI.component_list = string.Empty;
-                        productDataUI.API_function = string.Empty;
-                        productDataUI.API_parameters = string.Empty;
-                        productDataUI.status = "Stock";
-                        productDataUI.total_qty = totalQty;
-                        productDataUI.remain_qty = totalQty;
-                        var insertResult = await dataPortal.InsertAsync(productDataUI);
                     }
                     else
                     {
