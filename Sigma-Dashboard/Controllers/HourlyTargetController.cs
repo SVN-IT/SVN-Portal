@@ -56,6 +56,7 @@ namespace Sigma_Dashboard.Controllers
                 viewModels = await controllerHelper.GetHourlyTargetData(date, shift, companyCode);
                 if(viewModels != null && viewModels.Count != 0)
                 {
+                    viewModels = viewModels.Where(x => x.Type_value == "Target" || x.Type_value == "Man Q'ty").ToList();
                     if (!string.IsNullOrWhiteSpace(companyCode))
                     {
                         switch (companyCode)
