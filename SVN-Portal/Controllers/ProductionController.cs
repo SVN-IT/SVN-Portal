@@ -53,78 +53,15 @@ namespace SVN_Portal.Controllers
             WO_ManagementUIDataPortal woDataPortal = new WO_ManagementUIDataPortal(dBConfiguration.GetConnectionString());
             try
             {
-                string currentMasterWorkOrderName = string.Empty;
                 string previousWorkOrderName = string.Empty;
-                var woInfor = await woDataPortal.GetByWONameAsync(workOrderCode);
-                if (woInfor != null)
+                string currentMasterWorkOrderName = string.Empty;
+                processResult = await GetWorkOrderInfo(workOrderCode, isGetDataFromViindoo);
+                if(!processResult.OK)
                 {
-                    currentMasterWorkOrderName = woInfor.WO_Name;
+                    return Json(new { result = processResult.OK, message = processResult.Message });
                 }
-                else 
-                {
-                    //Nếu chưa có MasterWO trc đó thì thực hiện lấy dữ liệu WO từ Viindoo
-                    isGetDataFromViindoo = true;
-                }
-
-                string woJsonContent = string.Empty;
-
-                if (isGetDataFromViindoo)
-                {
-                    InputProductDataRequest dataRequest = new InputProductDataRequest()
-                    {
-                        WorkOrderNumber = workOrderCode,
-                        LotNumber = ""
-                    };
-                    var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
-                    if (result != null)
-                    {
-                        if (result.OK)
-                        {
-                            woJsonContent = result.Content.ToString();
-
-                            WorkOrderInfo workOrderInfo1 = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
-                            workOrderCode = workOrderInfo1.OrderInfo["name"];
-                            if(!string.IsNullOrWhiteSpace(workOrderCode))
-                            {
-                                workOrderCode = workOrderCode.Split("-")[0];
-                            }
-
-                            WO_ManagementUI woManagementUI = new WO_ManagementUI()
-                            {
-                                WO_Name = workOrderCode,
-                                WO_Content = woJsonContent,
-                                Created_Date = DateTime.Now
-                            };
-                            var insertResult = await woDataPortal.CreateAsync(woManagementUI);
-                            if(insertResult > 0)
-                            {
-                                processResult.OK = true;
-                                processResult.Message = "Get Work order information successfully./ 成功获取工单信息";
-                            }
-                            else
-                            {
-                                processResult.OK = false;
-                                processResult.Message = "Failed to save Work order information into local database./ 未能将工单信息保存到本地数据库。";
-                            }
-
-                            currentMasterWorkOrderName = workOrderCode;
-                        }
-                        else
-                        {
-                            processResult.OK = false;
-                            processResult.Message = result.Message;
-                        }
-                    }
-                    else
-                    {
-                        processResult.OK = false;
-                        processResult.Message = "Can't get Work order infomation./ 无法获取工单信息。";
-                    }
-                }
-                else
-                {
-                    woJsonContent = woInfor.WO_Content;
-                }
+                currentMasterWorkOrderName = workOrderCode;
+                string woJsonContent = processResult.Content != null ? processResult.Content.ToString() : null;
 
                 if (string.IsNullOrWhiteSpace(woJsonContent))
                 {
@@ -155,8 +92,24 @@ namespace SVN_Portal.Controllers
                     totalQty = decimal.Parse(workOrderInfo.OrderInfo["product_qty"]);
                     remainQty = totalQty - productedQty;
                 }
-                
-                string stringContent = BuildWorkOrderInfo(workOrderInfo, previousWorkOrderName, masterWorkOrder, totalQty, remainQty);
+
+                //Lấy thông tin lệnh sản xuất cha
+                WorkOrderInfo nextWorkOrderInfo = null;
+                if (workOrderInfo.OrderInfo["origin"] != "False")
+                {
+                    BODataProcessResult nextWOBODataProcessResult = await GetWorkOrderInfo(workOrderInfo.OrderInfo["origin"], false);
+                    if (nextWOBODataProcessResult.OK)
+                    {
+                        string nextWOJsonContent = nextWOBODataProcessResult.Content != null ? nextWOBODataProcessResult.Content.ToString() : null;
+                        if (!string.IsNullOrWhiteSpace(nextWOJsonContent))
+                        {
+                            nextWorkOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(nextWOJsonContent);
+                        }
+                    }
+                }
+
+
+                string stringContent = BuildWorkOrderInfo(workOrderInfo, nextWorkOrderInfo, previousWorkOrderName, masterWorkOrder, totalQty, remainQty);
                 processResult.OK = true;
                 processResult.Message = stringContent;
                 return Json(new { result = processResult.OK, message = processResult.Message, product_tracking = workOrderInfo.OrderInfo["product_tracking"] });
@@ -170,6 +123,104 @@ namespace SVN_Portal.Controllers
         }
 
         /// <summary>
+        /// Hàm lấy thông tin Work Order từ Viindoo và lưu vào cơ sở dữ liệu cục bộ nếu chưa có
+        /// </summary>
+        /// <param name="workOrderCode"></param>
+        /// <param name="isGetDataFromViindoo"></param>
+        /// <returns></returns>
+        private async Task<BODataProcessResult> GetWorkOrderInfo(string workOrderCode, bool isGetDataFromViindoo)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            WO_ManagementUIDataPortal woDataPortal = new WO_ManagementUIDataPortal(dBConfiguration.GetConnectionString());
+            try
+            {
+                string currentMasterWorkOrderName = string.Empty;
+                
+                var woInfor = await woDataPortal.GetByWONameAsync(workOrderCode);
+                if (woInfor != null)
+                {
+                    currentMasterWorkOrderName = woInfor.WO_Name;
+                }
+                else
+                {
+                    //Nếu chưa có MasterWO trc đó thì thực hiện lấy dữ liệu WO từ Viindoo
+                    isGetDataFromViindoo = true;
+                }
+
+                string woJsonContent = string.Empty;
+
+                if (isGetDataFromViindoo)
+                {
+                    InputProductDataRequest dataRequest = new InputProductDataRequest()
+                    {
+                        WorkOrderNumber = workOrderCode,
+                        LotNumber = ""
+                    };
+                    var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                    if (result != null)
+                    {
+                        if (result.OK)
+                        {
+                            woJsonContent = result.Content.ToString();
+
+                            WorkOrderInfo workOrderInfo1 = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
+                            workOrderCode = workOrderInfo1.OrderInfo["name"];
+                            if (!string.IsNullOrWhiteSpace(workOrderCode))
+                            {
+                                workOrderCode = workOrderCode.Split("-")[0];
+                            }
+
+                            WO_ManagementUI woManagementUI = new WO_ManagementUI()
+                            {
+                                WO_Name = workOrderCode,
+                                WO_Content = woJsonContent,
+                                Created_Date = DateTime.Now
+                            };
+                            var insertResult = await woDataPortal.CreateAsync(woManagementUI);
+                            if (insertResult > 0)
+                            {
+                                processResult.OK = true;
+                                processResult.Content = woJsonContent;
+                                processResult.Message = "Get Work order information successfully./ 成功获取工单信息";
+                            }
+                            else
+                            {
+                                processResult.OK = false;
+                                processResult.Message = "Failed to save Work order information into local database./ 未能将工单信息保存到本地数据库。";
+                            }
+
+                            currentMasterWorkOrderName = workOrderCode;
+                        }
+                        else
+                        {
+                            processResult.OK = false;
+                            processResult.Message = result.Message;
+                        }
+                    }
+                    else
+                    {
+                        processResult.OK = false;
+                        processResult.Message = "Can't get Work order infomation./ 无法获取工单信息。";
+                    }
+                }
+                else
+                {
+                    woJsonContent = woInfor.WO_Content;
+                    processResult.OK = true;
+                    processResult.Content = woJsonContent;
+                    processResult.Message = "Get Work order information successfully./ 成功获取工单信息";
+                }
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+            }
+            return processResult;
+        }
+
+        /// <summary>
         /// Hàm dùng để xây dựng giao diện nhập kết quả sản xuất dựa trên thông tin WO lấy được từ Viindoo và thông tin WO đã được nhập trc đó (nếu có)
         /// </summary>
         /// <param name="workOrderInfo"></param>
@@ -178,7 +229,7 @@ namespace SVN_Portal.Controllers
         /// <param name="totalQty"></param>
         /// <param name="remainQty"></param>
         /// <returns></returns>
-        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, string previousWorkOrderName, string masterWorkOrderLog, decimal totalQty, decimal remainQty)
+        private string BuildWorkOrderInfo(WorkOrderInfo workOrderInfo, WorkOrderInfo nextWorkOrderInfo, string previousWorkOrderName, string masterWorkOrderLog, decimal totalQty, decimal remainQty)
         {
             SVN_product_id_componentDataPortal dataPortal = new SVN_product_id_componentDataPortal(dBConfiguration.GetConnectionString());
             List<string> componentIds = new List<string>();
@@ -239,6 +290,18 @@ namespace SVN_Portal.Controllers
             //sb.Append("</div>");
             //sb.Append("</div>");
             sb.Append("<div class=\"col-12 col-md-12 row\">");
+
+            sb.Append("<div class=\"col-12 col-md-6\">");
+            sb.Append($"<label class=\"control-label d-none\">Work order/ 工作单: {curWorkOrder}</label>");
+            sb.Append("</div>");
+            sb.Append("<div class=\"col-12 col-md-6\">");
+            if (nextWorkOrderInfo != null)
+            {
+                sb.Append($"<label class=\"control-label\">Next Work order/ 下一工单: {nextWorkOrderInfo.OrderInfo["name"]} | </label>");
+                sb.Append($"<label class=\"control-label\">Next Product/ 下一款产品: {nextWorkOrderInfo.OrderInfo["product_name"]}</label>");
+            }
+            sb.Append("</div>");
+
             sb.Append("<div class=\"form-group\" style=\"width: 100%;\">");
             sb.Append("<h1 class=\"control-label d-none\">Work order/ 工作单: " + curWorkOrder + "</h1>");
             sb.Append("<input type=\"hidden\" name=\"Name\" class=\"form-control\" value=\"" + masterWorkOrder + "\" />");
