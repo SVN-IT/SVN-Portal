@@ -3571,6 +3571,81 @@
     "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
   },
   {
+    "Operation": "Sakura-WSS03-00473(SM)",
+    "Name": "Sakura - Ocean Blue",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1371
+    ],
+    "ColWidth": 4,
+    "QCName": "胡雄",
+    "PDName": "寇林林",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1095/39bb1936-fe2a-47ac-9da9-a94f2f98f6b9",
+    "PDURL": "https://sigmaworldwide.io/en/document/share/content/1023/f311ad70-cb7d-4fa0-9dc9-a5a8a1bb98bd",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
+  },
+  {
+    "Operation": "Sakura-WSS03-00472(SM)",
+    "Name": "Sakura - Ocean Blue",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1371
+    ],
+    "ColWidth": 4,
+    "QCName": "胡雄",
+    "PDName": "寇林林",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1095/39bb1936-fe2a-47ac-9da9-a94f2f98f6b9",
+    "PDURL": "https://sigmaworldwide.io/en/document/share/content/1023/f311ad70-cb7d-4fa0-9dc9-a5a8a1bb98bd",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
+  },
+  {
+    "Operation": "Sakura-WSS03-00471(SM)",
+    "Name": "Sakura - Ocean Blue",
+    "Price": 0,
+    "MasterOperation": "Sakura F/G(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1371
+    ],
+    "ColWidth": 4,
+    "QCName": "胡雄",
+    "PDName": "寇林林",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1095/39bb1936-fe2a-47ac-9da9-a94f2f98f6b9",
+    "PDURL": "https://sigmaworldwide.io/en/document/share/content/1023/f311ad70-cb7d-4fa0-9dc9-a5a8a1bb98bd",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
+  },
+  {
     "Operation": "Sakura-RM15A-1000NW(SM)",
     "Name": "Sakura - Ocean Blue",
     "Price": 0,
@@ -3725,6 +3800,31 @@
     "Name": "Osprey_Styluscover(SM)",
     "Price": 0,
     "MasterOperation": "Osprey_Styluscover(SM)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1370
+    ],
+    "ColWidth": 4,
+    "QCName": "胡雄",
+    "PDName": "寇林林",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1095/39bb1936-fe2a-47ac-9da9-a94f2f98f6b9",
+    "PDURL": "https://sigmaworldwide.io/en/document/share/content/1023/f311ad70-cb7d-4fa0-9dc9-a5a8a1bb98bd",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
+  },
+  {
+    "Operation": "Saturn-Forte(SM)",
+    "Name": "Saturn-Forte(SM)",
+    "Price": 0,
+    "MasterOperation": "Saturn-Forte(SM)",
     "WCType": "FG",
     "WC": [
       {
@@ -5594,6 +5694,121 @@
       1462
     ],
     "ColWidth": 6,
+    "QCName": "Bùi Thị Hằng (SVN0902)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
+    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
+  },
+  {
+    "Operation": "Sandford-4POSTRACK42-WIP(BT)",
+    "Name": "SAND-WIP-4POSTRACK42",
+    "Price": 0,
+    "MasterOperation": "Sandford(BT)",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "WIP",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1658
+    ],
+    "ColWidth": 4,
+    "QCName": "Bùi Thị Hằng (SVN0902)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
+    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
+  },
+  {
+    "Operation": "Sandford-4POSTRACK42(BT)",
+    "Name": "Server rack-4POSTRACK42",
+    "Price": 0,
+    "MasterOperation": "Sandford(BT)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1659
+    ],
+    "ColWidth": 4,
+    "QCName": "Bùi Thị Hằng (SVN0902)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
+    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
+  },
+  {
+    "Operation": "Sandford-RK3236BKF-WIP-001(BT)",
+    "Name": "REAR-DOOR-WIP",
+    "Price": 0,
+    "MasterOperation": "Sandford(BT)",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "WIP",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1668
+    ],
+    "ColWidth": 4,
+    "QCName": "Bùi Thị Hằng (SVN0902)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
+    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
+  },
+  {
+    "Operation": "Sandford-RK3236BKF-WIP-002(BT)",
+    "Name": "FRONT-DOOR-WIP",
+    "Price": 0,
+    "MasterOperation": "Sandford(BT)",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "WIP",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1675
+    ],
+    "ColWidth": 4,
+    "QCName": "Bùi Thị Hằng (SVN0902)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
+    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
+  },
+  {
+    "Operation": "Sandford-RK3236BKF(BT)",
+    "Name": "Server rack-R323BKF",
+    "Price": 0,
+    "MasterOperation": "Sandford(BT)",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1655
+    ],
+    "ColWidth": 4,
     "QCName": "Bùi Thị Hằng (SVN0902)",
     "PDName": "Nguyễn Văn Hướng (SVN0005)",
     "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",

@@ -53,6 +53,10 @@ namespace SVN_Portal.Controllers
             WO_ManagementUIDataPortal woDataPortal = new WO_ManagementUIDataPortal(dBConfiguration.GetConnectionString());
             try
             {
+                if(!string.IsNullOrWhiteSpace(workOrderCode) && !workOrderCode.Contains("NM/MO/"))
+                {
+                    workOrderCode = $"NM/MO/{workOrderCode}";
+                }
                 string previousWorkOrderName = string.Empty;
                 string currentMasterWorkOrderName = string.Empty;
                 processResult = await GetWorkOrderInfo(workOrderCode, isGetDataFromViindoo);
@@ -663,6 +667,27 @@ namespace SVN_Portal.Controllers
                     return y;
                 }).ToList();
 
+                //Lưu cả dữ liệu không truy vết
+                var dataNoneTracking = data.Products.Where(x => x.Has_tracking == "none").Select(y =>
+                {
+                    decimal consumedQty = 0;
+                    var bomLineForProduct = bomLine.FirstOrDefault(b => b.product_id == y.Product_id);
+                    if (bomLineForProduct != null)
+                    {
+                        consumedQty = bomLineForProduct.product_qty * decimal.Parse(data.Quantity);
+                    }
+
+                    LotScanedRequest lotScaned = new LotScanedRequest
+                    {
+                        product_id = y.Product_id,
+                        lotNumber = "",
+                        quantity = consumedQty,
+                        tracking = "none"
+                    };
+                    lotScaneds.Add(lotScaned);
+                    return y;
+                }).ToList();
+
                 //nếu lotScaneds mà có giá trị Quantity = 0 thì hiển thị thông báo lỗi
                 var lotWithZeroQuantity = lotScaneds.FirstOrDefault(l => l.tracking == "lot" && l.quantity <= 0);
                 if (lotWithZeroQuantity != null)
@@ -712,9 +737,10 @@ namespace SVN_Portal.Controllers
                 var insertResult = await dataPortal.InsertAsync(productDataUI);
 
                 // Thực hiện cập nhật tiêu hao thành phần
-                if (lotScaneds != null && lotScaneds.Count > 0)
+                var lotSeriScaneds = lotScaneds.Where(x => x.tracking == "serial" || x.tracking == "lot").ToList();
+                if (lotSeriScaneds != null && lotSeriScaneds.Count > 0)
                 {
-                    foreach (var item in lotScaneds)
+                    foreach (var item in lotSeriScaneds)
                     {
                         if (item.tracking == "serial")
                         {

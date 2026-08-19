@@ -2124,6 +2124,458 @@ namespace ViidooDBServiceAPI.Controllers
             }
             return bODataProcessResult;
         }
+
+        /// <summary>
+        /// Thực hiện nhập kqsx không sử dụng hàm tiêu hao nvl
+        /// </summary>
+        /// <param name="dataRequest"></param>
+        /// <returns></returns>
+        private async Task<BODataProcessResult> InputProductionResultToViindooV1(InputProductDataRequest dataRequest)
+        {
+            LogService logger = new LogService(svnDBConfig.ConnectionString);
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dbConfig.SessionID) || dbConfig.UserID == 0)
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+
+                //Lấy dữ liệu lệnh sản xuất
+                var productionOrderInfo = await odooAPIService.ReadProductionByProductIDAsync(dataRequest.WorkOrderNumber, dbConfig.UserID, dbConfig.SessionID);
+                if (productionOrderInfo == null)
+                {
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.WorkOrderNumber);
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Không tìm thấy lệnh sản xuất cho mã seri: " + dataRequest.WorkOrderNumber;
+                    return bODataProcessResult;
+                }
+                int remainingQty = int.Parse(productionOrderInfo["product_qty"]);
+                if (dataRequest.Quality >= remainingQty)
+                {
+                    dataRequest.IsLastOrder = true;
+                }
+
+                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Bắt đầu thực hiện lệnh sản xuất: " + productionOrderInfo["name"]);
+
+                var str_move_ids = productionOrderInfo["move_raw_ids"].Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+                var move_ids = Array.ConvertAll(str_move_ids, int.Parse);
+
+                var productTracking = productionOrderInfo["product_tracking"]?.ToString();
+
+                //Lấy product_id
+                var arrProductID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["product_id"]);
+                var product_id = Convert.ToInt32(arrProductID[0]);
+
+                //Lấy company_id
+                var arrCompanyID = JsonConvert.DeserializeObject<object[]>(productionOrderInfo["company_id"]);
+                var company_id = Convert.ToInt32(arrCompanyID[0]);
+
+                //Get stock move
+                var stockMoveInfo = await odooAPIService.GetStockMoveByIDAsync(move_ids, company_id, dbConfig.UserID, dbConfig.SessionID);
+
+                //Lấy các thành phần được theo dõi theo mã lot hoặc serial
+                List<Dictionary<string, object>> stockMoveSerialInfo = new List<Dictionary<string, object>>();
+                if (stockMoveInfo != null)
+                {
+                    foreach (var item in stockMoveInfo)
+                    {
+                        var token = (JToken)item["has_tracking"];
+                        if (token.Type == JTokenType.String && token?.ToString() == "serial" || token.Type == JTokenType.String && token?.ToString() == "lot")
+                        {
+                            stockMoveSerialInfo.Add(item);
+                        }
+                    }
+                }
+
+                if (stockMoveSerialInfo.Count > 0)
+                {
+                    //Dữ liệu dùng để thay đổi stock move line có serial theo lệnh sản xuất
+                    List<Dictionary<string, string>> stockMoveLineSerials = new List<Dictionary<string, string>>();
+
+                    foreach (var item in stockMoveSerialInfo)
+                    {
+                        var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",").ToList();
+                        //var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse);
+
+                        //Lấy product_id
+                        var arrMarterialProductID = JsonConvert.DeserializeObject<object[]>(item["product_id"].ToString());
+                        var product_material_id = Convert.ToInt32(arrMarterialProductID[0]);
+
+                        var move_id = int.Parse(item["id"].ToString());
+
+                        if (dataRequest.LotScaneds.Count > 0)
+                        {
+                            var lotScaned = dataRequest.LotScaneds.FirstOrDefault(x => x.product_id == product_material_id);
+                            int lot_id_info = 0;
+                            if (lotScaned != null)
+                            {
+                                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Xử lý thành phần có mã serial: " + lotScaned.lotNumber + " và mã nguyên liệu là: " + arrMarterialProductID[1] + " cho lsx: " + productionOrderInfo["name"]);
+                                //Bước cần thay đổi theo cách mới để lấy stock move line theo mã lot
+                                //B1: Lấy ra stock move line đầu tiên trong danh sách thuộc stock move - checked
+                                Dictionary<string, string> firstStockMoveLine = new Dictionary<string, string>();
+
+                                lot_id_info = await odooAPIService.GetLotInfo(lotScaned.lotNumber, Convert.ToInt32(productionOrderInfo["id"]), item, dbConfig.UserID, dbConfig.SessionID);
+                                if (lot_id_info == 0)
+                                {
+                                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot " + lotScaned.lotNumber + " không tìm thấy cho lsx: " + productionOrderInfo["name"]);
+                                    bODataProcessResult.OK = false;
+                                    bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy ";
+                                    return bODataProcessResult;
+                                }
+
+                                if (str_move_line_ids != null && str_move_line_ids.Count > 0)
+                                {
+                                    if (str_move_line_ids.Count == 1 && str_move_line_ids[0] == "[]")
+                                    {
+                                        var createResult = await odooAPIService.CreateLotComponentForMO(lot_id_info, Convert.ToInt32(productionOrderInfo["id"]), item, dbConfig.UserID, dbConfig.SessionID);
+                                        if (createResult == null || createResult["result"].ToString() != "True")
+                                        {
+                                            logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Lỗi không tiêu hao mã lot " + lotScaned.lotNumber + " cho NVL" + item["product_id"] + " cho lsx: " + productionOrderInfo["name"]);
+                                            bODataProcessResult.OK = false;
+                                            bODataProcessResult.Message = "Lỗi không tạo được stock move line cho mã lot " + lotScaned.lotNumber;
+                                            return bODataProcessResult;
+                                        }
+                                        firstStockMoveLine["is_created_stock_move_line"] = "True";
+                                    }
+                                    else
+                                    {
+                                        firstStockMoveLine = await odooAPIService.GetStockMoveLineByID(Convert.ToInt32(str_move_line_ids[0]), Convert.ToInt32(productionOrderInfo["id"]), item, dbConfig.UserID, dbConfig.SessionID);
+                                        firstStockMoveLine["is_created_stock_move_line"] = "False";
+                                    }
+
+                                }
+                                else
+                                {
+                                    //Nếu Không được dữ phần thì thực hiện gán sô seri cho stock move
+                                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Thành phần " + arrMarterialProductID[1].ToString() + " Chưa có số serial nào co lsx: " + productionOrderInfo["name"]);
+                                    bODataProcessResult.OK = false;
+                                    bODataProcessResult.Message = "Thành phần " + arrMarterialProductID[1].ToString() + " Chưa có số serial nào. ";
+                                    return bODataProcessResult;
+                                }
+                                //var stockMoveLineSerial = await odooAPIService.GetStockMoveLineByLotNameAsync(lotScaned.lotNumber, product_material_id, str_move_line_ids, dbConfig.UserID, dbConfig.SessionID);
+                                ////var stockMoveLineSerial = await odooAPIService.GetLotByNameAndProductIDAsync(move_id, productionOrderInfo["name"], lotScaned.lotNumber, product_material_id, dbConfig.UserID, dbConfig.SessionID);
+                                //if (stockMoveLineSerial == null)
+                                //{
+                                //    bODataProcessResult.OK = false;
+                                //    bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy " ;
+                                //    return bODataProcessResult;
+                                //}
+
+                                var stockMoveLineSerial = firstStockMoveLine;
+                                if (stockMoveLineSerial == null || stockMoveLineSerial.Count == 0)
+                                {
+                                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot " + lotScaned.lotNumber + " không tìm thấy cho lệnh sx: " + productionOrderInfo["name"]);
+                                    bODataProcessResult.OK = false;
+                                    bODataProcessResult.Message = "Mã lot " + lotScaned.lotNumber + " không tìm thấy ";
+                                    return bODataProcessResult;
+                                }
+                                stockMoveLineSerial["lot_id"] = lot_id_info.ToString();
+                                stockMoveLineSerial["move_line_ids"] = item["move_line_ids"].ToString();
+                                stockMoveLineSerial["location_id"] = item["location_id"].ToString();
+                                stockMoveLineSerial["location_dest_id"] = item["location_dest_id"].ToString();
+                                stockMoveLineSerial["warehouse_id"] = item["warehouse_id"].ToString();
+                                stockMoveLineSerial["picking_type_id"] = item["picking_type_id"].ToString();
+                                stockMoveLineSerial["company_id"] = item["company_id"].ToString();
+                                stockMoveLineSerial["mo_id"] = productionOrderInfo["id"].ToString();
+                                //thêm qty cần tiêu hao để lưu vào stockmoveline
+                                stockMoveLineSerial["quantity"] = lotScaned.quantity.ToString();
+                                stockMoveLineSerials.Add(stockMoveLineSerial);
+                            }
+                        }
+                    }
+
+                    //B3: Lưu stock move lại
+                    if (stockMoveLineSerials.Count > 0)
+                    {
+                        //Thực hiện cập nhật stock move line theo mã lot
+                        foreach (var item in stockMoveLineSerials)
+                        {
+                            if (item.ContainsKey("is_created_stock_move_line") && item["is_created_stock_move_line"] == "True")
+                            {
+                                //Nếu là mới tạo thì bỏ qua không cần cập nhật nữa
+                                continue;
+                            }
+                            var str_move_line_ids = item["move_line_ids"].ToString().Replace("[\r\n  ", "").Replace("\r\n  ", "").Replace("\r\n]", "").Split(",");
+
+                            //Tạo danh sách stock move line để cập nhật
+                            var move_line_ids = Array.ConvertAll(str_move_line_ids, int.Parse)
+                                .Select(id =>
+                                {
+                                    int move_line_id = int.Parse(item["id"]);
+                                    if (id == move_line_id)
+                                    {
+                                        //khi cập nhật stockmoveline thì cập nhât qty_done vào
+                                        //return new object[] { 1, id, new { lot_id = int.Parse(item["lot_id"]), qty_done = 1 } };
+                                        return new object[] { 1, id, new { lot_id = int.Parse(item["lot_id"]), qty_done = int.Parse(item["quantity"]) } };
+                                    }
+                                    else
+                                    {
+                                        return new object[] { 4, id, false };
+                                    }
+                                }).ToArray();
+                            var stockMoveWriteResult = await odooAPIService.SaveSerialStockMoveAsync(item, move_line_ids, dbConfig.UserID, dbConfig.SessionID);
+                            if (stockMoveWriteResult == null || stockMoveWriteResult["result"].ToString() != "True")
+                            {
+                                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot id" + item["lot_id"] + " không tiêu hao thành công cho thành phần product id: " + item["product_id"] + " lsx: " + productionOrderInfo["name"]);
+                                bODataProcessResult.OK = false;
+                                bODataProcessResult.Message = "Mã lot id" + item["lot_id"] + " không tiêu hao thành công cho thành phần product id: " + item["product_id"];
+                                return bODataProcessResult;
+                            }
+                            logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Mã lot id" + item["lot_id"] + " tiêu hao thành công cho thành phần product id: " + item["product_id"] + " lsx: " + productionOrderInfo["name"]);
+                        }
+                    }
+                }
+
+
+                int lot_id = 0;
+                string lot_name = string.Empty;
+                if (!string.IsNullOrWhiteSpace(productTracking) && (productTracking == "serial" || productTracking == "lot"))
+                {
+                    var stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.LotNumber, product_id, company_id, dbConfig.UserID, dbConfig.SessionID);
+                    if (stockLotInfo == null)
+                    {
+                        stockLotInfo = await odooAPIService.CreateLotAsync(dataRequest.LotNumber, product_id, company_id, dbConfig.UserID, dbConfig.SessionID);
+                        stockLotInfo = await odooAPIService.LotSearchAsync(dataRequest.LotNumber, product_id, company_id, dbConfig.UserID, dbConfig.SessionID);
+                    }
+
+                    if (stockLotInfo != null)
+                    {
+                        lot_id = (int)stockLotInfo.Last[0];
+                        lot_name = (string)stockLotInfo.Last[1];
+                    }
+                    else
+                    {
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lot " + dataRequest.LotNumber + " không tìm thấy để nhập cho lệnh sản xuất: " + productionOrderInfo["name"]);
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Không tìm thấy hoặc tạo được mã lô: " + dataRequest.LotNumber;
+                        return bODataProcessResult;
+                    }
+                }
+
+                //Để trành không sử dụng lại mã lot đã dùng rồi
+                var checkLotInfo = await odooAPIService.CheckUsedLotIDAsync(lot_id, dbConfig.UserID, dbConfig.SessionID);
+                if (checkLotInfo != null)
+                {
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Mã lô " + dataRequest.LotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"]);
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Mã lô " + dataRequest.LotNumber + " đã được sử dụng cho lệnh sản xuất " + checkLotInfo["name"];
+                    return bODataProcessResult;
+                }
+                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Mã lot " + dataRequest.LotNumber + " được chuẩn bị để tiêu hao cho cho lệnh sản xuất " + productionOrderInfo["name"]);
+
+                // Thực hiên tiêu hao nghuyên vật liệu theo BOM
+                Dictionary<string, object> moveRawConsumeInfo = new Dictionary<string, object>();
+                if (productionOrderInfo["product_tracking"] == "serial" || productionOrderInfo["product_tracking"] == "lot")
+                {
+                    //Xử lý tiêu hao nvl theo mã serial tiêu hao theo qty_produce hoặc lot_producing_id
+                    for (int i = 0; i < 4; i++)
+                    {
+                        moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv2(productionOrderInfo, dbConfig.UserID, dbConfig.SessionID, dataRequest.Quality, lot_id, i);
+                        var move_raw_ids = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+                        if (move_raw_ids != null && move_raw_ids.Count > 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    moveRawConsumeInfo = await odooAPIService.ConsumeMaterialsByBOMAsyncv1(productionOrderInfo, dbConfig.UserID, dbConfig.SessionID, dataRequest.Quality, lot_id);
+                }
+
+                //Thực hiện tính lại nguyên vật liệu trong trường hợp lỗi
+                var result = ((JObject)moveRawConsumeInfo["result"])["value"]["move_raw_ids"] as JArray;
+                var workOrderResult = ((JObject)moveRawConsumeInfo["result"])["value"]["workorder_ids"] as JArray;
+
+                var moveRawList = new List<object>();
+                var workOrderList = new List<object>();
+
+                if (result != null)
+                {
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Tiêu hao NVL thành công cho lệnh sản xuất " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
+                    foreach (var item in result)
+                    {
+                        var id = (int)item[1];
+                        if (id != 0)
+                        {
+                            var detail = item[2] as JObject;
+                            var date = detail?["date"]?.ToString();
+                            var date_deadline = detail?["date_deadline"]?.ToString();
+
+                            decimal quantityDone = 0;
+                            try
+                            {
+                                quantityDone = decimal.Parse(detail?["quantity_done"]?.ToString());
+                            }
+                            catch
+                            {
+                                quantityDone = 0;
+                            }
+
+                            if (quantityDone != 0)
+                            {
+                                var moveRaw = new object[]
+                                {
+                                        1,
+                                        id,
+                                        new {
+                                            date = date,
+                                            date_deadline = date_deadline,
+                                            quantity_done = quantityDone
+                                        }
+                                };
+                                moveRawList.Add(moveRaw);
+                            }
+                            else
+                            {
+                                var moveRaw = new object[]
+                                {
+                                        4,
+                                        id,
+                                        false
+                                };
+                                moveRawList.Add(moveRaw);
+                            }
+
+                        }
+
+                    }
+
+                    if (workOrderResult != null)
+                    {
+                        foreach (var item in workOrderResult)
+                        {
+                            var id = (int)item[1];
+                            if (id != 0)
+                            {
+                                var detail = item[2] as JObject;
+
+                                decimal qty_producing = 0;
+                                try
+                                {
+                                    qty_producing = decimal.Parse(detail?["qty_producing"]?.ToString());
+                                }
+                                catch
+                                {
+                                    qty_producing = 0;
+                                }
+
+                                decimal duration_expected = 0;
+                                try
+                                {
+                                    duration_expected = decimal.Parse(detail?["duration_expected"]?.ToString());
+                                }
+                                catch
+                                {
+                                    duration_expected = 0;
+                                }
+
+                                int finished_lot_id = 0;
+                                try
+                                {
+                                    finished_lot_id = int.Parse(detail?["finished_lot_id"][0]?.ToString());
+                                }
+                                catch
+                                {
+                                    finished_lot_id = 0;
+                                }
+
+                                if (qty_producing != 0)
+                                {
+                                    var workOrder = new object[]
+                                    {
+                                        1,
+                                        id,
+                                        new {
+                                            qty_producing = qty_producing,
+                                            duration_expected = duration_expected,
+                                            finished_lot_id = finished_lot_id
+                                        }
+                                    };
+                                    workOrderList.Add(workOrder);
+                                }
+                                else
+                                {
+                                    var workOrder = new object[]
+                                    {
+                                        4,
+                                        id,
+                                        false
+                                    };
+                                    workOrderList.Add(workOrder);
+                                }
+                            }
+                        }
+                    }
+
+                    // Danh sách thành phần tiêu hao
+                    object[] move_raw_ids = moveRawList.ToArray();
+                    object[] work_order_ids = workOrderList.ToArray();
+
+                    int mrp_production_id = int.Parse(productionOrderInfo["id"]);
+
+                    var saveResult = await odooAPIService.SaveProductionOrderAsyncv1(mrp_production_id, lot_id, dataRequest.Quality, move_raw_ids, work_order_ids, dbConfig.UserID, dbConfig.SessionID);
+                    if (saveResult == null || saveResult["result"].ToString() != "True")
+                    {
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Error, "Lỗi không lưu được lệnh sản xuất " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = "Lỗi không lưu được lệnh sản xuất ";
+                        return bODataProcessResult;
+                    }
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Lưu lệnh sản xuất thành công " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
+
+                    var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
+
+                    var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
+
+                    if (!dataRequest.IsLastOrder)
+                    {
+                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, dbConfig.UserID, dbConfig.SessionID, lot_id);
+
+                        var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, dbConfig.UserID, dbConfig.SessionID);
+                    }
+
+
+
+                    bODataProcessResult.OK = true;
+                    bODataProcessResult.Message = "Hoàn thành lệnh sản xuất";
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Hoàn thành lệnh sản xuất " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
+                }
+                else
+                {
+                    logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Tiêu hao NVL thất bại cho lệnh sản xuất " + productionOrderInfo["name"]);
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Lỗi không tiêu hao được nguyên vật liệu";
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+
+                if (!string.IsNullOrWhiteSpace(bODataProcessResult.Message) && bODataProcessResult.Message.Contains("Odoo Session Expired"))
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+
+            }
+            return bODataProcessResult;
+        }
         #endregion
 
         #region private methods

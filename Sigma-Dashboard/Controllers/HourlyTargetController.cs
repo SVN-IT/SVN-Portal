@@ -71,6 +71,11 @@ namespace Sigma_Dashboard.Controllers
                                 viewModels = viewModels.Where(x => x.Operation.Contains("(ITA)")).ToList();
                                 break;
 
+                            case "BT":
+                                // Lọc các item có đuôi (BT)
+                                viewModels = viewModels.Where(x => x.Operation.EndsWith("(BT)")).ToList();
+                                break;
+
                             case "SVN":
                                 // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
                                 viewModels = viewModels.Where(x => !x.Operation.Contains("(SM)") && !x.Operation.Contains("(ITA)")).ToList();

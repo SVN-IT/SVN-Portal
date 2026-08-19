@@ -76,6 +76,11 @@
                         masterOperList = masterOperList.Where(x => x.EndsWith("(ITA)")).ToList();
                         break;
 
+                    case "BT":
+                        // Lọc các item có đuôi (BT)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(BT)")).ToList();
+                        break;
+
                     case "SVN":
                         // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
                         masterOperList = masterOperList.Where(x => !x.EndsWith("(SM)") && !x.EndsWith("(ITA)")).ToList();
@@ -123,6 +128,7 @@
                                     <option value="SVN" selected="@(companyCode == "SVN")">SVN</option>
                                     <option value="SM" selected="@(companyCode == "SM")">SM</option>
                                     <option value="ITA" selected="@(companyCode == "ITA")">ITA</option>
+                                    <option value="BT" selected="@(companyCode == "BT")">BT</option>
                                 </select>
                                 @if (((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home") || (indexPage == "Index" && controllerName == "DailyTarget") || (indexPage == "Index" && controllerName == "HourlyTarget"))
                                 {

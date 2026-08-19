@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Sigma_Dashboard.Models;
 using Sigma_Dashboard.Services.Configurations;
@@ -64,6 +65,11 @@ namespace Sigma_Dashboard.Controllers
                             case "ITA":
                                 // Lọc các item có đuôi (ITA)
                                 viewModels = viewModels.Where(x => x.Operation.Contains("(ITA)")).ToList();
+                                break;
+
+                            case "BT":
+                                // Lọc các item có đuôi (BT)
+                                viewModels = viewModels.Where(x => x.Operation.EndsWith("(BT)")).ToList();
                                 break;
 
                             case "SVN":
