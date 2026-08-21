@@ -1770,11 +1770,14 @@ namespace ViidooDBServiceAPI.Services
                 };
 
                 string onchangeField = "qty_producing";
-                if (productionOrderInfo["product_tracking"] == "serial" && (tryCount == 0 || tryCount == 2))
+                if ((productionOrderInfo["product_tracking"] == "serial" || productionOrderInfo["product_tracking"] == "lot") && (tryCount == 0 || tryCount == 2))
                 {
                     productionOrderInfo["state"] = "progress";
                     onchangeField = "lot_producing_id";
-                    qty_producing = 0;
+                    if(productionOrderInfo["product_tracking"] == "serial")
+                    {
+                        qty_producing = 0;
+                    }
                     setting = new Dictionary<string, object>
                     {
                         { "confirm_cancel", "" },
@@ -2910,7 +2913,7 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="uid"></param>
         /// <param name="sessionId"></param>
         /// <returns></returns>
-        public async Task<Dictionary<string, object>> CreateLotComponentForMO(int lot_id, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId)
+        public async Task<Dictionary<string, object>> CreateLotComponentForMO(int lot_id, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId, decimal qty_done = 1)
         {
             using (var client = new HttpClient())
             {
@@ -2973,7 +2976,7 @@ namespace ViidooDBServiceAPI.Services
                                             lot_id = lot_id,
                                             lot_name = (string?)null,
                                             can_create_equipment = false,
-                                            qty_done = 1,
+                                            qty_done = qty_done,
                                             product_uom_id = product_uom_id
                                         }
                                     }
