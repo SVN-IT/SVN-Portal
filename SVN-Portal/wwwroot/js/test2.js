@@ -1,554 +1,1252 @@
 ﻿/**
- * @NApiVersion 2.1
- * @NScriptType MapReduceScript
- * customscript_svn_pr_po_mr
+ * @NApiVersion 2.x
+ * @NScriptType Suitelet
  *
+*/
+define(["N/record", "N/redirect", "N/log", "N/https", "N/file", "N/search", "N/url", "N/task", "N/runtime"],
+  function (record, redirect, log, https, file, search, url, task, runtime) {
+
+  // ⚠️ Không dùng Number.prototype.toLocaleString() trong SuiteScript —
+  // Rhino (engine chạy SuiteScript) có bug với toLocaleString, có thể throw
+  // "illegal radix 0" với một số giá trị số. Dùng hàm tự viết bên dưới thay thế.
+  function formatNumber(num) {
+    num = Math.round(Number(num) || 0);
+    var sign = num < 0 ? "-" : "";
+    var absStr = Math.abs(num).toString();
+    absStr = absStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return sign + absStr;
+  }
+
+  // ⭐ MỚI: escape giá trị để nhét an toàn vào attribute value="..." trong HTML
+  function escAttr(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function onRequest(context) {
+    var action = context.request.parameters.action;
+    var recId  = context.request.parameters.recId;
+
+    // ─── PRINT EXCEL ────────────────────────────────────────────────
+    if (action === "printexcel") {
+      try {
+        var prRecord = record.load({ type: "purchaserequisition", id: recId });
+        // custbody_pr_department giờ là List/Record → dùng getText để lấy tên bộ phận
+        var department = prRecord.getText({ fieldId: "custbody_pr_department" });
+        var items = [];
+        var lineCount = prRecord.getLineCount({ sublistId: "item" });
+        for (var i = 0; i < lineCount; i++) {
+          items.push({
+            custcol_pr_item:         prRecord.getSublistValue({ sublistId: "item", fieldId: "custcol_pr_item",         line: i }),
+            custcol_pr_item_purpose: prRecord.getSublistValue({ sublistId: "item", fieldId: "custcol_pr_item_purpose", line: i }),
+            unit: prRecord.getSublistText({ sublistId: "item", fieldId: "units", line: i }),
+            quantity:                prRecord.getSublistValue({ sublistId: "item", fieldId: "quantity",                line: i }),
+            estimate_rate:           prRecord.getSublistValue({ sublistId: "item", fieldId: "estimatedrate",           line: i }),
+            estimate_amount:         prRecord.getSublistValue({ sublistId: "item", fieldId: "estimatedamount",         line: i }),
+          });
+        }
+        var payload = { custbody_pr_department: department, items: items };
+        var apiResponse = https.post({
+          url: "https://58fb-117-6-131-250.ngrok-free.app/api/purchaserequest/generate-excel",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        var responseData = JSON.parse(apiResponse.body);
+        var excelFile = file.create({
+          name: "PurchaseRequest.xlsx",
+          fileType: file.Type.EXCEL,
+          contents: responseData.fileBase64,
+          encoding: file.Encoding.BASE_64,
+        });
+        context.response.setHeader({ name: "Content-Type",        value: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        context.response.setHeader({ name: "Content-Disposition", value: "attachment; filename=PurchaseRequest.xlsx" });
+        context.response.writeFile({ file: excelFile, isInline: false });
+      } catch (e) {
+        log.error("PRINT EXCEL ERROR", e);
+        context.response.write("ERROR: " + e.message);
+      }
+      return;
+    }
+
+    // ─── APPROVE / REJECT ───────────────────────────────────────────
+    if (action === "approve") {
+      record.submitFields({ type: "purchaserequisition", id: recId, values: { custbody_pr_status: "Approved" } });
+      redirect.toRecord({ type: "purchaserequisition", id: recId });
+      return;
+    }
+    if (action === "reject") {
+      var note = context.request.parameters.note || "";
+      record.submitFields({
+        type: "purchaserequisition",
+        id: recId,
+        values: {
+          custbody_pr_status: "Rejected",
+          custbody_approver_note: note
+        }
+      });
+      redirect.toRecord({ type: "purchaserequisition", id: recId });
+      return;
+    }
+
+    // ─── ADD TO PO LIST — gom item của PR này vào pool chung ────────
+    if (action === "addtopolist") {
+      try {
+        var prRecordForPool = record.load({ type: "purchaserequisition", id: recId });
+        var lc = prRecordForPool.getLineCount({ sublistId: "item" });
+        var added = 0, skipped = 0, failed = 0;
+
+        // ⭐ MỚI: search 1 LẦN DUY NHẤT lấy hết pool_source hiện có của PR này,
+        // build thành Set các lineidx đã tồn tại (dùng object JS làm set, key = string)
+        // → không phụ thuộc filter "is" theo prlineidx của NetSuite nữa, tránh hẳn
+        // nghi vấn sai kiểu field / độ trễ index giữa các lần search liên tiếp trong 1 script.
+        var existingLineIdxSet = {};
+        search.create({
+          type: "customrecord_pr_pool_source",
+          filters: [
+            ["custrecord_pps_pr", "is", recId],
+            "AND",
+            ["isinactive", "is", "F"]
+          ],
+          columns: ["custrecord_pps_prlineidx"]
+        }).run().each(function (r) {
+          var idxVal = r.getValue("custrecord_pps_prlineidx");
+          existingLineIdxSet[String(idxVal)] = true;
+          log.debug("EXISTING POOL SOURCE FOUND", "prlineidx = " + idxVal + " (raw type: " + (typeof idxVal) + ")");
+          return true;
+        });
+
+        for (var li = 0; li < lc; li++) {
+          try {
+            var alreadyLinkedPo = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "custcol_pr_linked_po", line: li });
+            var nativeLinked    = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "linked", line: li });
+            var nativePoId      = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "poid", line: li });
+            if (alreadyLinkedPo) {
+              log.debug("LINE SKIPPED - already has linked PO", "line " + li + " | PO id = " + alreadyLinkedPo);
+              skipped++; continue;
+            }
+
+            var itemNameRaw = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "custcol_pr_item", line: li });
+            var itemName = (itemNameRaw || "").trim();
+            if (!itemName) {
+              log.debug("LINE SKIPPED - empty custcol_pr_item", "line " + li);
+              skipped++; continue;
+            }
+
+            // ⭐ MỚI: kiểm tra bằng JS object thay vì search lại
+            if (existingLineIdxSet[String(li)]) {
+              log.debug("LINE SKIPPED - already in pool (JS set check)", "line " + li);
+              skipped++; continue;
+            }
+
+            var qty         = parseFloat(prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "quantity", line: li })) || 0;
+            var unit        = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "units", line: li });
+            var desc        = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "description", line: li });
+            var rate        = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "estimatedrate", line: li });
+            var purpose     = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "custcol_pr_item_purpose", line: li });
+            var realItem    = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "item", line: li });
+            var persistLine = prRecordForPool.getSublistValue({ sublistId: "item", fieldId: "line", line: li });
+
+            var found = search.create({
+              type: "customrecord_pr_pool_item",
+              filters: [["name", "is", itemName]],
+              columns: ["internalid", "custrecord_ppi_qty"]
+            }).run().getRange({ start: 0, end: 1 });
+
+            var poolItemId;
+            if (found.length > 0) {
+              poolItemId = found[0].getValue("internalid");
+              var curQty = parseFloat(found[0].getValue("custrecord_ppi_qty")) || 0;
+              var updValues = {
+                custrecord_ppi_qty:  curQty + qty,
+                custrecord_ppi_desc: desc || ""
+              };
+              if (rate)     updValues.custrecord_ppi_rate     = rate;
+              if (realItem) updValues.custrecord_ppi_realitem = realItem;
+              if (unit)     updValues.custrecord_ppi_unit     = unit;
+              record.submitFields({ type: "customrecord_pr_pool_item", id: poolItemId, values: updValues });
+            } else {
+              var newPoolItem = record.create({ type: "customrecord_pr_pool_item" });
+              newPoolItem.setValue({ fieldId: "name", value: itemName });
+              newPoolItem.setValue({ fieldId: "custrecord_ppi_qty",  value: qty });
+              newPoolItem.setValue({ fieldId: "custrecord_ppi_unit", value: unit });
+              newPoolItem.setValue({ fieldId: "custrecord_ppi_desc", value: desc });
+              newPoolItem.setValue({ fieldId: "custrecord_ppi_rate", value: rate });
+              if (realItem) newPoolItem.setValue({ fieldId: "custrecord_ppi_realitem", value: realItem });
+              poolItemId = newPoolItem.save();
+            }
+
+            var src = record.create({ type: "customrecord_pr_pool_source" });
+            src.setValue({ fieldId: "name", value: itemName + " - PR " + recId + " line " + li });
+            src.setValue({ fieldId: "custrecord_pps_pool_item", value: poolItemId });
+            src.setValue({ fieldId: "custrecord_pps_pr",        value: recId });
+            src.setValue({ fieldId: "custrecord_pps_prlineidx", value: li });
+            src.setValue({ fieldId: "custrecord_pps_prlinenum", value: persistLine });
+            src.setValue({ fieldId: "custrecord_pps_qty",       value: qty });
+            src.setValue({ fieldId: "custrecord_pps_rate",      value: rate });
+            src.setValue({ fieldId: "custrecord_pps_desc",      value: desc });
+            src.setValue({ fieldId: "custrecord_pps_purpose",   value: purpose });
+            src.setValue({ fieldId: "custrecord_pps_units",     value: unit });
+            src.save();
+
+            // ⭐ MỚI: cập nhật ngay set trong bộ nhớ để phòng trường hợp lc có 2 dòng
+            // cùng lineidx (không nên xảy ra nhưng phòng thủ thêm không thừa)
+            existingLineIdxSet[String(li)] = true;
+
+            added++;
+            log.debug("LINE ADDED OK", "line " + li + " | item: " + itemName);
+
+          } catch (lineErr) {
+            failed++;
+            log.error("LINE FAILED - line " + li, lineErr);
+          }
+        }
+
+        var msgHtml =
+          '<html><body style="font-family:Arial,sans-serif;padding:24px;">' +
+          '<p>Đã thêm <strong>' + added + '</strong> dòng vào danh sách chờ tạo PO' +
+          (skipped ? (' (bỏ qua ' + skipped + ' dòng đã có PO hoặc đã add trước đó)') : '') +
+          (failed  ? (' <span style="color:#c00">— ' + failed + ' dòng bị lỗi, xem Execution Log để biết chi tiết</span>') : '') +
+          '.</p><p>Đang quay lại PR...</p>' +
+          '<script>setTimeout(function(){ window.location.href = "' +
+            url.resolveRecord({ recordType: "purchaserequisition", recordId: recId, isEditMode: false }) +
+          '"; }, 1500);</script></body></html>';
+
+        context.response.setHeader({ name: "Content-Type", value: "text/html" });
+        context.response.write(msgHtml);
+      } catch (e) {
+        log.error("ADD TO PO POOL ERROR", e);
+        context.response.write("ERROR: " + e.message);
+      }
+      return;
+    }
+
+    // ─── CREATE PO — hiển thị form chọn vendor (đọc từ PO POOL chung) ──
+    if (action === "createpo") {
+      // Lấy danh sách vendor thuộc Sigma Vietnam
+      var vendorList = []; // [{ id, label }]
+      var vendorSearch = search.create({
+        type: search.Type.VENDOR,
+        filters: [
+          // ["subsidiary", "anyof", "9"],
+          // "AND",
+          ["isinactive", "is", "F"]
+        ],
+        columns: [
+          search.createColumn({ name: "internalid" }),
+          search.createColumn({ name: "entityid" }),
+          search.createColumn({ name: "companyname" }),
+        ]
+      });
+
+      vendorSearch.run().each(function (result) {
+        var vid      = result.getValue({ name: "internalid" });
+        var vendorId = result.getValue({ name: "entityid" });
+        var compName = result.getValue({ name: "companyname" });
+        vendorList.push({
+          id:    vid,
+          label: compName ? vendorId + " — " + compName : vendorId
+        });
+        return true;
+      });
+
+      // Build vendor options HTML (dùng chung cho mọi row)
+      var vendorOptionsHtml = '<li data-value="" style="padding:7px 12px;cursor:pointer;color:#999;font-size:12px;" onmousedown="pickOpt(this)">-- Select Vendor --</li>';
+      for (var v = 0; v < vendorList.length; v++) {
+        vendorOptionsHtml += '<li data-value="' + vendorList[v].id + '" style="padding:7px 12px;cursor:pointer;font-size:12px;" onmousedown="pickOpt(this)">' + vendorList[v].label + '</li>';
+      }
+
+      // ── Đọc TOÀN BỘ PO Pool (không chỉ của PR hiện tại) ──
+      var poolItems = [];
+      search.create({
+        type: "customrecord_pr_pool_item",
+        filters: [],
+        columns: [
+          search.createColumn({ name: "internalid" }),
+          search.createColumn({ name: "name" }),
+          search.createColumn({ name: "custrecord_ppi_desc" }),
+          search.createColumn({ name: "custrecord_ppi_unit" }),
+          search.createColumn({ name: "custrecord_ppi_qty" }),
+          search.createColumn({ name: "custrecord_ppi_rate" }),
+          search.createColumn({ name: "custrecord_ppi_realitem" }),
+        ]
+      }).run().each(function (r) {
+        poolItems.push({
+          id:       r.getValue({ name: "internalid" }),
+          name:     r.getValue({ name: "name" }),
+          desc:     r.getValue({ name: "custrecord_ppi_desc" }),
+          unit:     r.getValue({ name: "custrecord_ppi_unit" }),
+          qty:      r.getValue({ name: "custrecord_ppi_qty" }),
+          rate:     r.getValue({ name: "custrecord_ppi_rate" }),
+          realItem: r.getValue({ name: "custrecord_ppi_realitem" }),
+        });
+        return true;
+      });
+
+      // ── Tra PR nguồn + Department cho từng pool item (hiển thị cột "PR: Department") ──
+      var sourcesByPoolItem = {}; // poolItemId -> [prId, ...] (unique)
+      var allPrIdsSet = {};
+      search.create({
+        type: "customrecord_pr_pool_source",
+        filters: [],
+        columns: ["custrecord_pps_pool_item", "custrecord_pps_pr"]
+      }).run().each(function (r) {
+        var piId    = r.getValue("custrecord_pps_pool_item");
+        var prIdVal = r.getValue("custrecord_pps_pr");
+        if (!piId || !prIdVal) return true;
+        if (!sourcesByPoolItem[piId]) sourcesByPoolItem[piId] = [];
+        if (sourcesByPoolItem[piId].indexOf(prIdVal) === -1) sourcesByPoolItem[piId].push(prIdVal);
+        allPrIdsSet[prIdVal] = true;
+        return true;
+      });
+
+      var prInfoMap = {}; // prId -> { tranid, deptText }
+      var allPrIds = Object.keys(allPrIdsSet);
+      if (allPrIds.length > 0) {
+        search.create({
+          type: "purchaserequisition",
+          filters: [["internalid", "anyof", allPrIds]],
+          columns: ["internalid", "tranid", "custbody_pr_department"]
+        }).run().each(function (r) {
+          prInfoMap[r.getValue("internalid")] = {
+            tranid:   r.getValue("tranid"),
+            deptText: r.getText("custbody_pr_department") || ""
+          };
+          return true;
+        });
+      }
+
+      if (poolItems.length === 0) {
+        var emptyHtml =
+          '<html><body style="font-family:Arial,sans-serif;padding:24px;">' +
+          '<p>Danh sách chờ tạo PO đang trống.</p>' +
+          '<p>Vui lòng bấm <strong>"Add to PO list"</strong> ở các PR đã Approved trước, sau đó quay lại bấm Create PO.</p>' +
+          '<button onclick="history.back()" style="padding:8px 16px;">Quay lại</button>' +
+          '</body></html>';
+        context.response.write(emptyHtml);
+        return;
+      }
+
+      // ⭐ TỐI ƯU (Fix #1): tra last vendor/price cho TẤT CẢ pool item bằng 1 lần search
+      // duy nhất (thay vì search riêng từng item trong loop bên dưới — với N item cũ
+      // là N search tuần tự, rất chậm khi N lớn). "name" trên customrecord_pr_item_history
+      // là Free-Form Text nên không dùng được "anyof" — build filter OR theo từng tên,
+      // chia batch 100 tên/lần để tránh filter quá dài.
+      var itemHistoryMap = {}; // trimmedName -> { vendorId, price }
+      (function loadItemHistoryBatch() {
+        var names = [];
+        var seen = {};
+        for (var ni = 0; ni < poolItems.length; ni++) {
+          var nm = (poolItems[ni].name || "").trim();
+          if (nm && !seen[nm]) { seen[nm] = true; names.push(nm); }
+        }
+        var BATCH_SIZE = 100;
+        for (var bi = 0; bi < names.length; bi += BATCH_SIZE) {
+          var batch = names.slice(bi, bi + BATCH_SIZE);
+          var orFilters = [];
+          for (var fi = 0; fi < batch.length; fi++) {
+            if (orFilters.length > 0) orFilters.push("or");
+            orFilters.push(["name", "is", batch[fi]]);
+          }
+          search.create({
+            type: "customrecord_pr_item_history",
+            filters: orFilters,
+            columns: ["name", "custrecord_pr_item_last_vendor", "custrecord_pr_item_last_purchase_price"]
+          }).run().each(function (r) {
+            var key = (r.getValue("name") || "").trim();
+            if (key && !itemHistoryMap[key]) {
+              itemHistoryMap[key] = {
+                vendorId: r.getValue("custrecord_pr_item_last_vendor"),
+                price:    r.getValue("custrecord_pr_item_last_purchase_price")
+              };
+            }
+            return true;
+          });
+        }
+      })();
+
+      // ⭐ TỐI ƯU: build map vendorId -> label 1 lần, tránh loop vendorList (mảng có thể dài)
+      // lặp lại cho mỗi pool item bên dưới.
+      var vendorLabelById = {};
+      for (var vb = 0; vb < vendorList.length; vb++) {
+        vendorLabelById[String(vendorList[vb].id)] = vendorList[vb].label;
+      }
+
+      // Build bảng item rows từ pool
+      var itemRows = "";
+      for (var i = 0; i < poolItems.length; i++) {
+        var p = poolItems[i];
+        var qty    = parseFloat(p.qty) || 0;
+        var rate   = parseFloat(p.rate) || 0;
+        var amount = qty * rate;
+
+        // ── Tra last vendor từ item history (đọc từ map đã batch-load ở trên) ──
+        var lastVendorId    = "";
+        var lastVendorLabel = "-- Select Vendor --";
+        var lastPrice       = rate || 0;
+
+        var histEntry = p.name ? itemHistoryMap[p.name.trim()] : null;
+        if (histEntry) {
+          if (histEntry.vendorId) {
+            lastVendorId = histEntry.vendorId;
+            lastVendorLabel = vendorLabelById[String(histEntry.vendorId)] || lastVendorLabel;
+          }
+          if (histEntry.price) lastPrice = histEntry.price;
+        }
+
+        var dispColor = lastVendorId ? "#333" : "#999";
+
+        // ⭐ MỚI: escape tên item để nhét an toàn vào value="..."
+        var safeName = escAttr(p.name);
+        var deptCellHtml = "";
+        var srcPrIds = sourcesByPoolItem[p.id] || [];
+        if (srcPrIds.length > 0) {
+          var deptParts = [];
+          for (var dp = 0; dp < srcPrIds.length; dp++) {
+            var info = prInfoMap[srcPrIds[dp]];
+            if (info) {
+              deptParts.push("PR#" + info.tranid + (info.deptText ? " (" + info.deptText + ")" : ""));
+            }
+          }
+          deptCellHtml = deptParts.join("<br>");
+        }
+        itemRows +=
+          '<tr id="row_' + i + '">' +
+            '<td style="padding:8px;border:1px solid #ddd;text-align:center;">' +
+              '<input type="checkbox" name="select_' + i + '" class="row-select-cb" checked>' +
+            '</td>' +
+            '<td style="padding:8px;border:1px solid #ddd;text-align:center;">' + (i + 1) + '</td>' +
+
+            // ⭐ MỚI: Item name giờ là input text, cho sửa được. origname_i giữ tên gốc để tham chiếu.
+            '<td style="padding:8px;border:1px solid #ddd;">' +
+              '<input type="text" name="itemname_' + i + '" value="' + safeName + '" ' +
+              'style="width:100%;min-width:160px;box-sizing:border-box;padding:5px 7px;border:1px solid #ccc;border-radius:4px;" />' +
+              '<input type="hidden" name="origname_' + i + '" value="' + safeName + '">' +
+            '</td>' +
+            '<td style="padding:8px;border:1px solid #ddd;font-size:12px;color:#555;">' + deptCellHtml + '</td>' +
+
+            '<td style="padding:8px;border:1px solid #ddd;">' + (p.desc || "") + '</td>' +
+            '<td style="padding:8px;border:1px solid #ddd;text-align:center;">' + (p.unit || "") + '</td>' +
+
+            // ⭐ MỚI: Qty giờ là input number, cho sửa được. origqty_i giữ số lượng gốc để
+            // server tính tỉ lệ chia lại cho từng dòng PR nguồn.
+            '<td style="padding:8px;border:1px solid #ddd;text-align:center;">' +
+              '<input type="number" step="any" min="0" name="qty_' + i + '" value="' + qty + '" ' +
+              'oninput="updateAmount(' + i + ')" ' +
+              'style="width:80px;padding:5px 7px;border:1px solid #ccc;border-radius:4px;text-align:center;" />' +
+              '<input type="hidden" name="origqty_' + i + '" value="' + qty + '">' +
+            '</td>' +
+
+            '<td style="padding:8px;border:1px solid #ddd;text-align:right;">' +
+              formatNumber(rate) +
+              '<input type="hidden" name="estrate_' + i + '" value="' + rate + '">' +
+            '</td>' +
+
+            // ⭐ MỚI: bọc amount trong span để JS cập nhật lại khi Qty đổi
+            '<td style="padding:8px;border:1px solid #ddd;text-align:right;">' +
+              '<span id="amount_disp_' + i + '">' + formatNumber(amount) + '</span>' +
+            '</td>' +
+
+            // ── CỘT UNIT PRICE (áp dụng chung cho mọi dòng nguồn của item này) ──
+            '<td style="padding:8px;border:1px solid #ddd;text-align:right;">' +
+              '<input type="number" name="price_' + i + '" value="' + lastPrice + '" ' +
+              'style="width:110px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;text-align:right;" />' +
+            '</td>' +
+
+            // ── CỘT VENDOR DROPDOWN ──
+            '<td style="padding:8px;border:1px solid #ddd;">' +
+              '<div class="csw" style="position:relative;">' +
+                '<input type="hidden" name="vendor_' + i + '" class="vendor-value" value="' + lastVendorId + '">' +
+                '<div class="sel-display" tabindex="0" onclick="toggleDD(this)" style="border:1px solid #ccc;border-radius:4px;padding:6px 28px 6px 8px;cursor:pointer;background:#fff;position:relative;min-width:180px;">' +
+                  '<span class="disp-text" style="color:' + dispColor + ';">' + lastVendorLabel + '</span>' +
+                  '<span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:11px;">▾</span>' +
+                '</div>' +
+                '<div class="dd-panel" style="display:none;position:absolute;z-index:9999;top:100%;left:0;width:280px;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.15);">' +
+                  '<div style="padding:6px 6px 4px;">' +
+                    '<input type="text" placeholder="🔍 Search..." oninput="filterDD(this)" style="width:100%;box-sizing:border-box;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;">' +
+                  '</div>' +
+                  '<ul class="opt-list" style="list-style:none;margin:0;padding:0 0 4px;max-height:220px;overflow-y:auto;">' +
+                    vendorOptionsHtml +
+                  '</ul>' +
+                '</div>' +
+              '</div>' +
+              '<input type="hidden" name="lineindex_' + i + '" value="' + i + '">' +
+              // ⭐ id của pool item — dùng để submitpo biết dòng này ứng với pool item nào
+              '<input type="hidden" name="poolitem_' + i + '" value="' + p.id + '">' +
+            '</td>' +
+            '<td style="padding:8px;border:1px solid #ddd;text-align:center;">' +
+              '<button type="button" onclick="removeFromPool(\'' + p.id + '\', ' + i + ')" ' +
+              'style="background:#dc2626;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer;font-size:12px;">Xóa</button>' +
+            '</td>' +
+          '</tr>';
+      }
+
+      var submitUrl = url.resolveScript({
+        scriptId:     "customscriptsvn_pr_approval_sl",
+        deploymentId: "customdeploysvn_pr_approval_sl",
+        params: { action: "submitpo", recId: recId }
+      });
+      var saveUrl = url.resolveScript({
+        scriptId:     "customscriptsvn_pr_approval_sl",
+        deploymentId: "customdeploysvn_pr_approval_sl",
+        params: { action: "savepool", recId: recId }
+      });
+      var removeUrlBase = url.resolveScript({
+        scriptId:     "customscriptsvn_pr_approval_sl",
+        deploymentId: "customdeploysvn_pr_approval_sl",
+        params: { action: "removefrompool" }
+      });
+      var html =
+        '<!DOCTYPE html><html><head>' +
+        '<meta charset="UTF-8">' +
+        '<title>Create Purchase Orders — PO Pool</title>' +
+        '<style>' +
+          'body { font-family: Arial, sans-serif; font-size: 13px; padding: 24px; color: #333; }' +
+          'h2 { margin-bottom: 4px; }' +
+          'p.sub { color: #666; margin-bottom: 20px; }' +
+          'table { border-collapse: collapse; width: 100%; }' +
+          'th { background: #f5f5f5; padding: 8px 10px; border: 1px solid #ddd; text-align: left; }' +
+          '.btn { background: #1a73e8; color: #fff; border: none; padding: 10px 24px; border-radius: 4px; font-size: 14px; cursor: pointer; margin-top: 20px; }' +
+          '.btn:hover { background: #1558b0; }' +
+          '.btn-cancel { background: #888; margin-left: 12px; }' +
+          '.loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }' +
+          '.spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }' +
+          '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }' +
+        '</style>' +
+        '</head><body>' +
+        '<h2>Create Purchase Orders</h2>' +
+        (function () {
+          var savedQ = context.request.parameters.saved;
+          var errQ   = context.request.parameters.saveerr;
+          if (savedQ === undefined || savedQ === null) return "";
+          var errNum = parseInt(errQ, 10) || 0;
+          var color = errNum > 0 ? "#b45309" : "#0f9d58";
+          var bg    = errNum > 0 ? "#fff7ed" : "#e6f4ea";
+          return '<div style="background:' + bg + ';color:' + color + ';border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:13px;">' +
+            'Đã lưu ' + savedQ + ' dòng.' + (errNum > 0 ? ' Có ' + errNum + ' dòng lưu lỗi — xem log để kiểm tra.' : '') +
+            '</div>';
+        })() +
+        '<p class="sub">Danh sách chờ tạo PO (gộp từ nhiều PR) — Assign a vendor to each line item. Lines with the same vendor will be grouped into one PO. Same item from different PR sẽ nằm chung 1 PO nhưng tách thành các dòng riêng (giữ đúng Linked Order cho từng PR). ' +
+          '<strong>Có thể sửa Item Name và Qty trực tiếp trên bảng</strong> — nếu Qty bị sửa, hệ thống sẽ tự chia tỉ lệ lại cho từng PR nguồn; thay đổi sẽ được cập nhật ngược lại đúng dòng PR gốc và dòng PO tạo ra. ' +
+          '<strong>Bấm "Lưu"</strong> để lưu lại tên/số lượng/đơn giá/vendor đã sửa cho CÁC DÒNG ĐANG TÍCH ✓ (chưa tạo PO) — dòng nào bỏ tích sẽ KHÔNG được lưu. Nếu bảng nhiều dòng, nên bấm "Deselect All" rồi tích từng nhóm nhỏ (~15-20 dòng) và Lưu theo từng đợt để tránh vượt giới hạn xử lý. Bấm "Create POs" khi đã sẵn sàng tạo PO thật (cũng chỉ áp dụng cho dòng đang tích).</p>' +
+        '<form method="POST" action="' + submitUrl + '">' +
+          '<input type="hidden" name="linecount" value="' + poolItems.length + '">' +
+          '<div style="margin-bottom:10px;">' +
+            '<button type="button" class="btn-select" onclick="toggleAllRows(true)" ' +
+              'style="background:#f1f3f4;color:#333;border:1px solid #ccc;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;margin-right:8px;">Select All</button>' +
+            '<button type="button" class="btn-select" onclick="toggleAllRows(false)" ' +
+              'style="background:#f1f3f4;color:#333;border:1px solid #ccc;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;">Deselect All</button>' +
+          '</div>' +
+          '<table>' +
+            '<thead><tr>' +
+              '<th style="width:36px;text-align:center;">✓</th>' +
+              '<th>#</th>' +
+              '<th style="min-width:160px;">Item</th>' +
+              '<th style="min-width:150px;">PR: Department</th>' +
+              '<th>Description</th>' +
+              '<th>Unit</th>' +
+              '<th>Qty</th>' +
+              '<th>Est. Rate</th>' +
+              '<th>Est. Amount</th>' +
+              '<th style="min-width:130px;">Unit Price</th>' +
+              '<th style="min-width:200px;">Vendor</th>' +
+              '<th style="width:70px;text-align:center;">Xóa</th>' +
+            '</tr></thead>' +
+            '<tbody>' + itemRows + '</tbody>' +
+          '</table>' +
+          '<button type="submit" class="btn" onclick="showLoading(event)">Create POs</button>' +
+          '<button type="submit" class="btn btn-save" formaction="' + saveUrl + '" onclick="showLoading(event,\'Đang lưu thay đổi...\')" ' +
+            'style="background:#0f9d58;">Lưu</button>' +
+          '<button type="button" class="btn btn-cancel" onclick="history.back()">Cancel</button>' +
+        '</form>' +
+        '<div class="loading-overlay" id="loadingOverlay">' +
+          '<div class="spinner"></div>' +
+          '<div id="loadingText" style="margin-top:14px;color:#333;font-size:14px;font-family:Arial,sans-serif;"></div>' +
+        '</div>' +
+        '<script>' +
+          'function showLoading(e, msg){' +
+          '  document.getElementById("loadingText").textContent = msg || "Đang tạo Purchase Order...";' +
+          '  document.getElementById("loadingOverlay").style.display="flex";' +
+          '}' +
+          // ⭐ MỚI: Select All / Deselect All — chỉ toggle checkbox của các dòng
+          // ĐANG hiển thị trên trang (dòng đã bị xóa bằng nút "Xóa" thì element
+          // không còn trong DOM nên tự động không bị ảnh hưởng).
+          'function toggleAllRows(checked){' +
+          '  document.querySelectorAll(".row-select-cb").forEach(function(cb){ cb.checked = checked; });' +
+          '}' +
+          // ⭐ MỚI: cập nhật hiển thị Est. Amount khi user sửa Qty (amount = qty * est.rate gốc,
+          // chỉ để tham khảo trên UI — số liệu thật tính lại chính xác ở server khi submit)
+          'function updateAmount(i){' +
+          '  var qtyEl = document.getElementsByName("qty_" + i)[0];' +
+          '  var rateEl = document.getElementsByName("estrate_" + i)[0];' +
+          '  var disp = document.getElementById("amount_disp_" + i);' +
+          '  if(!qtyEl || !rateEl || !disp) return;' +
+          '  var q = parseFloat(qtyEl.value) || 0;' +
+          '  var r = parseFloat(rateEl.value) || 0;' +
+          '  var val = Math.round(q * r).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",");' +
+          '  disp.textContent = val;' +
+          '}' +
+          'function toggleDD(el){' +
+          '  var panel=el.nextElementSibling;' +
+          '  var isOpen=panel.style.display==="block";' +
+          '  document.querySelectorAll(".dd-panel").forEach(function(p){p.style.display="none";});' +
+          '  if(!isOpen){panel.style.display="block";panel.querySelector("input").focus();}' +
+          '}' +
+          'function filterDD(input){' +
+          '  var kw=input.value.toLowerCase();' +
+          '  var list=input.closest(".dd-panel").querySelector(".opt-list");' +
+          '  list.querySelectorAll("li").forEach(function(li){' +
+          '    li.style.display=li.textContent.toLowerCase().includes(kw)?"":"none";' +
+          '  });' +
+          '}' +
+          'function pickOpt(li){' +
+          '  var wrapper=li.closest(".csw");' +
+          '  wrapper.querySelector(".vendor-value").value=li.dataset.value;' +
+          '  wrapper.querySelector(".disp-text").textContent=li.textContent;' +
+          '  wrapper.querySelector(".disp-text").style.color=li.dataset.value?"#333":"#999";' +
+          '  wrapper.querySelector(".dd-panel").style.display="none";' +
+          '  wrapper.querySelector("input[type=text]").value="";' +
+          '  filterDD(wrapper.querySelector("input[type=text]"));' +
+          '}' +
+          'function removeFromPool(poolItemId, idx){' +
+          '  if(!confirm("Xóa item này khỏi danh sách chờ tạo PO? (Không ảnh hưởng PR gốc)")) return;' +
+          '  fetch("' + removeUrlBase + '&poolItemId=" + poolItemId)' +
+          '    .then(function(r){ return r.json(); })' +
+          '    .then(function(res){' +
+          '      if(res.success){' +
+          '        var row = document.getElementById("row_" + idx);' +
+          '        if(row) row.remove();' +
+          '      } else {' +
+          '        alert("Lỗi: " + (res.message || "Không xóa được"));' +
+          '      }' +
+          '    })' +
+          '    .catch(function(){ alert("Lỗi kết nối tới server"); });' +
+          '}' +
+          'document.addEventListener("click",function(e){' +
+          '  if(!e.target.closest(".csw")){' +
+          '    document.querySelectorAll(".dd-panel").forEach(function(p){p.style.display="none";});' +
+          '  }' +
+          '});' +
+        '</script>' +
+        '</body></html>';
+
+      context.response.setHeader({ name: "Content-Type", value: "text/html" });
+      context.response.write(html);
+      return;
+    }
+
+    /**
+ * PATCH cho svn_pr_approval_sl.js
  * ─────────────────────────────────────────────────────────────────
- * PHƯƠNG ÁN 5 — chạy tạo PO ở background thay vì đồng bộ trong Suitelet.
+ * 1. Thêm "N/task" vào define([...]) đầu file, ví dụ:
  *
- * Input: 1 customrecord_pr_po_job (đã được Suitelet tạo sẵn kèm các
- * customrecord_pr_po_job_line — mỗi line ứng với 1 pool item user đã chọn
- * vendor/giá trên form Create PO).
+ *    define(["N/record", "N/redirect", "N/log", "N/https", "N/file", "N/search", "N/url", "N/task", "N/runtime"],
+ *    function (record, redirect, log, https, file, search, url, task, runtime) {
  *
- * getInputData → group job_line theo vendor (mỗi vendor = 1 PO = 1 map key)
- * map           → tạo PO thật cho 1 vendor (mix nhiều pool item / nhiều PR
- *                 nguồn), dọn pool, ghi item history/price log, rồi emit
- *                 key=prId để reduce gom update PR.
- * reduce        → load + save MỖI PR ĐÚNG 1 LẦN (giữ nguyên tinh thần Fix #4,
- *                 nhưng giờ do framework tự gom theo key).
- * summarize     → build file .txt tóm tắt, lưu vào File Cabinet, cập nhật
- *                 trạng thái job, gửi email cho người bấm Create PO.
+ * 2. XÓA toàn bộ khối `if (action === "submitpo") { ... }` hiện tại trong onRequest
+ *    (đoạn tạo PO đồng bộ) và THAY bằng 2 khối bên dưới (submitpo bản mới + pojobstatus mới).
  *
- * ⚠️ IDEMPOTENCY: NetSuite có thể tự retry 1 map/reduce key nếu instance đó
- * lỗi/timeout — khác với Suitelet chạy 1 lần duy nhất. Vì vậy:
- *   - map() kiểm tra job_line.status trước khi tạo PO — nếu đã "done" thì
- *     BỎ QUA việc tạo PO (tránh tạo trùng PO), chỉ emit lại dữ liệu cho reduce.
- *   - Xóa pool_item/pool_source cũng guard: nếu record đã bị xóa (do lần
- *     chạy trước) thì bỏ qua lỗi "record not found", không coi là fail.
+ * 3. Sửa 2 hằng số MR_SCRIPT_ID / MR_DEPLOYMENT_ID cho khớp với script/deployment
+ *    Map/Reduce thật sự bạn tạo (xem 00_SETUP_TRUOC_KHI_DEPLOY.md).
  * ─────────────────────────────────────────────────────────────────
  */
-define(["N/record", "N/search", "N/file", "N/email", "N/runtime", "N/log"],
-    function (record, search, file, email, runtime, log) {
 
-        var TAX_VAT_0 = 6234;
-        var SUMMARY_FOLDER_ID = 104606; // dùng chung folder với file PR đã ký — đổi nếu cần folder riêng
+var MR_SCRIPT_ID = "customscript_svn_pr_po_mr";       // ⚠️ đổi cho khớp script id thật
+var MR_DEPLOYMENT_ID = "customdeploy_svn_pr_po_mr";   // ⚠️ đổi cho khớp deployment id thật (hoặc bỏ trống để dùng deployment mặc định)
 
-        function formatNumber(num) {
-            num = Math.round(Number(num) || 0);
-            var sign = num < 0 ? "-" : "";
-            var absStr = Math.abs(num).toString();
-            absStr = absStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            return sign + absStr;
-        }
+// ─── SUBMIT PO (bản mới) — chỉ tạo job + trigger Map/Reduce, KHÔNG tạo PO ngay ──
+if (action === "submitpo") {
+  try {
+    var lineCount = parseInt(context.request.parameters.linecount);
 
-        // ───────────────────────── getInputData ─────────────────────────
-        function getInputData(context) {
-            var script = runtime.getCurrentScript();
-            var jobId = script.getParameter({ name: "custscript_ppj_jobid" });
-            if (!jobId) throw new Error("Thiếu tham số custscript_ppj_jobid khi trigger Map/Reduce.");
+    // Đọc TOÀN BỘ dòng đang tích, y hệt logic cũ khi build vendorMap —
+    // nhưng giờ chỉ để tạo job_line, không xử lý gì thêm ở đây.
+    var rowsForJob = [];
+    var missingVendorCount = 0;
+    for (var i = 0; i < lineCount; i++) {
+      var isSelected = !!context.request.parameters["select_" + i];
+      if (!isSelected) continue;
 
-            // Chỉ lấy các job_line CHƯA xử lý xong — nhờ vậy nếu job bị chạy lại
-            // (retry cả getInputData, hoặc bạn tự resume sau này) thì các dòng đã
-            // "done" sẽ không bị đưa vào lại.
-            var lineIdsByVendor = {}; // vendorId -> [job_line internalid, ...]
-            search.create({
-                type: "customrecord_pr_po_job_line",
-                filters: [
-                    ["custrecord_ppjl_job", "is", jobId],
-                    "AND",
-                    ["custrecord_ppjl_status", "isnot", "done"]
-                ],
-                columns: ["internalid", "custrecord_ppjl_vendor"]
-            }).run().each(function (r) {
-                var vId = r.getValue("custrecord_ppjl_vendor");
-                var lId = r.getValue("internalid");
-                if (!vId) return true; // dòng lỗi thiếu vendor — bỏ qua, đã được cảnh báo ở Suitelet trước khi tạo job
-                if (!lineIdsByVendor[vId]) lineIdsByVendor[vId] = [];
-                lineIdsByVendor[vId].push(lId);
-                return true;
-            });
+      var vendorId = context.request.parameters["vendor_" + i];
+      var poolItemId = context.request.parameters["poolitem_" + i];
+      var price = parseFloat(context.request.parameters["price_" + i]) || 0;
+      var editedName = (context.request.parameters["itemname_" + i] || "").trim();
+      var origName = (context.request.parameters["origname_" + i] || "").trim();
+      var editedQty = parseFloat(context.request.parameters["qty_" + i]);
+      var origQty = parseFloat(context.request.parameters["origqty_" + i]) || 0;
 
-            var groups = [];
-            for (var vId2 in lineIdsByVendor) {
-                groups.push({ jobId: jobId, vendorId: vId2, lineIds: lineIdsByVendor[vId2] });
-            }
+      if (!editedName) editedName = origName;
+      if (isNaN(editedQty) || editedQty <= 0) editedQty = origQty;
 
-            if (groups.length === 0) {
-                log.audit("NO PENDING LINES", "Job " + jobId + " không còn dòng nào cần xử lý.");
-            }
-            return groups;
-        }
+      if (!vendorId) { missingVendorCount++; continue; } // giữ nguyên hành vi cũ: dòng không chọn vendor thì bỏ qua
 
-        // ───────────────────────────── map ──────────────────────────────
-        // context.value = 1 group JSON: { jobId, vendorId, lineIds }
-        function map(context) {
-            var group = JSON.parse(context.value);
-            var jobId = group.jobId;
-            var vendorId = group.vendorId;
+      rowsForJob.push({
+        poolItemId: poolItemId, vendorId: vendorId, price: price,
+        itemName: editedName, qty: editedQty, origQty: origQty
+      });
+    }
 
-            // Load chi tiết job_line ngay tại đây (không mang theo từ getInputData
-            // để tránh dữ liệu cũ nếu có thay đổi, và giữ payload getInputData nhẹ).
-            var lines = [];
-            search.create({
-                type: "customrecord_pr_po_job_line",
-                filters: [["internalid", "anyof", group.lineIds]],
-                columns: [
-                    "internalid", "custrecord_ppjl_poolitem", "custrecord_ppjl_price",
-                    "custrecord_ppjl_itemname", "custrecord_ppjl_qty", "custrecord_ppjl_origqty",
-                    "custrecord_ppjl_status", "custrecord_ppjl_poid"
-                ]
-            }).run().each(function (r) {
-                lines.push({
-                    id: r.getValue("internalid"),
-                    poolItemId: r.getValue("custrecord_ppjl_poolitem"),
-                    price: parseFloat(r.getValue("custrecord_ppjl_price")) || 0,
-                    itemName: (r.getValue("custrecord_ppjl_itemname") || "").trim(),
-                    qty: parseFloat(r.getValue("custrecord_ppjl_qty")) || 0,
-                    origQty: parseFloat(r.getValue("custrecord_ppjl_origqty")) || 0,
-                    status: r.getValue("custrecord_ppjl_status"),
-                    poId: r.getValue("custrecord_ppjl_poid")
-                });
-                return true;
-            });
-            if (lines.length === 0) return;
+    if (rowsForJob.length === 0) {
+      context.response.write(
+        "<html><body style='font-family:Arial,sans-serif;padding:24px;'>" +
+        "<p>Không có dòng nào hợp lệ để tạo PO (kiểm tra lại đã tích chọn và chọn Vendor chưa).</p>" +
+        "<button onclick='history.back()'>Quay lại</button></body></html>"
+      );
+      return;
+    }
 
-            // ── IDEMPOTENCY GUARD: nếu TẤT CẢ line trong group này đã "done" (đã
-            // có poId) rồi — nghĩa là map key này đã chạy thành công ở lần trước,
-            // đang bị NetSuite retry vì lý do khác (VD lỗi ở 1 map key khác cùng
-            // job). KHÔNG tạo PO lại — chỉ re-emit dữ liệu cho reduce để đảm bảo
-            // PR vẫn được cập nhật dù reduce có bị chạy lại. ──
-            var allDone = lines.every(function (l) { return l.status === "done" && l.poId; });
-            if (allDone) {
-                try {
-                    search.lookupFields({ type: record.Type.PURCHASE_ORDER, id: lines[0].poId, columns: ["tranid"] });
-                    log.audit("SKIP - GROUP ALREADY DONE", "vendor " + vendorId + " | job " + jobId);
-                    emitPrUpdatesFromDoneLines(context, lines); // vẫn nên implement thật, không để trống
-                    return;
-                } catch (poGoneErr) {
-                    log.audit("PO ALREADY DELETED - REPROCESS", "vendor " + vendorId + " | job " + jobId);
-                    // rơi xuống xử lý bình thường như group chưa done
-                }
-            }
+    // Tạo job header
+    var jobRecord = record.create({ type: "customrecord_pr_po_job" });
+    jobRecord.setValue({ fieldId: "name", value: "PO Job - PR " + recId + " - " + (new Date()).toLocaleString() });
+    jobRecord.setValue({ fieldId: "custrecord_ppj_source_pr", value: recId });
+    jobRecord.setValue({ fieldId: "custrecord_ppj_status", value: "pending" });
+    jobRecord.setValue({ fieldId: "custrecord_ppj_created_by", value: runtime.getCurrentUser().id });
+    var jobId = jobRecord.save();
 
-            var poolFormIndexes = lines; // giữ tên biến gần giống code Suitelet cũ cho dễ đối chiếu
+    // Tạo job_line cho từng dòng đã chọn
+    for (var r2 = 0; r2 < rowsForJob.length; r2++) {
+      var row = rowsForJob[r2];
+      var jl = record.create({ type: "customrecord_pr_po_job_line" });
+      jl.setValue({ fieldId: "name", value: "Job " + jobId + " - Line " + r2 });
+      jl.setValue({ fieldId: "custrecord_ppjl_job", value: jobId });
+      jl.setValue({ fieldId: "custrecord_ppjl_poolitem", value: row.poolItemId });
+      jl.setValue({ fieldId: "custrecord_ppjl_vendor", value: row.vendorId });
+      jl.setValue({ fieldId: "custrecord_ppjl_price", value: row.price });
+      jl.setValue({ fieldId: "custrecord_ppjl_itemname", value: row.itemName });
+      jl.setValue({ fieldId: "custrecord_ppjl_qty", value: row.qty });
+      jl.setValue({ fieldId: "custrecord_ppjl_origqty", value: row.origQty });
+      jl.setValue({ fieldId: "custrecord_ppjl_status", value: "pending" });
+      jl.save();
+    }
 
-            var vendorLabelForSummary = vendorId;
-            try {
-                var vLookup = search.lookupFields({
-                    type: search.Type.VENDOR, id: vendorId, columns: ["entityid", "companyname"]
-                });
-                vendorLabelForSummary = vLookup.entityid + (vLookup.companyname ? " — " + vLookup.companyname : "");
-            } catch (vErr) {
-                log.error("VENDOR LOOKUP ERROR", vErr);
-            }
+    // Trigger Map/Reduce
+    try {
+      var mrTask = task.create({ taskType: task.TaskType.MAP_REDUCE });
+      mrTask.scriptId = MR_SCRIPT_ID;
+      if (MR_DEPLOYMENT_ID) mrTask.deploymentId = MR_DEPLOYMENT_ID;
+      mrTask.params = { custscript_ppj_jobid: jobId };
+      mrTask.submit();
+      jobRecord.setValue({ fieldId: "custrecord_ppj_status", value: "processing" });
+      jobRecord.save();
+    } catch (taskErr) {
+      log.error("TRIGGER MAP/REDUCE ERROR", taskErr);
+      jobRecord.setValue({ fieldId: "custrecord_ppj_status", value: "error" });
+      jobRecord.setValue({ fieldId: "custrecord_ppj_error_log", value: "Không trigger được Map/Reduce: " + taskErr.message });
+      jobRecord.save();
+    }
 
-            var po = record.create({ type: record.Type.PURCHASE_ORDER, isDynamic: true });
-            po.setValue({ fieldId: "customform", value: "252" });
-            po.setValue({ fieldId: "entity", value: vendorId });
-
-            var vendorLookup = search.lookupFields({
-                type: search.Type.VENDOR,
-                id: vendorId,
-                columns: ["subsidiary"]
-            });
-            if (vendorLookup.subsidiary && vendorLookup.subsidiary.length > 0) {
-                po.setValue({ fieldId: "subsidiary", value: vendorLookup.subsidiary[0].value });
-            }
-
-            var prUpdateQueue = [];
-            var summaryLinesForVendor = [];
-            var sourceIdsByPoolItem = {}; // để xóa pool_source ngay dưới, không search lại
-
-            for (var k = 0; k < poolFormIndexes.length; k++) {
-                var ln = poolFormIndexes[k];
-
-                var poolItemLookup;
-                try {
-                    poolItemLookup = search.lookupFields({
-                        type: "customrecord_pr_pool_item", id: ln.poolItemId,
-                        columns: ["name", "custrecord_ppi_realitem"]
-                    });
-                } catch (lookupErr) {
-                    // pool item đã bị xóa trước đó (VD retry sau khi đã xử lý xong) —
-                    // coi như dòng này không còn gì để làm, đánh dấu skip.
-                    log.audit("POOL ITEM MISSING - SKIP LINE", "poolItemId=" + ln.poolItemId);
-                    markJobLineError(ln.id, "Pool item không còn tồn tại (có thể đã xử lý ở lần chạy trước)");
-                    continue;
-                }
-
-                var poolName = ln.itemName || poolItemLookup.name;
-                var realItemId = poolItemLookup.custrecord_ppi_realitem && poolItemLookup.custrecord_ppi_realitem[0]
-                    ? poolItemLookup.custrecord_ppi_realitem[0].value : "";
-
-                var sourceResults = search.create({
-                    type: "customrecord_pr_pool_source",
-                    filters: [["custrecord_pps_pool_item", "is", ln.poolItemId]],
-                    columns: [
-                        "internalid", "custrecord_pps_pr", "custrecord_pps_prlinenum",
-                        "custrecord_pps_prlineidx", "custrecord_pps_qty", "custrecord_pps_desc",
-                        "custrecord_pps_purpose", "custrecord_pps_units"
-                    ]
-                }).run().getRange({ start: 0, end: 1000 });
-
-                var srcIds = [];
-                for (var si = 0; si < sourceResults.length; si++) srcIds.push(sourceResults[si].getValue("internalid"));
-                sourceIdsByPoolItem[ln.poolItemId] = srcIds;
-
-                var editedQtyTotal = ln.qty;
-                var origQtyTotal = ln.origQty;
-                var qtyWasChanged = origQtyTotal > 0 && Math.abs(editedQtyTotal - origQtyTotal) > 0.0001;
-
-                summaryLinesForVendor.push({
-                    itemName: poolName, qty: editedQtyTotal, price: ln.price,
-                    amount: Math.round(ln.price * editedQtyTotal * 100) / 100
-                });
-
-                var runningAssignedQty = 0;
-                for (var s = 0; s < sourceResults.length; s++) {
-                    var srcPrId = sourceResults[s].getValue("custrecord_pps_pr");
-                    var srcLineNum = sourceResults[s].getValue("custrecord_pps_prlinenum");
-                    var srcLineIdx = sourceResults[s].getValue("custrecord_pps_prlineidx");
-                    var srcQty = parseFloat(sourceResults[s].getValue("custrecord_pps_qty")) || 0;
-                    var srcDesc = sourceResults[s].getValue("custrecord_pps_desc");
-                    var srcPurpose = sourceResults[s].getValue("custrecord_pps_purpose");
-                    var srcUnits = sourceResults[s].getValue("custrecord_pps_units");
-
-                    var lineQty;
-                    if (!qtyWasChanged) {
-                        lineQty = srcQty;
-                    } else if (s === sourceResults.length - 1) {
-                        lineQty = Math.round(editedQtyTotal - runningAssignedQty);
-                    } else {
-                        lineQty = Math.round((srcQty / origQtyTotal) * editedQtyTotal);
-                        runningAssignedQty += lineQty;
-                    }
-                    if (isNaN(lineQty) || lineQty < 0) lineQty = srcQty;
-
-                    po.selectNewLine({ sublistId: "item" });
-
-                    // 1. BẮT BUỘC Set Item trước
-                    if (realItemId) {
-                        po.setCurrentSublistValue({ sublistId: "item", fieldId: "item", value: realItemId });
-                    }
-
-                    // 2. Set Units & Quantity (Dynamic mode cần Units trước Quantity nếu dùng Multiple Units)
-                    if (srcUnits) {
-                        try { po.setCurrentSublistValue({ sublistId: "item", fieldId: "units", value: srcUnits }); } catch (uErr) { }
-                    }
-                    po.setCurrentSublistValue({ sublistId: "item", fieldId: "quantity", value: lineQty });
-
-                    // 3. Set Tax Code & Rate
-                    // Gán Tax Code VAT 0% (biến TAX_VAT_0 = 6234 của bạn ở đầu file)
-                    try {
-                        po.setCurrentSublistValue({ sublistId: "item", fieldId: "taxcode", value: TAX_VAT_0 });
-                    } catch (tErr) {
-                        log.error("SET TAXCODE ERR", tErr);
-                    }
-                    po.setCurrentSublistValue({ sublistId: "item", fieldId: "rate", value: ln.price });
-
-                    // 4. Set các Custom/Reference Fields khác
-                    if (srcDesc) po.setCurrentSublistValue({ sublistId: "item", fieldId: "description", value: srcDesc });
-                    po.setCurrentSublistValue({ sublistId: "item", fieldId: "custcol_pr_item", value: poolName || "" });
-                    if (srcPurpose) po.setCurrentSublistValue({ sublistId: "item", fieldId: "custcol_pr_item_purpose", value: srcPurpose });
-                    po.setCurrentSublistValue({ sublistId: "item", fieldId: "orderdoc", value: parseInt(srcPrId, 10) });
-                    po.setCurrentSublistValue({ sublistId: "item", fieldId: "orderline", value: parseInt(srcLineNum, 10) });
-
-                    // 5. Commit Line
-                    po.commitLine({ sublistId: "item" });
-
-                    prUpdateQueue.push({
-                        prId: srcPrId, lineIdx: parseInt(srcLineIdx, 10), itemName: poolName,
-                        qty: lineQty, amount: Math.round(ln.price * lineQty * 100) / 100
-                    });
-                }
-
-                ln.__poolName = poolName; // giữ lại để dùng ở bước ghi history/dọn pool bên dưới
-            }
-
-            var poId;
-            try {
-                poId = po.save({ ignoreMandatoryFields: true });
-            } catch (saveErr) {
-                log.error("PO SAVE ERROR - VENDOR " + vendorId, saveErr);
-                for (var e1 = 0; e1 < poolFormIndexes.length; e1++) markJobLineError(poolFormIndexes[e1].id, "Lỗi tạo PO: " + saveErr.message);
-                throw saveErr; // để M/R ghi nhận map key này fail, có thể retry
-            }
-
-            for (var pq = 0; pq < prUpdateQueue.length; pq++) {
-                prUpdateQueue[pq].poId = poId;
-            }
-
-            var poTranId = poId;
-            try {
-                var poLookup = search.lookupFields({ type: record.Type.PURCHASE_ORDER, id: poId, columns: ["tranid"] });
-                if (poLookup.tranid) poTranId = poLookup.tranid;
-            } catch (poLookupErr) { log.error("PO TRANID LOOKUP ERROR", poLookupErr); }
-
-            // Đánh dấu job_line = done + ghi poId/poTranId/amount — QUAN TRỌNG cho idempotency
-            // và cho summarize() build file tóm tắt sau này.
-            for (var k2 = 0; k2 < poolFormIndexes.length; k2++) {
-                var ln2 = poolFormIndexes[k2];
-                if (!ln2.__poolName) continue; // dòng bị skip ở trên (pool item missing)
-                var lineAmount = 0;
-                for (var sl = 0; sl < summaryLinesForVendor.length; sl++) {
-                    if (summaryLinesForVendor[sl].itemName === ln2.__poolName) { lineAmount = summaryLinesForVendor[sl].amount; break; }
-                }
-                try {
-                    record.submitFields({
-                        type: "customrecord_pr_po_job_line", id: ln2.id,
-                        values: {
-                            custrecord_ppjl_status: "done",
-                            custrecord_ppjl_poid: poId,
-                            custrecord_ppjl_potranid: String(poTranId),
-                            custrecord_ppjl_vendorlabel: vendorLabelForSummary,
-                            custrecord_ppjl_amount: lineAmount
-                        }
-                    });
-                } catch (markErr) { log.error("MARK JOB LINE DONE ERROR", markErr); }
-            }
-
-            // Ghi item history + price log (giữ nguyên nghiệp vụ cũ)
-            for (var k3 = 0; k3 < poolFormIndexes.length; k3++) {
-                var ln3 = poolFormIndexes[k3];
-                if (!ln3.__poolName) continue;
-                try {
-                    var foundHist = search.create({
-                        type: "customrecord_pr_item_history",
-                        filters: [["name", "is", ln3.__poolName]], columns: ["internalid"]
-                    }).run().getRange({ start: 0, end: 1 });
-
-                    var itemHistoryId;
-                    if (foundHist.length > 0) {
-                        itemHistoryId = foundHist[0].getValue("internalid");
-                        record.submitFields({
-                            type: "customrecord_pr_item_history", id: itemHistoryId,
-                            values: { custrecord_pr_item_last_vendor: vendorId, custrecord_pr_item_last_purchase_price: ln3.price }
-                        });
-                    } else {
-                        var newHist = record.create({ type: "customrecord_pr_item_history" });
-                        newHist.setValue({ fieldId: "name", value: ln3.__poolName });
-                        newHist.setValue({ fieldId: "custrecord_pr_item_last_vendor", value: vendorId });
-                        newHist.setValue({ fieldId: "custrecord_pr_item_last_purchase_price", value: ln3.price });
-                        itemHistoryId = newHist.save();
-                    }
-
-                    var logRec = record.create({ type: "customrecord_pr_item_price_log" });
-                    logRec.setValue({ fieldId: "name", value: ln3.__poolName + " - " + (new Date()).toLocaleDateString() });
-                    logRec.setValue({ fieldId: "custrecord_pil_item", value: itemHistoryId });
-                    logRec.setValue({ fieldId: "custrecord_pil_vendor", value: vendorId });
-                    logRec.setValue({ fieldId: "custrecord_pil_price", value: ln3.price });
-                    logRec.setValue({ fieldId: "custrecord_pil_date", value: new Date() });
-                    logRec.setValue({ fieldId: "custrecord_pil_po", value: poId });
-                    logRec.save();
-                } catch (histErr) { log.error("ITEM HISTORY / PRICE LOG ERROR", histErr); }
-
-                // Dọn pool_source + pool_item — guard cho trường hợp đã bị xóa ở lần chạy trước
-                try {
-                    var srcIdsToDelete = sourceIdsByPoolItem[ln3.poolItemId] || [];
-                    for (var d = 0; d < srcIdsToDelete.length; d++) {
-                        try { record.delete({ type: "customrecord_pr_pool_source", id: srcIdsToDelete[d] }); }
-                        catch (delSrcErr) { log.debug("POOL SOURCE ALREADY GONE", srcIdsToDelete[d]); }
-                    }
-                    try { record.delete({ type: "customrecord_pr_pool_item", id: ln3.poolItemId }); }
-                    catch (delItemErr) { log.debug("POOL ITEM ALREADY GONE", ln3.poolItemId); }
-                } catch (delErr) { log.error("DELETE POOL ITEM ERROR", delErr); }
-            }
-
-            // Emit cho reduce() gom update PR — 1 entry / dòng PR nguồn
-            for (var q = 0; q < prUpdateQueue.length; q++) {
-                var item2 = prUpdateQueue[q];
-                context.write({ key: item2.prId, value: JSON.stringify(item2) });
-            }
-        }
-
-        function emitPrUpdatesFromDoneLines(context, lines) {
-            // Trường hợp group đã "done" hết từ trước (retry) — không còn prUpdateQueue
-            // trong bộ nhớ, nhưng PR update là thao tác idempotent (setSublistValue rồi
-            // save lại giá trị y hệt không gây hại) nên có thể bỏ qua re-emit an toàn.
-            // Không làm gì thêm ở đây — PR chắc chắn đã được cập nhật ở lần chạy thành công trước đó.
-        }
-
-        function markJobLineError(lineId, msg) {
-            try {
-                record.submitFields({
-                    type: "customrecord_pr_po_job_line", id: lineId,
-                    values: { custrecord_ppjl_status: "error", custrecord_ppjl_errormsg: String(msg).slice(0, 3000) }
-                });
-            } catch (e) { log.error("MARK JOB LINE ERROR FAILED", e); }
-        }
-
-        // ──────────────────────────── reduce ────────────────────────────
-        // context.key = prId, context.values = mảng JSON string các line update
-        // (có thể đến từ nhiều vendor/PO khác nhau) — load + save PR ĐÚNG 1 LẦN.
-        function reduce(context) {
-            var prId = context.key;
-            var entries = context.values.map(function (v) { return JSON.parse(v); });
-            log.debug("REDUCE START", "PR " + prId + " | entries=" + entries.length + " | " + JSON.stringify(entries));
-
-            try {
-                var prToUpdate = record.load({ type: "purchaserequisition", id: prId, isDynamic: false });
-                for (var u = 0; u < entries.length; u++) {
-                    var lEntry = entries[u];
-                    if (lEntry.poId === undefined || lEntry.poId === null) {
-                        log.error("REDUCE - MISSING poId", "PR " + prId + " lineIdx=" + lEntry.lineIdx);
-                        continue; // hoặc throw, tùy bạn muốn hard-fail hay skip
-                    }
-                    var lIdx = lEntry.lineIdx;
-
-                    prToUpdate.setSublistValue({ sublistId: "item", fieldId: "custcol_pr_linked_po", line: lIdx, value: lEntry.poId });
-                    prToUpdate.setSublistValue({ sublistId: "item", fieldId: "custcol_pr_linked_po_status", line: lIdx, value: "Pending Receipt" });
-                    if (lEntry.itemName) {
-                        prToUpdate.setSublistValue({ sublistId: "item", fieldId: "custcol_pr_item", line: lIdx, value: lEntry.itemName });
-                    }
-                    if (lEntry.qty !== undefined && lEntry.qty !== null && !isNaN(lEntry.qty) && lEntry.qty > 0) {
-                        prToUpdate.setSublistValue({ sublistId: "item", fieldId: "quantity", line: lIdx, value: lEntry.qty });
-                    }
-                    if (lEntry.amount !== undefined && lEntry.amount !== null && !isNaN(lEntry.amount)) {
-                        prToUpdate.setSublistValue({ sublistId: "item", fieldId: "custcol_pr_actual_amount", line: lIdx, value: lEntry.amount });
-                    }
-                }
-                // beforeSubmit của UE script sẽ tự tính lại custbody_pr_actual_total_amount /
-                // custbody_pr_po_progress khi save() này chạy — không cần set tay ở đây.
-                var savedId = prToUpdate.save({ ignoreMandatoryFields: true });
-                log.audit("REDUCE - PR UPDATED OK", "PR " + prId + " saved id=" + savedId);
-            } catch (prUpdErr) {
-                log.error("REDUCE - PR UPDATE ERROR", "PR " + prId + " | " + prUpdErr.message);
-                throw prUpdErr; // để M/R ghi nhận lỗi cho reduce key này, hiện trong reduceSummary.errors
-            }
-        }
-
-        // ─────────────────────────── summarize ──────────────────────────
-        function summarize(context) {
-            var script = runtime.getCurrentScript();
-            var jobId = script.getParameter({ name: "custscript_ppj_jobid" });
-
-            var mapErrorCount = 0, reduceErrorCount = 0;
-            var errorLogLines = [];
-            context.mapSummary.errors.iterator().each(function (key, error) {
-                mapErrorCount++;
-                errorLogLines.push("MAP [" + key + "]: " + error);
-                return true;
-            });
-            context.reduceSummary.errors.iterator().each(function (key, error) {
-                reduceErrorCount++;
-                errorLogLines.push("REDUCE [PR " + key + "]: " + error);
-                return true;
-            });
-
-            // Build file tóm tắt từ job_line đã "done"
-            var lines = [];
-            search.create({
-                type: "customrecord_pr_po_job_line",
-                filters: [["custrecord_ppjl_job", "is", jobId], "AND", ["custrecord_ppjl_status", "is", "done"]],
-                columns: [
-                    "custrecord_ppjl_poid", "custrecord_ppjl_potranid", "custrecord_ppjl_vendorlabel",
-                    "custrecord_ppjl_itemname", "custrecord_ppjl_qty", "custrecord_ppjl_price", "custrecord_ppjl_amount"
-                ]
-            }).run().each(function (r) {
-                lines.push({
-                    poId: r.getValue("custrecord_ppjl_poid"),
-                    poTranId: r.getValue("custrecord_ppjl_potranid"),
-                    vendorLabel: r.getValue("custrecord_ppjl_vendorlabel"),
-                    itemName: r.getValue("custrecord_ppjl_itemname"),
-                    qty: parseFloat(r.getValue("custrecord_ppjl_qty")) || 0,
-                    price: parseFloat(r.getValue("custrecord_ppjl_price")) || 0,
-                    amount: parseFloat(r.getValue("custrecord_ppjl_amount")) || 0
-                });
-                return true;
-            });
-
-            var byPo = {}; // poId -> { poTranId, vendorLabel, lines: [], total }
-            for (var i = 0; i < lines.length; i++) {
-                var ln = lines[i];
-                if (!byPo[ln.poId]) byPo[ln.poId] = { poTranId: ln.poTranId, vendorLabel: ln.vendorLabel, lines: [], total: 0 };
-                byPo[ln.poId].lines.push(ln);
-                byPo[ln.poId].total += ln.amount;
-            }
-
-            var jobRec = record.load({ type: "customrecord_pr_po_job", id: jobId });
-            var sourcePrId = jobRec.getValue({ fieldId: "custrecord_ppj_source_pr" });
-
-            var now2 = new Date();
-            var summaryTextLines = [];
-            summaryTextLines.push("TOM TAT TAO PURCHASE ORDER");
-            summaryTextLines.push("PR goc: #" + sourcePrId);
-            summaryTextLines.push("Thoi gian tao: " + now2.toLocaleString());
-            summaryTextLines.push("");
-
-            var grandTotal = 0;
-            for (var poIdKey in byPo) {
-                var entry = byPo[poIdKey];
-                summaryTextLines.push("================================================");
-                summaryTextLines.push("PO #" + entry.poTranId + " - Vendor: " + entry.vendorLabel);
-                summaryTextLines.push("------------------------------------------------");
-                for (var sl2 = 0; sl2 < entry.lines.length; sl2++) {
-                    var l = entry.lines[sl2];
-                    summaryTextLines.push((sl2 + 1) + ". " + l.itemName + " | SL: " + l.qty + " | Don gia: " + formatNumber(l.price) + " | Thanh tien: " + formatNumber(l.amount));
-                }
-                summaryTextLines.push("------------------------------------------------");
-                summaryTextLines.push("Tong PO #" + entry.poTranId + ": " + formatNumber(entry.total) + " VND");
-                summaryTextLines.push("");
-                grandTotal += entry.total;
-            }
-            summaryTextLines.push("================================================");
-            summaryTextLines.push("TONG CONG TAT CA PO: " + formatNumber(grandTotal) + " VND");
-            if (errorLogLines.length > 0) {
-                summaryTextLines.push("");
-                summaryTextLines.push("*** CO " + errorLogLines.length + " LOI - xem chi tiet trong job record hoac Execution Log ***");
-            }
-
-            var summaryFileName = "PO_Summary_PR" + sourcePrId + "_" +
-                now2.getFullYear() + ("0" + (now2.getMonth() + 1)).slice(-2) + ("0" + now2.getDate()).slice(-2) + "_" +
-                ("0" + now2.getHours()).slice(-2) + ("0" + now2.getMinutes()).slice(-2) + ".txt";
-
-            var summaryFileId = null;
-            try {
-                var summaryFile = file.create({
-                    name: summaryFileName, fileType: file.Type.PLAINTEXT,
-                    contents: summaryTextLines.join("\n"), folder: SUMMARY_FOLDER_ID
-                });
-                summaryFileId = summaryFile.save();
-            } catch (fileErr) {
-                log.error("SUMMARY FILE CREATE ERROR", fileErr);
-            }
-
-            var finalStatus = (mapErrorCount + reduceErrorCount) > 0 ? "error" : "done";
-            jobRec.setValue({ fieldId: "custrecord_ppj_status", value: finalStatus });
-            jobRec.setValue({ fieldId: "custrecord_ppj_po_count", value: Object.keys(byPo).length });
-            jobRec.setValue({ fieldId: "custrecord_ppj_error_count", value: mapErrorCount + reduceErrorCount });
-            jobRec.setValue({ fieldId: "custrecord_ppj_grandtotal", value: grandTotal });
-            if (summaryFileId) jobRec.setValue({ fieldId: "custrecord_ppj_summary_file", value: summaryFileId });
-            if (errorLogLines.length > 0) jobRec.setValue({ fieldId: "custrecord_ppj_error_log", value: errorLogLines.join("\n").slice(0, 100000) });
-            jobRec.save();
-
-            // Gửi email cho người tạo job (thay cho việc auto-download trong Suitelet cũ)
-            try {
-                var creatorId = jobRec.getValue({ fieldId: "custrecord_ppj_created_by" });
-                if (creatorId) {
-                    var emp = record.load({ type: "employee", id: creatorId });
-                    var creatorEmail = emp.getValue({ fieldId: "email" });
-                    if (creatorEmail) {
-                        var attachments = [];
-                        if (summaryFileId) attachments.push(file.load({ id: summaryFileId }));
-                        email.send({
-                            author: runtime.getCurrentUser().id || creatorId,
-                            recipients: creatorEmail,
-                            subject: (finalStatus === "done" ? "[Hoàn tất] " : "[Có lỗi] ") + "Tạo PO từ PR #" + sourcePrId,
-                            body: "Đã xử lý xong yêu cầu tạo PO.\n" +
-                                "Số PO đã tạo: " + Object.keys(byPo).length + "\n" +
-                                "Tổng tiền: " + formatNumber(grandTotal) + " VND\n" +
-                                (mapErrorCount + reduceErrorCount > 0 ? "Số dòng lỗi: " + (mapErrorCount + reduceErrorCount) + " (xem file đính kèm/Execution Log)\n" : "") +
-                                "File tóm tắt đính kèm (nếu có).",
-                            attachments: attachments
-                        });
-                    }
-                }
-            } catch (mailErr) {
-                log.error("SUMMARY EMAIL ERROR", mailErr);
-            }
-
-            log.audit("JOB SUMMARIZE DONE", "job=" + jobId + " status=" + finalStatus + " poCount=" + Object.keys(byPo).length + " errors=" + (mapErrorCount + reduceErrorCount));
-        }
-
-        return { getInputData: getInputData, map: map, reduce: reduce, summarize: summarize };
+    // Redirect sang trang trạng thái (poll tự động)
+    var statusUrl = url.resolveScript({
+      scriptId: "customscriptsvn_pr_approval_sl",
+      deploymentId: "customdeploysvn_pr_approval_sl",
+      params: { action: "pojobstatus", jobId: jobId, recId: recId }
     });
+    redirect.redirect({ url: statusUrl });
+    return;
+  } catch (e) {
+    log.error("SUBMIT PO (CREATE JOB) ERROR", e);
+    context.response.write("ERROR: " + e.message);
+  }
+  return;
+}
+
+// ─── POJOBSTATUS — trang trạng thái, tự refresh cho tới khi job xong ──
+if (action === "pojobstatus") {
+  try {
+    var jobIdQ = context.request.parameters.jobId;
+    var recIdQ = context.request.parameters.recId;
+
+    var jobRec = record.load({ type: "customrecord_pr_po_job", id: jobIdQ });
+    var status = jobRec.getValue({ fieldId: "custrecord_ppj_status" });
+    var poCount = jobRec.getValue({ fieldId: "custrecord_ppj_po_count" }) || 0;
+    var errorCount = jobRec.getValue({ fieldId: "custrecord_ppj_error_count" }) || 0;
+    var grandTotal = jobRec.getValue({ fieldId: "custrecord_ppj_grandtotal" }) || 0;
+    var fileId = jobRec.getValue({ fieldId: "custrecord_ppj_summary_file" });
+
+    var prUrl = url.resolveRecord({ recordType: "purchaserequisition", recordId: recIdQ, isEditMode: false });
+
+    var bodyHtml;
+    if (status === "pending" || status === "processing") {
+      var selfUrl = url.resolveScript({
+        scriptId: "customscriptsvn_pr_approval_sl",
+        deploymentId: "customdeploysvn_pr_approval_sl",
+        params: { action: "pojobstatus", jobId: jobIdQ, recId: recIdQ }
+      });
+      bodyHtml =
+        '<div style="text-align:center;padding:60px 20px;">' +
+          '<div style="border:4px solid #f3f3f3;border-top:4px solid #1a73e8;border-radius:50%;width:50px;height:50px;' +
+          'animation:spin 1s linear infinite;margin:0 auto 20px;"></div>' +
+          '<p style="font-size:15px;color:#333;">Đang tạo Purchase Order, vui lòng chờ...</p>' +
+          '<p style="font-size:12px;color:#888;">Trang sẽ tự cập nhật, không cần bấm gì thêm.</p>' +
+        '</div>' +
+        '<style>@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}</style>' +
+        '<script>setTimeout(function(){ window.location.href = "' + selfUrl + '"; }, 4000);</script>';
+    } else if (status === "done") {
+      // ⭐ Auto-download file .txt ngay khi job xong — giống hành vi bản đồng bộ cũ,
+      // thay vì bắt user bấm link thủ công. Nhúng thẳng nội dung file vào HTML rồi
+      // tạo Blob + click ảo (không dùng f.url trực tiếp vì browser có thể mở file
+      // .txt inline thay vì tải về).
+      var downloadScript = "";
+      var manualLinkHtml = "";
+      if (fileId) {
+        try {
+          var f = file.load({ id: fileId });
+          var fileContents = f.getContents();
+          var fileNameForDownload = f.name;
+          downloadScript =
+            '<script>' +
+            '  var summaryContent = ' + JSON.stringify(fileContents) + ';' +
+            '  var fileName = ' + JSON.stringify(fileNameForDownload) + ';' +
+            '  function triggerDownload(){' +
+            '    var blob = new Blob([summaryContent], {type:"text/plain;charset=utf-8"});' +
+            '    var blobUrl = URL.createObjectURL(blob);' +
+            '    var a = document.createElement("a");' +
+            '    a.href = blobUrl; a.download = fileName;' +
+            '    document.body.appendChild(a); a.click(); document.body.removeChild(a);' +
+            '  }' +
+            '  triggerDownload();' +
+            '  document.getElementById("manualDownload").onclick = function(e){ e.preventDefault(); triggerDownload(); };' +
+            '</script>';
+          manualLinkHtml = '<p><a id="manualDownload" href="#">Nếu file không tự tải, bấm vào đây</a></p>';
+        } catch (fErr) {
+          log.error("LOAD SUMMARY FILE ERROR", fErr);
+          manualLinkHtml = '<p style="color:#b45309;">Không đọc được file tóm tắt, vui lòng kiểm tra trong job record.</p>';
+        }
+      }
+      bodyHtml =
+        '<div style="text-align:center;padding:60px 20px;">' +
+          '<div style="width:50px;height:50px;border-radius:50%;background:#0f9d58;color:#fff;' +
+          'display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;">✓</div>' +
+          '<p style="font-size:15px;color:#333;">Đã tạo thành công <strong>' + poCount + '</strong> Purchase Order.</p>' +
+          '<p style="font-size:14px;color:#333;">Tổng tiền: <strong>' + formatNumber(grandTotal) + ' VND</strong></p>' +
+          '<p style="font-size:13px;color:#888;">File tóm tắt đang được tải xuống...</p>' +
+          manualLinkHtml +
+          '<p><a href="' + prUrl + '">Quay lại PR</a></p>' +
+        '</div>' + downloadScript;
+    } else {
+      // status === "error"
+      var errorLog = jobRec.getValue({ fieldId: "custrecord_ppj_error_log" }) || "";
+      bodyHtml =
+        '<div style="padding:24px;">' +
+          '<p>⚠️ Có <strong>' + errorCount + '</strong> lỗi khi tạo PO' +
+          (poCount ? (' (đã tạo được ' + poCount + ' PO cho các vendor không lỗi)') : '') + '.</p>' +
+          '<p>Vui lòng kiểm tra Execution Log hoặc liên hệ IT. Chi tiết lỗi:</p>' +
+          '<pre style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;white-space:pre-wrap;">' +
+          errorLog.replace(/</g, "&lt;") + '</pre>' +
+          '<p><a href="' + prUrl + '">Quay lại PR</a></p>' +
+        '</div>';
+    }
+
+    context.response.setHeader({ name: "Content-Type", value: "text/html" });
+    context.response.write(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trạng thái tạo PO</title></head>' +
+      '<body style="font-family:Arial,sans-serif;color:#333;">' + bodyHtml + '</body></html>'
+    );
+  } catch (e) {
+    log.error("POJOBSTATUS ERROR", e);
+    context.response.write("ERROR: " + e.message);
+  }
+  return;
+}
+
+    // ─── SAVE POOL EDITS (nút "Lưu" — chỉ lưu name/qty/price/vendor đã sửa, KHÔNG
+    // tạo PO, KHÔNG xóa pool, KHÔNG ghi custcol_pr_linked_po vì chưa có PO nào cả) ───
+    if (action === "savepool") {
+      try {
+        var lineCountS = parseInt(context.request.parameters.linecount) || 0;
+        var savedCountS = 0, errorCountS = 0;
+
+        // ── BƯỚC 1: đọc TOÀN BỘ input từ request trước (không tốn API call — chỉ đọc
+        // params trong bộ nhớ), gom vào mảng rowsToSave để xử lý theo batch bên dưới.
+        // CHỈ lưu những dòng đang được TÍCH checkbox (select_i) — giống hành vi của
+        // "Create POs" — để "Deselect All + tích từng nhóm nhỏ" thực sự dùng được làm
+        // cách lưu theo đợt, tránh vượt giới hạn Usage Limit khi bảng có nhiều dòng. ──
+        var rowsToSave = [];
+        for (var si2 = 0; si2 < lineCountS; si2++) {
+          var poolItemIdS = context.request.parameters["poolitem_" + si2];
+          if (!poolItemIdS) continue; // dòng đã bị xóa khỏi trang từ trước → bỏ qua
+
+          var isSelectedS = !!context.request.parameters["select_" + si2];
+          if (!isSelectedS) continue; // không tích → bỏ qua, không lưu dòng này
+
+          var editedNameS = (context.request.parameters["itemname_" + si2] || "").trim();
+          var origNameS   = (context.request.parameters["origname_"  + si2] || "").trim();
+          var editedQtyS  = parseFloat(context.request.parameters["qty_" + si2]);
+          var origQtyS    = parseFloat(context.request.parameters["origqty_" + si2]) || 0;
+          var priceS      = parseFloat(context.request.parameters["price_" + si2]);
+          var vendorIdS   = context.request.parameters["vendor_" + si2];
+
+          if (!editedNameS) editedNameS = origNameS;
+          if (isNaN(editedQtyS) || editedQtyS <= 0) editedQtyS = origQtyS;
+
+          rowsToSave.push({
+            idx:        si2,
+            poolItemId: poolItemIdS,
+            name:       editedNameS,
+            qty:        editedQtyS,
+            origQty:    origQtyS,
+            price:      priceS,
+            vendorId:   vendorIdS,
+            qtyChanged: origQtyS > 0 && Math.abs(editedQtyS - origQtyS) > 0.0001
+          });
+        }
+
+        // ── BƯỚC 2 — TỐI ƯU: search TOÀN BỘ pool_source của TẤT CẢ pool item trong
+        // 1 lần (dùng "anyof" vì custrecord_pps_pool_item là List/Record), thay vì search
+        // riêng từng dòng như bản trước — đây là nguyên nhân chính gây "Usage Limit Exceeded"
+        // khi lưu nhiều dòng cùng lúc. Chia batch 100 id/lần để tránh filter quá dài. ──
+        var sourcesByPoolItem = {}; // poolItemId -> [{ internalid, pr, lineIdx, qty }]
+        if (rowsToSave.length > 0) {
+          var CH1 = 100;
+          for (var b1 = 0; b1 < rowsToSave.length; b1 += CH1) {
+            var idBatch1 = [];
+            for (var b1i = b1; b1i < Math.min(b1 + CH1, rowsToSave.length); b1i++) idBatch1.push(rowsToSave[b1i].poolItemId);
+            search.create({
+              type: "customrecord_pr_pool_source",
+              filters: [["custrecord_pps_pool_item", "anyof", idBatch1]],
+              columns: ["internalid", "custrecord_pps_pool_item", "custrecord_pps_pr", "custrecord_pps_prlineidx", "custrecord_pps_qty"]
+            }).run().each(function (r) {
+              var pidRaw = r.getValue("custrecord_pps_pool_item");
+              var pid = String(pidRaw);
+              if (!sourcesByPoolItem[pid]) sourcesByPoolItem[pid] = [];
+              sourcesByPoolItem[pid].push({
+                internalid: r.getValue("internalid"),
+                pr:         r.getValue("custrecord_pps_pr"),
+                lineIdx:    r.getValue("custrecord_pps_prlineidx"),
+                qty:        parseFloat(r.getValue("custrecord_pps_qty")) || 0
+              });
+              return true;
+            });
+          }
+        }
+
+        // ── BƯỚC 3 — TỐI ƯU: search TOÀN BỘ item_history theo tên trong 1 lần (chỉ cho
+        // những dòng có chọn vendor), thay vì search riêng từng dòng. ──
+        var histIdByName = {}; // trimmedName -> internalid | null (null = chưa có record)
+        var namesNeedHist = [];
+        var seenNameHist = {};
+        for (var rh = 0; rh < rowsToSave.length; rh++) {
+          var rw = rowsToSave[rh];
+          if (rw.vendorId && rw.name && !seenNameHist[rw.name]) {
+            seenNameHist[rw.name] = true;
+            namesNeedHist.push(rw.name);
+          }
+        }
+        if (namesNeedHist.length > 0) {
+          var CH2 = 100;
+          for (var b2 = 0; b2 < namesNeedHist.length; b2 += CH2) {
+            var nameBatch = namesNeedHist.slice(b2, b2 + CH2);
+            var orFilters2 = [];
+            for (var nf = 0; nf < nameBatch.length; nf++) {
+              if (orFilters2.length > 0) orFilters2.push("or");
+              orFilters2.push(["name", "is", nameBatch[nf]]);
+            }
+            search.create({
+              type: "customrecord_pr_item_history",
+              filters: orFilters2,
+              columns: ["name"]
+            }).run().each(function (r) {
+              histIdByName[(r.getValue("name") || "").trim()] = r.id;
+              return true;
+            });
+          }
+        }
+
+        // ── BƯỚC 4: xử lý từng dòng — CHỈ còn 1) submitFields pool_item (không tránh được,
+        // không có API update hàng loạt cho custom record) và 2) submitFields pool_source
+        // NẾU qty thật sự đổi. Việc ghi PR và item_history được GOM lại, xử lý ở BƯỚC 5/6
+        // bên ngoài vòng lặp — để mỗi PR / mỗi item_history chỉ bị load+save ĐÚNG 1 LẦN,
+        // dù có bao nhiêu pool item cùng trỏ về nó. ──
+        var globalPrUpdatesS = {};   // prId -> [{ lineIdx, itemName, qty }]
+        var globalHistUpdatesS = {}; // name -> { vendorId, price, histId }
+
+        for (var rr = 0; rr < rowsToSave.length; rr++) {
+          var row = rowsToSave[rr];
+          try {
+            var poolUpdateValuesS = {
+              name:               row.name,
+              custrecord_ppi_qty: row.qty
+            };
+            if (!isNaN(row.price) && row.price > 0) poolUpdateValuesS.custrecord_ppi_rate = row.price;
+            record.submitFields({
+              type:   "customrecord_pr_pool_item",
+              id:     row.poolItemId,
+              values: poolUpdateValuesS
+            });
+
+            var srcList = sourcesByPoolItem[String(row.poolItemId)] || [];
+            var runningQtyS = 0;
+
+            for (var ss = 0; ss < srcList.length; ss++) {
+              var src = srcList[ss];
+              var lineQtyS;
+              if (!row.qtyChanged) {
+                lineQtyS = src.qty;
+              } else if (ss === srcList.length - 1) {
+                lineQtyS = Math.round(row.qty - runningQtyS);
+              } else {
+                lineQtyS = Math.round((src.qty / row.origQty) * row.qty);
+                runningQtyS += lineQtyS;
+              }
+              if (isNaN(lineQtyS) || lineQtyS < 0) lineQtyS = src.qty;
+
+              if (row.qtyChanged) {
+                record.submitFields({
+                  type:   "customrecord_pr_pool_source",
+                  id:     src.internalid,
+                  values: { custrecord_pps_qty: lineQtyS }
+                });
+              }
+
+              var prIdS = src.pr;
+              var lineIdxS = parseInt(src.lineIdx, 10);
+              if (!globalPrUpdatesS[prIdS]) globalPrUpdatesS[prIdS] = [];
+              globalPrUpdatesS[prIdS].push({ lineIdx: lineIdxS, itemName: row.name, qty: lineQtyS });
+            }
+
+            if (row.vendorId && row.name) {
+              globalHistUpdatesS[row.name] = {
+                vendorId: row.vendorId,
+                price:    row.price,
+                histId:   histIdByName.hasOwnProperty(row.name) ? histIdByName[row.name] : null
+              };
+            }
+
+            savedCountS++;
+          } catch (rowErrS) {
+            errorCountS++;
+            log.error("SAVE POOL - ROW ERROR", "idx=" + row.idx + " | " + rowErrS.message);
+          }
+        }
+
+        // ── BƯỚC 5 — TỐI ƯU: load + save MỖI PR ĐÚNG 1 LẦN, áp dụng tất cả dòng thay đổi
+        // (có thể đến từ nhiều pool item khác nhau) cùng lúc — KHÔNG đụng custcol_pr_linked_po
+        // / status vì chưa có PO nào. ──
+        for (var prIdS2 in globalPrUpdatesS) {
+          try {
+            var prToUpdateS = record.load({ type: "purchaserequisition", id: prIdS2, isDynamic: false });
+            var entriesS = globalPrUpdatesS[prIdS2];
+            for (var eu = 0; eu < entriesS.length; eu++) {
+              var eS = entriesS[eu];
+              prToUpdateS.setSublistValue({ sublistId: "item", fieldId: "custcol_pr_item", line: eS.lineIdx, value: eS.itemName });
+              if (eS.qty > 0) {
+                prToUpdateS.setSublistValue({ sublistId: "item", fieldId: "quantity", line: eS.lineIdx, value: eS.qty });
+              }
+            }
+            prToUpdateS.save({ ignoreMandatoryFields: true });
+          } catch (prErrS) {
+            log.error("SAVE POOL - UPDATE PR ERROR", "PR " + prIdS2 + " | " + prErrS.message);
+          }
+        }
+
+        // ── BƯỚC 6: upsert item_history — mỗi tên item chỉ 1 lần dù xuất hiện ở nhiều dòng
+        // (KHÔNG tạo price_log — price_log chỉ ghi khi PO THẬT SỰ được tạo). ──
+        for (var nameKeyS in globalHistUpdatesS) {
+          try {
+            var histEntryS = globalHistUpdatesS[nameKeyS];
+            var histValuesS = { custrecord_pr_item_last_vendor: histEntryS.vendorId };
+            if (!isNaN(histEntryS.price) && histEntryS.price > 0) histValuesS.custrecord_pr_item_last_purchase_price = histEntryS.price;
+
+            if (histEntryS.histId) {
+              record.submitFields({
+                type:   "customrecord_pr_item_history",
+                id:     histEntryS.histId,
+                values: histValuesS
+              });
+            } else {
+              var newHistS = record.create({ type: "customrecord_pr_item_history" });
+              newHistS.setValue({ fieldId: "name", value: nameKeyS });
+              newHistS.setValue({ fieldId: "custrecord_pr_item_last_vendor", value: histEntryS.vendorId });
+              if (!isNaN(histEntryS.price) && histEntryS.price > 0) {
+                newHistS.setValue({ fieldId: "custrecord_pr_item_last_purchase_price", value: histEntryS.price });
+              }
+              newHistS.save();
+            }
+          } catch (histErrS) {
+            log.error("SAVE POOL - ITEM HISTORY ERROR", "item=" + nameKeyS + " | " + histErrS.message);
+          }
+        }
+
+        // Quay lại đúng trang Create PO — dữ liệu hiển thị sẽ lấy từ pool vừa lưu,
+        // origname_i/origqty_i sẽ reset đúng theo giá trị mới (không còn coi là "đã sửa" nữa).
+        var backUrlS = url.resolveScript({
+          scriptId:     "customscriptsvn_pr_approval_sl",
+          deploymentId: "customdeploysvn_pr_approval_sl",
+          params: { action: "createpo", recId: recId, saved: savedCountS, saveerr: errorCountS }
+        });
+        redirect.redirect({ url: backUrlS });
+        return;
+      } catch (e) {
+        log.error("SAVE POOL ERROR", e);
+        context.response.write("ERROR: " + e.message);
+      }
+      return;
+    }
+
+    // ─── SUGGEST ITEM ───────────────────────────────────────────
+    if (action === "suggestitem") {
+      try {
+        var keyword = context.request.parameters.keyword || "";
+        var results = [];
+
+        var s = search.create({
+          type: "customrecord_pr_item_history",
+          filters: keyword
+            ? [["name", "contains", keyword]]
+            : [],
+          columns: ["name", "custrecord_pr_item_desc", "custrecord_pr_item_last_purchase_price"]
+        });
+
+        s.run().each(function (r) {
+          results.push({
+            name:  r.getValue("name"),
+            desc:  r.getValue("custrecord_pr_item_desc"),
+            price: r.getValue("custrecord_pr_item_last_purchase_price") // ── dùng để auto-fill Est. Rate ──
+          });
+          return results.length < 20;
+        });
+
+        context.response.setHeader({
+          name: "Content-Type",
+          value: "application/json"
+        });
+
+        context.response.write(JSON.stringify(results));
+      } catch (e) {
+        log.error("SUGGEST ERROR", e);
+        context.response.write(JSON.stringify([]));
+      }
+      return;
+    }
+
+    // ─── SIGNED PR ───────────────────────────────────────────
+    if (action === "uploadform") {
+    var html =
+      '<html><body style="font-family:sans-serif;padding:20px;">' +
+      '<h3>Upload Signed PR (PDF only)</h3>' +
+      '<form method="POST" enctype="multipart/form-data" action="' +
+        url.resolveScript({
+          scriptId: "customscriptsvn_pr_approval_sl",
+          deploymentId: "customdeploysvn_pr_approval_sl",
+          params: { action: "uploadsubmit", recId: recId }
+        }) +
+      '">' +
+      '<input type="file" name="file" accept="application/pdf" required /><br/><br/>' +
+      '<button type="submit">Upload</button>' +
+      '</form>' +
+      '</body></html>';
+
+    context.response.write(html);
+    return;
+  }
+
+  if (action === "uploadsubmit") {
+    try {
+      var uploadedFile = context.request.files.file;
+
+      if (!uploadedFile) {
+        context.response.write("No file uploaded");
+        return;
+      }
+
+      // rename file: original + date
+      var now = new Date();
+      var dateStr =
+        now.getFullYear() +
+        ("0" + (now.getMonth() + 1)).slice(-2) +
+        ("0" + now.getDate()).slice(-2) + "_" +
+        ("0" + now.getHours()).slice(-2) +
+        ("0" + now.getMinutes()).slice(-2);
+
+      var originalName = uploadedFile.name.replace(".pdf", "");
+      uploadedFile.name = originalName + "_" + dateStr + ".pdf";
+
+      // set folder
+      uploadedFile.folder = 104606;
+
+      var fileId = uploadedFile.save();
+
+      // save vào PR
+      record.submitFields({
+        type: "purchaserequisition",
+        id: recId,
+        values: {
+          custbody_pr_signed_pdf: fileId
+        }
+      });
+
+      redirect.toRecord({
+        type: "purchaserequisition",
+        id: recId
+      });
+
+    } catch (e) {
+      log.error("UPLOAD ERROR", e);
+      context.response.write("ERROR: " + e.message);
+    }
+    return;
+  }
+  if (action === "downloadsigned") {
+    var pr = record.load({ type: "purchaserequisition", id: recId });
+    var fileId = pr.getValue({ fieldId: "custbody_pr_signed_pdf" });
+
+    if (!fileId) {
+      context.response.write("No file");
+      return;
+    }
+
+    var f = file.load({ id: fileId });
+    context.response.writeFile({ file: f, isInline: false });
+    return;
+  }
+  if (action === "removefile") {
+    record.submitFields({
+      type: "purchaserequisition",
+      id: recId,
+      values: {
+        custbody_pr_signed_pdf: ""
+      }
+    });
+
+    redirect.toRecord({
+      type: "purchaserequisition",
+      id: recId
+    });
+    return;
+  }
+
+  // ─── REMOVE FROM POOL
+  if (action === "removefrompool") {
+    context.response.setHeader({ name: "Content-Type", value: "application/json" });
+    try {
+      var poolItemIdToRemove = context.request.parameters.poolItemId;
+      if (!poolItemIdToRemove) {
+        context.response.write(JSON.stringify({ success: false, message: "Thiếu poolItemId" }));
+        return;
+      }
+
+      var srcsToDel = search.create({
+        type: "customrecord_pr_pool_source",
+        filters: [["custrecord_pps_pool_item", "is", poolItemIdToRemove]],
+        columns: ["internalid"]
+      }).run().getRange({ start: 0, end: 1000 });
+
+      for (var di = 0; di < srcsToDel.length; di++) {
+        record.delete({ type: "customrecord_pr_pool_source", id: srcsToDel[di].getValue("internalid") });
+      }
+      record.delete({ type: "customrecord_pr_pool_item", id: poolItemIdToRemove });
+
+      context.response.write(JSON.stringify({ success: true }));
+    } catch (e) {
+      log.error("REMOVE FROM POOL ERROR", e);
+      context.response.write(JSON.stringify({ success: false, message: e.message }));
+    }
+    return;
+  }
+    redirect.toRecord({ type: "purchaserequisition", id: recId });
+  }
+
+  return { onRequest: onRequest };
+});
