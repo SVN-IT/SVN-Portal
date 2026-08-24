@@ -81,14 +81,7 @@ namespace ViidooDBServiceAPI.Controllers
 
                             row.Cell(7).FormulaA1 = $"F{currentRowIndex}*E{currentRowIndex}";
 
-                            if (!string.IsNullOrEmpty(item.Delivery_date))
-                            {
-                                row.Cell(8).Value = item.Delivery_date;
-                            }
-                            else
-                            {
-                                row.Cell(8).Value = XLCellValue.Empty;
-                            }
+                            row.Cell(8).Value = item.Delivery_date ?? "";
 
                             var rowRange = worksheet.Range(currentRowIndex, 1, currentRowIndex, 8);
                             rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
