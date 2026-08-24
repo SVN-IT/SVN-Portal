@@ -4,6 +4,7 @@ using System.IO;
 using SVNShareLib.Request;
 using SVNShareLib;
 using SVNShareLib.Utils;
+using Newtonsoft.Json;
 
 namespace ViidooDBServiceAPI.Controllers
 {
@@ -24,7 +25,7 @@ namespace ViidooDBServiceAPI.Controllers
             LogService logger = new LogService(svnDBConfig.ConnectionString);
             try
             {
-                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Info, payload.ToString());
+                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Info, JsonConvert.SerializeObject(payload.ToString()).ToString());
                 string templatePath = Path.Combine(_env.ContentRootPath, "templates", "Purchase_Request_Form.xlsx");
 
                 if (!System.IO.File.Exists(templatePath))
