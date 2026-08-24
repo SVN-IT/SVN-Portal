@@ -1654,7 +1654,19 @@ namespace ViidooDBServiceAPI.Controllers
                                 }
                             }
                         }
+
+
                     }
+
+                    var bominfo = new
+                    {
+                        bom = bomUI,
+                        bom_lines = bomLines
+                    };
+
+                    bODataProcessResult.OK = true;
+                    bODataProcessResult.Message = $"BOM infomation for Item code {dataRequest.ItemCode} retrieved successfully";
+                    bODataProcessResult.Content = bominfo;
                 }
                 else
                 {
