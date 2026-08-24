@@ -45,58 +45,60 @@ namespace ViidooDBServiceAPI.Controllers
 
                     if (itemCount > 0)
                     {
-                        // File mẫu có sẵn 3 dòng trống (dòng 8, 9, 10)
                         int defaultTemplateRows = 3;
 
-                        // 2. Nếu số lượng Item > 3, chèn thêm dòng ngay phía trên dòng Total Amount (dòng 11)
                         if (itemCount > defaultTemplateRows)
                         {
+                            // Số dòng cần chèn thêm
                             int rowsToInsert = itemCount - defaultTemplateRows;
-                            // Chèn số dòng thiếu ngay tại vị trí dòng 11 (đẩy dòng Total xuống)
-                            worksheet.Row(11).InsertRowsBelow(rowsToInsert - 1);
+
+                            // Chèn thêm rowsToInsert dòng ngay dưới dòng 10 (đẩy dòng Total 11 xuống)
+                            worksheet.Row(10).InsertRowsBelow(rowsToInsert);
                         }
-                        // Nếu số lượng Item < 3, xóa bớt các dòng trống dư thừa
                         else if (itemCount < defaultTemplateRows)
                         {
+                            // Nếu ít hơn 3 items, xóa bớt các dòng dư thừa
                             int rowsToDelete = defaultTemplateRows - itemCount;
                             worksheet.Rows(startRow + itemCount, startRow + defaultTemplateRows - 1).Delete();
                         }
 
-                        // 3. Lấy dòng chuẩn (dòng 8) làm mẫu để copy format
                         var templateRow = worksheet.Row(startRow);
 
-                        // 4. Đổ dữ liệu và copy định dạng
                         for (int i = 0; i < itemCount; i++)
                         {
                             int currentRowIndex = startRow + i;
                             var row = worksheet.Row(currentRowIndex);
 
-                            // Sao chép định dạng từ dòng mẫu
                             row.Style = templateRow.Style;
 
                             var item = payload.Items![i];
-                            row.Cell(1).Value = i + 1;                             // STT
-                            row.Cell(2).Value = item.Custcol_pr_item ?? "";         // Tên mặt hàng
-                            row.Cell(3).Value = item.Custcol_pr_item_purpose ?? ""; // Mục đích
-                            row.Cell(4).Value = item.Unit ?? "";                    // Đơn vị
-                            row.Cell(5).Value = item.Quantity;                     // Số lượng
-                            row.Cell(6).Value = item.Estimate_rate;                // Đơn giá
+                            row.Cell(1).Value = i + 1;
+                            row.Cell(2).Value = item.Custcol_pr_item ?? "";
+                            row.Cell(3).Value = item.Custcol_pr_item_purpose ?? "";
+                            row.Cell(4).Value = item.Unit ?? "";
+                            row.Cell(5).Value = item.Quantity;
+                            row.Cell(6).Value = item.Estimate_rate;
 
-                            // Công thức tính Thành tiền = Đơn giá * Số lượng
                             row.Cell(7).FormulaA1 = $"F{currentRowIndex}*E{currentRowIndex}";
-                            row.Cell(8).Value = item.Delivery_date ?? "";          // Ngày giao
 
-                            // Kẻ viền từng ô chuẩn khung mẫu
+                            if (!string.IsNullOrEmpty(item.Delivery_date))
+                            {
+                                row.Cell(8).Value = item.Delivery_date;
+                            }
+                            else
+                            {
+                                row.Cell(8).Value = XLCellValue.Empty;
+                            }
+
                             var rowRange = worksheet.Range(currentRowIndex, 1, currentRowIndex, 8);
                             rowRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                             rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                         }
 
-                        // 5. Cập nhật dòng Total Amount (hiện tại nằm ngay dưới dòng item cuối cùng)
+                        // Cập nhật dòng Total Amount
                         int totalRowIndex = startRow + itemCount;
                         var totalRow = worksheet.Row(totalRowIndex);
 
-                        // Cập nhật công thức =SUM(G8:G{lastItemRow})
                         int lastItemRow = totalRowIndex - 1;
                         totalRow.Cell(7).FormulaA1 = $"SUM(G{startRow}:G{lastItemRow})";
                     }
