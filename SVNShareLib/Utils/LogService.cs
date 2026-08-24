@@ -55,7 +55,8 @@ namespace SVNShareLib.Utils
         public enum LogAction
         {
             AutoInputProduction,
-            InputProduction
+            InputProduction,
+            PurchasePrequest
         }
 
         public enum LogType

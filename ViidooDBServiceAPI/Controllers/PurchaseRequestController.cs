@@ -2,6 +2,8 @@
 using ClosedXML.Excel;
 using System.IO;
 using SVNShareLib.Request;
+using SVNShareLib;
+using SVNShareLib.Utils;
 
 namespace ViidooDBServiceAPI.Controllers
 {
@@ -10,16 +12,19 @@ namespace ViidooDBServiceAPI.Controllers
     public class PurchaseRequestController : Controller
     {
         private readonly IWebHostEnvironment _env;
-
-        public PurchaseRequestController(IWebHostEnvironment env)
+        SVNDBConfig svnDBConfig;
+        public PurchaseRequestController(IWebHostEnvironment env, SVNDBConfig svnDBConfig)
         {
             _env = env;
+            this.svnDBConfig = svnDBConfig;
         }
         [HttpPost("generate-excel")]
         public IActionResult GenerateExcel([FromBody] PurchaseRequestPayload payload)
         {
+            LogService logger = new LogService(svnDBConfig.ConnectionString);
             try
             {
+                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Info, payload.ToString());
                 string templatePath = Path.Combine(_env.ContentRootPath, "templates", "Purchase_Request_Form.xlsx");
 
                 if (!System.IO.File.Exists(templatePath))
@@ -116,7 +121,7 @@ namespace ViidooDBServiceAPI.Controllers
                         }
 
                         string base64String = Convert.ToBase64String(fileBytes);
-
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Info, base64String);
                         return Ok(new ExcelResponse
                         {
                             Success = true,
@@ -132,6 +137,53 @@ namespace ViidooDBServiceAPI.Controllers
                     Success = false,
                     Error = ex.Message
                 });
+            }
+        }
+
+        [HttpGet("test-download")]
+        public IActionResult TestDownloadDirect()
+        {
+            try
+            {
+                string templatePath = Path.Combine(_env.ContentRootPath, "templates", "Purchase_Request_Form.xlsx");
+
+                if (!System.IO.File.Exists(templatePath))
+                {
+                    return NotFound($"Không tìm thấy template tại: {templatePath}");
+                }
+
+                using (var workbook = new XLWorkbook(templatePath))
+                {
+                    var worksheet = workbook.Worksheet(1);
+
+                    // Ghi dữ liệu test cứng vào
+                    worksheet.Cell("A5").Value = "Phòng yêu cầu/Requested department: IT TEST DIRECT";
+
+                    worksheet.Cell(8, 1).Value = 1;
+                    worksheet.Cell(8, 2).Value = "Màn hình Dell 27 inch";
+                    worksheet.Cell(8, 3).Value = "Test trực tiếp";
+                    worksheet.Cell(8, 4).Value = "Cái";
+                    worksheet.Cell(8, 5).Value = 2;
+                    worksheet.Cell(8, 6).Value = 5000000;
+                    worksheet.Cell(8, 7).FormulaA1 = "F8*E8";
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        byte[] content = stream.ToArray();
+
+                        // Trả về thẳng file nhị phân đính kèm
+                        return File(
+                            content,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "Test_Direct_Download.xlsx"
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }
