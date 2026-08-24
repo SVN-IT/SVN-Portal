@@ -96,10 +96,26 @@ namespace ViidooDBServiceAPI.Controllers
                     }
 
                     // 6. Xuất file dạng Base64
+                    // 6. Xuất ra Stream -> Base64 (Đã fix lỗi Stream rỗng)
                     using (var stream = new MemoryStream())
                     {
                         workbook.SaveAs(stream);
-                        string base64String = Convert.ToBase64String(stream.ToArray());
+
+                        // Đảm bảo flush toàn bộ bộ nhớ
+                        stream.Flush();
+
+                        // Đưa con trỏ stream về đầu file trước khi Convert
+                        stream.Position = 0;
+
+                        byte[] fileBytes = stream.ToArray();
+
+                        // Kiểm tra nếu byte array bị rỗng (dưới 100 bytes chứng tỏ lưu hỏng)
+                        if (fileBytes.Length < 100)
+                        {
+                            return StatusCode(500, new ExcelResponse { Success = false, Error = "Lỗi khi tạo file Excel: Stream rỗng" });
+                        }
+
+                        string base64String = Convert.ToBase64String(fileBytes);
 
                         return Ok(new ExcelResponse
                         {
