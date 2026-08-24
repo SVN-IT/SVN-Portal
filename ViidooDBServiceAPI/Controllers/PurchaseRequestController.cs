@@ -25,7 +25,7 @@ namespace ViidooDBServiceAPI.Controllers
             LogService logger = new LogService(svnDBConfig.ConnectionString);
             try
             {
-                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Info, JsonConvert.SerializeObject(payload.ToString()).ToString());
+                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Info, JsonConvert.SerializeObject(payload).ToString());
                 string templatePath = Path.Combine(_env.ContentRootPath, "templates", "Purchase_Request_Form.xlsx");
 
                 if (!System.IO.File.Exists(templatePath))
