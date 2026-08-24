@@ -133,6 +133,7 @@ namespace ViidooDBServiceAPI.Controllers
             }
             catch (Exception ex)
             {
+                logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.PurchasePrequest, LogService.LogType.Error, ex.Message);
                 return StatusCode(500, new ExcelResponse
                 {
                     Success = false,
