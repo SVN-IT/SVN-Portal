@@ -49,11 +49,11 @@ namespace ViidooDBServiceAPI.Controllers
 
                         if (itemCount > defaultTemplateRows)
                         {
-                            // Số dòng cần chèn thêm
                             int rowsToInsert = itemCount - defaultTemplateRows;
 
-                            // Chèn thêm rowsToInsert dòng ngay dưới dòng 10 (đẩy dòng Total 11 xuống)
-                            worksheet.Row(10).InsertRowsBelow(rowsToInsert);
+                            // Chèn nguyên dòng CHÍNH XÁC phía trên dòng 11 (dòng Total Amount)
+                            // Việc này sẽ tự động đẩy dòng 11 và toàn bộ khung chữ ký bên dưới xuống đúng rowsToInsert dòng
+                            worksheet.Row(11).InsertRowsAbove(rowsToInsert);
                         }
                         else if (itemCount < defaultTemplateRows)
                         {
@@ -62,6 +62,7 @@ namespace ViidooDBServiceAPI.Controllers
                             worksheet.Rows(startRow + itemCount, startRow + defaultTemplateRows - 1).Delete();
                         }
 
+                        // Lấy dòng 8 làm mẫu để copy format
                         var templateRow = worksheet.Row(startRow);
 
                         for (int i = 0; i < itemCount; i++)
@@ -69,6 +70,7 @@ namespace ViidooDBServiceAPI.Controllers
                             int currentRowIndex = startRow + i;
                             var row = worksheet.Row(currentRowIndex);
 
+                            // Copy định dạng dòng mẫu
                             row.Style = templateRow.Style;
 
                             var item = payload.Items![i];
@@ -88,7 +90,7 @@ namespace ViidooDBServiceAPI.Controllers
                             rowRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
                         }
 
-                        // Cập nhật dòng Total Amount
+                        // Vị trí mới của dòng Total Amount sau khi đẩy dòng
                         int totalRowIndex = startRow + itemCount;
                         var totalRow = worksheet.Row(totalRowIndex);
 
