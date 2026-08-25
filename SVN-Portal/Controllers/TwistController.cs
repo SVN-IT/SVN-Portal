@@ -130,7 +130,7 @@ namespace SVN_Portal.Controllers
             return Json(new { success = true });
         }
 
-        public Dictionary<string, List<string>> GetData()
+        private Dictionary<string, List<string>> GetData()
         {
             // 1. Tìm đường dẫn tuyệt đối đến file JSON trong wwwroot/data
             string filePath = Path.Combine(_env.WebRootPath, "data", "twist_sku_alias.json");

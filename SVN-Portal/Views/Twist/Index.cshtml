@@ -241,15 +241,32 @@
         $('#btnAddPCS').click(function() {
             let pcs = $('#pcsInput').val().trim();
             if (!pcs) return;
-            pcsList.push(pcs);
-            updatePcsList();
-            updatePcsPerBox();
-            $('#pcsInput').val('');
-            showStatus('Scan thành công', true);
-            if (pcsList.length === pcsPerBox) {
-                // Đủ PCS/hộp, thực hiện in tem
-                printLabel();
+
+            if (!productCode) {
+                showStatus('Vui lòng chọn WO trước khi scan PCS!', false);
+                return;
             }
+
+            // Gọi AJAX kiểm tra PCS với productCode
+            $.get('/Twist/ValidatePcs', { productCode: productCode, pcs: pcs }, function(res) {
+                if (res.isValid) {
+                    pcsList.push(pcs);
+                    updatePcsList();
+                    updatePcsPerBox();
+                    $('#pcsInput').val('');
+                    showStatus('Scan thành công', true);
+
+                    // Kiểm tra đủ số lượng 1 hộp
+                    if (pcsList.length === pcsPerBox) {
+                        printLabel();
+                    }
+                } else {
+                    showStatus(res.error, false);
+                    $('#pcsInput').val('');
+                }
+            }).fail(function() {
+                showStatus('Lỗi kết nối máy chủ!', false);
+            });
         });
 
         // Enter để trigger nút
