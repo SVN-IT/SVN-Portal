@@ -184,6 +184,95 @@
     </div>
 </div>
 
+<!-- Modal 1: Nhập mật khẩu -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Xác thực quyền Cấu hình</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="cfgPasswordInput" class="form-label">Nhập mật khẩu:</label>
+                    <input type="password" id="cfgPasswordInput" class="form-control" placeholder="Mật khẩu..." />
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnConfirmPassword" class="btn btn-primary">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Cấu hình Máy in -->
+<div class="modal fade" id="printerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Cấu hình Máy in</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="printerSelect" class="form-label fw-bold text-info">Chọn Máy in:</label>
+                    <select id="printerSelect" class="form-select">
+                        <option value="">-- Chọn máy in --</option>
+                    </select>
+                </div>
+                <hr class="border-secondary" />
+                <form id="printerForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">ID Printer</label>
+                        <input type="text" id="p_ID" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tên Máy in</label>
+                        <input type="text" id="p_Name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">IP Address</label>
+                        <input type="text" id="p_IP" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-none">
+                        <label class="form-label">MAC Address</label>
+                        <input type="text" id="p_MAC" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-none">
+                        <label class="form-label">Port</label>
+                        <input type="text" id="p_Port" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-none">
+                        <label class="form-label">Kích thước (Size)</label>
+                        <select id="p_Size" class="form-select">
+                            <option value="3x3">3x3</option>
+                            <option value="4x6">4x6</option>
+                            <option value="4x8">4x8</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <label class="form-label">Loại (Type)</label>
+                        <input type="text" id="p_Type" class="form-control" />
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <label class="form-label">ZPL Template</label>
+                        <textarea id="p_ZPL" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <label class="form-label">DPL Template</label>
+                        <textarea id="p_DPL" class="form-control" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" id="btnSavePrinter" class="btn btn-success">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -333,5 +422,176 @@
                 }
             });
         }
+
+        const CONFIG_PASSWORD = "123"; // Mật khẩu truy cập
+        let printerList = [];
+
+        // 1. Khởi tạo Modals của Bootstrap
+        const pwdModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+        const prtModal = new bootstrap.Modal(document.getElementById('printerModal'));
+
+        // 2. Lắng nghe sự kiện nhấn phím trên giao diện
+        $(document).keydown(function(e) {
+            // Tránh bắt phím khi người dùng đang nhập dữ liệu vào ô input/textarea
+            if ($(e.target).is('input, textarea, select')) return;
+
+            // Phím "3" (Keycode 51 hoặc Numpad 99)
+            if (e.key === '3' || e.keyCode === 51 || e.keyCode === 99) {
+                e.preventDefault();
+                $('#cfgPasswordInput').val('');
+                pwdModal.show();
+                setTimeout(() => $('#cfgPasswordInput').focus(), 500);
+            }
+        });
+
+        // 3. Xác thực mật khẩu
+        $('#btnConfirmPassword').click(function() {
+            let pwd = $('#cfgPasswordInput').val();
+            if (pwd === CONFIG_PASSWORD) {
+                pwdModal.hide();
+                loadAndOpenPrinterConfig();
+            } else {
+                alert('Mật khẩu không chính xác!');
+                $('#cfgPasswordInput').select();
+            }
+        });
+        $('#cfgPasswordInput').keypress(function(e) { if (e.which === 13) $('#btnConfirmPassword').click(); });
+
+        // 4. Load dữ liệu và hiển thị Popup Máy in
+        // Load dữ liệu và hiển thị Popup Máy in
+        function loadAndOpenPrinterConfig() {
+            $.get('/Twist/GetPrinters', function(data) {
+                if (data && data.error) {
+                    showStatus('Báo lỗi: ' + data.error, false);
+                    return;
+                }
+
+                printerList = data || [];
+                let select = $('#printerSelect');
+                select.empty().append('<option value="">-- Chọn máy in --</option>');
+
+                // Render danh sách máy in
+                printerList.forEach(p => {
+                    select.append(`<option value="${p.iD_Printer}">${p.name_Printer} (${p.iP_Printer})</option>`);
+                });
+
+                // Kiểm tra máy in đã được chọn trước đó trong localStorage
+                let savedConfig = localStorage.getItem('selected_printer_config');
+                if (savedConfig) {
+                    let localObj = JSON.parse(savedConfig);
+                    let selectedId = localObj.iD_Printer;
+
+                    // Gán lại value cho select box
+                    select.val(selectedId);
+
+                    // Ưu tiên lấy thông tin mới nhất từ DB theo ID đã chọn
+                    let currentPrinter = printerList.find(x => x.iD_Printer === selectedId);
+                    if (currentPrinter) {
+                        fillPrinterForm(currentPrinter);
+                    } else {
+                        fillPrinterForm(localObj);
+                    }
+                } else {
+                    $('#printerForm')[0].reset();
+                }
+
+                prtModal.show();
+            }).fail(function(xhr, status, error) {
+                showStatus('Lỗi kết nối máy chủ khi lấy danh sách máy in!', false);
+            });
+        }
+
+        // 5. Bắt sự kiện chọn máy in từ Select Box
+        $('#printerSelect').change(function() {
+            let selectedId = $(this).val();
+
+            if (!selectedId) {
+                // Trường hợp người dùng chọn tùy chọn mặc định "-- Chọn máy in --"
+                $('#printerForm')[0].reset();
+                localStorage.removeItem('selected_printer_config');
+                return;
+            }
+
+            // 1. Tìm thông tin máy in tương ứng trong danh sách từ Server
+            let p = printerList.find(x => x.iD_Printer === selectedId);
+
+            if (p) {
+                // 2. Tự động điền thông tin lên Form
+                fillPrinterForm(p);
+
+                // 3. Lưu ngay thông tin máy in được chọn vào localStorage
+                let selectedConfig = {
+                    iD_Printer: p.iD_Printer,
+                    name_Printer: p.name_Printer,
+                    iP_Printer: p.iP_Printer,
+                    maC_Printer: p.maC_Printer,
+                    port_Printer: p.port_Printer,
+                    size: p.size,
+                    type: p.type,
+                    zpL_Temp: p.zpL_Temp,
+                    dpL_Temp: p.dpL_Temp
+                };
+
+                localStorage.setItem('selected_printer_config', JSON.stringify(selectedConfig));
+                showStatus(`Đã chọn máy in: ${p.name_Printer}`, true);
+            }
+        });
+
+        // Hàm điền dữ liệu vào Form
+        function fillPrinterForm(p) {
+            $('#p_ID').val(p.iD_Printer || '');
+            $('#p_Name').val(p.name_Printer || '');
+            $('#p_IP').val(p.iP_Printer || '');
+            $('#p_MAC').val(p.maC_Printer || '');
+            $('#p_Port').val(p.port_Printer || '');
+            $('#p_Size').val(p.size || '4x6');
+            $('#p_Type').val(p.type || '');
+            $('#p_ZPL').val(p.zpL_Temp || '');
+            $('#p_DPL').val(p.dpL_Temp || '');
+        }
+
+        // 6. Lưu cấu hình vào localStorage VÀ gửi về Controller
+        $('#btnSavePrinter').click(function () {
+            let selectedId = $('#printerSelect').val();
+            if (!selectedId) {
+                alert('Vui lòng chọn máy in!');
+                return;
+            }
+
+            // Gom dữ liệu từ Form thành Object tương ứng với class PrinterConfigData
+            let configData = {
+                ID_Printer: $('#p_ID').val(),
+                Name_Printer: $('#p_Name').val(),
+                IP_Printer: $('#p_IP').val(),
+                MAC_Printer: $('#p_MAC').val(),
+                Port_Printer: $('#p_Port').val(),
+                Size: $('#p_Size').val(),
+                Type: $('#p_Type').val(),
+                ZPL_Temp: $('#p_ZPL').val(),
+                DPL_Temp: $('#p_DPL').val()
+            };
+
+            // Vẫn lưu vào localStorage ở phía Client để truy xuất nhanh lần sau
+            localStorage.setItem('selected_printer_config', JSON.stringify(configData));
+
+            // Gửi dữ liệu về Controller bằng AJAX
+            $.ajax({
+                url: '/Twist/SavePrinterConfig',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(configData),
+                success: function (res) {
+                    if (res.success) {
+                        showStatus(res.message || 'Lưu cấu hình máy in thành công!', true);
+                        prtModal.hide();
+                    } else {
+                        alert('Lỗi lưu vào DB: ' + res.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Lỗi kết nối máy chủ: ' + error);
+                }
+            });
+        });
     </script>
 }

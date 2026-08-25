@@ -1,11 +1,14 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using PrinterServices.Objects;
+using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.Request;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace SVN_Portal.Controllers
 {
@@ -13,11 +16,17 @@ namespace SVN_Portal.Controllers
     {
         private readonly IWebHostEnvironment _env;
         APIConfiguration aPIConfiguration;
+        string connectionString;
+        DBConfiguration dBConfiguration;
 
-        public TwistController(IWebHostEnvironment env, APIConfiguration aPIConfiguration)
+        public TwistController(IWebHostEnvironment env, 
+            APIConfiguration aPIConfiguration,
+            DBConfiguration dBConfiguration)
         {
             _env = env;
             this.aPIConfiguration = aPIConfiguration;
+            this.dBConfiguration = dBConfiguration;
+            connectionString = dBConfiguration.GetConnectionString();
         }
 
         public IActionResult Index()
@@ -151,6 +160,49 @@ namespace SVN_Portal.Controllers
             // string barcode = result["7100406070"][0];
 
             return result;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPrinters()
+        {
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            try
+            {
+                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadList();
+                if (printerConfigDatas != null && printerConfigDatas.Count > 0)
+                {
+                    return Json(printerConfigDatas);
+                }
+                else
+                {
+                    return Json(new { error = "Không tìm thấy máy in trong hệ thống." });
+                }
+            }
+            catch(Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SavePrinterConfig([FromBody] PrinterConfigData printer)
+        {
+            try
+            {
+                if (printer == null || string.IsNullOrEmpty(printer.ID_Printer))
+                {
+                    return Json(new { success = false, message = "Dữ liệu máy in không hợp lệ!" });
+                }
+
+                // TODO: Viết code lưu/cập nhật thông tin máy in vào Database tại đây
+                // Ví dụ: _printerService.SaveOrUpdate(printer);
+
+                return Json(new { success = true, message = "Lưu cấu hình máy in thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 
