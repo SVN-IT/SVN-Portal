@@ -126,11 +126,17 @@
                 <!-- Thông tin WO -->
                 <div id="woInfo" class="wo-info mb-3" style="display:none;">
                     <div class="mb-2">
-                        <span class="fw-bold">WO:</span> <span id="woCode"></span>
-                        <span class="fw-bold ms-4">Mã sản phẩm:</span> <span id="productCode"></span>
-                        <span class="fw-bold ms-4">Tên sản phẩm:</span> <span id="productName"></span>
+                        <div class="form-group">
+                            <span class="fw-bold">WO:</span> <span id="woCode"></span>
+                        </div>
+                        <div class="form-group">
+                            <span class="fw-bold">Mã sản phẩm:</span> <span id="productCode"></span>
+                        </div>
+                        <div class="form-group">
+                            <span class="fw-bold">Tên sản phẩm:</span> <span id="productName"></span>
+                        </div>
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-2 d-none">
                         <span class="fw-bold">Ngày tạo:</span> <span id="woDate"></span>
                         <span class="fw-bold ms-4">Khách hàng:</span> <span id="customer"></span>
                     </div>
@@ -206,7 +212,7 @@
                 totalCount = data.quantity || 0;
                 sku = productCode;
                 completedCount = 0;
-                $('#woCode').text(woCode);
+                $('#woCode').text(data.woCode);
                 $('#productCode').text(productCode);
                 $('#productName').text(productName);
                 $('#woDate').text(data.date || '');

@@ -1,15 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SVN_Portal.Services.Configurations;
+using SVNShareLib;
+using SVNShareLib.Request;
+using System.Linq.Expressions;
+using System.Net.Http.Json;
 
 namespace SVN_Portal.Controllers
 {
     public class TwistController : Controller
     {
         private readonly IWebHostEnvironment _env;
+        APIConfiguration aPIConfiguration;
 
-        public TwistController(IWebHostEnvironment env)
+        public TwistController(IWebHostEnvironment env, APIConfiguration aPIConfiguration)
         {
             _env = env;
+            this.aPIConfiguration = aPIConfiguration;
         }
 
         public IActionResult Index()
@@ -19,12 +27,61 @@ namespace SVN_Portal.Controllers
 
         // Lấy thông tin WO (giả lập)
         [HttpGet]
-        public IActionResult GetWOInfo(string wo)
+        public async Task<IActionResult> GetWOInfo(string wo)
         {
-            // TODO: Lấy từ DB thực tế
-            if (wo == "WO123")
-                return Json(new { productCode = "7100406070", quantity = 100 });
-            return Json(new { error = "WO không hợp lệ" });
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(wo) && !wo.Contains("NM/MO/"))
+                {
+                    wo = $"NM/MO/{wo}";
+                }
+                string error = string.Empty;
+                HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = wo,
+                    LotNumber = ""
+                };
+                var result = await httpClientHelper.PostRequest("api/ViindooConnect/GetWorkOrder", dataRequest, new CancellationToken(false));
+                if (result != null)
+                {
+                    if (result.OK)
+                    {
+                        string woJsonContent = result.Content.ToString();
+                        WorkOrderInfo workOrderInfo = JsonConvert.DeserializeObject<WorkOrderInfo>(woJsonContent);
+
+                        string input = workOrderInfo.OrderInfo["product_name"];
+                        string code = "";
+                        string name = "";
+
+                        int start = input.IndexOf('[');
+                        int end = input.IndexOf(']');
+                        if (start != -1 && end != -1 && end > start)
+                        {
+                            code = input.Substring(start + 1, end - start - 1).Trim();
+                            name = input.Substring(end + 1).Trim();
+                        }
+
+                        int product_qty = workOrderInfo.OrderInfo.ContainsKey("product_qty") ? Convert.ToInt32(workOrderInfo.OrderInfo["product_qty"]) : 0;
+
+                        return Json(new { woCode = wo, productCode = code, quantity = product_qty, productName = name });
+                    }
+                    else
+                    {
+                        error = result.Message;
+                        return Json(new { error = error });
+                    }
+                }
+                else
+                {
+                    error = "Không tìm thấy WO.";
+                    return Json(new { error = error });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         // Lấy số PCS/hộp từ file JSON
@@ -35,6 +92,26 @@ namespace SVN_Portal.Controllers
             if (twistData != null && twistData.TryGetValue(productCode, out var arr))
                 return Json(new { pcsPerBox = int.Parse(arr[2]) });
             return Json(new { error = "Không tìm thấy mã sản phẩm" });
+        }
+
+        [HttpGet]
+        public IActionResult ValidatePcs(string productCode, string pcs)
+        {
+            var twistData = GetData();
+            if (twistData != null && twistData.TryGetValue(productCode, out var arr))
+            {
+                // Kiểm tra mã PCS scan được (arr[0] chứa mã Barcode)
+                if (arr.Count > 0 && arr[0].Equals(pcs, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Json(new { isValid = true });
+                }
+                else
+                {
+                    return Json(new { isValid = false, error = $"Mã PCS không khớp với mã sản phẩm {productCode}!" });
+                }
+            }
+
+            return Json(new { isValid = false, error = "Không tìm thấy mã sản phẩm trong hệ thống!" });
         }
 
         // In tem (giả lập)
