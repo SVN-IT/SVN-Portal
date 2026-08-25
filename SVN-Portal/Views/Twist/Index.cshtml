@@ -1,42 +1,177 @@
 ﻿@{
     ViewData["Title"] = "Tem hộp hàng thường";
 }
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-6" style="color:black">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Tem hộp hàng thường</h4>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        background: #1a2740;
+    }
+
+    .main-card {
+        background: #22335a;
+        border-radius: 18px;
+        box-shadow: 0 0 24px #0004;
+    }
+
+    .wo-input {
+        font-size: 2.2rem;
+        height: 3.5rem;
+    }
+
+    .wo-btn {
+        font-size: 2rem;
+    }
+
+    .wo-info {
+        color: #fff;
+        font-size: 1.3rem;
+    }
+
+    .scan-input {
+        font-size: 2rem;
+        height: 3.5rem;
+    }
+
+    .scan-label {
+        color: #fff;
+        font-size: 1.3rem;
+    }
+
+    .side-card {
+        background: #22335a;
+        border-radius: 18px;
+        color: #fff;
+        min-height: 120px;
+    }
+
+        .side-card.success {
+            border: 3px solid #28a745;
+        }
+
+        .side-card.error {
+            border: 3px solid #dc3545;
+        }
+
+    .side-title {
+        font-size: 1.2rem;
+        color: #8ecfff;
+    }
+
+    .side-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .side-value-small {
+        font-size: 1.5rem;
+    }
+
+    .pcs-list {
+        color: #fff;
+        font-size: 1.1rem;
+    }
+
+    .animate-flash {
+        animation: flash 3s linear;
+    }
+    @@keyframes flash {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 #28a745;
+    }
+
+    50% {
+        box-shadow: 0 0 40px 10px #28a745;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 #28a745;
+    }
+
+    }
+
+    .animate-flash-error {
+        animation: flash-error 3s linear;
+    }
+    @@keyframes flash-error {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 #dc3545;
+    }
+
+    50% {
+        box-shadow: 0 0 40px 10px #dc3545;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 #dc3545;
+    }
+
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <!-- Cột trái: Nhập WO, thông tin WO, scan PCS -->
+        <div class="col-xxl-8 col-xl-8 col-lg-7">
+            <div class="main-card p-4">
+                <!-- Nhập WO -->
+                <div class="mb-3 d-flex align-items-center">
+                    <input id="woInput" type="text" class="form-control wo-input me-3" placeholder="Nhập WO code..." autocomplete="off" />
+                    <button id="btnGetWO" class="btn btn-primary wo-btn px-4">Go</button>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="woInput" class="form-label">Nhập WO code</label>
-                        <div class="input-group">
-                            <input id="woInput" type="text" class="form-control" autocomplete="off" placeholder="Nhập WO code...">
-                            <button id="btnGetWO" class="btn btn-primary" type="button">Lấy thông tin WO</button>
-                        </div>
+                <!-- Thông tin WO -->
+                <div id="woInfo" class="wo-info mb-3" style="display:none;">
+                    <div class="mb-2">
+                        <span class="fw-bold">WO:</span> <span id="woCode"></span>
+                        <span class="fw-bold ms-4">Mã sản phẩm:</span> <span id="productCode"></span>
+                        <span class="fw-bold ms-4">Tên sản phẩm:</span> <span id="productName"></span>
                     </div>
-                    <div id="woInfo" style="display:none;">
-                        <div class="mb-2">
-                            <span class="fw-bold">Mã sản phẩm:</span> <span id="productCode"></span>
-                        </div>
-                        <div class="mb-2">
-                            <span class="fw-bold">Số PCS/hộp:</span> <span id="pcsPerBox"></span>
-                        </div>
-                        <div class="mb-2">
-                            <span class="fw-bold">Tiến độ:</span> <span id="progress"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label for="pcsInput" class="form-label">Nhập mã PCS</label>
-                            <div class="input-group">
-                                <input id="pcsInput" type="text" class="form-control" autocomplete="off" placeholder="Nhập mã PCS...">
-                                <button id="btnAddPCS" class="btn btn-success" type="button">Nhập PCS</button>
-                            </div>
-                        </div>
-                        <ul id="pcsList" class="list-group mb-3"></ul>
-                        <button id="btnPrint" class="btn btn-warning w-100" style="display:none;">In tem &amp; Nhập kết quả</button>
+                    <div class="mb-2">
+                        <span class="fw-bold">Ngày tạo:</span> <span id="woDate"></span>
+                        <span class="fw-bold ms-4">Khách hàng:</span> <span id="customer"></span>
                     </div>
-                    <div id="message" class="mt-3"></div>
+                </div>
+                <!-- Danh sách PCS đã scan -->
+                <div id="pcsList" class="pcs-list mb-3"></div>
+                <!-- Scan PCS -->
+                <div class="mb-2">
+                    <label for="pcsInput" class="scan-label mb-1">Scan mã PCS</label>
+                    <div class="input-group input-group-lg">
+                        <input id="pcsInput" type="text" class="form-control scan-input" autocomplete="off" placeholder="Scan mã..." />
+                        <button id="btnAddPCS" class="btn btn-success wo-btn" type="button">Scan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Cột phải: Thông tin đóng gói, thông báo, tiến độ -->
+        <div class="col-xxl-4 col-xl-4 col-lg-5">
+            <div class="d-flex flex-column gap-4">
+                <!-- Thông báo trạng thái -->
+                <div id="statusCard" class="side-card p-3 text-center">
+                    <div class="side-title mb-2">Trạng thái</div>
+                    <div id="statusIcon" style="font-size:3rem;">🛈</div>
+                    <div id="statusMsg" class="side-value-small mt-2"></div>
+                </div>
+                <!-- Thông tin SKU, PCS, Total -->
+                <div class="side-card p-3">
+                    <div class="side-title mb-2">Thông tin đóng gói</div>
+                    <div>SKU: <span id="sku" class="side-value-small"></span></div>
+                    <div>PCS: <span id="pcsCount" class="side-value"></span></div>
+                    <div>Total: <span id="totalCount" class="side-value-small"></span></div>
+                </div>
+                <!-- Số lượng PCS/hộp -->
+                <div class="side-card p-3">
+                    <div class="side-title mb-2">Số lượng đóng gói</div>
+                    <div id="pcsPerBox" class="side-value">0/0</div>
+                </div>
+                <!-- Số lượng hoàn thành / tổng số -->
+                <div class="side-card p-3">
+                    <div class="side-title mb-2">Số lượng hoàn thành / Tổng số</div>
+                    <div id="progress" class="side-value">0/0</div>
                 </div>
             </div>
         </div>
@@ -44,60 +179,105 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // State
         let pcsList = [];
         let pcsPerBox = 0;
         let productCode = "";
+        let productName = "";
         let woCode = "";
+        let totalCount = 0;
+        let completedCount = 0;
+        let sku = "";
 
+        // Nhập WO
         $('#btnGetWO').click(function() {
             woCode = $('#woInput').val().trim();
             if (!woCode) return;
+            // Lấy thông tin WO
             $.get('/Twist/GetWOInfo', { wo: woCode }, function(data) {
                 if (data.error) {
-                    showMessage(data.error, "danger");
+                    showStatus(data.error, false);
                     return;
                 }
                 productCode = data.productCode;
+                productName = data.productName || '';
+                totalCount = data.quantity || 0;
+                sku = productCode;
+                completedCount = 0;
+                $('#woCode').text(woCode);
                 $('#productCode').text(productCode);
+                $('#productName').text(productName);
+                $('#woDate').text(data.date || '');
+                $('#customer').text(data.customer || '');
+                $('#sku').text(sku);
+                $('#totalCount').text(totalCount);
+                $('#woInfo').show();
                 // Lấy số PCS/hộp
                 $.get('/Twist/GetPcsPerBox', { productCode: productCode }, function(res) {
                     if (res.error) {
-                        showMessage(res.error, "danger");
+                        showStatus(res.error, false);
                         return;
                     }
                     pcsPerBox = res.pcsPerBox;
-                    $('#pcsPerBox').text(pcsPerBox);
                     pcsList = [];
+                    updatePcsList();
+                    updatePcsPerBox();
                     updateProgress();
-                    $('#pcsList').empty();
-                    $('#woInfo').slideDown();
                     $('#pcsInput').focus();
-                    showMessage('');
-                    $('#btnPrint').hide();
+                    showStatus('Sẵn sàng scan PCS', true);
                 });
             });
         });
 
+        // Scan PCS
         $('#btnAddPCS').click(function() {
             let pcs = $('#pcsInput').val().trim();
             if (!pcs) return;
-            // if (pcsList.includes(pcs)) {
-            //     showMessage("PCS đã nhập!", "warning");
-            //     $('#pcsInput').val('');
-            //     return;
-            // }
             pcsList.push(pcs);
-            $('#pcsList').append('<li class="list-group-item">' + pcs + '</li>');
-            updateProgress();
+            updatePcsList();
+            updatePcsPerBox();
             $('#pcsInput').val('');
-            showMessage('');
+            showStatus('Scan thành công', true);
             if (pcsList.length === pcsPerBox) {
-                $('#btnPrint').show();
+                // Đủ PCS/hộp, thực hiện in tem
+                printLabel();
             }
         });
 
-        $('#btnPrint').click(function() {
+        // Enter để trigger nút
+        $('#woInput').keypress(function(e) { if (e.which === 13) $('#btnGetWO').click(); });
+        $('#pcsInput').keypress(function(e) { if (e.which === 13) $('#btnAddPCS').click(); });
+
+        function updatePcsList() {
+            let html = '';
+            pcsList.forEach((pcs, idx) => {
+                html += `<span class="badge bg-info me-2 mb-2" style="font-size:1.3rem;">${pcs}</span>`;
+            });
+            $('#pcsList').html(html);
+        }
+        function updatePcsPerBox() {
+            $('#pcsPerBox').text(`${pcsList.length}/${pcsPerBox}`);
+            $('#pcsCount').text(`${pcsList.length}/${pcsPerBox}`);
+        }
+        function updateProgress() {
+            $('#progress').text(`${completedCount}/${totalCount}`);
+        }
+        function showStatus(msg, isSuccess) {
+            let card = $('#statusCard');
+            let icon = isSuccess ? '✔️' : '❌';
+            let flashClass = isSuccess ? 'animate-flash' : 'animate-flash-error';
+            card.removeClass('success error animate-flash animate-flash-error');
+            card.addClass(isSuccess ? 'success' : 'error');
+            card.addClass(flashClass);
+            $('#statusIcon').text(icon);
+            $('#statusMsg').text(msg);
+            setTimeout(() => {
+                card.removeClass(flashClass);
+            }, 3000);
+        }
+        function printLabel() {
             $.ajax({
                 url: '/Twist/PrintLabel',
                 method: 'POST',
@@ -113,38 +293,22 @@
                             data: JSON.stringify({ wo: woCode, pcsList: pcsList }),
                             success: function(res2) {
                                 if (res2.success) {
-                                    showMessage("Thành công! Đã nhập kết quả sản xuất.", "success");
-                                    resetAll();
+                                    completedCount += pcsList.length;
+                                    updateProgress();
+                                    showStatus("Thành công! Đã nhập kết quả sản xuất.", true);
+                                    pcsList = [];
+                                    updatePcsList();
+                                    updatePcsPerBox();
                                 } else {
-                                    showMessage("Báo lỗi: Nhập kết quả sản xuất thất bại!", "danger");
+                                    showStatus("Báo lỗi: Nhập kết quả sản xuất thất bại!", false);
                                 }
                             }
                         });
                     } else {
-                        showMessage("Báo lỗi: In tem thất bại!", "danger");
+                        showStatus("Báo lỗi: In tem thất bại!", false);
                     }
                 }
             });
-        });
-
-        function updateProgress() {
-            $('#progress').text(pcsList.length + '/' + pcsPerBox);
-        }
-        function showMessage(msg, type) {
-            if (!msg) { $('#message').html(''); return; }
-            let alertType = type || "info";
-            $('#message').html('<div class="alert alert-' + alertType + '">' + msg + '</div>');
-        }
-        function resetAll() {
-            $('#woInput').val('');
-            $('#woInfo').hide();
-            pcsList = [];
-            pcsPerBox = 0;
-            productCode = "";
-            woCode = "";
-            $('#btnPrint').hide();
-            $('#pcsList').empty();
-            updateProgress();
         }
     </script>
 }
