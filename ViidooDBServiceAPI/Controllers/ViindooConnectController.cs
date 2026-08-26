@@ -10,6 +10,7 @@ using SVNShareLib.Request;
 using SVNShareLib.Utils;
 using System;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using ViidooDBServiceAPI.Services;
 
 namespace ViidooDBServiceAPI.Controllers
@@ -1691,6 +1692,119 @@ namespace ViidooDBServiceAPI.Controllers
                 }
             }
             return bODataProcessResult;
+        }
+
+        [Route("GetProgressByName")]
+        [HttpPost]
+        public async Task<BODataProcessResult> GetProgressByName (InputProductDataRequest request)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dbConfig.SessionID) || dbConfig.UserID == 0)
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+                var productionProcessResult = await odooAPIService.GetProgressByName(request.WorkOrderNumber, dbConfig.UserID, dbConfig.SessionID);
+
+                Dictionary<string, string> productionProcess = new Dictionary<string, string>();
+                productionProcess["WOCode"] = productionProcessResult.result[0].name;
+                productionProcess["qty_produced"] = productionProcessResult.result[0].qty_produced;
+                productionProcess["product_qty"] = productionProcessResult.result[0].product_qty;
+
+                bODataProcessResult.OK = true;
+                bODataProcessResult.Content = productionProcess;
+                return bODataProcessResult;
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+
+                if (!string.IsNullOrWhiteSpace(bODataProcessResult.Message) && bODataProcessResult.Message.Contains("Odoo Session Expired"))
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+            }
+            return bODataProcessResult;
+
+        }
+
+        [Route("GetSaleOrderByName")]
+        [HttpPost]
+        public async Task<BODataProcessResult> GetSaleOrderByName(InputProductDataRequest request)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dbConfig.SessionID) || dbConfig.UserID == 0)
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+                var saleOrderResult = await odooAPIService.GetSaleOrderByName(request.WorkOrderNumber, dbConfig.UserID, dbConfig.SessionID);
+
+                Dictionary<string, string> saleOrder = new Dictionary<string, string>();
+                saleOrder["WOCode"] = saleOrderResult.result[0].name;
+                saleOrder["x_ERP_PO"] = saleOrderResult.result[0].x_ERP_PO;
+                saleOrder["x_ERP_Deadline_Shipment"] = saleOrderResult.result[0].x_ERP_Deadline_Shipment;
+                saleOrder["x_LotID"] = saleOrderResult.result[0].x_LotID;
+
+                int[] order_ids = saleOrderResult.result[0].order_line.ToObject<int[]>();
+
+                var orderLine = await odooAPIService.GetSaleOrderLinesByIds(order_ids, dbConfig.UserID, dbConfig.SessionID);
+
+                var productCode = orderLine.result[0].product_id;
+
+                var resultList = orderLine.result;
+
+                // 2. Trích xuất mã trong [...] từ phần tử thứ 2 của product_id (tức index 1)
+                string codesString = string.Join(",", ((IEnumerable<dynamic>)resultList)
+                    .Select(item => (string)item.product_id[1]) // Lấy chuỗi tên có chứa [code]
+                    .Select(fullName => Regex.Match(fullName, @"\[(.*?)\]").Groups[1].Value) // Bắt mã bên trong [...]
+                    .Where(code => !string.IsNullOrEmpty(code))); // Loại bỏ nếu trùng chuỗi rỗng
+
+                saleOrder["productCode"] = codesString;
+
+                bODataProcessResult.OK = true;
+                bODataProcessResult.Content = saleOrder;
+                return bODataProcessResult;
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+
+                if (!string.IsNullOrWhiteSpace(bODataProcessResult.Message) && bODataProcessResult.Message.Contains("Odoo Session Expired"))
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+            }
+            return bODataProcessResult;
+
         }
 
         #region private methods

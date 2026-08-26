@@ -3665,6 +3665,187 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        public async Task<dynamic> GetProgressByName(string name, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 167,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production.progress",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                        new object[] { "name", "=", name }
+                            },
+                            fields = new string[]
+                            {
+                                "state", "date_planned_finished", "qty_produced", "priority",
+                                "name", "id", "forecasted_issue", "product_id", "bom_id",
+                                "company_id", "progress", "product_qty", "product_uom_id",
+                                "date_planned_start", "date_deadline", "display_name"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production.progress/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"GetProgressByName - {json["error"]["code"]?.ToString()} - {json["error"]["message"]?.ToString()} - {json["error"]["data"]?.ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetSaleOrderByName(string name, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 197,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "sale.order",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                        new object[] { "name", "=", name }
+                            },
+                            fields = new string[]
+                            {
+                                "name", "x_ERP_PO", "x_ERP_Deadline_Shipment", "x_LotID", "order_line"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/sale.order/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"GetSaleOrderByName - {json["error"]["code"]?.ToString()} - {json["error"]["message"]?.ToString()} - {json["error"]["data"]?.ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetSaleOrderLinesByIds(int[] ids, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 198,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "sale.order.line",
+                        method = "read",
+                        args = new object[]
+                        {
+                            ids, // Mảng danh sách ID truyền vào [1618, 1619, ...]
+                            new string[]
+                            {
+                                "product_id"
+                            }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/sale.order.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"GetSaleOrderLinesByIds - {json["error"]["code"]?.ToString()} - {json["error"]["message"]?.ToString()} - {json["error"]["data"]?.ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
         public async Task<dynamic> SearhProductTemp(int id, int uid, string sessionId)
         {
             using (var client = new HttpClient())
