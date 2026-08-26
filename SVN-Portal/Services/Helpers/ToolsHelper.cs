@@ -53,6 +53,25 @@ namespace SVN_Portal.Services.Helpers
             }
         }
 
+        public BODataProcessResult PrintTwistLabelByTCP(string zplData, PrinterConfigData printerConfigData, int copies)
+        {
+            string printerIp = printerConfigData.IP_Printer;
+            int port = Convert.ToInt32(printerConfigData.Port_Printer);
+            try
+            {
+                for (int i = 0; i < copies; i++)
+                {
+                    TCP_Printter tcp_Printter = new TCP_Printter();
+                    tcp_Printter.SendToPrinterViaTCP(printerIp, port, zplData);
+                }
+                return new BODataProcessResult { OK = true, Message = "Print successfully over TCP/IP." };
+            }
+            catch (Exception ex)
+            {
+                return new BODataProcessResult { OK = false, Message = "Error connecting via TCP/IP: " + ex.Message };
+            }
+        }
+
         /// <summary>
         /// Hàm in shipping label
         /// </summary>

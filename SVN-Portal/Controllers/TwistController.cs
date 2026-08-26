@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using PrinterServices.Objects;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.Services.Configurations;
+using SVN_Portal.Services.Helpers;
 using SVNShareLib;
 using SVNShareLib.Request;
 using System.Linq.Expressions;
@@ -18,8 +19,10 @@ namespace SVN_Portal.Controllers
         APIConfiguration aPIConfiguration;
         string connectionString;
         DBConfiguration dBConfiguration;
+        ToolsHelper toolsHelper;
 
-        public TwistController(IWebHostEnvironment env, 
+        public TwistController(IWebHostEnvironment env,
+            ToolsHelper toolsHelper,
             APIConfiguration aPIConfiguration,
             DBConfiguration dBConfiguration)
         {
@@ -27,6 +30,7 @@ namespace SVN_Portal.Controllers
             this.aPIConfiguration = aPIConfiguration;
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
+            this.toolsHelper = toolsHelper;
         }
 
         public IActionResult Index()
@@ -125,18 +129,69 @@ namespace SVN_Portal.Controllers
 
         // In tem (giả lập)
         [HttpPost]
-        public IActionResult PrintLabel([FromBody] PrintLabelRequest req)
+        public async Task<IActionResult> PrintLabel([FromBody] PrintLabelRequest req)
         {
-            // TODO: Xử lý in tem
-            return Json(new { success = true });
+            SVN_label_templateDataPortal dataPortal = new SVN_label_templateDataPortal(connectionString);
+            try
+            {
+                var labelInfo = await dataPortal.ReadByID(req.productCode, "Box", "Twist");
+                if (labelInfo == null) 
+                {
+                    return Json(new { success = false, error = $"Không có mẫu tem để in cho partNumber {req.productCode}" });
+                }
+
+                var printResult = toolsHelper.PrintTwistLabelByTCP(labelInfo.zplData, req.printerConfig, 1);
+                if (printResult == null)
+                {
+                    return Json(new { success = false, error = "Print failed" });
+                }
+
+                if (!printResult.OK) 
+                {
+                    return Json(new { success = false, error = printResult.Message });
+                }    
+
+                // TODO: Xử lý in tem
+                return Json(new { success = true });
+            }
+            catch (Exception ex) 
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+            
         }
 
         // Nhập kết quả sản xuất (giả lập)
         [HttpPost]
-        public IActionResult SubmitProduction([FromBody] InputResult req)
+        public async Task<IActionResult> SubmitProduction([FromBody] InputResult req)
         {
-            // TODO: Lưu kết quả sản xuất
-            return Json(new { success = true });
+            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            try
+            {
+                InputProductDataRequest dataRequest = new InputProductDataRequest()
+                {
+                    WorkOrderNumber = req.wo,
+                    LotNumber = "",
+                    Quality = req.productQty
+                };
+                var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
+                if(result == null)
+                {
+                    return Json(new { success = false, error = "Input production result failed" });
+                }
+
+                if (!result.OK)
+                {
+                    return Json(new { success = false, error = result.Message });
+                }
+
+                // TODO: Lưu kết quả sản xuất
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
         }
 
         private Dictionary<string, List<string>> GetData()
@@ -168,7 +223,7 @@ namespace SVN_Portal.Controllers
             SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
             try
             {
-                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadList();
+                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadListByType("Twist"); //ReadListByType("Twist")
                 if (printerConfigDatas != null && printerConfigDatas.Count > 0)
                 {
                     return Json(printerConfigDatas);

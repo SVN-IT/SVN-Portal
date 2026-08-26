@@ -423,12 +423,12 @@
                                     updatePcsList();
                                     updatePcsPerBox();
                                 } else {
-                                    showStatus("Báo lỗi: Nhập kết quả sản xuất thất bại!", false);
+                                    showStatus(res2.error, false);
                                 }
                             }
                         });
                     } else {
-                        showStatus("Báo lỗi: In tem thất bại!", false);
+                        showStatus(res.error, false);
                     }
                 }
             });
