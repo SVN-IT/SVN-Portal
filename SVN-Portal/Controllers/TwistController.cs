@@ -133,7 +133,7 @@ namespace SVN_Portal.Controllers
 
         // Nhập kết quả sản xuất (giả lập)
         [HttpPost]
-        public IActionResult SubmitProduction([FromBody] PrintLabelRequest req)
+        public IActionResult SubmitProduction([FromBody] InputResult req)
         {
             // TODO: Lưu kết quả sản xuất
             return Json(new { success = true });
@@ -208,7 +208,13 @@ namespace SVN_Portal.Controllers
 
     public class PrintLabelRequest
     {
+        public string productCode { get; set; }
+        public PrinterConfigData printerConfig { get; set; }
+    }
+
+    public class InputResult
+    {
         public string wo { get; set; }
-        public List<string> pcsList { get; set; }
+        public int productQty { get; set; }
     }
 }

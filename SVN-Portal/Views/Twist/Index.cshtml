@@ -328,6 +328,13 @@
 
         // Scan PCS
         $('#btnAddPCS').click(function() {
+            // 1. Kiểm tra nếu đã đủ số lượng đơn hàng thì dừng luôn
+            if (completedCount >= totalCount) {
+                showStatus('Đã hoàn thành WO', false);
+                $('#pcsInput').val('');
+                return;
+            }
+
             let pcs = $('#pcsInput').val().trim();
             if (!pcs) return;
 
@@ -390,11 +397,15 @@
             }, 3000);
         }
         function printLabel() {
+            // Lấy thông tin máy in đã cấu hình từ localStorage (nếu cần gửi kèm)
+            let savedPrinter = localStorage.getItem('selected_printer_config');
+            let printerConfig = savedPrinter ? JSON.parse(savedPrinter) : null;
+
             $.ajax({
                 url: '/Twist/PrintLabel',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ wo: woCode, pcsList: pcsList }),
+                data: JSON.stringify({ productCode: productCode, printerConfig: printerConfig }),
                 success: function(res) {
                     if (res.success) {
                         // Gọi nhập kết quả sản xuất
@@ -402,7 +413,7 @@
                             url: '/Twist/SubmitProduction',
                             method: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({ wo: woCode, pcsList: pcsList }),
+                            data: JSON.stringify({ wo: woCode, productQty: pcsList.length }),
                             success: function(res2) {
                                 if (res2.success) {
                                     completedCount += pcsList.length;
