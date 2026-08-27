@@ -6,6 +6,8 @@ using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
 using SVNShareLib;
+using SVNShareLib.DAL;
+using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
@@ -165,7 +167,8 @@ namespace SVN_Portal.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitProduction([FromBody] InputResult req)
         {
-            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            //HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
             try
             {
                 InputProductDataRequest dataRequest = new InputProductDataRequest()
@@ -174,16 +177,34 @@ namespace SVN_Portal.Controllers
                     LotNumber = "",
                     Quality = req.productQty
                 };
-                var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
-                if(result == null)
+                SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
+                productDataUI.wo_code = req.wo;
+                productDataUI.serial_code = "";
+                productDataUI.master_wo_code = req.wo;
+                productDataUI.product_qty = req.productQty;
+                productDataUI.product_type = "none";
+                productDataUI.date_finished = DateTime.Now;
+                productDataUI.state = "Used";
+                productDataUI.API_function = $"{aPIConfiguration.BaseURL}{aPIConfiguration.InputProductionByWorkOrderv1URL}";
+                productDataUI.API_parameters = JsonConvert.SerializeObject(dataRequest);
+                productDataUI.status = "Not synchronized";
+                var insertResult = await dataPortal.InsertAsync(productDataUI);
+                if (insertResult <= 0)
                 {
                     return Json(new { success = false, error = "Input production result failed" });
                 }
 
-                if (!result.OK)
-                {
-                    return Json(new { success = false, error = result.Message });
-                }
+
+                //var result = await httpClientHelper.PostRequest(aPIConfiguration.InputProductionByWorkOrderv1URL, dataRequest, new CancellationToken(false));
+                //if(result == null)
+                //{
+                //    return Json(new { success = false, error = "Input production result failed" });
+                //}
+
+                //if (!result.OK)
+                //{
+                //    return Json(new { success = false, error = result.Message });
+                //}
 
                 // TODO: Lưu kết quả sản xuất
                 return Json(new { success = true });
