@@ -259,6 +259,53 @@ namespace SVN_Portal.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        // Lấy danh sách mã sản phẩm từ file json để hiển thị lên Selectbox in lại
+        [HttpGet]
+        public IActionResult GetProductCodes()
+        {
+            var twistData = GetData();
+            if (twistData != null)
+            {
+                var keys = twistData.Keys.ToList();
+                return Json(keys);
+            }
+            return Json(new List<string>());
+        }
+
+        // Action xử lý in lại tem
+        [HttpPost]
+        public async Task<IActionResult> PrintLabelReprint([FromBody] PrintLabelReprintRequest req)
+        {
+            SVN_label_templateDataPortal dataPortal = new SVN_label_templateDataPortal(connectionString);
+            try
+            {
+                // Lấy mẫu tem dựa trên productCode, loại tem (Box/Carton)
+                var labelInfo = await dataPortal.ReadByID(req.productCode, req.labelType, "Twist");
+                if (labelInfo == null)
+                {
+                    return Json(new { success = false, error = $"Không có mẫu tem {req.labelType} để in cho productCode {req.productCode}" });
+                }
+
+                // Gọi hàm in với số lượng bản in req.printQty
+                var printResult = toolsHelper.PrintTwistLabelByTCP(labelInfo.zplData, req.printerConfig, req.printQty);
+                if (printResult == null)
+                {
+                    return Json(new { success = false, error = "Print failed" });
+                }
+
+                if (!printResult.OK)
+                {
+                    return Json(new { success = false, error = printResult.Message });
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
     }
 
     public class PrintLabelRequest
@@ -271,5 +318,13 @@ namespace SVN_Portal.Controllers
     {
         public string wo { get; set; }
         public int productQty { get; set; }
+    }
+
+    public class PrintLabelReprintRequest
+    {
+        public string productCode { get; set; }
+        public string labelType { get; set; }
+        public int printQty { get; set; }
+        public PrinterConfigData printerConfig { get; set; }
     }
 }
