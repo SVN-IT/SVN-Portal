@@ -78,8 +78,9 @@ namespace SVN_Portal.Controllers
                         }
 
                         int product_qty = workOrderInfo.OrderInfo.ContainsKey("product_qty") ? Convert.ToInt32(workOrderInfo.OrderInfo["product_qty"]) : 0;
+                        int product_id = workOrderInfo.OrderInfo.ContainsKey("product_id") ? Convert.ToInt32(workOrderInfo.OrderInfo["product_id"]) : 0;
 
-                        return Json(new { woCode = wo, productCode = code, quantity = product_qty, productName = name });
+                        return Json(new { woCode = wo, productCode = code, quantity = product_qty, productName = name, product_id = product_id });
                     }
                     else
                     {
@@ -179,6 +180,7 @@ namespace SVN_Portal.Controllers
                 };
                 SVN_ProductionInputLogUI productDataUI = new SVN_ProductionInputLogUI();
                 productDataUI.wo_code = req.wo;
+                productDataUI.product_id = req.productId;
                 productDataUI.serial_code = "";
                 productDataUI.master_wo_code = req.wo;
                 productDataUI.product_qty = req.productQty;
@@ -339,6 +341,7 @@ namespace SVN_Portal.Controllers
     {
         public string wo { get; set; }
         public int productQty { get; set; }
+        public int productId { get; set; }
     }
 
     public class PrintLabelReprintRequest

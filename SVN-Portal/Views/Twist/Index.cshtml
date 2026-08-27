@@ -159,6 +159,7 @@
                     </div>
                     <div class="mb-2 d-none">
                         <span class="fw-bold">Ngày tạo:</span> <span id="woDate"></span>
+                        <span class="fw-bold">product_id</span> <span id="product_id"></span>
                         <span class="fw-bold ms-4">Khách hàng:</span> <span id="customer"></span>
                     </div>
                 </div>
@@ -372,6 +373,9 @@
                 $('#customer').text(data.customer || '');
                 $('#sku').text(sku);
                 $('#totalCount').text(totalCount);
+
+                $('#product_id').text(data.product_id);
+
                 $('#woInfo').show();
                 // Lấy số PCS/hộp
                 $.get('/Twist/GetPcsPerBox', { productCode: productCode }, function(res) {
@@ -460,6 +464,7 @@
         function printLabel() {
             let savedPrinter = localStorage.getItem('selected_printer_config');
             let printerConfig = savedPrinter ? JSON.parse(savedPrinter) : null;
+            let productId = $('#product_id').text().trim();
 
             $.ajax({
                 url: '/Twist/PrintLabel',
@@ -472,7 +477,7 @@
                             url: '/Twist/SubmitProduction',
                             method: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({ wo: woCode, productQty: pcsList.length }),
+                            data: JSON.stringify({ wo: woCode, productQty: pcsList.length, productId: productId }),
                             success: function(res2) {
                                 if (res2.success) {
                                     completedCount += pcsList.length;
