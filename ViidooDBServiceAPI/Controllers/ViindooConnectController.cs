@@ -977,6 +977,7 @@ namespace ViidooDBServiceAPI.Controllers
         [HttpPost]
         public async Task<BODataProcessResult> ReSynchFailedProductionResultDataToViindoo(SynchPDDataRequest dataRequest)
         {
+            LogService logger = new LogService(svnDBConfig.ConnectionString);
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             List<BODataProcessResult> SyncBODataResults = new List<BODataProcessResult>();
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(svnDBConfig.ConnectionString);
@@ -1012,6 +1013,8 @@ namespace ViidooDBServiceAPI.Controllers
                             SyncBODataResults.Add(inputResult);
                         }
                         var updateResult = await dataPortal.UpdateAsync(item);
+
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, $"{item.id} - {item.wo_code} - {item.status} - {inputResult.Message}");
                     }
                     var successCount = SyncBODataResults.Count(x => x.OK);
                     var failedCount = SyncBODataResults.Count(x => !x.OK);
