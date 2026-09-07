@@ -5119,9 +5119,9 @@
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
     "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
   },
   {
     "Operation": "Walter-WSS03-00536",
@@ -5142,9 +5142,9 @@
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
     "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
   },
   {
     "Operation": "Walter-WSS03-00534",
@@ -5165,9 +5165,9 @@
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
     "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
   },
   {
     "Operation": "Walter-WSS03-00535",
@@ -5188,9 +5188,9 @@
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
+    "PDName": "Nguyễn Văn Hướng (SVN0005)",
     "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
   },
   {
     "Operation": "Twist-7100414487",
@@ -5515,29 +5515,6 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
   },
   {
-    "Operation": "Twist-7100414398",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Twist",
-    "WCType": "FG",
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 10,
-    "Produce_id": [
-      1468
-    ],
-    "ColWidth": 6,
-    "QCName": "Bùi Thị Hằng (SVN0902)",
-    "PDName": "Nguyễn Văn Hướng (SVN0005)",
-    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/272/5725ab25-72ef-44f2-8e2e-6efcdc1982b9"
-  },
-  {
     "Operation": "Twist-7100414466",
     "Name": "",
     "Price": 0,
@@ -5814,11 +5791,11 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
   },
   {
-    "Operation": "Walter-810114366905",
+    "Operation": "Walter-WSS03-00607",
     "Name": "",
     "Price": 3.02,
     "MasterOperation": "Walter",
-    "WCType": "FG",
+    "WCType": "WIP",
     "WC": [
       {
         "WCName": "FG",
@@ -5828,7 +5805,7 @@
     ],
     "StoreID": 3,
     "Produce_id": [
-      1567
+      1705
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
@@ -5837,11 +5814,11 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
   },
   {
-    "Operation": "Walter-810114366899",
+    "Operation": "Walter-WSS03-00608",
     "Name": "",
     "Price": 3.02,
     "MasterOperation": "Walter",
-    "WCType": "FG",
+    "WCType": "WIP",
     "WC": [
       {
         "WCName": "FG",
@@ -5851,7 +5828,30 @@
     ],
     "StoreID": 3,
     "Produce_id": [
-      1565
+      1702
+    ],
+    "ColWidth": 4,
+    "QCName": "Vũ Thị Lan Anh (SVN0334)",
+    "PDName": "Vũ Văn Công (SVN0003)",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+  },
+  {
+    "Operation": "Walter-WSS03-00609",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1708
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
@@ -5883,6 +5883,75 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
   },
   {
+    "Operation": "Walter-810114366905",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1567
+    ],
+    "ColWidth": 4,
+    "QCName": "Vũ Thị Lan Anh (SVN0334)",
+    "PDName": "Vũ Văn Công (SVN0003)",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+  },
+  {
+    "Operation": "Walter-WSS03-00570",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1488
+    ],
+    "ColWidth": 4,
+    "QCName": "Vũ Thị Lan Anh (SVN0334)",
+    "PDName": "Vũ Văn Công (SVN0003)",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+  },
+  {
+    "Operation": "Walter-WSS03-00569",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1564
+    ],
+    "ColWidth": 4,
+    "QCName": "Vũ Thị Lan Anh (SVN0334)",
+    "PDName": "Vũ Văn Công (SVN0003)",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+  },
+  {
     "Operation": "Walter-810114366912",
     "Name": "",
     "Price": 3.02,
@@ -5906,75 +5975,6 @@
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
   },
   {
-    "Operation": "Walter-WSS03-00572",
-    "Name": "",
-    "Price": 3.02,
-    "MasterOperation": "Walter",
-    "WCType": "WIP",
-    "WC": [
-      {
-        "WCName": "WIP",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [
-      1490
-    ],
-    "ColWidth": 4,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
-  },
-  {
-    "Operation": "Walter-WSS03-00570",
-    "Name": "",
-    "Price": 3.02,
-    "MasterOperation": "Walter",
-    "WCType": "WIP",
-    "WC": [
-      {
-        "WCName": "WIP",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [
-      1488
-    ],
-    "ColWidth": 4,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
-  },
-  {
-    "Operation": "Walter-WSS03-00569",
-    "Name": "",
-    "Price": 3.02,
-    "MasterOperation": "Walter",
-    "WCType": "WIP",
-    "WC": [
-      {
-        "WCName": "WIP",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "StoreID": 3,
-    "Produce_id": [
-      1564
-    ],
-    "ColWidth": 4,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
-  },
-  {
     "Operation": "Walter-WSS03-00567",
     "Name": "",
     "Price": 3.02,
@@ -5982,7 +5982,7 @@
     "WCType": "WIP",
     "WC": [
       {
-        "WCName": "WIP",
+        "WCName": "FG",
         "Produce_id": [],
         "Top_row": 5
       }
@@ -5990,6 +5990,52 @@
     "StoreID": 3,
     "Produce_id": [
       1561
+    ],
+    "ColWidth": 4,
+    "QCName": "Vũ Thị Lan Anh (SVN0334)",
+    "PDName": "Vũ Văn Công (SVN0003)",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+  },
+  {
+    "Operation": "Walter-810114362938",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "FG",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1540
+    ],
+    "ColWidth": 4,
+    "QCName": "Vũ Thị Lan Anh (SVN0334)",
+    "PDName": "Vũ Văn Công (SVN0003)",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714"
+  },
+  {
+    "Operation": "Walter-WSS03-00594",
+    "Name": "",
+    "Price": 3.02,
+    "MasterOperation": "Walter",
+    "WCType": "WIP",
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "StoreID": 3,
+    "Produce_id": [
+      1541
     ],
     "ColWidth": 4,
     "QCName": "Vũ Thị Lan Anh (SVN0334)",
