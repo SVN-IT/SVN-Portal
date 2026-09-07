@@ -998,7 +998,7 @@ namespace ViidooDBServiceAPI.Controllers
                     {
                         InputProductDataRequest request = new InputProductDataRequest();
                         request = JsonConvert.DeserializeObject<InputProductDataRequest>(item.API_parameters);
-                        var inputResult = await InputProductionResultToViindoo(request);
+                        var inputResult = await InputProductionResultToViindooV1(request);
                         if (inputResult.OK)
                         {
                             item.status = "synch success";
