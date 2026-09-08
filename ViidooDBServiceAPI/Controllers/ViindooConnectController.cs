@@ -981,7 +981,6 @@ namespace ViidooDBServiceAPI.Controllers
             BODataProcessResult bODataProcessResult = new BODataProcessResult();
             List<BODataProcessResult> SyncBODataResults = new List<BODataProcessResult>();
             SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(svnDBConfig.ConnectionString);
-            
 
             try
             {
@@ -1028,6 +1027,96 @@ namespace ViidooDBServiceAPI.Controllers
                     {
                         bODataProcessResult.OK = true;
                         bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công";
+                    }
+                }
+                else
+                {
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Không tìm thấy dữ liệu cần đồng bộ";
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+
+                if (!string.IsNullOrWhiteSpace(bODataProcessResult.Message) && bODataProcessResult.Message.Contains("Odoo Session Expired"))
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+            }
+            return bODataProcessResult;
+        }
+
+        [Route("SynchPDResultDataToViindoo")]
+        [HttpPost]
+        public async Task<BODataProcessResult> SynchPDResultDataToViindoo(SynchPDDataRequest dataRequest)
+        {
+            LogService logger = new LogService(svnDBConfig.ConnectionString);
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            List<BODataProcessResult> SyncBODataResults = new List<BODataProcessResult>();
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(svnDBConfig.ConnectionString);
+
+            try
+            {
+                DateTime fromDate = dataRequest.FromDate;
+                DateTime toDate = dataRequest.ToDate;
+                if(toDate <= DateTime.MinValue)
+                {
+                    toDate = DateTime.Today.AddHours(23).AddMinutes(59).AddSeconds(59);
+                }
+
+                var inputtedData = await dataPortal.GetCountDataFromDateToDateFinishedAsync(fromDate, toDate, dataRequest.Status, dataRequest.CountRows);
+                //var inputtedData = await dataPortal.GetDataByIdAsync(82);
+                if (inputtedData != null)
+                {
+                    //bỏ hết các trường hợp serial_code bị trống
+                    inputtedData = inputtedData.Where(x => !string.IsNullOrWhiteSpace(x.serial_code)).ToList();
+
+                    foreach (var item in inputtedData)
+                    {
+                        InputProductDataRequest request = new InputProductDataRequest();
+                        request = JsonConvert.DeserializeObject<InputProductDataRequest>(item.API_parameters);
+                        var inputResult = await InputProductionResultToViindooV1(request);
+                        if (inputResult.OK)
+                        {
+                            item.status = "synch success";
+                            inputResult.Message = item.id + " - " + item.wo_code + " - " + inputResult.Message;
+                            inputResult.Content = item;
+                            SyncBODataResults.Add(inputResult);
+                        }
+                        else
+                        {
+                            item.status = "synch failed";
+                            inputResult.Message = item.id + " - " + item.wo_code + " - " + inputResult.Message;
+                            inputResult.Content = item;
+                            SyncBODataResults.Add(inputResult);
+                        }
+                        var updateResult = await dataPortal.UpdateAsync(item);
+
+                        logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, $"{item.id} - {item.wo_code} - {item.status} - {inputResult.Message}");
+                    }
+                    var successCount = SyncBODataResults.Count(x => x.OK);
+                    var failedCount = SyncBODataResults.Count(x => !x.OK);
+                    if (failedCount > 0)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công và {failedCount} bản ghi lỗi";
+                        bODataProcessResult.NumOfRow = inputtedData.Count;
+                        bODataProcessResult.Content = SyncBODataResults;
+                    }
+                    else
+                    {
+                        bODataProcessResult.OK = true;
+                        bODataProcessResult.Message = $"{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")} | Đồng bộ hoàn tất với {successCount} bản ghi thành công";
+                        bODataProcessResult.NumOfRow = inputtedData.Count;
+                        bODataProcessResult.Content = SyncBODataResults;
                     }
                 }
                 else

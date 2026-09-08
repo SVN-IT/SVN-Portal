@@ -10,6 +10,7 @@ namespace SVNShareLib.Request
     {
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
+        public int CountRows { get; set; }
         public string Status { get; set; }
     }
 }
