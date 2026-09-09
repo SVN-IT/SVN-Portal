@@ -99,7 +99,7 @@ namespace SVN_Portal.Controllers
 
                 //Lấy thông tin lệnh sản xuất cha
                 WorkOrderInfo nextWorkOrderInfo = null;
-                if (workOrderInfo.OrderInfo["origin"] != "False")
+                if (workOrderInfo.OrderInfo.ContainsKey("origin") && workOrderInfo.OrderInfo["origin"] != "False")
                 {
                     BODataProcessResult nextWOBODataProcessResult = await GetWorkOrderInfo(workOrderInfo.OrderInfo["origin"], false);
                     if (nextWOBODataProcessResult.OK)
