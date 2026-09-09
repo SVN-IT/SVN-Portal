@@ -1,0 +1,863 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@{
+    Layout = "~/Views/Shared/_ToolsLayout.cshtml";
+    ViewData["Title"] = "Nhập kết quả sản xuất";
+    string masterWorkOrder = ViewBag.MasterWorkOrder as string ?? "";
+}
+<style>
+    .box-square {
+        width: 100%; /* chiếm hết chiều ngang phần tử cha */
+        aspect-ratio: 1 / 1; /* đảm bảo luôn vuông (width : height = 1:1) */
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .locked-lot-input {
+        background-color: #e9ecef !important;
+        color: #495057 !important;
+        cursor: not-allowed;
+    }
+</style>
+<form method="post">
+    <div class="row">
+        <div class="col-12 col-md-12">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkScanCode">
+                        <label class="form-check-label" for="checkScanCode">MPQ/ 最低生产数量</label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkCreateLot">
+                        <label class="form-check-label" for="checkCreateLot">Auto Create lot/ 自动创建批次</label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkPrintLabel">
+                        <label class="form-check-label" for="checkPrintLabel">Auto Print Label/ 自动打印标签</label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkPreInputLot">
+                        <label class="form-check-label" for="checkPreInputLot">Pre-input Lot / 预先输入批次</label>
+                    </div>
+                    <div id="modalInputQuantityCode" class="modal" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" style="color:#455a64!important">Scan the serial number to enter the quantity/ 扫描序列号以输入数量。</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input id="txtInputQuantityCode" type="text" name="txtInputQuantityCode" class="form-control" />
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary">Confirm/ 确认</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close/ 关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="modalPreInputLot" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" style="color:#455a64!important">Pre-input Component Lot / 预先输入组件批次</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="preInputLotForm" style="background-color: black !important"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" onclick="confirmPreInputLots()">Confirm & Save / 确认并保存</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / 关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Work Order/ 工作单</label>
+                        <input id="txtWorkOrderCode" type="text" name="workOrderCode" class="form-control" value="@masterWorkOrder" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group" style="margin-top:33px">
+                        <button id="btnSearch" class="btn btn-success" type="button" onclick="GetProductByWorkOrder()"><i class="fa fa-pencil"></i> Search/ 搜索</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4 d-none">
+            <h4>Key 1 (Numeric keypad) - ✅ Scan serial number to enter quantity</h4>
+            <h4>Key 2 (Numeric keypad) - Enter new production order</h4>
+            <h4>Key 3 (Numeric keypad) - Open label printing page</h4>
+            <h4>Key 4 (Numeric keypad) - Open scan page</h4>
+            <h4>Key F5 - Reset web page</h4>
+        </div>
+        <div class="col-12 col-md-3">
+            <div id="divResultLight" class="box-square bg-light"></div>
+        </div>
+        <div id="divWorkOrder" class="row col-12 col-md-9">
+        </div>
+    </div>
+</form>
+
+<script>
+    var product_tracking = "none";
+
+    // Hiện loader
+    function showLoader() {
+        $("#app-loader").css("display", "flex");
+    }
+
+    // Ẩn loader
+    function hideLoader() {
+        $("#app-loader").css("display", "none");
+    }
+
+    // Hàm generate code
+    function generateUniqueCode(prefix = 'CODE') {
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `${prefix}-${timestamp}-${randomStr}`;
+    }
+
+    function printProductLabel(){
+        var serialInput = ($('input[name="Serial"]').val() || '').trim();
+
+        if (!serialInput) {
+            alert('Please input Serial!');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("PrintSerial", "Production")',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({ serial: serialInput }),
+            dataType: 'json',
+            success: function (response) {
+                if (!response.success) {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Error printing label.");
+            }
+        });
+    }
+
+    async function checkAutoFillComponent(productId, componentProductId) {
+        try {
+            const res = await $.ajax({
+                url: '/Production/CheckAutoFillComponentByFGLotSerial',
+                type: 'POST',
+                data: {
+                    product_id: productId,
+                    component_product_id: componentProductId
+                }
+            });
+            return res.result;
+        } catch (error) {
+            console.error("Lỗi API:", error);
+            return false;
+        }
+    }
+
+    // 1. Tải WO từ Backend (dùng POST)
+    function GetProductByWorkOrder() {
+        var woCode = ($('#txtWorkOrderCode').val() || '').trim();
+        showLoader();
+        if (!woCode) {
+            hideLoader();
+            alert("Vui lòng nhập mã Work Order!");
+            return;
+        }
+
+        $.ajax({
+            url: '/Production/GetProductByWorkOrder',
+            type: 'POST',
+            data: { workOrderCode: woCode },
+            success: function (response) {
+                if (response.result === false) {
+                    alert(response.message);
+                    $('#divWorkOrder').html('');
+                } else {
+                    $('#divWorkOrder').html(response.message);
+                    product_tracking = response.product_tracking;
+
+                    if ($('#checkPreInputLot').is(':checked')) {
+                        handlePreInputLotModal();
+                    } else {
+                        applySavedLotsFromStorage();
+                    }
+
+                    if (product_tracking === "serial" || product_tracking === "lot") {
+                        $('input[name="Serial"]').focus();
+                    } else {
+                        $('input[name="Quantity"]').focus();
+                    }
+                }
+            },
+            error: function () {
+                alert("Lỗi kết nối máy chủ khi tra cứu Work Order!");
+            },
+            complete: function () {
+                hideLoader();
+            }
+        });
+    }
+
+    function CheckLotSerialComponemt(serialCValue, productId, masterMOName, hasTracking, productName){
+        return $.ajax({
+            url: '/Production/CheckLotSerialComponemt',
+            type: 'POST',
+            data: {
+                serial: serialCValue,
+                productId: productId,
+                masterMOName: masterMOName,
+                hasTracking: hasTracking,
+                productName: productName
+            }
+        });
+    }
+
+    let isRunning = false;
+    async function InputProductionResult(){
+        if (isRunning) {
+            console.warn("Đang chạy rồi, bỏ qua...");
+            return;
+        }
+
+
+        let formData = {
+            name: $('input[name="Name"]').val(),
+            subName: $('input[name="SubName"]').val(),
+            quantity: $('input[name="Quantity"]').val(),
+            productTracking: $('input[name="ProductTracking"]').val(),
+            serial: $('input[name="Serial"]').val(),
+            productID: $('input[name="ProductID"]').val(),
+            totalQuantity: $('input[name="TotalQuantity"]').val(),
+            products: []
+        };
+
+        // Duyệt qua từng dòng tr bằng vòng lặp for...of
+        let rows = $(".table tbody tr").toArray();
+        for (let row of rows) {
+            let $row = $(row);
+            let inputs = $row.find("input");
+
+            let productId = $(inputs[0]).val();
+            let hasTracking = $(inputs[1]).val();
+            let serialCode = $(inputs[2]).val();
+
+            // Nếu là linh kiện Lot -> Validate trực tiếp bằng ô input (.serial-input)
+            if (hasTracking === "lot") {
+                let $lotInput = $row.find('.serial-input');
+                let productName = $lotInput.closest('td').find('.product_name').val();
+                var woCode = ($('#txtWorkOrderCode').val() || '').trim();
+
+                let isValid = await CheckLotSerialComponemt(serialCode, productId, woCode, hasTracking, productName);
+                if (!isValid.result) {
+                    alert(isValid.message);
+                    return; // Dừng lại ngay nếu Lot không hợp lệ
+                }
+            }
+
+            formData.products.push({
+                product_id: productId,
+                has_tracking: hasTracking,
+                serial_code: serialCode
+            });
+        }
+
+        isRunning = true;
+        showLoader();
+
+        // $(".table tbody tr").each(function () {
+        //     let inputs = $(this).find("input");
+
+        //     let productItem = {
+        //         product_id: $(inputs[0]).val(),
+        //         has_tracking: $(inputs[1]).val(),
+        //         serial_code: $(inputs[2]).val()
+        //     };
+
+        //     formData.products.push(productItem);
+        // });
+
+        $.ajax({
+            url: '/Production/InputProductionResult',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (res) {
+                if(res.result) {
+                    console.log("Gửi thành công:", res);
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-success');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-success').addClass('bg-light');
+                    }, 3000);
+
+                    if ($('#checkPrintLabel').is(':checked')) {
+                        printProductLabel();
+                    }
+
+                    GetProductByWorkOrder();
+                } else {
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                    }, 3000);
+                    alert(res.message);
+                }
+            },
+            error: function (err) {
+                console.error("Lỗi:", err);
+                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                setTimeout(function() {
+                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                }, 3000);
+                alert("Network error. Please try again");
+            },
+            complete: function () {
+                setTimeout(function() {
+                    isRunning = false;
+                    hideLoader();
+                }, 5000);
+            }
+        });
+    }
+
+    function InputProductionResultWithSearialList() {
+        if (isRunning) {
+            console.warn("Đang chạy rồi, bỏ qua...");
+            return;
+        }
+        isRunning = true;
+
+        let formData = new FormData();
+        formData.append("name", $('input[name="Name"]').val());
+        formData.append("subName", $('input[name="SubName"]').val());
+        formData.append("quantity", $('input[name="Quantity"]').val());
+        formData.append("productTracking", $('input[name="ProductTracking"]').val());
+        formData.append("serial", $('input[name="Serial"]').val());
+        formData.append("productID", $('input[name="ProductID"]').val());
+        formData.append("totalQuantity", $('input[name="TotalQuantity"]').val());
+
+        let fileInput = $('#serialFile')[0] ? $('#serialFile')[0].files[0] : null;
+        if (fileInput) {
+            formData.append("serialFile", fileInput);
+        }
+
+        $(".table tbody tr").each(function (index) {
+            let inputs = $(this).find("input");
+            formData.append(`products[${index}].product_id`, $(inputs[0]).val());
+            formData.append(`products[${index}].has_tracking`, $(inputs[1]).val());
+            formData.append(`products[${index}].serial_code`, $(inputs[2]).val());
+        });
+
+        showLoader();
+
+        $.ajax({
+            url: '/Production/InputProductionResultWithSerialList',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if (res.result) {
+                    console.log("Gửi thành công:", res);
+                    alert(res.message);
+
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-success');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-success').addClass('bg-light');
+                    }, 3000);
+
+                    GetProductByWorkOrder();
+                } else {
+                    $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                    setTimeout(function() {
+                        $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                    }, 3000);
+                    GetProductByWorkOrder();
+
+                    alert(res.message);
+                }
+            },
+            error: function (err) {
+                console.error("Lỗi:", err);
+                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                setTimeout(function() {
+                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                }, 3000);
+                alert("Network error. Please try again");
+            },
+            complete: function () {
+                isRunning = false;
+                hideLoader();
+            }
+        });
+    }
+
+    // 1. Tải và áp dụng các mã Lot đã lưu trong LocalStorage vào bảng chính
+    function applySavedLotsFromStorage() {
+        $(".table tbody tr").each(function () {
+            let $tr = $(this);
+            let productId = $tr.find('.product-id').val();
+            let hasTracking = $tr.find('.has-tracking').val();
+            var woCode = ($('#txtWorkOrderCode').val() || '').trim();
+
+            if (hasTracking === "lot" && productId) {
+                let savedLot = localStorage.getItem("LOT_PREINPUT_" + productId + "_" + woCode);
+                if (savedLot) {
+                    let $input = $tr.find('.serial-input');
+                    if ($input.length > 0) {
+                        $input.val(savedLot);
+                        $input.prop('readonly', true).addClass('locked-lot-input');
+                        $input.closest('td').addClass('pe-none');
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Kiểm tra danh sách component Lot và mở Pop-up nếu checkbox được check
+    function handlePreInputLotModal() {
+        applySavedLotsFromStorage();
+
+        if (!$('#checkPreInputLot').is(':checked')) {
+            return;
+        }
+
+        let lotComponents = [];
+
+        $(".table tbody tr").each(function () {
+            let $tr = $(this);
+            let productId = $tr.find('.product-id').val();
+            let hasTracking = $tr.find('.has-tracking').val();
+            let productName = $tr.find('.product_name').val();
+            var woCode = ($('#txtWorkOrderCode').val() || '').trim();
+            if (hasTracking === "lot") {
+                let savedLot = localStorage.getItem("LOT_PREINPUT_" + productId + "_" + woCode) || "";
+                lotComponents.push({
+                    productId: productId,
+                    productName: productName,
+                    hasTracking: hasTracking,
+                    currentLot: savedLot
+                });
+            }
+        });
+
+        if (lotComponents.length === 0) {
+            return;
+        }
+
+        let html = '<table class="table table-bordered"><thead><tr><th>Product / 产品</th><th>Lot Code / 批号</th><th>Status / 状态</th></tr></thead><tbody>';
+
+        lotComponents.forEach(function(item, index) {
+            html += `<tr>
+                <td><strong>${item.productName || ''}</strong><input type="hidden" class="modal-pid" value="${item.productId || ''}" /><input type="hidden" class="modal-pname" value="${item.productName || ''}" /></td>
+                <td><input type="text" class="form-control modal-lot-input" value="${item.currentLot}" placeholder="Scan/Input Lot code" /></td>
+                <td style="width: 120px; text-align: center;"><span class="modal-lot-status badge badge-secondary">Pending</span></td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        $('#preInputLotForm').html(html);
+        $('#modalPreInputLot').modal('show');
+
+        // Tự động Focus vào ô input đầu tiên trong Modal khi mở lên
+        $('#modalPreInputLot').one('shown.bs.modal', function () {
+            $('.modal-lot-input').first().focus().select();
+        });
+
+        $('.modal-lot-input').off('keydown').on('keydown', async function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                e.stopPropagation(); // Tránh lan truyền sự kiện Enter
+
+                let $currentInput = $(this);
+                let isValid = await validateModalLotInput($currentInput);
+
+                if (isValid.result) {
+                    // Trường hợp Status OK -> Chuyển focus xuống dòng tiếp theo
+                    let $modalInputs = $('.modal-lot-input');
+                    let currentIndex = $modalInputs.index($currentInput);
+
+                    if (currentIndex >= 0 && currentIndex < $modalInputs.length - 1) {
+                        $modalInputs.eq(currentIndex + 1).focus().select();
+                    } else {
+                        // Nếu là ô cuối cùng, focus nút Confirm
+                        setTimeout(function () {
+                            $('#confirmPreInputBtn').focus();
+                        }, 100);
+                    }
+                } else {
+                    // Trường hợp Lỗi / Invalid -> Clear value ô hiện tại và chọn lại để nhập/quét lại
+                    $currentInput.val('').focus();
+                }
+            }
+        });
+    }
+
+    // 3. Gọi AJAX CheckLotSerialComponemt để kiểm tra mã Lot trong Modal
+    function validateModalLotInput($input) {
+        let serialVal = ($input.val() || '').trim();
+        let $tr = $input.closest('tr');
+        let productId = $tr.find('.modal-pid').val();
+        let productName = $tr.find('.modal-pname').val();
+        let masterMOName = $('input[name="Name"]').val() || ($('#txtWorkOrderCode').val() || '').trim();
+        let $status = $tr.find('.modal-lot-status');
+
+        if (!serialVal) {
+            $status.removeClass('badge-success badge-danger').addClass('badge-secondary').text('Pending');
+            $input.data('valid', false);
+            return Promise.resolve(false);
+        }
+
+        return $.ajax({
+            url: '/Production/CheckLotSerialComponemt',
+            type: 'POST',
+            data: {
+                serial: serialVal,
+                productId: productId,
+                masterMOName: masterMOName,
+                hasTracking: 'lot',
+                productName: productName
+            },
+            success: function (res) {
+                if (res.result) {
+                    $status.removeClass('badge-danger badge-secondary').addClass('badge-success').text('OK');
+                    $input.data('valid', true);
+                } else {
+                    $status.removeClass('badge-success badge-secondary').addClass('badge-danger').text('Invalid');
+                    $input.data('valid', false);
+                    alert(res.message);
+                }
+            },
+            error: function (xhr) {
+                $status.removeClass('badge-success badge-secondary').addClass('badge-danger').text('Error');
+                $input.data('valid', false);
+                let errMessage = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : "Lỗi kiểm tra mã Lot.";
+                alert(errMessage);
+            }
+        });
+    }
+
+    async function confirmPreInputLots() {
+        let $inputs = $('.modal-lot-input');
+        let hasEmpty = false;
+        let hasInvalid = false;
+        let $firstInvalidInput = null;
+
+        // Duyệt nhanh qua các input trong Modal để kiểm tra Client-side
+        $inputs.each(function () {
+            let $inp = $(this);
+            let lotVal = ($inp.val() || '').trim();
+
+            if (!lotVal) {
+                hasEmpty = true;
+                if (!$firstInvalidInput) $firstInvalidInput = $inp;
+            } else if ($inp.data('valid') === false) {
+                hasInvalid = true;
+                if (!$firstInvalidInput) $firstInvalidInput = $inp;
+            }
+        });
+
+        if (hasEmpty) {
+            alert("Vui lòng nhập đầy đủ mã Lot cho tất cả các linh kiện!");
+            if ($firstInvalidInput) $firstInvalidInput.focus();
+            return;
+        }
+
+        if (hasInvalid) {
+            alert("Có mã Lot không hợp lệ, vui lòng kiểm tra và nhập lại!");
+            if ($firstInvalidInput) $firstInvalidInput.focus();
+            return;
+        }
+
+        // Nếu tất cả đã hợp lệ -> Lưu LocalStorage
+        $inputs.each(function () {
+            let $inp = $(this);
+            let $tr = $inp.closest('tr');
+            let productId = $tr.find('.modal-pid').val();
+            let lotVal = ($inp.val() || '').trim();
+            var woCode = ($('#txtWorkOrderCode').val() || '').trim();
+
+            if (productId && lotVal) {
+                localStorage.setItem("LOT_PREINPUT_" + productId + "_" + woCode, lotVal);
+            }
+        });
+
+        applySavedLotsFromStorage();
+        $('#modalPreInputLot').modal('hide');
+        $('#checkPreInputLot').prop('checked', false);
+        GetProductByWorkOrder();
+    }
+
+    // 5. Hàm hỗ trợ tìm và focus vào ô input chưa bị khóa tiếp theo
+    function focusNextAvailableInput($currentInput) {
+        let inputs = $('.serial-input').not('.locked-lot-input, [readonly]');
+        if (inputs.length > 0) {
+            if (!$currentInput || !$currentInput.hasClass('serial-input')) {
+                inputs.first().focus();
+            } else {
+                let idx = inputs.index($currentInput);
+                if (idx >= 0 && idx < inputs.length - 1) {
+                    inputs.eq(idx + 1).focus();
+                } else {
+                    InputProductionResult();
+                }
+            }
+        } else {
+            InputProductionResult();
+        }
+    }
+
+    $(document).ready(function () {
+        $('input[name="workOrderCode"]').focus();
+
+        $(document).on('focus', 'input', function () {
+            if ($(this).attr('type') !== 'hidden' && $(this).attr('type') !== 'button' && $(this).attr('type') !== 'submit') {
+                $(this).css({
+                    'border-color': '#28a745',
+                    'background-color': '#e8f5e9',
+                    'box-shadow': '0 0 0 0.2rem rgba(40, 167, 69, 0.25)',
+                    'outline': 'none',
+                    'transition': 'all 0.2s ease-in-out'
+                });
+            }
+        });
+
+        $(document).on('blur', 'input', function () {
+            $(this).css({
+                'border-color': '',
+                'background-color': '',
+                'box-shadow': ''
+            });
+        });
+
+        // Bắt phím Enter
+        $(document).on('keydown', 'input', async function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+
+                if (!($(this).val() || '').trim()) {
+                    return;
+                }
+
+                if ($(this).attr("id") === "txtWorkOrderCode" || $(this).attr("name") === "workOrderCode") {
+                    GetProductByWorkOrder();
+                    return;
+                }
+
+                if ($(this).attr("name") === "txtInputQuantityCode") {
+                    let serialScanQuantityCode = ($(this).val() || '').trim();
+                    $.ajax({
+                        url: '/Production/CheckScanQuantitySerial',
+                        type: 'POST',
+                        data: { serial: serialScanQuantityCode },
+                        success: function (res) {
+                            if (res.result) {
+                                $('#modalInputQuantityCode').modal('hide');
+                                $('input[name="Quantity"]').val(res.quantity);
+                                $('input[name="Quantity"]').focus().trigger({
+                                    type: 'keydown',
+                                    key: 'Enter'
+                                });
+                            } else {
+                                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                                setTimeout(function() {
+                                    $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                                }, 3000);
+                                alert(res.message);
+                                $('input[name="txtInputQuantityCode"]').val('');
+                                $('input[name="txtInputQuantityCode"]').focus();
+                            }
+                        },
+                        error: function () {
+                            $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+
+                            setTimeout(function() {
+                                $('#divResultLight').removeClass('bg-danger').addClass('bg-light');
+                            }, 3000);
+                            alert("Network error. Please try again");
+                            $('input[name="txtInputQuantityCode"]').val('');
+                            $('input[name="txtInputQuantityCode"]').focus();
+                        }
+                    });
+                    return;
+                }
+
+                var masterMOName = $('input[name="Name"]').val() || ($('#txtWorkOrderCode').val() || '').trim();
+                var productID = $('input[name="ProductID"]').val();
+
+                // Trường hợp A: Ô Quantity
+                if ($(this).attr("name") === "Quantity") {
+                    let inputs = $('.serial-input').not('.locked-lot-input, [readonly]');
+                    if (inputs.length > 0 && $('input[name="ProductTracking"]').val() === "none") {
+                        let $firstInput = inputs.first();
+                        let firstProductId = $firstInput.closest('td').find('.product-id').val();
+                        let trackingType = $firstInput.closest('td').find('.has-tracking').val();
+                        let masterProductID = $('input[name="ProductID"]').val();
+                        let masterProductTracking = $('input[name="ProductTracking"]').val();
+
+                        if ((masterProductTracking == "serial" || masterProductTracking == "lot") && masterProductTracking == trackingType) {
+                            let isAutoFillValid = await checkAutoFillComponent(masterProductID, firstProductId);
+                            if (isAutoFillValid) {
+                                var masterSerial = ($('input[name="Serial"]').val() || '').trim();
+                                $firstInput.val(masterSerial);
+
+                                let enterEvent = new KeyboardEvent('keydown', {
+                                    key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
+                                    bubbles: true, cancelable: true
+                                });
+                                $firstInput[0].dispatchEvent(enterEvent);
+                                return;
+                            }
+                        }
+                        focusNextAvailableInput();
+                    } else {
+                        if ($('input[name="ProductTracking"]').val() === "lot") {
+                            $('input[name="Serial"]').focus();
+
+                            if ($('#checkCreateLot').is(':checked')) {
+                                let generatedCode = generateUniqueCode('LOT');
+                                $('input[name="Serial"]').val(generatedCode);
+
+                                if ($('input[name="Serial"]').length > 0) {
+                                    let enterEvent = new KeyboardEvent('keydown', {
+                                        key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
+                                        bubbles: true, cancelable: true
+                                    });
+                                    $('input[name="Serial"]')[0].dispatchEvent(enterEvent);
+                                }
+                            }
+                        } else {
+                            InputProductionResult();
+                        }
+                    }
+                    return;
+                }
+
+                // Trường hợp B: Ô Serial (Thành phẩm)
+                if ($(this).attr("name") === "Serial") {
+                    let serialValue = ($(this).val() || '').trim();
+
+                    $.ajax({
+                        url: '/Production/CheckLotSerialFG',
+                        type: 'POST',
+                        data: { serial: serialValue, masterMOName: masterMOName, productID: productID },
+                        success: async function (res) {
+                            if (res.result) {
+                                if ($('input[name="ProductTracking"]').val() === "serial") {
+                                    $('input[name="Quantity"]').val(1);
+                                }
+
+                                let availableInputs = $('.serial-input').not('.locked-lot-input, [readonly]');
+                                if (availableInputs.length > 0) {
+                                    let $firstInput = availableInputs.first();
+                                    let firstProductId = $firstInput.closest('td').find('.product-id').val();
+                                    let trackingType = $firstInput.closest('td').find('.has-tracking').val();
+                                    let masterProductID = $('input[name="ProductID"]').val();
+                                    let masterProductTracking = $('input[name="ProductTracking"]').val();
+
+                                    if ((masterProductTracking == "serial" || masterProductTracking == "lot") && masterProductTracking == trackingType) {
+                                        let isAutoFillValid = await checkAutoFillComponent(masterProductID, firstProductId);
+                                        if (isAutoFillValid) {
+                                            var masterSerial = ($('input[name="Serial"]').val() || '').trim();
+                                            $firstInput.val(masterSerial);
+
+                                            let enterEvent = new KeyboardEvent('keydown', {
+                                                key: 'Enter', code: 'Enter', keyCode: 13, which: 13,
+                                                bubbles: true, cancelable: true
+                                            });
+                                            $firstInput[0].dispatchEvent(enterEvent);
+                                            return;
+                                        }
+                                    }
+                                }
+
+                                focusNextAvailableInput();
+                            } else {
+                                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+                                setTimeout(function () { $('#divResultLight').removeClass('bg-danger').addClass('bg-light'); }, 3000);
+                                alert(res.message);
+                                $('input[name="Serial"]').val('').focus();
+                            }
+                        },
+                        error: function () {
+                            $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+                            setTimeout(function () { $('#divResultLight').removeClass('bg-danger').addClass('bg-light'); }, 3000);
+                            alert("Network error. Please try again");
+                            $('input[name="Serial"]').val('').focus();
+                        }
+                    });
+                    return;
+                }
+
+                // Trường hợp C: Ô Serial Linh kiện (.serial-input)
+                if ($(this).hasClass('serial-input')) {
+                    let $this = $(this);
+                    let serialCValue = ($this.val() || '').trim();
+                    let productId = $this.closest('td').find('.product-id').val();
+                    let hasTracking = $this.closest('td').find('.has-tracking').val();
+                    let productName = $this.closest('td').find('.product_name').val();
+
+                    $.ajax({
+                        url: '/Production/CheckLotSerialComponemt',
+                        type: 'POST',
+                        data: {
+                            serial: serialCValue,
+                            productId: productId,
+                            masterMOName: masterMOName,
+                            hasTracking: hasTracking,
+                            productName: productName
+                        },
+                        success: function (res) {
+                            if (res.result) {
+                                focusNextAvailableInput($this);
+                            } else {
+                                $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+                                setTimeout(function () { $('#divResultLight').removeClass('bg-danger').addClass('bg-light'); }, 3000);
+                                alert(res.message);
+                                $this.val('').focus();
+                            }
+                        },
+                        error: function () {
+                            $('#divResultLight').removeClass('bg-light').addClass('bg-danger');
+                            setTimeout(function () { $('#divResultLight').removeClass('bg-danger').addClass('bg-light'); }, 3000);
+                            alert("Network error. Please try again");
+                            $this.val('').focus();
+                        }
+                    });
+                }
+            }
+        });
+
+
+        $('#serialFile').on('change', function() {
+            InputProductionResultWithSearialList();
+        });
+    });
+</script>

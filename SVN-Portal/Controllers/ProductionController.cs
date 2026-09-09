@@ -38,6 +38,16 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
+        public IActionResult InputLotToProduct(string workOrder)
+        {
+            if (!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
+            return View();
+        }
+
         #region AJAX functions
         /// <summary>
         /// Hàm nhập kết quả sản xuất theo Work Order
@@ -503,7 +513,7 @@ namespace SVN_Portal.Controllers
                     if (existingLog.state == "Consumed")
                     {
                         processResult.OK = false;
-                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}. Please double-check./ 序列号/批号 {serial} 已用于工单 {existingLog.consumed_wo_code}。请仔细核对。";
+                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check./ 序列号/批号 {serial} 已用于工单 {existingLog.consumed_wo_code}。请仔细核对。";
                         //return Json(new { result = processResult.OK, message = processResult.Message });
                     }
                     else
