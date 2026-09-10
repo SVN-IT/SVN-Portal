@@ -48,6 +48,16 @@ namespace SVN_Portal.Controllers
             return View();
         }
 
+        public IActionResult InputLotToProductBT(string workOrder)
+        {
+            if (!string.IsNullOrWhiteSpace(workOrder))
+            {
+                workOrder = workOrder.Replace("%2f", "/");
+            }
+            ViewBag.MasterWorkOrder = workOrder;
+            return View();
+        }
+
         #region AJAX functions
         /// <summary>
         /// Hàm nhập kết quả sản xuất theo Work Order
