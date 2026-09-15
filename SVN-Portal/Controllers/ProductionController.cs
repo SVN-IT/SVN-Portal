@@ -634,6 +634,35 @@ namespace SVN_Portal.Controllers
             }
         }
 
+        /// <summary>
+        /// Luồng riêng, độc lập với luồng nhập KQSX chính thức: chỉ để ghi lại (log) mỗi giá trị được scan vào ô Serial/Lot
+        /// (FG hoặc component) ngay khi scan, để đối chiếu sau này nếu luồng chính bị miss không lưu được.
+        /// Không ảnh hưởng, không thay thế cho InputProductionResult/CheckLotSerialFG/CheckLotSerialComponemt.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> LogScanInput(string masterWoCode, string woCode, string productId, string productName, string fieldType, string hasTracking, string scannedValue)
+        {
+            try
+            {
+                SVN_ProductEnterScanInputLogDataPortal dataPortal = new SVN_ProductEnterScanInputLogDataPortal(dBConfiguration.GetConnectionString());
+                SVN_ProductEnterScanInputLogEntryUI entry = new SVN_ProductEnterScanInputLogEntryUI
+                {
+                    product_id = int.TryParse(productId, out int parsedProductId) ? parsedProductId : 0,
+                    product_name = productName,
+                    field_type = fieldType,
+                    has_tracking = hasTracking,
+                    scanned_value = scannedValue,
+                    scan_time = DateTime.Now
+                };
+                await dataPortal.UpsertAsync(masterWoCode, woCode, entry);
+                return Json(new { result = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = false, message = ex.Message });
+            }
+        }
+
         public async Task<IActionResult> InputProductionResult([FromBody] ProductionDataV1 data)
         {
             bool isInputToViindoo = false;

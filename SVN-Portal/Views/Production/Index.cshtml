@@ -136,6 +136,31 @@
             });
     }
 
+    // Luồng riêng, độc lập với luồng nhập KQSX chính: chỉ ghi lại giá trị vừa scan vào bảng tạm
+    // SVN_ProductEnterScanInputLog để sau này đối chiếu nếu luồng chính bị miss không lưu được.
+    // Fire-and-forget: không chờ, không xử lý lỗi ảnh hưởng tới luồng chính.
+    function logScanInput(fieldType, productId, productName, hasTracking, scannedValue) {
+        try {
+            var masterWoCode = $('input[name="Name"]').val();
+            var woCode = $('input[name="SubName"]').val();
+            $.ajax({
+                url: '/Production/LogScanInput',
+                type: 'POST',
+                data: {
+                    masterWoCode: masterWoCode,
+                    woCode: woCode,
+                    productId: productId,
+                    productName: productName,
+                    fieldType: fieldType,
+                    hasTracking: hasTracking,
+                    scannedValue: scannedValue
+                }
+            });
+        } catch (e) {
+            console.error("logScanInput error:", e);
+        }
+    }
+
     async function checkAutoFillComponent(productId, componentProductId) {
         try {
             const res = await $.ajax({
@@ -548,6 +573,9 @@
                 if ($(this).attr("name") === "Serial") {
                     let serialValue = $(this).val().trim();
 
+                    // Log riêng vào bảng tạm, không ảnh hưởng luồng chính
+                    logScanInput("FG", $('input[name="ProductID"]').val(), "", $('input[name="ProductTracking"]').val(), serialValue);
+
                     // Gọi AJAX để kiểm tra
                     $.ajax({
                         url: '/Production/CheckLotSerialFG', // API check
@@ -624,6 +652,9 @@
                     let productId = $this.closest('td').find('.product-id').val();
                     let hasTracking = $this.closest('td').find('.has-tracking').val();
                     let productName = $this.closest('td').find('.product_name').val();
+
+                    // Log riêng vào bảng tạm, không ảnh hưởng luồng chính
+                    logScanInput("Component", productId, productName, hasTracking, serialCValue);
 
                     $.ajax({
                         url: '/Production/CheckLotSerialComponemt', // API riêng cho serial-input
