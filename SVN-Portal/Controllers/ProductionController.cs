@@ -4,6 +4,7 @@ using Irony.Parsing;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.DAL.DTO;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL;

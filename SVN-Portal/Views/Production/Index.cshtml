@@ -468,6 +468,7 @@
 
                 if ($(this).attr("name") === "txtInputQuantityCode") {
                     let serialScanQuantityCode = $(this).val().trim();
+                    logScanInput("QuantityCode", $('input[name="ProductID"]').val(), "", $('input[name="ProductTracking"]').val(), serialScanQuantityCode);
                     // Gọi AJAX để kiểm tra
                     $.ajax({
                         url: '/Production/CheckScanQuantitySerial', // API check
