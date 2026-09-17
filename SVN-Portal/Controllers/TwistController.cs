@@ -140,6 +140,24 @@ namespace SVN_Portal.Controllers
                 var labelInfo = await dataPortal.ReadByID(req.productCode, "Box", "Twist");
                 if (labelInfo == null) 
                 {
+                    //Nếu trong trường hợp là con EMEA thì không cần phải in tem box
+                    var twistData = GetData();
+                    bool isEmea = false;
+                    // Kiểm tra xem mã sản phẩm này có phải là dòng EMEA hay không
+                    if (twistData != null && twistData.TryGetValue(req.productCode, out var arr))
+                    {
+                        if (arr.Count > 1 && arr[1].Equals("EMEA", StringComparison.OrdinalIgnoreCase))
+                        {
+                            isEmea = true;
+                        }
+                    }
+                    // Nếu LÀ hàng EMEA -> Cho qua (Success), báo thông tin không cần in tem Box
+                    if (isEmea)
+                    {
+                        return Json(new { success = true });
+                    }
+
+                    // Nếu NÃO PHẢI hàng EMEA mà lại không có tem -> Báo lỗi thiếu mẫu tem
                     return Json(new { success = false, error = $"Không có mẫu tem để in cho partNumber {req.productCode}" });
                 }
 
