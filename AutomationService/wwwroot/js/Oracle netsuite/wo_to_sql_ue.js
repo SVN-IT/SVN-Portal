@@ -2,37 +2,91 @@
  * @NApiVersion 2.1
  * @NScriptType UserEventScript
  */
-define(['N/https', 'N/record', 'N/log'], (https, record, log) => {
+define(['N/https', 'N/log', 'N/search', 'N/format'], (https, log, search, format) => {
+
     const afterSubmit = (scriptContext) => {
-        // Chỉ chạy khi Work Order mới được tạo (CREATE)
-        if (scriptContext.type !== scriptContext.UserEventType.CREATE) return;
+        log.audit('UE Triggered', `Event Type: ${scriptContext.type} | Record ID: ${scriptContext.newRecord.id}`);
+
+        if (scriptContext.type !== scriptContext.UserEventType?.CREATE && scriptContext.type !== 'create') {
+            return;
+        }
 
         try {
             const newRec = scriptContext.newRecord;
+            const recId = newRec.id;
 
-            // Lấy các thông tin cần thiết từ Work Order vừa tạo
-            const payload = {
-                internalId: newRec.id,
-                tranId: newRec.getValue({ fieldId: 'tranid' }),
-                itemId: newRec.getValue({ fieldId: 'assemblyitem' }),
-                quantity: newRec.getValue({ fieldId: 'quantity' }),
-                startDate: newRec.getText({ fieldId: 'startdate' }),
-                endDate: newRec.getText({ fieldId: 'enddate' }),
-                location: newRec.getText({ fieldId: 'location' })
+            // 1. Truy vấn lại Work Order từ DB để lấy đúng Mã WO (tranid) sau khi đã sinh số
+            let realTranId = '';
+            try {
+                const woLookup = search.lookupFields({
+                    type: search.Type.WORK_ORDER,
+                    id: recId,
+                    columns: ['tranid']
+                });
+                realTranId = woLookup.tranid || '';
+            } catch (e) {
+                realTranId = newRec.getValue({ fieldId: 'tranid' }) || '';
+            }
+
+            // 2. Lấy mã Item (itemid / itemcode) chuẩn xác từ Assembly Item
+            let realItemCode = '';
+            const assemblyItemId = newRec.getValue({ fieldId: 'assemblyitem' });
+            if (assemblyItemId) {
+                try {
+                    const itemLookup = search.lookupFields({
+                        type: search.Type.ITEM,
+                        id: assemblyItemId,
+                        columns: ['itemid']
+                    });
+                    realItemCode = itemLookup.itemid || '';
+                } catch (e) {
+                    realItemCode = newRec.getText({ fieldId: 'assemblyitem' }) || String(assemblyItemId);
+                }
+            }
+
+            // Helper format ngày tháng
+            const FormatDateValue = (fieldId) => {
+                const val = newRec.getValue({ fieldId: fieldId });
+                if (!val) return '';
+                if (val instanceof Date) {
+                    return format.format({ value: val, type: format.Type.DATE });
+                }
+                return String(val);
             };
 
-            // Thay URL API endpoint C# của bạn vào đây
-            const apiUrl = 'https://your-domain.com/api/netsuite/workorder';
+            // Helper lấy text Location an toàn
+            const GetLocationText = () => {
+                try {
+                    return newRec.getText({ fieldId: 'location' }) || newRec.getValue({ fieldId: 'location' }) || '';
+                } catch (e) {
+                    return newRec.getValue({ fieldId: 'location' }) || '';
+                }
+            };
 
+            // 3. Đóng gói Payload chứa đúng Mã WO và Mã Item
+            const payloadList = [{
+                internalId: parseInt(recId),
+                tranId: String(realTranId),
+                itemId: String(realItemCode),
+                quantity: parseFloat(newRec.getValue({ fieldId: 'quantity' }) || 0),
+                startDate: FormatDateValue('startdate'),
+                endDate: FormatDateValue('enddate'),
+                location: String(GetLocationText())
+            }];
+
+            log.debug('Payload Sending', JSON.stringify(payloadList));
+
+            // 4. Gửi HTTP POST Request sang C# API
             const response = https.post({
-                url: apiUrl,
-                body: JSON.stringify(payload),
+                url: 'https://api.sigmaworldwide.io/api/Netsuite/ReceiveWorkOrderBatch',
+                body: JSON.stringify(payloadList),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            log.debug('Sync Result', response.body);
+            log.audit('Sync Result Success', `WO ID: ${recId} | Response Code: ${response.code} | Body: ${response.body}`);
+
         } catch (e) {
-            log.error('Error Syncing WO to SQL', e);
+            log.error('Error Syncing WO to SQL', `Details: ${e.message} | Stack: ${e.stack}`);
         }
     };
 
