@@ -246,14 +246,14 @@ namespace ViidooDBServiceAPI.Controllers
                 if (productionOrderInfo == null)
                 {
                     processResult.OK = false;
-                    processResult.Message = "Không tìm thấy lệnh sản xuất: " + dataRequest.WorkOrderNumber;
+                    processResult.Message = $"Không tìm thấy lệnh sản xuất: {dataRequest.WorkOrderNumber} / 未找到生产订单：{dataRequest.WorkOrderNumber}";
                     return processResult;
                 }
 
                 if (int.Parse(productionOrderInfo["qty_producing"]) != 0)
                 {
                     processResult.OK = false;
-                    processResult.Message = "Lệnh: " + productionOrderInfo["name"] + " đã hoàn thành";
+                    processResult.Message = $"Lệnh: {productionOrderInfo["name"]} đã hoàn thành / 命令：{productionOrderInfo["name"]} 已完成。";
                     return processResult;
                 }
 
@@ -267,7 +267,7 @@ namespace ViidooDBServiceAPI.Controllers
                 if (stockMoveInfo == null || stockMoveInfo.Count == 0)
                 {
                     processResult.OK = false;
-                    processResult.Message = "Không tìm thấy danh sách thành phần của lệnh sản xuất: " + dataRequest.WorkOrderNumber;
+                    processResult.Message = $"Không tìm thấy danh sách thành phần của lệnh sản xuất: {dataRequest.WorkOrderNumber} / 未找到生产订单 {dataRequest.WorkOrderNumber} 的组件列表";
                     return processResult;
                 }
 
@@ -306,7 +306,7 @@ namespace ViidooDBServiceAPI.Controllers
                     StockMoveInfo = stockMoveInfoList
                 };
                 processResult.OK = true;
-                processResult.Message = "Lấy thông tin lệnh sản xuất thành công: " + dataRequest.WorkOrderNumber;
+                processResult.Message = $"Lấy thông tin lệnh sản xuất thành công: {dataRequest.WorkOrderNumber} / 获取成功生产订单的信息：{dataRequest.WorkOrderNumber}";
                 processResult.Content = workOrderInfo;
             }
             catch (Exception ex)
@@ -1253,7 +1253,7 @@ namespace ViidooDBServiceAPI.Controllers
                 if (lot_id_info == 0)
                 {
                     bODataProcessResult.OK = false;
-                    bODataProcessResult.Message = "Mã lot " + dataRequest.lotNumber + " không tìm thấy ";
+                    bODataProcessResult.Message = $"Mã lot {dataRequest.lotNumber} không tìm thấy / 未找到批号 {dataRequest.lotNumber}";
                     return bODataProcessResult;
                 }
 
@@ -1263,13 +1263,13 @@ namespace ViidooDBServiceAPI.Controllers
                     if (result != null && result.Count > 0)
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " đã được sử dụng cho lệnh sản xuất: " + result["reference"];
+                        bODataProcessResult.Message = $"Mã lot: {dataRequest.lotNumber} đã được sử dụng cho lệnh sản xuất: {result["reference"]} / 批号：{dataRequest.lotNumber} 用于生产订单：{result["reference"]}";
                         bODataProcessResult.Content = result;
                     }
                     else
                     {
                         bODataProcessResult.OK = true;
-                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " chưa được sử dụng";
+                        bODataProcessResult.Message = $"Mã lot: {dataRequest.lotNumber} chưa được sử dụng / 批号：{dataRequest.lotNumber} 未使用。";
                     }
                 }
                 else if (dataRequest.hasTracking == "lot")
@@ -1278,12 +1278,12 @@ namespace ViidooDBServiceAPI.Controllers
                     if (result != 0)
                     {
                         bODataProcessResult.OK = true;
-                        bODataProcessResult.Message = "Mã lot: " + dataRequest.lotNumber + " tồn tại với số lượng còn lại là: " + result;
+                        bODataProcessResult.Message = $"Mã lot: {dataRequest.lotNumber} tồn tại với số lượng còn lại là: {result} / 批号：{dataRequest.lotNumber} 存在，剩余数量为：{result}";
                     }
                     else
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = "Không tìm thấy mã lot: " + dataRequest.lotNumber + " hoặc tồn của mã lot đã hết";
+                        bODataProcessResult.Message = $"Không tìm thấy mã lot: {dataRequest.lotNumber} hoặc tồn của mã lot đã hết / 未找到批号：{dataRequest.lotNumber} 或批号已用完。";
                     }
                 }
             }
