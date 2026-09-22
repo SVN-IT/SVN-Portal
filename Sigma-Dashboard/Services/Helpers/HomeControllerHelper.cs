@@ -520,7 +520,7 @@ namespace Sigma_Dashboard.Services.Helpers
 
                     case "SVN":
                         // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
-                        opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)")).ToList();
+                        opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)") && !x.Operation.EndsWith("(BT)")).ToList();
                         break;
                 }
             }

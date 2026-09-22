@@ -2,6 +2,8 @@
 <link href="~/plugins/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
 <link href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" rel="stylesheet" />
 <link href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/plugins/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 @{
     ViewData["Title"] = "Daily Target";
     string stringDate = ViewBag.stringDate;
@@ -134,7 +136,16 @@
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label>Operation <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="txtOperation" required>
+                            <select class="form-control select2" id="txtOperation" style="width: 100%;" required>
+                                <option value="">-- Select Operation --</option>
+                                @if (ViewBag.OperationList != null)
+                                {
+                                    foreach (var op in (List<string>)ViewBag.OperationList)
+                                    {
+                                        <option value="@op">@op</option>
+                                    }
+                                }
+                            </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Date Time (yyyyMMdd) <span class="text-danger">*</span></label>
@@ -189,19 +200,26 @@
 </div>
 
 <script>
+    $(document).ready(function () {
+        // 1. Khởi tạo Select2 cho thẻ #txtOperation với giao diện Bootstrap 4
+        $('#txtOperation').select2({
+            theme: 'bootstrap4',
+            dropdownParent: $('#targetModal'), // Đảm bảo gõ tìm kiếm được bên trong Modal
+            placeholder: '-- Select Operation --',
+            allowClear: true
+        });
+    });
+
     function openCreateModal() {
-        // 1. Reset form về trống rỗng TRƯỚC
         $('#targetForm')[0].reset();
 
-        // 2. Định nghĩa chế độ Thêm mới và tiêu đề
         $('#isEditMode').val('false');
         $('#modalTitle').text('Add New Target');
 
-        // 3. Mở khóa ô Operation, gán giá trị mặc định cho Date_time và Khóa lại
-        $('#txtOperation').prop('disabled', false);
-        $('#txtDateTime').val('@stringDate').prop('disabled', true);
+        // Mở khóa và reset giá trị cho Select2
+        $('#txtOperation').val('').trigger('change').prop('disabled', false);
 
-        // 4. Hiển thị Modal lên màn hình
+        $('#txtDateTime').val('@stringDate').prop('disabled', true);
         $('#targetModal').modal('show');
     }
 
@@ -209,10 +227,11 @@
         $('#isEditMode').val('true');
         $('#modalTitle').text('Update Target');
 
-        // --- KHÓA ĐỒNG THỜI CẢ OPERATION VÀ DATE_TIME KHI EDIT ---
-        $('#txtOperation').val($(btn).data('operation')).prop('disabled', true);
-        $('#txtDateTime').val($(btn).data('datetime')).prop('disabled', true);
+        // Gán giá trị được chọn và Khóa (disable) Select2
+        var opVal = $(btn).data('operation');
+        $('#txtOperation').val(opVal).trigger('change').prop('disabled', true);
 
+        $('#txtDateTime').val($(btn).data('datetime')).prop('disabled', true);
         $('#txtDailyPlan').val($(btn).data('dailyplan'));
         $('#txtUPH').val($(btn).data('uph'));
         $('#txtUPPH').val($(btn).data('upph'));
@@ -220,7 +239,6 @@
         $('#txtDefect').val($(btn).data('defect'));
         $('#txtWorkingTime').val($(btn).data('workingtime'));
 
-        // Gán giá trị được chọn cho Select Box Shift
         $('#ddlShift').val($(btn).data('shift')).prop('disabled', true);
 
         $('#targetModal').modal('show');
@@ -376,6 +394,7 @@
 <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="~/plugins/datatables-buttons/js/buttons.colvis.min.js"></script>
+<script src="~/plugins/select2/js/select2.full.min.js"></script>
 
 <script>
     $(function () {

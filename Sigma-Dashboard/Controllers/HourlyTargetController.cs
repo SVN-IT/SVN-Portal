@@ -83,6 +83,9 @@ namespace Sigma_Dashboard.Controllers
                         }
                     }
                 }
+
+                List<string> operationList = await dailyTargetControllerHelper.GetOperationList(companyCode);
+                ViewBag.OperationList = operationList ?? new List<string>();
             }
             catch
             {

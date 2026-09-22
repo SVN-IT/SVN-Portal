@@ -1,4 +1,5 @@
-﻿using Sigma_Dashboard.Models;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Sigma_Dashboard.Models;
 using Sigma_Dashboard.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL.NewDashboard;
@@ -11,10 +12,45 @@ namespace Sigma_Dashboard.Services.Helpers
     {
         string connectionString;
         DBConfiguration dBConfiguration;
-        public DailyTargetControllerHelper(DBConfiguration dBConfiguration)
+        AppSettingServices appSettingServices;
+        public DailyTargetControllerHelper(DBConfiguration dBConfiguration, AppSettingServices appSettingServices)
         {
             this.dBConfiguration = dBConfiguration;
             connectionString = dBConfiguration.GetConnectionString();
+            this.appSettingServices = appSettingServices;
+        }
+
+        public async Task<List<string>> GetOperationList(string companyCode)
+        {
+            List<string> operationList = new List<string>();
+            var operInfoConfig = await appSettingServices.GetOperInfoConfig();
+            if (operInfoConfig != null && operInfoConfig.OperInfo != null)
+            {
+                operationList = operInfoConfig.OperInfo.Select(o => o.Operation).ToList();
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        operationList = operationList.Where(x => x.EndsWith("(SM)")).ToList();
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        operationList = operationList.Where(x => x.EndsWith("(ITA)")).ToList();
+                        break;
+
+                    case "BT":
+                        // Lọc các item có đuôi (BT)
+                        operationList = operationList.Where(x => x.EndsWith("(BT)")).ToList();
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        operationList = operationList.Where(x => !x.EndsWith("(SM)") && !x.EndsWith("(ITA)") && !x.EndsWith("(BT)")).ToList();
+                        break;
+                }
+            }
+            return operationList;
         }
 
         public async Task<List<DailyTargetViewModel>> GetDailyTargetData(DateTime date, string shift, string companyCode)
