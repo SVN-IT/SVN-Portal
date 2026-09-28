@@ -563,13 +563,38 @@ namespace SVN_Portal.Controllers
                         {
                             decimal totalQty = 0;
 
-                            if (!string.IsNullOrWhiteSpace(processResult.Message))
+                            //if (!string.IsNullOrWhiteSpace(processResult.Message))
+                            //{
+                            //    var messageParts = processResult.Message.Split(':');
+                            //    if (messageParts.Length == 3 && decimal.TryParse(messageParts[2].Trim(), out decimal parsedQty))
+                            //    {
+                            //        totalQty = parsedQty;
+                            //    }
+                            //}
+
+                            if (processResult.Content != null && dataRequest.hasTracking == "lot")
                             {
-                                var messageParts = processResult.Message.Split(':');
-                                if (messageParts.Length == 3 && decimal.TryParse(messageParts[2].Trim(), out decimal parsedQty))
+                                try
                                 {
-                                    totalQty = parsedQty;
+                                    decimal val = Convert.ToDecimal(processResult.Content);
+                                    totalQty = val; // Ép kiểu về đúng kiểu của totalQty
                                 }
+                                catch (Exception)
+                                {
+                                    // Xử lý nếu Content không thể chuyển đổi sang double
+                                }
+                            }
+
+                            if(dataRequest.hasTracking == "serial")
+                            {
+                                totalQty = 1;
+                            }
+
+                            if(totalQty <= 0)
+                            {
+                                processResult.OK = false;
+                                processResult.Message = $"Serial/Lot {serial} have total quantity is 0. Please check Viindoo./ 序列号/批次 {serial} 的总数量为 0。请检查 Viindoo。";
+                                return Json(new { result = processResult.OK, message = processResult.Message });
                             }
 
 

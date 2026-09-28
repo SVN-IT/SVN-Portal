@@ -1279,6 +1279,7 @@ namespace ViidooDBServiceAPI.Controllers
                     {
                         bODataProcessResult.OK = true;
                         bODataProcessResult.Message = $"Mã lot: {dataRequest.lotNumber} tồn tại với số lượng còn lại là: {result} / 批号：{dataRequest.lotNumber} 存在，剩余数量为：{result}";
+                        bODataProcessResult.Content= result;
                     }
                     else
                     {
