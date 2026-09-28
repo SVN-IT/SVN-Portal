@@ -579,9 +579,12 @@ namespace SVN_Portal.Controllers
                                     decimal val = Convert.ToDecimal(processResult.Content);
                                     totalQty = val; // Ép kiểu về đúng kiểu của totalQty
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
                                     // Xử lý nếu Content không thể chuyển đổi sang double
+                                    processResult.OK = false;
+                                    processResult.Message = ex.Message;
+                                    return Json(new { result = processResult.OK, message = processResult.Message });
                                 }
                             }
 
