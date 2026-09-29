@@ -73,6 +73,9 @@ namespace Sigma_Dashboard.Services.Helpers
 
                         vm.UPH = Math.Round(group.Average(x => x.UPH != 0 ? x.Current_UPH / x.UPH * 100 : 0), 2).ToString() + "%";
                         vm.UPPH = Math.Round(group.Average(x => x.UPPH != 0 ? x.Current_UPPH / x.UPPH * 100 : 0), 2).ToString() + "%";
+
+                        vm.LaborTarget = Math.Round(group.Average(x => x.MaxLabor), 2).ToString();
+                        vm.LaborCurrent = Math.Round(group.Average(x => x.Labor), 2).ToString();
                         vm.Labor = Math.Round(group.Average(x => x.Labor != 0 ? x.MaxLabor / x.Labor * 100 : 0), 2).ToString() + "%";
 
                         // Defect
