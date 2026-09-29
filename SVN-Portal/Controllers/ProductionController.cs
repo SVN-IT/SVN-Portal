@@ -572,11 +572,11 @@ namespace SVN_Portal.Controllers
                             //    }
                             //}
 
-                            if (processResult.Content != null && dataRequest.hasTracking == "lot")
+                            if (result.Content != null && dataRequest.hasTracking == "lot")
                             {
                                 try
                                 {
-                                    decimal val = Convert.ToDecimal(processResult.Content);
+                                    decimal val = Convert.ToDecimal(result.Content);
                                     totalQty = val; // Ép kiểu về đúng kiểu của totalQty
                                 }
                                 catch (Exception ex)
