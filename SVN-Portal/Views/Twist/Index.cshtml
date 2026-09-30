@@ -111,6 +111,141 @@
         }
     }
 
+    /* ============================================================
+       BLOCK OVERLAY — Quét sai mã sản phẩm
+    ============================================================ */
+    #blockOverlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: repeating-linear-gradient(
+            45deg,
+            #7a0000,
+            #7a0000 28px,
+            #3d0000 28px,
+            #3d0000 56px
+        );
+        animation: strobe-border 0.8s step-end infinite;
+    }
+
+    @@keyframes strobe-border {
+        0%   { outline: 12px solid #ff0000; }
+        50%  { outline: 12px solid #ff6600; }
+        100% { outline: 12px solid #ff0000; }
+    }
+
+    .block-center-card {
+        background: #1a0000;
+        border: 4px solid #ff2222;
+        border-radius: 20px;
+        padding: 2.5rem 3rem;
+        max-width: 750px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 0 60px 10px #ff000099, 0 0 120px 30px #ff000044;
+        animation: glow-red 1s ease-in-out infinite alternate;
+    }
+
+    @@keyframes glow-red {
+        from { box-shadow: 0 0 40px 8px #ff000088, 0 0 80px 20px #ff000033; }
+        to   { box-shadow: 0 0 80px 20px #ff0000cc, 0 0 150px 40px #ff000066; }
+    }
+
+    .block-icon {
+        font-size: 6rem;
+        display: block;
+        margin-bottom: 0.5rem;
+        animation: icon-bounce 0.6s ease-in-out infinite alternate;
+    }
+
+    @@keyframes icon-bounce {
+        from { transform: scale(1) rotate(-4deg); }
+        to   { transform: scale(1.15) rotate(4deg); }
+    }
+
+    .block-header-bar {
+        background: #ff0000;
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: inline-block;
+    }
+
+    .block-msg-main {
+        font-size: 2.6rem;
+        font-weight: 900;
+        color: #ffffff;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 12px #ff4444, 0 2px 4px #000;
+        line-height: 1.2;
+    }
+
+    .block-divider {
+        border: none;
+        border-top: 2px dashed #ff4444;
+        margin: 1rem 0;
+    }
+
+    .block-msg-sub {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #ffe600;
+        text-shadow: 0 0 10px #ff990088, 0 2px 4px #000;
+        margin-bottom: 2rem;
+        line-height: 1.3;
+    }
+
+    .block-pwd-box {
+        background: rgba(0,0,0,0.6);
+        border: 2px solid #ff4444;
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        text-align: center;
+    }
+
+    .block-pwd-label {
+        font-size: 1.25rem;
+        color: #ffcccc;
+        margin-bottom: 0.8rem;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+    }
+
+    #blockPasswordInput {
+        background: #2d0000 !important;
+        color: #fff !important;
+        border: 2px solid #ff4444 !important;
+        font-size: 1.5rem !important;
+        text-align: center;
+        letter-spacing: 0.2em;
+    }
+
+    #blockPasswordInput:focus {
+        box-shadow: 0 0 0 3px #ff444466 !important;
+    }
+
+    #blockPasswordError {
+        color: #ff9999;
+        font-size: 1.05rem;
+        margin-top: 0.5rem;
+    }
+
+    #btnBlockConfirm {
+        font-size: 1.4rem;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+        padding: 0.6rem 2rem;
+    }
+
     /* Fix giao diện Dark mode cho Select2 */
     .select2-container--bootstrap-5 .select2-selection {
         background-color: #212529 !important;
@@ -336,6 +471,55 @@
     </div>
 </div>
 
+<!-- ============================================================
+     BLOCK OVERLAY — Quét sai mã sản phẩm
+============================================================ -->
+<div id="blockOverlay">
+    <div class="block-center-card">
+        <span class="block-icon">🚨</span>
+        <div class="block-header-bar">⛔ CẢNH BÁO — DỪNG THAO TÁC NGAY ⛔</div>
+        <div id="blockErrorMsg" class="block-msg-main"></div>
+        <hr class="block-divider" />
+        <div class="block-msg-sub">⚠ Vui lòng báo cáo với Tổ trưởng<br>để xác nhận trước khi tiếp tục! ⚠</div>
+        <div class="block-pwd-box">
+            <div class="block-pwd-label">🔐 Tổ trưởng nhập mật khẩu xác nhận:</div>
+            <input type="password" id="blockPasswordInput" class="form-control form-control-lg mb-2"
+                   placeholder="Nhập mật khẩu..." autocomplete="off" />
+            <div id="blockPasswordError" class="d-none">❌ Mật khẩu không đúng, vui lòng thử lại!</div>
+            <button id="btnBlockConfirm" class="btn btn-warning btn-lg w-100 mt-2">🔓 Xác nhận</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận của Tổ trưởng (hiện sau khi nhập đúng mật khẩu) -->
+<div class="modal fade" id="supervisorConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0" style="background:#1a0000; border:3px solid #ff4444 !important; border-radius:16px;">
+            <div class="modal-header border-0 pb-0" style="background:#ff0000; border-radius:12px 12px 0 0;">
+                <h4 class="modal-title w-100 text-center text-white fw-bold" style="letter-spacing:0.05em;">
+                    ⚠ XÁC NHẬN CỦA TỔ TRƯỞNG
+                </h4>
+            </div>
+            <div class="modal-body text-center text-white py-4">
+                <p style="font-size:1.4rem; font-weight:600; margin-bottom:0.5rem;">
+                    Tổ trưởng có xác nhận cho phép<br>tiếp tục quét mã này không?
+                </p>
+                <p style="font-size:1.1rem; color:#ffaaaa;">
+                    Lưu ý: Thao tác này sẽ được ghi nhận.
+                </p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-4 pb-4">
+                <button id="btnSupervisorYes" class="btn btn-success px-5" style="font-size:1.5rem; font-weight:bold; min-width:130px;">
+                    ✔ Có
+                </button>
+                <button id="btnSupervisorNo" class="btn btn-danger px-5" style="font-size:1.5rem; font-weight:bold; min-width:130px;">
+                    ✖ Không
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -422,8 +606,12 @@
                         printLabel();
                     }
                 } else {
-                    showStatus(res.error, false);
                     $('#pcsInput').val('');
+                    if (res.isMismatch) {
+                        showBlockScreen(res.error);
+                    } else {
+                        showStatus(res.error, false);
+                    }
                 }
             }).fail(function() {
                 showStatus('Lỗi kết nối máy chủ!', false);
@@ -461,7 +649,58 @@
                 card.removeClass(flashClass);
             }, 3000);
         }
+        const supervisorModal = new bootstrap.Modal(document.getElementById('supervisorConfirmModal'));
+
+        function showBlockScreen(errorMsg) {
+            $('#blockErrorMsg').text(errorMsg);
+            $('#blockPasswordInput').val('');
+            $('#blockPasswordError').addClass('d-none');
+            $('#blockOverlay').css('display', 'flex');
+            setTimeout(() => $('#blockPasswordInput').focus(), 150);
+        }
+
+        function hideBlockScreen() {
+            $('#blockOverlay').css('display', 'none');
+        }
+
+        // Bước 1: Kiểm tra mật khẩu
+        $('#btnBlockConfirm').click(function() {
+            let pwd = $('#blockPasswordInput').val();
+            if (pwd === CONFIG_PASSWORD) {
+                $('#blockPasswordError').addClass('d-none');
+                // Mở modal xác nhận Có/Không
+                supervisorModal.show();
+            } else {
+                $('#blockPasswordError').removeClass('d-none');
+                $('#blockPasswordInput').val('').focus();
+            }
+        });
+
+        $('#blockPasswordInput').keypress(function(e) {
+            if (e.which === 13) $('#btnBlockConfirm').click();
+        });
+
+        // Bước 2a: Tổ trưởng chọn "Có" → ẩn overlay, clear ô scan, cho quét tiếp
+        $('#btnSupervisorYes').click(function() {
+            supervisorModal.hide();
+            hideBlockScreen();
+            $('#pcsInput').val('').focus();
+        });
+
+        // Bước 2b: Tổ trưởng chọn "Không" → đóng modal, giữ nguyên overlay, xoá pass
+        $('#btnSupervisorNo').click(function() {
+            supervisorModal.hide();
+            $('#blockPasswordInput').val('');
+            setTimeout(() => $('#blockPasswordInput').focus(), 300);
+        });
+
         function printLabel() {
+            // Copy batch hiện tại và reset pcsList ngay — scan mới sẽ vào batch tiếp theo
+            const batch = [...pcsList];
+            pcsList = [];
+            updatePcsList();
+            updatePcsPerBox();
+
             let savedPrinter = localStorage.getItem('selected_printer_config');
             let printerConfig = savedPrinter ? JSON.parse(savedPrinter) : null;
             let productId = $('#product_id').text().trim();
@@ -470,22 +709,19 @@
                 url: '/Twist/PrintLabel',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ productCode: productCode, printerConfig: printerConfig }),
+                data: JSON.stringify({ productCode: productCode, woCode: woCode, productId: parseInt(productId), printQty: batch.length, printerConfig: printerConfig }),
                 success: function(res) {
                     if (res.success) {
                         $.ajax({
                             url: '/Twist/SubmitProduction',
                             method: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({ wo: woCode, productQty: pcsList.length, productId: productId }),
+                            data: JSON.stringify({ wo: woCode, productQty: batch.length, productId: productId }),
                             success: function(res2) {
                                 if (res2.success) {
-                                    completedCount += pcsList.length;
+                                    completedCount += batch.length;
                                     updateProgress();
                                     showStatus("Thành công! Đã nhập kết quả sản xuất.", true);
-                                    pcsList = [];
-                                    updatePcsList();
-                                    updatePcsPerBox();
                                 } else {
                                     showStatus(res2.error, false);
                                 }
@@ -494,6 +730,9 @@
                     } else {
                         showStatus(res.error, false);
                     }
+                },
+                error: function() {
+                    showStatus('Lỗi kết nối máy chủ!', false);
                 }
             });
         }

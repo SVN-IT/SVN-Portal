@@ -1,0 +1,515 @@
+@{
+    ViewData["Title"] = "Twist Dashboard";
+    Layout = null;
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+    * { box-sizing: border-box; }
+    body {
+        background: #0f172a;
+        color: #e2e8f0;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-size: 0.95rem;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .dash-header {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-bottom: 1px solid #334155;
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    .dash-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #f8fafc;
+        letter-spacing: -0.02em;
+    }
+    .dash-title .twist-word {
+        background: linear-gradient(90deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .dash-title .dash-word { color: #94a3b8; font-weight: 500; }
+    .live-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(16,185,129,0.15);
+        border: 1px solid rgba(16,185,129,0.4);
+        color: #34d399;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 999px;
+        letter-spacing: 0.05em;
+    }
+    .pulse-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #34d399;
+        animation: pulse-green 1.5s infinite;
+        flex-shrink: 0;
+    }
+    @@keyframes pulse-green {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.3; transform: scale(0.6); }
+    }
+    #lastUpdated { font-size: 0.78rem; color: #94a3b8; margin-left: 10px; }
+
+    /* ── KPI Cards ── */
+    .stat-card {
+        border-radius: 12px;
+        padding: 0.75rem 0.9rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid transparent;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        opacity: 0.12;
+        transform: translate(20px, -20px);
+    }
+
+    .card-print   { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%); border-color: #2563eb55; }
+    .card-print::before { background: #93c5fd; }
+    .card-input   { background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); border-color: #10b98155; }
+    .card-input::before { background: #6ee7b7; }
+    .card-viindoo { background: linear-gradient(135deg, #78350f 0%, #92400e 100%); border-color: #f59e0b55; }
+    .card-viindoo::before { background: #fcd34d; }
+    .card-gap1    { background: linear-gradient(135deg, #312e81 0%, #3730a3 100%); border-color: #818cf855; }
+    .card-gap1::before { background: #a5b4fc; }
+    .card-gap2    { background: linear-gradient(135deg, #4a044e 0%, #6b21a8 100%); border-color: #c084fc55; }
+    .card-gap2::before { background: #d8b4fe; }
+    .card-gap3    { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%); border-color: #38bdf855; }
+    .card-gap3::before { background: #7dd3fc; }
+    .card-count   { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%); border-color: #38bdf855; }
+    .card-count::before { background: #7dd3fc; }
+
+    .stat-label {
+        font-size: 0.62rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.3rem;
+    }
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+        color: #ffffff;
+    }
+    .stat-value.c-pos { color: #6ee7b7; }
+    .stat-value.c-neg { color: #fca5a5; }
+    .stat-value.c-zero { color: rgba(255,255,255,0.4); }
+
+    .stat-icon-top {
+        font-size: 1rem;
+        margin-bottom: 0.3rem;
+        display: block;
+        opacity: 0.9;
+    }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+    }
+    .filter-bar label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .filter-bar .form-control {
+        background: #0f172a;
+        border-color: #334155;
+        color: #e2e8f0;
+        font-size: 0.87rem;
+        border-radius: 8px;
+    }
+    .filter-bar .form-control:focus {
+        background: #0f172a;
+        border-color: #3b82f6;
+        color: #e2e8f0;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+    .filter-bar .form-control::placeholder { color: #475569; }
+
+    #btnSearch {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border: none;
+        color: white;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        padding: 0.42rem 1.3rem;
+        cursor: pointer;
+        transition: opacity 0.15s;
+    }
+    #btnSearch:hover { opacity: 0.88; }
+
+    #btnRefresh {
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #94a3b8;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        padding: 0.42rem 1.3rem;
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s;
+    }
+    #btnRefresh:hover { border-color: #60a5fa; color: #60a5fa; }
+
+    .auto-text { font-size: 0.75rem; color: #94a3b8; }
+
+    /* ── Table ── */
+    .table-wrap {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+    .table-wrap table { margin: 0; }
+
+    .table-wrap table thead tr th {
+        --bs-table-bg: transparent;
+        background-color: #1e40af !important;
+        color: #ffffff !important;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #3b82f6 !important;
+        border-top: none;
+        padding: 1rem 1.1rem;
+        white-space: nowrap;
+    }
+
+    table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.12s;
+    }
+    table tbody tr:nth-child(odd)  { background: #ffffff; }
+    table tbody tr:nth-child(even) { background: #f8fafc; }
+    table tbody tr:hover { background: #eff6ff !important; }
+    table tbody tr:last-child { border-bottom: none; }
+    table tbody td {
+        border: none;
+        padding: 1rem 1.1rem;
+        vertical-align: middle;
+        color: #1e40af;
+        font-size: 1.15rem;
+    }
+
+    /* row left accent bar */
+    table tbody tr td:first-child {
+        border-left: 3px solid transparent;
+    }
+    table tbody tr:nth-child(odd)  td:first-child { border-left-color: #e2e8f0; }
+    table tbody tr:nth-child(even) td:first-child { border-left-color: #cbd5e1; }
+    table tbody tr:hover td:first-child { border-left-color: #3b82f6 !important; }
+
+    .qty-badge {
+        display: inline-block;
+        font-weight: 700;
+        font-size: 1.2rem;
+        border-radius: 6px;
+        padding: 3px 14px;
+        min-width: 60px;
+        text-align: center;
+    }
+    .qty-print   { background: none; border: none; color: #0369a1; }
+    .qty-input   { background: none; border: none; color: #15803d; }
+    .qty-viindoo { background: none; border: none; color: #b45309; }
+
+    .gap-pos  { color: #15803d; font-weight: 700; font-size: 1.05rem; }
+    .gap-neg  { color: #dc2626; font-weight: 700; font-size: 1.05rem; }
+    .gap-zero { color: #64748b; font-weight: 600; font-size: 1.05rem; }
+
+    .gap-badge-pos  { background: none; color: #15803d; font-weight: 800; font-size: 1.2rem; }
+    .gap-badge-neg  { background: none; color: #dc2626; font-weight: 800; font-size: 1.2rem; }
+    .gap-badge-zero { background: none; color: #64748b; font-weight: 600; font-size: 1.2rem; }
+
+    .wo-tag {
+        display: inline-block;
+        background: none;
+        border: none;
+        color: #6d28d9;
+        font-size: 1.15rem;
+        font-weight: 700;
+        padding: 0;
+        margin: 1px 4px 1px 0;
+        white-space: nowrap;
+    }
+    .product-code {
+        font-family: 'Courier New', monospace;
+        font-weight: 800;
+        color: #ea580c;
+        font-size: 1.15rem;
+        background: none;
+        border: none;
+        padding: 0;
+        letter-spacing: 0.03em;
+    }
+    .no-data {
+        text-align: center;
+        color: #64748b;
+        padding: 3rem;
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+    }
+</style>
+
+<!-- Header -->
+<div class="dash-header">
+    <div class="d-flex align-items-center gap-3">
+        <div class="dash-title">
+            <span class="twist-word">Twist</span>
+            <span class="dash-word"> Dashboard</span>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="live-badge"><span class="pulse-dot"></span> LIVE</span>
+        <span id="lastUpdated">Đang tải...</span>
+    </div>
+</div>
+
+<div class="container-fluid py-4 px-4">
+
+    <!-- KPI Cards -->
+    <div class="section-title">Tổng quan</div>
+    <div class="row g-3 mb-4">
+        <div class="col">
+            <div class="stat-card card-count">
+                <span class="stat-icon-top">🔢</span>
+                <div class="stat-label">Mã sản phẩm</div>
+                <div class="stat-value" id="kpiProducts">—</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="stat-card card-print">
+                <span class="stat-icon-top">🖨️</span>
+                <div class="stat-label">Số lượng in (tem)</div>
+                <div class="stat-value" id="kpiPrint">—</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="stat-card card-input">
+                <span class="stat-icon-top">📥</span>
+                <div class="stat-label">Số lượng nhập KQSX</div>
+                <div class="stat-value" id="kpiInput">—</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="stat-card card-viindoo">
+                <span class="stat-icon-top">📊</span>
+                <div class="stat-label">Dashboard</div>
+                <div class="stat-value" id="kpiViindoo">—</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="stat-card card-gap1">
+                <span class="stat-icon-top">↔️</span>
+                <div class="stat-label">Gap In & Nhập KQSX</div>
+                <div class="stat-value" id="kpiGap1">—</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="stat-card card-gap2">
+                <span class="stat-icon-top">↔️</span>
+                <div class="stat-label">Gap Nhập & Dashboard</div>
+                <div class="stat-value" id="kpiGap2">—</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="stat-card card-gap3">
+                <span class="stat-icon-top">↔️</span>
+                <div class="stat-label">Gap In & Dashboard</div>
+                <div class="stat-value" id="kpiGap3">—</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="section-title">Bộ lọc</div>
+    <div class="filter-bar d-flex align-items-end gap-3 mb-4 flex-wrap">
+        <div>
+            <label>Ngày</label>
+            <input type="date" id="filterDate" class="form-control form-control-sm" style="width:160px;" />
+        </div>
+        <div>
+            <label>Mã sản phẩm</label>
+            <input type="text" id="filterCode" class="form-control form-control-sm" placeholder="Tìm mã..." style="width:180px;" />
+        </div>
+        <div>
+            <label>Work Order</label>
+            <input type="text" id="filterWO" class="form-control form-control-sm" placeholder="Tìm WO..." style="width:180px;" />
+        </div>
+        <div class="d-flex gap-2">
+            <button id="btnSearch">🔍 Tìm kiếm</button>
+            <button id="btnRefresh">🔄 Làm mới</button>
+        </div>
+        <div class="ms-auto auto-text align-self-center">⏱ Tự động cập nhật mỗi 30 giây</div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-title">Chi tiết theo mã sản phẩm</div>
+    <div class="table-wrap">
+        <table class="table mb-0" id="dashTable">
+            <thead>
+                <tr style="background-color:#1e40af;">
+                    <th style="width:40px;background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">#</th>
+                    <th style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Work Order</th>
+                    <th style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Mã sản phẩm</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Số lượng in (tem)</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Số lượng nhập KQSX</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Dashboard</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Gap In / Nhập KQSX</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Gap Nhập / Dashboard</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Gap In / Dashboard</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="8" class="no-data">⏳ Đang tải dữ liệu...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let autoRefreshTimer = null;
+
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('filterDate').value = today;
+
+    function loadData() {
+        const date       = $('#filterDate').val();
+        const codeFilter = $('#filterCode').val().trim().toLowerCase();
+        const woFilter   = $('#filterWO').val().trim().toLowerCase();
+
+        $('#lastUpdated').text('Đang tải...');
+
+        $.get('/Twist/GetDashboardData', { date }, function(res) {
+            if (!res.success) {
+                $('#tableBody').html(`<tr><td colspan="8" class="no-data">⚠ Lỗi: ${res.error}</td></tr>`);
+                $('#lastUpdated').text('Lỗi tải dữ liệu');
+                return;
+            }
+
+            let rows = res.data || [];
+            if (codeFilter) rows = rows.filter(r => r.product_code.toLowerCase().includes(codeFilter));
+            if (woFilter)   rows = rows.filter(r => (r.wo_codes || '').toLowerCase().includes(woFilter));
+
+            const totalPrint   = rows.reduce((s, r) => s + r.print_qty, 0);
+            const totalInput   = rows.reduce((s, r) => s + r.input_qty, 0);
+            const totalViindoo = rows.reduce((s, r) => s + r.viindoo_qty, 0);
+            const gap1 = totalPrint - totalInput;
+            const gap2 = totalInput - totalViindoo;
+            const gap3 = totalPrint - totalViindoo;
+
+            $('#kpiPrint').text(totalPrint.toLocaleString());
+            $('#kpiInput').text(totalInput.toLocaleString());
+            $('#kpiViindoo').text(totalViindoo.toLocaleString());
+            $('#kpiProducts').text(rows.length);
+
+            const fmtGap   = v => (v > 0 ? '+' : '') + v.toLocaleString();
+            const gapClass = v => v > 0 ? 'c-pos' : v < 0 ? 'c-neg' : 'c-zero';
+
+            $('#kpiGap1').text(fmtGap(gap1)).attr('class', 'stat-value ' + gapClass(gap1));
+            $('#kpiGap2').text(fmtGap(gap2)).attr('class', 'stat-value ' + gapClass(gap2));
+            $('#kpiGap3').text(fmtGap(gap3)).attr('class', 'stat-value ' + gapClass(gap3));
+
+            if (rows.length === 0) {
+                $('#tableBody').html('<tr><td colspan="8" class="no-data">Không có dữ liệu trong ngày này</td></tr>');
+            } else {
+                const gBadge = v => {
+                    const txt = (v > 0 ? '+' : '') + v.toLocaleString();
+                    if (v > 0) return `<span class="gap-badge-pos">${txt}</span>`;
+                    if (v < 0) return `<span class="gap-badge-neg">${txt}</span>`;
+                    return `<span class="gap-badge-zero">${txt}</span>`;
+                };
+
+                let html = '';
+                rows.forEach((r, i) => {
+                    const woTags = (r.wo_codes || '').split(',')
+                        .map(w => w.trim()).filter(w => w)
+                        .map(w => `<span class="wo-tag">${w}</span>`).join('') || '<span style="color:#334155">—</span>';
+
+                    html += `<tr>
+                        <td style="color:#60a5fa;font-size:0.82rem;font-weight:600;">${i + 1}</td>
+                        <td>${woTags}</td>
+                        <td class="td-product-code"><span class="product-code">${r.product_code}</span></td>
+                        <td class="text-center"><span class="qty-badge qty-print">${r.print_qty.toLocaleString()}${r.print_count > 0 ? ` <span style="color:#64748b;font-size:0.95rem;font-weight:600">(${r.print_count})</span>` : ''}</span></td>
+                        <td class="text-center"><span class="qty-badge qty-input">${r.input_qty.toLocaleString()}</span></td>
+                        <td class="text-center"><span class="qty-badge qty-viindoo">${r.viindoo_qty.toLocaleString()}</span></td>
+                        <td class="text-center">${gBadge(r.gap_print_input)}</td>
+                        <td class="text-center">${gBadge(r.gap_input_viindoo)}</td>
+                        <td class="text-center">${gBadge(r.gap_print_viindoo)}</td>
+                    </tr>`;
+                });
+                $('#tableBody').html(html);
+            }
+
+            $('#lastUpdated').text('Cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN'));
+        }).fail(function() {
+            $('#tableBody').html('<tr><td colspan="8" class="no-data">⚠ Không thể kết nối máy chủ</td></tr>');
+            $('#lastUpdated').text('Lỗi kết nối');
+        });
+    }
+
+    function startAutoRefresh() {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = setInterval(loadData, 30000);
+    }
+
+    $('#btnSearch').click(loadData);
+    $('#btnRefresh').click(loadData);
+    $('#filterCode').on('input', loadData);
+    $('#filterWO').on('input', loadData);
+
+    $(document).ready(function() {
+        // Force header màu xanh bất kể Bootstrap override
+        document.querySelectorAll('#dashTable thead th').forEach(function(th) {
+            th.style.setProperty('background-color', '#1e40af', 'important');
+            th.style.setProperty('color', '#ffffff', 'important');
+            th.style.setProperty('border-bottom', '2px solid #3b82f6', 'important');
+        });
+        loadData();
+        startAutoRefresh();
+    });
+</script>
