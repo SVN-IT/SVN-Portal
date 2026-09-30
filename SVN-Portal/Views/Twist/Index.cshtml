@@ -122,111 +122,72 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: repeating-linear-gradient(
-            45deg,
-            #7a0000,
-            #7a0000 28px,
-            #3d0000 28px,
-            #3d0000 56px
-        );
-        animation: strobe-border 0.8s step-end infinite;
-    }
-
-    @@keyframes strobe-border {
-        0%   { outline: 12px solid #ff0000; }
-        50%  { outline: 12px solid #ff6600; }
-        100% { outline: 12px solid #ff0000; }
+        background: rgba(10, 0, 0, 0.92);
+        backdrop-filter: blur(4px);
     }
 
     .block-center-card {
-        background: #1a0000;
-        border: 4px solid #ff2222;
-        border-radius: 20px;
-        padding: 2.5rem 3rem;
-        max-width: 750px;
+        background: #1c1c1e;
+        border: 1px solid #ff4444;
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        max-width: 440px;
         width: 90%;
         text-align: center;
-        box-shadow: 0 0 60px 10px #ff000099, 0 0 120px 30px #ff000044;
-        animation: glow-red 1s ease-in-out infinite alternate;
-    }
-
-    @@keyframes glow-red {
-        from { box-shadow: 0 0 40px 8px #ff000088, 0 0 80px 20px #ff000033; }
-        to   { box-shadow: 0 0 80px 20px #ff0000cc, 0 0 150px 40px #ff000066; }
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6);
     }
 
     .block-icon {
-        font-size: 6rem;
+        font-size: 3rem;
         display: block;
-        margin-bottom: 0.5rem;
-        animation: icon-bounce 0.6s ease-in-out infinite alternate;
-    }
-
-    @@keyframes icon-bounce {
-        from { transform: scale(1) rotate(-4deg); }
-        to   { transform: scale(1.15) rotate(4deg); }
+        margin-bottom: 0.75rem;
     }
 
     .block-header-bar {
-        background: #ff0000;
-        color: #fff;
-        font-size: 1.4rem;
-        font-weight: 900;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        padding: 0.5rem 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        display: inline-block;
+        color: #ff4444;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
     }
 
     .block-msg-main {
-        font-size: 2.6rem;
-        font-weight: 900;
+        font-size: 1.1rem;
+        font-weight: 600;
         color: #ffffff;
         margin-bottom: 1rem;
-        text-shadow: 0 0 12px #ff4444, 0 2px 4px #000;
-        line-height: 1.2;
+        line-height: 1.4;
     }
 
     .block-divider {
         border: none;
-        border-top: 2px dashed #ff4444;
+        border-top: 1px solid #444;
         margin: 1rem 0;
     }
 
     .block-msg-sub {
-        font-size: 2.2rem;
-        font-weight: 900;
-        color: #ffe600;
-        text-shadow: 0 0 10px #ff990088, 0 2px 4px #000;
-        margin-bottom: 2rem;
-        line-height: 1.3;
+        font-size: 0.95rem;
+        color: #aaaaaa;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
     }
 
     .block-pwd-box {
-        background: rgba(0,0,0,0.6);
-        border: 2px solid #ff4444;
-        border-radius: 12px;
-        padding: 1.5rem 2rem;
         text-align: center;
     }
 
     .block-pwd-label {
-        font-size: 1.25rem;
-        color: #ffcccc;
-        margin-bottom: 0.8rem;
-        font-weight: bold;
-        letter-spacing: 0.05em;
+        font-size: 0.9rem;
+        color: #cccccc;
+        margin-bottom: 0.6rem;
     }
 
     #blockPasswordInput {
-        background: #2d0000 !important;
+        background: #1e1e1e !important;
         color: #fff !important;
-        border: 2px solid #ff4444 !important;
-        font-size: 1.5rem !important;
+        border: 1px solid #555 !important;
+        font-size: 1.2rem !important;
         text-align: center;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.15em;
     }
 
     #blockPasswordInput:focus {
@@ -267,6 +228,8 @@
         background-color: #343a40 !important;
         color: #fff !important;
     }
+    /* Đảm bảo backdrop của supervisorConfirmModal hiện trên overlay */
+    .modal-backdrop { z-index: 10000 !important; }
 </style>
 
 <div class="container-fluid py-4">
@@ -302,7 +265,7 @@
                 <div id="pcsList" class="pcs-list mb-3"></div>
                 <!-- Scan PCS -->
                 <div class="mb-2">
-                    <label for="pcsInput" class="scan-label mb-1">Scan mã PCS</label>
+                    <label for="pcsInput" class="scan-label mb-1">Mã sản phẩm quét</label>
                     <div class="input-group input-group-lg">
                         <input id="pcsInput" type="text" class="form-control scan-input" autocomplete="off" placeholder="Scan mã..." />
                         <button id="btnAddPCS" class="btn btn-success wo-btn" type="button">Scan</button>
@@ -476,45 +439,34 @@
 ============================================================ -->
 <div id="blockOverlay">
     <div class="block-center-card">
-        <span class="block-icon">🚨</span>
-        <div class="block-header-bar">⛔ CẢNH BÁO — DỪNG THAO TÁC NGAY ⛔</div>
+        <span class="block-icon">⛔</span>
+        <div class="block-header-bar">CẢNH BÁO SAI MÃ, VUI LÒNG DỪNG THAO TÁC VÀ MÁY QUÉT</div>
         <div id="blockErrorMsg" class="block-msg-main"></div>
         <hr class="block-divider" />
-        <div class="block-msg-sub">⚠ Vui lòng báo cáo với Tổ trưởng<br>để xác nhận trước khi tiếp tục! ⚠</div>
+        <div class="block-msg-sub">Vui lòng báo cáo với Tổ trưởng để xác nhận trước khi tiếp tục.</div>
         <div class="block-pwd-box">
-            <div class="block-pwd-label">🔐 Tổ trưởng nhập mật khẩu xác nhận:</div>
+            <div class="block-pwd-label">Tổ trưởng nhập mật khẩu xác nhận</div>
             <input type="password" id="blockPasswordInput" class="form-control form-control-lg mb-2"
-                   placeholder="Nhập mật khẩu..." autocomplete="off" />
-            <div id="blockPasswordError" class="d-none">❌ Mật khẩu không đúng, vui lòng thử lại!</div>
-            <button id="btnBlockConfirm" class="btn btn-warning btn-lg w-100 mt-2">🔓 Xác nhận</button>
+                   placeholder="Mật khẩu..." autocomplete="off" />
+            <div id="blockPasswordError" class="text-danger small mt-1 d-none">Mật khẩu không đúng, vui lòng thử lại!</div>
+            <button id="btnBlockConfirm" class="btn btn-danger w-100 mt-2">Xác nhận</button>
         </div>
     </div>
 </div>
 
 <!-- Modal xác nhận của Tổ trưởng (hiện sau khi nhập đúng mật khẩu) -->
-<div class="modal fade" id="supervisorConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0" style="background:#1a0000; border:3px solid #ff4444 !important; border-radius:16px;">
-            <div class="modal-header border-0 pb-0" style="background:#ff0000; border-radius:12px 12px 0 0;">
-                <h4 class="modal-title w-100 text-center text-white fw-bold" style="letter-spacing:0.05em;">
-                    ⚠ XÁC NHẬN CỦA TỔ TRƯỞNG
-                </h4>
+<div class="modal fade" id="supervisorConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" style="z-index:10001;">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0" style="border-radius:12px;">
+            <div class="modal-header border-bottom">
+                <h6 class="modal-title fw-bold">Xác nhận của Tổ trưởng</h6>
             </div>
-            <div class="modal-body text-center text-white py-4">
-                <p style="font-size:1.4rem; font-weight:600; margin-bottom:0.5rem;">
-                    Tổ trưởng có xác nhận cho phép<br>tiếp tục quét mã này không?
-                </p>
-                <p style="font-size:1.1rem; color:#ffaaaa;">
-                    Lưu ý: Thao tác này sẽ được ghi nhận.
-                </p>
+            <div class="modal-body text-center py-3">
+                <p class="mb-0">Tổ trưởng có xác nhận không?</p>
             </div>
-            <div class="modal-footer border-0 justify-content-center gap-4 pb-4">
-                <button id="btnSupervisorYes" class="btn btn-success px-5" style="font-size:1.5rem; font-weight:bold; min-width:130px;">
-                    ✔ Có
-                </button>
-                <button id="btnSupervisorNo" class="btn btn-danger px-5" style="font-size:1.5rem; font-weight:bold; min-width:130px;">
-                    ✖ Không
-                </button>
+            <div class="modal-footer border-top justify-content-center gap-3">
+                <button id="btnSupervisorYes" class="btn btn-success px-4">Có</button>
+                <button id="btnSupervisorNo" class="btn btn-secondary px-4">Không</button>
             </div>
         </div>
     </div>
@@ -525,15 +477,49 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        // State
+        // State — restore từ sessionStorage (tồn tại trong tab, xoá khi đóng tab)
+        const _st = JSON.parse(sessionStorage.getItem('twist_wo_state') || '{}');
         let pcsList = [];
-        let pcsPerBox = 0;
-        let productCode = "";
-        let productName = "";
-        let woCode = "";
-        let totalCount = 0;
-        let completedCount = 0;
-        let sku = "";
+        let pcsPerBox = _st.pcsPerBox || 0;
+        let productCode = _st.productCode || "";
+        let productName = _st.productName || "";
+        let woCode = _st.woCode || "";
+        let totalCount = _st.totalCount || 0;
+        let completedCount = _st.completedCount || 0;
+        let sku = _st.sku || "";
+
+        function saveState() {
+            sessionStorage.setItem('twist_wo_state', JSON.stringify({
+                woCode, productCode, productName, totalCount, completedCount, pcsPerBox, sku,
+                productId: $('#product_id').text().trim(),
+                woDate: $('#woDate').text().trim(),
+                customer: $('#customer').text().trim(),
+                isBlocked: $('#blockOverlay').css('display') !== 'none',
+                blockMsg: $('#blockErrorMsg').text()
+            }));
+        }
+
+        // Restore UI nếu có state
+        if (woCode) {
+            $('#woInput').val(woCode);
+            $('#woCode').text(woCode);
+            $('#productCode').text(productCode);
+            $('#productName').text(productName);
+            $('#woDate').text(_st.woDate || '');
+            $('#customer').text(_st.customer || '');
+            $('#sku').text(sku);
+            $('#totalCount').text(totalCount);
+            $('#product_id').text(_st.productId || '');
+            updatePcsList();
+            updatePcsPerBox();
+            updateProgress();
+            $('#woInfo').show();
+            if (_st.isBlocked) {
+                showBlockScreen(_st.blockMsg || 'Máy đang bị khoá, vui lòng liên hệ Tổ trưởng.');
+            } else {
+                showStatus('Đã khôi phục WO: ' + woCode, true);
+            }
+        }
 
         // Nhập WO
         $('#btnGetWO').click(function() {
@@ -572,6 +558,7 @@
                     updatePcsList();
                     updatePcsPerBox();
                     updateProgress();
+                    saveState();
                     $('#pcsInput').focus();
                     showStatus('Sẵn sàng scan PCS', true);
                 });
@@ -657,10 +644,12 @@
             $('#blockPasswordError').addClass('d-none');
             $('#blockOverlay').css('display', 'flex');
             setTimeout(() => $('#blockPasswordInput').focus(), 150);
+            saveState();
         }
 
         function hideBlockScreen() {
             $('#blockOverlay').css('display', 'none');
+            saveState();
         }
 
         // Bước 1: Kiểm tra mật khẩu
@@ -721,6 +710,7 @@
                                 if (res2.success) {
                                     completedCount += batch.length;
                                     updateProgress();
+                                    saveState();
                                     showStatus("Thành công! Đã nhập kết quả sản xuất.", true);
                                 } else {
                                     showStatus(res2.error, false);

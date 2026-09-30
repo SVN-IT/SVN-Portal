@@ -281,7 +281,7 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    return Json(new { isValid = false, isMismatch = true, error = $"Mã PCS không khớp với mã sản phẩm {productCode}!" });
+                    return Json(new { isValid = false, isMismatch = true, error = $"Mã sản phẩm quét không khớp với mã sản phẩm {productCode}!" });
                 }
             }
 
