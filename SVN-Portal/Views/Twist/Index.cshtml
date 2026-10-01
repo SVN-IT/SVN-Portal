@@ -254,6 +254,9 @@
                         <div class="form-group">
                             <span class="fw-bold">Tên sản phẩm:</span> <span id="productName"></span>
                         </div>
+                        <div class="form-group d-none" id="poInfoRow">
+                            <span class="fw-bold">Mã PO:</span> <span id="poInfoVal"></span>
+                        </div>
                     </div>
                     <div class="mb-2 d-none">
                         <span class="fw-bold">Ngày tạo:</span> <span id="woDate"></span>
@@ -482,6 +485,61 @@
     </div>
 </div>
 
+<!-- Modal 4: Quản lý PO - Sản phẩm EU (Numlock 3 + đúng Pass) -->
+<div class="modal fade" id="euPOModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">&#127466;&#127482; Quản lý PO — Sản phẩm EU</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="euSearchInput" class="form-control" placeholder="&#128269; Tìm theo mã hoặc SKU..." autocomplete="off" />
+                </div>
+                <div id="euPOList"></div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 5: Xác nhận sản phẩm EU khi lookup WO -->
+<div class="modal fade" id="euConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
+        <div class="modal-content border-0" style="border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+            <div style="background:linear-gradient(135deg,#0d47a1,#1565c0);padding:1.5rem 1.5rem 1rem;text-align:center;">
+                <div style="font-size:2.5rem;margin-bottom:0.4rem;">&#127466;&#127482;</div>
+                <h5 style="color:#fff;font-weight:700;margin:0;font-size:1.1rem;letter-spacing:0.02em;">Sản phẩm thị trường EU</h5>
+            </div>
+            <div style="background:#1e2d4a;padding:1.5rem 1.5rem 0.75rem;text-align:center;">
+                <div style="font-size:1.4rem;color:#8ecfff;font-weight:700;" id="euConfirmCode"></div>
+                <div style="font-size:1rem;color:#ccc;margin-top:0.2rem;" id="euConfirmSku"></div>
+                <hr style="border-color:#3a4f7a;margin:1rem 0;" />
+                <div style="margin-bottom:0.75rem;">
+                    <div style="font-size:0.85rem;color:#8ecfff;margin-bottom:0.2rem;">PO</div>
+                    <div id="euConfirmPODisplayRow" class="d-flex align-items-center justify-content-center gap-2">
+                        <div id="euConfirmPOVal" style="font-size:1.8rem;font-weight:bold;color:#fff;"></div>
+                        <button id="btnEUEditPO" class="btn btn-sm btn-outline-info" style="border-radius:8px;">Sửa PO</button>
+                    </div>
+                    <div id="euConfirmPOInputBlock" class="d-none">
+                        <div id="euConfirmPOEmptyWarn" style="color:#ffc107;font-size:0.85rem;margin-bottom:0.4rem;">&#9888; Chưa có PO — vui lòng nhập để tiếp tục</div>
+                        <input type="text" id="euConfirmPOInput" class="form-control text-center fw-bold"
+                               placeholder="Nhập số PO..."
+                               style="font-size:1.3rem;background:#2a3f6a;color:#fff;border-color:#3a5a9a;border-radius:8px;" />
+                    </div>
+                </div>
+            </div>
+            <div style="background:#1e2d4a;padding:1rem 1.5rem 1.25rem;display:flex;gap:0.75rem;justify-content:center;border-top:1px solid #2a3f6a;">
+                <button id="btnEUConfirmCancel" class="btn btn-secondary" style="flex:1;max-width:160px;border-radius:10px;font-weight:600;">Hủy</button>
+                <button id="btnEUConfirmOK" class="btn btn-success fw-bold" style="flex:1;max-width:200px;border-radius:10px;font-size:1rem;">Xác nhận bắt đầu quét</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -498,6 +556,10 @@
         let totalCount = _st.totalCount || 0;
         let completedCount = _st.completedCount || 0;
         let sku = _st.sku || "";
+        let currentEUPoNumber = _st.euPoNumber || "";
+        let isEUProduct = _st.isEUProduct || false;
+        let euSkuName = _st.euSkuName || "";
+        let euConfirmed = false; // reset mỗi lần load tab mới
 
         function saveState() {
             sessionStorage.setItem('twist_wo_state', JSON.stringify({
@@ -506,7 +568,10 @@
                 woDate: $('#woDate').text().trim(),
                 customer: $('#customer').text().trim(),
                 isBlocked: $('#blockOverlay').css('display') !== 'none',
-                blockMsg: $('#blockErrorMsg').text()
+                blockMsg: $('#blockErrorMsg').text(),
+                euPoNumber: currentEUPoNumber,
+                isEUProduct: isEUProduct,
+                euSkuName: euSkuName
             }));
         }
 
@@ -525,6 +590,10 @@
             updatePcsPerBox();
             updateProgress();
             $('#woInfo').show();
+            if (isEUProduct && currentEUPoNumber) {
+                euConfirmed = true;
+                showPOInfoRow(currentEUPoNumber);
+            }
             if (_st.isBlocked) {
                 showBlockScreen(_st.blockMsg || 'Máy đang bị khoá, vui lòng liên hệ Tổ trưởng.');
             } else {
@@ -536,6 +605,8 @@
         $('#btnGetWO').click(function() {
             woCode = $('#woInput').val().trim();
             if (!woCode) return;
+            if (!woCode.includes('NM/MO/')) woCode = 'NM/MO/' + woCode;
+            $('#woInput').val(woCode);
             // Lấy thông tin WO
             $.get('/Twist/GetWOInfo', { wo: woCode }, function(data) {
                 if (data.error) {
@@ -565,19 +636,32 @@
                         return;
                     }
                     pcsPerBox = res.pcsPerBox;
+                    isEUProduct = res.isEU || false;
+                    euSkuName = res.skuName || "";
+                    currentEUPoNumber = res.poNumber || "";
                     pcsList = [];
                     updatePcsList();
                     updatePcsPerBox();
                     updateProgress();
                     saveState();
-                    $('#pcsInput').focus();
-                    showStatus('Sẵn sàng scan PCS', true);
+                    if (isEUProduct) {
+                        euConfirmed = false;
+                        showEUConfirmModal(productCode, euSkuName, currentEUPoNumber);
+                    } else {
+                        $('#pcsInput').focus();
+                        showStatus('Sẵn sàng scan PCS', true);
+                    }
                 });
             });
         });
 
         // Scan PCS
         $('#btnAddPCS').click(function() {
+            if (isEUProduct && !euConfirmed) {
+                showStatus('Vui lòng xác nhận PO EU trước khi quét!', false);
+                $('#pcsInput').val('');
+                return;
+            }
             if (completedCount >= totalCount) {
                 showStatus('Đã hoàn thành WO', false);
                 $('#pcsInput').val('');
@@ -709,7 +793,7 @@
                 url: '/Twist/PrintLabel',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ productCode: productCode, woCode: woCode, productId: parseInt(productId), printQty: batch.length, printerConfig: printerConfig }),
+                data: JSON.stringify({ productCode: productCode, woCode: woCode, productId: parseInt(productId), printQty: batch.length, printerConfig: printerConfig, poNumber: currentEUPoNumber }),
                 success: function(res) {
                     if (res.success) {
                         $.ajax({
@@ -749,6 +833,8 @@
         const pwdModal = new bootstrap.Modal(document.getElementById('passwordModal'));
         const prtModal = new bootstrap.Modal(document.getElementById('printerModal'));
         const rprModal = new bootstrap.Modal(document.getElementById('reprintModal'));
+        const euPOMod = new bootstrap.Modal(document.getElementById('euPOModal'));
+        const euConfirmMod = new bootstrap.Modal(document.getElementById('euConfirmModal'), { backdrop: 'static', keyboard: false });
 
         // Lắng nghe phím bấm 1 và 3
         $(document).keydown(function(e) {
@@ -762,10 +848,17 @@
                 openPasswordModal();
             }
 
-            // Phím "3" -> Mở Modal Mật khẩu để Cấu hình Máy in
-            if (e.key === '3' || e.keyCode === 51 || e.keyCode === 99) {
+            // Phím "3" (regular) -> Cấu hình Máy in
+            if (e.keyCode === 51) {
                 e.preventDefault();
                 currentAuthAction = 'config';
+                openPasswordModal();
+            }
+
+            // Numpad "3" (Numlock 3) -> Quản lý PO EU (cần password)
+            if (e.keyCode === 99) {
+                e.preventDefault();
+                currentAuthAction = 'eu_po';
                 openPasswordModal();
             }
         });
@@ -790,6 +883,8 @@
                         openReprintModal();
                     } else if (action === 'config') {
                         loadAndOpenPrinterConfig();
+                    } else if (action === 'eu_po') {
+                        loadAndOpenEUPOModal();
                     }
                 }, 350);
             } else {
@@ -994,6 +1089,212 @@
             $('#p_Type').val(p.type || '');
             $('#p_ZPL').val(p.zpL_Temp || '');
             $('#p_DPL').val(p.dpL_Temp || '');
+        }
+
+        // =============================================================
+        // EU PO MANAGEMENT (NUMLOCK 3)
+        // =============================================================
+        let euPOData = [];
+        let euSearchVal = '';
+
+        function loadAndOpenEUPOModal() {
+            $.get('/Twist/GetEUCodes', function(data) {
+                euPOData = data || [];
+                euSearchVal = '';
+                $('#euSearchInput').val('');
+                renderEUPOList();
+                euPOMod.show();
+            }).fail(function() {
+                showStatus('Lỗi khi tải danh sách mã EU!', false);
+            });
+        }
+
+        function renderEUPOList() {
+            let filtered = euSearchVal
+                ? euPOData.filter(d => d.code.includes(euSearchVal) || d.skuName.toLowerCase().includes(euSearchVal.toLowerCase()))
+                : euPOData;
+
+            if (filtered.length === 0) {
+                $('#euPOList').html('<div class="text-center text-secondary py-4">Không tìm thấy mã EU nào.</div>');
+                return;
+            }
+
+            let html = '<table class="table table-dark table-hover table-sm mb-0"><thead><tr>'
+                + '<th>Mã WO</th><th>SKU</th><th>PO</th><th></th></tr></thead><tbody>';
+            filtered.forEach(d => {
+                let poDisplay = d.poNumber ? `<span class="text-white fw-bold">${d.poNumber}</span>`
+                    : '<span class="text-warning fst-italic">Chưa thiết lập</span>';
+                html += `<tr data-code="${d.code}">
+                    <td class="align-middle" style="color:#8ecfff;font-weight:bold;">${d.code}</td>
+                    <td class="align-middle">${d.skuName}</td>
+                    <td class="align-middle">
+                        <span class="eu-po-display">${poDisplay}</span>
+                        <input type="text" class="form-control form-control-sm eu-po-edit d-none" value="${d.poNumber || ''}" placeholder="Nhập số PO..." style="max-width:180px;" />
+                    </td>
+                    <td class="align-middle" style="white-space:nowrap;">
+                        <button class="btn btn-sm btn-outline-info btn-eu-edit">Sửa</button>
+                        <button class="btn btn-sm btn-success btn-eu-save d-none ms-1">Lưu</button>
+                        <button class="btn btn-sm btn-secondary btn-eu-cancel d-none ms-1">Hủy</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            $('#euPOList').html(html);
+        }
+
+        $('#euSearchInput').on('input', function() {
+            euSearchVal = $(this).val().trim();
+            renderEUPOList();
+        });
+
+        $('#euPOList').on('click', '.btn-eu-edit', function() {
+            let row = $(this).closest('tr');
+            row.find('.eu-po-display').addClass('d-none');
+            row.find('.eu-po-edit').removeClass('d-none').focus().select();
+            $(this).addClass('d-none');
+            row.find('.btn-eu-save, .btn-eu-cancel').removeClass('d-none');
+        });
+
+        $('#euPOList').on('keypress', '.eu-po-edit', function(e) {
+            if (e.which === 13) $(this).closest('tr').find('.btn-eu-save').click();
+        });
+
+        $('#euPOList').on('click', '.btn-eu-save', function() {
+            let row = $(this).closest('tr');
+            let code = row.data('code');
+            let po = row.find('.eu-po-edit').val().trim();
+
+            $.ajax({
+                url: '/Twist/SaveEUPO',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ code: code, poNumber: po }),
+                success: function(res) {
+                    if (res.success) {
+                        let item = euPOData.find(x => x.code === code);
+                        if (item) item.poNumber = po;
+                        let poDisplay = po ? `<span class="text-white fw-bold">${po}</span>`
+                            : '<span class="text-warning fst-italic">Chưa thiết lập</span>';
+                        row.find('.eu-po-display').html(poDisplay).removeClass('d-none');
+                        row.find('.eu-po-edit').addClass('d-none');
+                        row.find('.btn-eu-save, .btn-eu-cancel').addClass('d-none');
+                        row.find('.btn-eu-edit').removeClass('d-none');
+                        if (code === productCode && isEUProduct) {
+                            currentEUPoNumber = po;
+                            saveState();
+                        }
+                        showStatus(`Đã lưu PO cho mã ${code}`, true);
+                    } else {
+                        alert('Lỗi lưu PO: ' + (res.error || 'Không xác định'));
+                    }
+                },
+                error: function() { alert('Lỗi kết nối khi lưu PO!'); }
+            });
+        });
+
+        $('#euPOList').on('click', '.btn-eu-cancel', function() {
+            let row = $(this).closest('tr');
+            let item = euPOData.find(x => x.code === row.data('code'));
+            row.find('.eu-po-edit').val(item ? (item.poNumber || '') : '').addClass('d-none');
+            row.find('.eu-po-display').removeClass('d-none');
+            row.find('.btn-eu-save, .btn-eu-cancel').addClass('d-none');
+            row.find('.btn-eu-edit').removeClass('d-none');
+        });
+
+        // =============================================================
+        // EU CONFIRM MODAL (sau khi lookup WO mã EU)
+        // =============================================================
+        function showEUConfirmModal(code, sku, po) {
+            $('#euConfirmCode').text('Mã: ' + code);
+            $('#euConfirmSku').text(sku);
+            if (po) {
+                $('#euConfirmPOVal').text(po);
+                $('#euConfirmPODisplayRow').removeClass('d-none');
+                $('#euConfirmPOInputBlock').addClass('d-none');
+                $('#btnEUConfirmOK').prop('disabled', false);
+            } else {
+                $('#euConfirmPODisplayRow').addClass('d-none');
+                $('#euConfirmPOEmptyWarn').removeClass('d-none');
+                $('#euConfirmPOInputBlock').removeClass('d-none');
+                $('#euConfirmPOInput').val('');
+                $('#btnEUConfirmOK').prop('disabled', true);
+            }
+            euConfirmMod.show();
+            if (!po) setTimeout(() => $('#euConfirmPOInput').focus(), 350);
+        }
+
+        $('#btnEUEditPO').click(function() {
+            $('#euConfirmPODisplayRow').addClass('d-none');
+            $('#euConfirmPOEmptyWarn').addClass('d-none');
+            $('#euConfirmPOInputBlock').removeClass('d-none');
+            $('#euConfirmPOInput').val(currentEUPoNumber).focus().select();
+            $('#btnEUConfirmOK').prop('disabled', $('#euConfirmPOInput').val().trim() === '');
+        });
+
+        $('#euConfirmPOInput').on('input', function() {
+            $('#btnEUConfirmOK').prop('disabled', $(this).val().trim() === '');
+        });
+
+        $('#euConfirmPOInput').keypress(function(e) {
+            if (e.which === 13 && !$('#btnEUConfirmOK').prop('disabled')) $('#btnEUConfirmOK').click();
+        });
+
+        $('#btnEUConfirmOK').click(function() {
+            let newPO = $('#euConfirmPOInputBlock').is(':visible') ? $('#euConfirmPOInput').val().trim() : null;
+            if (newPO) {
+                $.ajax({
+                    url: '/Twist/SaveEUPO',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ code: productCode, poNumber: newPO }),
+                    success: function(res) {
+                        if (res.success) {
+                            currentEUPoNumber = newPO;
+                            euConfirmed = true;
+                            saveState();
+                            showPOInfoRow(newPO);
+                            euConfirmMod.hide();
+                            $('#pcsInput').focus();
+                            showStatus('Sẵn sàng scan PCS (EU)', true);
+                        } else {
+                            alert('Lỗi lưu PO: ' + (res.error || 'Không xác định'));
+                        }
+                    },
+                    error: function() { alert('Lỗi kết nối khi lưu PO!'); }
+                });
+            } else {
+                euConfirmed = true;
+                showPOInfoRow(currentEUPoNumber);
+                euConfirmMod.hide();
+                $('#pcsInput').focus();
+                showStatus('Sẵn sàng scan PCS (EU)', true);
+            }
+        });
+
+        $('#btnEUConfirmCancel').click(function() {
+            euConfirmMod.hide();
+            isEUProduct = false;
+            euSkuName = '';
+            currentEUPoNumber = '';
+            euConfirmed = false;
+            woCode = ''; productCode = ''; productName = '';
+            totalCount = 0; completedCount = 0; pcsPerBox = 0; sku = '';
+            pcsList = [];
+            $('#woInput').val('');
+            $('#woInfo').hide();
+            $('#poInfoRow').addClass('d-none');
+            updatePcsList(); updatePcsPerBox(); updateProgress();
+            saveState();
+            showStatus('Đã hủy — vui lòng nhập lại WO.', false);
+        });
+
+        function showPOInfoRow(po) {
+            if (po) {
+                $('#poInfoVal').text(po);
+                $('#poInfoRow').removeClass('d-none');
+            } else {
+                $('#poInfoRow').addClass('d-none');
+            }
         }
 
         $('#btnSavePrinter').click(function () {

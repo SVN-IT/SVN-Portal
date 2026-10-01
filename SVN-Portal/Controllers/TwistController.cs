@@ -264,8 +264,54 @@ namespace SVN_Portal.Controllers
         {
             var twistData = GetData();
             if (twistData != null && twistData.TryGetValue(productCode, out var arr))
-                return Json(new { pcsPerBox = int.Parse(arr[2]) });
+            {
+                bool isEU = arr.Count > 1 && arr[1].EndsWith("-EU", StringComparison.OrdinalIgnoreCase);
+                string poNumber = isEU ? GetPOForCode(productCode) : "";
+                return Json(new {
+                    pcsPerBox = int.Parse(arr[2]),
+                    isEU = isEU,
+                    skuName = arr.Count > 1 ? arr[1] : "",
+                    poNumber = poNumber
+                });
+            }
             return Json(new { error = "Không tìm thấy mã sản phẩm" });
+        }
+
+        [HttpGet]
+        public IActionResult GetEUCodes()
+        {
+            var twistData = GetData();
+            var poData = GetPOData();
+            if (twistData == null) return Json(new List<object>());
+
+            var euCodes = twistData
+                .Where(kvp => kvp.Value.Count > 1 && kvp.Value[1].EndsWith("-EU", StringComparison.OrdinalIgnoreCase))
+                .Select(kvp => new {
+                    code = kvp.Key,
+                    skuName = kvp.Value[1],
+                    barcode = kvp.Value[0],
+                    poNumber = poData.TryGetValue(kvp.Key, out var po) ? (po ?? "") : ""
+                })
+                .ToList();
+
+            return Json(euCodes);
+        }
+
+        [HttpPost]
+        public IActionResult SaveEUPO([FromBody] SaveEUPORequest req)
+        {
+            try
+            {
+                string filePath = Path.Combine(_env.WebRootPath, "data", "twist_infoPO_EU.json");
+                var poData = GetPOData();
+                poData[req.code] = req.poNumber ?? "";
+                System.IO.File.WriteAllText(filePath, JsonConvert.SerializeObject(poData, Formatting.Indented));
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -319,7 +365,8 @@ namespace SVN_Portal.Controllers
                     return Json(new { success = false, error = $"Không có mẫu tem để in cho partNumber {req.productCode}" });
                 }
 
-                var printResult = toolsHelper.PrintTwistLabelByTCP(labelInfo.zplData, req.printerConfig, 1);
+                string zplData = (labelInfo.zplData ?? "").Replace("{PO}", req.poNumber ?? "");
+                var printResult = toolsHelper.PrintTwistLabelByTCP(zplData, req.printerConfig, 1);
                 if (printResult == null)
                 {
                     return Json(new { success = false, error = "Print failed" });
@@ -408,25 +455,24 @@ namespace SVN_Portal.Controllers
 
         private Dictionary<string, List<string>> GetData()
         {
-            // 1. Tìm đường dẫn tuyệt đối đến file JSON trong wwwroot/data
             string filePath = Path.Combine(_env.WebRootPath, "data", "twist_sku_alias.json");
-
-            // Check nếu file tồn tại
-            if (!System.IO.File.Exists(filePath))
-            {
-                return null;
-            }
-
-            // 2. Đọc toàn bộ nội dung file text
+            if (!System.IO.File.Exists(filePath)) return null;
             string jsonContent = System.IO.File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonContent);
+        }
 
-            // 3. Deserialize thành Dictionary bằng Newtonsoft.Json
-            var result = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonContent);
+        private Dictionary<string, string> GetPOData()
+        {
+            string filePath = Path.Combine(_env.WebRootPath, "data", "twist_infoPO_EU.json");
+            if (!System.IO.File.Exists(filePath)) return new Dictionary<string, string>();
+            string json = System.IO.File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(json) ?? new Dictionary<string, string>();
+        }
 
-            // 4. Sử dụng dữ liệu (Ví dụ: lấy phần tử đầu tiên)
-            // string barcode = result["7100406070"][0];
-
-            return result;
+        private string GetPOForCode(string productCode)
+        {
+            var poData = GetPOData();
+            return poData.TryGetValue(productCode, out var po) ? (po ?? "") : "";
         }
 
         [HttpGet]
@@ -537,7 +583,14 @@ namespace SVN_Portal.Controllers
         public string woCode { get; set; }
         public int productId { get; set; }
         public int printQty { get; set; }
+        public string poNumber { get; set; }
         public PrinterConfigData printerConfig { get; set; }
+    }
+
+    public class SaveEUPORequest
+    {
+        public string code { get; set; }
+        public string poNumber { get; set; }
     }
 
     public class InputResult
