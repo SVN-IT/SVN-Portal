@@ -33,7 +33,7 @@ namespace SVN_Portal.Controllers
             _env = env;
             this.aPIConfiguration = aPIConfiguration;
             this.dBConfiguration = dBConfiguration;
-            connectionString = dBConfiguration.GetConnectionString();
+            connectionString = dBConfiguration.LocalSvnConnectionString;
             this.toolsHelper = toolsHelper;
         }
 
@@ -432,10 +432,15 @@ namespace SVN_Portal.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPrinters()
         {
-            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(dBConfiguration.LocalSvnConnectionString);
             try
             {
-                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadListByType("Twist"); //ReadListByType("Twist")
+                // Ưu tiên máy in loại Twist, nếu không có thì lấy tất cả
+                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadListByType("Twist");
+                if (printerConfigDatas == null || printerConfigDatas.Count == 0)
+                {
+                    printerConfigDatas = await printerDataPortal.ReadList();
+                }
                 if (printerConfigDatas != null && printerConfigDatas.Count > 0)
                 {
                     return Json(printerConfigDatas);
@@ -452,7 +457,7 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult SavePrinterConfig([FromBody] PrinterConfigData printer)
+        public async Task<IActionResult> SavePrinterConfig([FromBody] PrinterConfigData printer)
         {
             try
             {
@@ -461,10 +466,16 @@ namespace SVN_Portal.Controllers
                     return Json(new { success = false, message = "Dữ liệu máy in không hợp lệ!" });
                 }
 
-                // TODO: Viết code lưu/cập nhật thông tin máy in vào Database tại đây
-                // Ví dụ: _printerService.SaveOrUpdate(printer);
-
-                return Json(new { success = true, message = "Lưu cấu hình máy in thành công!" });
+                SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(dBConfiguration.LocalSvnConnectionString);
+                int result = await printerDataPortal.Update(printer);
+                if (result > 0)
+                {
+                    return Json(new { success = true, message = "Lưu cấu hình máy in thành công!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy máy in để cập nhật." });
+                }
             }
             catch (Exception ex)
             {
