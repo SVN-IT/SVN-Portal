@@ -265,7 +265,7 @@ namespace SVN_Portal.Controllers
             var twistData = GetData();
             if (twistData != null && twistData.TryGetValue(productCode, out var arr))
             {
-                bool isEU = arr.Count > 1 && arr[1].EndsWith("-EU", StringComparison.OrdinalIgnoreCase);
+                bool isEU = arr.Count > 1 && arr[1].StartsWith("EMEA-", StringComparison.OrdinalIgnoreCase);
                 string poNumber = isEU ? GetPOForCode(productCode) : "";
                 return Json(new {
                     pcsPerBox = int.Parse(arr[2]),
