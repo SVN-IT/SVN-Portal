@@ -357,7 +357,7 @@ namespace SVN_Portal.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitProduction([FromBody] InputResult req)
         {
-            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.LocalSvnConnectionString);
             //HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
             try
             {
