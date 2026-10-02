@@ -365,6 +365,9 @@ namespace SVN_Portal.Controllers
                     return Json(new { success = false, error = $"Không có mẫu tem để in cho partNumber {req.productCode}" });
                 }
 
+                if (req.printerConfig == null)
+                    return Json(new { success = false, error = "Chưa cấu hình máy in. Vui lòng nhấn phím 3 để chọn máy in." });
+
                 string zplData = (labelInfo.zplData ?? "").Replace("{PO}", req.poNumber ?? "");
                 var printResult = toolsHelper.PrintTwistLabelByTCP(zplData, req.printerConfig, 1);
                 if (printResult == null)
