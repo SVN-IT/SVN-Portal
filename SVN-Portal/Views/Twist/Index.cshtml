@@ -361,6 +361,10 @@
                     <label for="reprintQuantity" class="form-label fw-bold text-info">Số lượng bản in:</label>
                     <input type="number" id="reprintQuantity" class="form-control" value="1" min="1" />
                 </div>
+                <div class="mb-3 d-none" id="reprintPORow">
+                    <label class="form-label fw-bold text-warning">Số PO (EMEA):</label>
+                    <input type="text" id="reprintPOInput" class="form-control" placeholder="Nhập số PO..." />
+                </div>
             </div>
             <div class="modal-footer border-secondary">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -941,6 +945,20 @@
             rprModal.show();
         }
 
+        // Khi chọn mã sản phẩm trong reprint modal, kiểm tra EMEA để hiện ô PO
+        $('#reprintProductSelect').on('change', function() {
+            let pCode = $(this).val();
+            $('#reprintPORow').addClass('d-none');
+            $('#reprintPOInput').val('');
+            if (!pCode) return;
+            $.get('/Twist/GetPcsPerBox', { productCode: pCode }, function(res) {
+                if (res && res.isEU) {
+                    $('#reprintPOInput').val(res.poNumber || '');
+                    $('#reprintPORow').removeClass('d-none');
+                }
+            });
+        });
+
         // Lưu thông tin máy in cho Reprint khi Select box thay đổi
         $('#reprintPrinterSelect').change(function() {
             let selectedId = $(this).val();
@@ -984,10 +1002,12 @@
             let savedReprintPrinter = localStorage.getItem('reprint_selected_printer_config');
             let printerConfig = savedReprintPrinter ? JSON.parse(savedReprintPrinter) : null;
 
+            let isEmeaRow = !$('#reprintPORow').hasClass('d-none');
             let requestData = {
                 productCode: pCode,
                 labelType: lType,
                 printQty: qty,
+                poNumber: isEmeaRow ? ($('#reprintPOInput').val() || '') : '',
                 printerConfig: printerConfig
             };
 

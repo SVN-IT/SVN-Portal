@@ -560,7 +560,8 @@ namespace SVN_Portal.Controllers
                 }
 
                 // Gọi hàm in với số lượng bản in req.printQty
-                var printResult = toolsHelper.PrintTwistLabelByTCP(labelInfo.zplData, req.printerConfig, req.printQty);
+                string zplData = (labelInfo.zplData ?? "").Replace("{PO}", req.poNumber ?? "");
+                var printResult = toolsHelper.PrintTwistLabelByTCP(zplData, req.printerConfig, req.printQty);
                 if (printResult == null)
                 {
                     return Json(new { success = false, error = "Print failed" });
@@ -608,6 +609,7 @@ namespace SVN_Portal.Controllers
         public string productCode { get; set; }
         public string labelType { get; set; }
         public int printQty { get; set; }
+        public string poNumber { get; set; }
         public PrinterConfigData printerConfig { get; set; }
     }
 }
