@@ -402,6 +402,7 @@
                     <th style="width:40px;background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">#</th>
                     <th style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Work Order</th>
                     <th style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Mã sản phẩm</th>
+                    <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Kế hoạch</th>
                     <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Số lượng in (tem)</th>
                     <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Số lượng nhập KQSX</th>
                     <th class="text-center" style="background-color:#1e40af;color:#fff;border-bottom:2px solid #3b82f6;">Dashboard</th>
@@ -411,7 +412,7 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <tr><td colspan="8" class="no-data">⏳ Đang tải dữ liệu...</td></tr>
+                <tr><td colspan="10" class="no-data">⏳ Đang tải dữ liệu...</td></tr>
             </tbody>
         </table>
     </div>
@@ -434,7 +435,7 @@
 
         $.get('/Twist/GetDashboardData', { date }, function(res) {
             if (!res.success) {
-                $('#tableBody').html(`<tr><td colspan="8" class="no-data">⚠ Lỗi: ${res.error}</td></tr>`);
+                $('#tableBody').html(`<tr><td colspan="10" class="no-data">⚠ Lỗi: ${res.error}</td></tr>`);
                 $('#lastUpdated').text('Lỗi tải dữ liệu');
                 return;
             }
@@ -463,7 +464,7 @@
             $('#kpiGap3').text(fmtGap(gap3)).attr('class', 'stat-value ' + gapClass(gap3));
 
             if (rows.length === 0) {
-                $('#tableBody').html('<tr><td colspan="8" class="no-data">Không có dữ liệu trong ngày này</td></tr>');
+                $('#tableBody').html('<tr><td colspan="10" class="no-data">Không có dữ liệu trong ngày này</td></tr>');
             } else {
                 const gBadge = v => {
                     const txt = (v > 0 ? '+' : '') + v.toLocaleString();
@@ -482,6 +483,7 @@
                         <td style="color:#60a5fa;font-size:0.82rem;font-weight:600;">${i + 1}</td>
                         <td>${woTags}</td>
                         <td class="td-product-code"><span class="product-code">${r.product_code}</span></td>
+                        <td class="text-center"><span class="qty-badge" style="color:#0891b2;font-weight:700;font-size:1.2rem;">${r.target_qty.toLocaleString()}</span></td>
                         <td class="text-center"><span class="qty-badge qty-print">${r.print_qty.toLocaleString()}${r.print_count > 0 ? ` <span style="color:#64748b;font-size:0.95rem;font-weight:600">(${r.print_count})</span>` : ''}</span></td>
                         <td class="text-center"><span class="qty-badge qty-input">${r.input_qty.toLocaleString()}</span></td>
                         <td class="text-center"><span class="qty-badge qty-viindoo">${r.viindoo_qty.toLocaleString()}</span></td>
@@ -495,7 +497,7 @@
 
             $('#lastUpdated').text('Cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN'));
         }).fail(function() {
-            $('#tableBody').html('<tr><td colspan="8" class="no-data">⚠ Không thể kết nối máy chủ</td></tr>');
+            $('#tableBody').html('<tr><td colspan="10" class="no-data">⚠ Không thể kết nối máy chủ</td></tr>');
             $('#lastUpdated').text('Lỗi kết nối');
         });
     }

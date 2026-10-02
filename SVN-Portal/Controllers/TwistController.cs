@@ -76,8 +76,17 @@ namespace SVN_Portal.Controllers
                     .ToDictionary(g => g.Key,
                         g => (int)g.Sum(v => v.Time1 + v.Time2 + v.Time3 + v.Time4 + v.Time5 + v.Time6));
 
-                // Product codes hôm nay
-                var allCodes = viindooQtyByCode.Keys.ToList();
+                var twistTarget = viindooList?
+                    .Where(v => v.Operation != null && v.Operation.StartsWith("Twist-") && v.Type_value == "Target")
+                    .ToList() ?? new List<SVN_production_resultUI>();
+
+                var targetQtyByCode = twistTarget
+                    .GroupBy(v => v.Operation.Replace("Twist-", "").Trim())
+                    .ToDictionary(g => g.Key,
+                        g => (int)g.Sum(v => v.Time1 + v.Time2 + v.Time3 + v.Time4 + v.Time5 + v.Time6));
+
+                // Product codes hôm nay (union cả Production Qty và Target)
+                var allCodes = viindooQtyByCode.Keys.Union(targetQtyByCode.Keys).ToList();
 
                 // 2. ProductMapping — dùng LocalSvnConnectionString (10.10.99.10, svn_pentaho)
                 var codeToProductId = new Dictionary<string, int>();
@@ -142,6 +151,7 @@ namespace SVN_Portal.Controllers
                 var rows = allCodes.Select(code =>
                 {
                     int pid        = codeToProductId.ContainsKey(code) ? codeToProductId[code] : 0;
+                    int targetQty  = targetQtyByCode.ContainsKey(code) ? targetQtyByCode[code] : 0;
                     int viindooQty = viindooQtyByCode.ContainsKey(code) ? viindooQtyByCode[code] : 0;
                     int inputQty   = pid > 0 && inputByProductId.ContainsKey(pid) ? (int)inputByProductId[pid] : 0;
                     int inputCount = pid > 0 && inputCountByProductId.ContainsKey(pid) ? inputCountByProductId[pid] : 0;
@@ -158,6 +168,7 @@ namespace SVN_Portal.Controllers
                         product_code      = code,
                         product_id        = pid,
                         wo_codes          = woCodes,
+                        target_qty        = targetQty,
                         print_qty         = printQty,
                         print_count       = printCount,
                         input_qty         = inputQty,
