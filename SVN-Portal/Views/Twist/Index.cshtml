@@ -228,8 +228,6 @@
         background-color: #343a40 !important;
         color: #fff !important;
     }
-    /* supervisorConfirmModal phải hiện trên blockOverlay (z-index 9999) */
-    #supervisorConfirmModal { z-index: 10001 !important; }
 </style>
 
 <div class="container-fluid py-4">
@@ -457,34 +455,6 @@
                    placeholder="Mật khẩu..." autocomplete="off" />
             <div id="blockPasswordError" class="text-danger small mt-1 d-none">Mật khẩu không đúng, vui lòng thử lại!</div>
             <button id="btnBlockConfirm" class="btn btn-danger w-100 mt-2">Xác nhận</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal xác nhận của Tổ trưởng (hiện sau khi nhập đúng mật khẩu) -->
-<div class="modal fade" id="supervisorConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" style="z-index:10001;">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
-        <div class="modal-content border-0" style="border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-            <!-- Header màu xanh dịu -->
-            <div style="background:linear-gradient(135deg,#1e88e5,#1565c0); padding:1.5rem 1.5rem 1rem; text-align:center;">
-                <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
-                    <span style="font-size:1.8rem;line-height:1;">🔐</span>
-                </div>
-                <h5 style="color:#fff;font-weight:700;margin:0;font-size:1.1rem;letter-spacing:0.02em;">Xác nhận của Tổ trưởng</h5>
-            </div>
-            <!-- Body -->
-            <div style="background:#fff;padding:1.5rem;text-align:center;">
-                <p style="color:#555;font-size:1rem;margin:0;">Tổ trưởng có xác nhận cho phép tiếp tục không?</p>
-            </div>
-            <!-- Footer -->
-            <div style="background:#f8f9fa;padding:1rem 1.5rem;display:flex;gap:0.75rem;justify-content:center;border-top:1px solid #eee;">
-                <button id="btnSupervisorNo" class="btn" style="flex:1;border-radius:10px;font-weight:600;font-size:1rem;padding:0.6rem;background:#fff;border:2px solid #dee2e6;color:#6c757d;">
-                    Không
-                </button>
-                <button id="btnSupervisorYes" class="btn" style="flex:1;border-radius:10px;font-weight:700;font-size:1rem;padding:0.6rem;background:linear-gradient(135deg,#28a745,#1e7e34);border:none;color:#fff;box-shadow:0 4px 12px rgba(40,167,69,0.35);">
-                    Có, xác nhận
-                </button>
-            </div>
         </div>
     </div>
 </div>
@@ -735,8 +705,6 @@
                 card.removeClass(flashClass);
             }, 3000);
         }
-        const supervisorModal = new bootstrap.Modal(document.getElementById('supervisorConfirmModal'), { backdrop: false });
-
         function showBlockScreen(errorMsg) {
             $('#blockErrorMsg').text(errorMsg);
             $('#blockPasswordInput').val('');
@@ -751,13 +719,12 @@
             saveState();
         }
 
-        // Bước 1: Kiểm tra mật khẩu
         $('#btnBlockConfirm').click(function() {
             let pwd = $('#blockPasswordInput').val();
             if (pwd === CONFIG_PASSWORD) {
                 $('#blockPasswordError').addClass('d-none');
-                // Mở modal xác nhận Có/Không
-                supervisorModal.show();
+                hideBlockScreen();
+                $('#pcsInput').val('').focus();
             } else {
                 $('#blockPasswordError').removeClass('d-none');
                 $('#blockPasswordInput').val('').focus();
@@ -766,20 +733,6 @@
 
         $('#blockPasswordInput').keypress(function(e) {
             if (e.which === 13) $('#btnBlockConfirm').click();
-        });
-
-        // Bước 2a: Tổ trưởng chọn "Có" → ẩn overlay, clear ô scan, cho quét tiếp
-        $('#btnSupervisorYes').click(function() {
-            supervisorModal.hide();
-            hideBlockScreen();
-            $('#pcsInput').val('').focus();
-        });
-
-        // Bước 2b: Tổ trưởng chọn "Không" → đóng modal, giữ nguyên overlay, xoá pass
-        $('#btnSupervisorNo').click(function() {
-            supervisorModal.hide();
-            $('#blockPasswordInput').val('');
-            setTimeout(() => $('#blockPasswordInput').focus(), 300);
         });
 
         function printLabel() {

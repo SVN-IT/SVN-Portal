@@ -338,7 +338,15 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    return Json(new { isValid = false, isMismatch = true, error = $"Mã sản phẩm quét không khớp với mã sản phẩm {productCode}!" });
+                    bool isKnownOtherProduct = twistData.Any(kv =>
+                        !kv.Key.Equals(productCode, StringComparison.OrdinalIgnoreCase) &&
+                        kv.Value.Count > 0 &&
+                        kv.Value[0].Equals(pcs, StringComparison.OrdinalIgnoreCase));
+
+                    if (isKnownOtherProduct)
+                        return Json(new { isValid = false, isMismatch = true, error = $"Mã sản phẩm quét không khớp với mã sản phẩm {productCode}!" });
+                    else
+                        return Json(new { isValid = false, isMismatch = false, error = $"Barcode không hợp lệ cho sản phẩm {productCode}!" });
                 }
             }
 
