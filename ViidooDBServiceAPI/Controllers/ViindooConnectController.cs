@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -2750,15 +2751,47 @@ namespace ViidooDBServiceAPI.Controllers
                     }
                     logger.Log(LogService.LogApp.SVNAPI, LogService.LogAction.InputProduction, LogService.LogType.Info, "Lưu lệnh sản xuất thành công " + productionOrderInfo["name"] + (!string.IsNullOrWhiteSpace(dataRequest.LotNumber) ? " với số seri: " + dataRequest.LotNumber : ""));
 
-                    var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
+                    //var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsync(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
 
-                    var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
+
+                    //Cập nhật hàm make done mới dể xử lý trường hợp cảnh báo tiêu thụ
+                    var markDoneResult = await odooAPIService.MarkDoneProductionOrderAsyncV1(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
+
+                    // 2. Kiểm tra res_model nếu bị dính popup warning
+                    if (markDoneResult?.result?.res_model == "mrp.consumption.warning")
+                    {
+                        // Truyền thẳng markDoneResult (dynamic) vào hàm
+                        int warningId = await odooAPIService.CreateConsumptionWarningAsync(markDoneResult, dbConfig.UserID, dbConfig.SessionID);
+
+                        // Tiếp tục bước gọi button confirm trên warningId nếu có...
+                        dynamic confirmWarningResult = await odooAPIService.ConfirmConsumptionWarningAsync(warningId, markDoneResult, dbConfig.UserID, dbConfig.SessionID);
+
+                        if (confirmWarningResult?.result?.res_model == "mrp.production.backorder" && !dataRequest.IsLastOrder)
+                        {
+                            // 3.1. Tạo bản ghi backorder
+                            int backorderId = await odooAPIService.CreateProductionBackorderAsync(confirmWarningResult, dbConfig.UserID, dbConfig.SessionID);
+
+                            // 3.2. Xác nhận backorder (action_backorder để tạo dở dang HOẶC action_close để đóng luôn)
+                            await odooAPIService.ConfirmProductionBackorderAsync(backorderId, confirmWarningResult, dbConfig.UserID, dbConfig.SessionID);
+                        }
+                    }
+                    else if(markDoneResult?.result?.res_model == "mrp.production.backorder" && !dataRequest.IsLastOrder)
+                    {
+                        // 3.1. Tạo bản ghi backorder
+                        int backorderId = await odooAPIService.CreateProductionBackorderAsync(markDoneResult, dbConfig.UserID, dbConfig.SessionID);
+
+                        // 3.2. Xác nhận backorder (action_backorder để tạo dở dang HOẶC action_close để đóng luôn)
+                        await odooAPIService.ConfirmProductionBackorderAsync(backorderId, markDoneResult, dbConfig.UserID, dbConfig.SessionID);
+                    }
+
+
+                    //var backOrderOnchangeResult = await odooAPIService.BackOrderOnchange(mrp_production_id, dbConfig.UserID, dbConfig.SessionID);
 
                     if (!dataRequest.IsLastOrder)
                     {
-                        var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, dbConfig.UserID, dbConfig.SessionID, lot_id);
+                        //var backorder_id = await odooAPIService.BackOrderCreate(mrp_production_id, dbConfig.UserID, dbConfig.SessionID, lot_id);
 
-                        var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, dbConfig.UserID, dbConfig.SessionID);
+                        //var backorderResult = await odooAPIService.BackOrderAction(mrp_production_id, backorder_id, dbConfig.UserID, dbConfig.SessionID);
                     }
 
 
