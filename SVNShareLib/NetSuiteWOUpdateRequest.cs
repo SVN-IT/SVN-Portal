@@ -9,6 +9,6 @@ namespace SVNShareLib
     public class NetSuiteWOUpdateRequest
     {
         public int internalId { get; set; }
-        public string quantityBuilt { get; set; }
+        public decimal quantityBuilt { get; set; }
     }
 }
