@@ -13,10 +13,12 @@ builder.Services.AddSwaggerGen();
 ViindooDBConfig viindooDBConfig = builder.Configuration.GetSection("ViindooDBConfig").Get<ViindooDBConfig>();
 SVNDBConfig sVNDBConfig = builder.Configuration.GetSection("SVNDBConfig").Get<SVNDBConfig>();
 APIConfig aPIConfig = builder.Configuration.GetSection("APIConfig").Get<APIConfig>();
+NetSuiteScriptService netSuiteScriptService = builder.Configuration.GetSection("NetSuiteScriptService").Get<NetSuiteScriptService>();
 
 builder.Services.AddSingleton(viindooDBConfig);
 builder.Services.AddSingleton(sVNDBConfig);
 builder.Services.AddSingleton(aPIConfig);
+builder.Services.AddSingleton(netSuiteScriptService);
 builder.Services.AddSingleton<ConvertDataService>();
 builder.Services.AddSingleton<DBService>();
 builder.Services.AddSingleton<OdooRpcDBService>();
