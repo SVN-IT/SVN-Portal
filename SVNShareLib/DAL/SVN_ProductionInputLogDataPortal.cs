@@ -96,6 +96,7 @@ namespace SVNShareLib.DAL
             // Sử dụng WHERE để lọc và tham số @dateFinished để bảo mật
             string sql = @"SELECT TOP(#Count) * FROM SVN_ProductionInputLogs 
                          WHERE date_finished >= @fromDate AND date_finished <= @toDate AND status = @status
+                         AND master_wo_code = 'NM/MO/05063'
                          ORDER BY id";
             if(Count <= 0)
             {

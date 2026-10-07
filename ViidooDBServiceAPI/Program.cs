@@ -27,6 +27,10 @@ builder.Services.AddSingleton<JsonRpcDataService>();
 builder.Services.AddSingleton<NewViindooDataService>();
 builder.Services.AddSingleton<OdooAPIService>();
 
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<NewViindooAPIService>();
+builder.Services.AddSingleton<ViindooProductionService>();
+
 
 
 var app = builder.Build();

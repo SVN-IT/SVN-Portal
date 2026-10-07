@@ -191,9 +191,19 @@ namespace ViidooDBServiceAPI.Services
         {
             var request = CreateBaseRpcRequest("mrp.production", "search_read", new List<object>
             {
-                new List<object> { new List<object> { "name", "=", name } },
-                new List<string> { "id", "name", "product_id", "product_qty", "qty_producing", "qty_produced",
-                                   "product_tracking", "company_id", "move_raw_ids", "state" }
+                new List<object> { new List<object> { "name", "ilike", name } },
+                new List<string> { "confirm_cancel", "show_lock", "move_byproduct_ids", "state",
+                                "show_serial_mass_produce", "check_ids", "check_todo", "reservation_state", "date_planned_finished", "is_locked", "qty_produced",
+                                "unreserve_visible", "reserve_visible", "consumption", "is_planned", "show_allocation", "workorder_ids", "eco_count", "purchase_order_count",
+                                "sale_order_count", "mrp_production_child_count", "mrp_production_source_count", "mrp_production_backorder_count", "unbuild_count", "scrap_count",
+                                "delivery_count", "alert_count", "package_count", "account_moves_count", "maintenance_count", "document_count", "overview_progress", "priority",
+                                "name", "id", "use_create_components_lots", "show_lot_ids", "product_tracking", "show_valuation", "product_id", "product_tmpl_id",
+                                "forecasted_issue", "company_id", "product_description_variants", "bom_id", "qty_producing", "product_qty", "product_uom_category_id",
+                                "product_uom_id", "product_packaging_id", "lot_producing_id", "date_planned_start", "delay_alert_date", "json_popover",
+                                "components_availability_state", "components_availability", "show_final_lots", "production_location_id", "move_finished_ids",
+                                "move_raw_ids", "picking_type_id", "location_src_id", "warehouse_id", "location_dest_id", "origin", "date_deadline", "display_name" },
+                "create_date desc",
+                1
             });
 
             dynamic response = await CallKwAsync("mrp.production", "search_read", request);
@@ -341,27 +351,165 @@ namespace ViidooDBServiceAPI.Services
             return await CallKwAsync("mrp.production", "button_mark_done", request);
         }
 
-        public async Task<dynamic> BackOrderOnchange(int mrpProductionId)
+        public async Task<int> CreateConsumptionWarningAsync(dynamic markDoneResult)
         {
-            var request = CreateBaseRpcRequest("mrp.production", "onchange_producing_quantity", new List<object> { new List<int> { mrpProductionId } });
-            return await CallKwAsync("mrp.production", "onchange_producing_quantity", request);
-        }
-
-        public async Task<int> BackOrderCreate(int mrpProductionId, int lotId)
-        {
-            var request = CreateBaseRpcRequest("mrp.production.backorder", "create", new List<object>
+            // Lấy context từ kết quả dynamic của hàm MarkDone
+            var context = markDoneResult?.result?.context;
+            if (context == null)
             {
-                new JObject { ["mrp_production_ids"] = new JArray { mrpProductionId } }
-            });
+                throw new Exception("Không tìm thấy context trong kết quả trả về của hàm MarkDone.");
+            }
 
-            dynamic response = await CallKwAsync("mrp.production.backorder", "create", request);
+            // Lấy productionId từ button_mark_done_production_ids
+            int productionId = (int)context.button_mark_done_production_ids[0];
+
+            // Lấy danh sách warning lines từ default_mrp_consumption_warning_line_ids
+            var rawLines = context.default_mrp_consumption_warning_line_ids;
+            var formattedLines = new List<object>();
+
+            if (rawLines != null)
+            {
+                foreach (var line in rawLines)
+                {
+                    // Mỗi dòng line có dạng: [0, 0, { ... }]
+                    var lineData = line[2];
+                    if (lineData != null)
+                    {
+                        // Tạo ID ảo dạng virtual_xxxxxx theo đúng định dạng Odoo yêu cầu
+                        string virtualId = $"virtual_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
+                        formattedLines.Add(new object[] { 0, virtualId, lineData });
+                    }
+                }
+            }
+
+            // Đóng gói data tạo record mrp.consumption.warning
+            var createData = new
+            {
+                mrp_production_ids = new object[] { new object[] { 6, false, new int[] { productionId } } },
+                mrp_consumption_warning_line_ids = formattedLines
+            };
+
+            // Chuẩn bị RPC Request với Kwargs đính kèm context
+            var request = CreateBaseRpcRequest(
+                model: "mrp.consumption.warning",
+                method: "create",
+                args: new List<object> { createData }
+            );
+
+            // Gán đè Context thực tế từ MarkDone result vào Kwargs
+            request.Params.Kwargs = new Kwargs
+            {
+                Context = context
+            };
+
+            // Thực thi API Call
+            dynamic response = await CallKwAsync("mrp.consumption.warning", "create", request);
+
+            // Trả về ID của bản ghi warning vừa tạo
             return response?.result != null ? (int)response.result : 0;
         }
 
-        public async Task<dynamic> BackOrderAction(int mrpProductionId, int backOrderId)
+        public async Task<dynamic> ConfirmConsumptionWarningAsync(int warningId, dynamic markDoneResult)
         {
-            if (backOrderId <= 0) return null;
-            var request = CreateBaseRpcRequest("mrp.production.backorder", "action_backorder", new List<object> { new List<int> { backOrderId } });
+            // Lấy lại context từ kết quả MarkDone ban đầu truyền sang
+            var context = markDoneResult?.result?.context;
+            if (context == null)
+            {
+                throw new Exception("Không tìm thấy context để xác nhận Consumption Warning.");
+            }
+
+            // Chuẩn bị RPC Request gọi action_confirm
+            var request = CreateBaseRpcRequest(
+                model: "mrp.consumption.warning",
+                method: "action_confirm",
+                args: new List<object> { new int[] { warningId } }
+            );
+
+            // Gán đè Context thực tế từ MarkDone result vào Kwargs
+            request.Params.Kwargs = new Kwargs
+            {
+                Context = context
+            };
+
+            // Thực thi API Call tới mrp.consumption.warning/action_confirm
+            return await CallKwAsync("mrp.consumption.warning", "action_confirm", request);
+        }
+
+        public async Task<int> CreateProductionBackorderAsync(dynamic previousResult)
+        {
+            // Lấy context trả về từ bước ngay trước đó (markDone hoặc confirmWarning)
+            var context = previousResult?.result?.context;
+            if (context == null)
+            {
+                throw new Exception("Không tìm thấy context trong kết quả trả về từ Odoo.");
+            }
+
+            // Lấy danh sách backorder lines từ context
+            var rawLines = context.default_mrp_production_backorder_line_ids;
+            var formattedLines = new List<object>();
+
+            if (rawLines != null)
+            {
+                foreach (var line in rawLines)
+                {
+                    // Cấu trúc line từ context: [0, 0, { "mrp_production_id": ..., "to_backorder": true }]
+                    var lineData = line[2];
+                    if (lineData != null)
+                    {
+                        string virtualId = $"virtual_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
+                        formattedLines.Add(new object[] { 0, virtualId, lineData });
+                    }
+                }
+            }
+
+            // Đóng gói data tạo record mrp.production.backorder
+            var createData = new
+            {
+                mrp_production_backorder_line_ids = formattedLines
+            };
+
+            // Chuẩn bị RPC Request
+            var request = CreateBaseRpcRequest(
+                model: "mrp.production.backorder",
+                method: "create",
+                args: new List<object> { createData }
+            );
+
+            // Gán đè Context thực tế từ kết quả bước trước vào Kwargs
+            request.Params.Kwargs = new Kwargs
+            {
+                Context = context
+            };
+
+            // Thực thi API Call
+            dynamic response = await CallKwAsync("mrp.production.backorder", "create", request);
+
+            // Trả về ID của bản ghi backorder vừa tạo
+            return response?.result != null ? (int)response.result : 0;
+        }
+
+        public async Task<dynamic> ConfirmProductionBackorderAsync(int backorderId, dynamic previousResult)
+        {
+            // Lấy context từ kết quả trả về của bước ngay trước đó
+            var context = previousResult?.result?.context;
+
+            // Chuẩn bị RPC Request gọi action_backorder trên model mrp.production.backorder
+            var request = CreateBaseRpcRequest(
+                model: "mrp.production.backorder",
+                method: "action_backorder",
+                args: new List<object> { new int[] { backorderId } }
+            );
+
+            // Gán đè Context vào Kwargs nếu có
+            if (context != null)
+            {
+                request.Params.Kwargs = new Kwargs
+                {
+                    Context = context
+                };
+            }
+
+            // Thực thi API Call tới mrp.production.backorder/action_backorder
             return await CallKwAsync("mrp.production.backorder", "action_backorder", request);
         }
         #endregion
