@@ -1788,6 +1788,151 @@ namespace ViidooDBServiceAPI.Controllers
             return bODataProcessResult;
         }
 
+        [Route("GetBOMDetailsByProductID")]
+        [HttpPost]
+        public async Task<BODataProcessResult> GetBOMDetailsByProductID(BOMDataRequest dataRequest)
+        {
+            BODataProcessResult bODataProcessResult = new BODataProcessResult();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dbConfig.SessionID) || dbConfig.UserID == 0)
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+
+                var productSubItemResult = await odooAPIService.SearhProductItemByID(dataRequest.ProductID, dbConfig.UserID, dbConfig.SessionID);
+                int product_tmpl_id = 0;
+                try
+                {
+                    product_tmpl_id = productSubItemResult.result[0].product_tmpl_id[0];
+
+                }
+                catch
+                {
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                    return bODataProcessResult;
+                }
+
+                if (product_tmpl_id != 0)
+                {
+                    var bomResponse = await odooAPIService.SearchBOMByProductTemplateID(product_tmpl_id, dbConfig.UserID, dbConfig.SessionID);
+
+                    if (bomResponse == null || bomResponse.result == null || ((JArray)bomResponse.result).Count == 0)
+                    {
+                        bODataProcessResult.OK = false;
+                        bODataProcessResult.Message = $"BOM infomation for Item code {product_tmpl_id} not found";
+                        return bODataProcessResult;
+                    }
+
+                    int GetIdFromMany2one(dynamic field)
+                    {
+                        if (field is JArray && ((JArray)field).Count > 0)
+                        {
+                            return (int)field[0];
+                        }
+                        return 0;
+                    }
+
+                    var bomData = bomResponse.result[0];
+                    int bomId = bomData.id;
+                    // Lấy danh sách ID của các Bom Lines (Odoo trả về dạng mảng ID)
+                    var lineIds = bomData["bom_line_ids"]?.ToObject<List<int>>();
+                    mrp_bomUI bomUI = new mrp_bomUI();
+                    bomUI.id = bomId;
+                    bomUI.active = bomData.active ?? false;
+                    bomUI.company_id = GetIdFromMany2one(bomData.company_id);
+                    bomUI.product_tmpl_id = GetIdFromMany2one(bomData.product_tmpl_id);
+                    bomUI.product_qty = bomData.product_qty ?? 0;
+                    bomUI.product_uom_id = GetIdFromMany2one(bomData.product_uom_id);
+                    bomUI.allow_operation_dependencies = bomData.allow_operation_dependencies ?? false;
+                    bomUI.code = bomData.code?.ToString() ?? string.Empty;
+                    bomUI.type = bomData.type?.ToString() ?? string.Empty;
+                    bomUI.ready_to_produce = bomData.ready_to_produce?.ToString() ?? string.Empty;
+                    bomUI.version = bomData.version ?? 0;
+
+                    // Sửa lỗi previous_bom_id ở đây
+                    bomUI.previous_bom_id = GetIdFromMany2one(bomData.previous_bom_id);
+
+                    bomUI.consumption = bomData.consumption?.ToString() ?? string.Empty;
+                    bomUI.picking_type_id = GetIdFromMany2one(bomData.picking_type_id);
+                    bomUI.create_date = bomData.create_date ?? DateTime.MinValue;
+                    bomUI.write_date = bomData.write_date ?? DateTime.MinValue;
+
+
+                    List<mrp_bom_lineUI> bomLines = new List<mrp_bom_lineUI>();
+                    if (lineIds != null && lineIds.Count > 0)
+                    {
+                        var linesResponse = await odooAPIService.GetBomLinesByIdsAsync(lineIds, dbConfig.UserID, dbConfig.SessionID);
+
+                        if (linesResponse != null && linesResponse.result != null)
+                        {
+                            foreach (var line in linesResponse.result)
+                            {
+                                bomLines.Add(new mrp_bom_lineUI
+                                {
+                                    id = line.id,
+                                    company_id = GetIdFromMany2one(line.company_id),
+                                    sequence = line.sequence ?? 0,
+                                    product_id = GetIdFromMany2one(line.product_id),
+                                    product_tmpl_id = GetIdFromMany2one(line.product_tmpl_id),
+                                    standard_qty = line.standard_qty ?? 0,
+                                    loss_rate = line.loss_rate ?? 0,
+                                    product_qty = line.product_qty ?? 0,
+                                    product_uom_id = GetIdFromMany2one(line.product_uom_id),
+                                    manual_consumption = line.manual_consumption ?? false,
+                                    cost_share = line.cost_share ?? 0,
+                                    bom_id = GetIdFromMany2one(line.bom_id),
+
+                                    // Đối với DateTime, Odoo trả về string hoặc false, nên dùng ép kiểu an toàn
+                                    create_date = line.create_date ?? DateTime.MinValue,
+                                    write_date = line.write_date ?? DateTime.MinValue
+                                });
+                            }
+                        }
+                    }
+                   
+                    var bominfo = new
+                    {
+                        bom = bomUI,
+                        bom_lines = bomLines
+                    };
+
+                    bODataProcessResult.OK = true;
+                    bODataProcessResult.Message = $"BOM infomation for Item code {dataRequest.ItemCode} retrieved successfully";
+                    bODataProcessResult.Content = bominfo;
+                }
+                else
+                {
+                    bODataProcessResult.OK = false;
+                    bODataProcessResult.Message = $"Item code {dataRequest.ItemCode} not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                bODataProcessResult.OK = false;
+                bODataProcessResult.Message = ex.Message;
+
+                if (!string.IsNullOrWhiteSpace(bODataProcessResult.Message) && bODataProcessResult.Message.Contains("Odoo Session Expired"))
+                {
+                    bODataProcessResult = await odooAPIService.LoginAsync();
+                    if (!bODataProcessResult.OK)
+                    {
+                        return bODataProcessResult;
+                    }
+                    dbConfig.SessionID = bODataProcessResult.DataType;
+                    dbConfig.UserID = bODataProcessResult.UserID;
+                }
+            }
+            return bODataProcessResult;
+        }
+
         [Route("GetProgressByName")]
         [HttpPost]
         public async Task<BODataProcessResult> GetProgressByName (InputProductDataRequest request)

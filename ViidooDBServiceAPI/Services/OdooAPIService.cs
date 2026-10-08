@@ -4032,6 +4032,64 @@ namespace ViidooDBServiceAPI.Services
             }
         }
 
+        public async Task<dynamic> SearhProductItemByID(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 180,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.product",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "id", "=", id }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "name", "default_code", "product_tmpl_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.product/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearhProductItem - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
         public async Task<dynamic> GetProgressByName(string name, int uid, string sessionId)
         {
             using (var client = new HttpClient())
