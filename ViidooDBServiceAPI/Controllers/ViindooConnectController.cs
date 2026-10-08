@@ -1816,7 +1816,7 @@ namespace ViidooDBServiceAPI.Controllers
                 catch
                 {
                     bODataProcessResult.OK = false;
-                    bODataProcessResult.Message = "Item " + dataRequest.ItemCode + " chưa tồn tại";
+                    bODataProcessResult.Message = $"Item {dataRequest.ItemCode} not found/未找到项目 {dataRequest.ItemCode}";
                     return bODataProcessResult;
                 }
 
@@ -1827,7 +1827,7 @@ namespace ViidooDBServiceAPI.Controllers
                     if (bomResponse == null || bomResponse.result == null || ((JArray)bomResponse.result).Count == 0)
                     {
                         bODataProcessResult.OK = false;
-                        bODataProcessResult.Message = $"BOM infomation for Item code {product_tmpl_id} not found";
+                        bODataProcessResult.Message = $"BOM infomation for Item code {product_tmpl_id} not found/未找到物料代码 {product_tmpl_id} 的物料清单（BOM）信息。";
                         return bODataProcessResult;
                     }
 
@@ -1905,13 +1905,13 @@ namespace ViidooDBServiceAPI.Controllers
                     };
 
                     bODataProcessResult.OK = true;
-                    bODataProcessResult.Message = $"BOM infomation for Item code {dataRequest.ItemCode} retrieved successfully";
+                    bODataProcessResult.Message = $"BOM infomation for Item code {dataRequest.ItemCode} retrieved successfully/已成功获取物料代码 {dataRequest.ItemCode} 的 BOM 信息。";
                     bODataProcessResult.Content = bominfo;
                 }
                 else
                 {
                     bODataProcessResult.OK = false;
-                    bODataProcessResult.Message = $"Item code {dataRequest.ItemCode} not found";
+                    bODataProcessResult.Message = $"Item code {dataRequest.ItemCode} not found/未找到物品代码 {dataRequest.ItemCode}";
                 }
             }
             catch (Exception ex)
