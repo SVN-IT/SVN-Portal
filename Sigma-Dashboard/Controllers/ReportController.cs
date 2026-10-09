@@ -64,6 +64,12 @@ namespace Sigma_Dashboard.Controllers
                 ViewBag.AccessMode = "PMC";
 
                 viewModels = await controllerHelper.GetDataForReport(fromDate, toDate, itemType);
+                var viewModelDetails = await controllerHelper.GetDailyResultDetails(fromDate, toDate);
+                if(viewModelDetails != null)
+                {
+                    viewModelDetails = viewModelDetails.OrderBy(x => x.Project).ThenByDescending(x => x.Date_time).ToList();
+                }
+                ViewBag.DailyResultDetails = viewModelDetails;
             }
             catch
             {
