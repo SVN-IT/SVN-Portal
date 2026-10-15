@@ -68,6 +68,7 @@
                     </a>
                 </div>
                 <!-- End Logo -->
+                <span class="time-count ms-3">Twist Print Label</span>
                 <div class="navbar-collapse">
                     <!-- toggle and nav items -->
                     <ul class="navbar-nav mr-auto mt-md-0">
@@ -383,30 +384,7 @@
         <!-- Page wrapper  -->
         <div class="page-wrapper svn-layout">
             <!-- Bread crumb -->
-           <div class="row page-titles">
-                <div class="col-12 col-md-5 align-self-center sub-header-layout">
-                    <h5 class="text-primary">
-                       
-                        <a class="p-3 mb-2 bg-danger text-white">&lt;=75%</a>
-                        <a class="p-3 mb-2 bg-warning text-dark">Between 75% and 92%</a>
-                        <a class="p-3 mb-2 bg-primary text-white">&gt;92%</a>
-                        </h5>
-
-                </div>
-                <div class="col-12 col-md-7 align-self-center sub-header-layout">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="javascript:void(0)">home</a></li>
-                        <li class="breadcrumb-item active">Production results</li>
-                        @{
-                            string destinationlink = ViewBag.oper;
-                        }
-                        @if (!string.IsNullOrWhiteSpace(destinationlink))
-                        {
-                            <li class="breadcrumb-item active">@destinationlink Dashboard</li>
-                        }
-                    </ol>
-                </div>
-            </div> 
+           <div class="row page-titles" style="display:none;"></div> 
             <!-- End Bread crumb -->
             <!-- Container fluid  -->
             <div class="container-fluid">
@@ -414,7 +392,20 @@
             </div>
             <!-- End Container fluid  -->
             <!-- footer -->
-            <footer class="footer"> © 2024 All rights reserved. SVN</footer>
+            @if (ViewData["IsTwistPage"] is true)
+            {
+                <footer class="footer" style="text-align:center;">
+                    <span style="font-size:1rem;color:#ccc;">
+                        <strong>Hướng dẫn:</strong>
+                        In lại tem hoặc In tem thùng: Phím 1 / Numpad 1 &nbsp;|&nbsp;
+                        Cấu hình máy in: Phím 3 / Numpad 3
+                    </span>
+                </footer>
+            }
+            else
+            {
+                <footer class="footer"> © 2024 All rights reserved. SVN</footer>
+            }
             <!-- End footer -->
         </div>
         <!-- End Page wrapper  -->

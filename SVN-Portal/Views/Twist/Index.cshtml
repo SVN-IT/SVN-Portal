@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Tem hộp hàng thường";
+    ViewData["IsTwistPage"] = true;
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <!-- CSS Select2 & Theme Dark -->
@@ -10,6 +11,10 @@
     body {
         background: #1a2740;
     }
+    .left-sidebar { display: none !important; }
+    .page-wrapper { margin-left: 0 !important; }
+    .navbar-header { display: none !important; }
+    .footer { left: 0 !important; }
 
     .main-card {
         background: #22335a;
@@ -535,7 +540,26 @@
         let euSkuName = _st.euSkuName || "";
         let euConfirmed = false; // reset mỗi lần load tab mới
 
+        function todayStr() {
+            return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        }
+
+        function saveCompletedCount(wo, count) {
+            if (!wo) return;
+            localStorage.setItem('twist_completed_' + wo, JSON.stringify({ date: todayStr(), count: count }));
+        }
+
+        function loadCompletedCount(wo) {
+            if (!wo) return 0;
+            try {
+                const saved = JSON.parse(localStorage.getItem('twist_completed_' + wo));
+                if (saved && saved.date === todayStr()) return saved.count;
+            } catch(e) {}
+            return 0;
+        }
+
         function saveState() {
+            saveCompletedCount(woCode, completedCount);
             sessionStorage.setItem('twist_wo_state', JSON.stringify({
                 woCode, productCode, productName, totalCount, completedCount, pcsPerBox, sku,
                 productId: $('#product_id').text().trim(),
@@ -591,7 +615,7 @@
                 productName = data.productName || '';
                 totalCount = data.quantity || 0;
                 sku = productCode;
-                completedCount = 0;
+                completedCount = loadCompletedCount(woCode);
                 $('#woCode').text(data.woCode);
                 $('#productCode').text(productCode);
                 $('#productName').text(productName);
@@ -805,17 +829,17 @@
                 openPasswordModal();
             }
 
-            // Phím "3" (regular) -> Cấu hình Máy in
-            if (e.keyCode === 51) {
+            // Phím "2" hoặc Numpad "2" (Numlock 2) -> Quản lý PO EU (cần password)
+            if (e.key === '2' || e.keyCode === 50 || e.keyCode === 98) {
                 e.preventDefault();
-                currentAuthAction = 'config';
+                currentAuthAction = 'eu_po';
                 openPasswordModal();
             }
 
-            // Numpad "3" (Numlock 3) -> Quản lý PO EU (cần password)
-            if (e.keyCode === 99) {
+            // Phím "3" hoặc Numpad "3" (Numlock 3) -> Cấu hình Máy in
+            if (e.key === '3' || e.keyCode === 51 || e.keyCode === 99) {
                 e.preventDefault();
-                currentAuthAction = 'eu_po';
+                currentAuthAction = 'config';
                 openPasswordModal();
             }
         });
