@@ -105,14 +105,14 @@ namespace ViidooDBServiceAPI.Controllers
 
             // 1. Tập hợp tham số để tính Signature
             var sortedParams = new SortedDictionary<string, string>
-    {
-        { "oauth_consumer_key", consumerKey },
-        { "oauth_nonce", nonce },
-        { "oauth_signature_method", signatureMethod },
-        { "oauth_timestamp", timestamp },
-        { "oauth_token", tokenId },
-        { "oauth_version", version }
-    };
+            {
+                { "oauth_consumer_key", consumerKey },
+                { "oauth_nonce", nonce },
+                { "oauth_signature_method", signatureMethod },
+                { "oauth_timestamp", timestamp },
+                { "oauth_token", tokenId },
+                { "oauth_version", version }
+            };
 
             // Parse các query string từ URL (script=2496, deploy=1)
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
