@@ -7,8 +7,9 @@
         public string Description { get; set; }
         public int Qty { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal Amount => Qty * UnitPrice;
+        public decimal Amount { get; set; }
     }
+
     public class InboundPOReviewViewModel
     {
         public string PONumber { get; set; }

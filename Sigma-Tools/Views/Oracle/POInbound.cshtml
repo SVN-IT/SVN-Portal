@@ -168,10 +168,10 @@
                         <div class="col-md-3">Requisitioner</div>
                     </div>
                     <div class="row font-weight-bold text-dark mt-1">
-                        <div class="col-md-3">@Model.PONumber</div>
-                        <div class="col-md-3">@Model.Date</div>
-                        <div class="col-md-3">@Model.Customer</div>
-                        <div class="col-md-3">@Model.Requisitioner</div>
+                        <div class="col-md-3" id="po-number-display">@Model.PONumber</div>
+                        <div class="col-md-3" id="po-date-display">@Model.Date</div>
+                        <div class="col-md-3" id="po-customer-display">@Model.Customer</div>
+                        <div class="col-md-3" id="po-requisitioner-display">@Model.Requisitioner</div>
                     </div>
                 </div>
             </div>
@@ -179,11 +179,11 @@
             <!-- Extracted Line Items -->
             <div class="card card-custom">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>EXTRACTED LINE ITEMS (@Model.LineItems.Count OF 7 LINES FOUND)</span>
+                    <span id="line-items-header">EXTRACTED LINE ITEMS (@Model.LineItems.Count LINES FOUND)</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-custom table-hover mb-0">
+                        <table class="table table-custom table-hover mb-0" id="po-line-table">
                             <thead>
                                 <tr>
                                     <th style="width: 8%;">Line</th>
@@ -218,11 +218,11 @@
                     <div class="summary-box">
                         <div class="d-flex justify-content-between align-items-center mb-1 text-danger">
                             <span>Calculated Sum:</span>
-                            <span>@Model.CalculatedUnits.ToString("N0") Units / $@Model.CalculatedAmount.ToString("N2")</span>
+                            <span id="calculated-sum-display">@Model.CalculatedUnits.ToString("N0") Units / $@Model.CalculatedAmount.ToString("N2")</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center text-success">
                             <span>Expected Total (PDF):</span>
-                            <span>@Model.ExpectedUnits.ToString("N0") Units / $@Model.ExpectedAmount.ToString("N2")</span>
+                            <span id="expected-sum-display">@Model.ExpectedUnits.ToString("N0") Units / $@Model.ExpectedAmount.ToString("N2")</span>
                         </div>
                     </div>
                 </div>
@@ -285,18 +285,53 @@
         formData.append('pdfFile', file);
 
         $.ajax({
-            url: '/Oracle/UploadPOPdf', // Đường dẫn tới Action xử lý ở Server
+            url: '/Oracle/UploadPOPdf',
             type: 'POST',
             data: formData,
-            processData: false, // Bắt buộc false để jQuery không xử lý dữ liệu dạng query string
-            contentType: false, // Bắt buộc false để truyền đúng định dạng multipart/form-data
+            processData: false,
+            contentType: false,
             success: function (response) {
-                console.log("Gửi file thành công lên server:", response);
-                // Bạn có thể xử lý kết quả trả về từ server ở đây (ví dụ: cập nhật lại dữ liệu bảng PO items, v.v.)
+                if (response.success) {
+                    let m = response.data;
+
+                    // A. ĐỔI DỮ LIỆU CẢ HEADER PO
+                    document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
+                    document.getElementById('po-date-display').innerText = m.date || 'N/A';
+                    document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
+                    document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
+
+                    // B. ĐỔI TIÊU ĐỀ SỐ LƯỢNG DÒNG VÀ BẢNG LINE ITEMS
+                    document.getElementById('line-items-header').innerText = `EXTRACTED LINE ITEMS (${m.lineItems.length} LINES FOUND)`;
+
+                    let tbodyHtml = '';
+                    m.lineItems.forEach(item => {
+                        tbodyHtml += `<tr>
+                            <td>${item.line}</td>
+                            <td>${item.itemCode || ''}</td>
+                            <td>${item.description || ''}</td>
+                            <td class="text-right">${Number(item.qty).toLocaleString()}</td>
+                            <td class="text-right">$${Number(item.unitPrice).toFixed(2)}</td>
+                            <td class="text-right">$${Number(item.amount).toFixed(2)}</td>
+                        </tr>`;
+                    });
+                    $('#po-line-table tbody').html(tbodyHtml);
+
+                    // C. ĐỔI DỮ LIỆU TỔNG SUM / EXPECTED
+                    const calcUnits = Number(m.calculatedUnits).toLocaleString();
+                    const calcAmt = Number(m.calculatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const expUnits = Number(m.expectedUnits).toLocaleString();
+                    const expAmt = Number(m.expectedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    document.getElementById('calculated-sum-display').innerText = `${calcUnits} Units / $${calcAmt}`;
+                    document.getElementById('expected-sum-display').innerText = `${expUnits} Units / $${expAmt}`;
+
+                } else {
+                    alert("Lỗi: " + response.message);
+                }
             },
             error: function (xhr, status, error) {
-                console.error("Lỗi khi gửi file:", error);
-                alert("Đã xảy ra lỗi khi tải file lên server!");
+                console.error("Lỗi kết nối:", error);
+                alert("Đã xảy ra lỗi khi gửi file lên server!");
             }
         });
     });

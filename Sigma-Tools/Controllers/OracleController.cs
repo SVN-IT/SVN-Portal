@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Sigma_Tools.Models;
 
 namespace Sigma_Tools.Controllers
@@ -49,7 +50,7 @@ namespace Sigma_Tools.Controllers
         }
 
         [HttpPost]
-        public IActionResult UploadPOPdf(IFormFile pdfFile)
+        public async Task<IActionResult> UploadPOPdf(IFormFile pdfFile)
         {
             if (pdfFile == null || pdfFile.Length == 0)
             {
@@ -58,25 +59,81 @@ namespace Sigma_Tools.Controllers
 
             try
             {
-                // Lấy tên file gốc
-                string fileName = Path.GetFileName(pdfFile.FileName);
+                string fileName = pdfFile.FileName;
+                string apiUrl = "";
 
-                // (Tùy chọn) Lưu file vào thư mục tạm trên server nếu cần xử lý OCR
-                // string savePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", fileName);
-                // using (var stream = new FileStream(savePath, FileMode.Create))
-                // {
-                //     pdfFile.CopyTo(stream);
-                // }
-
-                // Thực hiện các logic xử lý file PDF ở đây (Ví dụ: Gọi AI/OCR đọc dữ liệu PO...)
-
-                return Json(new
+                // 1. Kiểm tra tên file để chọn endpoint API tương ứng
+                if (fileName.Contains("GTK", StringComparison.OrdinalIgnoreCase) || fileName.Contains("Goertek", StringComparison.OrdinalIgnoreCase))
                 {
-                    success = true,
-                    message = "Upload file thành công!",
-                    fileName = fileName,
-                    size = pdfFile.Length
-                });
+                    apiUrl = "https://orc.datatech.com.vn/api/v1/goertek/extract-po";
+                }
+                else if (fileName.Contains("Whoop", StringComparison.OrdinalIgnoreCase))
+                {
+                    apiUrl = "https://orc.datatech.com.vn/api/v1/whoop/extract-po";
+                }
+                else if (fileName.Contains("Toast", StringComparison.OrdinalIgnoreCase))
+                {
+                    apiUrl = "https://orc.datatech.com.vn/api/v1/toast/extract-po";
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Tên file không khớp với bất kỳ định dạng hãng nào (GTK, Whoop, Toast)!" });
+                }
+
+                // 2. Gửi file PDF xuống API OCR bên ngoài thông qua HttpClient
+                using (var client = new HttpClient())
+                using (var content = new MultipartFormDataContent())
+                {
+                    var fileStreamContent = new StreamContent(pdfFile.OpenReadStream());
+                    fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+                    content.Add(fileStreamContent, "file", fileName);
+
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return Json(new { success = false, message = "Lỗi khi gọi API bóc tách dữ liệu." });
+                    }
+
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+
+                    // 3. Parse JSON trả về từ API và Map vào InboundPOReviewViewModel
+                    // (Bạn có thể dùng Newtonsoft.Json hoặc System.Text.Json)
+                    var apiData = Newtonsoft.Json.Linq.JObject.Parse(jsonResponse);
+
+                    var model = new InboundPOReviewViewModel
+                    {
+                        PONumber = apiData["header"]?["po_number"]?.ToString(),
+                        Date = apiData["header"]?["po_date"]?.ToString(),
+                        Customer = apiData["header"]?["buyer"]?["name"]?.ToString(),
+                        Requisitioner = apiData["header"]?["buyer_contact"]?["name"]?.ToString(),
+                        CalculatedUnits = apiData["audit_report"]?["calculated_units"]?.Value<int>() ?? 0,
+                        CalculatedAmount = apiData["audit_report"]?["calculated_amount"]?.Value<decimal>() ?? 0,
+                        ExpectedUnits = apiData["audit_report"]?["expected_units"]?.Value<int>() ?? 0,
+                        ExpectedAmount = apiData["audit_report"]?["expected_amount"]?.Value<decimal>() ?? 0,
+                        LineItems = new List<POLineItem>()
+                    };
+
+                    var items = apiData["line_items"] as Newtonsoft.Json.Linq.JArray;
+                    if (items != null)
+                    {
+                        int index = 1;
+                        foreach (var item in items)
+                        {
+                            model.LineItems.Add(new POLineItem
+                            {
+                                Line = index++,
+                                ItemCode = item["item"]?.ToString(),
+                                Description = item["description"]?.ToString(),
+                                Qty = item["quantity"]?.Value<int>() ?? 0,
+                                UnitPrice = item["price_each"]?.Value<decimal>() ?? 0,
+                                Amount = item["amount"]?.Value<decimal>() ?? 0
+                            });
+                        }
+                    }
+
+                    // Trả về dữ liệu JSON để client cập nhật giao diện
+                    return Json(new { success = true, data = model });
+                }
             }
             catch (Exception ex)
             {
