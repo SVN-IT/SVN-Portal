@@ -276,5 +276,28 @@
 
         // 3. Đưa file mới vào giao diện
         container.appendChild(pdfObject);
+
+        // ==========================================
+        // 2. GỬI FILE XUỐNG CONTROLLER THÔNG QUA AJAX
+        // ==========================================
+        let formData = new FormData();
+        // 'pdfFile' phải trùng với tên tham số ở Action trong Controller
+        formData.append('pdfFile', file);
+
+        $.ajax({
+            url: '/Oracle/UploadPOPdf', // Đường dẫn tới Action xử lý ở Server
+            type: 'POST',
+            data: formData,
+            processData: false, // Bắt buộc false để jQuery không xử lý dữ liệu dạng query string
+            contentType: false, // Bắt buộc false để truyền đúng định dạng multipart/form-data
+            success: function (response) {
+                console.log("Gửi file thành công lên server:", response);
+                // Bạn có thể xử lý kết quả trả về từ server ở đây (ví dụ: cập nhật lại dữ liệu bảng PO items, v.v.)
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi khi gửi file:", error);
+                alert("Đã xảy ra lỗi khi tải file lên server!");
+            }
+        });
     });
 </script>

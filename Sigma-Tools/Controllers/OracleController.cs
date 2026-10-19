@@ -47,5 +47,41 @@ namespace Sigma_Tools.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        public IActionResult UploadPOPdf(IFormFile pdfFile)
+        {
+            if (pdfFile == null || pdfFile.Length == 0)
+            {
+                return Json(new { success = false, message = "Không tìm thấy file tải lên." });
+            }
+
+            try
+            {
+                // Lấy tên file gốc
+                string fileName = Path.GetFileName(pdfFile.FileName);
+
+                // (Tùy chọn) Lưu file vào thư mục tạm trên server nếu cần xử lý OCR
+                // string savePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", fileName);
+                // using (var stream = new FileStream(savePath, FileMode.Create))
+                // {
+                //     pdfFile.CopyTo(stream);
+                // }
+
+                // Thực hiện các logic xử lý file PDF ở đây (Ví dụ: Gọi AI/OCR đọc dữ liệu PO...)
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Upload file thành công!",
+                    fileName = fileName,
+                    size = pdfFile.Length
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }
