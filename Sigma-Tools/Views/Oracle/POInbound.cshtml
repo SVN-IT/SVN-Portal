@@ -1,0 +1,280 @@
+﻿@model Sigma_Tools.Models.InboundPOReviewViewModel
+@{
+    ViewData["Title"] = ViewBag.TitleName;
+}
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 0.88rem;
+    }
+
+    /* Top Header Navigation Bar */
+    .netsuite-header {
+        background-color: #0d5287;
+        color: #ffffff;
+        padding: 8px 16px;
+    }
+
+    .action-bar {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* PDF Viewer Left Side */
+    .pdf-panel {
+        background-color: #525659;
+        /* min-height: calc(100vh - 120px); */
+        padding-top: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .pdf-preview-box {
+        width: 100%;
+        height: 780px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    /* Card Customizations */
+    .card-custom {
+        border: 1px solid #e3e6f0;
+        border-radius: 4px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.04);
+        background-color: #ffffff;
+        margin-bottom: 15px;
+    }
+
+        .card-custom .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #4e73df;
+            letter-spacing: 0.5px;
+            padding: 8px 15px;
+        }
+
+    .alert-error-custom {
+        background-color: #fdf2f2;
+        border: 1px solid #f8b4b4;
+        color: #9b1c1c;
+        border-radius: 4px;
+        padding: 12px 15px;
+    }
+
+    .table-custom th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+        padding: 8px;
+    }
+
+    .table-custom td {
+        padding: 8px;
+        vertical-align: middle;
+    }
+
+    .summary-box {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 10px;
+        font-weight: 600;
+    }
+</style>
+<!-- Header NetSuite -->
+<div class="netsuite-header d-flex justify-content-between align-items-center">
+    <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| Inbound PO Review</span></div>
+    @* <div class="small">User: <strong>Duong Hai Linh</strong> | Role: <strong>IT Administrator</strong></div> *@
+</div>
+
+<!-- Action Bar & Controls -->
+<div class="action-bar d-flex justify-content-between align-items-center">
+    <div>
+        <!-- Button Import PDF -->
+        <label class="btn btn-sm btn-info mb-0 mr-2 shadow-sm cursor-pointer">
+            <i class="fas fa-file-upload mr-1"></i> Import File PDF
+            <input type="file" id="pdf-file-input" accept="application/pdf" style="display: none;">
+        </label>
+
+        <button type="button" class="btn btn-sm btn-secondary font-weight-bold">Convert to Sales Order</button>
+        <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold">Edit Data</button>
+        <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold">Reject PO</button>
+    </div>
+
+    <div class="d-flex align-items-center">
+        <span class="mr-2 text-secondary font-weight-bold small">System Validations:</span>
+        <span class="badge badge-danger p-2 font-weight-normal"><i class="fas fa-exclamation-triangle mr-1"></i> OCR Audit: FATAL ERROR (Missing Lines)</span>
+    </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="container-fluid px-0">
+    <div class="row no-gutters">
+
+        <!-- Cột trái: Review File PDF -->
+        <div class="col-md-5 pdf-panel">
+            <div class="w-100 d-flex justify-content-between align-items-center mb-2 text-white">
+                <span class="small font-weight-bold ml-2"><i class="fas fa-file-pdf mr-1"></i> Document Viewer</span>
+                <span id="file-name-display" style="margin-right:.5rem" class="small text-warning font-italic">Chưa chọn file (Hiển thị mặc định)</span>
+            </div>
+
+            <!-- Khung chứa PDF -->
+            <div id="pdf-preview-container" class="pdf-preview-box">
+                <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
+                    <i class="fas fa-file-pdf fa-4x mb-3 text-secondary"></i>
+                    <p class="mb-1">Nhấn <strong>"Import File PDF"</strong> ở trên để tải file lên.</p>
+                    <small class="text-muted">Nội dung sẽ tự động hiển thị và thay thế tại đây.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: Dữ liệu AI Extracted & Bảng chi tiết -->
+        <div class="col-md-7 p-3">
+
+            <!-- Cảnh báo Lỗi Audit OCR -->
+            <div class="alert-error-custom mb-3">
+                <div class="font-weight-bold mb-1">
+                    <span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed
+                </div>
+                <ul class="mb-1 pl-4 small">
+                    <li><strong>Units Mismatch:</strong> Sum of line items (19,500) != Total Units Expected (20,700)</li>
+                    <li><strong>Amount Mismatch:</strong> Sum of line items ($298,790.00) != Subtotal Expected ($315,530.00)</li>
+                </ul>
+                <div class="font-italic small text-danger mt-1">
+                    <strong>Action Required:</strong> The AI engine missed Line 7. Please click 'Edit Data' to add the missing line manually or reject the PO.
+                </div>
+            </div>
+
+            <!-- PO Header Extracted -->
+            <div class="card card-custom">
+                <div class="card-header">
+                    PO HEADER (AI EXTRACTED)
+                </div>
+                <div class="card-body py-2">
+                    <div class="row text-uppercase text-muted small font-weight-bold">
+                        <div class="col-md-3">PO Number</div>
+                        <div class="col-md-3">Date</div>
+                        <div class="col-md-3">Customer</div>
+                        <div class="col-md-3">Requisitioner</div>
+                    </div>
+                    <div class="row font-weight-bold text-dark mt-1">
+                        <div class="col-md-3">@Model.PONumber</div>
+                        <div class="col-md-3">@Model.Date</div>
+                        <div class="col-md-3">@Model.Customer</div>
+                        <div class="col-md-3">@Model.Requisitioner</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extracted Line Items -->
+            <div class="card card-custom">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>EXTRACTED LINE ITEMS (@Model.LineItems.Count OF 7 LINES FOUND)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 8%;">Line</th>
+                                    <th style="width: 22%;">Item Code</th>
+                                    <th style="width: 32%;">Description</th>
+                                    <th style="width: 12%; text-align: right;">Qty</th>
+                                    <th style="width: 13%; text-align: right;">Unit Price</th>
+                                    <th style="width: 13%; text-align: right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.LineItems)
+                                {
+                                    <tr>
+                                        <td>@item.Line</td>
+                                        <td>@item.ItemCode</td>
+                                        <td>@item.Description</td>
+                                        <td class="text-right">@item.Qty.ToString("N0")</td>
+                                        <td class="text-right">$@item.UnitPrice.ToString("F2")</td>
+                                        <td class="text-right">$@item.Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculations Summary Footer -->
+            <div class="row justify-content-end">
+                <div class="col-md-6">
+                    <div class="summary-box">
+                        <div class="d-flex justify-content-between align-items-center mb-1 text-danger">
+                            <span>Calculated Sum:</span>
+                            <span>@Model.CalculatedUnits.ToString("N0") Units / $@Model.CalculatedAmount.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center text-success">
+                            <span>Expected Total (PDF):</span>
+                            <span>@Model.ExpectedUnits.ToString("N0") Units / $@Model.ExpectedAmount.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- JS Scripts (JQuery, Bootstrap 4.6) -->
+@* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script> *@
+
+<!-- JavaScript Xử lý Import PDF và Thế chỗ File Cũ -->
+<script>
+    document.getElementById('pdf-file-input').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Kiểm tra loại file
+        if (file.type !== 'application/pdf') {
+            alert('Vui lòng chọn file định dạng PDF!');
+            return;
+        }
+
+        // Hiển thị tên file vừa import
+        document.getElementById('file-name-display').innerText = file.name;
+
+        // Tạo đường dẫn tạm thời cho file PDF
+        const fileURL = URL.createObjectURL(file);
+
+        const container = document.getElementById('pdf-preview-container');
+
+        // 1. DỌN DẸP / THẾ VÀO: Xóa sạch khung xem trước cũ
+        container.innerHTML = '';
+
+        // 2. Tạo thẻ object mới chứa file PDF
+        const pdfObject = document.createElement('object');
+        pdfObject.data = fileURL + '#toolbar=0&view=FitH';
+        pdfObject.type = 'application/pdf';
+        pdfObject.width = '100%';
+        pdfObject.height = '100%';
+
+        // Thông báo dự phòng nếu trình duyệt chặn viewer
+        pdfObject.innerHTML = `
+            <div class="p-4 text-center">
+                <p>Trình duyệt của bạn không hỗ trợ xem trực tiếp PDF.</p>
+                <a href="${fileURL}" target="_blank" class="btn btn-sm btn-primary">Tải file về xem</a>
+            </div>
+        `;
+
+        // 3. Đưa file mới vào giao diện
+        container.appendChild(pdfObject);
+    });
+</script>
