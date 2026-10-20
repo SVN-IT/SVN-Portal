@@ -180,7 +180,7 @@ namespace Sigma_Tools.Controllers
                 }
                 if (item.ItemCode == "308001014736")
                 {
-                    erpBasePrice = 1.666M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
+                    erpBasePrice = 1.779M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
                 }
 
                 decimal variance = item.UnitPrice - erpBasePrice;

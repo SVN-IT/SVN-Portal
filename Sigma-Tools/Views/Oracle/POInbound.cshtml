@@ -688,29 +688,41 @@
         });
     });
 
-        // =============================================================
+    // =============================================================
     // HÀM CHUNG: LẤY VÀ ĐỐI CHIẾU GIÁ ERP CHO BƯỚC 2
     // =============================================================
     function loadStep2ErpPrices() {
-        // 1. Thu thập dữ liệu các line items hiện tại trên bảng
         let currentLineItems = [];
         $('#po-line-table tbody tr').each(function () {
-            const $tr = $(this);
+            const $tr =$(this);
             if ($tr.find('td').length <= 1) return;
 
-            // LUÔN ƯU TIÊN LẤY GIÁ TRỊ OCR PRICE GỐC TỪ THUỘC TÍNH 'data-original-price'
+            // 1. LẤY CHUẨN SỐ LƯỢNG (QTY): Ưu tiên đọc từ data-original-qty, nếu không có đọc từ text cột Qty hoặc Bước 1
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
+            if (isNaN(qty)) {
+                qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+            }
+
+            // 2. LẤY CHUẨN ĐƠN GIÁ OCR (OCR PRICE): Ưu tiên đọc từ data-original-price
             let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
             if (isNaN(ocrPrice)) {
-                // Fallback nếu đang ở Bước 1
                 ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price')) || parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
             }
 
+            // 3. LẤY MÃ HÀNG VÀ MÔ TẢ
+            let itemCode = $tr.find('.cell-item-code').text().trim();
+            if (!itemCode) {
+                itemCode = $tr.find('td:nth-child(2)').text().trim();
+            }
+
+            let description = $tr.find('td:nth-child(3)').text().trim();
+
             currentLineItems.push({
                 Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
-                ItemCode: $tr.find('td:nth-child(2)').text().trim(),
-                Description: $tr.find('td:nth-child(3)').text().trim(),
-                Qty: parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
-                UnitPrice: ocrPrice // Sử dụng đúng giá OCR gốc được lưu trữ an toàn
+                ItemCode: itemCode,
+                Description: description,
+                Qty: qty,
+                UnitPrice: ocrPrice
             });
         });
 
@@ -719,7 +731,7 @@
             return;
         }
 
-        // 2. Gọi Ajax xuống Controller để đối chiếu giá ERP
+        // Gửi Ajax xuống Controller đối chiếu giá ERP
         $.ajax({
             url: '/Oracle/VerifyErpPrices',
             type: 'POST',
@@ -729,25 +741,18 @@
                 if (response.success) {
                     currentStep = 2;
 
-                    // A. Ẩn nút Import & Ẩn nút Edit Data khi ở Bước 2
                     $('#btn-import-wrapper').fadeOut(200);
                     $('#btn-edit-data').fadeOut(200);
-
-                    // B. Hiện nút Reload ERP ở vị trí khoanh đỏ phía trên
                     $('#btn-reload-erp').removeClass('d-none');
 
-                    // C. Hiệu ứng chuyển bảng mượt mà
                     const $cardContainer =$('#po-line-table').closest('.card-custom');
                     $cardContainer.fadeOut(200, function () {
 
-                        // Cập nhật Progress Bar
                         $('#step-node-1').removeClass('active').addClass('completed');
                         $('#step-node-2').addClass('active');
 
-                        // Đổi tiêu đề Card Header
                         $cardContainer.find('.card-header span:first').text('LINE ITEMS & PRICE VERIFICATION');
 
-                        // Đổi Header Bảng sang dạng Verification
                         let tableHeaderHtml = `
                             <tr>
                                 <th style="width: 8%;">Line</th>
@@ -760,20 +765,15 @@
                         `;
                         $('#po-line-table thead').html(tableHeaderHtml);
 
-                        // Render dữ liệu các dòng Bước 2
                         renderStep2Table(response.data);
 
-                        // Đổi nút "Xác nhận" ở góc dưới thành "Proceed to Create SO (Bước 3)"
-                        // (Nếu nút đã đổi ID thì giữ nguyên ID mới)
                         if ($('#btn-confirm-next').length > 0) {
                             $('#btn-confirm-next')
                                 .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)')
                                 .attr('id', 'btn-proceed-step3');
                         }
 
-                        // Kiểm tra ẩn/hiện nút sang Bước 3 dựa vào trạng thái Match
                         checkAllStep2Matched();
-
                         $cardContainer.fadeIn(300);
                     });
 
@@ -818,11 +818,13 @@
                 statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`;
             }
 
+            // GẮN CÁC CLASS cell-qty VÀ cell-ocr-price ĐỂ DỄ DÀNG ĐỌC LẠI DỮ LIỆU KHI RELOAD
             tbodyHtml += `
                 <tr class="${rowClass}" data-erp-price="${erpPrice}">
                     <td>${item.line}</td>
                     <td class="font-weight-bold cell-item-code">${item.itemCode}</td>
-                    <td class="text-right cell-qty">${item.qty.toLocaleString()}</td>
+                    <td>${item.description || ''}</td>
+                    <td class="text-right cell-qty" data-original-qty="${item.qty}">${item.qty.toLocaleString()}</td>
                     <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice}</td>
                     <td class="text-right cell-erp-price">$${erpPrice}</td>
                     <td class="text-center cell-status">${statusHtml}</td>
@@ -832,10 +834,9 @@
 
         $('#po-line-table tbody').html(tbodyHtml);
 
-        // Cập nhật khung thông báo Notice
         updateStep2NoticeBox(hasVariance);
-        $('#btn-reload-erp').removeClass('d-none'); // Hiển thị nút reload ở bước 2
-        checkAllStep2Matched(); // Kiểm tra điều kiện hiện nút sang bước 3
+        $('#btn-reload-erp').removeClass('d-none');
+        checkAllStep2Matched();
     }
 
     // Hàm bật/tắt khung thông báo Notice thời gian thực
