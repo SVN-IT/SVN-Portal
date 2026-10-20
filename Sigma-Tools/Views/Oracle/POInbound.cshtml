@@ -856,6 +856,7 @@
 
         updateStep2NoticeBox(hasVariance);
         updateStep2BadgeStatus(hasVariance);
+        updateStep2AuditAlertBox(dataList, hasVariance); // CẬP NHẬT KHUNG THÔNG BÁO PHÍA TRÊN
         $('#btn-reload-erp').removeClass('d-none');
         checkAllStep2Matched();
     }
@@ -1430,6 +1431,7 @@
 
         updateStep2NoticeBox(hasVariance);
         updateStep2BadgeStatus(hasVariance); // Tự động cập nhật badge theo thời gian thực
+        updateStep2AuditAlertBox(null, hasVariance);
         checkAllStep2Matched();
     }
 
@@ -1532,6 +1534,53 @@
                       .css({ 'background-color': '#f0ad4e', 'color': '#fff' });
                 $icon.removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
                 $text.text('ERP Pricing: VARIANCE DETECTED (Pending Approval)');
+            }
+        }
+
+        // Hàm cập nhật khung thông báo chính phía trên CHỈ DÙNG CHO BƯỚC 2
+        function updateStep2AuditAlertBox(dataList, hasVariance) {
+            // Đảm bảo chỉ chạy khi đang ở Bước 2
+            if (currentStep !== 2) return;
+
+            const $alertBox =$('#ocr-audit-alert-box');
+            const $title =$('#ocr-audit-title');
+            const $details =$('#ocr-audit-details');
+            const $action =$('#ocr-audit-action');
+
+            $alertBox.show();
+
+            if (!hasVariance) {
+                // --- TRƯỜNG HỢP BƯỚC 2: PASSED (MATCHED ALL) ---
+                $alertBox.removeClass('alert-error-custom alert-warning-custom').addClass('alert-success-custom')
+                         .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+
+                $title.html('<span class="text-success mr-1">●</span> ERP PRICING PASSED: Data & Base Prices Verified');
+
+                let detailsHtml = `
+                    <li><strong>Reconciliation:</strong> All line items matched perfectly with ERP Base Prices.</li>
+                    <li><strong>Variance Status:</strong> No price discrepancies detected across all line items.</li>
+                `;
+                $details.html(detailsHtml);
+
+                $action.removeClass('text-danger text-warning').addClass('text-success')
+                       .css('color', '#0e9f6e')
+                       .html('<strong>Status:</strong> All line items matched perfectly. Ready to convert to Sales Order.');
+            } else {
+                // --- TRƯỜNG HỢP BƯỚC 2: VARIANCE DETECTED (MÀU CAM/VÀNG) ---
+                $alertBox.removeClass('alert-error-custom alert-success-custom').addClass('alert-warning-custom')
+                         .css({ 'background-color': '#fffbeb', 'border': '1px solid #fde68a', 'color': '#92400e' });
+
+                $title.html('<span class="text-warning mr-1" style="color: #d97706 !important;">●</span> ERP PRICING VARIANCE: Custom Pricing Logic Triggered');
+
+                let detailsHtml = `
+                    <li><strong>Notice:</strong> One or more lines trigger custom pricing logic.</li>
+                    <li><strong>Workflow Notice:</strong> Converting this record will route the Sales Order to Pending Approval status.</li>
+                `;
+                $details.html(detailsHtml);
+
+                $action.removeClass('text-success text-danger').addClass('text-warning')
+                       .css('color', '#b45309')
+                       .html('<strong>Action Required:</strong> Please review price variances or proceed to route for Pending Approval.');
             }
         }
 </script>
