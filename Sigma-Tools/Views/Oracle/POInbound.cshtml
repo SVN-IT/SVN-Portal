@@ -378,6 +378,11 @@
         </div>
 
         <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold" id="btn-reject" disabled>Reject PO</button>
+
+        <!-- NÚT RELOAD ERP DATA (Nằm ở vị trí khoanh đỏ, chỉ hiển thị khi sang Bước 2) -->
+        <button type="button" id="btn-reload-erp" class="btn btn-sm btn-outline-primary font-weight-bold shadow-sm ml-2 d-none">
+            <i class="fas fa-sync-alt mr-1"></i> Reload ERP data
+        </button>
     </div>
 
     <!-- Badge Trạng thái phía trên góc phải -->
@@ -583,7 +588,7 @@
                             <td>${item.itemCode || ''}</td>
                             <td>${item.description || ''}</td>
                             <td class="text-right">${Number(item.qty).toLocaleString()}</td>
-                            <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice).toFixed(2)}</td>
+                            <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice)}</td>
                             <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
                             <td class="text-center col-action d-none">
                                 <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
@@ -683,24 +688,38 @@
         });
     });
 
-    // -------------------------------------------------------------
-    // 1. XỬ LÝ SỰ KIỆN NÚT "XÁC NHẬN & CHUYỂN BƯỚC 2"
-    // -------------------------------------------------------------
-    $(document).on('click', '#btn-confirm-next', function () {
+        // =============================================================
+    // HÀM CHUNG: LẤY VÀ ĐỐI CHIẾU GIÁ ERP CHO BƯỚC 2
+    // =============================================================
+    function loadStep2ErpPrices() {
+        // 1. Thu thập dữ liệu các line items hiện tại trên bảng
         let currentLineItems = [];
         $('#po-line-table tbody tr').each(function () {
-            const $tr =$(this);
+            const $tr = $(this);
             if ($tr.find('td').length <= 1) return;
+
+            // LUÔN ƯU TIÊN LẤY GIÁ TRỊ OCR PRICE GỐC TỪ THUỘC TÍNH 'data-original-price'
+            let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
+            if (isNaN(ocrPrice)) {
+                // Fallback nếu đang ở Bước 1
+                ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price')) || parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+            }
 
             currentLineItems.push({
                 Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
                 ItemCode: $tr.find('td:nth-child(2)').text().trim(),
                 Description: $tr.find('td:nth-child(3)').text().trim(),
                 Qty: parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
-                UnitPrice: parseFloat($tr.find('td:nth-child(5)').attr('data-original-price')) || parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0
+                UnitPrice: ocrPrice // Sử dụng đúng giá OCR gốc được lưu trữ an toàn
             });
         });
 
+        if (currentLineItems.length === 0) {
+            alert("Không có dữ liệu Line Items để đối chiếu!");
+            return;
+        }
+
+        // 2. Gọi Ajax xuống Controller để đối chiếu giá ERP
         $.ajax({
             url: '/Oracle/VerifyErpPrices',
             type: 'POST',
@@ -710,10 +729,14 @@
                 if (response.success) {
                     currentStep = 2;
 
-                    // A. ẨN NÚT IMPORT FILE PDF KHI SANG BƯỚC 2
+                    // A. Ẩn nút Import & Ẩn nút Edit Data khi ở Bước 2
                     $('#btn-import-wrapper').fadeOut(200);
+                    $('#btn-edit-data').fadeOut(200);
 
-                    // B. HIỆU ỨNG CHUYỂN BẢNG SANG BƯỚC 2
+                    // B. Hiện nút Reload ERP ở vị trí khoanh đỏ phía trên
+                    $('#btn-reload-erp').removeClass('d-none');
+
+                    // C. Hiệu ứng chuyển bảng mượt mà
                     const $cardContainer =$('#po-line-table').closest('.card-custom');
                     $cardContainer.fadeOut(200, function () {
 
@@ -737,13 +760,19 @@
                         `;
                         $('#po-line-table thead').html(tableHeaderHtml);
 
-                        // Render dữ liệu các dòng
+                        // Render dữ liệu các dòng Bước 2
                         renderStep2Table(response.data);
 
-                        // Đổi nút Xác nhận thành nút sang Bước 3
-                        $('#btn-confirm-next')
-                            .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)')
-                            .attr('id', 'btn-proceed-step3');
+                        // Đổi nút "Xác nhận" ở góc dưới thành "Proceed to Create SO (Bước 3)"
+                        // (Nếu nút đã đổi ID thì giữ nguyên ID mới)
+                        if ($('#btn-confirm-next').length > 0) {
+                            $('#btn-confirm-next')
+                                .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)')
+                                .attr('id', 'btn-proceed-step3');
+                        }
+
+                        // Kiểm tra ẩn/hiện nút sang Bước 3 dựa vào trạng thái Match
+                        checkAllStep2Matched();
 
                         $cardContainer.fadeIn(300);
                     });
@@ -756,6 +785,13 @@
                 alert("Lỗi kết nối khi gọi dữ liệu ERP từ server!");
             }
         });
+    }
+
+    // -------------------------------------------------------------
+    // 1. XỬ LÝ SỰ KIỆN NÚT "XÁC NHẬN & CHUYỂN BƯỚC 2"
+    // -------------------------------------------------------------
+    $(document).on('click', '#btn-confirm-next', function () {
+        loadStep2ErpPrices();
     });
 
     // -------------------------------------------------------------
@@ -787,8 +823,8 @@
                     <td>${item.line}</td>
                     <td class="font-weight-bold cell-item-code">${item.itemCode}</td>
                     <td class="text-right cell-qty">${item.qty.toLocaleString()}</td>
-                    <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice.toFixed(2)}</td>
-                    <td class="text-right cell-erp-price">$${erpPrice.toFixed(2)}</td>
+                    <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice}</td>
+                    <td class="text-right cell-erp-price">$${erpPrice}</td>
                     <td class="text-center cell-status">${statusHtml}</td>
                 </tr>
             `;
@@ -798,6 +834,8 @@
 
         // Cập nhật khung thông báo Notice
         updateStep2NoticeBox(hasVariance);
+        $('#btn-reload-erp').removeClass('d-none'); // Hiển thị nút reload ở bước 2
+        checkAllStep2Matched(); // Kiểm tra điều kiện hiện nút sang bước 3
     }
 
     // Hàm bật/tắt khung thông báo Notice thời gian thực
@@ -846,7 +884,7 @@
                     const $tr =$(this);
                     if (originalDataBackup.lineItems[i]) {
                         const origPrice = originalDataBackup.lineItems[i].unitPrice;
-                        $tr.find('.cell-ocr-price').attr('data-original-price', origPrice).text(`$${origPrice.toFixed(2)}`);
+                        $tr.find('.cell-ocr-price').attr('data-original-price', origPrice).text(`$${origPrice}`);
 
                         // Tính lại match/variance
                         const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
@@ -966,6 +1004,9 @@
             $('#btn-edit-data').hide();
             $('#edit-actions-group').css('display', 'inline-flex'); // Hiển thị chuẩn dạng Flex/Inline không bị nhảy xuống dòng
 
+            // 2. ẨN NÚT XÁC NHẬN CHUYỂN BƯỚC KHI ĐANG EDIT
+            $('#btn-confirm-next').addClass('d-none');
+
             // NẾU ĐANG Ở BƯỚC 2: Ẩn nút Add Item đi vì không cho phép thêm dòng mới ở bước này
             if (currentStep === 2) {
                 $('#btn-add-line').hide();
@@ -984,15 +1025,27 @@
         } else {
             // --- TẮT CHẾ ĐỘ CHỈNH SỬA ---
             // Hiện lại nút "Edit Data", ẩn nhóm nút thao tác
-            $('#btn-edit-data').show();
+            //$('#btn-edit-data').show();
             $('#edit-actions-group').css('display', 'none');
 
             // Ẩn cột thao tác Xóa trong bảng
             $('.col-action').addClass('d-none');
 
+            // CHỈ HIỆN LẠI NÚT "EDIT DATA" NẾU ĐANG Ở BƯỚC 1. Ở BƯỚC 2 SẼ ẨN LUÔN NHƯNG GIỮ LOGIC.
+            if (currentStep === 1) {
+                $('#btn-edit-data').show();
+            } else {
+                $('#btn-edit-data').hide(); // Ẩn hoàn toàn nút Edit ở Bước 2 theo yêu cầu mới
+            }
+
             // Chuyển Header và Bảng về dạng text tĩnh
             makeHeaderEditable(false);
             makeTableEditable(false);
+
+            // 3. HIỂN THỊ LẠI NÚT XÁC NHẬN NẾU DỮ LIỆU ĐÃ KHỐP AUDIT (PASSED)
+            if (currentStep === 1) {
+                recalculateAndAudit(); // Hàm này sẽ tự động bật lại #btn-confirm-next nếu Audit Passed
+            }
         }
     }
 
@@ -1097,7 +1150,7 @@
                 const amt = qty * price;
 
                 $tr.find('td:nth-child(2)').text(code);$tr.find('td:nth-child(3)').text(desc);
-                $tr.find('td:nth-child(4)').text(qty.toLocaleString());$tr.find('td:nth-child(5)').text(`$${price.toFixed(2)}`);
+                $tr.find('td:nth-child(4)').text(qty.toLocaleString());$tr.find('td:nth-child(5)').text(`$${price}`);
                 $tr.find('td:nth-child(6)').text(`$${amt.toFixed(2)}`);
             }
         });
@@ -1301,7 +1354,7 @@
                 <td>${item.itemCode}</td>
                 <td>${item.description}</td>
                 <td class="text-right">${Number(item.qty).toLocaleString()}</td>
-                <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice).toFixed(2)}</td>
+                <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice)}</td>
                 <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
                 <td class="text-center col-action d-none">
                     <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
@@ -1331,6 +1384,7 @@
 
         // Kiểm tra xem còn dòng nào bị lệch giá để ẩn/hiện Notice Box
         checkAndUpdateStep2Notice();
+        checkAllStep2Matched(); // Cập nhật trạng thái nút sang bước 3 theo thời gian thực
     });
 
     // Hàm kiểm tra lại toàn bộ bảng ở Bước 2 để cập nhật Notice Box
@@ -1371,7 +1425,7 @@
 
                 $tr.find('.cell-ocr-price')
                     .attr('data-original-price', newOcrPrice)
-                    .text(`$${newOcrPrice.toFixed(2)}`);
+                    .text(`$${newOcrPrice}`);
 
                 if (isMatched) {
                     $tr.removeClass('row-variance');
@@ -1387,4 +1441,47 @@
 
         updateStep2NoticeBox(hasVariance);
     }
+
+        // Hàm kiểm tra trạng thái khớp giá ở Bước 2 để ẩn/hiện nút sang Bước 3
+        function checkAllStep2Matched() {
+            let allMatched = true;
+
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                let ocrVal = 0;
+                if ($tr.find('.input-ocr-price').length > 0) {
+                    ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
+                } else {
+                    ocrVal = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+                }
+                const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
+
+                if (Math.abs(ocrVal - erpVal) >= 0.0001) {
+                    allMatched = false;
+                    return false; // Thoát vòng lặp nếu có 1 dòng chưa khớp
+                }
+            });
+
+            if (currentStep === 2) {
+                if (allMatched) {
+                    // Khớp hết -> Hiện nút sang Bước 3
+                    $('#btn-proceed-step3').removeClass('d-none');
+                } else {
+                    // Còn dòng lệch -> Ẩn nút sang Bước 3
+                    $('#btn-proceed-step3').addClass('d-none');
+                }
+            }
+        }
+
+        // Khi chuyển sang Bước 2 thành công, hiển thị nút Reload lên vị trí khoanh đỏ
+        // (Được đặt trong Ajax success khi chuyển bước 2):
+        // $('#btn-reload-erp').removeClass('d-none');
+        // checkAllStep2Matched();
+
+        // Sự kiện bấm nút Tải lại dữ liệu ERP ở vị trí khoanh đỏ
+        $(document).on('click', '#btn-reload-erp', function () {
+            alert("Đang kết nối lại hệ thống ERP để đồng bộ dữ liệu mới nhất...");
+            // Thực hiện logic reload hoặc gọi lại hàm kiểm tra đối chiếu giá ERP tại đây
+            loadStep2ErpPrices(); // Tự động trigger lại dữ liệu bước 2
+        });
 </script>
