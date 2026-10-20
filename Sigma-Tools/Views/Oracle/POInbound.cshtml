@@ -108,6 +108,29 @@
         border-radius: 4px;
         padding: 12px 15px;
     }
+
+    /* Tùy chỉnh ô input trong bảng khi Edit */
+    .edit-input {
+        width: 100%;
+        padding: 2px 6px;
+        font-size: 0.85rem;
+        border: 1px solid #4e73df;
+        border-radius: 3px;
+        background-color: #ffffff;
+    }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: #2e59d9;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+    .btn-xs {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        line-height: 1;
+        border-radius: 3px;
+    }
 </style>
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
@@ -117,16 +140,34 @@
 
 <!-- Action Bar & Controls -->
 <div class="action-bar d-flex justify-content-between align-items-center">
-    <div>
+    <div class="d-flex align-items-center">
         <!-- Button Import PDF -->
-        <label class="btn btn-sm btn-info mb-0 mr-2 shadow-sm cursor-pointer">
+        <label class="btn btn-sm btn-info mb-0 mr-1 shadow-sm cursor-pointer" id="btn-import-wrapper">
             <i class="fas fa-file-upload mr-1"></i> Import File PDF
             <input type="file" id="pdf-file-input" accept="application/pdf" style="display: none;">
         </label>
 
-        <button type="button" class="btn btn-sm btn-secondary font-weight-bold">Convert to Sales Order</button>
-        <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold">Edit Data</button>
-        <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold">Reject PO</button>
+        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1" id="btn-convert">Convert to Sales Order</button>
+
+        <!-- Nút Edit Data ban đầu -->
+        <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data">
+            <i class="fas fa-edit mr-1"></i> Edit Data
+        </button>
+
+        <!-- Nhóm nút Edit (Ẩn mặc định, hiển thị dạng inline-flex) -->
+        <div id="edit-actions-group" class="align-items-center mr-1" style="display: none !important;">
+            <button type="button" class="btn btn-sm btn-success font-weight-bold mr-1" id="btn-add-line">
+                <i class="fas fa-plus mr-1"></i> Add Item
+            </button>
+            <button type="button" class="btn btn-sm btn-primary font-weight-bold mr-1" id="btn-save-edit">
+                <i class="fas fa-check mr-1"></i> Save Changes
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold" id="btn-cancel-edit">
+                <i class="fas fa-times mr-1"></i> Cancel
+            </button>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold" id="btn-reject">Reject PO</button>
     </div>
 
     <div class="d-flex align-items-center">
@@ -207,12 +248,13 @@
                         <table class="table table-custom table-hover mb-0" id="po-line-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 8%;">Line</th>
+                                    <th style="width: 6%;">Line</th>
                                     <th style="width: 22%;">Item Code</th>
                                     <th style="width: 32%;">Description</th>
                                     <th style="width: 12%; text-align: right;">Qty</th>
-                                    <th style="width: 13%; text-align: right;">Unit Price</th>
-                                    <th style="width: 13%; text-align: right;">Amount</th>
+                                    <th style="width: 12%; text-align: right;">Unit Price</th>
+                                    <th style="width: 12%; text-align: right;">Amount</th>
+                                    <th style="width: 4%; text-align: center;" class="col-action d-none">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -225,6 +267,9 @@
                                         <td class="text-right">@item.Qty.ToString("N0")</td>
                                         <td class="text-right">$@item.UnitPrice.ToString("F2")</td>
                                         <td class="text-right">$@item.Amount.ToString("N2")</td>
+                                        <td class="text-center col-action d-none">
+                                            <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
@@ -331,8 +376,11 @@
                             <td>${item.itemCode || ''}</td>
                             <td>${item.description || ''}</td>
                             <td class="text-right">${Number(item.qty).toLocaleString()}</td>
-                            <td class="text-right">$${Number(item.unitPrice).toFixed(2)}</td>
-                            <td class="text-right">$${Number(item.amount).toFixed(2)}</td>
+                            <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice).toFixed(2)}</td>
+                            <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
+                            <td class="text-center col-action d-none">
+                                <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                            </td>
                         </tr>`;
                     });
                     $('#po-line-table tbody').html(tbodyHtml);
@@ -443,4 +491,368 @@
             }
         });
     });
+</script>
+
+<script>
+    // Biến lưu trữ trạng thái dữ liệu hiện tại
+    let isEditingMode = false;
+    let originalDataBackup = null; // Backup dữ liệu để khôi phục nếu nhấn Cancel
+
+    // -------------------------------------------------------------
+    // 1. BẬT CHẾ ĐỘ CHỈNH SỬA (EDIT MODE)
+    // -------------------------------------------------------------
+    $('#btn-edit-data').on('click', function () {
+        enableEditMode(true);
+    });
+
+    // HỦY CHỈNH SỬA (CANCEL)
+    $('#btn-cancel-edit').on('click', function () {
+        if (originalDataBackup) {
+            // Restore lại bảng dữ liệu cũ
+            renderTableFromData(originalDataBackup.lineItems);
+            // Restore lại PO Header
+            $('#po-number-display').text(originalDataBackup.poNumber);
+            $('#po-date-display').text(originalDataBackup.date);
+            $('#po-customer-display').text(originalDataBackup.customer);
+            $('#po-requisitioner-display').text(originalDataBackup.requisitioner);
+        }
+        enableEditMode(false);
+        recalculateAndAudit();
+    });
+
+    // LƯU CHỈNH SỬA (SAVE)
+    $('#btn-save-edit').on('click', function () {
+        let hasError = false;
+        let errorMessage = "";
+
+        // Kiểm tra xem có dòng nào bị bỏ trống thông tin bắt buộc không
+        $('#po-line-table tbody tr').each(function (index) {
+            const $tr =$(this);
+            const itemCode = $tr.find('.input-item-code').val().trim();
+            const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+            const price = parseFloat($tr.find('.input-price').val()) || 0;
+
+            // Nếu dòng bị để trống hoặc thiếu Item Code / Số lượng <= 0 / Đơn giá <= 0
+            if (itemCode === "" || qty <= 0 || price <= 0) {
+                hasError = true;
+                errorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng điền đầy đủ hoặc xóa dòng thừa này trước khi lưu!`;
+                return false; // Thoát vòng lặp each
+            }
+        });
+
+        if (hasError) {
+            alert(errorMessage);
+            return; // Dừng lại, không cho lưu
+        }
+
+        // Nếu dữ liệu hợp lệ hoàn toàn:
+        saveTableEdits();
+        enableEditMode(false);
+        recalculateAndAudit();
+        alert("Đã cập nhật dữ liệu PO thành công!");
+    });
+
+    // -------------------------------------------------------------
+    // 2. CHUYỂN ĐỔI GIAO DIỆN EDIT <-> VIEW
+    // -------------------------------------------------------------
+    function enableEditMode(enable) {
+        isEditingMode = enable;
+
+        if (enable) {
+            // --- BẬT CHẾ ĐỘ CHỈNH SỬA ---
+            backupCurrentData();
+
+            // Ẩn nút "Edit Data", hiện nhóm nút thao tác cùng hàng ngang
+            $('#btn-edit-data').hide();
+            $('#edit-actions-group').css('display', 'inline-flex'); // Hiển thị chuẩn dạng Flex/Inline không bị nhảy xuống dòng
+
+            // Hiện cột thao tác Xóa (Thùng rác) trong bảng
+            $('.col-action').removeClass('d-none');
+
+            // Chuyển Header và Bảng thành các ô Input
+            makeHeaderEditable(true);
+            makeTableEditable(true);
+        } else {
+            // --- TẮT CHẾ ĐỘ CHỈNH SỬA ---
+            // Hiện lại nút "Edit Data", ẩn nhóm nút thao tác
+            $('#btn-edit-data').show();
+            $('#edit-actions-group').css('display', 'none');
+
+            // Ẩn cột thao tác Xóa trong bảng
+            $('.col-action').addClass('d-none');
+
+            // Chuyển Header và Bảng về dạng text tĩnh
+            makeHeaderEditable(false);
+            makeTableEditable(false);
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 3. THÊM BỚT DÒNG (ADD & DELETE LINE)
+    // -------------------------------------------------------------
+    // Thêm dòng mới
+    $('#btn-add-line').on('click', function () {
+        const lineCount = $('#po-line-table tbody tr').length + 1;
+        const newRowHtml = `
+            <tr>
+                <td class="row-line-no">${lineCount}</td>
+                <td><input type="text" class="edit-input input-item-code" value=""></td>
+                <td><input type="text" class="edit-input input-desc" value=""></td>
+                <td class="text-right"><input type="number" class="edit-input input-qty text-right" value="1" min="1"></td>
+                <td class="text-right"><input type="number" step="0.0001" class="edit-input input-price text-right" value="0.0000"></td>
+                <td class="text-right row-amount-text" data-original-amount="0">$0.00</td>
+                <td class="text-center col-action">
+                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>
+        `;
+        $('#po-line-table tbody').append(newRowHtml);
+        reindexLines();
+        recalculateAndAudit();
+    });
+
+    // Xóa dòng
+    $(document).on('click', '.btn-delete-line', function () {$(this).closest('tr').remove();
+        reindexLines();
+        recalculateAndAudit();
+    });
+
+    // Đánh lại số thứ tự Line (1, 2, 3...)
+    function reindexLines() {
+        $('#po-line-table tbody tr').each(function (index) {
+            $(this).find('.row-line-no').text(index + 1);
+        });
+        const totalLines = $('#po-line-table tbody tr').length;
+        $('#line-items-header').text(`EXTRACTED LINE ITEMS (${totalLines} LINES FOUND)`);
+    }
+
+    // -------------------------------------------------------------
+    // 4. CHUYỂN Ô THÀNH INPUT HOẶC TEXT
+    // -------------------------------------------------------------
+    function makeTableEditable(editable) {
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if (editable) {
+                const code = $tr.find('td:nth-child(2)').text().trim();
+                const desc = $tr.find('td:nth-child(3)').text().trim();
+                const qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+
+                // Ưu tiên lấy giá trị chuẩn chính xác từ data-original-price
+                let price = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
+                if (isNaN(price)) {
+                    price = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+                }
+
+                let amt = parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount'));
+                if (isNaN(amt)) {
+                    amt = parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || (qty * price);
+                }
+
+                $tr.find('td:nth-child(2)').html(`<input type="text" class="edit-input input-item-code" value="${code}">`);
+                $tr.find('td:nth-child(3)').html(`<input type="text" class="edit-input input-desc" value="${desc}">`);
+                $tr.find('td:nth-child(4)').html(`<input type="number" class="edit-input input-qty text-right" value="${qty}">`);
+
+                // Đặt step="0.0001" để cho phép nhập đơn giá nhiều chữ số thập phân chính xác
+                $tr.find('td:nth-child(5)').html(`<input type="number" step="0.0001" class="edit-input input-price text-right" value="${price.toFixed(4)}">`);
+                $tr.find('td:nth-child(6)').addClass('row-amount-text').text(`$${amt.toFixed(2)}`);
+            } else {
+                saveTableEdits();
+            }
+        });
+    }
+
+    function saveTableEdits() {
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if ($tr.find('input').length > 0) {
+                const code = $tr.find('.input-item-code').val();
+                const desc = $tr.find('.input-desc').val();
+                const qty = parseInt($tr.find('.input-qty').val()) || 0;
+                const price = parseFloat($tr.find('.input-price').val()) || 0;
+                const amt = qty * price;
+
+                $tr.find('td:nth-child(2)').text(code);$tr.find('td:nth-child(3)').text(desc);
+                $tr.find('td:nth-child(4)').text(qty.toLocaleString());$tr.find('td:nth-child(5)').text(`$${price.toFixed(2)}`);
+                $tr.find('td:nth-child(6)').text(`$${amt.toFixed(2)}`);
+            }
+        });
+    }
+
+    function makeHeaderEditable(editable) {
+        const fields = ['po-number-display', 'po-date-display', 'po-customer-display', 'po-requisitioner-display'];
+        fields.forEach(id => {
+            const $el =$('#' + id);
+            if (editable) {
+                const val = $el.text().trim();$el.html(`<input type="text" class="edit-input input-header-field" value="${val}">`);
+            } else {
+                const $input =$el.find('input');
+                if ($input.length > 0) {
+                    $el.text($input.val());
+                }
+            }
+        });
+    }
+
+    // -------------------------------------------------------------
+    // 5. LỚP LÍNH TÍNH TOÁN VÀ SỰ KIỆN NHAU THỜI GIAN THỰC (REAL-TIME AUDIT)
+    // -------------------------------------------------------------
+    $(document).on('input', '.input-qty, .input-price', function () {
+        const $tr =$(this).closest('tr');
+        const qty = parseInt($tr.find('.input-qty').val()) || 0;
+        const price = parseFloat($tr.find('.input-price').val()) || 0;
+        const amt = qty * price;
+
+        $tr.find('.row-amount-text').text(`$${amt.toFixed(2)}`);
+        recalculateAndAudit();
+    });
+
+    function recalculateAndAudit() {
+        let totalUnits = 0;
+        let totalAmount = 0;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            let qty = 0;
+            let amount = 0;
+
+            if ($tr.find('input').length > 0) {
+                // Đang ở chế độ nhập/edit: lấy Qty nhân trực tiếp với Unit Price không làm tròn sớm
+                const qtyInput = parseFloat($tr.find('.input-qty').val()) || 0;
+                const priceInput = parseFloat($tr.find('.input-price').val()) || 0;
+                qty = qtyInput;
+                amount = qtyInput * priceInput;
+            } else {
+                // Dòng tĩnh: ưu tiên đọc từ data-original-amount để giữ nguyên con số chính xác của hãng
+                qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+                let savedAmt = parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount'));
+                if (!isNaN(savedAmt)) {
+                    amount = savedAmt;
+                } else {
+                    amount = parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0;
+                }
+            }
+
+            totalUnits += qty;
+            totalAmount += amount;
+        });
+
+        // Làm tròn tổng tiền ở bước cuối cùng
+        totalAmount = Math.round(totalAmount * 100) / 100;
+
+        // Lấy Expected Total từ giao diện để so sánh Audit
+        const expText = $('#expected-sum-display').text();
+        const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
+        let expectedUnits = 0;
+        let expectedAmount = 0;
+
+        if (expMatch) {
+            expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
+            expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
+        }
+
+        const calcUnitsStr = totalUnits.toLocaleString();
+        const calcAmtStr = totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        $('#calculated-sum-display').text(`${calcUnitsStr} Units / $${calcAmtStr}`);
+
+        const isUnitsMatched = (totalUnits === expectedUnits);
+        const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
+        const isPassed = isUnitsMatched && isAmountMatched;
+
+        updateAuditStatusUI(isPassed, totalUnits, expectedUnits, totalAmount, expectedAmount);
+    }
+
+    // -------------------------------------------------------------
+    // 6. CẬP NHẬT MÀU SẮC & THÔNG BÁO CẢNH BÁO
+    // -------------------------------------------------------------
+    function updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt) {
+        const calcUnitsStr = calcUnits.toLocaleString();
+        const expUnitsStr = expUnits.toLocaleString();
+        const calcAmtStr = calcAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const expAmtStr = expAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        if (isPassed) {
+            // MÀU XANH LÁ (PASSED)
+            $('#ocr-badge-status').removeClass('badge-danger').addClass('badge-success').css({'background-color': '#28a745', 'color': '#fff'});
+            $('#ocr-badge-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+            $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
+
+            $('#ocr-audit-alert-box').removeClass('alert-error-custom').addClass('alert-success-custom')
+                .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
+
+            $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
+
+            let detailsHtml = `
+                <li><strong>Units Matched:</strong> Sum of line items (${calcUnitsStr}) == Total Units Expected (${expUnitsStr})</li>
+                <li><strong>Amount Matched:</strong> Sum of line items ($${calcAmtStr}) == Subtotal Expected ($${expAmtStr})</li>
+            `;
+            $('#ocr-audit-details').html(detailsHtml);
+            $('#ocr-audit-action').removeClass('text-danger').addClass('text-success').css('color', '#0e9f6e')
+                .html('<strong>Status:</strong> All line items matched perfectly. Ready to convert to Sales Order.');
+        } else {
+            // MÀU ĐỎ (MISMATCH)
+            $('#ocr-badge-status').removeClass('badge-success').addClass('badge-danger').css({'background-color': '#dc3545', 'color': '#fff'});
+            $('#ocr-badge-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+            $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
+
+            $('#ocr-audit-alert-box').removeClass('alert-success-custom').addClass('alert-error-custom')
+                .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
+
+            $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
+
+            let detailsHtml = '';
+            if (calcUnits !== expUnits) {
+                detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnitsStr}) != Total Units Expected (${expUnitsStr})</li>`;
+            }
+            if (Math.abs(calcAmt - expAmt) >= 0.01) {
+                detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmtStr}) != Subtotal Expected ($${expAmtStr})</li>`;
+            }
+            $('#ocr-audit-details').html(detailsHtml);
+            $('#ocr-audit-action').removeClass('text-success').addClass('text-danger').css('color', '#9b1c1c')
+                .html('<strong>Action Required:</strong> Data mismatch detected. Please add/edit lines to match expected totals or reject the PO.');
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 7. BACKUP & RESTORE DỮ LIỆU
+    // -------------------------------------------------------------
+    function backupCurrentData() {
+        originalDataBackup = {
+            poNumber: $('#po-number-display').text().trim(),
+            date: $('#po-date-display').text().trim(),
+            customer: $('#po-customer-display').text().trim(),
+            requisitioner: $('#po-requisitioner-display').text().trim(),
+            lineItems: []
+        };
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            originalDataBackup.lineItems.push({
+                line: $tr.find('td:nth-child(1)').text().trim(),
+                itemCode: $tr.find('td:nth-child(2)').text().trim(),
+                description: $tr.find('td:nth-child(3)').text().trim(),
+                qty: parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
+                unitPrice: parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0,
+                amount: parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0
+            });
+        });
+    }
+
+    function renderTableFromData(lineItems) {
+        let tbodyHtml = '';
+        lineItems.forEach(item => {
+            tbodyHtml += `<tr>
+                <td>${item.line}</td>
+                <td>${item.itemCode}</td>
+                <td>${item.description}</td>
+                <td class="text-right">${item.qty.toLocaleString()}</td>
+                <td class="text-right">$${item.unitPrice.toFixed(2)}</td>
+                <td class="text-right">$${item.amount.toFixed(2)}</td>
+                <td class="text-center col-action d-none">
+                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>`;
+        });
+        $('#po-line-table tbody').html(tbodyHtml);
+        reindexLines();
+    }
 </script>
