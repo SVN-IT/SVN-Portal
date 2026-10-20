@@ -298,6 +298,23 @@
     .animate-fade-in {
         animation: fadeInScale 0.4s ease-in-out forwards;
     }
+
+    /* Styling ô input OCR Price khi Edit ở Bước 2 */
+    .input-ocr-price {
+        width: 100px;
+        padding: 2px 6px;
+        font-size: 0.85rem;
+        border: 1px solid #4e73df;
+        border-radius: 3px;
+        text-align: right;
+        display: inline-block;
+    }
+
+        .input-ocr-price:focus {
+            outline: none;
+            border-color: #2e59d9;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
 </style>
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
@@ -487,6 +504,10 @@
 
 <!-- JavaScript Xử lý Import PDF và Thế chỗ File Cũ -->
 <script>
+    // Biến đánh dấu bước hiện tại
+    let currentStep = 1;
+
+    
     document.getElementById('pdf-file-input').addEventListener('change', function (event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -662,9 +683,10 @@
         });
     });
 
-        // Sự kiện bấm nút Xác nhận ở Bước 1 để sang Bước 2
+    // -------------------------------------------------------------
+    // 1. XỬ LÝ SỰ KIỆN NÚT "XÁC NHẬN & CHUYỂN BƯỚC 2"
+    // -------------------------------------------------------------
     $(document).on('click', '#btn-confirm-next', function () {
-        // 1. Thu thập dữ liệu các line items hiện tại trên bảng
         let currentLineItems = [];
         $('#po-line-table tbody tr').each(function () {
             const $tr =$(this);
@@ -679,7 +701,6 @@
             });
         });
 
-        // 2. Gọi Ajax xuống Controller để đối chiếu giá ERP
         $.ajax({
             url: '/Oracle/VerifyErpPrices',
             type: 'POST',
@@ -687,17 +708,23 @@
             data: JSON.stringify(currentLineItems),
             success: function (response) {
                 if (response.success) {
-                    // --- BẮT ĐẦU HIỆU ỨNG CHUYỂN CẢNH (FADE OUT KHUNG BẢNG) ---
+                    currentStep = 2;
+
+                    // A. ẨN NÚT IMPORT FILE PDF KHI SANG BƯỚC 2
+                    $('#btn-import-wrapper').fadeOut(200);
+
+                    // B. HIỆU ỨNG CHUYỂN BẢNG SANG BƯỚC 2
                     const $cardContainer =$('#po-line-table').closest('.card-custom');
                     $cardContainer.fadeOut(200, function () {
 
-                        // 3. Cập nhật trạng thái hiển thị trên Thanh tiến trình sang Bước 2
+                        // Cập nhật Progress Bar
                         $('#step-node-1').removeClass('active').addClass('completed');
                         $('#step-node-2').addClass('active');
 
-                        // 4. Thay đổi tiêu đề card thành Bước 2
-                        $cardContainer.find('.card-header span').text('LINE ITEMS & PRICE VERIFICATION');
+                        // Đổi tiêu đề Card Header
+                        $cardContainer.find('.card-header span:first').text('LINE ITEMS & PRICE VERIFICATION');
 
+                        // Đổi Header Bảng sang dạng Verification
                         let tableHeaderHtml = `
                             <tr>
                                 <th style="width: 8%;">Line</th>
@@ -710,53 +737,14 @@
                         `;
                         $('#po-line-table thead').html(tableHeaderHtml);
 
-                        let hasVariance = false;
-                        let tbodyHtml = '';
+                        // Render dữ liệu các dòng
+                        renderStep2Table(response.data);
 
-                        response.data.forEach(item => {
-                            let statusHtml = '';
-                            let rowClass = '';
-
-                            if (item.isMatched) {
-                                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`;
-                            } else {
-                                hasVariance = true;
-                                rowClass = 'row-variance animate-fade-in';
-                                let sign = item.variance > 0 ? `+$${item.variance.toFixed(2)}` : `-$${Math.abs(item.variance).toFixed(2)}`;
-                                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`;
-                            }
-
-                            tbodyHtml += `
-                                <tr class="${rowClass}">
-                                    <td>${item.line}</td>
-                                    <td class="font-weight-bold">${item.itemCode}</td>
-                                    <td class="text-right">${item.qty.toLocaleString()}</td>
-                                    <td class="text-right ${!item.isMatched ? 'text-variance font-weight-bold' : ''}">$${item.ocrPrice.toFixed(2)}</td>
-                                    <td class="text-right">$${item.erpBasePrice.toFixed(2)}</td>
-                                    <td class="text-center">${statusHtml}</td>
-                                </tr>
-                            `;
-                        });
-
-                        $('#po-line-table tbody').html(tbodyHtml);
-
-                        // Xóa thông báo cũ nếu có và thêm thông báo mới nếu lệch giá
-                        $('#variance-notice-box').remove();
-                        if (hasVariance) {
-                            let noticeHtml = `
-                                <div class="verification-notice animate-fade-in" id="variance-notice-box">
-                                    <i class="fas fa-info-circle mr-1"></i> <strong>Notice:</strong> One or more lines trigger custom pricing logic. Converting this record will route the Sales Order to <strong>Pending Approval</strong> status.
-                                </div>
-                            `;
-                            $cardContainer.after(noticeHtml);
-                        }
-
-                        // Đổi nút "Xác Nhận" sang bước tiếp theo
+                        // Đổi nút Xác nhận thành nút sang Bước 3
                         $('#btn-confirm-next')
                             .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)')
                             .attr('id', 'btn-proceed-step3');
 
-                        // --- KẾT THÚC HIỆU ỨNG (FADE IN HIỂN THỊ LẠI MƯỢT MÀ) ---
                         $cardContainer.fadeIn(300);
                     });
 
@@ -769,6 +757,63 @@
             }
         });
     });
+
+    // -------------------------------------------------------------
+    // 2. HÀM RENDER BẢNG BƯỚC 2 & HIỂN THỊ CẢNH BÁO NOTICE
+    // -------------------------------------------------------------
+    function renderStep2Table(dataList) {
+        let hasVariance = false;
+        let tbodyHtml = '';
+
+        dataList.forEach(item => {
+            let statusHtml = '';
+            let rowClass = '';
+            const ocrPrice = parseFloat(item.ocrPrice) || 0;
+            const erpPrice = parseFloat(item.erpBasePrice) || 0;
+            const variance = ocrPrice - erpPrice;
+            const isMatched = Math.abs(variance) < 0.0001;
+
+            if (isMatched) {
+                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`;
+            } else {
+                hasVariance = true;
+                rowClass = 'row-variance animate-fade-in';
+                let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`;
+            }
+
+            tbodyHtml += `
+                <tr class="${rowClass}" data-erp-price="${erpPrice}">
+                    <td>${item.line}</td>
+                    <td class="font-weight-bold cell-item-code">${item.itemCode}</td>
+                    <td class="text-right cell-qty">${item.qty.toLocaleString()}</td>
+                    <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice.toFixed(2)}</td>
+                    <td class="text-right cell-erp-price">$${erpPrice.toFixed(2)}</td>
+                    <td class="text-center cell-status">${statusHtml}</td>
+                </tr>
+            `;
+        });
+
+        $('#po-line-table tbody').html(tbodyHtml);
+
+        // Cập nhật khung thông báo Notice
+        updateStep2NoticeBox(hasVariance);
+    }
+
+    // Hàm bật/tắt khung thông báo Notice thời gian thực
+    function updateStep2NoticeBox(hasVariance) {
+        const $cardContainer =$('#po-line-table').closest('.card-custom');
+        $('#variance-notice-box').remove();
+
+        if (hasVariance) {
+            let noticeHtml = `
+                <div class="verification-notice animate-fade-in" id="variance-notice-box">
+                    <i class="fas fa-info-circle mr-1"></i> <strong>Notice:</strong> One or more lines trigger custom pricing logic. Converting this record will route the Sales Order to <strong>Pending Approval</strong> status.
+                </div>
+            `;
+            $cardContainer.after(noticeHtml);
+        }
+    }
 </script>
 
 <script>
@@ -786,90 +831,125 @@
     // HỦY CHỈNH SỬA (CANCEL)
     $('#btn-cancel-edit').on('click', function () {
         if (originalDataBackup) {
-            // Restore lại bảng dữ liệu cũ
-            renderTableFromData(originalDataBackup.lineItems);
-            // Restore lại PO Header
-            $('#po-number-display').text(originalDataBackup.poNumber);
-            $('#po-date-display').text(originalDataBackup.date);
-            $('#po-customer-display').text(originalDataBackup.customer);
-            $('#po-requisitioner-display').text(originalDataBackup.requisitioner);
+            if(currentStep === 1) {
+                // Restore lại bảng dữ liệu cũ
+                renderTableFromData(originalDataBackup.lineItems);
+                // Restore lại PO Header
+                $('#po-number-display').text(originalDataBackup.poNumber);
+                $('#po-date-display').text(originalDataBackup.date);
+                $('#po-customer-display').text(originalDataBackup.customer);
+                $('#po-requisitioner-display').text(originalDataBackup.requisitioner);
+            } else if (currentStep === 2) {
+                // Ở bước 2, khôi phục lại giá OCR gốc từ bản backup
+                let i = 0;
+                $('#po-line-table tbody tr').each(function () {
+                    const $tr =$(this);
+                    if (originalDataBackup.lineItems[i]) {
+                        const origPrice = originalDataBackup.lineItems[i].unitPrice;
+                        $tr.find('.cell-ocr-price').attr('data-original-price', origPrice).text(`$${origPrice.toFixed(2)}`);
+
+                        // Tính lại match/variance
+                        const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
+                        const variance = origPrice - erpPrice;
+                        const isMatched = Math.abs(variance) < 0.0001;
+
+                        if (isMatched) {
+                            $tr.removeClass('row-variance');$tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`);
+                        } else {
+                            $tr.addClass('row-variance');
+                            let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+                            $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`);
+                        }
+                    }
+                    i++;
+                });
+                checkAndUpdateStep2Notice();
+            }
+            
         }
         enableEditMode(false);
-        recalculateAndAudit();
+        if (currentStep === 1) recalculateAndAudit();
     });
 
         // LƯU CHỈNH SỬA (SAVE CHANGES)
     $('#btn-save-edit').on('click', function () {
-        let hasEmptyError = false;
-        let emptyErrorMessage = "";
+        if (currentStep === 1) {
+            let hasEmptyError = false;
+            let emptyErrorMessage = "";
 
-        // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
-        $('#po-line-table tbody tr').each(function (index) {
-            const $tr =$(this);
-            const itemCode = $tr.find('.input-item-code').val().trim();
-            const qty = parseFloat($tr.find('.input-qty').val()) || 0;
-            const price = parseFloat($tr.find('.input-price').val()) || 0;
+            // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
+            $('#po-line-table tbody tr').each(function (index) {
+                const $tr =$(this);
+                const itemCode = $tr.find('.input-item-code').val().trim();
+                const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+                const price = parseFloat($tr.find('.input-price').val()) || 0;
 
-            if (itemCode === "" || qty <= 0 || price <= 0) {
-                hasEmptyError = true;
-                emptyErrorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
-                return false; // Dừng vòng lặp each
+                if (itemCode === "" || qty <= 0 || price <= 0) {
+                    hasEmptyError = true;
+                    emptyErrorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
+                    return false; // Dừng vòng lặp each
+                }
+            });
+
+            if (hasEmptyError) {
+                alert(emptyErrorMessage);
+                return; // Chặn lưu
             }
-        });
 
-        if (hasEmptyError) {
-            alert(emptyErrorMessage);
-            return; // Chặn lưu
-        }
+            // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
+            let totalUnits = 0;
+            let totalAmount = 0;
 
-        // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
-        let totalUnits = 0;
-        let totalAmount = 0;
+            $('#po-line-table tbody tr').each(function () {
+                const $tr =$(this);
+                const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+                const price = parseFloat($tr.find('.input-price').val()) || 0;
+                totalUnits += qty;
+                totalAmount += (qty * price);
+            });
 
-        $('#po-line-table tbody tr').each(function () {
-            const $tr =$(this);
-            const qty = parseFloat($tr.find('.input-qty').val()) || 0;
-            const price = parseFloat($tr.find('.input-price').val()) || 0;
-            totalUnits += qty;
-            totalAmount += (qty * price);
-        });
+            totalAmount = Math.round(totalAmount * 100) / 100;
 
-        totalAmount = Math.round(totalAmount * 100) / 100;
+            // Lấy Expected Total từ giao diện
+            const expText = $('#expected-sum-display').text();
+            const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
+            let expectedUnits = 0;
+            let expectedAmount = 0;
 
-        // Lấy Expected Total từ giao diện
-        const expText = $('#expected-sum-display').text();
-        const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
-        let expectedUnits = 0;
-        let expectedAmount = 0;
-
-        if (expMatch) {
-            expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
-            expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
-        }
-
-        const isUnitsMatched = (totalUnits === expectedUnits);
-        const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
-
-        // BÁO LỖI VÀ CHẶN LƯU NẾU KHÔNG KHỐP AUDIT
-        if (!isUnitsMatched || !isAmountMatched) {
-            let auditErrorMsg = "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
-            if (!isUnitsMatched) {
-                auditErrorMsg += `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
+            if (expMatch) {
+                expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
+                expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
             }
-            if (!isAmountMatched) {
-                auditErrorMsg += `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
+
+            const isUnitsMatched = (totalUnits === expectedUnits);
+            const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
+
+            // BÁO LỖI VÀ CHẶN LƯU NẾU KHÔNG KHỐP AUDIT
+            if (!isUnitsMatched || !isAmountMatched) {
+                let auditErrorMsg = "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
+                if (!isUnitsMatched) {
+                    auditErrorMsg += `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
+                }
+                if (!isAmountMatched) {
+                    auditErrorMsg += `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
+                }
+                auditErrorMsg += "\nVui lòng điều chỉnh lại danh sách Line Items để khớp với tổng số tiền và số lượng trước khi lưu.";
+
+                alert(auditErrorMsg);
+                return; // Chặn lưu hoàn toàn!
             }
-            auditErrorMsg += "\nVui lòng điều chỉnh lại danh sách Line Items để khớp với tổng số tiền và số lượng trước khi lưu.";
 
-            alert(auditErrorMsg);
-            return; // Chặn lưu hoàn toàn!
+            // 3. NẾU TẤT CẢ DỮ LIỆU ĐÃ HỢP LỆ VÀ KHỐP AUDIT
+            saveTableEdits();
+            enableEditMode(false);
+            recalculateAndAudit();
+            alert("Đã cập nhật dữ liệu PO thành công!");
+        } else if (currentStep === 2) {
+            // --- LOGIC LƯU CỦA BƯỚC 2 (Chỉ lưu các thay đổi về giá OCR Price) ---
+            saveStep2Edits();
+            enableEditMode(false);
+            alert("Đã cập nhật OCR Price thành công!");
         }
-
-        // 3. NẾU TẤT CẢ DỮ LIỆU ĐÃ HỢP LỆ VÀ KHỐP AUDIT
-        saveTableEdits();
-        enableEditMode(false);
-        recalculateAndAudit();
-        alert("Đã cập nhật dữ liệu PO thành công!");
     });
 
     // -------------------------------------------------------------
@@ -886,8 +966,17 @@
             $('#btn-edit-data').hide();
             $('#edit-actions-group').css('display', 'inline-flex'); // Hiển thị chuẩn dạng Flex/Inline không bị nhảy xuống dòng
 
+            // NẾU ĐANG Ở BƯỚC 2: Ẩn nút Add Item đi vì không cho phép thêm dòng mới ở bước này
+            if (currentStep === 2) {
+                $('#btn-add-line').hide();
+            } else {
+                $('#btn-add-line').show();
+            }
+
             // Hiện cột thao tác Xóa (Thùng rác) trong bảng
-            $('.col-action').removeClass('d-none');
+            if (currentStep === 1) {
+                $('.col-action').removeClass('d-none');
+            }
 
             // Chuyển Header và Bảng thành các ô Input
             makeHeaderEditable(true);
@@ -950,35 +1039,51 @@
     // 4. CHUYỂN Ô THÀNH INPUT HOẶC TEXT
     // -------------------------------------------------------------
     function makeTableEditable(editable) {
+        if(currentStep === 1){
+            $('#po-line-table tbody tr').each(function () {
+                const $tr =$(this);
+                if (editable) {
+                    const code = $tr.find('td:nth-child(2)').text().trim();
+                    const desc = $tr.find('td:nth-child(3)').text().trim();
+                    const qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+
+                    // Ưu tiên lấy giá trị chuẩn chính xác từ data-original-price
+                    let price = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
+                    if (isNaN(price)) {
+                        price = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+                    }
+
+                    let amt = parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount'));
+                    if (isNaN(amt)) {
+                        amt = parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || (qty * price);
+                    }
+
+                    $tr.find('td:nth-child(2)').html(`<input type="text" class="edit-input input-item-code" value="${code}">`);
+                    $tr.find('td:nth-child(3)').html(`<input type="text" class="edit-input input-desc" value="${desc}">`);
+                    $tr.find('td:nth-child(4)').html(`<input type="number" class="edit-input input-qty text-right" value="${qty}">`);
+
+                    // Đặt step="0.0001" để cho phép nhập đơn giá nhiều chữ số thập phân chính xác
+                    $tr.find('td:nth-child(5)').html(`<input type="number" step="0.0001" class="edit-input input-price text-right" value="${price}">`);
+                    $tr.find('td:nth-child(6)').addClass('row-amount-text').text(`$${amt.toFixed(2)}`);
+                } else {
+                    saveTableEdits();
+                }
+            });
+        } else if (currentStep === 2) {
+        // --- CHẾ ĐỘ EDIT BƯỚC 2 (Chỉ sửa OCR Price để khớp với ERP) ---
         $('#po-line-table tbody tr').each(function () {
             const $tr =$(this);
+            const $ocrCell =$tr.find('.cell-ocr-price');
+
             if (editable) {
-                const code = $tr.find('td:nth-child(2)').text().trim();
-                const desc = $tr.find('td:nth-child(3)').text().trim();
-                const qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
-
-                // Ưu tiên lấy giá trị chuẩn chính xác từ data-original-price
-                let price = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
-                if (isNaN(price)) {
-                    price = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
-                }
-
-                let amt = parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount'));
-                if (isNaN(amt)) {
-                    amt = parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || (qty * price);
-                }
-
-                $tr.find('td:nth-child(2)').html(`<input type="text" class="edit-input input-item-code" value="${code}">`);
-                $tr.find('td:nth-child(3)').html(`<input type="text" class="edit-input input-desc" value="${desc}">`);
-                $tr.find('td:nth-child(4)').html(`<input type="number" class="edit-input input-qty text-right" value="${qty}">`);
-
-                // Đặt step="0.0001" để cho phép nhập đơn giá nhiều chữ số thập phân chính xác
-                $tr.find('td:nth-child(5)').html(`<input type="number" step="0.0001" class="edit-input input-price text-right" value="${price}">`);
-                $tr.find('td:nth-child(6)').addClass('row-amount-text').text(`$${amt.toFixed(2)}`);
+                let ocrPrice = parseFloat($ocrCell.attr('data-original-price')) || parseFloat($ocrCell.text().replace(/[$,]/g, '')) || 0;
+                $ocrCell.html(`<input type="number" step="0.0001" class="input-ocr-price" value="${ocrPrice}">`);
             } else {
-                saveTableEdits();
+                saveStep2Edits();
             }
         });
+    }
+        
     }
 
     function saveTableEdits() {
@@ -1158,24 +1263,34 @@
             requisitioner: $('#po-requisitioner-display').text().trim(),
             lineItems: []
         };
+        if (currentStep === 1) {
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                // Ưu tiên lấy từ data-original-price nếu có, nếu không thì lấy từ input hoặc text
+                let origPrice = $tr.find('td:nth-child(5)').attr('data-original-price');
+                if (!origPrice) {
+                    origPrice = $tr.find('.input-price').val() || $tr.find('td:nth-child(5)').text().replace(/[$,]/g, '');
+                }
 
-        $('#po-line-table tbody tr').each(function () {
-            const $tr = $(this);
-            // Ưu tiên lấy từ data-original-price nếu có, nếu không thì lấy từ input hoặc text
-            let origPrice = $tr.find('td:nth-child(5)').attr('data-original-price');
-            if (!origPrice) {
-                origPrice = $tr.find('.input-price').val() || $tr.find('td:nth-child(5)').text().replace(/[$,]/g, '');
-            }
-
-            originalDataBackup.lineItems.push({
-                line: $tr.find('td:nth-child(1)').text().trim(),
-                itemCode: $tr.find('td:nth-child(2)').find('input').val() || $tr.find('td:nth-child(2)').text().trim(),
-                description: $tr.find('td:nth-child(3)').find('input').val() || $tr.find('td:nth-child(3)').text().trim(),
-                qty: parseInt($tr.find('.input-qty').val()) || parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
-                unitPrice: parseFloat(origPrice) || 0,
-                amount: parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount')) || parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0
+                originalDataBackup.lineItems.push({
+                    line: $tr.find('td:nth-child(1)').text().trim(),
+                    itemCode: $tr.find('td:nth-child(2)').find('input').val() || $tr.find('td:nth-child(2)').text().trim(),
+                    description: $tr.find('td:nth-child(3)').find('input').val() || $tr.find('td:nth-child(3)').text().trim(),
+                    qty: parseInt($tr.find('.input-qty').val()) || parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
+                    unitPrice: parseFloat(origPrice) || 0,
+                    amount: parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount')) || parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0
+                });
             });
-        });
+        } else if (currentStep === 2) {
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+                originalDataBackup.lineItems.push({
+                    unitPrice: ocrPrice
+                });
+            });
+        }
+        
     }
 
     function renderTableFromData(lineItems) {
@@ -1195,5 +1310,81 @@
         });
         $('#po-line-table tbody').html(tbodyHtml);
         reindexLines();
+    }
+
+    // Tự động tính toán lại Validation Status & Notice khi gõ thay đổi OCR Price ở Bước 2
+    $(document).on('input', '.input-ocr-price', function () {
+        const $tr =$(this).closest('tr');
+        const newOcrPrice = parseFloat($(this).val()) || 0;
+        const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
+        const variance = newOcrPrice - erpPrice;
+        const isMatched = Math.abs(variance) < 0.0001;
+
+        // Cập nhật nhãn trạng thái trực tiếp trên dòng
+        if (isMatched) {
+            $tr.removeClass('row-variance');$tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`);
+        } else {
+            $tr.addClass('row-variance');
+            let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+            $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`);
+        }
+
+        // Kiểm tra xem còn dòng nào bị lệch giá để ẩn/hiện Notice Box
+        checkAndUpdateStep2Notice();
+    });
+
+    // Hàm kiểm tra lại toàn bộ bảng ở Bước 2 để cập nhật Notice Box
+    function checkAndUpdateStep2Notice() {
+        let hasVariance = false;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            let ocrVal = 0;
+            if ($tr.find('.input-ocr-price').length > 0) {
+                ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
+            } else {
+                ocrVal = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+            }
+            const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
+
+            if (Math.abs(ocrVal - erpVal) >= 0.0001) {
+                hasVariance = true;
+            }
+        });
+
+        updateStep2NoticeBox(hasVariance);
+    }
+
+    // Lưu giá trị chỉnh sửa ô Input ở Bước 2
+    function saveStep2Edits() {
+        let hasVariance = false;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            const $input =$tr.find('.input-ocr-price');
+
+            if ($input.length > 0) {
+                const newOcrPrice = parseFloat($input.val()) || 0;
+                const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
+                const variance = newOcrPrice - erpPrice;
+                const isMatched = Math.abs(variance) < 0.0001;
+
+                $tr.find('.cell-ocr-price')
+                    .attr('data-original-price', newOcrPrice)
+                    .text(`$${newOcrPrice.toFixed(2)}`);
+
+                if (isMatched) {
+                    $tr.removeClass('row-variance');
+                    $tr.find('.cell-ocr-price').removeClass('text-variance font-weight-bold');$tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`);
+                } else {
+                    hasVariance = true;
+                    $tr.addClass('row-variance');$tr.find('.cell-ocr-price').addClass('text-variance font-weight-bold');
+                    let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+                    $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`);
+                }
+            }
+        });
+
+        updateStep2NoticeBox(hasVariance);
     }
 </script>
