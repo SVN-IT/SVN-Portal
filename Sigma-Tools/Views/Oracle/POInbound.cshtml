@@ -392,6 +392,11 @@
             <i id="ocr-badge-icon" class="fas fa-info-circle mr-1"></i>
             <span id="ocr-badge-text">OCR Audit: Pending PDF Upload</span>
         </span>
+        <!-- Badge Trạng thái Bước 2 (ERP Pricing Verification) - Mặc định ẩn, hiện khi sang Bước 2 -->
+        <span id="erp-badge-status" class="badge badge-secondary p-2 font-weight-normal ml-2 d-none">
+            <i id="erp-badge-icon" class="fas fa-info-circle mr-1"></i>
+            <span id="erp-badge-text">ERP Pricing: Pending Verification</span>
+        </span>
     </div>
 </div>
 
@@ -697,25 +702,41 @@
             const $tr =$(this);
             if ($tr.find('td').length <= 1) return;
 
-            // 1. LẤY CHUẨN SỐ LƯỢNG (QTY): Ưu tiên đọc từ data-original-qty, nếu không có đọc từ text cột Qty hoặc Bước 1
-            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
-            if (isNaN(qty)) {
-                qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
-            }
+            let qty = 0;
+            let ocrPrice = 0;
+            let itemCode = '';
+            let description = '';
 
-            // 2. LẤY CHUẨN ĐƠN GIÁ OCR (OCR PRICE): Ưu tiên đọc từ data-original-price
-            let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
-            if (isNaN(ocrPrice)) {
-                ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price')) || parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
-            }
-
-            // 3. LẤY MÃ HÀNG VÀ MÔ TẢ
-            let itemCode = $tr.find('.cell-item-code').text().trim();
-            if (!itemCode) {
+            if (currentStep === 1) {
+                // --- NẾU ĐANG Ở BƯỚC 1 ---
                 itemCode = $tr.find('td:nth-child(2)').text().trim();
-            }
+                description = $tr.find('td:nth-child(3)').text().trim();
+                qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
 
-            let description = $tr.find('td:nth-child(3)').text().trim();
+                // Lấy giá trị Unit Price gốc từ attribute data-original-price hoặc text cột 5
+                ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
+                if (isNaN(ocrPrice)) {
+                    ocrPrice = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+                }
+            } else {
+                // --- NẾU ĐÃ Ở BƯỚC 2 (RELOAD DATA) ---
+                itemCode = $tr.find('.cell-item-code').text().trim();
+                if (!itemCode) {
+                    itemCode = $tr.find('td:nth-child(2)').text().trim();
+                }
+
+                description = $tr.attr('data-description') || '';
+
+                qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
+                if (isNaN(qty)) {
+                    qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+                }
+
+                ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
+                if (isNaN(ocrPrice)) {
+                    ocrPrice = parseFloat($tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
+                }
+            }
 
             currentLineItems.push({
                 Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
@@ -756,11 +777,11 @@
                         let tableHeaderHtml = `
                             <tr>
                                 <th style="width: 8%;">Line</th>
-                                <th style="width: 25%;">Customer Item #</th>
+                                <th style="width: 35%;">Customer Item #</th>
                                 <th style="width: 15%; text-align: right;">Qty</th>
-                                <th style="width: 17%; text-align: right;">OCR Price</th>
-                                <th style="width: 17%; text-align: right;">ERP Base Price</th>
-                                <th style="width: 18%; text-align: center;">Validation Status</th>
+                                <th style="width: 14%; text-align: right;">OCR Price</th>
+                                <th style="width: 14%; text-align: right;">ERP Base Price</th>
+                                <th style="width: 14%; text-align: center;">Validation Status</th>
                             </tr>
                         `;
                         $('#po-line-table thead').html(tableHeaderHtml);
@@ -818,12 +839,11 @@
                 statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`;
             }
 
-            // GẮN CÁC CLASS cell-qty VÀ cell-ocr-price ĐỂ DỄ DÀNG ĐỌC LẠI DỮ LIỆU KHI RELOAD
+            // ĐÃ XÓA CỘT DESCRIPTION TRÊN GIAO DIỆN, LƯU NGẦM QUA data-description
             tbodyHtml += `
-                <tr class="${rowClass}" data-erp-price="${erpPrice}">
+                <tr class="${rowClass}" data-erp-price="${erpPrice}" data-description="${item.description || ''}">
                     <td>${item.line}</td>
                     <td class="font-weight-bold cell-item-code">${item.itemCode}</td>
-                    <td>${item.description || ''}</td>
                     <td class="text-right cell-qty" data-original-qty="${item.qty}">${item.qty.toLocaleString()}</td>
                     <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice}</td>
                     <td class="text-right cell-erp-price">$${erpPrice}</td>
@@ -835,6 +855,7 @@
         $('#po-line-table tbody').html(tbodyHtml);
 
         updateStep2NoticeBox(hasVariance);
+        updateStep2BadgeStatus(hasVariance);
         $('#btn-reload-erp').removeClass('d-none');
         checkAllStep2Matched();
     }
@@ -1408,6 +1429,8 @@
         });
 
         updateStep2NoticeBox(hasVariance);
+        updateStep2BadgeStatus(hasVariance); // Tự động cập nhật badge theo thời gian thực
+        checkAllStep2Matched();
     }
 
     // Lưu giá trị chỉnh sửa ô Input ở Bước 2
@@ -1485,4 +1508,30 @@
             // Thực hiện logic reload hoặc gọi lại hàm kiểm tra đối chiếu giá ERP tại đây
             loadStep2ErpPrices(); // Tự động trigger lại dữ liệu bước 2
         });
+
+        // Hàm cập nhật trạng thái Badge cho Bước 2
+        function updateStep2BadgeStatus(hasVariance) {
+            const $badge = $('#erp-badge-status');
+            const $icon = $('#erp-badge-icon');
+            const $text = $('#erp-badge-text');
+
+            // Hiển thị badge Bước 2 khi đã ở Bước 2
+            if (currentStep === 2) {
+                $badge.removeClass('d-none');
+            }
+
+            if (!hasVariance) {
+                // TRƯỜNG HỢP PASSED (Tất cả đã match hoàn toàn với ERP)
+                $badge.removeClass('badge-danger badge-warning badge-secondary').addClass('badge-success')
+                      .css({ 'background-color': '#28a745', 'color': '#fff' });
+                $icon.removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
+                $text.text('ERP Pricing: PASSED (All Matched)');
+            } else {
+                // TRƯỜNG HỢP CÒN LỆCH GIÁ (Variance detected -> Pending Approval)
+                $badge.removeClass('badge-success badge-secondary').addClass('badge-warning')
+                      .css({ 'background-color': '#f0ad4e', 'color': '#fff' });
+                $icon.removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
+                $text.text('ERP Pricing: VARIANCE DETECTED (Pending Approval)');
+            }
+        }
 </script>
