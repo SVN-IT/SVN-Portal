@@ -131,11 +131,139 @@
         line-height: 1;
         border-radius: 3px;
     }
+
+    /* =========================================================
+       NETSUITE STYLE STEP PROGRESS BAR
+       ========================================================= */
+    .netsuite-stepper-wrapper {
+        background-color: #ffffff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 0 8px 0;
+    }
+
+    .netsuite-stepper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 550px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    /* Đường nối ngang giữa các bước */
+    .netsuite-stepper-line {
+        position: absolute;
+        top: 15px;
+        left: 80px;
+        right: 80px;
+        height: 2px;
+        background-color: #d1d5db;
+        z-index: 1;
+    }
+
+    .netsuite-step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        flex: 1;
+        background-color: transparent;
+    }
+
+        /* Vòng tròn số */
+        .netsuite-step .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            color: #6c757d;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin: 0 auto 4px auto;
+            transition: all 0.25s ease-in-out;
+        }
+
+        /* Nhãn tên bước */
+        .netsuite-step .step-text {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Trạng thái BƯỚC HIỆN TẠI (Step 1 Active) */
+        .netsuite-step.active .step-num {
+            background-color: #0d5287;
+            color: #ffffff;
+            border-color: #0d5287;
+            box-shadow: 0 0 0 3px rgba(13, 82, 135, 0.2);
+        }
+
+        .netsuite-step.active .step-text {
+            color: #0d5287;
+            font-weight: 700;
+        }
+
+        /* Trạng thái BƯỚC ĐÃ HOÀN THÀNH (Completed) */
+        .netsuite-step.completed .step-num {
+            background-color: #28a745;
+            color: #ffffff;
+            border-color: #28a745;
+        }
+
+        .netsuite-step.completed .step-text {
+            color: #28a745;
+        }
+
+    /* Nút Xác nhận chuẩn NetSuite */
+    .btn-confirm-netsuite {
+        background-color: #0d5287;
+        color: #ffffff;
+        font-weight: 600;
+        border: none;
+        padding: 6px 18px;
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+    }
+
+        .btn-confirm-netsuite:hover {
+            background-color: #093b62;
+            color: #ffffff;
+        }
 </style>
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
     <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| Inbound PO Review</span></div>
     @* <div class="small">User: <strong>Duong Hai Linh</strong> | Role: <strong>IT Administrator</strong></div> *@
+</div>
+
+<!-- Step Progress Bar (Đặt ngay trên Action Bar) -->
+<div class="netsuite-stepper-wrapper">
+    <div class="netsuite-stepper">
+        <div class="netsuite-stepper-line"></div>
+
+        <!-- Step 1: Active -->
+        <div class="netsuite-step active" id="step-node-1">
+            <div class="step-num">1</div>
+            <div class="step-text">Inbound PO Review</div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="netsuite-step" id="step-node-2">
+            <div class="step-num">2</div>
+            <div class="step-text">Custom Record</div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="netsuite-step" id="step-node-3">
+            <div class="step-num">3</div>
+            <div class="step-text">Create SO</div>
+        </div>
+    </div>
 </div>
 
 <!-- Action Bar & Controls -->
@@ -264,7 +392,13 @@
             </div>
 
             <!-- Calculations Summary Footer -->
-            <div class="row justify-content-end">
+            <div class="row justify-content-end align-items-center mt-3">
+                <!-- Nút Xác nhận chuyển sang bước 2 (Chỉ hiện khi Audit Passed) -->
+                <div class="mr-3">
+                    <button type="button" id="btn-confirm-next" class="btn btn-confirm-netsuite shadow-sm d-none">
+                        <i class="fas fa-arrow-right mr-1"></i> Xác Nhận & Chuyển Bước 2
+                    </button>
+                </div>
                 <div class="col-md-6">
                     <div class="summary-box">
                         <div class="d-flex justify-content-between align-items-center mb-1 text-danger">
@@ -386,68 +520,71 @@
 
                     const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
 
+                    // Gọi hàm này để nó tự động bật/tắt badge, màu sắc và nút Xác nhận chuẩn xác
+                    updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
+
                     if (isPassed) {
                         // TRƯỜNG HỢP PASSED
-                        $('#ocr-badge-status')
-                            .removeClass('badge-danger badge-secondary')
-                            .addClass('badge-success')
-                            .css({'background-color': '#28a745', 'color': '#ffffff'});
-                        $('#ocr-badge-icon').removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
-                        $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
+                        // $('#ocr-badge-status')
+                        //     .removeClass('badge-danger badge-secondary')
+                        //     .addClass('badge-success')
+                        //     .css({'background-color': '#28a745', 'color': '#ffffff'});
+                        // $('#ocr-badge-icon').removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
+                        // $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
 
-                        $('#ocr-audit-alert-box')
-                            .removeClass('alert-error-custom')
-                            .addClass('alert-success-custom')
-                            .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
+                        // $('#ocr-audit-alert-box')
+                        //     .removeClass('alert-error-custom')
+                        //     .addClass('alert-success-custom')
+                        //     .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
 
-                        $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
+                        // $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
 
-                        let detailsHtml = `
-                            <li><strong>Units Matched:</strong> Sum of line items (${calcUnits}) == Total Units Expected (${expUnits})</li>
-                            <li><strong>Amount Matched:</strong> Sum of line items ($${calcAmt}) == Subtotal Expected ($${expAmt})</li>
-                        `;
-                        $('#ocr-audit-details').html(detailsHtml);
+                        // let detailsHtml = `
+                        //     <li><strong>Units Matched:</strong> Sum of line items (${calcUnits}) == Total Units Expected (${expUnits})</li>
+                        //     <li><strong>Amount Matched:</strong> Sum of line items ($${calcAmt}) == Subtotal Expected ($${expAmt})</li>
+                        // `;
+                        // $('#ocr-audit-details').html(detailsHtml);
 
-                        $('#ocr-audit-action')
-                            .removeClass('text-danger')
-                            .addClass('text-success')
-                            .css('color', '#0e9f6e')
-                            .html('<strong>Status:</strong> All line items matched perfectly with the PDF document. Ready to convert to Sales Order.');
+                        // $('#ocr-audit-action')
+                        //     .removeClass('text-danger')
+                        //     .addClass('text-success')
+                        //     .css('color', '#0e9f6e')
+                        //     .html('<strong>Status:</strong> All line items matched perfectly with the PDF document. Ready to convert to Sales Order.');
                     } else {
                         // TRƯỜNG HỢP FAILED
-                        $('#ocr-badge-status')
-                            .removeClass('badge-success badge-secondary')
-                            .addClass('badge-danger')
-                            .css({'background-color': '#dc3545', 'color': '#ffffff'});
-                        $('#ocr-badge-icon').removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
-                        $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
+                        // $('#ocr-badge-status')
+                        //     .removeClass('badge-success badge-secondary')
+                        //     .addClass('badge-danger')
+                        //     .css({'background-color': '#dc3545', 'color': '#ffffff'});
+                        // $('#ocr-badge-icon').removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
+                        // $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
 
-                        $('#ocr-audit-alert-box')
-                            .removeClass('alert-success-custom')
-                            .addClass('alert-error-custom')
-                            .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
+                        // $('#ocr-audit-alert-box')
+                        //     .removeClass('alert-success-custom')
+                        //     .addClass('alert-error-custom')
+                        //     .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
 
-                        $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
+                        // $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
 
-                        let detailsHtml = '';
-                        if (!audit.unitsMatched) {
-                            detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnits}) != Total Units Expected (${expUnits})</li>`;
-                        }
-                        if (!audit.amountMatched) {
-                            detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmt}) != Subtotal Expected (${expAmt})</li>`;
-                        }
-                        if (audit.errors && audit.errors.length > 0) {
-                            audit.errors.forEach(err => {
-                                detailsHtml += `<li><strong>Error:</strong> ${err}</li>`;
-                            });
-                        }
-                        $('#ocr-audit-details').html(detailsHtml);
+                        // let detailsHtml = '';
+                        // if (!audit.unitsMatched) {
+                        //     detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnits}) != Total Units Expected (${expUnits})</li>`;
+                        // }
+                        // if (!audit.amountMatched) {
+                        //     detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmt}) != Subtotal Expected (${expAmt})</li>`;
+                        // }
+                        // if (audit.errors && audit.errors.length > 0) {
+                        //     audit.errors.forEach(err => {
+                        //         detailsHtml += `<li><strong>Error:</strong> ${err}</li>`;
+                        //     });
+                        // }
+                        // $('#ocr-audit-details').html(detailsHtml);
 
-                        $('#ocr-audit-action')
-                            .removeClass('text-success')
-                            .addClass('text-danger')
-                            .css('color', '#9b1c1c')
-                            .html('<strong>Action Required:</strong> Data mismatch detected. Please click "Edit Data" to resolve manually or reject the PO.');
+                        // $('#ocr-audit-action')
+                        //     .removeClass('text-success')
+                        //     .addClass('text-danger')
+                        //     .css('color', '#9b1c1c')
+                        //     .html('<strong>Action Required:</strong> Data mismatch detected. Please click "Edit Data" to resolve manually or reject the PO.');
                     }
 
                 } else {
@@ -799,6 +936,9 @@
             $('#ocr-audit-details').html(detailsHtml);
             $('#ocr-audit-action').removeClass('text-danger').addClass('text-success').css('color', '#0e9f6e')
                 .html('<strong>Status:</strong> All line items matched perfectly. Ready to convert to Sales Order.');
+
+            // HIỆN NÚT XÁC NHẬN CHUYỂN BƯỚC
+            $('#btn-confirm-next').removeClass('d-none');
         } else {
             // MÀU ĐỎ (MISMATCH)
             $('#ocr-badge-status').removeClass('badge-success').addClass('badge-danger').css({'background-color': '#dc3545', 'color': '#fff'});
@@ -820,8 +960,20 @@
             $('#ocr-audit-details').html(detailsHtml);
             $('#ocr-audit-action').removeClass('text-success').addClass('text-danger').css('color', '#9b1c1c')
                 .html('<strong>Action Required:</strong> Data mismatch detected. Please add/edit lines to match expected totals or reject the PO.');
+
+            // ẨN NÚT XÁC NHẬN KHI CÒN LỖI
+            $('#btn-confirm-next').addClass('d-none');
         }
     }
+
+    // Bấm nút Xác Nhận để chuẩn bị cho Bước 2
+    $(document).on('click', '#btn-confirm-next', function () {
+        alert("Xác nhận dữ liệu thành công! Đang chuyển sang Bước 2: Custom Record...");
+
+        // Đổi trạng thái hiển thị trên Progress bar sang Bước 2 (Nếu cần test hiệu ứng)
+        $('#step-node-1').removeClass('active').addClass('completed');
+        $('#step-node-2').addClass('active');
+    });
 
     // -------------------------------------------------------------
     // 7. BACKUP & RESTORE DỮ LIỆU
