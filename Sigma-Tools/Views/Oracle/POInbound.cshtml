@@ -90,6 +90,24 @@
         padding: 10px;
         font-weight: 600;
     }
+
+    /* Khung cảnh báo LỖI (Màu đỏ) */
+    .alert-error-custom {
+        background-color: #fdf2f2;
+        border: 1px solid #f8b4b4;
+        color: #9b1c1c;
+        border-radius: 4px;
+        padding: 12px 15px;
+    }
+
+    /* Khung THÀNH CÔNG (Màu xanh) */
+    .alert-success-custom {
+        background-color: #f3faf7;
+        border: 1px solid #bcf0da;
+        color: #03543f;
+        border-radius: 4px;
+        padding: 12px 15px;
+    }
 </style>
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
@@ -113,7 +131,10 @@
 
     <div class="d-flex align-items-center">
         <span class="mr-2 text-secondary font-weight-bold small">System Validations:</span>
-        <span class="badge badge-danger p-2 font-weight-normal"><i class="fas fa-exclamation-triangle mr-1"></i> OCR Audit: FATAL ERROR (Missing Lines)</span>
+        <span id="ocr-badge-status" class="badge badge-danger p-2 font-weight-normal">
+            <i id="ocr-badge-icon" class="fas fa-exclamation-triangle mr-1"></i>
+            <span id="ocr-badge-text">OCR Audit: FATAL ERROR (Missing Lines)</span>
+        </span>
     </div>
 </div>
 
@@ -142,15 +163,15 @@
         <div class="col-md-7 p-3">
 
             <!-- Cảnh báo Lỗi Audit OCR -->
-            <div class="alert-error-custom mb-3">
-                <div class="font-weight-bold mb-1">
+            <div id="ocr-audit-alert-box" class="alert-error-custom mb-3">
+                <div id="ocr-audit-title" class="font-weight-bold mb-1">
                     <span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed
                 </div>
-                <ul class="mb-1 pl-4 small">
+                <ul id="ocr-audit-details" class="mb-1 pl-4 small">
                     <li><strong>Units Mismatch:</strong> Sum of line items (19,500) != Total Units Expected (20,700)</li>
                     <li><strong>Amount Mismatch:</strong> Sum of line items ($298,790.00) != Subtotal Expected ($315,530.00)</li>
                 </ul>
-                <div class="font-italic small text-danger mt-1">
+                <div id="ocr-audit-action" class="font-italic small text-danger mt-1">
                     <strong>Action Required:</strong> The AI engine missed Line 7. Please click 'Edit Data' to add the missing line manually or reject the PO.
                 </div>
             </div>
@@ -293,14 +314,14 @@
             success: function (response) {
                 if (response.success) {
                     let m = response.data;
+                    let audit = m.auditReport || {};
 
-                    // A. ĐỔI DỮ LIỆU CẢ HEADER PO
+                    // 1. Cập nhật Header, Bảng Line Items & Totals như trước
                     document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
                     document.getElementById('po-date-display').innerText = m.date || 'N/A';
                     document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
                     document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
 
-                    // B. ĐỔI TIÊU ĐỀ SỐ LƯỢNG DÒNG VÀ BẢNG LINE ITEMS
                     document.getElementById('line-items-header').innerText = `EXTRACTED LINE ITEMS (${m.lineItems.length} LINES FOUND)`;
 
                     let tbodyHtml = '';
@@ -316,7 +337,6 @@
                     });
                     $('#po-line-table tbody').html(tbodyHtml);
 
-                    // C. ĐỔI DỮ LIỆU TỔNG SUM / EXPECTED
                     const calcUnits = Number(m.calculatedUnits).toLocaleString();
                     const calcAmt = Number(m.calculatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     const expUnits = Number(m.expectedUnits).toLocaleString();
@@ -324,6 +344,94 @@
 
                     document.getElementById('calculated-sum-display').innerText = `${calcUnits} Units / $${calcAmt}`;
                     document.getElementById('expected-sum-display').innerText = `${expUnits} Units / $${expAmt}`;
+
+                    // =========================================================
+                    // CẬP NHẬT ĐỘNG GIÁ TRỊ VÀ MÀU SẮC CHO THÔNG BÁO AUDIT
+                    // =========================================================
+                    const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
+
+                    if (isPassed) {
+                        // ---------------------------------------------------------
+                        // TRƯỜNG HỢP 1: DỮ LIỆU ĐÚNG / PASSED (CHUYỂN SANG MÀU XANH)
+                        // ---------------------------------------------------------
+
+                        // A. Badge góc phải
+                        $('#ocr-badge-status')
+                            .removeClass('badge-danger')
+                            .addClass('badge-success')
+                            .css({'background-color': '#28a745', 'color': '#ffffff'}); // Xanh lá
+                        $('#ocr-badge-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+                        $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
+
+                        // B. Khung Cảnh báo lớn
+                        $('#ocr-audit-alert-box')
+                            .removeClass('alert-error-custom')
+                            .addClass('alert-success-custom')
+                            .css({
+                                'background-color': '#f3faf7',
+                                'border': '1px solid #bcf0da',
+                                'color': '#03543f'
+                            });
+
+                        $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
+
+                        let detailsHtml = `
+                            <li><strong>Units Matched:</strong> Sum of line items (${calcUnits}) == Total Units Expected (${expUnits})</li>
+                            <li><strong>Amount Matched:</strong> Sum of line items ($${calcAmt}) == Subtotal Expected ($${expAmt})</li>
+                        `;
+                        $('#ocr-audit-details').html(detailsHtml);
+
+                        $('#ocr-audit-action')
+                            .removeClass('text-danger')
+                            .addClass('text-success')
+                            .css('color', '#0e9f6e')
+                            .html('<strong>Status:</strong> All line items matched perfectly with the PDF document. Ready to convert to Sales Order.');
+
+                    } else {
+                        // ---------------------------------------------------------
+                        // TRƯỜNG HỢP 2: DỮ LIỆU SAI / FAILED (GIỮ MÀU ĐỎ)
+                        // ---------------------------------------------------------
+
+                        // A. Badge góc phải
+                        $('#ocr-badge-status')
+                            .removeClass('badge-success')
+                            .addClass('badge-danger')
+                            .css({'background-color': '#dc3545', 'color': '#ffffff'}); // Màu đỏ
+                        $('#ocr-badge-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+                        $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
+
+                        // B. Khung Cảnh báo lớn
+                        $('#ocr-audit-alert-box')
+                            .removeClass('alert-success-custom')
+                            .addClass('alert-error-custom')
+                            .css({
+                                'background-color': '#fdf2f2',
+                                'border': '1px solid #f8b4b4',
+                                'color': '#9b1c1c'
+                            });
+
+                        $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
+
+                        let detailsHtml = '';
+                        if (!audit.unitsMatched) {
+                            detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnits}) != Total Units Expected (${expUnits})</li>`;
+                        }
+                        if (!audit.amountMatched) {
+                            detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmt}) != Subtotal Expected ($${expAmt})</li>`;
+                        }
+                        if (audit.errors && audit.errors.length > 0) {
+                            audit.errors.forEach(err => {
+                                detailsHtml += `<li><strong>Error:</strong> ${err}</li>`;
+                            });
+                        }
+                        $('#ocr-audit-details').html(detailsHtml);
+
+                        $('#ocr-audit-action')
+                            .removeClass('text-success')
+                            .addClass('text-danger')
+                            .css('color', '#9b1c1c')
+                            .html('<strong>Action Required:</strong> Data mismatch detected. Please click "Edit Data" to resolve manually or reject the PO.');
+                    }
 
                 } else {
                     alert("Lỗi: " + response.message);

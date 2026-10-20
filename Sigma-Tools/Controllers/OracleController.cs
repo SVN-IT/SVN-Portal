@@ -100,6 +100,30 @@ namespace Sigma_Tools.Controllers
                     // (Bạn có thể dùng Newtonsoft.Json hoặc System.Text.Json)
                     var apiData = Newtonsoft.Json.Linq.JObject.Parse(jsonResponse);
 
+                    // Trong Action UploadPOPdf sau khi parse apiData:
+                    var auditObj = apiData["audit_report"];
+                    var auditReport = new AuditReportViewModel();
+
+                    if (auditObj != null)
+                    {
+                        auditReport.LineIntegrityPassed = auditObj["line_integrity_passed"]?.Value<bool>() ?? true;
+                        auditReport.UnitsMatched = auditObj["units_matched"]?.Value<bool>() ?? true;
+                        auditReport.AmountMatched = auditObj["amount_matched"]?.Value<bool>() ?? true;
+                        auditReport.CalculatedUnits = auditObj["calculated_units"]?.Value<int>() ?? 0;
+                        auditReport.ExpectedUnits = auditObj["expected_units"]?.Value<int>() ?? 0;
+                        auditReport.CalculatedAmount = auditObj["calculated_amount"]?.Value<decimal>() ?? 0;
+                        auditReport.ExpectedAmount = auditObj["expected_amount"]?.Value<decimal>() ?? 0;
+
+                        var errs = auditObj["errors"] as Newtonsoft.Json.Linq.JArray;
+                        if (errs != null)
+                        {
+                            foreach (var err in errs)
+                            {
+                                auditReport.Errors.Add(err.ToString());
+                            }
+                        }
+                    }
+
                     var model = new InboundPOReviewViewModel
                     {
                         PONumber = apiData["header"]?["po_number"]?.ToString(),
@@ -110,7 +134,8 @@ namespace Sigma_Tools.Controllers
                         CalculatedAmount = apiData["audit_report"]?["calculated_amount"]?.Value<decimal>() ?? 0,
                         ExpectedUnits = apiData["audit_report"]?["expected_units"]?.Value<int>() ?? 0,
                         ExpectedAmount = apiData["audit_report"]?["expected_amount"]?.Value<decimal>() ?? 0,
-                        LineItems = new List<POLineItem>()
+                        LineItems = new List<POLineItem>(),
+                        AuditReport = auditReport
                     };
 
                     var items = apiData["line_items"] as Newtonsoft.Json.Linq.JArray;
