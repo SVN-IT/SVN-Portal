@@ -234,6 +234,70 @@
             background-color: #093b62;
             color: #ffffff;
         }
+
+    /* --- Styles cho Bảng Price Verification (Bước 2) --- */
+    .table-verification th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .table-verification td {
+        vertical-align: middle;
+        font-size: 0.85rem;
+    }
+
+    /* Dòng bị lệch giá (Variance Row) */
+    .row-variance {
+        background-color: #fdf2f2 !important;
+    }
+
+    .text-variance {
+        color: #9b1c1c;
+        font-weight: 600;
+    }
+
+    .text-matched {
+        color: #03543f;
+        font-weight: 600;
+    }
+
+    .verification-notice {
+        font-size: 0.82rem;
+        color: #b45309;
+        background-color: #fffbeb;
+        border: 1px solid #fde68a;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-top: 12px;
+    }
+
+    /* --- Hiệu ứng chuyển đổi giữa các bước (Fade & Slide Transition) --- */
+    .table-transition-wrapper {
+        position: relative;
+        transition: all 0.35s ease-in-out;
+    }
+
+    @@keyframes fadeInScale {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .animate-fade-in {
+        animation: fadeInScale 0.4s ease-in-out forwards;
+    }
 </style>
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
@@ -276,7 +340,7 @@
         </label>
 
         <!-- Các nút chức năng khác mặc định bị disabled -->
-        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1" id="btn-convert" disabled>Convert to Sales Order</button>
+        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1 d-none" id="btn-convert" disabled>Convert to Sales Order</button>
 
         <!-- Nút Edit Data -->
         <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data" disabled>
@@ -594,6 +658,114 @@
             error: function (xhr, status, error) {
                 console.error("Lỗi kết nối:", error);
                 alert("Đã xảy ra lỗi khi gửi file lên server!");
+            }
+        });
+    });
+
+        // Sự kiện bấm nút Xác nhận ở Bước 1 để sang Bước 2
+    $(document).on('click', '#btn-confirm-next', function () {
+        // 1. Thu thập dữ liệu các line items hiện tại trên bảng
+        let currentLineItems = [];
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if ($tr.find('td').length <= 1) return;
+
+            currentLineItems.push({
+                Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
+                ItemCode: $tr.find('td:nth-child(2)').text().trim(),
+                Description: $tr.find('td:nth-child(3)').text().trim(),
+                Qty: parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
+                UnitPrice: parseFloat($tr.find('td:nth-child(5)').attr('data-original-price')) || parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0
+            });
+        });
+
+        // 2. Gọi Ajax xuống Controller để đối chiếu giá ERP
+        $.ajax({
+            url: '/Oracle/VerifyErpPrices',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(currentLineItems),
+            success: function (response) {
+                if (response.success) {
+                    // --- BẮT ĐẦU HIỆU ỨNG CHUYỂN CẢNH (FADE OUT KHUNG BẢNG) ---
+                    const $cardContainer =$('#po-line-table').closest('.card-custom');
+                    $cardContainer.fadeOut(200, function () {
+
+                        // 3. Cập nhật trạng thái hiển thị trên Thanh tiến trình sang Bước 2
+                        $('#step-node-1').removeClass('active').addClass('completed');
+                        $('#step-node-2').addClass('active');
+
+                        // 4. Thay đổi tiêu đề card thành Bước 2
+                        $cardContainer.find('.card-header span').text('LINE ITEMS & PRICE VERIFICATION');
+
+                        let tableHeaderHtml = `
+                            <tr>
+                                <th style="width: 8%;">Line</th>
+                                <th style="width: 25%;">Customer Item #</th>
+                                <th style="width: 15%; text-align: right;">Qty</th>
+                                <th style="width: 17%; text-align: right;">OCR Price</th>
+                                <th style="width: 17%; text-align: right;">ERP Base Price</th>
+                                <th style="width: 18%; text-align: center;">Validation Status</th>
+                            </tr>
+                        `;
+                        $('#po-line-table thead').html(tableHeaderHtml);
+
+                        let hasVariance = false;
+                        let tbodyHtml = '';
+
+                        response.data.forEach(item => {
+                            let statusHtml = '';
+                            let rowClass = '';
+
+                            if (item.isMatched) {
+                                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`;
+                            } else {
+                                hasVariance = true;
+                                rowClass = 'row-variance animate-fade-in';
+                                let sign = item.variance > 0 ? `+$${item.variance.toFixed(2)}` : `-$${Math.abs(item.variance).toFixed(2)}`;
+                                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`;
+                            }
+
+                            tbodyHtml += `
+                                <tr class="${rowClass}">
+                                    <td>${item.line}</td>
+                                    <td class="font-weight-bold">${item.itemCode}</td>
+                                    <td class="text-right">${item.qty.toLocaleString()}</td>
+                                    <td class="text-right ${!item.isMatched ? 'text-variance font-weight-bold' : ''}">$${item.ocrPrice.toFixed(2)}</td>
+                                    <td class="text-right">$${item.erpBasePrice.toFixed(2)}</td>
+                                    <td class="text-center">${statusHtml}</td>
+                                </tr>
+                            `;
+                        });
+
+                        $('#po-line-table tbody').html(tbodyHtml);
+
+                        // Xóa thông báo cũ nếu có và thêm thông báo mới nếu lệch giá
+                        $('#variance-notice-box').remove();
+                        if (hasVariance) {
+                            let noticeHtml = `
+                                <div class="verification-notice animate-fade-in" id="variance-notice-box">
+                                    <i class="fas fa-info-circle mr-1"></i> <strong>Notice:</strong> One or more lines trigger custom pricing logic. Converting this record will route the Sales Order to <strong>Pending Approval</strong> status.
+                                </div>
+                            `;
+                            $cardContainer.after(noticeHtml);
+                        }
+
+                        // Đổi nút "Xác Nhận" sang bước tiếp theo
+                        $('#btn-confirm-next')
+                            .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)')
+                            .attr('id', 'btn-proceed-step3');
+
+                        // --- KẾT THÚC HIỆU ỨNG (FADE IN HIỂN THỊ LẠI MƯỢT MÀ) ---
+                        $cardContainer.fadeIn(300);
+                    });
+
+                } else {
+                    alert("Lỗi đối chiếu giá ERP: " + response.message);
+                }
+            },
+            error: function () {
+                alert("Lỗi kết nối khi gọi dữ liệu ERP từ server!");
             }
         });
     });

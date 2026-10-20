@@ -157,5 +157,49 @@ namespace Sigma_Tools.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [HttpPost]
+        public IActionResult VerifyErpPrices([FromBody] List<POLineItem> items)
+        {
+            if (items == null || items.Count == 0)
+            {
+                return Json(new { success = false, message = "Không có dữ liệu line items để đối chiếu." });
+            }
+
+            var verificationResult = new List<object>();
+
+            foreach (var item in items)
+            {
+                // Giả lập logic gọi sang NetSuite / ERP lấy giá Base Price theo ItemCode
+                decimal erpBasePrice = item.UnitPrice; // Mặc định khớp
+
+                // Ví dụ giả lập dòng thứ 2 có sự chênh lệch giá để test giao diện giống ảnh mẫu của bạn
+                if (item.ItemCode == "308001014737")
+                {
+                    erpBasePrice = 1.559M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
+                }
+                if (item.ItemCode == "308001014736")
+                {
+                    erpBasePrice = 1.779M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
+                }
+
+                decimal variance = item.UnitPrice - erpBasePrice;
+                bool isMatched = Math.Abs(variance) < 0.0001m;
+
+                verificationResult.Add(new
+                {
+                    line = item.Line,
+                    itemCode = item.ItemCode,
+                    description = item.Description,
+                    qty = item.Qty,
+                    ocrPrice = item.UnitPrice,
+                    erpBasePrice = erpBasePrice,
+                    isMatched = isMatched,
+                    variance = variance
+                });
+            }
+
+            return Json(new { success = true, data = verificationResult });
+        }
     }
 }
