@@ -141,20 +141,21 @@
 <!-- Action Bar & Controls -->
 <div class="action-bar d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center">
-        <!-- Button Import PDF -->
+        <!-- Button Import PDF (Duy nhất được hoạt động) -->
         <label class="btn btn-sm btn-info mb-0 mr-1 shadow-sm cursor-pointer" id="btn-import-wrapper">
             <i class="fas fa-file-upload mr-1"></i> Import File PDF
             <input type="file" id="pdf-file-input" accept="application/pdf" style="display: none;">
         </label>
 
-        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1" id="btn-convert">Convert to Sales Order</button>
+        <!-- Các nút chức năng khác mặc định bị disabled -->
+        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1" id="btn-convert" disabled>Convert to Sales Order</button>
 
-        <!-- Nút Edit Data ban đầu -->
-        <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data">
+        <!-- Nút Edit Data -->
+        <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data" disabled>
             <i class="fas fa-edit mr-1"></i> Edit Data
         </button>
 
-        <!-- Nhóm nút Edit (Ẩn mặc định, hiển thị dạng inline-flex) -->
+        <!-- Nhóm nút Edit (Ẩn mặc định) -->
         <div id="edit-actions-group" class="align-items-center mr-1" style="display: none !important;">
             <button type="button" class="btn btn-sm btn-success font-weight-bold mr-1" id="btn-add-line">
                 <i class="fas fa-plus mr-1"></i> Add Item
@@ -167,14 +168,15 @@
             </button>
         </div>
 
-        <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold" id="btn-reject">Reject PO</button>
+        <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold" id="btn-reject" disabled>Reject PO</button>
     </div>
 
+    <!-- Badge Trạng thái phía trên góc phải -->
     <div class="d-flex align-items-center">
         <span class="mr-2 text-secondary font-weight-bold small">System Validations:</span>
-        <span id="ocr-badge-status" class="badge badge-danger p-2 font-weight-normal">
-            <i id="ocr-badge-icon" class="fas fa-exclamation-triangle mr-1"></i>
-            <span id="ocr-badge-text">OCR Audit: FATAL ERROR (Missing Lines)</span>
+        <span id="ocr-badge-status" class="badge badge-secondary p-2 font-weight-normal">
+            <i id="ocr-badge-icon" class="fas fa-info-circle mr-1"></i>
+            <span id="ocr-badge-text">OCR Audit: Pending PDF Upload</span>
         </span>
     </div>
 </div>
@@ -187,15 +189,14 @@
         <div class="col-md-5 pdf-panel">
             <div class="w-100 d-flex justify-content-between align-items-center mb-2 text-white">
                 <span class="small font-weight-bold ml-2"><i class="fas fa-file-pdf mr-1"></i> Document Viewer</span>
-                <span id="file-name-display" style="margin-right:.5rem" class="small text-warning font-italic">Chưa chọn file (Hiển thị mặc định)</span>
+                <span id="file-name-display" style="margin-right:.5rem" class="small text-warning font-italic">Chưa chọn file</span>
             </div>
 
-            <!-- Khung chứa PDF -->
             <div id="pdf-preview-container" class="pdf-preview-box">
                 <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
                     <i class="fas fa-file-pdf fa-4x mb-3 text-secondary"></i>
                     <p class="mb-1">Nhấn <strong>"Import File PDF"</strong> ở trên để tải file lên.</p>
-                    <small class="text-muted">Nội dung sẽ tự động hiển thị và thay thế tại đây.</small>
+                    <small class="text-muted">Nội dung sẽ tự động hiển thị và bóc tách tại đây.</small>
                 </div>
             </div>
         </div>
@@ -203,18 +204,13 @@
         <!-- Cột phải: Dữ liệu AI Extracted & Bảng chi tiết -->
         <div class="col-md-7 p-3">
 
-            <!-- Cảnh báo Lỗi Audit OCR -->
-            <div id="ocr-audit-alert-box" class="alert-error-custom mb-3">
+            <!-- Cảnh báo Audit OCR (Mặc định ẩn khi chưa upload PDF) -->
+            <div id="ocr-audit-alert-box" class="alert-error-custom mb-3" style="display: none;">
                 <div id="ocr-audit-title" class="font-weight-bold mb-1">
                     <span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed
                 </div>
-                <ul id="ocr-audit-details" class="mb-1 pl-4 small">
-                    <li><strong>Units Mismatch:</strong> Sum of line items (19,500) != Total Units Expected (20,700)</li>
-                    <li><strong>Amount Mismatch:</strong> Sum of line items ($298,790.00) != Subtotal Expected ($315,530.00)</li>
-                </ul>
-                <div id="ocr-audit-action" class="font-italic small text-danger mt-1">
-                    <strong>Action Required:</strong> The AI engine missed Line 7. Please click 'Edit Data' to add the missing line manually or reject the PO.
-                </div>
+                <ul id="ocr-audit-details" class="mb-1 pl-4 small"></ul>
+                <div id="ocr-audit-action" class="font-italic small mt-1"></div>
             </div>
 
             <!-- PO Header Extracted -->
@@ -230,10 +226,10 @@
                         <div class="col-md-3">Requisitioner</div>
                     </div>
                     <div class="row font-weight-bold text-dark mt-1">
-                        <div class="col-md-3" id="po-number-display">@Model.PONumber</div>
-                        <div class="col-md-3" id="po-date-display">@Model.Date</div>
-                        <div class="col-md-3" id="po-customer-display">@Model.Customer</div>
-                        <div class="col-md-3" id="po-requisitioner-display">@Model.Requisitioner</div>
+                        <div class="col-md-3" id="po-number-display">N/A</div>
+                        <div class="col-md-3" id="po-date-display">N/A</div>
+                        <div class="col-md-3" id="po-customer-display">N/A</div>
+                        <div class="col-md-3" id="po-requisitioner-display">N/A</div>
                     </div>
                 </div>
             </div>
@@ -241,7 +237,7 @@
             <!-- Extracted Line Items -->
             <div class="card card-custom">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span id="line-items-header">EXTRACTED LINE ITEMS (@Model.LineItems.Count LINES FOUND)</span>
+                    <span id="line-items-header">EXTRACTED LINE ITEMS (0 LINES FOUND)</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -258,20 +254,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.LineItems)
-                                {
-                                    <tr>
-                                        <td>@item.Line</td>
-                                        <td>@item.ItemCode</td>
-                                        <td>@item.Description</td>
-                                        <td class="text-right">@item.Qty.ToString("N0")</td>
-                                        <td class="text-right">$@item.UnitPrice.ToString("F2")</td>
-                                        <td class="text-right">$@item.Amount.ToString("N2")</td>
-                                        <td class="text-center col-action d-none">
-                                            <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
-                                        </td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-3">Chưa có dữ liệu. Vui lòng import file PDF để bắt đầu bóc tách.</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -284,11 +269,11 @@
                     <div class="summary-box">
                         <div class="d-flex justify-content-between align-items-center mb-1 text-danger">
                             <span>Calculated Sum:</span>
-                            <span id="calculated-sum-display">@Model.CalculatedUnits.ToString("N0") Units / $@Model.CalculatedAmount.ToString("N2")</span>
+                            <span id="calculated-sum-display">0 Units / $0.00</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center text-success">
                             <span>Expected Total (PDF):</span>
-                            <span id="expected-sum-display">@Model.ExpectedUnits.ToString("N0") Units / $@Model.ExpectedAmount.ToString("N2")</span>
+                            <span id="expected-sum-display">0 Units / $0.00</span>
                         </div>
                     </div>
                 </div>
@@ -361,7 +346,10 @@
                     let m = response.data;
                     let audit = m.auditReport || {};
 
-                    // 1. Cập nhật Header, Bảng Line Items & Totals như trước
+                    // 1. KÍCH HOẠT LẠI TẤT CẢ CÁC NÚT BẤM (BỎ DISABLED)
+                    $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', false);
+
+                    // 2. Cập nhật Header & Bảng
                     document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
                     document.getElementById('po-date-display').innerText = m.date || 'N/A';
                     document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
@@ -393,33 +381,24 @@
                     document.getElementById('calculated-sum-display').innerText = `${calcUnits} Units / $${calcAmt}`;
                     document.getElementById('expected-sum-display').innerText = `${expUnits} Units / $${expAmt}`;
 
-                    // =========================================================
-                    // CẬP NHẬT ĐỘNG GIÁ TRỊ VÀ MÀU SẮC CHO THÔNG BÁO AUDIT
-                    // =========================================================
+                    // 3. HIỂN THỊ VÀ CẬP NHẬT KHUNG CẢNH BÁO AUDIT
+                    $('#ocr-audit-alert-box').show();
+
                     const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
 
                     if (isPassed) {
-                        // ---------------------------------------------------------
-                        // TRƯỜNG HỢP 1: DỮ LIỆU ĐÚNG / PASSED (CHUYỂN SANG MÀU XANH)
-                        // ---------------------------------------------------------
-
-                        // A. Badge góc phải
+                        // TRƯỜNG HỢP PASSED
                         $('#ocr-badge-status')
-                            .removeClass('badge-danger')
+                            .removeClass('badge-danger badge-secondary')
                             .addClass('badge-success')
-                            .css({'background-color': '#28a745', 'color': '#ffffff'}); // Xanh lá
-                        $('#ocr-badge-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+                            .css({'background-color': '#28a745', 'color': '#ffffff'});
+                        $('#ocr-badge-icon').removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
                         $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
 
-                        // B. Khung Cảnh báo lớn
                         $('#ocr-audit-alert-box')
                             .removeClass('alert-error-custom')
                             .addClass('alert-success-custom')
-                            .css({
-                                'background-color': '#f3faf7',
-                                'border': '1px solid #bcf0da',
-                                'color': '#03543f'
-                            });
+                            .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
 
                         $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
 
@@ -434,29 +413,19 @@
                             .addClass('text-success')
                             .css('color', '#0e9f6e')
                             .html('<strong>Status:</strong> All line items matched perfectly with the PDF document. Ready to convert to Sales Order.');
-
                     } else {
-                        // ---------------------------------------------------------
-                        // TRƯỜNG HỢP 2: DỮ LIỆU SAI / FAILED (GIỮ MÀU ĐỎ)
-                        // ---------------------------------------------------------
-
-                        // A. Badge góc phải
+                        // TRƯỜNG HỢP FAILED
                         $('#ocr-badge-status')
-                            .removeClass('badge-success')
+                            .removeClass('badge-success badge-secondary')
                             .addClass('badge-danger')
-                            .css({'background-color': '#dc3545', 'color': '#ffffff'}); // Màu đỏ
-                        $('#ocr-badge-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+                            .css({'background-color': '#dc3545', 'color': '#ffffff'});
+                        $('#ocr-badge-icon').removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
                         $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
 
-                        // B. Khung Cảnh báo lớn
                         $('#ocr-audit-alert-box')
                             .removeClass('alert-success-custom')
                             .addClass('alert-error-custom')
-                            .css({
-                                'background-color': '#fdf2f2',
-                                'border': '1px solid #f8b4b4',
-                                'color': '#9b1c1c'
-                            });
+                            .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
 
                         $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
 
@@ -465,7 +434,7 @@
                             detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnits}) != Total Units Expected (${expUnits})</li>`;
                         }
                         if (!audit.amountMatched) {
-                            detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmt}) != Subtotal Expected ($${expAmt})</li>`;
+                            detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmt}) != Subtotal Expected (${expAmt})</li>`;
                         }
                         if (audit.errors && audit.errors.length > 0) {
                             audit.errors.forEach(err => {
@@ -520,32 +489,74 @@
         recalculateAndAudit();
     });
 
-    // LƯU CHỈNH SỬA (SAVE)
+        // LƯU CHỈNH SỬA (SAVE CHANGES)
     $('#btn-save-edit').on('click', function () {
-        let hasError = false;
-        let errorMessage = "";
+        let hasEmptyError = false;
+        let emptyErrorMessage = "";
 
-        // Kiểm tra xem có dòng nào bị bỏ trống thông tin bắt buộc không
+        // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
         $('#po-line-table tbody tr').each(function (index) {
             const $tr =$(this);
             const itemCode = $tr.find('.input-item-code').val().trim();
             const qty = parseFloat($tr.find('.input-qty').val()) || 0;
             const price = parseFloat($tr.find('.input-price').val()) || 0;
 
-            // Nếu dòng bị để trống hoặc thiếu Item Code / Số lượng <= 0 / Đơn giá <= 0
             if (itemCode === "" || qty <= 0 || price <= 0) {
-                hasError = true;
-                errorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng điền đầy đủ hoặc xóa dòng thừa này trước khi lưu!`;
-                return false; // Thoát vòng lặp each
+                hasEmptyError = true;
+                emptyErrorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
+                return false; // Dừng vòng lặp each
             }
         });
 
-        if (hasError) {
-            alert(errorMessage);
-            return; // Dừng lại, không cho lưu
+        if (hasEmptyError) {
+            alert(emptyErrorMessage);
+            return; // Chặn lưu
         }
 
-        // Nếu dữ liệu hợp lệ hoàn toàn:
+        // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
+        let totalUnits = 0;
+        let totalAmount = 0;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+            const price = parseFloat($tr.find('.input-price').val()) || 0;
+            totalUnits += qty;
+            totalAmount += (qty * price);
+        });
+
+        totalAmount = Math.round(totalAmount * 100) / 100;
+
+        // Lấy Expected Total từ giao diện
+        const expText = $('#expected-sum-display').text();
+        const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
+        let expectedUnits = 0;
+        let expectedAmount = 0;
+
+        if (expMatch) {
+            expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
+            expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
+        }
+
+        const isUnitsMatched = (totalUnits === expectedUnits);
+        const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
+
+        // BÁO LỖI VÀ CHẶN LƯU NẾU KHÔNG KHỐP AUDIT
+        if (!isUnitsMatched || !isAmountMatched) {
+            let auditErrorMsg = "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
+            if (!isUnitsMatched) {
+                auditErrorMsg += `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
+            }
+            if (!isAmountMatched) {
+                auditErrorMsg += `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
+            }
+            auditErrorMsg += "\nVui lòng điều chỉnh lại danh sách Line Items để khớp với tổng số tiền và số lượng trước khi lưu.";
+
+            alert(auditErrorMsg);
+            return; // Chặn lưu hoàn toàn!
+        }
+
+        // 3. NẾU TẤT CẢ DỮ LIỆU ĐÃ HỢP LỆ VÀ KHỐP AUDIT
         saveTableEdits();
         enableEditMode(false);
         recalculateAndAudit();
@@ -653,7 +664,7 @@
                 $tr.find('td:nth-child(4)').html(`<input type="number" class="edit-input input-qty text-right" value="${qty}">`);
 
                 // Đặt step="0.0001" để cho phép nhập đơn giá nhiều chữ số thập phân chính xác
-                $tr.find('td:nth-child(5)').html(`<input type="number" step="0.0001" class="edit-input input-price text-right" value="${price.toFixed(4)}">`);
+                $tr.find('td:nth-child(5)').html(`<input type="number" step="0.0001" class="edit-input input-price text-right" value="${price}">`);
                 $tr.find('td:nth-child(6)').addClass('row-amount-text').text(`$${amt.toFixed(2)}`);
             } else {
                 saveTableEdits();
@@ -825,14 +836,20 @@
         };
 
         $('#po-line-table tbody tr').each(function () {
-            const $tr =$(this);
+            const $tr = $(this);
+            // Ưu tiên lấy từ data-original-price nếu có, nếu không thì lấy từ input hoặc text
+            let origPrice = $tr.find('td:nth-child(5)').attr('data-original-price');
+            if (!origPrice) {
+                origPrice = $tr.find('.input-price').val() || $tr.find('td:nth-child(5)').text().replace(/[$,]/g, '');
+            }
+
             originalDataBackup.lineItems.push({
                 line: $tr.find('td:nth-child(1)').text().trim(),
-                itemCode: $tr.find('td:nth-child(2)').text().trim(),
-                description: $tr.find('td:nth-child(3)').text().trim(),
-                qty: parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
-                unitPrice: parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0,
-                amount: parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0
+                itemCode: $tr.find('td:nth-child(2)').find('input').val() || $tr.find('td:nth-child(2)').text().trim(),
+                description: $tr.find('td:nth-child(3)').find('input').val() || $tr.find('td:nth-child(3)').text().trim(),
+                qty: parseInt($tr.find('.input-qty').val()) || parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
+                unitPrice: parseFloat(origPrice) || 0,
+                amount: parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount')) || parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0
             });
         });
     }
@@ -844,9 +861,9 @@
                 <td>${item.line}</td>
                 <td>${item.itemCode}</td>
                 <td>${item.description}</td>
-                <td class="text-right">${item.qty.toLocaleString()}</td>
-                <td class="text-right">$${item.unitPrice.toFixed(2)}</td>
-                <td class="text-right">$${item.amount.toFixed(2)}</td>
+                <td class="text-right">${Number(item.qty).toLocaleString()}</td>
+                <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice).toFixed(2)}</td>
+                <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
                 <td class="text-center col-action d-none">
                     <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
                 </td>
