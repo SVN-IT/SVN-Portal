@@ -3,6 +3,7 @@
     public class NetSuiteScriptService
     {
         public string UpdateQtyWOURL { get; set; }
+        public string GetCustomerPricingURL { get; set; }
         public string ConsumerKey { get; set; }
         public string ConsumerSecret { get; set; }
         public string TokenId { get; set; }

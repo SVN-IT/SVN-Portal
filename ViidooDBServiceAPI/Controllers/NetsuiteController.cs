@@ -93,6 +93,53 @@ namespace ViidooDBServiceAPI.Controllers
             }
         }
 
+        [HttpPost("GetCustomerItemPricing")]
+        public async Task<IActionResult> GetCustomerItemPricing([FromBody] CustomerPricingRequest dataRequest)
+        {
+            if (dataRequest == null || string.IsNullOrEmpty(dataRequest.customerId))
+            {
+                return BadRequest(new { success = false, message = "Thiếu thông tin customerId." });
+            }
+
+            try
+            {
+                // 1. Lấy URL của RESTlet lấy bảng giá khách hàng từ file cấu hình NetSuiteScriptService
+                // (Bạn cần khai báo thêm biến Url này trong service NetSuiteScriptService của bạn)
+                string requestUrl = $"{netSuiteScriptService.GetCustomerPricingURL}&customerId={dataRequest.customerId}&currency={dataRequest.currency}";
+
+                // 2. Lấy thông tin cấu hình Token OAuth 1.0
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Dùng phương thức GET hoặc POST tùy RESTlet bên NetSuite)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "GET", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi gọi sang NetSuite RESTlet
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse kết quả trả về từ NetSuite thành JSON object để trả về client sạch sẽ
+                    var jsonResult = JsonSerializer.Deserialize<object>(responseString);
+                    return Ok(new { success = true, data = jsonResult });
+                }
+
+                return BadRequest(new { success = false, message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
         private string GenerateNetsuiteOAuthHeader(string fullUrl, string httpMethod, string accountId, string consumerKey, string consumerSecret, string tokenId, string tokenSecret)
         {
             string nonce = Guid.NewGuid().ToString("N");
