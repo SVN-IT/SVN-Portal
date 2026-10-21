@@ -7,9 +7,9 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
     const get = (requestParams) => {
         try {
             const customerCode = requestParams.customerId;
-            const targetCurrency = requestParams.currency ? requestParams.currency.toUpperCase() : null; // Nhận đồng tiền truyền vào (VD: USD, CNY, VND...)
+            const targetCurrency = requestParams.currency ? requestParams.currency.toUpperCase() : 'USD'; // Lấy currency từ param URL
 
-            log.audit('STEP 1: API Triggered', `Khách hàng: ${customerCode} | Currency: ${targetCurrency || 'Tất cả'}`);
+            log.audit('STEP 1: API Triggered', `Khách hàng: ${customerCode} | Currency Param: ${targetCurrency}`);
 
             if (!customerCode) {
                 return JSON.stringify({
@@ -31,8 +31,6 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 return false;
             });
 
-            log.audit('STEP 2: Search Customer', `Internal ID tìm thấy: ${internalCustomerId}`);
-
             if (!internalCustomerId) {
                 return JSON.stringify({
                     success: false,
@@ -40,7 +38,7 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 });
             }
 
-            // 2. Load bản ghi Customer
+            // 2. Load bản ghi Customer để đọc sublist itempricing
             let customerRecord = record.load({
                 type: record.Type.CUSTOMER,
                 id: internalCustomerId,
@@ -49,7 +47,6 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
 
             let itemPricingList = [];
             let lineCount = customerRecord.getLineCount({ sublistId: 'itempricing' });
-            log.audit('STEP 3: Customer Loaded', `Tổng số dòng trong itempricing: ${lineCount}`);
 
             for (let i = 0; i < lineCount; i++) {
                 let itemId = customerRecord.getSublistValue({
@@ -62,84 +59,82 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                     fieldId: 'item',
                     line: i
                 });
-                let customerPriceLevel = customerRecord.getSublistText({
+
+                // Lấy Price Level đã được set riêng cho khách hàng trên dòng này
+                let assignedPriceLevel = customerRecord.getSublistText({
                     sublistId: 'itempricing',
                     fieldId: 'pricelevel',
                     line: i
-                });
-                let customerCurrency = customerRecord.getSublistText({
-                    sublistId: 'itempricing',
-                    fieldId: 'currency',
-                    line: i
-                });
-                let customerPrice = customerRecord.getSublistValue({
-                    sublistId: 'itempricing',
-                    fieldId: 'price',
-                    line: i
-                });
+                }) || 'Base Price'; // Mặc định là Base Price nếu trống
 
-                // 3. Lấy ma trận giá và lọc theo đồng tiền động
-                let itemPricingMatrix = [];
+                let assignedCurrency = targetCurrency;
+
+                // 3. Quét toàn bộ ma trận giá của Item để lấy tất cả các bậc MOQ ứng với pricelevel và currency
+                let pricingTiers = [];
                 if (itemId) {
                     try {
-                        let itemFields = search.lookupFields({
-                            type: search.Type.ITEM,
-                            id: itemId,
-                            columns: ['baseprice']
-                        });
-
-                        // Nếu người dùng không truyền currency hoặc truyền khớp với điều kiện
-                        if (itemFields && itemFields.baseprice) {
-                            // Mặc định Base Price thường gắn với đồng tiền cơ sở hoặc theo yêu cầu lọc
-                            itemPricingMatrix.push({
-                                priceLevel: 'Base Price',
-                                currency: targetCurrency || 'USD',
-                                qty0Price: itemFields.baseprice
-                            });
-                        }
-
-                        // Lấy thêm các mức giá tiêu chuẩn khác từ item
-                        let itemLookupMatrix = search.create({
+                        let pricingSearch = search.create({
                             type: search.Type.ITEM,
                             filters: [['internalid', 'anyof', itemId]],
-                            columns: ['price1', 'price2', 'price3', 'price4', 'price5']
+                            columns: [
+                                search.createColumn({ name: 'formulatext', formula: '{pricing.pricelevel}' }),
+                                search.createColumn({ name: 'formulatext', formula: '{pricing.currency}' }),
+                                search.createColumn({ name: 'formulatext', formula: '{pricing.quantity}' }),
+                                search.createColumn({ name: 'formulatext', formula: '{pricing.unitprice}' })
+                            ]
                         });
 
-                        itemLookupMatrix.run().each((res) => {
-                            for (let p = 1; p <= 5; p++) {
-                                let val = res.getValue(`price${p}`);
-                                if (val) {
-                                    itemPricingMatrix.push({
-                                        priceLevel: `Price Level ${p}`,
-                                        currency: targetCurrency || 'USD',
-                                        qty0Price: val
-                                    });
-                                }
+                        pricingSearch.run().each((res) => {
+                            let pLevel = res.getValue({ name: 'formulatext', formula: '{pricing.pricelevel}' });
+                            let curr = res.getValue({ name: 'formulatext', formula: '{pricing.currency}' });
+                            let qty = res.getValue({ name: 'formulatext', formula: '{pricing.quantity}' });
+                            let rate = res.getValue({ name: 'formulatext', formula: '{pricing.unitprice}' });
+
+                            // Khớp đúng Price Level của khách và Currency từ param
+                            if (pLevel === assignedPriceLevel && curr === assignedCurrency) {
+                                pricingTiers.push({
+                                    quantity: qty ? parseFloat(qty) : 0,
+                                    price: rate ? parseFloat(rate) : 0
+                                });
                             }
-                            return false;
+                            return true; // Tiếp tục chạy để lấy hết các bậc số lượng khác
                         });
 
-                    } catch (searchErr) {
-                        log.error(`Error searching pricing for item ${itemId}`, searchErr.message);
+                        // Fallback nếu không tìm thấy qua search pricing và là Base Price (lấy giá trị baseprice mặc định cho Qty 0)
+                        if (pricingTiers.length === 0 && assignedPriceLevel === 'Base Price') {
+                            let itemFields = search.lookupFields({
+                                type: search.Type.ITEM,
+                                id: itemId,
+                                columns: ['baseprice']
+                            });
+                            if (itemFields && itemFields.baseprice) {
+                                pricingTiers.push({
+                                    quantity: 0,
+                                    price: parseFloat(itemFields.baseprice)
+                                });
+                            }
+                        }
+
+                    } catch (errSearch) {
+                        log.error(`Error resolving pricing tiers for item ${itemId}`, errSearch.message);
                     }
                 }
 
                 itemPricingList.push({
                     itemId: itemId,
                     itemName: itemName,
-                    assignedPriceLevel: customerPriceLevel,
-                    assignedCurrency: customerCurrency,
-                    assignedPrice: customerPrice,
-                    itemPricingMatrix: itemPricingMatrix
+                    priceLevel: assignedPriceLevel,
+                    currency: assignedCurrency,
+                    pricingTiers: pricingTiers // Trả về mảng danh sách giá theo từng mức số lượng (MOQ)
                 });
             }
 
             return JSON.stringify({
                 success: true,
                 customerCode: customerCode,
-                currencyFilter: targetCurrency || 'ALL',
+                currencyParam: targetCurrency,
                 internalId: internalCustomerId,
-                totalItems: lineCount,
+                totalItems: itemPricingList.length,
                 items: itemPricingList
             });
 
