@@ -318,7 +318,7 @@
 </style>
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
-    <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| Inbound PO Review</span></div>
+    <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| @ViewBag.TitleName</span></div>
     @* <div class="small">User: <strong>Duong Hai Linh</strong> | Role: <strong>IT Administrator</strong></div> *@
 </div>
 
@@ -336,7 +336,7 @@
         <!-- Step 2 -->
         <div class="netsuite-step" id="step-node-2">
             <div class="step-num">2</div>
-            <div class="step-text">Custom Record</div>
+            <div class="step-text">ERP Price Compare</div>
         </div>
 
         <!-- Step 3 -->
@@ -383,6 +383,38 @@
         <button type="button" id="btn-reload-erp" class="btn btn-sm btn-outline-primary font-weight-bold shadow-sm ml-2 d-none">
             <i class="fas fa-sync-alt mr-1"></i> Reload ERP data
         </button>
+    </div>
+
+    <!-- Modal Confirm Reject PO -->
+    <div class="modal fade" id="rejectPoModal" tabindex="-1" role="dialog" aria-labelledby="rejectPoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title font-weight-bold" id="rejectPoModalLabel">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Confirm Reject Purchase Order
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2 text-dark">Bạn có chắc chắn muốn từ chối (Reject) Purchase Order này không?</p>
+                    <div class="form-group mb-0">
+                        <label for="reject-reason" class="small font-weight-bold text-muted mb-1">Lý do từ chối (Reject Reason) <span class="text-danger">*</span>:</label>
+                        <textarea class="form-group form-control text-dark" id="reject-reason" rows="3" placeholder="Nhập lý do chi tiết từ chối PO..."></textarea>
+                        <small id="reject-reason-error" class="text-danger font-weight-bold d-none">Vui lòng nhập lý do trước khi từ chối!</small>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger font-weight-bold" id="btn-confirm-reject">
+                        <i class="fas fa-check mr-1"></i> Đồng Ý (Reject)
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Badge Trạng thái phía trên góc phải -->
@@ -840,11 +872,11 @@
         $(this).fadeOut(200);
 
         // 5. Cập nhật tiêu đề bảng
-        const $cardContainer = $('#po-line-table').closest('.card-custom');
+        const $cardContainer =$('#po-line-table').closest('.card-custom');
         $cardContainer.find('.card-header span:first').text('READY TO CONVERT SALES ORDER (STEP 3)');
 
         // 6. GIỮ NGUYÊN HIỂN THỊ THẺ BƯỚC 2 VÀ HIỆN THÊM THẺ BƯỚC 3 (ĐỦ CẢ 3 THẺ)
-        $('#erp-badge-status').removeClass('d-none'); // Vẫn giữ thẻ Bước 2 hiển thị
+        $('#erp-badge-status').removeClass('d-none');
 
         $('#so-badge-status')
             .removeClass('d-none')
@@ -853,6 +885,31 @@
             .css({ 'background-color': '#28a745', 'color': '#fff' });
 
         $('#so-badge-text').text('Sales Order: Ready for Conversion');
+
+        // ==========================================
+        // 7. CẬP NHẬT NỘI DUNG KHUNG THÔNG BÁO LỚN PHÍA TRÊN CHO BƯỚC 3
+        // ==========================================
+        const $alertBox =$('#ocr-audit-alert-box');
+        const $title =$('#ocr-audit-title');
+        const $details =$('#ocr-audit-details');
+        const $action =$('#ocr-audit-action');
+
+        $alertBox.show()
+                 .removeClass('alert-error-custom alert-warning-custom')
+                 .addClass('alert-success-custom')
+                 .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+
+        $title.html('<span class="text-success mr-1">●</span> SALES ORDER CREATION READY: All Validations Passed');
+
+        let detailsHtml = `
+            <li><strong>OCR & ERP Verification:</strong> Data integrity verified and base prices successfully reconciled.</li>
+            <li><strong>Workflow Status:</strong> Record validated across all compliance checkpoints. Ready for NetSuite SO generation.</li>
+        `;
+        $details.html(detailsHtml);
+
+        $action.removeClass('text-danger text-warning').addClass('text-success')
+               .css('color', '#0e9f6e')
+               .html('<strong>Status:</strong> All prerequisites completed. Click <strong>"Convert to Sales Order"</strong> above to finalize.');
 
         alert("Xác nhận thành công! Hệ thống đã sẵn sàng để Convert to Sales Order ở Bước 3.");
     });
@@ -1625,4 +1682,58 @@
                        .html('<strong>Action Required:</strong> Please review price variances or proceed to route for Pending Approval.');
             }
         }
+
+        // =============================================================
+        // XỬ LÝ NÚT REJECT PO (HIỂN THỊ POPUP & GỬI AJAX)
+        // =============================================================
+
+        // 1. Khi bấm nút Reject PO trên Action Bar -> Mở Popup
+        $(document).on('click', '#btn-reject', function () {
+            $('#reject-reason').val('');
+            $('#reject-reason-error').addClass('d-none');
+            $('#rejectPoModal').modal('show');
+        });
+
+        // 2. Khi bấm nút Đồng Ý (Reject) trong Popup
+        $(document).on('click', '#btn-confirm-reject', function () {
+            const reason = $('#reject-reason').val().trim();
+            const poNumber = $('#po-number-display').text().trim();
+
+            // Validate bắt buộc nhập lý do
+            if (reason === '') {
+                $('#reject-reason-error').removeClass('d-none');
+                return;
+            }
+            $('#reject-reason-error').addClass('d-none');
+
+            // Khóa nút để tránh bấm nhiều lần
+            const $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý...');
+
+            // Gửi dữ liệu xuống Controller
+            $.ajax({
+                url: '/Oracle/RejectPO',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    PONumber: poNumber,
+                    Reason: reason
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        $('#rejectPoModal').modal('hide');
+                        alert(response.message);
+                        // Refresh lại trang khi thành công
+                        window.location.reload();
+                    } else {
+                        alert("Lỗi: " + response.message);
+                        $btn.prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Đồng Ý (Reject)');
+                    }
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi kết nối khi từ chối PO!");
+                    $btn.prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Đồng Ý (Reject)');
+                }
+            });
+        });
 </script>

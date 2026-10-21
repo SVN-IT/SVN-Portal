@@ -201,5 +201,32 @@ namespace Sigma_Tools.Controllers
 
             return Json(new { success = true, data = verificationResult });
         }
+
+        [HttpPost]
+        public IActionResult RejectPO([FromBody] RejectPORequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Reason))
+            {
+                return Json(new { success = false, message = "Lý do từ chối không được để trống." });
+            }
+
+            try
+            {
+                // TODO: Thực hiện logic cập nhật trạng thái PO thành 'Rejected' trong DB hoặc NetSuite tại đây
+                string poNum = string.IsNullOrEmpty(request.PONumber) ? "N/A" : request.PONumber;
+
+                return Json(new { success = true, message = $"Đã từ chối PO {poNum} thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi xử lý từ chối PO: " + ex.Message });
+            }
+        }
+    }
+
+    public class RejectPORequest
+    {
+        public string PONumber { get; set; }
+        public string Reason { get; set; }
     }
 }
