@@ -397,6 +397,11 @@
             <i id="erp-badge-icon" class="fas fa-info-circle mr-1"></i>
             <span id="erp-badge-text">ERP Pricing: Pending Verification</span>
         </span>
+        <!-- Badge Trạng thái Bước 3 (Sales Order Conversion) - Độc lập cho Bước 3 -->
+        <span id="so-badge-status" class="badge badge-secondary p-2 font-weight-normal ml-2 d-none">
+            <i id="so-badge-icon" class="fas fa-check-circle mr-1"></i>
+            <span id="so-badge-text">Sales Order: Ready for Conversion</span>
+        </span>
     </div>
 </div>
 
@@ -813,6 +818,43 @@
     // -------------------------------------------------------------
     $(document).on('click', '#btn-confirm-next', function () {
         loadStep2ErpPrices();
+    });
+
+    // =============================================================
+    // XỬ LÝ SỰ KIỆN CHUYỂN TỪ BƯỚC 2 SANG BƯỚC 3 (CREATE SO)
+    // =============================================================
+    $(document).on('click', '#btn-proceed-step3', function () {
+        currentStep = 3;
+
+        // 1. Cập nhật Progress Bar
+        $('#step-node-2').removeClass('active').addClass('completed');
+        $('#step-node-3').addClass('active');
+
+        // 2. Ẩn nút Reload ERP data
+        $('#btn-reload-erp').addClass('d-none');
+
+        // 3. Hiện nút Convert to Sales Order
+        $('#btn-convert').removeClass('d-none').prop('disabled', false);
+
+        // 4. Ẩn nút Proceed to Create SO ở dưới
+        $(this).fadeOut(200);
+
+        // 5. Cập nhật tiêu đề bảng
+        const $cardContainer = $('#po-line-table').closest('.card-custom');
+        $cardContainer.find('.card-header span:first').text('READY TO CONVERT SALES ORDER (STEP 3)');
+
+        // 6. GIỮ NGUYÊN HIỂN THỊ THẺ BƯỚC 2 VÀ HIỆN THÊM THẺ BƯỚC 3 (ĐỦ CẢ 3 THẺ)
+        $('#erp-badge-status').removeClass('d-none'); // Vẫn giữ thẻ Bước 2 hiển thị
+
+        $('#so-badge-status')
+            .removeClass('d-none')
+            .removeClass('badge-secondary badge-warning')
+            .addClass('badge-success')
+            .css({ 'background-color': '#28a745', 'color': '#fff' });
+
+        $('#so-badge-text').text('Sales Order: Ready for Conversion');
+
+        alert("Xác nhận thành công! Hệ thống đã sẵn sàng để Convert to Sales Order ở Bước 3.");
     });
 
     // -------------------------------------------------------------
