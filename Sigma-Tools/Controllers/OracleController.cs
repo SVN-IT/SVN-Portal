@@ -139,6 +139,9 @@ namespace Sigma_Tools.Controllers
                         AuditReport = auditReport
                     };
 
+                    // Hoặc nếu bạn muốn trả về trực tiếp qua JSON response gọn gàng:
+                    string currencyCode = apiData["header"]?["currency"]?.ToString() ?? "USD";
+
                     var items = apiData["line_items"] as Newtonsoft.Json.Linq.JArray;
                     if (items != null)
                     {
@@ -193,8 +196,8 @@ namespace Sigma_Tools.Controllers
                         return Json(new { success = false, message = "Không đọc được danh sách item trong PO" });
                     }
 
-                        // Trả về dữ liệu JSON để client cập nhật giao diện
-                        return Json(new { success = true, data = model });
+                    // Trả về dữ liệu JSON để client cập nhật giao diện
+                    return Json(new { success = true, data = model, currency = currencyCode });
                 }
             }
             catch (Exception ex)
@@ -204,47 +207,101 @@ namespace Sigma_Tools.Controllers
         }
 
         [HttpPost]
-        public IActionResult VerifyErpPrices([FromBody] List<POLineItem> items)
+        public async Task<IActionResult> VerifyErpPrices([FromBody] ErpPriceVerificationRequest request)
         {
-            if (items == null || items.Count == 0)
+            if (request == null || request.Items == null || request.Items.Count == 0)
             {
                 return Json(new { success = false, message = "Không có dữ liệu line items để đối chiếu." });
             }
 
-            var verificationResult = new List<object>();
-
-            foreach (var item in items)
+            try
             {
-                // Giả lập logic gọi sang NetSuite / ERP lấy giá Base Price theo ItemCode
-                decimal erpBasePrice = item.UnitPrice; // Mặc định khớp
+                string apiUrl = "https://api.sigmaworldwide.io/api/Netsuite/GetCustomerItemPricing";
+                ErpApiResponse erpPricingData = null;
 
-                // Ví dụ giả lập dòng thứ 2 có sự chênh lệch giá để test giao diện giống ảnh mẫu của bạn
-                if (item.ItemCode == "750-11-000-015-02-501")
+                // 1. Gọi API lấy chính sách giá từ ERP/NetSuite
+                using (var client = new HttpClient())
                 {
-                    erpBasePrice = 1.559M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
+                    var payload = new
+                    {
+                        customerId = request.Customer,
+                        currency = string.IsNullOrEmpty(request.Currency) ? "USD" : request.Currency
+                    };
+
+                    string jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+                    var httpContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage apiResponse = await client.PostAsync(apiUrl, httpContent);
+                    if (apiResponse.IsSuccessStatusCode)
+                    {
+                        string jsonResult = await apiResponse.Content.ReadAsStringAsync();
+                        erpPricingData = Newtonsoft.Json.JsonConvert.DeserializeObject<ErpApiResponse>(jsonResult);
+                    }
                 }
-                if (item.ItemCode == "750-11-000-015-03-500")
+
+                var verificationResult = new List<object>();
+
+                foreach (var item in request.Items)
                 {
-                    erpBasePrice = 1.666M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
+                    decimal erpBasePrice = item.UnitPrice; // Mặc định nếu không tìm thấy trên hệ thống
+
+                    if (erpPricingData != null && erpPricingData.Success && erpPricingData.Data != null && erpPricingData.Data.Items != null)
+                    {
+                        // Tìm kiếm item tương ứng trong danh sách API trả về theo ItemName (chính là ItemCode đã được map sang sigma_code)
+                        var matchedErpItem = erpPricingData.Data.Items
+                            .FirstOrDefault(x => x.ItemName.Equals(item.ItemCode, StringComparison.OrdinalIgnoreCase));
+
+                        if (matchedErpItem != null && matchedErpItem.PricingTiers != null && matchedErpItem.PricingTiers.Count > 0)
+                        {
+                            if (matchedErpItem.PricingTiers.Count == 1)
+                            {
+                                // Trường hợp chỉ có 1 mức giá duy nhất
+                                erpBasePrice = matchedErpItem.PricingTiers[0].Price;
+                            }
+                            else
+                            {
+                                // Trường hợp có nhiều bậc thang giá (pricingTiers): 
+                                // Lấy mức giá có quantity lớn nhất mà vẫn nhỏ hơn hoặc bằng số lượng (qty) của PO dòng hiện tại
+                                var validTier = matchedErpItem.PricingTiers
+                                    .Where(t => item.Qty >= t.Quantity)
+                                    .OrderByDescending(t => t.Quantity)
+                                    .FirstOrDefault();
+
+                                if (validTier != null)
+                                {
+                                    erpBasePrice = validTier.Price;
+                                }
+                                else
+                                {
+                                    // Mặc định lấy phần tử đầu tiên (quantity = 0) nếu không thỏa điều kiện bậc thang lớn hơn
+                                    erpBasePrice = matchedErpItem.PricingTiers[0].Price;
+                                }
+                            }
+                        }
+                    }
+
+                    decimal variance = item.UnitPrice - erpBasePrice;
+                    bool isMatched = Math.Abs(variance) < 0.0001m;
+
+                    verificationResult.Add(new
+                    {
+                        line = item.Line,
+                        itemCode = item.ItemCode,
+                        description = item.Description,
+                        qty = item.Qty,
+                        ocrPrice = item.UnitPrice,
+                        erpBasePrice = erpBasePrice,
+                        isMatched = isMatched,
+                        variance = variance
+                    });
                 }
 
-                decimal variance = item.UnitPrice - erpBasePrice;
-                bool isMatched = Math.Abs(variance) < 0.0001m;
-
-                verificationResult.Add(new
-                {
-                    line = item.Line,
-                    itemCode = item.ItemCode,
-                    description = item.Description,
-                    qty = item.Qty,
-                    ocrPrice = item.UnitPrice,
-                    erpBasePrice = erpBasePrice,
-                    isMatched = isMatched,
-                    variance = variance
-                });
+                return Json(new { success = true, data = verificationResult });
             }
-
-            return Json(new { success = true, data = verificationResult });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi gọi API lấy giá ERP: " + ex.Message });
+            }
         }
 
         [HttpPost]
@@ -273,5 +330,43 @@ namespace Sigma_Tools.Controllers
     {
         public string PONumber { get; set; }
         public string Reason { get; set; }
+    }
+
+    public class ErpPriceVerificationRequest
+    {
+        public string Customer { get; set; }
+        public string Currency { get; set; }
+        public List<POLineItem> Items { get; set; }
+    }
+
+    public class PricingTier
+    {
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    public class ErpItemPricing
+    {
+        public string ItemId { get; set; }
+        public string ItemName { get; set; }
+        public string PriceLevel { get; set; }
+        public string Currency { get; set; }
+        public List<PricingTier> PricingTiers { get; set; }
+    }
+
+    public class ErpApiResponseData
+    {
+        public bool Success { get; set; }
+        public string CustomerCode { get; set; }
+        public string CurrencyParam { get; set; }
+        public string InternalId { get; set; }
+        public int TotalItems { get; set; }
+        public List<ErpItemPricing> Items { get; set; }
+    }
+
+    public class ErpApiResponse
+    {
+        public bool Success { get; set; }
+        public ErpApiResponseData Data { get; set; }
     }
 }

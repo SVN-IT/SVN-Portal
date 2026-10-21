@@ -480,6 +480,8 @@
                         <div class="col-md-3">Date</div>
                         <div class="col-md-3">Customer</div>
                         <div class="col-md-3">Requisitioner</div>
+                        <!-- Trường ẩn lưu trữ Currency của PO -->
+                        <input type="hidden" id="po-currency-hidden" name="Currency" value="USD" />
                     </div>
                     <div class="row font-weight-bold text-dark mt-1">
                         <div class="col-md-3" id="po-number-display">N/A</div>
@@ -610,6 +612,14 @@
             success: function (response) {
                 if (response.success) {
                     let m = response.data;
+
+                    // Lấy và gán giá trị currency vào trường ẩn (lấy từ response.currency hoặc m.currency tùy cách bạn trả về ở Controller)
+                    let currency = response.currency || m.currency || 'USD';
+                    $('#po-currency-hidden').val(currency);
+
+                    // (Tùy chọn) Bạn có thể log ra kiểm tra hoặc dùng cho các bước Create SO sau này
+                    console.log("PO Currency:", currency);
+
                     let audit = m.auditReport || {};
 
                     // 1. KÍCH HOẠT LẠI TẤT CẢ CÁC NÚT BẤM (BỎ DISABLED)
@@ -655,70 +665,6 @@
                     // Gọi hàm này để nó tự động bật/tắt badge, màu sắc và nút Xác nhận chuẩn xác
                     updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
 
-                    if (isPassed) {
-                        // TRƯỜNG HỢP PASSED
-                        // $('#ocr-badge-status')
-                        //     .removeClass('badge-danger badge-secondary')
-                        //     .addClass('badge-success')
-                        //     .css({'background-color': '#28a745', 'color': '#ffffff'});
-                        // $('#ocr-badge-icon').removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
-                        // $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
-
-                        // $('#ocr-audit-alert-box')
-                        //     .removeClass('alert-error-custom')
-                        //     .addClass('alert-success-custom')
-                        //     .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
-
-                        // $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
-
-                        // let detailsHtml = `
-                        //     <li><strong>Units Matched:</strong> Sum of line items (${calcUnits}) == Total Units Expected (${expUnits})</li>
-                        //     <li><strong>Amount Matched:</strong> Sum of line items ($${calcAmt}) == Subtotal Expected ($${expAmt})</li>
-                        // `;
-                        // $('#ocr-audit-details').html(detailsHtml);
-
-                        // $('#ocr-audit-action')
-                        //     .removeClass('text-danger')
-                        //     .addClass('text-success')
-                        //     .css('color', '#0e9f6e')
-                        //     .html('<strong>Status:</strong> All line items matched perfectly with the PDF document. Ready to convert to Sales Order.');
-                    } else {
-                        // TRƯỜNG HỢP FAILED
-                        // $('#ocr-badge-status')
-                        //     .removeClass('badge-success badge-secondary')
-                        //     .addClass('badge-danger')
-                        //     .css({'background-color': '#dc3545', 'color': '#ffffff'});
-                        // $('#ocr-badge-icon').removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
-                        // $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
-
-                        // $('#ocr-audit-alert-box')
-                        //     .removeClass('alert-success-custom')
-                        //     .addClass('alert-error-custom')
-                        //     .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
-
-                        // $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
-
-                        // let detailsHtml = '';
-                        // if (!audit.unitsMatched) {
-                        //     detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnits}) != Total Units Expected (${expUnits})</li>`;
-                        // }
-                        // if (!audit.amountMatched) {
-                        //     detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmt}) != Subtotal Expected (${expAmt})</li>`;
-                        // }
-                        // if (audit.errors && audit.errors.length > 0) {
-                        //     audit.errors.forEach(err => {
-                        //         detailsHtml += `<li><strong>Error:</strong> ${err}</li>`;
-                        //     });
-                        // }
-                        // $('#ocr-audit-details').html(detailsHtml);
-
-                        // $('#ocr-audit-action')
-                        //     .removeClass('text-success')
-                        //     .addClass('text-danger')
-                        //     .css('color', '#9b1c1c')
-                        //     .html('<strong>Action Required:</strong> Data mismatch detected. Please click "Edit Data" to resolve manually or reject the PO.');
-                    }
-
                 } else {
                     alert("Lỗi: " + response.message);
                 }
@@ -745,18 +691,15 @@
             let description = '';
 
             if (currentStep === 1) {
-                // --- NẾU ĐANG Ở BƯỚC 1 ---
                 itemCode = $tr.find('td:nth-child(2)').text().trim();
                 description = $tr.find('td:nth-child(3)').text().trim();
                 qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
 
-                // Lấy giá trị Unit Price gốc từ attribute data-original-price hoặc text cột 5
                 ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
                 if (isNaN(ocrPrice)) {
                     ocrPrice = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
                 }
             } else {
-                // --- NẾU ĐÃ Ở BƯỚC 2 (RELOAD DATA) ---
                 itemCode = $tr.find('.cell-item-code').text().trim();
                 if (!itemCode) {
                     itemCode = $tr.find('td:nth-child(2)').text().trim();
@@ -789,12 +732,23 @@
             return;
         }
 
-        // Gửi Ajax xuống Controller đối chiếu giá ERP
+        // Lấy thông tin Customer và Currency từ giao diện
+        let customer = $('#po-customer-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
+
+        // Đóng gói thành một object request chung
+        let requestData = {
+            Customer: customer,
+            Currency: currency,
+            Items: currentLineItems
+        };
+
+        // Gửi Ajax xuống Controller
         $.ajax({
             url: '/Oracle/VerifyErpPrices',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(currentLineItems),
+            data: JSON.stringify(requestData), // Truyền object request thay vì chỉ truyền mảng đơn thuần
             success: function (response) {
                 if (response.success) {
                     currentStep = 2;
@@ -856,62 +810,118 @@
     // XỬ LÝ SỰ KIỆN CHUYỂN TỪ BƯỚC 2 SANG BƯỚC 3 (CREATE SO)
     // =============================================================
     $(document).on('click', '#btn-proceed-step3', function () {
-        currentStep = 3;
+        const $btnStep3 =$(this);
 
-        // 1. Cập nhật Progress Bar
-        $('#step-node-2').removeClass('active').addClass('completed');
-        $('#step-node-3').addClass('active');
+        // 1. Khóa nút tạm thời để tránh bấm nhiều lần và thông báo đang kiểm tra
+        $btnStep3.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang kiểm tra lại giá ERP...');
 
-        // 2. Ẩn nút Reload ERP data
-        $('#btn-reload-erp').addClass('d-none');
+        // 2. Thu thập lại danh sách dòng hiện tại
+        let currentLineItems = [];
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if ($tr.find('td').length <= 1) return;
 
-        // 3. Hiện nút Convert to Sales Order
-        $('#btn-convert').removeClass('d-none').prop('disabled', false);
+            let itemCode = $tr.find('.cell-item-code').text().trim();
+            if (!itemCode) {
+                itemCode = $tr.find('td:nth-child(2)').text().trim();
+            }
 
-        // 4. Ẩn nút Proceed to Create SO ở dưới
-        $(this).fadeOut(200);
+            let description = $tr.attr('data-description') || '';
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty') || $tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+            let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price') || $tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
 
-        // 5. Cập nhật tiêu đề bảng
-        const $cardContainer =$('#po-line-table').closest('.card-custom');
-        $cardContainer.find('.card-header span:first').text('READY TO CONVERT SALES ORDER (STEP 3)');
+            currentLineItems.push({
+                Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
+                ItemCode: itemCode,
+                Description: description,
+                Qty: qty,
+                UnitPrice: ocrPrice
+            });
+        });
 
-        // 6. GIỮ NGUYÊN HIỂN THỊ THẺ BƯỚC 2 VÀ HIỆN THÊM THẺ BƯỚC 3 (ĐỦ CẢ 3 THẺ)
-        $('#erp-badge-status').removeClass('d-none');
+        let customer = $('#po-customer-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
 
-        $('#so-badge-status')
-            .removeClass('d-none')
-            .removeClass('badge-secondary badge-warning')
-            .addClass('badge-success')
-            .css({ 'background-color': '#28a745', 'color': '#fff' });
+        let requestData = {
+            Customer: customer,
+            Currency: currency,
+            Items: currentLineItems
+        };
 
-        $('#so-badge-text').text('Sales Order: Ready for Conversion');
+        // 3. GỌI LẠI API VERIFY ERP PRICES ĐỂ KIỂM TRA LẦN CUỐI TRƯỚC KHI SANG BƯỚC 3
+        $.ajax({
+            url: '/Oracle/VerifyErpPrices',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            success: function (response) {
+                if (response.success) {
+                    let hasNewVariance = false;
+                    response.data.forEach(item => {
+                        if (!item.isMatched) {
+                            hasNewVariance = true;
+                        }
+                    });
 
-        // ==========================================
-        // 7. CẬP NHẬT NỘI DUNG KHUNG THÔNG BÁO LỚN PHÍA TRÊN CHO BƯỚC 3
-        // ==========================================
-        const $alertBox =$('#ocr-audit-alert-box');
-        const $title =$('#ocr-audit-title');
-        const $details =$('#ocr-audit-details');
-        const $action =$('#ocr-audit-action');
+                    // Cập nhật lại giao diện bảng với dữ liệu mới nhất từ server
+                    renderStep2Table(response.data);
 
-        $alertBox.show()
-                 .removeClass('alert-error-custom alert-warning-custom')
-                 .addClass('alert-success-custom')
-                 .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+                    if (hasNewVariance) {
+                        alert("CẢNH BÁO: Giá trên hệ thống ERP vừa có sự thay đổi so với lúc đối chiếu trước đó. Vui lòng kiểm tra lại các dòng bị lệch trước khi chuyển sang Bước 3!");
+                        $btnStep3.prop('disabled', false).html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)');
+                        return;
+                    }
 
-        $title.html('<span class="text-success mr-1">●</span> SALES ORDER CREATION READY: All Validations Passed');
+                    // ==========================================
+                    // MỌI THỨ VẪN KHỚP HOÀN TOÀN -> CHUYỂN SANG BƯỚC 3
+                    // ==========================================
+                    currentStep = 3;
 
-        let detailsHtml = `
-            <li><strong>OCR & ERP Verification:</strong> Data integrity verified and base prices successfully reconciled.</li>
-            <li><strong>Workflow Status:</strong> Record validated across all compliance checkpoints. Ready for NetSuite SO generation.</li>
-        `;
-        $details.html(detailsHtml);
+                    $('#step-node-2').removeClass('active').addClass('completed');
+                    $('#step-node-3').addClass('active');
 
-        $action.removeClass('text-danger text-warning').addClass('text-success')
-               .css('color', '#0e9f6e')
-               .html('<strong>Status:</strong> All prerequisites completed. Click <strong>"Convert to Sales Order"</strong> above to finalize.');
+                    $('#btn-reload-erp').addClass('d-none');
+                    $('#btn-convert').removeClass('d-none').prop('disabled', false);
+                    $btnStep3.fadeOut(200);
 
-        alert("Xác nhận thành công! Hệ thống đã sẵn sàng để Convert to Sales Order ở Bước 3.");
+                    const $cardContainer =$('#po-line-table').closest('.card-custom');
+                    $cardContainer.find('.card-header span:first').text('READY TO CONVERT SALES ORDER (STEP 3)');
+
+                    $('#erp-badge-status').removeClass('d-none');
+                    $('#so-badge-status')
+                        .removeClass('d-none')
+                        .removeClass('badge-secondary badge-warning')
+                        .addClass('badge-success')
+                        .css({ 'background-color': '#28a745', 'color': '#fff' });
+                    $('#so-badge-text').text('Sales Order: Ready for Conversion');
+
+                    const $alertBox =$('#ocr-audit-alert-box');
+                    $alertBox.show()
+                             .removeClass('alert-error-custom alert-warning-custom')
+                             .addClass('alert-success-custom')
+                             .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+
+                    $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> SALES ORDER CREATION READY: Re-verified Successfully');
+                    $('#ocr-audit-details').html(`
+                        <li><strong>Final Price Check:</strong> ERP base prices re-verified successfully just before conversion.</li>
+                        <li><strong>Status:</strong> All compliance checkpoints passed securely. Ready for NetSuite SO generation.</li>
+                    `);
+                    $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
+                           .css('color', '#0e9f6e')
+                           .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to Sales Order"</strong> above to finalize.');
+
+                    alert("Xác nhận thành công! Hệ thống đã re-check lại giá ERP và sẵn sàng để Convert to Sales Order.");
+
+                } else {
+                    alert("Lỗi kiểm tra lại giá ERP: " + response.message);
+                    $btnStep3.prop('disabled', false).html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)');
+                }
+            },
+            error: function () {
+                alert("Đã xảy ra lỗi kết nối khi kiểm tra lại giá ERP từ server!");
+                $btnStep3.prop('disabled', false).html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)');
+            }
+        });
     });
 
     // -------------------------------------------------------------
