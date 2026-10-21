@@ -1389,8 +1389,12 @@
             $('#ocr-audit-action').removeClass('text-danger').addClass('text-success').css('color', '#0e9f6e')
                 .html('<strong>Status:</strong> All line items matched perfectly. Ready to convert to Sales Order.');
 
-            // HIỆN NÚT XÁC NHẬN CHUYỂN BƯỚC
-            $('#btn-confirm-next').removeClass('d-none');
+            // CHỈ HIỆN NÚT XÁC NHẬN KHI KHÔNG TRONG CHẾ ĐỘ EDIT (ĐÃ LƯU XONG)
+            if (!isEditingMode) {
+                $('#btn-confirm-next').removeClass('d-none');
+            } else {
+                $('#btn-confirm-next').addClass('d-none');
+            }
         } else {
             // MÀU ĐỎ (MISMATCH)
             $('#ocr-badge-status').removeClass('badge-success').addClass('badge-danger').css({'background-color': '#dc3545', 'color': '#fff'});
@@ -1407,13 +1411,13 @@
                 detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnitsStr}) != Total Units Expected (${expUnitsStr})</li>`;
             }
             if (Math.abs(calcAmt - expAmt) >= 0.01) {
-                detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmtStr}) != Subtotal Expected ($${expAmtStr})</li>`;
+                detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmtStr}) != Total Units Expected ($${expAmtStr})</li>`;
             }
             $('#ocr-audit-details').html(detailsHtml);
             $('#ocr-audit-action').removeClass('text-success').addClass('text-danger').css('color', '#9b1c1c')
                 .html('<strong>Action Required:</strong> Data mismatch detected. Please add/edit lines to match expected totals or reject the PO.');
 
-            // ẨN NÚT XÁC NHẬN KHI CÒN LỖI
+            // ẨN NÚT XÁC NHẬN KHI CÒN LỖI HOẶC ĐANG EDIT
             $('#btn-confirm-next').addClass('d-none');
         }
     }

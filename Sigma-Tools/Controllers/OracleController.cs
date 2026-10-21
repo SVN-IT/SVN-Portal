@@ -1,11 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Sigma_Tools.Models;
+using Sigma_Tools.Services.Configurations;
+using SVNShareLib.DAL;
 
 namespace Sigma_Tools.Controllers
 {
     public class OracleController : Controller
     {
+        DBConfiguration dbConfiguration;
+        string connectionString;
+        public OracleController(DBConfiguration dBConfiguration)
+        {
+            this.dbConfiguration = dBConfiguration;
+            connectionString = dbConfiguration.GetConnectionString();
+        }
         public IActionResult Index()
         {
             return View();
@@ -148,8 +157,44 @@ namespace Sigma_Tools.Controllers
                         }
                     }
 
-                    // Trả về dữ liệu JSON để client cập nhật giao diện
-                    return Json(new { success = true, data = model });
+                    //xử lý replace itemCode của khách hàng sang item code của Sigma
+                    if (model.LineItems != null) 
+                    {
+                        var itemCodeMappingDataPortal = new SVN_ItemCodeMappingDataPortal(connectionString);
+                        List<string> customerItemCode = model.LineItems.Select(x => x.ItemCode).ToList();
+
+                        var dataUI = itemCodeMappingDataPortal.GetDataByCustomerCode(customerItemCode);
+
+                        if(dataUI == null)
+                        {
+                            return Json(new { success = false, message = "Không tìm thấy mã item ERP tương ứng với mã item của khách hàng" });
+                        }
+
+                        List<string> itemCodeNotFound = new List<string>();
+                        foreach (var item in model.LineItems) 
+                        { 
+                            var data = dataUI.FirstOrDefault(x => x.customer_code == item.ItemCode);
+                            if(data == null)
+                            {
+                                itemCodeNotFound.Add(item.ItemCode);
+                            }
+                            else
+                            {
+                                item.ItemCode = data.sigma_code;
+                            } 
+                        }
+                        if (itemCodeNotFound.Count > 0) 
+                        {
+                            return Json(new { success = false, message = $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên." });
+                        }
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Không đọc được danh sách item trong PO" });
+                    }
+
+                        // Trả về dữ liệu JSON để client cập nhật giao diện
+                        return Json(new { success = true, data = model });
                 }
             }
             catch (Exception ex)
@@ -174,11 +219,11 @@ namespace Sigma_Tools.Controllers
                 decimal erpBasePrice = item.UnitPrice; // Mặc định khớp
 
                 // Ví dụ giả lập dòng thứ 2 có sự chênh lệch giá để test giao diện giống ảnh mẫu của bạn
-                if (item.ItemCode == "308001014737")
+                if (item.ItemCode == "750-11-000-015-02-501")
                 {
                     erpBasePrice = 1.559M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
                 }
-                if (item.ItemCode == "308001014736")
+                if (item.ItemCode == "750-11-000-015-03-500")
                 {
                     erpBasePrice = 1.666M; // OCR là 10.06, ERP là 10.50 -> Lệch -0.44
                 }

@@ -1,7 +1,16 @@
+using Sigma_Tools.Services.Configurations;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+AppConfig appConfig = builder.Configuration.GetSection("AppConfig").Get<AppConfig>();
+DBConfiguration dBConfiguration = builder.Configuration.GetSection("DBConfiguration").Get<DBConfiguration>();
+dBConfiguration.ProductMode = appConfig.ProductMode;
+
+builder.Services.AddSingleton(appConfig);
+builder.Services.AddSingleton(dBConfiguration);
 
 var app = builder.Build();
 
@@ -13,6 +22,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UsePathBase(appConfig.LocationPath);
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
