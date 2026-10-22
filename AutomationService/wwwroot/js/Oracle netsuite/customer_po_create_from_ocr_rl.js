@@ -6,7 +6,7 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
 
     const post = (requestBody) => {
         try {
-            log.audit('Incoming PO Payload', JSON.stringify(requestBody));
+            log.audit('Step 0', 'Bắt đầu nhận request');
 
             if (!requestBody || !requestBody.header || !requestBody.line_items) {
                 return JSON.stringify({
@@ -18,47 +18,114 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
             const header = requestBody.header;
             const lineItems = requestBody.line_items;
 
-            // 1. Gán cứng hoặc tìm an toàn Vendor (VD-0005)
+            // 1. Trace tìm Vendor
+            log.audit('Step 1', 'Đang tìm Vendor VD-0005');
             let vendorId = getInternalIdByField(search.Type.VENDOR, 'entityid', 'VD-0005');
             if (!vendorId) {
                 vendorId = getInternalIdByField(search.Type.VENDOR, 'companyname', 'Sigma Vietnam');
             }
-            log.audit('DEBUG VENDOR ID', 'Vendor ID tìm được là: ' + vendorId); // Thêm dòng này để check trong Execution Log
+            log.audit('Step 1 Result', 'Vendor ID tìm được: ' + vendorId);
 
             if (!vendorId) {
                 return JSON.stringify({ success: false, message: 'Không tìm thấy Vendor mặc định: VD-0005' });
             }
 
-            // 2. Tìm Original Customer theo tên buyer
+            // 2. Trace lookup Subsidiary của Vendor và check ưu tiên "Sigma Asia"
+            log.audit('Step 2', 'Đang lookup Subsidiary của Vendor và kiểm tra Sigma Asia');
+
+            let vendorData = search.lookupFields({
+                type: search.Type.VENDOR,
+                id: vendorId,
+                columns: ['subsidiary']
+            });
+
+            log.audit('Step 2 Debug - Raw List', JSON.stringify(vendorData.subsidiary));
+
+            // Tìm Internal ID của "Sigma Asia" trong hệ thống
+            // Tìm kiếm linh hoạt hơn cho Subsidiary "Sigma Asia" (dùng contains thay vì is)
+            let sigmaAsiaId = null;
+            let subSearch = search.create({
+                type: search.Type.SUBSIDIARY,
+                filters: [['name', 'contains', 'Sigma Asia']],
+                columns: ['internalid', 'name']
+            });
+
+            subSearch.run().each((res) => {
+                sigmaAsiaId = res.getValue({ name: 'internalid' });
+                let subName = res.getValue({ name: 'name' });
+                log.audit('Found Subsidiary Match', `ID: ${sigmaAsiaId} - Name: ${subName}`);
+                return false; // Lấy kết quả đầu tiên khớp
+            });
+            log.audit('Step 2 Debug - Sigma Asia ID', 'ID tìm được của Sigma Asia là: ' + sigmaAsiaId);
+
+            let vendorSubsidiaryId = 1; // Giá trị mặc định an toàn nếu không tìm thấy gì
+
+            //if (vendorData && vendorData.subsidiary && vendorData.subsidiary.length > 0) {
+            //    let foundSigmaAsia = false;
+
+            //    // Duyệt qua danh sách subsidiary mà vendor này thuộc về
+            //    if (sigmaAsiaId) {
+            //        for (let i = 0; i < vendorData.subsidiary.length; i++) {
+            //            if (vendorData.subsidiary[i].value == sigmaAsiaId) {
+            //                vendorSubsidiaryId = sigmaAsiaId;
+            //                foundSigmaAsia = true;
+            //                break;
+            //            }
+            //        }
+            //    }
+
+            //    // Nếu vendor không có Sigma Asia, lấy tạm subsidiary đầu tiên trong danh sách của nó
+            //    if (!foundSigmaAsia) {
+            //        vendorSubsidiaryId = vendorData.subsidiary[0].value;
+            //    }
+            //}
+
+            if (sigmaAsiaId != null) {
+                vendorSubsidiaryId = sigmaAsiaId;
+            }
+
+            log.audit('Step 2 Result', 'Subsidiary ID cuối cùng được chọn: ' + vendorSubsidiaryId);
+
+            // 3. Trace tìm Customer
+            log.audit('Step 3', 'Đang tìm Original Customer');
             let originalCustomerId = null;
             if (header.buyer && header.buyer.name) {
                 originalCustomerId = getCustomerInternalIdByName(header.buyer.name);
             }
+            log.audit('Step 3 Result', 'Customer ID: ' + originalCustomerId);
 
-            // 3. Tìm Payment Terms
+            // 4. Trace tìm Terms
+            log.audit('Step 4', 'Đang tìm Payment Terms');
             let termsId = null;
             if (header.payment_terms) {
                 termsId = getTermIdByName(header.payment_terms);
             }
+            log.audit('Step 4 Result', 'Terms ID: ' + termsId);
 
-            // 4. Tìm Location ID cho "Sigma Asia"
+            // 5. Trace tìm Location
+            log.audit('Step 5', 'Đang tìm Location Sigma Asia');
             let locationId = getLocationIdByName('Sigma Asia');
+            log.audit('Step 5 Result', 'Location ID: ' + locationId);
 
-            // 5. Khởi tạo bản ghi Purchase Order
+            // 6. Trace khởi tạo bản ghi PO
+            log.audit('Step 6', 'Đang khởi tạo bản ghi Purchase Order');
             let poRecord = record.create({
                 type: record.Type.PURCHASE_ORDER,
-                isDynamic: true
+                isDynamic: true,
+                defaultValues: {
+                    customform: 102,
+                    subsidiary: parseInt(vendorSubsidiaryId, 10)
+                }
+            });
+            log.audit('Step 6 Result', 'Khởi tạo PO thành công, đang set Header...');
+
+            poRecord.setValue({
+                fieldId: 'entity',
+                value: parseInt(vendorId, 10)
             });
 
-            // Nếu bạn biết chính xác Internal ID của custom form "Sigma Purchase Order - Linked", 
-            // hãy điền số vào thay vì gọi search (Ví dụ: poRecord.setValue({ fieldId: 'customform', value: 123 }));
-            // Nếu form đã là mặc định, bạn có thể comment/bỏ dòng set customform đi.
-
-            if (vendorId) {
-                poRecord.setValue({
-                    fieldId: 'entity',
-                    value: parseInt(vendorId, 10) // Ép kiểu sang số nguyên để NetSuite nhận diện chuẩn xác
-                });
+            if (locationId) {
+                poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
             }
 
             if (originalCustomerId) {
@@ -79,17 +146,14 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
             }
 
             if (termsId) {
-                poRecord.setValue({ fieldId: 'terms', value: termsId });
-            }
-
-            if (locationId) {
-                poRecord.setValue({ fieldId: 'location', value: locationId });
+                poRecord.setValue({ fieldId: 'terms', value: parseInt(termsId, 10) });
             }
 
             setCustomFieldIfExists(poRecord, 'custbody_project_code', 'CAL');
             setCustomFieldIfExists(poRecord, 'custbody_po_type', 'MP');
 
-            // 6. Duyệt qua các dòng Line Items
+            // 7. Trace Line Items
+            log.audit('Step 7', 'Bắt đầu duyệt Line Items');
             for (let i = 0; i < lineItems.length; i++) {
                 let line = lineItems[i];
                 let itemId = getItemInternalId(line.item);
@@ -100,8 +164,7 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 }
 
                 poRecord.selectNewLine({ sublistId: 'item' });
-
-                poRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'item', value: itemId });
+                poRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'item', value: parseInt(itemId, 10) });
                 poRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'quantity', value: line.quantity });
                 poRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'rate', value: line.price_each });
 
@@ -116,13 +179,13 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 poRecord.commitLine({ sublistId: 'item' });
             }
 
-            // 7. Lưu bản ghi PO
+            // 8. Trace Lưu bản ghi
+            log.audit('Step 8', 'Đang thực hiện lưu bản ghi PO (poRecord.save)');
             let poId = poRecord.save({
                 enableSourcing: true,
                 ignoreMandatoryFields: false
             });
 
-            // Lấy mã số PO hiển thị thực tế (tranid)
             let poFields = search.lookupFields({
                 type: search.Type.PURCHASE_ORDER,
                 id: poId,
@@ -140,7 +203,7 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
             });
 
         } catch (e) {
-            log.error('Main RESTlet Critical Error', e.message);
+            log.error('CRITICAL ERROR TRACE', 'Lỗi tại: ' + e.message + ' | Stack: ' + JSON.stringify(e));
             return JSON.stringify({
                 success: false,
                 message: 'Lỗi hệ thống: ' + e.message
