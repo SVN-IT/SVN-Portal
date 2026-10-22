@@ -161,32 +161,48 @@ namespace Sigma_Tools.Controllers
                     }
 
                     //xử lý replace itemCode của khách hàng sang item code của Sigma
-                    if (model.LineItems != null) 
+                    if (model.LineItems != null)
                     {
                         var itemCodeMappingDataPortal = new SVN_ItemCodeMappingDataPortal(connectionString);
                         List<string> customerItemCode = model.LineItems.Select(x => x.ItemCode).ToList();
 
                         var dataUI = itemCodeMappingDataPortal.GetDataByCustomerCode(customerItemCode);
 
-                        if(dataUI == null)
+                        if (dataUI == null)
                         {
                             return Json(new { success = false, message = "Không tìm thấy mã item ERP tương ứng với mã item của khách hàng" });
                         }
 
                         List<string> itemCodeNotFound = new List<string>();
-                        foreach (var item in model.LineItems) 
-                        { 
+
+                        // Lấy mảng line_items từ JObject gốc để update trực tiếp sigma_code vào đó
+                        var rawItemsArray = apiData["line_items"] as Newtonsoft.Json.Linq.JArray;
+
+                        for (int i = 0; i < model.LineItems.Count; i++)
+                        {
+                            var item = model.LineItems[i];
                             var data = dataUI.FirstOrDefault(x => x.customer_code == item.ItemCode);
-                            if(data == null)
+
+                            if (data == null)
                             {
                                 itemCodeNotFound.Add(item.ItemCode);
                             }
                             else
                             {
-                                item.ItemCode = data.sigma_code;
-                            } 
+                                string sigmaCode = data.sigma_code;
+
+                                // 1. Cập nhật mã cho Model trả về giao diện
+                                item.ItemCode = sigmaCode;
+
+                                // 2. CẬP NHẬT LUÔN MÃ TRONG JOBJECT GỐC (apiData) ĐỂ LƯU VÀO RAW OCR RESPONSE
+                                if (rawItemsArray != null && i < rawItemsArray.Count)
+                                {
+                                    rawItemsArray[i]["item"] = sigmaCode;
+                                }
+                            }
                         }
-                        if (itemCodeNotFound.Count > 0) 
+
+                        if (itemCodeNotFound.Count > 0)
                         {
                             return Json(new { success = false, message = $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên." });
                         }
@@ -196,8 +212,11 @@ namespace Sigma_Tools.Controllers
                         return Json(new { success = false, message = "Không đọc được danh sách item trong PO" });
                     }
 
-                    // Trả về dữ liệu JSON để client cập nhật giao diện
-                    return Json(new { success = true, data = model, currency = currencyCode });
+                    // 1. Serialize toàn bộ JObject thành chuỗi JSON string an toàn ngay tại server
+                    string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
+
+                    // Trả về dữ liệu JSON kèm theo đối tượng `rawJson` (chứa apiData đã được cập nhật sigma_code)
+                    return Json(new { success = true, data = model, rawJsonStr = rawJsonString, currency = currencyCode });
                 }
             }
             catch (Exception ex)
@@ -340,10 +359,23 @@ namespace Sigma_Tools.Controllers
                 string currency = request.Currency;
                 int totalLines = request.LineItems.Count;
 
-                // TODO: Thực hiện logic gọi NetSuite API để tạo Sales Order chính thức tại đây
-                // Ví dụ: NetSuiteService.CreateSalesOrder(request);
+                // VÍ DỤ: Đọc các trường phụ từ RawOcrResponse nếu cần dùng để đẩy lên NetSuite
+                if (!string.IsNullOrEmpty(request.RawOcrResponse))
+                {
+                    Newtonsoft.Json.Linq.JObject rawOcrJObject = null;
+                    rawOcrJObject = Newtonsoft.Json.Linq.JObject.Parse(request.RawOcrResponse);
 
-                // Trả kết quả thành công về cho Client
+                    if(rawOcrJObject == null)
+                    {
+                        return Json(new { success = false, message = "Raw OCR Response không hợp lệ." });
+                    }
+                    string paymentTerms = rawOcrJObject["header"]?["payment_terms"]?.ToString();
+                    string shipToName = rawOcrJObject["header"]?["ship_to"]?["name"]?.ToString();
+
+                    // Bạn có thể truyền toàn bộ request hoặc rawOcrData vào Service xử lý của NetSuite
+                    // NetSuiteService.CreateSalesOrder(request);
+                }
+
                 return Json(new
                 {
                     success = true,
@@ -410,5 +442,8 @@ namespace Sigma_Tools.Controllers
         public string Requisitioner { get; set; }
         public string Currency { get; set; }
         public List<POLineItem> LineItems { get; set; }
+
+        // Bổ sung thêm thuộc tính này để hứng trọn vẹn cấu trúc Raw OCR JSON từ Client gửi lên
+        public string RawOcrResponse { get; set; }
     }
 }

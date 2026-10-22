@@ -482,6 +482,8 @@
                         <div class="col-md-3">Requisitioner</div>
                         <!-- Trường ẩn lưu trữ Currency của PO -->
                         <input type="hidden" id="po-currency-hidden" name="Currency" value="USD" />
+                        <!-- Trường ẩn lưu trữ toàn bộ Object Raw OCR JSON trả về từ API -->
+                        <input type="hidden" id="ocr-raw-json-hidden" value="" />
                     </div>
                     <div class="row font-weight-bold text-dark mt-1">
                         <div class="col-md-3" id="po-number-display">N/A</div>
@@ -612,6 +614,11 @@
             success: function (response) {
                 if (response.success) {
                     let m = response.data;
+
+                    // LƯU TOÀN BỘ RAW JSON (ĐÃ ĐƯỢC MAP SANG SIGMA CODE Ở BACKEND) VÀO THẺ ẨN
+                    if (response.rawJsonStr) {
+                        $('#ocr-raw-json-hidden').val(response.rawJsonStr);
+                    }
 
                     // Lấy và gán giá trị currency vào trường ẩn (lấy từ response.currency hoặc m.currency tùy cách bạn trả về ở Controller)
                     let currency = response.currency || m.currency || 'USD';
@@ -1111,6 +1118,7 @@
 
             // 3. NẾU TẤT CẢ DỮ LIỆU ĐÃ HỢP LỆ VÀ KHỐP AUDIT
             saveTableEdits();
+            updateHiddenRawJson(); // <--- GỌI HÀM CẬP NHẬT LẠI CHUỖI ẨN TẠI ĐÂY
             enableEditMode(false);
             recalculateAndAudit();
             alert("Đã cập nhật dữ liệu PO thành công!");
@@ -1751,11 +1759,26 @@
             });
         });
 
+    
     // =============================================================
     // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO SALES ORDER"
     // =============================================================
     $(document).on('click', '#btn-convert', function () {
         const $btnConvert = $(this);
+
+        // 0. Tự động đồng bộ các chỉnh sửa từ giao diện vào chuỗi JSON ẩn trước khi đóng gói
+        updateHiddenRawJson();
+
+        // Lấy chuỗi raw JSON từ thẻ ẩn và parse thành object
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        let rawOcrData = {};
+        try {
+            if (rawJsonStr) {
+                rawOcrData = JSON.parse(rawJsonStr);
+            }
+        } catch (e) {
+            console.error("Lỗi parse Raw OCR JSON:", e);
+        }
 
         // 1. Thu thập thông tin Header
         let poNumber = $('#po-number-display').text().trim();
@@ -1796,7 +1819,7 @@
                 Qty: qty,
                 UnitPrice: unitPrice,
                 Amount: qty * unitPrice,
-                ErpBasePrice: erpBasePrice // Có thể gửi kèm giá cơ sở ERP nếu cần
+                ErpBasePrice: erpBasePrice
             });
         });
 
@@ -1805,14 +1828,15 @@
             return;
         }
 
-        // 3. Đóng gói dữ liệu thành một Payload hoàn chỉnh
+        // 3. Đóng gói dữ liệu thành một Payload hoàn chỉnh (Bao gồm cả RawOcrResponse)
         let createSoPayload = {
             PONumber: poNumber,
             Date: poDate,
             Customer: customer,
             Requisitioner: requisitioner,
             Currency: currency,
-            LineItems: lineItems
+            LineItems: lineItems,
+            RawOcrResponse: JSON.stringify(rawOcrData) // Truyền toàn bộ cấu trúc dữ liệu thô đã cập nhật thay đổi
         };
 
         // 4. Khóa nút và hiển thị trạng thái đang xử lý
@@ -1827,7 +1851,6 @@
             success: function (response) {
                 if (response.success) {
                     alert("Thành công: " + response.message);
-                    // Có thể chuyển hướng hoặc khóa hẳn giao diện sau khi tạo SO thành công
                     location.reload();
                 } else {
                     alert("Lỗi khi tạo Sales Order: " + response.message);
@@ -1840,4 +1863,85 @@
             }
         });
     });
+
+    // Hàm cập nhật thông tin chỉnh sửa từ giao diện vào object Raw JSON ẩn một cách chính xác
+    function updateHiddenRawJson() {
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        if (!rawJsonStr) return;
+
+        let rawOcrData = {};
+        try {
+            rawOcrData = JSON.parse(rawJsonStr);
+        } catch (e) {
+            console.error("Không thể parse JSON từ thẻ ẩn:", e);
+            return;
+        }
+
+        // 1. Cập nhật các trường Header cơ bản nếu có thay đổi
+        if (!rawOcrData.header) rawOcrData.header = {};
+
+        let poNum = $('#po-number-display').text().trim();
+        if (poNum && poNum !== 'N/A') rawOcrData.header.po_number = poNum;
+
+        let poDate = $('#po-date-display').text().trim();
+        if (poDate && poDate !== 'N/A') rawOcrData.header.po_date = poDate;
+
+        let customer = $('#po-customer-display').text().trim();
+        if (customer && customer !== 'N/A') {
+            if (!rawOcrData.header.buyer) rawOcrData.header.buyer = {};
+            rawOcrData.header.buyer.name = customer;
+        }
+
+        let requisitioner = $('#po-requisitioner-display').text().trim();
+        if (requisitioner && requisitioner !== 'N/A') {
+            if (!rawOcrData.header.buyer_contact) rawOcrData.header.buyer_contact = {};
+            rawOcrData.header.buyer_contact.name = requisitioner;
+        }
+
+        let currency = $('#po-currency-hidden').val();
+        if (currency) rawOcrData.header.currency = currency;
+
+        // 2. Cập nhật danh sách Line Items từ bảng hiển thị hiện tại
+        let updatedRawLineItems = [];
+        $('#po-line-table tbody tr').each(function (idx) {
+            const $tr = $(this);
+            if ($tr.find('td').length <= 1) return;
+
+            let lineNo = parseInt($tr.find('td:nth-child(1)').text()) || (idx + 1);
+
+            let itemCode = $tr.find('.cell-item-code').text().trim() || $tr.find('td:nth-child(2)').text().trim();
+            let description = $tr.attr('data-description') || $tr.find('td:nth-child(3)').text().trim() || '';
+
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty') || $tr.find('.cell-qty').text().replace(/,/g, '')) ||
+                      parseInt($tr.find('.input-qty').val()) || 0;
+
+            let unitPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) ||
+                            parseFloat($tr.find('.input-ocr-price').val()) ||
+                            parseFloat($tr.find('.input-price').val()) ||
+                            parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+
+            let amount = qty * unitPrice;
+
+            // Lấy lại dòng gốc tương ứng trong mảng line_items cũ (để bảo toàn các thông tin phụ như category, inv_org, uom, eta_date...)
+            let origRawItem = (rawOcrData.line_items && rawOcrData.line_items[idx]) ? rawOcrData.line_items[idx] : {};
+
+            // Ghi đè các giá trị mới nhất
+            origRawItem.line_no = lineNo;
+            origRawItem.item = itemCode;
+            origRawItem.description = description;
+            origRawItem.quantity = qty;
+            origRawItem.price_each = unitPrice;
+            origRawItem.amount = amount;
+
+            updatedRawLineItems.push(origRawItem);
+        });
+
+        // Chỉ gán lại line_items nếu có dữ liệu hợp lệ, tránh làm rỗng mảng gốc
+        if (updatedRawLineItems.length > 0) {
+            rawOcrData.line_items = updatedRawLineItems;
+        }
+
+        // Lưu ngược lại chuỗi JSON hoàn chỉnh vào thẻ ẩn
+        $('#ocr-raw-json-hidden').val(JSON.stringify(rawOcrData));
+    }
 </script>
