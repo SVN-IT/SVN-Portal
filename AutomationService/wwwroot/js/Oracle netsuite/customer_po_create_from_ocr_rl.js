@@ -124,9 +124,12 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 value: parseInt(vendorId, 10)
             });
 
-            if (locationId) {
-                poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
-            }
+            let defaultLocation = poRecord.getValue({ fieldId: 'location' });
+            log.audit('Check Default Location', 'Location mặc định sau khi tạo PO là: ' + defaultLocation);
+
+            //if (locationId) {
+            //    poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
+            //}
 
             if (originalCustomerId) {
                 setCustomFieldIfExists(poRecord, 'custbody_original_customer', originalCustomerId);
