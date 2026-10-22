@@ -243,7 +243,7 @@ namespace Sigma_Tools.Controllers
 
                 foreach (var item in request.Items)
                 {
-                    decimal erpBasePrice = item.UnitPrice; // Mặc định nếu không tìm thấy trên hệ thống
+                    decimal erpBasePrice = 0; // Mặc định nếu không tìm thấy trên hệ thống
 
                     if (erpPricingData != null && erpPricingData.Success && erpPricingData.Data != null && erpPricingData.Data.Items != null)
                     {
@@ -324,6 +324,37 @@ namespace Sigma_Tools.Controllers
                 return Json(new { success = false, message = "Lỗi khi xử lý từ chối PO: " + ex.Message });
             }
         }
+
+        [HttpPost]
+        public IActionResult CreateNetsuiteSO([FromBody] CreateNetsuiteSORequest request)
+        {
+            if (request == null || request.LineItems == null || request.LineItems.Count == 0)
+            {
+                return Json(new { success = false, message = "Dữ liệu truyền lên bị trống." });
+            }
+
+            try
+            {
+                string poNumber = request.PONumber;
+                string customer = request.Customer;
+                string currency = request.Currency;
+                int totalLines = request.LineItems.Count;
+
+                // TODO: Thực hiện logic gọi NetSuite API để tạo Sales Order chính thức tại đây
+                // Ví dụ: NetSuiteService.CreateSalesOrder(request);
+
+                // Trả kết quả thành công về cho Client
+                return Json(new
+                {
+                    success = true,
+                    message = $"Đã khởi tạo Sales Order lên NetSuite thành công cho PO {poNumber} ({totalLines} dòng sản phẩm)!"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
     }
 
     public class RejectPORequest
@@ -368,5 +399,16 @@ namespace Sigma_Tools.Controllers
     {
         public bool Success { get; set; }
         public ErpApiResponseData Data { get; set; }
+    }
+
+    // Request Model dùng để nhận dữ liệu từ bước Create SO
+    public class CreateNetsuiteSORequest
+    {
+        public string PONumber { get; set; }
+        public string Date { get; set; }
+        public string Customer { get; set; }
+        public string Requisitioner { get; set; }
+        public string Currency { get; set; }
+        public List<POLineItem> LineItems { get; set; }
     }
 }

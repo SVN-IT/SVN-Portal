@@ -1687,7 +1687,7 @@
 
                 let detailsHtml = `
                     <li><strong>Notice:</strong> One or more lines trigger custom pricing logic.</li>
-                    <li><strong>Workflow Notice:</strong> Converting this record will route the Sales Order to Pending Approval status.</li>
+                    <li><strong>Workflow Notice:</strong> Please make approval to update price or report to administrator.</li>
                 `;
                 $details.html(detailsHtml);
 
@@ -1750,4 +1750,94 @@
                 }
             });
         });
+
+    // =============================================================
+    // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO SALES ORDER"
+    // =============================================================
+    $(document).on('click', '#btn-convert', function () {
+        const $btnConvert = $(this);
+
+        // 1. Thu thập thông tin Header
+        let poNumber = $('#po-number-display').text().trim();
+        let poDate = $('#po-date-display').text().trim();
+        let customer = $('#po-customer-display').text().trim();
+        let requisitioner = $('#po-requisitioner-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
+
+        // 2. Thu thập danh sách Line Items từ bảng hiện tại
+        let lineItems = [];
+        $('#po-line-table tbody tr').each(function () {
+            const $tr = $(this);
+            if ($tr.find('td').length <= 1) return;
+
+            let itemCode = $tr.find('.cell-item-code').text().trim();
+            if (!itemCode) {
+                itemCode = $tr.find('td:nth-child(2)').text().trim();
+            }
+
+            let description = $tr.attr('data-description') || '';
+
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
+            if (isNaN(qty)) {
+                qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+            }
+
+            let unitPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
+            if (isNaN(unitPrice)) {
+                unitPrice = parseFloat($tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
+            }
+
+            let erpBasePrice = parseFloat($tr.attr('data-erp-price')) || 0;
+
+            lineItems.push({
+                Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
+                ItemCode: itemCode,
+                Description: description,
+                Qty: qty,
+                UnitPrice: unitPrice,
+                Amount: qty * unitPrice,
+                ErpBasePrice: erpBasePrice // Có thể gửi kèm giá cơ sở ERP nếu cần
+            });
+        });
+
+        if (lineItems.length === 0) {
+            alert("Không tìm thấy danh sách dòng hàng để tạo Sales Order!");
+            return;
+        }
+
+        // 3. Đóng gói dữ liệu thành một Payload hoàn chỉnh
+        let createSoPayload = {
+            PONumber: poNumber,
+            Date: poDate,
+            Customer: customer,
+            Requisitioner: requisitioner,
+            Currency: currency,
+            LineItems: lineItems
+        };
+
+        // 4. Khóa nút và hiển thị trạng thái đang xử lý
+        $btnConvert.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang tạo Sales Order...');
+
+        // 5. Gửi Ajax về Controller
+        $.ajax({
+            url: '/Oracle/CreateNetsuiteSO',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(createSoPayload),
+            success: function (response) {
+                if (response.success) {
+                    alert("Thành công: " + response.message);
+                    // Có thể chuyển hướng hoặc khóa hẳn giao diện sau khi tạo SO thành công
+                    location.reload();
+                } else {
+                    alert("Lỗi khi tạo Sales Order: " + response.message);
+                    $btnConvert.prop('disabled', false).html('Convert to Sales Order');
+                }
+            },
+            error: function () {
+                alert("Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!");
+                $btnConvert.prop('disabled', false).html('Convert to Sales Order');
+            }
+        });
+    });
 </script>
