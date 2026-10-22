@@ -104,7 +104,7 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
 
             // 5. Trace tìm Location
             log.audit('Step 5', 'Đang tìm Location Sigma Asia');
-            let locationId = getLocationIdByName('Sigma Asia');
+            let locationId = getLocationIdByName('Sigma Asia', vendorSubsidiaryId);
             log.audit('Step 5 Result', 'Location ID: ' + locationId);
 
             // 6. Trace khởi tạo bản ghi PO
@@ -124,12 +124,12 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 value: parseInt(vendorId, 10)
             });
 
-            let defaultLocation = poRecord.getValue({ fieldId: 'location' });
-            log.audit('Check Default Location', 'Location mặc định sau khi tạo PO là: ' + defaultLocation);
+            //let defaultLocation = poRecord.getValue({ fieldId: 'location' });
+            //log.audit('Check Default Location', 'Location mặc định sau khi tạo PO là: ' + defaultLocation);
 
-            //if (locationId) {
-            //    poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
-            //}
+            if (locationId) {
+                poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
+            }
 
             if (originalCustomerId) {
                 setCustomFieldIfExists(poRecord, 'custbody_original_customer', originalCustomerId);
@@ -240,10 +240,27 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
         return termId;
     }
 
-    function getLocationIdByName(locName) {
+    function getLocationIdByName(locName, subsidiaryId) {
         let locId = null;
-        let s = search.create({ type: 'location', filters: [['name', 'is', locName]], columns: ['internalid'] });
-        s.run().each((res) => { locId = res.getValue({ name: 'internalid' }); return false; });
+        let s = search.create({
+            type: 'location',
+            filters: [], // Không lọc để quét toàn bộ kho
+            columns: ['internalid', 'name', 'subsidiary']
+        });
+        s.run().each((res) => {
+            let id = res.getValue({ name: 'internalid' });
+            let name = res.getValue({ name: 'name' });
+            let sub = res.getValue({ name: 'subsidiary' });
+
+            // In ra toàn bộ thông tin kho để chúng ta soi trực tiếp ID chính xác
+            log.audit('Location Debug', `ID: ${id} | Name: ${name} | Subsidiary: ${sub}`);
+
+            // Nếu tìm thấy kho có tên khớp và thuộc đúng Subsidiary ID (ví dụ: 3)
+            if (name === locName && (!subsidiaryId || sub == subsidiaryId)) {
+                locId = id;
+            }
+            return true;
+        });
         return locId;
     }
 
