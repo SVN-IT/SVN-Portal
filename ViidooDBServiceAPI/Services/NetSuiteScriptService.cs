@@ -9,5 +9,6 @@
         public string TokenId { get; set; }
         public string TokenSecret { get; set; }
         public string accountId { get; set; }
+        public string CreatePOFromOCRURL { get; set; }
     }
 }

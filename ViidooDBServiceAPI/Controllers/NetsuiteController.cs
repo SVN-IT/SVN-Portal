@@ -2,6 +2,7 @@
 using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.DTO;
+using SVNShareLib.Request;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
@@ -137,6 +138,60 @@ namespace ViidooDBServiceAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost("CreatePurchaseOrderAsync")]
+        public async Task<BODataProcessResult> CreatePurchaseOrderAsync(OCRPurchaseOrderRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+
+            // Serialize toàn bộ object dữ liệu OCR request thành chuỗi JSON gửi sang NetSuite RESTlet
+            var jsonString = System.Text.Json.JsonSerializer.Serialize(dataRequest);
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+            try
+            {
+                // 1. Lấy URL của RESTlet tạo PO từ service cấu hình (External URL từ NetSuite Deployment của bạn)
+                string requestUrl = netSuiteScriptService.CreatePOFromOCRURL; // Hoặc dùng thuộc tính URL tương ứng trong service
+
+                // 2. Cấu hình thông tin Token (Lấy từ NetSuite Integration & Access Token)
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Sử dụng chung hàm GenerateNetsuiteOAuthHeader có sẵn)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "POST", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+                {
+                    Content = jsonContent
+                };
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi Request sang NetSuite
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    processResult.OK = true;
+                    processResult.Message = "Tạo Purchase Order trên NetSuite thành công: " + responseString;
+                    return processResult;
+                }
+
+                processResult.OK = false;
+                processResult.Message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}";
+                return processResult;
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+                return processResult;
             }
         }
 
