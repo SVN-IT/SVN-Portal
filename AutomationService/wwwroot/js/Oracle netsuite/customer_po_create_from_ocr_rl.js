@@ -124,6 +124,109 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 value: parseInt(vendorId, 10)
             });
 
+            // Tự động tìm và set Currency dựa vào header.currency (ví dụ: 'USD', 'VND')
+            if (header.currency) {
+                let currencyId = getCurrencyIdByName(header.currency);
+                if (currencyId) {
+                    poRecord.setValue({
+                        fieldId: 'currency',
+                        value: parseInt(currencyId, 10)
+                    });
+                    log.audit('Currency Set', `Currency: ${header.currency} -> ID: ${currencyId}`);
+                } else {
+                    log.error('Currency Not Found', `Không tìm thấy Currency với mã: ${header.currency}`);
+                }
+            }
+
+            // Tìm và set Incoterm dựa trên header.trade_term
+            let tradeTerm = header.trade_terms;
+            if (tradeTerm) {
+                log.audit('Incoterm Debug', 'Đang tìm Incoterm với tên: "' + tradeTerm + '"');
+
+                let incotermField = poRecord.getField({ fieldId: 'incoterm' });
+                if (incotermField) {
+                    let incotermOptions = incotermField.getSelectOptions();
+                    let matchedIncotermId = null;
+
+                    if (incotermOptions && incotermOptions.length > 0) {
+                        for (let i = 0; i < incotermOptions.length; i++) {
+                            // So sánh khớp chính xác tên (ví dụ: 'DAP' hoặc 'EXW')
+                            if (incotermOptions[i].text.trim().toUpperCase() === tradeTerm.trim().toUpperCase()) {
+                                matchedIncotermId = incotermOptions[i].value;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (matchedIncotermId) {
+                        poRecord.setValue({
+                            fieldId: 'incoterm',
+                            value: parseInt(matchedIncotermId, 10)
+                        });
+                        log.audit('Incoterm Set', `Trade Terms: ${tradeTerm} -> ID: ${matchedIncotermId}`);
+                    } else {
+                        log.error('Incoterm Not Found', `Không tìm thấy Incoterm khớp với tên: ${tradeTerm}`);
+                    }
+                }
+            } else {
+                log.audit('Incoterm Debug', 'header.trade_terms đang bị trống hoặc undefined!');
+            }
+
+            // Tìm và set Terms tổng quát, chống lệch định dạng (Net 60, NET60, net 60, v.v.)
+            let paymentTermInput = header.payment_terms;
+            if (paymentTermInput) {
+                log.audit('Terms Debug', 'Dữ liệu payment_terms nhận từ header: "' + paymentTermInput + '"');
+
+                let termsField = poRecord.getField({ fieldId: 'terms' });
+                if (termsField) {
+                    let termsOptions = termsField.getSelectOptions();
+                    let matchedTermId = null;
+
+                    if (termsOptions && termsOptions.length > 0) {
+                        let cleanInput = paymentTermInput.toString().replace(/\s+/g, '').toLowerCase(); // VD: "net60"
+                        let inputDigits = paymentTermInput.toString().replace(/\D/g, ''); // Lấy riêng phần số: "60"
+
+                        // Tầng 1 & 2: So sánh chuẩn hóa (bỏ qua khoảng trắng và chữ hoa/thường)
+                        for (let i = 0; i < termsOptions.length; i++) {
+                            let optText = termsOptions[i].text;
+                            let cleanOptText = optText.replace(/\s+/g, '').toLowerCase(); // VD: "net60"
+
+                            if (cleanOptText === cleanInput) {
+                                matchedTermId = termsOptions[i].value;
+                                log.audit('Terms Match Found (Exact/Clean)', `Khớp chuỗi "${optText}" với input "${paymentTermInput}"`);
+                                break;
+                            }
+                        }
+
+                        // Tầng 3: Nếu chưa khớp, thử dò theo con số (ví dụ input có số 60 -> tìm option chứa số 60)
+                        if (!matchedTermId && inputDigits !== '') {
+                            for (let i = 0; i < termsOptions.length; i++) {
+                                let optText = termsOptions[i].text;
+                                let optDigits = optText.replace(/\D/g, ''); // Lấy số của option trên NetSuite
+
+                                if (optDigits === inputDigits) {
+                                    matchedTermId = termsOptions[i].value;
+                                    log.audit('Terms Match Found (By Digits)', `Khớp số "${inputDigits}" qua option "${optText}"`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (matchedTermId) {
+                        poRecord.setValue({
+                            fieldId: 'terms',
+                            value: parseInt(matchedTermId, 10)
+                        });
+                        log.audit('Terms Set Success', `Terms ID: ${matchedTermId}`);
+                    } else {
+                        log.error('Terms Not Found', `Không thể tìm thấy Terms phù hợp cho input: "${paymentTermInput}"`);
+                    }
+                }
+            } else {
+                log.audit('Terms Debug', 'header.payment_terms đang bị trống hoặc undefined!');
+            }
+
             // Kiểm tra các option có sẵn trong trường location của bản ghi PO vừa tạo
             //let locationField = poRecord.getField({ fieldId: 'location' });
             //if (locationField) {
@@ -299,6 +402,38 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
             return false;
         });
         return locId;
+    }
+
+    function getCurrencyIdByName(currCode) {
+        let currId = null;
+        if (currCode) {
+            let s = search.create({
+                type: search.Type.CURRENCY,
+                filters: [['symbol', 'is', currCode], 'OR', ['name', 'is', currCode]],
+                columns: ['internalid']
+            });
+            s.run().each((res) => {
+                currId = res.getValue({ name: 'internalid' });
+                return false;
+            });
+        }
+        return currId;
+    }
+
+    function getIncotermIdByName(termName) {
+        let termId = null;
+        if (termName) {
+            let s = search.create({
+                type: 'customlist_incoterm', // Hoặc 'incoterm' tùy hệ thống của bạn
+                filters: [['name', 'is', termName.trim()]], // Chỉ lấy chính xác tuyệt đối theo tên truyền vào
+                columns: ['internalid']
+            });
+            s.run().each((res) => {
+                termId = res.getValue({ name: 'internalid' });
+                return false;
+            });
+        }
+        return termId;
     }
 
     function getItemInternalId(itemSku) {
