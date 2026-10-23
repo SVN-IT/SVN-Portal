@@ -2,7 +2,7 @@
  * @NApiVersion 2.1
  * @NScriptType Restlet
  */
-define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
+define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) => {
 
     const post = (requestBody) => {
         try {
@@ -348,13 +348,30 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
             });
             let poTranId = poFields.tranid;
 
+            // === TẠO URL TRUY CẬP ĐẾN BẢN GHI PO VỪA TẠO ===
+            let relativeUrl = url.resolveRecord({
+                recordType: record.Type.PURCHASE_ORDER,
+                recordId: poId,
+                isEditMode: false // false để xem dạng View, true nếu muốn mở thẳng chế độ Edit
+            });
+
+            // Lấy domain hiện tại của hệ thống NetSuite (Account ID / Sandbox / Production)
+            let domain = url.resolveDomain({
+                hostType: url.HostType.APPLICATION
+            });
+
+            let absolutePoUrl = 'https://' + domain + relativeUrl;
+            log.audit('PO Created URL', absolutePoUrl);
+            // ===============================================
+
             log.audit('PO Created Successfully', `Internal ID: ${poId} - PO Number: ${poTranId}`);
 
             return JSON.stringify({
                 success: true,
                 message: 'Tạo Purchase Order thành công!',
                 poId: poId,
-                poNumber: poTranId
+                poNumber: poTranId,
+                poUrl: absolutePoUrl // Trả về URL trực tiếp cho phía C# nhận diện
             });
 
         } catch (e) {
