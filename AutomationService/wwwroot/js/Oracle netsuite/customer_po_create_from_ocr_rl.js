@@ -124,6 +124,15 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 value: parseInt(vendorId, 10)
             });
 
+            // Kiểm tra các option có sẵn trong trường location của bản ghi PO vừa tạo
+            let locationField = poRecord.getField({ fieldId: 'location' });
+            if (locationField) {
+                let options = locationField.getSelectOptions();
+                for (let i = 0; i < options.length; i++) {
+                    log.audit('Location Option Available', `ID: ${options[i].value} - Text: ${options[i].text}`);
+                }
+            }
+
             //let defaultLocation = poRecord.getValue({ fieldId: 'location' });
             //log.audit('Check Default Location', 'Location mặc định sau khi tạo PO là: ' + defaultLocation);
 
@@ -242,24 +251,18 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
 
     function getLocationIdByName(locName, subsidiaryId) {
         let locId = null;
-        let s = search.create({
-            type: 'location',
-            filters: [], // Không lọc để quét toàn bộ kho
-            columns: ['internalid', 'name', 'subsidiary']
-        });
+        let filters = [['name', 'is', locName]];
+
+        // Bổ sung lọc theo subsidiary để phân biệt các kho trùng tên ở các công ty con khác nhau
+        if (subsidiaryId) {
+            filters.push('AND');
+            filters.push(['subsidiary', 'anyof', subsidiaryId]);
+        }
+
+        let s = search.create({ type: 'location', filters: filters, columns: ['internalid'] });
         s.run().each((res) => {
-            let id = res.getValue({ name: 'internalid' });
-            let name = res.getValue({ name: 'name' });
-            let sub = res.getValue({ name: 'subsidiary' });
-
-            // In ra toàn bộ thông tin kho để chúng ta soi trực tiếp ID chính xác
-            log.audit('Location Debug', `ID: ${id} | Name: ${name} | Subsidiary: ${sub}`);
-
-            // Nếu tìm thấy kho có tên khớp và thuộc đúng Subsidiary ID (ví dụ: 3)
-            if (name === locName && (!subsidiaryId || sub == subsidiaryId)) {
-                locId = id;
-            }
-            return true;
+            locId = res.getValue({ name: 'internalid' });
+            return false;
         });
         return locId;
     }
