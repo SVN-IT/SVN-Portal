@@ -124,6 +124,12 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 value: parseInt(vendorId, 10)
             });
 
+            // Ép ngược lại lần nữa để khóa chặt subsidiary là Sigma Asia, chống bị Vendor ghi đè
+            poRecord.setValue({
+                fieldId: 'subsidiary',
+                value: parseInt(vendorSubsidiaryId, 10)
+            });
+
             // Tự động tìm và set Currency dựa vào header.currency (ví dụ: 'USD', 'VND')
             if (header.currency) {
                 let currencyId = getCurrencyIdByName(header.currency);
