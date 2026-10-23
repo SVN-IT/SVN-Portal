@@ -125,27 +125,44 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
             });
 
             // Kiểm tra các option có sẵn trong trường location của bản ghi PO vừa tạo
-            let locationField = poRecord.getField({ fieldId: 'location' });
-            if (locationField) {
-                let options = locationField.getSelectOptions();
-                for (let i = 0; i < options.length; i++) {
-                    log.audit('Location Option Available', `ID: ${options[i].value} - Text: ${options[i].text}`);
-                }
-            }
+            //let locationField = poRecord.getField({ fieldId: 'location' });
+            //if (locationField) {
+            //    let options = locationField.getSelectOptions();
+            //    for (let i = 0; i < options.length; i++) {
+            //        log.audit('Location Option Available', `ID: ${options[i].value} - Text: ${options[i].text}`);
+            //    }
+            //}
 
             //let defaultLocation = poRecord.getValue({ fieldId: 'location' });
             //log.audit('Check Default Location', 'Location mặc định sau khi tạo PO là: ' + defaultLocation);
 
-            if (locationId) {
-                poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
+            //if (locationId) {
+            //    poRecord.setValue({ fieldId: 'location', value: parseInt(locationId, 10) });
+            //}
+
+            // Tự động lấy Location đầu tiên đang có sẵn trong select options của bản ghi hiện tại
+            let locationField = poRecord.getField({ fieldId: 'location' });
+            if (locationField) {
+                let options = locationField.getSelectOptions();
+                if (options && options.length > 0) {
+                    let validLocationId = options[0].value;
+                    log.audit('Auto Selected Location', `ID: ${validLocationId} - Text: ${options[0].text}`);
+
+                    poRecord.setValue({
+                        fieldId: 'location',
+                        value: parseInt(validLocationId, 10)
+                    });
+                } else {
+                    log.error('Location Error', 'Danh sách location trong select box đang trống!');
+                }
             }
 
             if (originalCustomerId) {
-                setCustomFieldIfExists(poRecord, 'custbody_original_customer', originalCustomerId);
+                setCustomFieldIfExists(poRecord, 'custbody_sig_po_original_customer', originalCustomerId);
             }
 
             if (header.po_number) {
-                poRecord.setValue({ fieldId: 'otherrefnum', value: header.po_number });
+                poRecord.setValue({ fieldId: 'custbody_sig_customerpo', value: header.po_number });
             }
 
             if (header.po_date) {
@@ -161,7 +178,24 @@ define(['N/record', 'N/search', 'N/log'], (record, search, log) => {
                 poRecord.setValue({ fieldId: 'terms', value: parseInt(termsId, 10) });
             }
 
-            setCustomFieldIfExists(poRecord, 'custbody_project_code', 'CAL');
+            /*setCustomFieldIfExists(poRecord, 'cseg_sig_projcode', 'CAL');*/
+
+            // Thay vì gán cứng chuỗi 'CAL', ta lấy tự động option đầu tiên trong select box của Project Code
+            let projectField = poRecord.getField({ fieldId: 'cseg_sig_projcode' });
+            if (projectField) {
+                let projOptions = projectField.getSelectOptions();
+                if (projOptions && projOptions.length > 0) {
+                    // Bạn có thể chọn option đầu tiên hoặc tìm đúng tên project bạn muốn
+                    let validProjId = projOptions[0].value;
+                    log.audit('Auto Selected Project Code', `ID: ${validProjId} - Text: ${projOptions[0].text}`);
+
+                    poRecord.setValue({
+                        fieldId: 'cseg_sig_projcode',
+                        value: parseInt(validProjId, 10)
+                    });
+                }
+            }
+
             setCustomFieldIfExists(poRecord, 'custbody_po_type', 'MP');
 
             // 7. Trace Line Items
