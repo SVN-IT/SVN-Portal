@@ -25,7 +25,7 @@ namespace Sigma_Tools.Controllers
             string accessMode = "Tools";
             string controllerName = "Oracle";
             string indexPage = "POInbound";
-            string titleName = "Create Netsuite SO";
+            string titleName = "Create Netsuite PO";
             string selectedPage = "NetsuiteSO";
 
             ViewBag.AccessMode = accessMode;

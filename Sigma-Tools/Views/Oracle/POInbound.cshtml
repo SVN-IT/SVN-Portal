@@ -342,7 +342,7 @@
         <!-- Step 3 -->
         <div class="netsuite-step" id="step-node-3">
             <div class="step-num">3</div>
-            <div class="step-text">Create SO</div>
+            <div class="step-text">Create ERP PO</div>
         </div>
     </div>
 </div>
@@ -357,7 +357,7 @@
         </label>
 
         <!-- Các nút chức năng khác mặc định bị disabled -->
-        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1 d-none" id="btn-convert" disabled>Convert to Sales Order</button>
+        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1 d-none" id="btn-convert" disabled>Convert to ERP PO</button>
 
         <!-- Nút Edit Data -->
         <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data" disabled>
@@ -528,7 +528,7 @@
                 <!-- Nút Xác nhận chuyển sang bước 2 (Chỉ hiện khi Audit Passed) -->
                 <div class="mr-3">
                     <button type="button" id="btn-confirm-next" class="btn btn-confirm-netsuite shadow-sm d-none">
-                        <i class="fas fa-arrow-right mr-1"></i> Xác Nhận & Chuyển Bước 2
+                        <i class="fas fa-arrow-right mr-1"></i> Compare with ERP price
                     </button>
                 </div>
                 <div class="col-md-6">
@@ -788,7 +788,7 @@
 
                         if ($('#btn-confirm-next').length > 0) {
                             $('#btn-confirm-next')
-                                .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)')
+                                .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create ERP SO')
                                 .attr('id', 'btn-proceed-step3');
                         }
 
@@ -915,7 +915,7 @@
                     `);
                     $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
                            .css('color', '#0e9f6e')
-                           .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to Sales Order"</strong> above to finalize.');
+                           .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to ERP PO"</strong> above to finalize.');
 
                     alert("Xác nhận thành công! Hệ thống đã re-check lại giá ERP và sẵn sàng để Convert to Sales Order.");
 
@@ -1405,7 +1405,7 @@
             `;
             $('#ocr-audit-details').html(detailsHtml);
             $('#ocr-audit-action').removeClass('text-danger').addClass('text-success').css('color', '#0e9f6e')
-                .html('<strong>Status:</strong> All line items matched perfectly. Ready to convert to Sales Order.');
+                .html('<strong>Status:</strong> All line items matched perfectly. Ready to compare with ERP price.');
 
             // CHỈ HIỆN NÚT XÁC NHẬN KHI KHÔNG TRONG CHẾ ĐỘ EDIT (ĐÃ LƯU XONG)
             if (!isEditingMode) {
@@ -1685,7 +1685,7 @@
 
                 $action.removeClass('text-danger text-warning').addClass('text-success')
                        .css('color', '#0e9f6e')
-                       .html('<strong>Status:</strong> All line items matched perfectly. Ready to convert to Sales Order.');
+                       .html('<strong>Status:</strong> All line items matched perfectly. Ready to compare with ERP price.');
             } else {
                 // --- TRƯỜNG HỢP BƯỚC 2: VARIANCE DETECTED (MÀU CAM/VÀNG) ---
                 $alertBox.removeClass('alert-error-custom alert-success-custom').addClass('alert-warning-custom')
