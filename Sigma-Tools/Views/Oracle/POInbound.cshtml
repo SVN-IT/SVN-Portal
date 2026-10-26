@@ -650,7 +650,7 @@
         formData.append('pdfFile', file);
 
         $.ajax({
-            url: '/Oracle/UploadPOPdf',
+            url: '@Url.Action("UploadPOPdf", "Oracle")',
             type: 'POST',
             data: formData,
             processData: false,
@@ -796,7 +796,7 @@
 
         // Gửi Ajax xuống Controller
         $.ajax({
-            url: '/Oracle/VerifyErpPrices',
+            url: '@Url.Action("VerifyErpPrices", "Oracle")',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData), // Truyền object request thay vì chỉ truyền mảng đơn thuần
@@ -901,7 +901,7 @@
 
         // 3. GỌI LẠI API VERIFY ERP PRICES ĐỂ KIỂM TRA LẦN CUỐI TRƯỚC KHI SANG BƯỚC 3
         $.ajax({
-            url: '/Oracle/VerifyErpPrices',
+            url: '@Url.Action("VerifyErpPrices", "Oracle")',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
@@ -1188,7 +1188,7 @@
             // (Tùy chọn) Bạn có thể gọi một hàm AJAX ngầm gửi 2 trạng thái này về Controller để LogService ghi vào database:
             
             $.ajax({
-                url: '/Oracle/LogPoEdits',
+                url: '@Url.Action("LogPoEdits", "Oracle")',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -1817,7 +1817,7 @@
 
             // Gửi dữ liệu xuống Controller
             $.ajax({
-                url: '/Oracle/RejectPO',
+                url: '@Url.Action("RejectPO", "Oracle")',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -1927,7 +1927,7 @@
 
         // 5. Gửi Ajax về Controller
         $.ajax({
-            url: '/Oracle/CreateNetsuiteSO',
+            url: '@Url.Action("CreateNetsuiteSO", "Oracle")',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(createSoPayload),
