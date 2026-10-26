@@ -49,14 +49,20 @@ namespace SVNShareLib.Utils
             DefectManagement,
             SVNPortal,
             SigmaCloudPortal,
-            SVNAPI
+            SVNAPI,
+            SigmaTools
         }
 
         public enum LogAction
         {
             AutoInputProduction,
             InputProduction,
-            PurchasePrequest
+            PurchasePrequest,
+            OCRAIRequest,
+            ConfigPOManual,
+            CreateNetsuitePO,
+            VerifyErpPrices,
+            RejectPO
         }
 
         public enum LogType

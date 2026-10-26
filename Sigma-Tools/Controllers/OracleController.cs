@@ -6,6 +6,7 @@ using Sigma_Tools.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL;
 using SVNShareLib.Request;
+using SVNShareLib.Utils;
 
 namespace Sigma_Tools.Controllers
 {
@@ -13,10 +14,12 @@ namespace Sigma_Tools.Controllers
     {
         DBConfiguration dbConfiguration;
         string connectionString;
+        LogService logger;
         public OracleController(DBConfiguration dBConfiguration)
         {
             this.dbConfiguration = dBConfiguration;
             connectionString = dbConfiguration.GetConnectionString();
+            logger = new LogService(connectionString);
         }
         public IActionResult Index()
         {
@@ -67,22 +70,7 @@ namespace Sigma_Tools.Controllers
                 string apiUrl = "";
 
                 // 1. Kiểm tra tên file để chọn endpoint API tương ứng
-                if (fileName.Contains("GTK", StringComparison.OrdinalIgnoreCase) || fileName.Contains("Goertek", StringComparison.OrdinalIgnoreCase))
-                {
-                    apiUrl = "https://orc.datatech.com.vn/api/v1/goertek/extract-po";
-                }
-                else if (fileName.Contains("Whoop", StringComparison.OrdinalIgnoreCase))
-                {
-                    apiUrl = "https://orc.datatech.com.vn/api/v1/whoop/extract-po";
-                }
-                else if (fileName.Contains("Toast", StringComparison.OrdinalIgnoreCase))
-                {
-                    apiUrl = "https://orc.datatech.com.vn/api/v1/toast/extract-po";
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Tên file không khớp với bất kỳ định dạng hãng nào (GTK, Whoop, Toast)!" });
-                }
+                apiUrl = "https://orc.datatech.com.vn/api/v1/agent/extract-po";
 
                 // 2. Gửi file PDF xuống API OCR bên ngoài thông qua HttpClient
                 using (var client = new HttpClient())
@@ -173,6 +161,7 @@ namespace Sigma_Tools.Controllers
 
                         if (dataUI == null)
                         {
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không tìm thấy mã item ERP tương ứng với mã item của khách hàng. Customer: {model.Customer}, PONumber: {model.PONumber}");
                             return Json(new { success = false, message = "Không tìm thấy mã item ERP tương ứng với mã item của khách hàng" });
                         }
 
@@ -207,23 +196,27 @@ namespace Sigma_Tools.Controllers
 
                         if (itemCodeNotFound.Count > 0)
                         {
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên.");
                             return Json(new { success = false, message = $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên." });
                         }
                     }
                     else
                     {
+                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không đọc được danh sách item trong PO. Customer: {model.Customer}, PONumber: {model.PONumber}");
                         return Json(new { success = false, message = "Không đọc được danh sách item trong PO" });
                     }
 
                     // 1. Serialize toàn bộ JObject thành chuỗi JSON string an toàn ngay tại server
                     string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
 
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF thành công. Customer: {model.Customer}, PONumber: {model.PONumber}, Currency: {currencyCode}");
                     // Trả về dữ liệu JSON kèm theo đối tượng `rawJson` (chứa apiData đã được cập nhật sigma_code)
                     return Json(new { success = true, data = model, rawJsonStr = rawJsonString, currency = currencyCode });
                 }
             }
             catch (Exception ex)
             {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Lỗi khi upload PO PDF: {ex.Message}");
                 return Json(new { success = false, message = ex.Message });
             }
         }
@@ -233,6 +226,7 @@ namespace Sigma_Tools.Controllers
         {
             if (request == null || request.Items == null || request.Items.Count == 0)
             {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Không có dữ liệu line items để đối chiếu. Customer: {request?.Customer}, Currency: {request?.Currency}");
                 return Json(new { success = false, message = "Không có dữ liệu line items để đối chiếu." });
             }
 
@@ -317,11 +311,12 @@ namespace Sigma_Tools.Controllers
                         variance = variance
                     });
                 }
-
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Info, $"Đối chiếu giá ERP thành công. Customer: {request.Customer}, Currency: {request.Currency}, TotalItems: {request.Items.Count}");
                 return Json(new { success = true, data = verificationResult });
             }
             catch (Exception ex)
             {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Lỗi khi gọi API lấy giá ERP: {ex.Message}");
                 return Json(new { success = false, message = "Lỗi khi gọi API lấy giá ERP: " + ex.Message });
             }
         }
@@ -331,6 +326,7 @@ namespace Sigma_Tools.Controllers
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Reason))
             {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lý do từ chối PO bị trống. PONumber: {request?.PONumber}");
                 return Json(new { success = false, message = "Lý do từ chối không được để trống." });
             }
 
@@ -339,10 +335,12 @@ namespace Sigma_Tools.Controllers
                 // TODO: Thực hiện logic cập nhật trạng thái PO thành 'Rejected' trong DB hoặc NetSuite tại đây
                 string poNum = string.IsNullOrEmpty(request.PONumber) ? "N/A" : request.PONumber;
 
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Info, $"Đã từ chối PO {poNum} với lý do: {request.Reason}");
                 return Json(new { success = true, message = $"Đã từ chối PO {poNum} thành công!" });
             }
             catch (Exception ex)
             {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lỗi khi xử lý từ chối PO: {ex.Message}");
                 return Json(new { success = false, message = "Lỗi khi xử lý từ chối PO: " + ex.Message });
             }
         }
@@ -396,27 +394,32 @@ namespace Sigma_Tools.Controllers
                                 // Sau khi đã lọc sạch text thừa, tiến hành parse chuỗi JSON an toàn
                                 var parsedResponse = JsonConvert.DeserializeObject<CreateNetsuiteSOResponse>(jsonString);
 
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, Netsuite PO ID: {parsedResponse?.poId}, Netsuite SO Number: {parsedResponse?.poNumber}");
                                 // Trả kết quả chuẩn về cho client
                                 return Json(parsedResponse);
                             }
                             else
                             {
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {processResult?.Message}");
                                 return Json(new { success = false, message = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
                             }
                         }
                         else
                         {
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}");
                             return Json(new { success = false, message = apiResponse.RequestMessage });
                         }
                     }
                 }
                 else
                 {
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}");
                     return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite." });
                 }
             }
             catch (Exception ex)
             {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}");
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
