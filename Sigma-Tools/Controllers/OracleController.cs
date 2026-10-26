@@ -407,7 +407,7 @@ namespace Sigma_Tools.Controllers
                         else
                         {
                             logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}");
-                            return Json(new { success = false, message = apiResponse.RequestMessage });
+                            return Json(new { success = false, message = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" });
                         }
                     }
                 }
