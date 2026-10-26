@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sigma_Tools.Models;
 using Sigma_Tools.Services.Configurations;
+using SVNShareLib;
 using SVNShareLib.DAL;
+using SVNShareLib.Request;
 
 namespace Sigma_Tools.Controllers
 {
@@ -44,7 +47,7 @@ namespace Sigma_Tools.Controllers
                 CalculatedAmount = 0m,
                 ExpectedUnits = 0,
                 ExpectedAmount = 0m,
-                LineItems = new List<POLineItem>()
+                LineItems = new List<POLine>()
             };
 
             return View(model);
@@ -135,7 +138,7 @@ namespace Sigma_Tools.Controllers
                         CalculatedAmount = apiData["audit_report"]?["calculated_amount"]?.Value<decimal>() ?? 0,
                         ExpectedUnits = apiData["audit_report"]?["expected_units"]?.Value<int>() ?? 0,
                         ExpectedAmount = apiData["audit_report"]?["expected_amount"]?.Value<decimal>() ?? 0,
-                        LineItems = new List<POLineItem>(),
+                        LineItems = new List<POLine>(),
                         AuditReport = auditReport
                     };
 
@@ -148,7 +151,7 @@ namespace Sigma_Tools.Controllers
                         int index = 1;
                         foreach (var item in items)
                         {
-                            model.LineItems.Add(new POLineItem
+                            model.LineItems.Add(new POLine
                             {
                                 Line = index++,
                                 ItemCode = item["item"]?.ToString(),
@@ -345,7 +348,7 @@ namespace Sigma_Tools.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateNetsuiteSO([FromBody] CreateNetsuiteSORequest request)
+        public async Task<IActionResult> CreateNetsuiteSO([FromBody] CreateNetsuiteSORequest request)
         {
             if (request == null || request.LineItems == null || request.LineItems.Count == 0)
             {
@@ -362,15 +365,31 @@ namespace Sigma_Tools.Controllers
                 // VÍ DỤ: Đọc các trường phụ từ RawOcrResponse nếu cần dùng để đẩy lên NetSuite
                 if (!string.IsNullOrEmpty(request.RawOcrResponse))
                 {
-                    Newtonsoft.Json.Linq.JObject rawOcrJObject = null;
-                    rawOcrJObject = Newtonsoft.Json.Linq.JObject.Parse(request.RawOcrResponse);
+                    //OCRPurchaseOrderRequest? dataRequest = JsonConvert.DeserializeObject<OCRPurchaseOrderRequest>(request.RawOcrResponse);
+                    string apiUrl = "https://api.sigmaworldwide.io/api/Netsuite/CreatePurchaseOrderAsync";
 
-                    if(rawOcrJObject == null)
+                    using (var client = new HttpClient())
                     {
-                        return Json(new { success = false, message = "Raw OCR Response không hợp lệ." });
+                        var httpContent = new StringContent(request.RawOcrResponse, System.Text.Encoding.UTF8, "application/json");
+
+                        HttpResponseMessage apiResponse = await client.PostAsync(apiUrl, httpContent);
+                        if (apiResponse.IsSuccessStatusCode)
+                        {
+                            string jsonResult = await apiResponse.Content.ReadAsStringAsync();
+                            BODataProcessResult? processResult = JsonConvert.DeserializeObject<BODataProcessResult>(jsonResult);
+                        }
                     }
-                    string paymentTerms = rawOcrJObject["header"]?["payment_terms"]?.ToString();
-                    string shipToName = rawOcrJObject["header"]?["ship_to"]?["name"]?.ToString();
+
+
+                    //Newtonsoft.Json.Linq.JObject rawOcrJObject = null;
+                    //rawOcrJObject = Newtonsoft.Json.Linq.JObject.Parse(request.RawOcrResponse);
+
+                    //if(rawOcrJObject == null)
+                    //{
+                    //    return Json(new { success = false, message = "Raw OCR Response không hợp lệ." });
+                    //}
+                    //string paymentTerms = rawOcrJObject["header"]?["payment_terms"]?.ToString();
+                    //string shipToName = rawOcrJObject["header"]?["ship_to"]?["name"]?.ToString();
 
                     // Bạn có thể truyền toàn bộ request hoặc rawOcrData vào Service xử lý của NetSuite
                     // NetSuiteService.CreateSalesOrder(request);
@@ -399,7 +418,7 @@ namespace Sigma_Tools.Controllers
     {
         public string Customer { get; set; }
         public string Currency { get; set; }
-        public List<POLineItem> Items { get; set; }
+        public List<POLine> Items { get; set; }
     }
 
     public class PricingTier

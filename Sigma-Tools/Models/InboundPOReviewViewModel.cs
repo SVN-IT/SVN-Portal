@@ -1,6 +1,6 @@
 ﻿namespace Sigma_Tools.Models
 {
-    public class POLineItem
+    public class POLine
     {
         public int Line { get; set; }
         public string ItemCode { get; set; }
@@ -28,7 +28,7 @@
         public string Date { get; set; }
         public string Customer { get; set; }
         public string Requisitioner { get; set; }
-        public List<POLineItem> LineItems { get; set; } = new List<POLineItem>();
+        public List<POLine> LineItems { get; set; } = new List<POLine>();
         public int CalculatedUnits { get; set; }
         public decimal CalculatedAmount { get; set; }
         public int ExpectedUnits { get; set; }
