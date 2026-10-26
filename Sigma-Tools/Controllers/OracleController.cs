@@ -423,6 +423,31 @@ namespace Sigma_Tools.Controllers
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
+
+        [HttpPost]
+        public IActionResult LogPoEdits([FromBody] PoEditLogRequest request)
+        {
+            try
+            {
+                if (request != null)
+                {
+                    string logMessage = $"[PO EDIT AUDIT] PO: {request.PONumber} | BEFORE: {request.BeforeState} | AFTER: {request.AfterState}";
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.ConfigPOManual, LogService.LogType.Info, logMessage);
+                }
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+    }
+
+    public class PoEditLogRequest
+    {
+        public string PONumber { get; set; }
+        public string BeforeState { get; set; }
+        public string AfterState { get; set; }
     }
 
     public class RejectPORequest

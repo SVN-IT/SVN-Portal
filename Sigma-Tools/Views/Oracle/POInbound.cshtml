@@ -1092,7 +1092,7 @@
         if (currentStep === 1) recalculateAndAudit();
     });
 
-        // LƯU CHỈNH SỬA (SAVE CHANGES)
+    // LƯU CHỈNH SỬA (SAVE CHANGES)
     $('#btn-save-edit').on('click', function () {
         if (currentStep === 1) {
             let hasEmptyError = false;
@@ -1100,7 +1100,7 @@
 
             // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
             $('#po-line-table tbody tr').each(function (index) {
-                const $tr =$(this);
+                const $tr = $(this);
                 const itemCode = $tr.find('.input-item-code').val().trim();
                 const qty = parseFloat($tr.find('.input-qty').val()) || 0;
                 const price = parseFloat($tr.find('.input-price').val()) || 0;
@@ -1108,13 +1108,13 @@
                 if (itemCode === "" || qty <= 0 || price <= 0) {
                     hasEmptyError = true;
                     emptyErrorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
-                    return false; // Dừng vòng lặp each
+                    return false;
                 }
             });
 
             if (hasEmptyError) {
                 alert(emptyErrorMessage);
-                return; // Chặn lưu
+                return;
             }
 
             // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
@@ -1122,7 +1122,7 @@
             let totalAmount = 0;
 
             $('#po-line-table tbody tr').each(function () {
-                const $tr =$(this);
+                const $tr = $(this);
                 const qty = parseFloat($tr.find('.input-qty').val()) || 0;
                 const price = parseFloat($tr.find('.input-price').val()) || 0;
                 totalUnits += qty;
@@ -1131,7 +1131,6 @@
 
             totalAmount = Math.round(totalAmount * 100) / 100;
 
-            // Lấy Expected Total từ giao diện
             const expText = $('#expected-sum-display').text();
             const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
             let expectedUnits = 0;
@@ -1145,7 +1144,6 @@
             const isUnitsMatched = (totalUnits === expectedUnits);
             const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
 
-            // BÁO LỖI VÀ CHẶN LƯU NẾU KHÔNG KHỐP AUDIT
             if (!isUnitsMatched || !isAmountMatched) {
                 let auditErrorMsg = "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
                 if (!isUnitsMatched) {
@@ -1154,20 +1152,61 @@
                 if (!isAmountMatched) {
                     auditErrorMsg += `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
                 }
-                auditErrorMsg += "\nVui lòng điều chỉnh lại danh sách Line Items để khớp với tổng số tiền và số lượng trước khi lưu.";
-
                 alert(auditErrorMsg);
-                return; // Chặn lưu hoàn toàn!
+                return;
             }
 
-            // 3. NẾU TẤT CẢ DỮ LIỆU ĐÃ HỢP LỆ VÀ KHỐP AUDIT
+            // ==========================================
+            // 3. THU THẬP TRẠNG THÁI "SAU KHI SỬA" (AFTER)
+            // ==========================================
+            let afterStateData = {
+                poNumber: $('#po-number-display').find('input').val() || $('#po-number-display').text().trim(),
+                date: $('#po-date-display').find('input').val() || $('#po-date-display').text().trim(),
+                customer: $('#po-customer-display').find('input').val() || $('#po-customer-display').text().trim(),
+                requisitioner: $('#po-requisitioner-display').find('input').val() || $('#po-requisitioner-display').text().trim(),
+                lineItems: []
+            };
+
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                let qty = parseFloat($tr.find('.input-qty').val()) || 0;
+                let price = parseFloat($tr.find('.input-price').val()) || 0;
+                afterStateData.lineItems.push({
+                    line: $tr.find('td:nth-child(1)').text().trim(),
+                    itemCode: $tr.find('.input-item-code').val() || '',
+                    description: $tr.find('.input-desc').val() || '',
+                    qty: qty,
+                    unitPrice: price,
+                    amount: qty * price
+                });
+            });
+
+            // 4. IN RA CONSOLE HOẶC GỬI NGẦM LÊN SERVER ĐỂ LOG LẠI
+            console.log("--- TRẠNG THÁI TRƯỚC KHI SỬA (BEFORE) ---", originalDataBackup);
+            console.log("--- TRẠNG THÁI SAU KHI SỬA (AFTER) ---", afterStateData);
+
+            // (Tùy chọn) Bạn có thể gọi một hàm AJAX ngầm gửi 2 trạng thái này về Controller để LogService ghi vào database:
+            
+            $.ajax({
+                url: '/Oracle/LogPoEdits',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    PONumber: afterStateData.poNumber,
+                    BeforeState: JSON.stringify(originalDataBackup),
+                    AfterState: JSON.stringify(afterStateData)
+                })
+            });
+           
+
+            // 5. LƯU THỰC THẾ TRÊN GIAO DIỆN
             saveTableEdits();
-            updateHiddenRawJson(); // <--- GỌI HÀM CẬP NHẬT LẠI CHUỖI ẨN TẠI ĐÂY
+            updateHiddenRawJson();
             enableEditMode(false);
             recalculateAndAudit();
             alert("Đã cập nhật dữ liệu PO thành công!");
+
         } else if (currentStep === 2) {
-            // --- LOGIC LƯU CỦA BƯỚC 2 (Chỉ lưu các thay đổi về giá OCR Price) ---
             saveStep2Edits();
             enableEditMode(false);
             alert("Đã cập nhật OCR Price thành công!");
