@@ -316,6 +316,19 @@
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
 </style>
+
+<!-- ========================================================= -->
+<!-- GLOBAL AJAX LOADING SPINNER OVERLAY -->
+<!-- ========================================================= -->
+<div id="global-loader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 99999; justify-content: center; align-items: center;">
+    <div class="bg-white p-4 rounded shadow-lg text-center" style="min-width: 200px;">
+        <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div id="loader-text" class="small font-weight-bold text-dark">Đang xử lý dữ liệu...</div>
+    </div>
+</div>
+
 <!-- Header NetSuite -->
 <div class="netsuite-header d-flex justify-content-between align-items-center">
     <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| @ViewBag.TitleName</span></div>
@@ -445,6 +458,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Badge Trạng thái phía trên góc phải -->
     <div class="d-flex align-items-center">
@@ -2006,4 +2021,16 @@
         // Lưu ngược lại chuỗi JSON hoàn chỉnh vào thẻ ẩn
         $('#ocr-raw-json-hidden').val(JSON.stringify(rawOcrData));
     }
+</script>
+
+<script>
+    // Tự động bật Loader khi bất kỳ một request AJAX nào bắt đầu
+    $(document).ajaxStart(function () {
+        $('#global-loader').css('display', 'flex');
+    });
+
+    // Tự động tắt Loader khi tất cả các request AJAX hoàn tất (dù thành công hay lỗi)
+    $(document).ajaxStop(function () {
+        $('#global-loader').hide();
+    });
 </script>
