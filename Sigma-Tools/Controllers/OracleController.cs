@@ -377,29 +377,43 @@ namespace Sigma_Tools.Controllers
                         {
                             string jsonResult = await apiResponse.Content.ReadAsStringAsync();
                             BODataProcessResult? processResult = JsonConvert.DeserializeObject<BODataProcessResult>(jsonResult);
+                            if (processResult != null && processResult.OK)
+                            {
+                                // Thành công
+                                string? jsonString = processResult.Message;
+                                int jsonStartIndex = processResult.Message.IndexOf('{');
+                                if (jsonStartIndex == -1)
+                                {
+                                    jsonStartIndex = processResult.Message.IndexOf('[');
+                                }
+
+                                if (jsonStartIndex != -1)
+                                {
+                                    // Cắt bỏ phần text thông báo ở đầu, chỉ lấy từ chuỗi JSON trở đi
+                                    jsonString = processResult.Message.Substring(jsonStartIndex);
+                                }
+
+                                // Sau khi đã lọc sạch text thừa, tiến hành parse chuỗi JSON an toàn
+                                var parsedResponse = JsonConvert.DeserializeObject<CreateNetsuiteSOResponse>(jsonString);
+
+                                // Trả kết quả chuẩn về cho client
+                                return Json(parsedResponse);
+                            }
+                            else
+                            {
+                                return Json(new { success = false, message = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
+                            }
+                        }
+                        else
+                        {
+                            return Json(new { success = false, message = apiResponse.RequestMessage });
                         }
                     }
-
-
-                    //Newtonsoft.Json.Linq.JObject rawOcrJObject = null;
-                    //rawOcrJObject = Newtonsoft.Json.Linq.JObject.Parse(request.RawOcrResponse);
-
-                    //if(rawOcrJObject == null)
-                    //{
-                    //    return Json(new { success = false, message = "Raw OCR Response không hợp lệ." });
-                    //}
-                    //string paymentTerms = rawOcrJObject["header"]?["payment_terms"]?.ToString();
-                    //string shipToName = rawOcrJObject["header"]?["ship_to"]?["name"]?.ToString();
-
-                    // Bạn có thể truyền toàn bộ request hoặc rawOcrData vào Service xử lý của NetSuite
-                    // NetSuiteService.CreateSalesOrder(request);
                 }
-
-                return Json(new
+                else
                 {
-                    success = true,
-                    message = $"Đã khởi tạo Sales Order lên NetSuite thành công cho PO {poNumber} ({totalLines} dòng sản phẩm)!"
-                });
+                    return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite." });
+                }
             }
             catch (Exception ex)
             {
@@ -464,5 +478,14 @@ namespace Sigma_Tools.Controllers
 
         // Bổ sung thêm thuộc tính này để hứng trọn vẹn cấu trúc Raw OCR JSON từ Client gửi lên
         public string RawOcrResponse { get; set; }
+    }
+
+    public class CreateNetsuiteSOResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public int poId { get; set; }
+        public string poNumber { get; set; }
+        public string poUrl { get; set; }
     }
 }

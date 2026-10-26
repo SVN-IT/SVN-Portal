@@ -417,6 +417,35 @@
         </div>
     </div>
 
+    <!-- Modal Thông báo kết quả tạo Sales Order / PO NetSuite -->
+    <div class="modal fade" id="netsuiteResultModal" tabindex="-1" role="dialog" aria-labelledby="netsuiteResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header" id="ns-modal-header">
+                    <h6 class="modal-title font-weight-bold text-white" id="netsuiteResultModalLabel">
+                        <i id="ns-modal-icon" class="fas fa-info-circle mr-1"></i> Kết quả khởi tạo NetSuite
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="ns-modal-message" class="font-weight-bold mb-2 text-dark"></p>
+                    <div id="ns-modal-po-info" class="small text-muted d-none">
+                        Mã PO: <strong id="ns-modal-po-number" class="text-primary"></strong>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal">Đóng</button>
+                    <!-- Nút mở link NetSuite (Chỉ hiện khi thành công) -->
+                    <a href="#" id="ns-modal-link-btn" target="_blank" class="btn btn-sm btn-success font-weight-bold d-none">
+                        <i class="fas fa-external-link-alt mr-1"></i> Mở PO trên NetSuite
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Badge Trạng thái phía trên góc phải -->
     <div class="d-flex align-items-center">
         <span class="mr-2 text-secondary font-weight-bold small">System Validations:</span>
@@ -1849,12 +1878,45 @@
             contentType: 'application/json',
             data: JSON.stringify(createSoPayload),
             success: function (response) {
+                // Mở khóa nút bấm lại
+                $btnConvert.prop('disabled', false).html('Convert to Sales Order');
+
+                // response lúc này trả về dạng object chứa { success, message, poId, poNumber, poUrl }
                 if (response.success) {
-                    alert("Thành công: " + response.message);
-                    location.reload();
+                    // --- XỬ LÝ KHI THÀNH CÔNG ---
+                    $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
+                    $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+
+                    $('#ns-modal-message').text(response.message);
+                    $('#ns-modal-po-number').text(response.poNumber);
+                    $('#ns-modal-po-info').removeClass('d-none');
+
+                    // Gán link vào nút mở NetSuite
+                    if (response.poUrl) {
+                        $('#ns-modal-link-btn').attr('href', response.poUrl).removeClass('d-none');
+                    } else {
+                        $('#ns-modal-link-btn').addClass('d-none');
+                    }
+
+                    // Hiển thị Modal
+                    $('#netsuiteResultModal').modal('show');
+
+                    // (Tùy chọn) Reload lại trang sau khi tắt modal nếu muốn reset form
+                    $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                        location.reload();
+                    });
+
                 } else {
-                    alert("Lỗi khi tạo Sales Order: " + response.message);
-                    $btnConvert.prop('disabled', false).html('Convert to Sales Order');
+                    // --- XỬ LÝ KHI THẤT BẠI ---
+                    $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
+                    $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+
+                    $('#ns-modal-message').text(response.message || "Đã xảy ra lỗi khi tạo PO lên NetSuite.");
+                    $('#ns-modal-po-info').addClass('d-none');
+                    $('#ns-modal-link-btn').addClass('d-none');
+
+                    // Hiển thị Modal lỗi
+                    $('#netsuiteResultModal').modal('show');
                 }
             },
             error: function () {
