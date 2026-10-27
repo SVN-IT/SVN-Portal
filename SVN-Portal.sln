@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SVN-Authentication-Portal",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sigma-Tools", "Sigma-Tools\Sigma-Tools.csproj", "{EA81F934-C8EA-4947-A8A5-B2396D00B96D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sigma-Authentication-Portal-API", "Sigma-Authentication-Portal-API\Sigma-Authentication-Portal-API.csproj", "{AB79DE4D-1114-4060-8F71-1833D220CF5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{EA81F934-C8EA-4947-A8A5-B2396D00B96D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA81F934-C8EA-4947-A8A5-B2396D00B96D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA81F934-C8EA-4947-A8A5-B2396D00B96D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB79DE4D-1114-4060-8F71-1833D220CF5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB79DE4D-1114-4060-8F71-1833D220CF5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB79DE4D-1114-4060-8F71-1833D220CF5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB79DE4D-1114-4060-8F71-1833D220CF5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
