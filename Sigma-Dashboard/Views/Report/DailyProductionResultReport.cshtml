@@ -6,78 +6,166 @@
     ViewData["Title"] = ViewBag.TitleName;
     DateTime fromDate = ViewBag.FromDate;
     DateTime toDate = ViewBag.ToDate;
+    List<DailyTargetDetailsViewModel> viewModelDetails = ViewBag.DailyResultDetails;
 }
 <div class="container-fluid">
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title">@ViewBag.TitleName - @fromDate.ToString("dd/MM/yyyy") - @toDate.ToString("dd/MM/yyyy")</h3>
+        <div class="card-header d-flex justify-content-between align-items-center row">
+            <div class="col-12 mb-2">
+                <h3 class="card-title">@ViewBag.TitleName - @fromDate.ToString("dd/MM/yyyy") - @toDate.ToString("dd/MM/yyyy")</h3>
+            </div>
+            <div class="col-12">
+                <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Totals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Details</a>
+                    </li>
+                </ul>
+            </div>
         </div>
         <div class="card-body">
-            <table id="example1" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th rowspan="2" scope="col">Operation active</th>
-                        <th colspan="3" scope="col">Daily Plan Achieve</th>
-                        <th colspan="3" scope="col">UPH</th>
-                        <th rowspan="2" scope="col">UPPH</th>
-                        <th colspan="3" scope="col">Labor</th>
-                        <th colspan="3" scope="col">Defect rate</th>
-                        <th rowspan="2" scope="col">Check list on system</th>
-                        <th rowspan="2" scope="col">Remark</th>
-                    </tr>
-                    <tr>
-                        <th>Target</th>
-                        <th>Current</th>
-                        <th>%</th>
-                        <th>Target</th>
-                        <th>Current</th>
-                        <th>%</th>
-                        <th>Target</th>
-                        <th>Current</th>
-                        <th>%</th>
-                        <th>Target rate</th>
-                        <th>Current rate</th>
-                        <th>%</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            string rowClass = "";
-                            if (item.OperationActive == "Total Quatity")
-                            {
-                                rowClass = "font-weight: 800;";
-                            }
-                            <tr style="@rowClass">
-                                <td>@item.OperationActive</td>
-                                <td>@item.DailyPlanTarget</td>
-                                <td>@item.DailyPlanCurrent</td>
-                                <td>@item.DailyPlanAchieve</td>
-                                <td>@item.UPHTarget</td>
-                                <td>@item.UPHCurrent</td>
-                                <td>@item.UPH</td>
-                                <td>@item.UPPH</td>
-                                <td>@item.LaborTarget</td>
-                                <td>@item.LaborCurrent</td>
-                                <td>@item.Labor</td>
-                                <td>@item.DefectTargetRate</td>
-                                <td>@item.DefectCurrentRate</td>
-                                <td>@item.DefectRate</td>
-                                <td>@item.CheckListOnSystem</td>
-                                <td>@item.Remark</td>
+            <div class="tab-content" id="custom-tabs-four-tabContent">
+                <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" scope="col">Operation active</th>
+                                <th colspan="3" scope="col">Daily Plan Achieve</th>
+                                <th colspan="3" scope="col">UPH</th>
+                                <th rowspan="2" scope="col">UPPH</th>
+                                <th colspan="3" scope="col">Labor</th>
+                                <th colspan="3" scope="col">Defect rate</th>
+                                <th rowspan="2" scope="col">Check list on system</th>
+                                <th rowspan="2" scope="col">Remark</th>
                             </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="14" class="text-center">No data available.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            <tr>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target rate</th>
+                                <th>Current rate</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    string rowClass = "";
+                                    if (item.OperationActive == "Total Quatity")
+                                    {
+                                        rowClass = "font-weight: 800;";
+                                    }
+                                    <tr style="@rowClass">
+                                        <td>@item.OperationActive</td>
+                                        <td>@item.DailyPlanTarget</td>
+                                        <td>@item.DailyPlanCurrent</td>
+                                        <td>@item.DailyPlanAchieve</td>
+                                        <td>@item.UPHTarget</td>
+                                        <td>@item.UPHCurrent</td>
+                                        <td>@item.UPH</td>
+                                        <td>@item.UPPH</td>
+                                        <td>@item.LaborTarget</td>
+                                        <td>@item.LaborCurrent</td>
+                                        <td>@item.Labor</td>
+                                        <td>@item.DefectTargetRate</td>
+                                        <td>@item.DefectCurrentRate</td>
+                                        <td>@item.DefectRate</td>
+                                        <td>@item.CheckListOnSystem</td>
+                                        <td>@item.Remark</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" class="text-center">No data available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                    <table id="example2" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" scope="col">Project</th>
+                                <th rowspan="2" scope="col">PartNumber</th>
+                                <th rowspan="2" scope="col">DateTime</th>
+                                <th colspan="3" scope="col">Daily Plan Output</th>
+                                <th colspan="3" scope="col">UPH</th>
+                                <th rowspan="2" scope="col">UPPH</th>
+                                <th colspan="3" scope="col">Labor</th>
+                                
+                            </tr>
+                            <tr>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                                <th>Target</th>
+                                <th>Current</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (viewModelDetails != null && viewModelDetails.Any())
+                            {
+                                foreach (var item in viewModelDetails)
+                                {
+                                    string rowClass = "";
+                                    
+                                    <tr style="@rowClass">
+                                        <td>@item.Project</td>
+                                        <td>@item.PartNumber</td>
+                                        <td>@item.Date_time</td>
+                                        <td>@item.Daily_plan</td>
+                                        <td>@item.Total_Qty</td>
+                                        @{
+                                            var dailyPercent = item.Daily_plan == 0 ? "0%" : Math.Round(item.Total_Qty / item.Daily_plan * 100, 2).ToString() + "%";
+                                        }
+                                        <td>@dailyPercent</td>
+                                        <td>@item.UPH</td>
+                                        <td>@item.Current_UPH</td>
+                                        @{
+                                            var uphPercent = item.UPH == 0 ? "0%" : Math.Round(item.Current_UPH / item.UPH * 100, 2).ToString() + "%";
+                                        }
+                                        <td>@uphPercent</td>
+                                        @{
+                                            var upphPercent = item.UPPH == 0 ? "0%" : Math.Round(item.Current_UPPH / item.UPPH * 100, 2).ToString() + "%";
+                                        }
+                                        <td>@upphPercent</td>
+                                        <td>@item.MaxLabor</td>
+                                        <td>@item.Labor</td>
+                                        @{
+                                            var laborPercent = item.MaxLabor == 0 ? "0%" : Math.Round(item.Labor / item.MaxLabor * 100, 2).ToString() + "%";
+                                        }
+                                        <td>@laborPercent</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="14" class="text-center">No data available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
         </div>
     </div>
 </div>
@@ -102,13 +190,15 @@
         "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
       }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
       $('#example2').DataTable({
-        "paging": true,
-        "lengthChange": false,
-        "searching": false,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-      });
+        // "paging": true,
+        // "lengthChange": false,
+        // "searching": false,
+        // "ordering": true,
+        // "info": true,
+        // "autoWidth": false,
+        // "responsive": true,
+        "responsive": true, "lengthChange": false, "autoWidth": false,
+        "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+      }).buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
     });
 </script>

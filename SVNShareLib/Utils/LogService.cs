@@ -16,7 +16,7 @@ namespace SVNShareLib.Utils
             this.connectionString = connectionString;
         }
 
-        public void Log(LogApp App, LogAction Action, LogType Type, string Content)
+        public void Log(LogApp App, LogAction Action, LogType Type, string Content, string userCode = "System")
         {
             SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
             SVN_summary_logUI log = new SVN_summary_logUI()
@@ -26,9 +26,9 @@ namespace SVNShareLib.Utils
                 Action = Action.ToString(),
                 Type = Type.ToString(),
                 Content = Content,
-                CreatedBy = "System",
+                CreatedBy = userCode,
                 CreatedOn = DateTime.Now,
-                ModifiedBy = "System",
+                ModifiedBy = userCode,
                 ModifiedOn = DateTime.Now
             };
 
@@ -49,14 +49,20 @@ namespace SVNShareLib.Utils
             DefectManagement,
             SVNPortal,
             SigmaCloudPortal,
-            SVNAPI
+            SVNAPI,
+            SigmaTools
         }
 
         public enum LogAction
         {
             AutoInputProduction,
             InputProduction,
-            PurchasePrequest
+            PurchasePrequest,
+            OCRAIRequest,
+            ConfigPOManual,
+            CreateNetsuitePO,
+            VerifyErpPrices,
+            RejectPO
         }
 
         public enum LogType

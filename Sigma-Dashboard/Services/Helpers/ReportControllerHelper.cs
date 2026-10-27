@@ -1,7 +1,10 @@
-﻿using Sigma_Dashboard.Models;
+﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Sigma_Dashboard.Models;
 using Sigma_Dashboard.Services.Configurations;
 using SVNShareLib.DAL.NewDashboard;
 using SVNShareLib.DTO.NewDashboard;
+using System.Reflection.Emit;
 
 namespace Sigma_Dashboard.Services.Helpers
 {
@@ -124,5 +127,70 @@ namespace Sigma_Dashboard.Services.Helpers
             return result;
         }
 
+        public async Task<List<DailyTargetDetailsViewModel>> GetDailyResultDetails(
+            DateTime fromdate, DateTime todate)
+        {
+            List<DailyTargetDetailsViewModel> viewModels = new List<DailyTargetDetailsViewModel>();
+            var targetdataportal = new SVN_Target_v1DataPortal(connectionString);
+            try
+            {
+                var targetDataUI = await targetdataportal.ReadListTargetFromToDate(fromdate, todate);
+                if (targetDataUI != null && targetDataUI.Count > 0)
+                {
+                    targetDataUI = targetDataUI.Select(x =>
+                    {
+                        var viewModel = new DailyTargetDetailsViewModel();
+                        var (project, partNumber) = SplitOperationActive(x.Operation);
+                        viewModel.Project = project;
+                        viewModel.PartNumber = partNumber;
+                        viewModel.Date_time = x.Date_time;
+                        viewModel.Daily_plan = x.Daily_plan;
+                        viewModel.UPH = x.UPH;
+                        viewModel.UPPH = x.UPPH;
+                        viewModel.Labor = x.Labor;
+                        viewModel.Total_Qty = x.Total_Qty;
+                        viewModel.MaxLabor = x.MaxLabor;
+                        viewModel.Current_UPH = x.Current_UPH;
+                        viewModel.Current_UPPH = x.Current_UPPH;
+                        viewModel.Defect = x.Defect;
+                        viewModel.Total_NG_Qty = x.Total_NG_Qty;
+                        viewModel.WC = x.WC;
+                        viewModel.Workingtime = x.Workingtime;
+                        viewModel.Shift = x.Shift;
+
+                        viewModels.Add(viewModel);
+                        return x;
+                    }).ToList();
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+            return viewModels;
+        }
+
+
+        public static (string Project, string PartNumber) SplitOperationActive(string rawInput)
+        {
+            if (string.IsNullOrWhiteSpace(rawInput))
+            {
+                return (string.Empty, string.Empty);
+            }
+
+            // Tách chuỗi tại dấu '-' đầu tiên (tối đa thành 2 phần tử)
+            string[] parts = rawInput.Split(new[] { '-' }, 2, StringSplitOptions.TrimEntries);
+
+            if (parts.Length == 2)
+            {
+                // Có dấu '-' -> phần đầu là Project, phần còn lại là PartNumber
+                return (parts[0], parts[1]);
+            }
+            else
+            {
+                // Không có dấu '-' (như "POP") -> gán vào Project, PartNumber để rỗng
+                return (parts[0], string.Empty);
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Irony.Parsing;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SVN_Portal.DAL.DataPortal;
 using SVN_Portal.Services.Configurations;
 using SVNShareLib;
@@ -673,14 +674,38 @@ namespace SVN_Portal.Controllers
             
             try
             {
-                var bomLine = mrp_Bom_Line_DataPortal.GetDataByProductCode(int.Parse(data.ProductID));
-                if (bomLine == null || bomLine.Count == 0)
+                //Cập nhật lấy trực tiếp BOM từ Viindoo thay vì lấy từ SVNDB để tránh trường hợp BOM trên SVNDB chưa được cập nhật
+                BOMDataRequest bOMDataRequest = new BOMDataRequest()
                 {
-                    bomLine = new List<mrp_bom_lineUI>();
+                    ProductID = int.Parse(data.ProductID)
+                };
+                var bomProcessResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetBOMDetailsByProductID", bOMDataRequest, new CancellationToken(false));
+                if(bomProcessResult.OK == false)
+                {
+                    processResult.OK = false;
+                    processResult.Message = bomProcessResult.Message;
+                    return Json(new { result = processResult.OK, message = processResult.Message });
+                }
+
+                dynamic content = bomProcessResult.Content;
+
+                // Ép kiểu về JObject
+                JObject jContent = JObject.FromObject(content);
+
+                // Convert phần BOM
+                mrp_bomUI bom = jContent["bom"]?.ToObject<mrp_bomUI>();
+
+                // Convert phần BOM Lines
+                List<mrp_bom_lineUI> bomLine = jContent["bom_lines"]?.ToObject<List<mrp_bom_lineUI>>();
+
+                //var bomLine = mrp_Bom_Line_DataPortal.GetDataByProductCode(int.Parse(data.ProductID));
+                //if (bomLine == null || bomLine.Count == 0)
+                //{
+                    //bomLine = new List<mrp_bom_lineUI>();
                     //processResult.OK = false;
                     //processResult.Message = $"No BOM found for product ID {data.ProductID}. Please check the BOM configuration.";
                     //return Json(new { result = processResult.OK, message = processResult.Message });
-                }
+                //}
 
                 List<LotScanedRequest> lotScaneds = new List<LotScanedRequest>();
                 var dataSearial = data.Products.Where(x => x.Has_tracking == "serial").Select(y =>
