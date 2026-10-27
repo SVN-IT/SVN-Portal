@@ -6,6 +6,9 @@ using SVN_Portal.Services.Util;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+//  "7100414428": [ "4064035145811", "EMEA-DCR03MB", "4" ],
+
 //Log.Logger = new LoggerConfiguration()
 //    .MinimumLevel.Information()
 //    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning) // ASP.NET Core log >= Warning
