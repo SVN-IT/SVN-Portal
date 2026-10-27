@@ -1,8 +1,10 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using Dapper;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PrinterServices.Objects;
 using SVN_Portal.DAL.DataPortal;
+using SVN_Portal.DAL.DTO;
 using SVN_Portal.Services.Configurations;
 using SVN_Portal.Services.Helpers;
 using SVNShareLib;
@@ -31,13 +33,180 @@ namespace SVN_Portal.Controllers
             _env = env;
             this.aPIConfiguration = aPIConfiguration;
             this.dBConfiguration = dBConfiguration;
-            connectionString = dBConfiguration.GetConnectionString();
+            connectionString = dBConfiguration.LocalSvnConnectionString;
             this.toolsHelper = toolsHelper;
         }
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData(string date)
+        {
+            try
+            {
+                DateTime targetDate = string.IsNullOrEmpty(date)
+                    ? DateTime.Today
+                    : DateTime.Parse(date);
+
+                var fromDate   = targetDate.Date;
+                var toDate     = targetDate.Date.AddDays(1).AddSeconds(-1);
+                var dateStr    = targetDate.ToString("yyyyMMdd");
+
+                var localConn      = dBConfiguration.LocalSvnConnectionString;
+                var printLogPortal = new SVN_PrintLogTwistDataPortal(localConn);
+                var inputLogPortal = new SVN_ProductionInputLogDataPortal(localConn);
+                var viindooPortal  = new SVN_production_resultDataPortal(localConn);
+
+                // 1. Viindoo — lọc Twist theo ngày, lấy product codes chạy hôm nay
+                var viindooList = await viindooPortal.ReadList(dateStr);
+                var twistViindoo = viindooList?
+                    .Where(v => v.Operation != null && v.Operation.StartsWith("Twist-") && v.Type_value == "Production Qty")
+                    .ToList() ?? new List<SVN_production_resultUI>();
+
+                var viindooQtyByCode = twistViindoo
+                    .GroupBy(v => v.Operation.Replace("Twist-", "").Trim())
+                    .ToDictionary(g => g.Key,
+                        g => (int)g.Sum(v => v.Time1 + v.Time2 + v.Time3 + v.Time4 + v.Time5 + v.Time6));
+
+                var twistTarget = viindooList?
+                    .Where(v => v.Operation != null && v.Operation.StartsWith("Twist-") && v.Type_value == "Target")
+                    .ToList() ?? new List<SVN_production_resultUI>();
+
+                var targetQtyByCode = twistTarget
+                    .GroupBy(v => v.Operation.Replace("Twist-", "").Trim())
+                    .ToDictionary(g => g.Key,
+                        g => (int)g.Sum(v => v.Time1 + v.Time2 + v.Time3 + v.Time4 + v.Time5 + v.Time6));
+
+                // Product codes hôm nay (union cả Production Qty và Target)
+                var allCodes = viindooQtyByCode.Keys.Union(targetQtyByCode.Keys).ToList();
+
+                // 2. ProductMapping — dùng LocalSvnConnectionString (10.10.99.10, svn_pentaho)
+                var codeToProductId = new Dictionary<string, int>();
+                List<object> rawMapSample;
+                using (System.Data.IDbConnection conn = new System.Data.SqlClient.SqlConnection(dBConfiguration.LocalSvnConnectionString))
+                {
+                    var mapRows = await conn.QueryAsync(
+                        "SELECT product_id, Operation FROM dbo.ProductMapping WHERE Operation LIKE 'Twist%'");
+                    var mapList = mapRows.ToList();
+                    rawMapSample = mapList.Select(r => (object)new {
+                        pid = r.product_id,
+                        op  = r.Operation?.ToString() ?? ""
+                    }).ToList<object>();
+                    foreach (var r in mapList)
+                    {
+                        string op = r.Operation?.ToString() ?? "";
+                        if (op.StartsWith("Twist", StringComparison.OrdinalIgnoreCase) && op.Length > 6)
+                        {
+                            // bỏ qua "Twist" + 1 ký tự phân cách (-, –, —, space...)
+                            string code = op.Substring(6).Trim();
+                            int id = Convert.ToInt32(r.product_id);
+                            codeToProductId[code] = id;
+                        }
+                    }
+                }
+
+                // 3. Input logs theo ngày (filter date_finished), group by product_id
+                var inputLogs       = await inputLogPortal.GetDataFromDateToDateFinishedAsync(fromDate, toDate, "Not synchronized");
+                var inputLogsSynced = await inputLogPortal.GetDataFromDateToDateFinishedAsync(fromDate, toDate, "Synchronized");
+                var allInputLogs    = (inputLogs ?? new List<SVN_ProductionInputLogUI>())
+                    .Concat(inputLogsSynced ?? new List<SVN_ProductionInputLogUI>())
+                    .ToList();
+
+                var inputByProductId = allInputLogs
+                    .GroupBy(x => x.product_id)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.product_qty));
+
+                var inputCountByProductId = allInputLogs
+                    .GroupBy(x => x.product_id)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var woByProductId = allInputLogs
+                    .GroupBy(x => x.product_id)
+                    .ToDictionary(g => g.Key, g =>
+                    {
+                        var wos = g.Select(x => x.master_wo_code)
+                                   .Where(w => !string.IsNullOrWhiteSpace(w))
+                                   .Distinct().ToList();
+                        // nếu có code dạng NM/MO/xxxxx thì chỉ lấy loại đó, bỏ code số thuần
+                        var fullWos = wos.Where(w => w.Contains("/")).ToList();
+                        return string.Join(", ", fullWos.Any() ? fullWos : wos);
+                    });
+
+                // 4. Print log summary theo ngày
+                List<SVN_PrintLogTwistUI> printSummary = new List<SVN_PrintLogTwistUI>();
+                try { printSummary = await printLogPortal.GetSummaryByDateAsync(targetDate) ?? printSummary; } catch { }
+                var printByProductId    = printSummary.ToDictionary(p => p.product_id, p => p.print_qty);
+                var printByCode        = printSummary.ToDictionary(p => p.product_code, p => p.print_qty);
+                var printCountByPid    = printSummary.ToDictionary(p => p.product_id, p => p.print_count);
+                var printCountByCode   = printSummary.ToDictionary(p => p.product_code, p => p.print_count);
+
+                var rows = allCodes.Select(code =>
+                {
+                    int pid        = codeToProductId.ContainsKey(code) ? codeToProductId[code] : 0;
+                    int targetQty  = targetQtyByCode.ContainsKey(code) ? targetQtyByCode[code] : 0;
+                    int viindooQty = viindooQtyByCode.ContainsKey(code) ? viindooQtyByCode[code] : 0;
+                    int inputQty   = pid > 0 && inputByProductId.ContainsKey(pid) ? (int)inputByProductId[pid] : 0;
+                    int inputCount = pid > 0 && inputCountByProductId.ContainsKey(pid) ? inputCountByProductId[pid] : 0;
+                    string woCodes = pid > 0 && woByProductId.ContainsKey(pid) ? woByProductId[pid] : "";
+                    int printQty   = pid > 0 && printByProductId.ContainsKey(pid)
+                                        ? printByProductId[pid]
+                                        : printByCode.ContainsKey(code) ? printByCode[code] : 0;
+                    int printCount = pid > 0 && printCountByPid.ContainsKey(pid)
+                                        ? printCountByPid[pid]
+                                        : printCountByCode.ContainsKey(code) ? printCountByCode[code] : 0;
+
+                    return new
+                    {
+                        product_code      = code,
+                        product_id        = pid,
+                        wo_codes          = woCodes,
+                        target_qty        = targetQty,
+                        print_qty         = printQty,
+                        print_count       = printCount,
+                        input_qty         = inputQty,
+                        input_count       = inputCount,
+                        viindoo_qty       = viindooQty,
+                        gap_print_input   = printQty - inputQty,
+                        gap_input_viindoo = inputQty - viindooQty,
+                        gap_print_viindoo = printQty - viindooQty
+                    };
+                })
+                .OrderBy(r => r.product_code)
+                .ToList();
+
+                // Debug: check Twist records in input logs (no date/status filter)
+                IEnumerable<dynamic> twistInputSample = new List<dynamic>();
+                var twistPidList = string.Join(",", codeToProductId.Values.Distinct());
+                if (!string.IsNullOrEmpty(twistPidList))
+                {
+                    using var dbDebug = new System.Data.SqlClient.SqlConnection(connectionString);
+                    twistInputSample = await dbDebug.QueryAsync(
+                        $"SELECT TOP 10 product_id, product_qty, master_wo_code, date_finished, status FROM SVN_ProductionInputLogs WHERE product_id IN ({twistPidList}) ORDER BY date_finished DESC");
+                }
+
+                return Json(new {
+                    success = true,
+                    data = rows,
+                    date = targetDate.ToString("yyyy-MM-dd"),
+                    _debug = new {
+                        mappingCount     = codeToProductId.Count,
+                        inputLogsCount   = allInputLogs.Count,
+                        twistInputSample = twistInputSample
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
         }
 
         // Lấy thông tin WO (giả lập)
@@ -106,8 +275,54 @@ namespace SVN_Portal.Controllers
         {
             var twistData = GetData();
             if (twistData != null && twistData.TryGetValue(productCode, out var arr))
-                return Json(new { pcsPerBox = int.Parse(arr[2]) });
+            {
+                bool isEU = arr.Count > 1 && arr[1].StartsWith("EMEA-", StringComparison.OrdinalIgnoreCase);
+                string poNumber = isEU ? GetPOForCode(productCode) : "";
+                return Json(new {
+                    pcsPerBox = int.Parse(arr[2]),
+                    isEU = isEU,
+                    skuName = arr.Count > 1 ? arr[1] : "",
+                    poNumber = poNumber
+                });
+            }
             return Json(new { error = "Không tìm thấy mã sản phẩm" });
+        }
+
+        [HttpGet]
+        public IActionResult GetEUCodes()
+        {
+            var twistData = GetData();
+            var poData = GetPOData();
+            if (twistData == null) return Json(new List<object>());
+
+            var euCodes = twistData
+                .Where(kvp => kvp.Value.Count > 1 && kvp.Value[1].EndsWith("-EU", StringComparison.OrdinalIgnoreCase))
+                .Select(kvp => new {
+                    code = kvp.Key,
+                    skuName = kvp.Value[1],
+                    barcode = kvp.Value[0],
+                    poNumber = poData.TryGetValue(kvp.Key, out var po) ? (po ?? "") : ""
+                })
+                .ToList();
+
+            return Json(euCodes);
+        }
+
+        [HttpPost]
+        public IActionResult SaveEUPO([FromBody] SaveEUPORequest req)
+        {
+            try
+            {
+                string filePath = Path.Combine(_env.WebRootPath, "data", "twist_infoPO_EU.json");
+                var poData = GetPOData();
+                poData[req.code] = req.poNumber ?? "";
+                System.IO.File.WriteAllText(filePath, JsonConvert.SerializeObject(poData, Formatting.Indented));
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -123,18 +338,26 @@ namespace SVN_Portal.Controllers
                 }
                 else
                 {
-                    return Json(new { isValid = false, error = $"Mã PCS không khớp với mã sản phẩm {productCode}!" });
+                    bool isKnownOtherProduct = twistData.Any(kv =>
+                        !kv.Key.Equals(productCode, StringComparison.OrdinalIgnoreCase) &&
+                        kv.Value.Count > 0 &&
+                        kv.Value[0].Equals(pcs, StringComparison.OrdinalIgnoreCase));
+
+                    if (isKnownOtherProduct)
+                        return Json(new { isValid = false, isMismatch = true, error = $"Mã sản phẩm quét không khớp với mã sản phẩm {productCode}!" });
+                    else
+                        return Json(new { isValid = false, isMismatch = false, error = $"Barcode không hợp lệ cho sản phẩm {productCode}!" });
                 }
             }
 
             return Json(new { isValid = false, error = "Không tìm thấy mã sản phẩm trong hệ thống!" });
         }
 
-        // In tem (giả lập)
         [HttpPost]
         public async Task<IActionResult> PrintLabel([FromBody] PrintLabelRequest req)
         {
             SVN_label_templateDataPortal dataPortal = new SVN_label_templateDataPortal(connectionString);
+            SVN_PrintLogTwistDataPortal printLogDataPortal = new SVN_PrintLogTwistDataPortal(dBConfiguration.LocalSvnConnectionString);
             try
             {
                 var labelInfo = await dataPortal.ReadByID(req.productCode, "Box", "Twist");
@@ -161,18 +384,35 @@ namespace SVN_Portal.Controllers
                     return Json(new { success = false, error = $"Không có mẫu tem để in cho partNumber {req.productCode}" });
                 }
 
-                var printResult = toolsHelper.PrintTwistLabelByTCP(labelInfo.zplData, req.printerConfig, 1);
+                if (req.printerConfig == null)
+                    return Json(new { success = false, error = "Chưa cấu hình máy in. Vui lòng nhấn phím 3 để chọn máy in." });
+
+                string zplData = (labelInfo.zplData ?? "").Replace("{PO}", req.poNumber ?? "");
+                var printResult = toolsHelper.PrintTwistLabelByTCP(zplData, req.printerConfig, 1);
                 if (printResult == null)
                 {
                     return Json(new { success = false, error = "Print failed" });
                 }
 
-                if (!printResult.OK) 
+                if (!printResult.OK)
                 {
                     return Json(new { success = false, error = printResult.Message });
-                }    
+                }
 
-                // TODO: Xử lý in tem
+                // Lưu log in tem — lỗi ở đây không được block luồng in chính
+                try
+                {
+                    await printLogDataPortal.InsertAsync(new SVN_PrintLogTwistUI
+                    {
+                        wo_code      = req.woCode,
+                        product_id   = req.productId,
+                        product_code = req.productCode,
+                        print_qty    = req.printQty,
+                        print_time   = DateTime.Now
+                    });
+                }
+                catch { /* bảng chưa tạo hoặc lỗi log — không ảnh hưởng luồng in */ }
+
                 return Json(new { success = true });
             }
             catch (Exception ex) 
@@ -186,7 +426,7 @@ namespace SVN_Portal.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitProduction([FromBody] InputResult req)
         {
-            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.GetConnectionString());
+            SVN_ProductionInputLogDataPortal dataPortal = new SVN_ProductionInputLogDataPortal(dBConfiguration.LocalSvnConnectionString);
             //HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
             try
             {
@@ -237,34 +477,38 @@ namespace SVN_Portal.Controllers
 
         private Dictionary<string, List<string>> GetData()
         {
-            // 1. Tìm đường dẫn tuyệt đối đến file JSON trong wwwroot/data
             string filePath = Path.Combine(_env.WebRootPath, "data", "twist_sku_alias.json");
-
-            // Check nếu file tồn tại
-            if (!System.IO.File.Exists(filePath))
-            {
-                return null;
-            }
-
-            // 2. Đọc toàn bộ nội dung file text
+            if (!System.IO.File.Exists(filePath)) return null;
             string jsonContent = System.IO.File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonContent);
+        }
 
-            // 3. Deserialize thành Dictionary bằng Newtonsoft.Json
-            var result = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(jsonContent);
+        private Dictionary<string, string> GetPOData()
+        {
+            string filePath = Path.Combine(_env.WebRootPath, "data", "twist_infoPO_EU.json");
+            if (!System.IO.File.Exists(filePath)) return new Dictionary<string, string>();
+            string json = System.IO.File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(json) ?? new Dictionary<string, string>();
+        }
 
-            // 4. Sử dụng dữ liệu (Ví dụ: lấy phần tử đầu tiên)
-            // string barcode = result["7100406070"][0];
-
-            return result;
+        private string GetPOForCode(string productCode)
+        {
+            var poData = GetPOData();
+            return poData.TryGetValue(productCode, out var po) ? (po ?? "") : "";
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPrinters()
         {
-            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(connectionString);
+            SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(dBConfiguration.LocalSvnConnectionString);
             try
             {
-                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadListByType("Twist"); //ReadListByType("Twist")
+                // Ưu tiên máy in loại Twist, nếu không có thì lấy tất cả
+                List<PrinterConfigData> printerConfigDatas = await printerDataPortal.ReadListByType("Twist");
+                if (printerConfigDatas == null || printerConfigDatas.Count == 0)
+                {
+                    printerConfigDatas = await printerDataPortal.ReadList();
+                }
                 if (printerConfigDatas != null && printerConfigDatas.Count > 0)
                 {
                     return Json(printerConfigDatas);
@@ -281,7 +525,7 @@ namespace SVN_Portal.Controllers
         }
 
         [HttpPost]
-        public IActionResult SavePrinterConfig([FromBody] PrinterConfigData printer)
+        public async Task<IActionResult> SavePrinterConfig([FromBody] PrinterConfigData printer)
         {
             try
             {
@@ -290,10 +534,16 @@ namespace SVN_Portal.Controllers
                     return Json(new { success = false, message = "Dữ liệu máy in không hợp lệ!" });
                 }
 
-                // TODO: Viết code lưu/cập nhật thông tin máy in vào Database tại đây
-                // Ví dụ: _printerService.SaveOrUpdate(printer);
-
-                return Json(new { success = true, message = "Lưu cấu hình máy in thành công!" });
+                SVN_Printer_InfoDataPortal printerDataPortal = new SVN_Printer_InfoDataPortal(dBConfiguration.LocalSvnConnectionString);
+                int result = await printerDataPortal.Update(printer);
+                if (result > 0)
+                {
+                    return Json(new { success = true, message = "Lưu cấu hình máy in thành công!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy máy in để cập nhật." });
+                }
             }
             catch (Exception ex)
             {
@@ -329,7 +579,8 @@ namespace SVN_Portal.Controllers
                 }
 
                 // Gọi hàm in với số lượng bản in req.printQty
-                var printResult = toolsHelper.PrintTwistLabelByTCP(labelInfo.zplData, req.printerConfig, req.printQty);
+                string zplData = (labelInfo.zplData ?? "").Replace("{PO}", req.poNumber ?? "");
+                var printResult = toolsHelper.PrintTwistLabelByTCP(zplData, req.printerConfig, req.printQty);
                 if (printResult == null)
                 {
                     return Json(new { success = false, error = "Print failed" });
@@ -352,7 +603,17 @@ namespace SVN_Portal.Controllers
     public class PrintLabelRequest
     {
         public string productCode { get; set; }
+        public string woCode { get; set; }
+        public int productId { get; set; }
+        public int printQty { get; set; }
+        public string poNumber { get; set; }
         public PrinterConfigData printerConfig { get; set; }
+    }
+
+    public class SaveEUPORequest
+    {
+        public string code { get; set; }
+        public string poNumber { get; set; }
     }
 
     public class InputResult
@@ -367,6 +628,7 @@ namespace SVN_Portal.Controllers
         public string productCode { get; set; }
         public string labelType { get; set; }
         public int printQty { get; set; }
+        public string poNumber { get; set; }
         public PrinterConfigData printerConfig { get; set; }
     }
 }
