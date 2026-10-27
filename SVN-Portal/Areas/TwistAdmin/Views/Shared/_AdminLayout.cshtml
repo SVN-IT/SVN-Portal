@@ -1,0 +1,131 @@
+@*
+    Layout Vuexy (Bootstrap 5) cho khu quản trị Twist (/twist/admin). Tài nguyên ở wwwroot/themes/vuexy.
+    Tách riêng khỏi _Layout / _NewLayout (Bootstrap 4) để không ảnh hưởng các trang cũ.
+    ViewData["NoMenu"] = true: ẩn sidebar (trang đăng nhập).
+    Thêm mục menu: thêm 1 dòng vào menuItems bên dưới.
+*@
+@{
+    var theme = "~/themes/vuexy";
+    bool noMenu = ViewData["NoMenu"] as bool? == true;
+    string currentPath = Context.Request.Path.Value?.TrimEnd('/') ?? "";
+
+    var menuItems = new[]
+    {
+        new { Header = "Twist", Label = "Mẫu tem", Icon = "tabler-tag", Href = "/twist/admin/label-template" },
+    };
+}
+<!doctype html>
+<html lang="vi"
+      class="layout-navbar-hidden layout-menu-fixed layout-compact"
+      dir="ltr"
+      data-skin="default"
+      data-assets-path="@Url.Content(theme + "/")"
+      data-template="vertical-menu-template-no-customizer"
+      data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SVN Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="@Url.Content(theme + "/vendor/fonts/iconify-icons.css")" />
+    <link rel="stylesheet" href="@Url.Content(theme + "/vendor/libs/node-waves/node-waves.css")" />
+    <link rel="stylesheet" href="@Url.Content(theme + "/vendor/css/core.css")" />
+    <link rel="stylesheet" href="@Url.Content(theme + "/css/demo.css")" />
+    <link rel="stylesheet" href="@Url.Content(theme + "/vendor/libs/perfect-scrollbar/perfect-scrollbar.css")" />
+    <link rel="stylesheet" href="@Url.Content(theme + "/vendor/libs/notyf/notyf.css")" />
+    <link rel="stylesheet" href="@Url.Content(theme + "/vendor/libs/sweetalert2/sweetalert2.css")" />
+    @await RenderSectionAsync("Styles", required: false)
+
+    <script src="@Url.Content(theme + "/vendor/js/helpers.js")"></script>
+    <script src="@Url.Content(theme + "/js/config.js")"></script>
+</head>
+<body>
+    @if (noMenu)
+    {
+        @RenderBody()
+    }
+    else
+    {
+        <div class="layout-wrapper layout-content-navbar">
+            <div class="layout-container">
+                <aside id="layout-menu" class="layout-menu menu-vertical menu">
+                    <div class="app-brand demo">
+                        <a href="/twist/admin" class="app-brand-link">
+                            <span class="app-brand-text demo menu-text fw-bold ms-1">SVN Portal</span>
+                        </a>
+                        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+                            <i class="icon-base ti menu-toggle-icon d-none d-xl-block"></i>
+                            <i class="icon-base ti tabler-x d-block d-xl-none"></i>
+                        </a>
+                    </div>
+
+                    <div class="menu-inner-shadow"></div>
+
+                    <ul class="menu-inner py-1">
+                        @foreach (var group in menuItems.GroupBy(m => m.Header))
+                        {
+                            <li class="menu-header small"><span class="menu-header-text">@group.Key</span></li>
+                            @foreach (var item in group)
+                            {
+                                bool active = currentPath.StartsWith(item.Href, StringComparison.OrdinalIgnoreCase);
+                                <li class="menu-item @(active ? "active" : "")">
+                                    <a href="@item.Href" class="menu-link">
+                                        <i class="menu-icon icon-base ti @item.Icon"></i>
+                                        <div>@item.Label</div>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="px-4 py-3 border-top d-flex align-items-center justify-content-between gap-2">
+                            <span class="small text-heading text-truncate"><i class="icon-base ti tabler-user me-1"></i>@User.Identity.Name</span>
+                            <form method="post" action="/twist/admin/logout" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-label-secondary"><i class="icon-base ti tabler-logout me-1"></i>Thoát</button>
+                            </form>
+                        </div>
+                    }
+                </aside>
+
+                <div class="menu-mobile-toggler d-xl-none rounded-1">
+                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
+                        <i class="ti tabler-menu icon-base"></i>
+                        <i class="ti tabler-chevron-right icon-base"></i>
+                    </a>
+                </div>
+
+                <div class="layout-page">
+                    <div class="content-wrapper">
+                        <div class="container-fluid flex-grow-1 container-p-y">
+                            @RenderBody()
+                        </div>
+                        <div class="content-backdrop fade"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layout-overlay layout-menu-toggle"></div>
+            <div class="drag-target"></div>
+        </div>
+    }
+
+    <script src="@Url.Content(theme + "/vendor/libs/jquery/jquery.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/libs/popper/popper.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/js/bootstrap.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/libs/node-waves/node-waves.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/libs/perfect-scrollbar/perfect-scrollbar.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/libs/hammer/hammer.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/js/menu.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/libs/notyf/notyf.js")"></script>
+    <script src="@Url.Content(theme + "/vendor/libs/sweetalert2/sweetalert2.js")"></script>
+    <script src="@Url.Content(theme + "/js/main.js")"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

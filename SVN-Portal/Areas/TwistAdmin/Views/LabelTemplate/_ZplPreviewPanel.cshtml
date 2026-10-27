@@ -1,0 +1,22 @@
+@model string
+@* Khung xem trước hình tem, dùng chung cho modal Xem và modal Thêm/Sửa. Model = id của khung. JS: ZplPreview trong label-template.js *@
+<div class="lt-preview" id="@Model">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div class="input-group input-group-sm" style="flex: 1 1 200px; width: auto;">
+            <span class="input-group-text">PO</span>
+            <input type="text" class="form-control" data-role="po" placeholder="Nhập PO để xem thử {PO}" aria-label="PO xem thử" />
+        </div>
+        <select class="form-select form-select-sm" data-role="dpmm" aria-label="Mật độ điểm (DPI)" title="Mật độ điểm của máy in" style="width: auto;">
+            <option value="24" selected>600 dpi</option>
+            <option value="12">300 dpi</option>
+            <option value="8">203 dpi</option>
+            <option value="6">152 dpi</option>
+        </select>
+        <button type="button" class="btn btn-sm btn-icon btn-label-secondary" data-role="refresh" aria-label="Vẽ lại" title="Vẽ lại"><i class="icon-base ti tabler-refresh"></i></button>
+        <button type="button" class="btn btn-sm btn-label-primary" data-role="download" disabled><i class="icon-base ti tabler-download me-1"></i>Tải PNG</button>
+    </div>
+    <div class="lt-preview-stage" data-role="stage">
+        <div class="text-muted small text-center"><i class="icon-base ti tabler-photo d-block mb-1" style="font-size: 2rem;"></i>Chưa có nội dung ZPL</div>
+    </div>
+    <div class="small text-muted mt-2" data-role="note"></div>
+</div>

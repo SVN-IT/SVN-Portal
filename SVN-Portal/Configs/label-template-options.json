@@ -1,0 +1,23 @@
+{
+  "LabelTemplateOptions": {
+    "Types": [
+      { "Value": "Box" },
+      { "Value": "Carton" }
+    ],
+    "Operations": [
+      { "Value": "Twist", "IsDefault": true }
+    ],
+    "Sizes": [
+      { "Value": "4x4", "Description": "101.6 × 101.6 mm" },
+      { "Value": "4x6", "Description": "101.6 × 152.4 mm" },
+      { "Value": "4x13", "Description": "101.6 × 330.2 mm" },
+      { "Value": "2x6", "Description": "50.8 × 152.4 mm" }
+    ]
+  },
+  "LabelTemplateAuth": {
+    "Accounts": [
+      { "Username": "admin", "Password": "Admin123a@" },
+      { "Username": "user2", "Password": "123456" }
+    ]
+  }
+}

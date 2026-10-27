@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Tài khoản đăng nhập khu quản trị Twist /twist/admin (mật khẩu dạng plain text, không commit)
+SVN-Portal/Configs/twist-admin-accounts.json

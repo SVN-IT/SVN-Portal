@@ -55,6 +55,38 @@ builder.Services.AddSingleton(labelConfiguration);
 builder.Services.AddSingleton<ToolsHelper>();
 builder.Services.AddSingleton<Pagination>();
 
+// ===== Khu quản trị Twist (/twist/admin) - code ở Areas/TwistAdmin =====
+// Sửa file trong Configs/ là có hiệu lực ngay, không cần restart. Thiếu file thì chỉ khu này bị ảnh hưởng.
+builder.Configuration
+    .AddJsonFile("Configs/label-template-options.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("Configs/twist-admin-accounts.json", optional: true, reloadOnChange: true);
+builder.Services.Configure<LabelTemplateOptions>(builder.Configuration.GetSection("LabelTemplateOptions"));
+builder.Services.Configure<TwistAdminAuthConfig>(builder.Configuration.GetSection("TwistAdminAuth"));
+
+// Không đặt default scheme: chỉ controller kế thừa TwistAdminControllerBase mới dùng cookie này
+builder.Services.AddAuthentication()
+    .AddCookie(TwistAdminAuthConfig.Scheme, o =>
+    {
+        o.Cookie.Name = ".SVN.TwistAdmin";
+        o.Cookie.Path = "/twist/admin";
+        o.Cookie.HttpOnly = true;
+        o.LoginPath = "/twist/admin/login";
+        o.AccessDeniedPath = "/twist/admin/login";
+        o.ExpireTimeSpan = TimeSpan.FromHours(8);
+        o.SlidingExpiration = true;
+        // Gọi API bằng fetch khi hết phiên: trả 401 thay vì redirect sang trang login
+        o.Events.OnRedirectToLogin = ctx =>
+        {
+            if (ctx.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            }
+            ctx.Response.Redirect(ctx.RedirectUri);
+            return Task.CompletedTask;
+        };
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -70,6 +102,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

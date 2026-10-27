@@ -1,0 +1,209 @@
+@model LabelTemplateOptions
+@{
+    ViewData["Title"] = "Mẫu tem";
+    string SizeLabel(LabelTemplateOption o) => string.IsNullOrEmpty(o.Description) ? o.Value : $"{o.Value} ({o.Description})";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1">Danh sách mẫu tem</h4>
+            <span class="text-muted small" id="lt-summary">Đang tải...</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <div class="input-group" style="flex: 2 1 280px; width: auto;">
+                <input type="text" class="form-control" id="lt-search" placeholder="Tìm theo part number..." aria-label="Tìm theo part number" />
+                <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+            </div>
+            <select class="form-select" id="lt-filter-type" aria-label="Lọc theo loại tem" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả loại tem</option>
+                @foreach (var o in Model.Types)
+                {
+                    <option value="@o.Value">@o.Value</option>
+                }
+            </select>
+            <select class="form-select" id="lt-filter-size" aria-label="Lọc theo size" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả size</option>
+                @foreach (var o in Model.Sizes)
+                {
+                    <option value="@o.Value">@o.Value</option>
+                }
+            </select>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-primary" id="lt-add"><i class="icon-base ti tabler-plus me-1"></i>Thêm</button>
+                <button type="button" class="btn btn-icon btn-label-secondary" id="lt-reload" aria-label="Tải lại" title="Tải lại"><i class="icon-base ti tabler-refresh"></i></button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 860px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;" aria-sort="none"><button type="button" class="lt-sort" data-sort="id">ID<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th aria-sort="none"><button type="button" class="lt-sort" data-sort="partNumber">Part number<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th>Loại tem</th>
+                        <th>Công đoạn</th>
+                        <th>Size</th>
+                        <th>ZPL</th>
+                        <th aria-sort="none"><button type="button" class="lt-sort" data-sort="updated">Cập nhật<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th style="width: 140px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="lt-tbody">
+                    <tr><td colspan="8" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="text-muted small" id="lt-info"></div>
+            <nav aria-label="Phân trang"><ul class="pagination pagination-sm mb-0" id="lt-pagination"></ul></nav>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Hiển thị</span>
+                <select class="form-select form-select-sm" id="lt-page-size" aria-label="Số dòng mỗi trang" style="width: 76px;">
+                    <option>10</option>
+                    <option selected>25</option>
+                    <option>50</option>
+                    <option>100</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Thêm / Sửa *@
+<div class="modal fade" id="lt-modal" tabindex="-1" aria-labelledby="lt-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <form class="modal-content" id="lt-form" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="lt-modal-title">Thêm mẫu tem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-6">
+               <div class="col-lg-7">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="lt-part">Part number <span class="text-danger">*</span></label>
+                        <input id="lt-part" type="text" class="form-control" maxlength="50" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="lt-type">Loại tem <span class="text-danger">*</span></label>
+                        <select id="lt-type" class="form-select" required>
+                            @foreach (var o in Model.Types)
+                            {
+                                <option value="@o.Value" selected="@o.IsDefault">@o.Value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="lt-operation">Công đoạn <span class="text-danger">*</span></label>
+                        <select id="lt-operation" class="form-select" required>
+                            @foreach (var o in Model.Operations)
+                            {
+                                <option value="@o.Value" selected="@o.IsDefault">@o.Value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="lt-size">Size <span class="text-danger">*</span></label>
+                        <select id="lt-size" class="form-select" required>
+                            <option value="">-- Chọn size --</option>
+                            @foreach (var o in Model.Sizes)
+                            {
+                                <option value="@o.Value" selected="@o.IsDefault">@SizeLabel(o)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-2">
+                        <label class="form-label mb-0" for="lt-zpl">Nội dung ZPL <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="badge bg-label-secondary border d-none" id="lt-file-name"></span>
+                            <button type="button" class="btn btn-sm btn-label-secondary" id="lt-copy"><i class="icon-base ti tabler-copy me-1"></i>Copy</button>
+                            <button type="button" class="btn btn-sm btn-label-secondary" id="lt-download-zpl"><i class="icon-base ti tabler-download me-1"></i>Tải .zpl</button>
+                            <button type="button" class="btn btn-sm btn-label-primary" id="lt-upload"><i class="icon-base ti tabler-upload me-1"></i>Tải file lên</button>
+                            <input type="file" id="lt-file" accept=".zpl,.prn,.txt" class="d-none" />
+                        </div>
+                    </div>
+                    <div class="lt-dropzone small mb-2" id="lt-dropzone">
+                        <i class="icon-base ti tabler-file-upload text-primary"></i>
+                        <span>Kéo thả file <strong>.zpl</strong>, <strong>.prn</strong> hoặc <strong>.txt</strong> vào đây, nội dung sẽ được điền vào ô bên dưới.</span>
+                    </div>
+                    <textarea id="lt-zpl" class="form-control lt-zpl" rows="14" spellcheck="false" required></textarea>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span class="form-text mt-0">Dùng <code>{PO}</code> để chèn số PO khi in.</span>
+                        <span class="form-text mt-0" id="lt-zpl-count"></span>
+                    </div>
+                </div>
+               </div>
+               <div class="col-lg-5">
+                <h6 class="mb-3">Xem trước <span class="text-muted small fw-normal">(tự cập nhật khi sửa ZPL / size)</span></h6>
+                @await Html.PartialAsync("_ZplPreviewPanel", "lt-edit-preview")
+               </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="submit" class="btn btn-primary" id="lt-save"><i class="icon-base ti tabler-device-floppy me-1"></i>Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Modal Xem mẫu tem *@
+<div class="modal fade" id="lt-view-modal" tabindex="-1" aria-labelledby="lt-view-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="lt-view-title">Xem mẫu tem</h5>
+                    <span class="text-muted small" id="lt-view-subtitle"></span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                @await Html.PartialAsync("_ZplPreviewPanel", "lt-view-preview")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="lt-view-edit"><i class="icon-base ti tabler-edit me-1"></i>Sửa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .lt-dropzone { border: 1px dashed var(--bs-border-color); border-radius: var(--bs-border-radius); padding: .625rem .75rem; display: flex; align-items: center; gap: .625rem; background: var(--bs-body-bg); }
+        .lt-dropzone.is-dragover { border-color: var(--bs-primary); background: rgba(var(--bs-primary-rgb), .08); }
+        .lt-zpl { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .78rem; line-height: 1.5; resize: vertical; }
+        .lt-zpl-preview { font-family: ui-monospace, Menlo, Consolas, monospace; max-width: 260px; }
+        .lt-sort { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .25rem; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
+        .lt-sort i { font-size: 1rem; opacity: .45; }
+        .lt-sort.is-active i { opacity: 1; color: var(--bs-primary); }
+        .lt-sort:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; border-radius: 2px; }
+        .lt-preview-stage { background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); padding: 1rem; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
+        .lt-preview-stage figure { margin: 0; width: 100%; text-align: center; }
+        .lt-preview-stage img { max-width: 100%; max-height: 65vh; background: #fff; box-shadow: var(--bs-box-shadow); }
+        .lt-preview-stage figcaption { margin-top: .25rem; }
+        .lt-preview.is-loading .lt-preview-stage { opacity: .55; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.LabelTemplatePage = {
+            apiUrl: '@Url.Content("~/twist/admin/label-template/api")',
+            loginUrl: '@Url.Content("~/twist/admin/login")',
+            sizes: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Sizes.GroupBy(s => s.Value).ToDictionary(g => g.Key, g => g.First().Description ?? "")))
+        };
+    </script>
+    <script src="~/js/twist-admin/label-template.js" asp-append-version="true"></script>
+}

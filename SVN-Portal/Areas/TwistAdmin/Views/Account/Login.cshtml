@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+    ViewData["NoMenu"] = true;
+    var error = ViewData["Error"] as string;
+}
+
+<div class="d-flex align-items-center justify-content-center min-vh-100 px-3 py-4">
+    <div class="card w-100" style="max-width: 420px;">
+        <div class="card-body p-6">
+            <div class="mb-5">
+                <div class="fw-bold text-heading fs-4">SVN Portal</div>
+                <h4 class="mb-1">Quản lý mẫu tem</h4>
+                <span class="text-muted small">Đăng nhập để thêm, sửa, xoá mẫu tem Twist.</span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-danger py-2 small" role="alert"><i class="icon-base ti tabler-alert-circle me-1"></i>@error</div>
+            }
+
+            <form method="post" action="/twist/admin/login">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                <div class="mb-4">
+                    <label class="form-label" for="username">Tài khoản</label>
+                    <input id="username" name="username" type="text" class="form-control" placeholder="Nhập tài khoản"
+                           value="@ViewData["Username"]" autocomplete="username" required autofocus />
+                </div>
+                <div class="mb-5">
+                    <label class="form-label" for="password">Mật khẩu</label>
+                    <div class="input-group">
+                        <input id="password" name="password" type="password" class="form-control" placeholder="••••••••"
+                               autocomplete="current-password" required />
+                        <button type="button" class="btn btn-label-secondary" id="toggle-password" aria-label="Hiện mật khẩu">
+                            <i class="icon-base ti tabler-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100"><i class="icon-base ti tabler-login me-1"></i>Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('toggle-password').addEventListener('click', function () {
+            var input = document.getElementById('password');
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            this.querySelector('i').className = 'icon-base ti ' + (show ? 'tabler-eye-off' : 'tabler-eye');
+            this.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+        });
+    </script>
+}
