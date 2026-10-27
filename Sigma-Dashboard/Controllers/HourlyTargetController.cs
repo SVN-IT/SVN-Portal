@@ -47,7 +47,7 @@ namespace Sigma_Dashboard.Controllers
             ViewBag.shift = shift;
             ViewBag.ControllerName = "HourlyTarget";
             ViewBag.IndexPage = "Index";
-            ViewBag.TitleName = $"Hourly Target - {date.ToString("dd/MM/yyyy")}";
+            ViewBag.TitleName = $"Hourly Target"; //date.ToString("dd/MM/yyyy")
             ViewBag.CompanyCode = companyCode;
             ViewBag.AccessMode = "PMC";
             List<HourlyTargetViewModel> viewModels = new List<HourlyTargetViewModel>();
@@ -56,6 +56,7 @@ namespace Sigma_Dashboard.Controllers
                 viewModels = await controllerHelper.GetHourlyTargetData(date, shift, companyCode);
                 if(viewModels != null && viewModels.Count != 0)
                 {
+                    viewModels = viewModels.Where(x => x.Type_value == "Target" || x.Type_value == "Man Q'ty").ToList();
                     if (!string.IsNullOrWhiteSpace(companyCode))
                     {
                         switch (companyCode)
@@ -70,6 +71,11 @@ namespace Sigma_Dashboard.Controllers
                                 viewModels = viewModels.Where(x => x.Operation.Contains("(ITA)")).ToList();
                                 break;
 
+                            case "BT":
+                                // Lọc các item có đuôi (BT)
+                                viewModels = viewModels.Where(x => x.Operation.EndsWith("(BT)")).ToList();
+                                break;
+
                             case "SVN":
                                 // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
                                 viewModels = viewModels.Where(x => !x.Operation.Contains("(SM)") && !x.Operation.Contains("(ITA)")).ToList();
@@ -77,6 +83,9 @@ namespace Sigma_Dashboard.Controllers
                         }
                     }
                 }
+
+                List<string> operationList = await dailyTargetControllerHelper.GetOperationList(companyCode);
+                ViewBag.OperationList = operationList ?? new List<string>();
             }
             catch
             {
@@ -247,10 +256,14 @@ namespace Sigma_Dashboard.Controllers
                             {
                                 rowErrors.Add("Date_time col is Empty");
                             }
-                            else if (!string.IsNullOrWhiteSpace(stringDate) && dateTime != stringDate)
+                            else if (!string.IsNullOrWhiteSpace(stringDate))
                             {
-                                // CHẮT LỌC LỖI: Phát hiện ngày trong file lệch với ngày đang chọn ngoài giao diện
-                                rowErrors.Add($"Datetime '{dateTime}' is incorrect , pls input '{stringDate}'.");
+                                DateTime rowDateTime = DateTime.ParseExact(dateTime, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                                DateTime curDateTime = DateTime.ParseExact(stringDate, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                                if (rowDateTime < curDateTime)
+                                {
+                                    rowErrors.Add($"Datetime '{dateTime}' is invalid (must be >= '{stringDate}').");
+                                }
                             }
 
                             // Kiểm tra giá trị select box Type Value hợp lệ
@@ -258,10 +271,10 @@ namespace Sigma_Dashboard.Controllers
                             {
                                 rowErrors.Add("Type_value col is empty.");
                             }
-                            else if (typeValue != "Target" && typeValue != "Man Q'ty")
-                            {
-                                rowErrors.Add("Type_value pls input 'Target' or 'Man Q'ty'.");
-                            }
+                            //else if (typeValue != "Target" && typeValue != "Man Q'ty")
+                            //{
+                            //    rowErrors.Add("Type_value pls input 'Target' or 'Man Q'ty'.");
+                            //}
 
                             // Ép kiểu dữ liệu số an toàn
                             int t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0; 
@@ -284,10 +297,10 @@ namespace Sigma_Dashboard.Controllers
                                 }
                                 var dallyTotal = t1 + t2 + t3 + t4 + t5 + t6;
                                 var dailyTarget = await dailyTargetControllerHelper.GetDailyTargetByDateAndOperation(dateTime, operation, shift);
-                                if (dailyTarget != null && !string.IsNullOrWhiteSpace(dailyTarget.Operation) && dallyTotal != dailyTarget.Daily_plan)
-                                {
-                                    rowErrors.Add($"Total hourly target ({dallyTotal}) exceeds daily target ({dailyTarget.Daily_plan}).");
-                                }
+                                //if (dailyTarget != null && !string.IsNullOrWhiteSpace(dailyTarget.Operation) && dallyTotal != dailyTarget.Daily_plan)
+                                //{
+                                //    rowErrors.Add($"Total hourly target ({dallyTotal}) exceeds daily target ({dailyTarget.Daily_plan}).");
+                                //}
                                 if (dailyTarget == null || (dailyTarget != null && string.IsNullOrWhiteSpace(dailyTarget.Operation)))
                                 {
                                     rowErrors.Add($"Daily target not found for operation {operation} on date {dateTime}. Pls insert Daily Target firt.");
@@ -304,26 +317,30 @@ namespace Sigma_Dashboard.Controllers
                             }
                             else
                             {
-                                // Nếu dữ liệu dòng này chuẩn, map vào list để chuẩn bị lưu DB
-                                listHourlyTargets.Add(new HourlyTargetViewModel
+                                if(typeValue == "Target" || typeValue == "Man Q'ty")
                                 {
-                                    Operation = operation,
-                                    Type_value = typeValue,
-                                    Time1 = t1,
-                                    Time2 = t2,
-                                    Time3 = t3,
-                                    Time4 = t4,
-                                    Time5 = t5,
-                                    Time6 = t6,
-                                    Date_time = dateTime,
-                                    WC = wc,
-                                    Achieve = achieve,
-                                    Product = product,
-                                    Shift = shift,
-                                    Forecast = 0,     // Gán giá trị rỗng/mặc định cho các trường không dùng ngoài bảng
-                                    WORunning = "",
-                                    Customer = ""
-                                });
+                                    // Nếu dữ liệu dòng này chuẩn, map vào list để chuẩn bị lưu DB
+                                    listHourlyTargets.Add(new HourlyTargetViewModel
+                                    {
+                                        Operation = operation,
+                                        Type_value = typeValue,
+                                        Time1 = t1,
+                                        Time2 = t2,
+                                        Time3 = t3,
+                                        Time4 = t4,
+                                        Time5 = t5,
+                                        Time6 = t6,
+                                        Date_time = dateTime,
+                                        WC = wc,
+                                        Achieve = achieve,
+                                        Product = product,
+                                        Shift = shift,
+                                        Forecast = 0,     // Gán giá trị rỗng/mặc định cho các trường không dùng ngoài bảng
+                                        WORunning = "",
+                                        Customer = ""
+                                    });
+                                }    
+                                
                             }
                         }
 

@@ -1,0 +1,2075 @@
+﻿@model Sigma_Tools.Models.InboundPOReviewViewModel
+@{
+    ViewData["Title"] = ViewBag.TitleName;
+}
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 0.88rem;
+    }
+
+    /* Top Header Navigation Bar */
+    .netsuite-header {
+        background-color: #0d5287;
+        color: #ffffff;
+        padding: 8px 16px;
+    }
+
+    .action-bar {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    /* PDF Viewer Left Side */
+    .pdf-panel {
+        background-color: #525659;
+        /* min-height: calc(100vh - 120px); */
+        padding-top: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .pdf-preview-box {
+        width: 100%;
+        height: 780px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    /* Card Customizations */
+    .card-custom {
+        border: 1px solid #e3e6f0;
+        border-radius: 4px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.04);
+        background-color: #ffffff;
+        margin-bottom: 15px;
+    }
+
+        .card-custom .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #4e73df;
+            letter-spacing: 0.5px;
+            padding: 8px 15px;
+        }
+
+    .alert-error-custom {
+        background-color: #fdf2f2;
+        border: 1px solid #f8b4b4;
+        color: #9b1c1c;
+        border-radius: 4px;
+        padding: 12px 15px;
+    }
+
+    .table-custom th {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+        padding: 8px;
+    }
+
+    .table-custom td {
+        padding: 8px;
+        vertical-align: middle;
+    }
+
+    .summary-box {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 10px;
+        font-weight: 600;
+    }
+
+    /* Khung cảnh báo LỖI (Màu đỏ) */
+    .alert-error-custom {
+        background-color: #fdf2f2;
+        border: 1px solid #f8b4b4;
+        color: #9b1c1c;
+        border-radius: 4px;
+        padding: 12px 15px;
+    }
+
+    /* Khung THÀNH CÔNG (Màu xanh) */
+    .alert-success-custom {
+        background-color: #f3faf7;
+        border: 1px solid #bcf0da;
+        color: #03543f;
+        border-radius: 4px;
+        padding: 12px 15px;
+    }
+
+    /* Tùy chỉnh ô input trong bảng khi Edit */
+    .edit-input {
+        width: 100%;
+        padding: 2px 6px;
+        font-size: 0.85rem;
+        border: 1px solid #4e73df;
+        border-radius: 3px;
+        background-color: #ffffff;
+    }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: #2e59d9;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+    .btn-xs {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        line-height: 1;
+        border-radius: 3px;
+    }
+
+    /* =========================================================
+       NETSUITE STYLE STEP PROGRESS BAR
+       ========================================================= */
+    .netsuite-stepper-wrapper {
+        background-color: #ffffff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 0 8px 0;
+    }
+
+    .netsuite-stepper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 550px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    /* Đường nối ngang giữa các bước */
+    .netsuite-stepper-line {
+        position: absolute;
+        top: 15px;
+        left: 80px;
+        right: 80px;
+        height: 2px;
+        background-color: #d1d5db;
+        z-index: 1;
+    }
+
+    .netsuite-step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        flex: 1;
+        background-color: transparent;
+    }
+
+        /* Vòng tròn số */
+        .netsuite-step .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            color: #6c757d;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin: 0 auto 4px auto;
+            transition: all 0.25s ease-in-out;
+        }
+
+        /* Nhãn tên bước */
+        .netsuite-step .step-text {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Trạng thái BƯỚC HIỆN TẠI (Step 1 Active) */
+        .netsuite-step.active .step-num {
+            background-color: #0d5287;
+            color: #ffffff;
+            border-color: #0d5287;
+            box-shadow: 0 0 0 3px rgba(13, 82, 135, 0.2);
+        }
+
+        .netsuite-step.active .step-text {
+            color: #0d5287;
+            font-weight: 700;
+        }
+
+        /* Trạng thái BƯỚC ĐÃ HOÀN THÀNH (Completed) */
+        .netsuite-step.completed .step-num {
+            background-color: #28a745;
+            color: #ffffff;
+            border-color: #28a745;
+        }
+
+        .netsuite-step.completed .step-text {
+            color: #28a745;
+        }
+
+    /* Nút Xác nhận chuẩn NetSuite */
+    .btn-confirm-netsuite {
+        background-color: #0d5287;
+        color: #ffffff;
+        font-weight: 600;
+        border: none;
+        padding: 6px 18px;
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+    }
+
+        .btn-confirm-netsuite:hover {
+            background-color: #093b62;
+            color: #ffffff;
+        }
+
+    /* --- Styles cho Bảng Price Verification (Bước 2) --- */
+    .table-verification th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .table-verification td {
+        vertical-align: middle;
+        font-size: 0.85rem;
+    }
+
+    /* Dòng bị lệch giá (Variance Row) */
+    .row-variance {
+        background-color: #fdf2f2 !important;
+    }
+
+    .text-variance {
+        color: #9b1c1c;
+        font-weight: 600;
+    }
+
+    .text-matched {
+        color: #03543f;
+        font-weight: 600;
+    }
+
+    .verification-notice {
+        font-size: 0.82rem;
+        color: #b45309;
+        background-color: #fffbeb;
+        border: 1px solid #fde68a;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-top: 12px;
+    }
+
+    /* --- Hiệu ứng chuyển đổi giữa các bước (Fade & Slide Transition) --- */
+    .table-transition-wrapper {
+        position: relative;
+        transition: all 0.35s ease-in-out;
+    }
+
+    @@keyframes fadeInScale {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .animate-fade-in {
+        animation: fadeInScale 0.4s ease-in-out forwards;
+    }
+
+    /* Styling ô input OCR Price khi Edit ở Bước 2 */
+    .input-ocr-price {
+        width: 100px;
+        padding: 2px 6px;
+        font-size: 0.85rem;
+        border: 1px solid #4e73df;
+        border-radius: 3px;
+        text-align: right;
+        display: inline-block;
+    }
+
+        .input-ocr-price:focus {
+            outline: none;
+            border-color: #2e59d9;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+</style>
+
+<!-- ========================================================= -->
+<!-- GLOBAL AJAX LOADING SPINNER OVERLAY -->
+<!-- ========================================================= -->
+<div id="global-loader" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 99999; justify-content: center; align-items: center;">
+    <div class="bg-white p-4 rounded shadow-lg text-center" style="min-width: 200px;">
+        <div class="spinner-border text-primary mb-2" role="status" style="width: 2.5rem; height: 2.5rem;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div id="loader-text" class="small font-weight-bold text-dark">Đang xử lý dữ liệu...</div>
+    </div>
+</div>
+
+<!-- Header NetSuite -->
+<div class="netsuite-header d-flex justify-content-between align-items-center">
+    <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| @ViewBag.TitleName</span></div>
+    @* <div class="small">User: <strong>Duong Hai Linh</strong> | Role: <strong>IT Administrator</strong></div> *@
+</div>
+
+<!-- Step Progress Bar (Đặt ngay trên Action Bar) -->
+<div class="netsuite-stepper-wrapper">
+    <div class="netsuite-stepper">
+        <div class="netsuite-stepper-line"></div>
+
+        <!-- Step 1: Active -->
+        <div class="netsuite-step active" id="step-node-1">
+            <div class="step-num">1</div>
+            <div class="step-text">Inbound PO Review</div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="netsuite-step" id="step-node-2">
+            <div class="step-num">2</div>
+            <div class="step-text">ERP Price Compare</div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="netsuite-step" id="step-node-3">
+            <div class="step-num">3</div>
+            <div class="step-text">Create ERP PO</div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Bar & Controls -->
+<div class="action-bar d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <!-- Button Import PDF (Duy nhất được hoạt động) -->
+        <label class="btn btn-sm btn-info mb-0 mr-1 shadow-sm cursor-pointer" id="btn-import-wrapper">
+            <i class="fas fa-file-upload mr-1"></i> Import File PDF
+            <input type="file" id="pdf-file-input" accept="application/pdf" style="display: none;">
+        </label>
+
+        <!-- Các nút chức năng khác mặc định bị disabled -->
+        <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1 d-none" id="btn-convert" disabled>Convert to ERP PO</button>
+
+        <!-- Nút Edit Data -->
+        <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data" disabled>
+            <i class="fas fa-edit mr-1"></i> Edit Data
+        </button>
+
+        <!-- Nhóm nút Edit (Ẩn mặc định) -->
+        <div id="edit-actions-group" class="align-items-center mr-1" style="display: none !important;">
+            <button type="button" class="btn btn-sm btn-success font-weight-bold mr-1" id="btn-add-line">
+                <i class="fas fa-plus mr-1"></i> Add Item
+            </button>
+            <button type="button" class="btn btn-sm btn-primary font-weight-bold mr-1" id="btn-save-edit">
+                <i class="fas fa-check mr-1"></i> Save Changes
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold" id="btn-cancel-edit">
+                <i class="fas fa-times mr-1"></i> Cancel
+            </button>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold" id="btn-reject" disabled>Reject PO</button>
+
+        <!-- NÚT RELOAD ERP DATA (Nằm ở vị trí khoanh đỏ, chỉ hiển thị khi sang Bước 2) -->
+        <button type="button" id="btn-reload-erp" class="btn btn-sm btn-outline-primary font-weight-bold shadow-sm ml-2 d-none">
+            <i class="fas fa-sync-alt mr-1"></i> Reload ERP data
+        </button>
+    </div>
+
+    <!-- Modal Confirm Reject PO -->
+    <div class="modal fade" id="rejectPoModal" tabindex="-1" role="dialog" aria-labelledby="rejectPoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title font-weight-bold" id="rejectPoModalLabel">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Confirm Reject Purchase Order
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2 text-dark">Bạn có chắc chắn muốn từ chối (Reject) Purchase Order này không?</p>
+                    <div class="form-group mb-0">
+                        <label for="reject-reason" class="small font-weight-bold text-muted mb-1">Lý do từ chối (Reject Reason) <span class="text-danger">*</span>:</label>
+                        <textarea class="form-group form-control text-dark" id="reject-reason" rows="3" placeholder="Nhập lý do chi tiết từ chối PO..."></textarea>
+                        <small id="reject-reason-error" class="text-danger font-weight-bold d-none">Vui lòng nhập lý do trước khi từ chối!</small>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger font-weight-bold" id="btn-confirm-reject">
+                        <i class="fas fa-check mr-1"></i> Đồng Ý (Reject)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thông báo kết quả tạo Sales Order / PO NetSuite -->
+    <div class="modal fade" id="netsuiteResultModal" tabindex="-1" role="dialog" aria-labelledby="netsuiteResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header" id="ns-modal-header">
+                    <h6 class="modal-title font-weight-bold text-white" id="netsuiteResultModalLabel">
+                        <i id="ns-modal-icon" class="fas fa-info-circle mr-1"></i> Kết quả khởi tạo NetSuite
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="ns-modal-message" class="font-weight-bold mb-2 text-dark"></p>
+                    <div id="ns-modal-po-info" class="small text-muted d-none">
+                        Mã PO: <strong id="ns-modal-po-number" class="text-primary"></strong>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal">Đóng</button>
+                    <!-- Nút mở link NetSuite (Chỉ hiện khi thành công) -->
+                    <a href="#" id="ns-modal-link-btn" target="_blank" class="btn btn-sm btn-success font-weight-bold d-none">
+                        <i class="fas fa-external-link-alt mr-1"></i> Mở PO trên NetSuite
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Badge Trạng thái phía trên góc phải -->
+    <div class="d-flex align-items-center">
+        <span class="mr-2 text-secondary font-weight-bold small">System Validations:</span>
+        <span id="ocr-badge-status" class="badge badge-secondary p-2 font-weight-normal">
+            <i id="ocr-badge-icon" class="fas fa-info-circle mr-1"></i>
+            <span id="ocr-badge-text">OCR Audit: Pending PDF Upload</span>
+        </span>
+        <!-- Badge Trạng thái Bước 2 (ERP Pricing Verification) - Mặc định ẩn, hiện khi sang Bước 2 -->
+        <span id="erp-badge-status" class="badge badge-secondary p-2 font-weight-normal ml-2 d-none">
+            <i id="erp-badge-icon" class="fas fa-info-circle mr-1"></i>
+            <span id="erp-badge-text">ERP Pricing: Pending Verification</span>
+        </span>
+        <!-- Badge Trạng thái Bước 3 (Sales Order Conversion) - Độc lập cho Bước 3 -->
+        <span id="so-badge-status" class="badge badge-secondary p-2 font-weight-normal ml-2 d-none">
+            <i id="so-badge-icon" class="fas fa-check-circle mr-1"></i>
+            <span id="so-badge-text">Sales Order: Ready for Conversion</span>
+        </span>
+    </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="container-fluid px-0">
+    <div class="row no-gutters">
+
+        <!-- Cột trái: Review File PDF -->
+        <div class="col-md-5 pdf-panel">
+            <div class="w-100 d-flex justify-content-between align-items-center mb-2 text-white">
+                <span class="small font-weight-bold ml-2"><i class="fas fa-file-pdf mr-1"></i> Document Viewer</span>
+                <span id="file-name-display" style="margin-right:.5rem" class="small text-warning font-italic">Chưa chọn file</span>
+            </div>
+
+            <div id="pdf-preview-container" class="pdf-preview-box">
+                <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
+                    <i class="fas fa-file-pdf fa-4x mb-3 text-secondary"></i>
+                    <p class="mb-1">Nhấn <strong>"Import File PDF"</strong> ở trên để tải file lên.</p>
+                    <small class="text-muted">Nội dung sẽ tự động hiển thị và bóc tách tại đây.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: Dữ liệu AI Extracted & Bảng chi tiết -->
+        <div class="col-md-7 p-3">
+
+            <!-- Cảnh báo Audit OCR (Mặc định ẩn khi chưa upload PDF) -->
+            <div id="ocr-audit-alert-box" class="alert-error-custom mb-3" style="display: none;">
+                <div id="ocr-audit-title" class="font-weight-bold mb-1">
+                    <span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed
+                </div>
+                <ul id="ocr-audit-details" class="mb-1 pl-4 small"></ul>
+                <div id="ocr-audit-action" class="font-italic small mt-1"></div>
+            </div>
+
+            <!-- PO Header Extracted -->
+            <div class="card card-custom">
+                <div class="card-header">
+                    PO HEADER (AI EXTRACTED)
+                </div>
+                <div class="card-body py-2">
+                    <div class="row text-uppercase text-muted small font-weight-bold">
+                        <div class="col-md-3">PO Number</div>
+                        <div class="col-md-3">Date</div>
+                        <div class="col-md-3">Customer</div>
+                        <div class="col-md-3">Requisitioner</div>
+                        <!-- Trường ẩn lưu trữ Currency của PO -->
+                        <input type="hidden" id="po-currency-hidden" name="Currency" value="USD" />
+                        <!-- Trường ẩn lưu trữ toàn bộ Object Raw OCR JSON trả về từ API -->
+                        <input type="hidden" id="ocr-raw-json-hidden" value="" />
+                    </div>
+                    <div class="row font-weight-bold text-dark mt-1">
+                        <div class="col-md-3" id="po-number-display">N/A</div>
+                        <div class="col-md-3" id="po-date-display">N/A</div>
+                        <div class="col-md-3" id="po-customer-display">N/A</div>
+                        <div class="col-md-3" id="po-requisitioner-display">N/A</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extracted Line Items -->
+            <div class="card card-custom">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span id="line-items-header">EXTRACTED LINE ITEMS (0 LINES FOUND)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover mb-0" id="po-line-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 6%;">Line</th>
+                                    <th style="width: 22%;">Item Code</th>
+                                    <th style="width: 32%;">Description</th>
+                                    <th style="width: 12%; text-align: right;">Qty</th>
+                                    <th style="width: 12%; text-align: right;">Unit Price</th>
+                                    <th style="width: 12%; text-align: right;">Amount</th>
+                                    <th style="width: 4%; text-align: center;" class="col-action d-none">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-3">Chưa có dữ liệu. Vui lòng import file PDF để bắt đầu bóc tách.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculations Summary Footer -->
+            <div class="row justify-content-end align-items-center mt-3">
+                <!-- Nút Xác nhận chuyển sang bước 2 (Chỉ hiện khi Audit Passed) -->
+                <div class="mr-3">
+                    <button type="button" id="btn-confirm-next" class="btn btn-confirm-netsuite shadow-sm d-none">
+                        <i class="fas fa-arrow-right mr-1"></i> Compare with ERP price
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <div class="summary-box">
+                        <div class="d-flex justify-content-between align-items-center mb-1 text-danger">
+                            <span>Calculated Sum:</span>
+                            <span id="calculated-sum-display">0 Units / $0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center text-success">
+                            <span>Expected Total (PDF):</span>
+                            <span id="expected-sum-display">0 Units / $0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- JS Scripts (JQuery, Bootstrap 4.6) -->
+@* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script> *@
+
+<!-- JavaScript Xử lý Import PDF và Thế chỗ File Cũ -->
+<script>
+    // Biến đánh dấu bước hiện tại
+    let currentStep = 1;
+
+    
+    document.getElementById('pdf-file-input').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Kiểm tra loại file
+        if (file.type !== 'application/pdf') {
+            alert('Vui lòng chọn file định dạng PDF!');
+            return;
+        }
+
+        // Hiển thị tên file vừa import
+        document.getElementById('file-name-display').innerText = file.name;
+
+        // Tạo đường dẫn tạm thời cho file PDF
+        const fileURL = URL.createObjectURL(file);
+
+        const container = document.getElementById('pdf-preview-container');
+
+        // 1. DỌN DẸP / THẾ VÀO: Xóa sạch khung xem trước cũ
+        container.innerHTML = '';
+
+        // 2. Tạo thẻ object mới chứa file PDF
+        const pdfObject = document.createElement('object');
+        pdfObject.data = fileURL + '#toolbar=0&view=FitH';
+        pdfObject.type = 'application/pdf';
+        pdfObject.width = '100%';
+        pdfObject.height = '100%';
+
+        // Thông báo dự phòng nếu trình duyệt chặn viewer
+        pdfObject.innerHTML = `
+            <div class="p-4 text-center">
+                <p>Trình duyệt của bạn không hỗ trợ xem trực tiếp PDF.</p>
+                <a href="${fileURL}" target="_blank" class="btn btn-sm btn-primary">Tải file về xem</a>
+            </div>
+        `;
+
+        // 3. Đưa file mới vào giao diện
+        container.appendChild(pdfObject);
+
+        // ==========================================
+        // 2. GỬI FILE XUỐNG CONTROLLER THÔNG QUA AJAX
+        // ==========================================
+        let formData = new FormData();
+        // 'pdfFile' phải trùng với tên tham số ở Action trong Controller
+        formData.append('pdfFile', file);
+
+        $.ajax({
+            url: '@Url.Action("UploadPOPdf", "Oracle")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    let m = response.data;
+
+                    // LƯU TOÀN BỘ RAW JSON (ĐÃ ĐƯỢC MAP SANG SIGMA CODE Ở BACKEND) VÀO THẺ ẨN
+                    if (response.rawJsonStr) {
+                        $('#ocr-raw-json-hidden').val(response.rawJsonStr);
+                    }
+
+                    // Lấy và gán giá trị currency vào trường ẩn (lấy từ response.currency hoặc m.currency tùy cách bạn trả về ở Controller)
+                    let currency = response.currency || m.currency || 'USD';
+                    $('#po-currency-hidden').val(currency);
+
+                    // (Tùy chọn) Bạn có thể log ra kiểm tra hoặc dùng cho các bước Create SO sau này
+                    console.log("PO Currency:", currency);
+
+                    let audit = m.auditReport || {};
+
+                    // 1. KÍCH HOẠT LẠI TẤT CẢ CÁC NÚT BẤM (BỎ DISABLED)
+                    $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', false);
+
+                    // 2. Cập nhật Header & Bảng
+                    document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
+                    document.getElementById('po-date-display').innerText = m.date || 'N/A';
+                    document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
+                    document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
+
+                    document.getElementById('line-items-header').innerText = `EXTRACTED LINE ITEMS (${m.lineItems.length} LINES FOUND)`;
+
+                    let tbodyHtml = '';
+                    m.lineItems.forEach(item => {
+                        tbodyHtml += `<tr>
+                            <td>${item.line}</td>
+                            <td>${item.itemCode || ''}</td>
+                            <td>${item.description || ''}</td>
+                            <td class="text-right">${Number(item.qty).toLocaleString()}</td>
+                            <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice)}</td>
+                            <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
+                            <td class="text-center col-action d-none">
+                                <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    $('#po-line-table tbody').html(tbodyHtml);
+
+                    const calcUnits = Number(m.calculatedUnits).toLocaleString();
+                    const calcAmt = Number(m.calculatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const expUnits = Number(m.expectedUnits).toLocaleString();
+                    const expAmt = Number(m.expectedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    document.getElementById('calculated-sum-display').innerText = `${calcUnits} Units / $${calcAmt}`;
+                    document.getElementById('expected-sum-display').innerText = `${expUnits} Units / $${expAmt}`;
+
+                    // 3. HIỂN THỊ VÀ CẬP NHẬT KHUNG CẢNH BÁO AUDIT
+                    $('#ocr-audit-alert-box').show();
+
+                    const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
+
+                    // Gọi hàm này để nó tự động bật/tắt badge, màu sắc và nút Xác nhận chuẩn xác
+                    updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
+
+                } else {
+                    alert("Lỗi: " + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi kết nối:", error);
+                alert("Đã xảy ra lỗi khi gửi file lên server!");
+            }
+        });
+    });
+
+    // =============================================================
+    // HÀM CHUNG: LẤY VÀ ĐỐI CHIẾU GIÁ ERP CHO BƯỚC 2
+    // =============================================================
+    function loadStep2ErpPrices() {
+        let currentLineItems = [];
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if ($tr.find('td').length <= 1) return;
+
+            let qty = 0;
+            let ocrPrice = 0;
+            let itemCode = '';
+            let description = '';
+
+            if (currentStep === 1) {
+                itemCode = $tr.find('td:nth-child(2)').text().trim();
+                description = $tr.find('td:nth-child(3)').text().trim();
+                qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+
+                ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
+                if (isNaN(ocrPrice)) {
+                    ocrPrice = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+                }
+            } else {
+                itemCode = $tr.find('.cell-item-code').text().trim();
+                if (!itemCode) {
+                    itemCode = $tr.find('td:nth-child(2)').text().trim();
+                }
+
+                description = $tr.attr('data-description') || '';
+
+                qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
+                if (isNaN(qty)) {
+                    qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+                }
+
+                ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
+                if (isNaN(ocrPrice)) {
+                    ocrPrice = parseFloat($tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
+                }
+            }
+
+            currentLineItems.push({
+                Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
+                ItemCode: itemCode,
+                Description: description,
+                Qty: qty,
+                UnitPrice: ocrPrice
+            });
+        });
+
+        if (currentLineItems.length === 0) {
+            alert("Không có dữ liệu Line Items để đối chiếu!");
+            return;
+        }
+
+        // Lấy thông tin Customer và Currency từ giao diện
+        let customer = $('#po-customer-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
+
+        // Đóng gói thành một object request chung
+        let requestData = {
+            Customer: customer,
+            Currency: currency,
+            Items: currentLineItems
+        };
+
+        // Gửi Ajax xuống Controller
+        $.ajax({
+            url: '@Url.Action("VerifyErpPrices", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData), // Truyền object request thay vì chỉ truyền mảng đơn thuần
+            success: function (response) {
+                if (response.success) {
+                    currentStep = 2;
+
+                    $('#btn-import-wrapper').fadeOut(200);
+                    $('#btn-edit-data').fadeOut(200);
+                    $('#btn-reload-erp').removeClass('d-none');
+
+                    const $cardContainer =$('#po-line-table').closest('.card-custom');
+                    $cardContainer.fadeOut(200, function () {
+
+                        $('#step-node-1').removeClass('active').addClass('completed');
+                        $('#step-node-2').addClass('active');
+
+                        $cardContainer.find('.card-header span:first').text('LINE ITEMS & PRICE VERIFICATION');
+
+                        let tableHeaderHtml = `
+                            <tr>
+                                <th style="width: 8%;">Line</th>
+                                <th style="width: 35%;">Customer Item #</th>
+                                <th style="width: 15%; text-align: right;">Qty</th>
+                                <th style="width: 14%; text-align: right;">OCR Price</th>
+                                <th style="width: 14%; text-align: right;">ERP Base Price</th>
+                                <th style="width: 14%; text-align: center;">Validation Status</th>
+                            </tr>
+                        `;
+                        $('#po-line-table thead').html(tableHeaderHtml);
+
+                        renderStep2Table(response.data);
+
+                        if ($('#btn-confirm-next').length > 0) {
+                            $('#btn-confirm-next')
+                                .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create ERP SO')
+                                .attr('id', 'btn-proceed-step3');
+                        }
+
+                        checkAllStep2Matched();
+                        $cardContainer.fadeIn(300);
+                    });
+
+                } else {
+                    alert("Lỗi đối chiếu giá ERP: " + response.message);
+                }
+            },
+            error: function () {
+                alert("Lỗi kết nối khi gọi dữ liệu ERP từ server!");
+            }
+        });
+    }
+
+    // -------------------------------------------------------------
+    // 1. XỬ LÝ SỰ KIỆN NÚT "XÁC NHẬN & CHUYỂN BƯỚC 2"
+    // -------------------------------------------------------------
+    $(document).on('click', '#btn-confirm-next', function () {
+        loadStep2ErpPrices();
+    });
+
+    // =============================================================
+    // XỬ LÝ SỰ KIỆN CHUYỂN TỪ BƯỚC 2 SANG BƯỚC 3 (CREATE SO)
+    // =============================================================
+    $(document).on('click', '#btn-proceed-step3', function () {
+        const $btnStep3 =$(this);
+
+        // 1. Khóa nút tạm thời để tránh bấm nhiều lần và thông báo đang kiểm tra
+        $btnStep3.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang kiểm tra lại giá ERP...');
+
+        // 2. Thu thập lại danh sách dòng hiện tại
+        let currentLineItems = [];
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if ($tr.find('td').length <= 1) return;
+
+            let itemCode = $tr.find('.cell-item-code').text().trim();
+            if (!itemCode) {
+                itemCode = $tr.find('td:nth-child(2)').text().trim();
+            }
+
+            let description = $tr.attr('data-description') || '';
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty') || $tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+            let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price') || $tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
+
+            currentLineItems.push({
+                Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
+                ItemCode: itemCode,
+                Description: description,
+                Qty: qty,
+                UnitPrice: ocrPrice
+            });
+        });
+
+        let customer = $('#po-customer-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
+
+        let requestData = {
+            Customer: customer,
+            Currency: currency,
+            Items: currentLineItems
+        };
+
+        // 3. GỌI LẠI API VERIFY ERP PRICES ĐỂ KIỂM TRA LẦN CUỐI TRƯỚC KHI SANG BƯỚC 3
+        $.ajax({
+            url: '@Url.Action("VerifyErpPrices", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            success: function (response) {
+                if (response.success) {
+                    let hasNewVariance = false;
+                    response.data.forEach(item => {
+                        if (!item.isMatched) {
+                            hasNewVariance = true;
+                        }
+                    });
+
+                    // Cập nhật lại giao diện bảng với dữ liệu mới nhất từ server
+                    renderStep2Table(response.data);
+
+                    if (hasNewVariance) {
+                        alert("CẢNH BÁO: Giá trên hệ thống ERP vừa có sự thay đổi so với lúc đối chiếu trước đó. Vui lòng kiểm tra lại các dòng bị lệch trước khi chuyển sang Bước 3!");
+                        $btnStep3.prop('disabled', false).html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)');
+                        return;
+                    }
+
+                    // ==========================================
+                    // MỌI THỨ VẪN KHỚP HOÀN TOÀN -> CHUYỂN SANG BƯỚC 3
+                    // ==========================================
+                    currentStep = 3;
+
+                    $('#step-node-2').removeClass('active').addClass('completed');
+                    $('#step-node-3').addClass('active');
+
+                    $('#btn-reload-erp').addClass('d-none');
+                    $('#btn-convert').removeClass('d-none').prop('disabled', false);
+                    $btnStep3.fadeOut(200);
+
+                    const $cardContainer =$('#po-line-table').closest('.card-custom');
+                    $cardContainer.find('.card-header span:first').text('READY TO CONVERT SALES ORDER (STEP 3)');
+
+                    $('#erp-badge-status').removeClass('d-none');
+                    $('#so-badge-status')
+                        .removeClass('d-none')
+                        .removeClass('badge-secondary badge-warning')
+                        .addClass('badge-success')
+                        .css({ 'background-color': '#28a745', 'color': '#fff' });
+                    $('#so-badge-text').text('Sales Order: Ready for Conversion');
+
+                    const $alertBox =$('#ocr-audit-alert-box');
+                    $alertBox.show()
+                             .removeClass('alert-error-custom alert-warning-custom')
+                             .addClass('alert-success-custom')
+                             .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+
+                    $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> SALES ORDER CREATION READY: Re-verified Successfully');
+                    $('#ocr-audit-details').html(`
+                        <li><strong>Final Price Check:</strong> ERP base prices re-verified successfully just before conversion.</li>
+                        <li><strong>Status:</strong> All compliance checkpoints passed securely. Ready for NetSuite SO generation.</li>
+                    `);
+                    $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
+                           .css('color', '#0e9f6e')
+                           .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to ERP PO"</strong> above to finalize.');
+
+                    alert("Xác nhận thành công! Hệ thống đã re-check lại giá ERP và sẵn sàng để Convert to Sales Order.");
+
+                } else {
+                    alert("Lỗi kiểm tra lại giá ERP: " + response.message);
+                    $btnStep3.prop('disabled', false).html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)');
+                }
+            },
+            error: function () {
+                alert("Đã xảy ra lỗi kết nối khi kiểm tra lại giá ERP từ server!");
+                $btnStep3.prop('disabled', false).html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)');
+            }
+        });
+    });
+
+    // -------------------------------------------------------------
+    // 2. HÀM RENDER BẢNG BƯỚC 2 & HIỂN THỊ CẢNH BÁO NOTICE
+    // -------------------------------------------------------------
+    function renderStep2Table(dataList) {
+        let hasVariance = false;
+        let tbodyHtml = '';
+
+        dataList.forEach(item => {
+            let statusHtml = '';
+            let rowClass = '';
+            const ocrPrice = parseFloat(item.ocrPrice) || 0;
+            const erpPrice = parseFloat(item.erpBasePrice) || 0;
+            const variance = ocrPrice - erpPrice;
+            const isMatched = Math.abs(variance) < 0.0001;
+
+            if (isMatched) {
+                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`;
+            } else {
+                hasVariance = true;
+                rowClass = 'row-variance animate-fade-in';
+                let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`;
+            }
+
+            // ĐÃ XÓA CỘT DESCRIPTION TRÊN GIAO DIỆN, LƯU NGẦM QUA data-description
+            tbodyHtml += `
+                <tr class="${rowClass}" data-erp-price="${erpPrice}" data-description="${item.description || ''}">
+                    <td>${item.line}</td>
+                    <td class="font-weight-bold cell-item-code">${item.itemCode}</td>
+                    <td class="text-right cell-qty" data-original-qty="${item.qty}">${item.qty.toLocaleString()}</td>
+                    <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice}</td>
+                    <td class="text-right cell-erp-price">$${erpPrice}</td>
+                    <td class="text-center cell-status">${statusHtml}</td>
+                </tr>
+            `;
+        });
+
+        $('#po-line-table tbody').html(tbodyHtml);
+
+        updateStep2NoticeBox(hasVariance);
+        updateStep2BadgeStatus(hasVariance);
+        updateStep2AuditAlertBox(dataList, hasVariance); // CẬP NHẬT KHUNG THÔNG BÁO PHÍA TRÊN
+        $('#btn-reload-erp').removeClass('d-none');
+        checkAllStep2Matched();
+    }
+
+    // Hàm bật/tắt khung thông báo Notice thời gian thực
+    function updateStep2NoticeBox(hasVariance) {
+        const $cardContainer =$('#po-line-table').closest('.card-custom');
+        $('#variance-notice-box').remove();
+
+        if (hasVariance) {
+            let noticeHtml = `
+                <div class="verification-notice animate-fade-in" id="variance-notice-box">
+                    <i class="fas fa-info-circle mr-1"></i> <strong>Notice:</strong> One or more lines trigger custom pricing logic. Converting this record will route the Sales Order to <strong>Pending Approval</strong> status.
+                </div>
+            `;
+            $cardContainer.after(noticeHtml);
+        }
+    }
+</script>
+
+<script>
+    // Biến lưu trữ trạng thái dữ liệu hiện tại
+    let isEditingMode = false;
+    let originalDataBackup = null; // Backup dữ liệu để khôi phục nếu nhấn Cancel
+
+    // -------------------------------------------------------------
+    // 1. BẬT CHẾ ĐỘ CHỈNH SỬA (EDIT MODE)
+    // -------------------------------------------------------------
+    $('#btn-edit-data').on('click', function () {
+        enableEditMode(true);
+    });
+
+    // HỦY CHỈNH SỬA (CANCEL)
+    $('#btn-cancel-edit').on('click', function () {
+        if (originalDataBackup) {
+            if(currentStep === 1) {
+                // Restore lại bảng dữ liệu cũ
+                renderTableFromData(originalDataBackup.lineItems);
+                // Restore lại PO Header
+                $('#po-number-display').text(originalDataBackup.poNumber);
+                $('#po-date-display').text(originalDataBackup.date);
+                $('#po-customer-display').text(originalDataBackup.customer);
+                $('#po-requisitioner-display').text(originalDataBackup.requisitioner);
+            } else if (currentStep === 2) {
+                // Ở bước 2, khôi phục lại giá OCR gốc từ bản backup
+                let i = 0;
+                $('#po-line-table tbody tr').each(function () {
+                    const $tr =$(this);
+                    if (originalDataBackup.lineItems[i]) {
+                        const origPrice = originalDataBackup.lineItems[i].unitPrice;
+                        $tr.find('.cell-ocr-price').attr('data-original-price', origPrice).text(`$${origPrice}`);
+
+                        // Tính lại match/variance
+                        const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
+                        const variance = origPrice - erpPrice;
+                        const isMatched = Math.abs(variance) < 0.0001;
+
+                        if (isMatched) {
+                            $tr.removeClass('row-variance');$tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`);
+                        } else {
+                            $tr.addClass('row-variance');
+                            let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+                            $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`);
+                        }
+                    }
+                    i++;
+                });
+                checkAndUpdateStep2Notice();
+            }
+            
+        }
+        enableEditMode(false);
+        if (currentStep === 1) recalculateAndAudit();
+    });
+
+    // LƯU CHỈNH SỬA (SAVE CHANGES)
+    $('#btn-save-edit').on('click', function () {
+        if (currentStep === 1) {
+            let hasEmptyError = false;
+            let emptyErrorMessage = "";
+
+            // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
+            $('#po-line-table tbody tr').each(function (index) {
+                const $tr = $(this);
+                const itemCode = $tr.find('.input-item-code').val().trim();
+                const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+                const price = parseFloat($tr.find('.input-price').val()) || 0;
+
+                if (itemCode === "" || qty <= 0 || price <= 0) {
+                    hasEmptyError = true;
+                    emptyErrorMessage = `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
+                    return false;
+                }
+            });
+
+            if (hasEmptyError) {
+                alert(emptyErrorMessage);
+                return;
+            }
+
+            // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
+            let totalUnits = 0;
+            let totalAmount = 0;
+
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+                const price = parseFloat($tr.find('.input-price').val()) || 0;
+                totalUnits += qty;
+                totalAmount += (qty * price);
+            });
+
+            totalAmount = Math.round(totalAmount * 100) / 100;
+
+            const expText = $('#expected-sum-display').text();
+            const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
+            let expectedUnits = 0;
+            let expectedAmount = 0;
+
+            if (expMatch) {
+                expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
+                expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
+            }
+
+            const isUnitsMatched = (totalUnits === expectedUnits);
+            const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
+
+            if (!isUnitsMatched || !isAmountMatched) {
+                let auditErrorMsg = "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
+                if (!isUnitsMatched) {
+                    auditErrorMsg += `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
+                }
+                if (!isAmountMatched) {
+                    auditErrorMsg += `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
+                }
+                alert(auditErrorMsg);
+                return;
+            }
+
+            // ==========================================
+            // 3. THU THẬP TRẠNG THÁI "SAU KHI SỬA" (AFTER)
+            // ==========================================
+            let afterStateData = {
+                poNumber: $('#po-number-display').find('input').val() || $('#po-number-display').text().trim(),
+                date: $('#po-date-display').find('input').val() || $('#po-date-display').text().trim(),
+                customer: $('#po-customer-display').find('input').val() || $('#po-customer-display').text().trim(),
+                requisitioner: $('#po-requisitioner-display').find('input').val() || $('#po-requisitioner-display').text().trim(),
+                lineItems: []
+            };
+
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                let qty = parseFloat($tr.find('.input-qty').val()) || 0;
+                let price = parseFloat($tr.find('.input-price').val()) || 0;
+                afterStateData.lineItems.push({
+                    line: $tr.find('td:nth-child(1)').text().trim(),
+                    itemCode: $tr.find('.input-item-code').val() || '',
+                    description: $tr.find('.input-desc').val() || '',
+                    qty: qty,
+                    unitPrice: price,
+                    amount: qty * price
+                });
+            });
+
+            // 4. IN RA CONSOLE HOẶC GỬI NGẦM LÊN SERVER ĐỂ LOG LẠI
+            console.log("--- TRẠNG THÁI TRƯỚC KHI SỬA (BEFORE) ---", originalDataBackup);
+            console.log("--- TRẠNG THÁI SAU KHI SỬA (AFTER) ---", afterStateData);
+
+            // (Tùy chọn) Bạn có thể gọi một hàm AJAX ngầm gửi 2 trạng thái này về Controller để LogService ghi vào database:
+            
+            $.ajax({
+                url: '@Url.Action("LogPoEdits", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    PONumber: afterStateData.poNumber,
+                    BeforeState: JSON.stringify(originalDataBackup),
+                    AfterState: JSON.stringify(afterStateData)
+                })
+            });
+           
+
+            // 5. LƯU THỰC THẾ TRÊN GIAO DIỆN
+            saveTableEdits();
+            updateHiddenRawJson();
+            enableEditMode(false);
+            recalculateAndAudit();
+            alert("Đã cập nhật dữ liệu PO thành công!");
+
+        } else if (currentStep === 2) {
+            saveStep2Edits();
+            enableEditMode(false);
+            alert("Đã cập nhật OCR Price thành công!");
+        }
+    });
+
+    // -------------------------------------------------------------
+    // 2. CHUYỂN ĐỔI GIAO DIỆN EDIT <-> VIEW
+    // -------------------------------------------------------------
+    function enableEditMode(enable) {
+        isEditingMode = enable;
+
+        if (enable) {
+            // --- BẬT CHẾ ĐỘ CHỈNH SỬA ---
+            backupCurrentData();
+
+            // Ẩn nút "Edit Data", hiện nhóm nút thao tác cùng hàng ngang
+            $('#btn-edit-data').hide();
+            $('#edit-actions-group').css('display', 'inline-flex'); // Hiển thị chuẩn dạng Flex/Inline không bị nhảy xuống dòng
+
+            // 2. ẨN NÚT XÁC NHẬN CHUYỂN BƯỚC KHI ĐANG EDIT
+            $('#btn-confirm-next').addClass('d-none');
+
+            // NẾU ĐANG Ở BƯỚC 2: Ẩn nút Add Item đi vì không cho phép thêm dòng mới ở bước này
+            if (currentStep === 2) {
+                $('#btn-add-line').hide();
+            } else {
+                $('#btn-add-line').show();
+            }
+
+            // Hiện cột thao tác Xóa (Thùng rác) trong bảng
+            if (currentStep === 1) {
+                $('.col-action').removeClass('d-none');
+            }
+
+            // Chuyển Header và Bảng thành các ô Input
+            makeHeaderEditable(true);
+            makeTableEditable(true);
+        } else {
+            // --- TẮT CHẾ ĐỘ CHỈNH SỬA ---
+            // Hiện lại nút "Edit Data", ẩn nhóm nút thao tác
+            //$('#btn-edit-data').show();
+            $('#edit-actions-group').css('display', 'none');
+
+            // Ẩn cột thao tác Xóa trong bảng
+            $('.col-action').addClass('d-none');
+
+            // CHỈ HIỆN LẠI NÚT "EDIT DATA" NẾU ĐANG Ở BƯỚC 1. Ở BƯỚC 2 SẼ ẨN LUÔN NHƯNG GIỮ LOGIC.
+            if (currentStep === 1) {
+                $('#btn-edit-data').show();
+            } else {
+                $('#btn-edit-data').hide(); // Ẩn hoàn toàn nút Edit ở Bước 2 theo yêu cầu mới
+            }
+
+            // Chuyển Header và Bảng về dạng text tĩnh
+            makeHeaderEditable(false);
+            makeTableEditable(false);
+
+            // 3. HIỂN THỊ LẠI NÚT XÁC NHẬN NẾU DỮ LIỆU ĐÃ KHỐP AUDIT (PASSED)
+            if (currentStep === 1) {
+                recalculateAndAudit(); // Hàm này sẽ tự động bật lại #btn-confirm-next nếu Audit Passed
+            }
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 3. THÊM BỚT DÒNG (ADD & DELETE LINE)
+    // -------------------------------------------------------------
+    // Thêm dòng mới
+    $('#btn-add-line').on('click', function () {
+        const lineCount = $('#po-line-table tbody tr').length + 1;
+        const newRowHtml = `
+            <tr>
+                <td class="row-line-no">${lineCount}</td>
+                <td><input type="text" class="edit-input input-item-code" value=""></td>
+                <td><input type="text" class="edit-input input-desc" value=""></td>
+                <td class="text-right"><input type="number" class="edit-input input-qty text-right" value="1" min="1"></td>
+                <td class="text-right"><input type="number" step="0.0001" class="edit-input input-price text-right" value="0.0000"></td>
+                <td class="text-right row-amount-text" data-original-amount="0">$0.00</td>
+                <td class="text-center col-action">
+                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>
+        `;
+        $('#po-line-table tbody').append(newRowHtml);
+        reindexLines();
+        recalculateAndAudit();
+    });
+
+    // Xóa dòng
+    $(document).on('click', '.btn-delete-line', function () {$(this).closest('tr').remove();
+        reindexLines();
+        recalculateAndAudit();
+    });
+
+    // Đánh lại số thứ tự Line (1, 2, 3...)
+    function reindexLines() {
+        $('#po-line-table tbody tr').each(function (index) {
+            $(this).find('.row-line-no').text(index + 1);
+        });
+        const totalLines = $('#po-line-table tbody tr').length;
+        $('#line-items-header').text(`EXTRACTED LINE ITEMS (${totalLines} LINES FOUND)`);
+    }
+
+    // -------------------------------------------------------------
+    // 4. CHUYỂN Ô THÀNH INPUT HOẶC TEXT
+    // -------------------------------------------------------------
+    function makeTableEditable(editable) {
+        if(currentStep === 1){
+            $('#po-line-table tbody tr').each(function () {
+                const $tr =$(this);
+                if (editable) {
+                    const code = $tr.find('td:nth-child(2)').text().trim();
+                    const desc = $tr.find('td:nth-child(3)').text().trim();
+                    const qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+
+                    // Ưu tiên lấy giá trị chuẩn chính xác từ data-original-price
+                    let price = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
+                    if (isNaN(price)) {
+                        price = parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+                    }
+
+                    let amt = parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount'));
+                    if (isNaN(amt)) {
+                        amt = parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || (qty * price);
+                    }
+
+                    $tr.find('td:nth-child(2)').html(`<input type="text" class="edit-input input-item-code" value="${code}">`);
+                    $tr.find('td:nth-child(3)').html(`<input type="text" class="edit-input input-desc" value="${desc}">`);
+                    $tr.find('td:nth-child(4)').html(`<input type="number" class="edit-input input-qty text-right" value="${qty}">`);
+
+                    // Đặt step="0.0001" để cho phép nhập đơn giá nhiều chữ số thập phân chính xác
+                    $tr.find('td:nth-child(5)').html(`<input type="number" step="0.0001" class="edit-input input-price text-right" value="${price}">`);
+                    $tr.find('td:nth-child(6)').addClass('row-amount-text').text(`$${amt.toFixed(2)}`);
+                } else {
+                    saveTableEdits();
+                }
+            });
+        } else if (currentStep === 2) {
+        // --- CHẾ ĐỘ EDIT BƯỚC 2 (Chỉ sửa OCR Price để khớp với ERP) ---
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            const $ocrCell =$tr.find('.cell-ocr-price');
+
+            if (editable) {
+                let ocrPrice = parseFloat($ocrCell.attr('data-original-price')) || parseFloat($ocrCell.text().replace(/[$,]/g, '')) || 0;
+                $ocrCell.html(`<input type="number" step="0.0001" class="input-ocr-price" value="${ocrPrice}">`);
+            } else {
+                saveStep2Edits();
+            }
+        });
+    }
+        
+    }
+
+    function saveTableEdits() {
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            if ($tr.find('input').length > 0) {
+                const code = $tr.find('.input-item-code').val();
+                const desc = $tr.find('.input-desc').val();
+                const qty = parseInt($tr.find('.input-qty').val()) || 0;
+                const price = parseFloat($tr.find('.input-price').val()) || 0;
+                const amt = qty * price;
+
+                $tr.find('td:nth-child(2)').text(code);$tr.find('td:nth-child(3)').text(desc);
+                $tr.find('td:nth-child(4)').text(qty.toLocaleString());$tr.find('td:nth-child(5)').text(`$${price}`);
+                $tr.find('td:nth-child(6)').text(`$${amt.toFixed(2)}`);
+            }
+        });
+    }
+
+    function makeHeaderEditable(editable) {
+        const fields = ['po-number-display', 'po-date-display', 'po-customer-display', 'po-requisitioner-display'];
+        fields.forEach(id => {
+            const $el =$('#' + id);
+            if (editable) {
+                const val = $el.text().trim();$el.html(`<input type="text" class="edit-input input-header-field" value="${val}">`);
+            } else {
+                const $input =$el.find('input');
+                if ($input.length > 0) {
+                    $el.text($input.val());
+                }
+            }
+        });
+    }
+
+    // -------------------------------------------------------------
+    // 5. LỚP LÍNH TÍNH TOÁN VÀ SỰ KIỆN NHAU THỜI GIAN THỰC (REAL-TIME AUDIT)
+    // -------------------------------------------------------------
+    $(document).on('input', '.input-qty, .input-price', function () {
+        const $tr =$(this).closest('tr');
+        const qty = parseInt($tr.find('.input-qty').val()) || 0;
+        const price = parseFloat($tr.find('.input-price').val()) || 0;
+        const amt = qty * price;
+
+        $tr.find('.row-amount-text').text(`$${amt.toFixed(2)}`);
+        recalculateAndAudit();
+    });
+
+    function recalculateAndAudit() {
+        let totalUnits = 0;
+        let totalAmount = 0;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            let qty = 0;
+            let amount = 0;
+
+            if ($tr.find('input').length > 0) {
+                // Đang ở chế độ nhập/edit: lấy Qty nhân trực tiếp với Unit Price không làm tròn sớm
+                const qtyInput = parseFloat($tr.find('.input-qty').val()) || 0;
+                const priceInput = parseFloat($tr.find('.input-price').val()) || 0;
+                qty = qtyInput;
+                amount = qtyInput * priceInput;
+            } else {
+                // Dòng tĩnh: ưu tiên đọc từ data-original-amount để giữ nguyên con số chính xác của hãng
+                qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+                let savedAmt = parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount'));
+                if (!isNaN(savedAmt)) {
+                    amount = savedAmt;
+                } else {
+                    amount = parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0;
+                }
+            }
+
+            totalUnits += qty;
+            totalAmount += amount;
+        });
+
+        // Làm tròn tổng tiền ở bước cuối cùng
+        totalAmount = Math.round(totalAmount * 100) / 100;
+
+        // Lấy Expected Total từ giao diện để so sánh Audit
+        const expText = $('#expected-sum-display').text();
+        const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
+        let expectedUnits = 0;
+        let expectedAmount = 0;
+
+        if (expMatch) {
+            expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
+            expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
+        }
+
+        const calcUnitsStr = totalUnits.toLocaleString();
+        const calcAmtStr = totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        $('#calculated-sum-display').text(`${calcUnitsStr} Units / $${calcAmtStr}`);
+
+        const isUnitsMatched = (totalUnits === expectedUnits);
+        const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
+        const isPassed = isUnitsMatched && isAmountMatched;
+
+        updateAuditStatusUI(isPassed, totalUnits, expectedUnits, totalAmount, expectedAmount);
+    }
+
+    // -------------------------------------------------------------
+    // 6. CẬP NHẬT MÀU SẮC & THÔNG BÁO CẢNH BÁO
+    // -------------------------------------------------------------
+    function updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt) {
+        const calcUnitsStr = calcUnits.toLocaleString();
+        const expUnitsStr = expUnits.toLocaleString();
+        const calcAmtStr = calcAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const expAmtStr = expAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        if (isPassed) {
+            // MÀU XANH LÁ (PASSED)
+            $('#ocr-badge-status').removeClass('badge-danger').addClass('badge-success').css({'background-color': '#28a745', 'color': '#fff'});
+            $('#ocr-badge-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+            $('#ocr-badge-text').text('OCR Audit: PASSED (Data Verified)');
+
+            $('#ocr-audit-alert-box').removeClass('alert-error-custom').addClass('alert-success-custom')
+                .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
+
+            $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> OCR AUDIT PASSED: Data Integrity Verified');
+
+            let detailsHtml = `
+                <li><strong>Units Matched:</strong> Sum of line items (${calcUnitsStr}) == Total Units Expected (${expUnitsStr})</li>
+                <li><strong>Amount Matched:</strong> Sum of line items ($${calcAmtStr}) == Subtotal Expected ($${expAmtStr})</li>
+            `;
+            $('#ocr-audit-details').html(detailsHtml);
+            $('#ocr-audit-action').removeClass('text-danger').addClass('text-success').css('color', '#0e9f6e')
+                .html('<strong>Status:</strong> All line items matched perfectly. Ready to compare with ERP price.');
+
+            // CHỈ HIỆN NÚT XÁC NHẬN KHI KHÔNG TRONG CHẾ ĐỘ EDIT (ĐÃ LƯU XONG)
+            if (!isEditingMode) {
+                $('#btn-confirm-next').removeClass('d-none');
+            } else {
+                $('#btn-confirm-next').addClass('d-none');
+            }
+        } else {
+            // MÀU ĐỎ (MISMATCH)
+            $('#ocr-badge-status').removeClass('badge-success').addClass('badge-danger').css({'background-color': '#dc3545', 'color': '#fff'});
+            $('#ocr-badge-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+            $('#ocr-badge-text').text('OCR Audit: FATAL ERROR (Mismatch)');
+
+            $('#ocr-audit-alert-box').removeClass('alert-success-custom').addClass('alert-error-custom')
+                .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
+
+            $('#ocr-audit-title').html('<span class="text-danger mr-1">●</span> CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed');
+
+            let detailsHtml = '';
+            if (calcUnits !== expUnits) {
+                detailsHtml += `<li><strong>Units Mismatch:</strong> Sum of line items (${calcUnitsStr}) != Total Units Expected (${expUnitsStr})</li>`;
+            }
+            if (Math.abs(calcAmt - expAmt) >= 0.01) {
+                detailsHtml += `<li><strong>Amount Mismatch:</strong> Sum of line items ($${calcAmtStr}) != Total Units Expected ($${expAmtStr})</li>`;
+            }
+            $('#ocr-audit-details').html(detailsHtml);
+            $('#ocr-audit-action').removeClass('text-success').addClass('text-danger').css('color', '#9b1c1c')
+                .html('<strong>Action Required:</strong> Data mismatch detected. Please add/edit lines to match expected totals or reject the PO.');
+
+            // ẨN NÚT XÁC NHẬN KHI CÒN LỖI HOẶC ĐANG EDIT
+            $('#btn-confirm-next').addClass('d-none');
+        }
+    }
+
+    // Bấm nút Xác Nhận để chuẩn bị cho Bước 2
+    $(document).on('click', '#btn-confirm-next', function () {
+        alert("Xác nhận dữ liệu thành công! Đang chuyển sang Bước 2: Custom Record...");
+
+        // Đổi trạng thái hiển thị trên Progress bar sang Bước 2 (Nếu cần test hiệu ứng)
+        $('#step-node-1').removeClass('active').addClass('completed');
+        $('#step-node-2').addClass('active');
+    });
+
+    // -------------------------------------------------------------
+    // 7. BACKUP & RESTORE DỮ LIỆU
+    // -------------------------------------------------------------
+    function backupCurrentData() {
+        originalDataBackup = {
+            poNumber: $('#po-number-display').text().trim(),
+            date: $('#po-date-display').text().trim(),
+            customer: $('#po-customer-display').text().trim(),
+            requisitioner: $('#po-requisitioner-display').text().trim(),
+            lineItems: []
+        };
+        if (currentStep === 1) {
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                // Ưu tiên lấy từ data-original-price nếu có, nếu không thì lấy từ input hoặc text
+                let origPrice = $tr.find('td:nth-child(5)').attr('data-original-price');
+                if (!origPrice) {
+                    origPrice = $tr.find('.input-price').val() || $tr.find('td:nth-child(5)').text().replace(/[$,]/g, '');
+                }
+
+                originalDataBackup.lineItems.push({
+                    line: $tr.find('td:nth-child(1)').text().trim(),
+                    itemCode: $tr.find('td:nth-child(2)').find('input').val() || $tr.find('td:nth-child(2)').text().trim(),
+                    description: $tr.find('td:nth-child(3)').find('input').val() || $tr.find('td:nth-child(3)').text().trim(),
+                    qty: parseInt($tr.find('.input-qty').val()) || parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0,
+                    unitPrice: parseFloat(origPrice) || 0,
+                    amount: parseFloat($tr.find('td:nth-child(6)').attr('data-original-amount')) || parseFloat($tr.find('td:nth-child(6)').text().replace(/[$,]/g, '')) || 0
+                });
+            });
+        } else if (currentStep === 2) {
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                let ocrPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+                originalDataBackup.lineItems.push({
+                    unitPrice: ocrPrice
+                });
+            });
+        }
+        
+    }
+
+    function renderTableFromData(lineItems) {
+        let tbodyHtml = '';
+        lineItems.forEach(item => {
+            tbodyHtml += `<tr>
+                <td>${item.line}</td>
+                <td>${item.itemCode}</td>
+                <td>${item.description}</td>
+                <td class="text-right">${Number(item.qty).toLocaleString()}</td>
+                <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice)}</td>
+                <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
+                <td class="text-center col-action d-none">
+                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>`;
+        });
+        $('#po-line-table tbody').html(tbodyHtml);
+        reindexLines();
+    }
+
+    // Tự động tính toán lại Validation Status & Notice khi gõ thay đổi OCR Price ở Bước 2
+    $(document).on('input', '.input-ocr-price', function () {
+        const $tr =$(this).closest('tr');
+        const newOcrPrice = parseFloat($(this).val()) || 0;
+        const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
+        const variance = newOcrPrice - erpPrice;
+        const isMatched = Math.abs(variance) < 0.0001;
+
+        // Cập nhật nhãn trạng thái trực tiếp trên dòng
+        if (isMatched) {
+            $tr.removeClass('row-variance');$tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`);
+        } else {
+            $tr.addClass('row-variance');
+            let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+            $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`);
+        }
+
+        // Kiểm tra xem còn dòng nào bị lệch giá để ẩn/hiện Notice Box
+        checkAndUpdateStep2Notice();
+        checkAllStep2Matched(); // Cập nhật trạng thái nút sang bước 3 theo thời gian thực
+    });
+
+    // Hàm kiểm tra lại toàn bộ bảng ở Bước 2 để cập nhật Notice Box
+    function checkAndUpdateStep2Notice() {
+        let hasVariance = false;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            let ocrVal = 0;
+            if ($tr.find('.input-ocr-price').length > 0) {
+                ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
+            } else {
+                ocrVal = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+            }
+            const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
+
+            if (Math.abs(ocrVal - erpVal) >= 0.0001) {
+                hasVariance = true;
+            }
+        });
+
+        updateStep2NoticeBox(hasVariance);
+        updateStep2BadgeStatus(hasVariance); // Tự động cập nhật badge theo thời gian thực
+        updateStep2AuditAlertBox(null, hasVariance);
+        checkAllStep2Matched();
+    }
+
+    // Lưu giá trị chỉnh sửa ô Input ở Bước 2
+    function saveStep2Edits() {
+        let hasVariance = false;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr =$(this);
+            const $input =$tr.find('.input-ocr-price');
+
+            if ($input.length > 0) {
+                const newOcrPrice = parseFloat($input.val()) || 0;
+                const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
+                const variance = newOcrPrice - erpPrice;
+                const isMatched = Math.abs(variance) < 0.0001;
+
+                $tr.find('.cell-ocr-price')
+                    .attr('data-original-price', newOcrPrice)
+                    .text(`$${newOcrPrice}`);
+
+                if (isMatched) {
+                    $tr.removeClass('row-variance');
+                    $tr.find('.cell-ocr-price').removeClass('text-variance font-weight-bold');$tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> Matched</span>`);
+                } else {
+                    hasVariance = true;
+                    $tr.addClass('row-variance');$tr.find('.cell-ocr-price').addClass('text-variance font-weight-bold');
+                    let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+                    $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> Variance: ${sign}</span>`);
+                }
+            }
+        });
+
+        updateStep2NoticeBox(hasVariance);
+    }
+
+        // Hàm kiểm tra trạng thái khớp giá ở Bước 2 để ẩn/hiện nút sang Bước 3
+        function checkAllStep2Matched() {
+            let allMatched = true;
+
+            $('#po-line-table tbody tr').each(function () {
+                const $tr = $(this);
+                let ocrVal = 0;
+                if ($tr.find('.input-ocr-price').length > 0) {
+                    ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
+                } else {
+                    ocrVal = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+                }
+                const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
+
+                if (Math.abs(ocrVal - erpVal) >= 0.0001) {
+                    allMatched = false;
+                    return false; // Thoát vòng lặp nếu có 1 dòng chưa khớp
+                }
+            });
+
+            if (currentStep === 2) {
+                if (allMatched) {
+                    // Khớp hết -> Hiện nút sang Bước 3
+                    $('#btn-proceed-step3').removeClass('d-none');
+                } else {
+                    // Còn dòng lệch -> Ẩn nút sang Bước 3
+                    $('#btn-proceed-step3').addClass('d-none');
+                }
+            }
+        }
+
+        // Khi chuyển sang Bước 2 thành công, hiển thị nút Reload lên vị trí khoanh đỏ
+        // (Được đặt trong Ajax success khi chuyển bước 2):
+        // $('#btn-reload-erp').removeClass('d-none');
+        // checkAllStep2Matched();
+
+        // Sự kiện bấm nút Tải lại dữ liệu ERP ở vị trí khoanh đỏ
+        $(document).on('click', '#btn-reload-erp', function () {
+            alert("Đang kết nối lại hệ thống ERP để đồng bộ dữ liệu mới nhất...");
+            // Thực hiện logic reload hoặc gọi lại hàm kiểm tra đối chiếu giá ERP tại đây
+            loadStep2ErpPrices(); // Tự động trigger lại dữ liệu bước 2
+        });
+
+        // Hàm cập nhật trạng thái Badge cho Bước 2
+        function updateStep2BadgeStatus(hasVariance) {
+            const $badge = $('#erp-badge-status');
+            const $icon = $('#erp-badge-icon');
+            const $text = $('#erp-badge-text');
+
+            // Hiển thị badge Bước 2 khi đã ở Bước 2
+            if (currentStep === 2) {
+                $badge.removeClass('d-none');
+            }
+
+            if (!hasVariance) {
+                // TRƯỜNG HỢP PASSED (Tất cả đã match hoàn toàn với ERP)
+                $badge.removeClass('badge-danger badge-warning badge-secondary').addClass('badge-success')
+                      .css({ 'background-color': '#28a745', 'color': '#fff' });
+                $icon.removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
+                $text.text('ERP Pricing: PASSED (All Matched)');
+            } else {
+                // TRƯỜNG HỢP CÒN LỆCH GIÁ (Variance detected -> Pending Approval)
+                $badge.removeClass('badge-success badge-secondary').addClass('badge-warning')
+                      .css({ 'background-color': '#f0ad4e', 'color': '#fff' });
+                $icon.removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
+                $text.text('ERP Pricing: VARIANCE DETECTED (Pending Approval)');
+            }
+        }
+
+        // Hàm cập nhật khung thông báo chính phía trên CHỈ DÙNG CHO BƯỚC 2
+        function updateStep2AuditAlertBox(dataList, hasVariance) {
+            // Đảm bảo chỉ chạy khi đang ở Bước 2
+            if (currentStep !== 2) return;
+
+            const $alertBox =$('#ocr-audit-alert-box');
+            const $title =$('#ocr-audit-title');
+            const $details =$('#ocr-audit-details');
+            const $action =$('#ocr-audit-action');
+
+            $alertBox.show();
+
+            if (!hasVariance) {
+                // --- TRƯỜNG HỢP BƯỚC 2: PASSED (MATCHED ALL) ---
+                $alertBox.removeClass('alert-error-custom alert-warning-custom').addClass('alert-success-custom')
+                         .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+
+                $title.html('<span class="text-success mr-1">●</span> ERP PRICING PASSED: Data & Base Prices Verified');
+
+                let detailsHtml = `
+                    <li><strong>Reconciliation:</strong> All line items matched perfectly with ERP Base Prices.</li>
+                    <li><strong>Variance Status:</strong> No price discrepancies detected across all line items.</li>
+                `;
+                $details.html(detailsHtml);
+
+                $action.removeClass('text-danger text-warning').addClass('text-success')
+                       .css('color', '#0e9f6e')
+                       .html('<strong>Status:</strong> All line items matched perfectly. Ready to compare with ERP price.');
+            } else {
+                // --- TRƯỜNG HỢP BƯỚC 2: VARIANCE DETECTED (MÀU CAM/VÀNG) ---
+                $alertBox.removeClass('alert-error-custom alert-success-custom').addClass('alert-warning-custom')
+                         .css({ 'background-color': '#fffbeb', 'border': '1px solid #fde68a', 'color': '#92400e' });
+
+                $title.html('<span class="text-warning mr-1" style="color: #d97706 !important;">●</span> ERP PRICING VARIANCE: Custom Pricing Logic Triggered');
+
+                let detailsHtml = `
+                    <li><strong>Notice:</strong> One or more lines trigger custom pricing logic.</li>
+                    <li><strong>Workflow Notice:</strong> Please make approval to update price or report to administrator.</li>
+                `;
+                $details.html(detailsHtml);
+
+                $action.removeClass('text-success text-danger').addClass('text-warning')
+                       .css('color', '#b45309')
+                       .html('<strong>Action Required:</strong> Please review price variances or proceed to route for Pending Approval.');
+            }
+        }
+
+        // =============================================================
+        // XỬ LÝ NÚT REJECT PO (HIỂN THỊ POPUP & GỬI AJAX)
+        // =============================================================
+
+        // 1. Khi bấm nút Reject PO trên Action Bar -> Mở Popup
+        $(document).on('click', '#btn-reject', function () {
+            $('#reject-reason').val('');
+            $('#reject-reason-error').addClass('d-none');
+            $('#rejectPoModal').modal('show');
+        });
+
+        // 2. Khi bấm nút Đồng Ý (Reject) trong Popup
+        $(document).on('click', '#btn-confirm-reject', function () {
+            const reason = $('#reject-reason').val().trim();
+            const poNumber = $('#po-number-display').text().trim();
+
+            // Validate bắt buộc nhập lý do
+            if (reason === '') {
+                $('#reject-reason-error').removeClass('d-none');
+                return;
+            }
+            $('#reject-reason-error').addClass('d-none');
+
+            // Khóa nút để tránh bấm nhiều lần
+            const $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý...');
+
+            // Gửi dữ liệu xuống Controller
+            $.ajax({
+                url: '@Url.Action("RejectPO", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    PONumber: poNumber,
+                    Reason: reason
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        $('#rejectPoModal').modal('hide');
+                        alert(response.message);
+                        // Refresh lại trang khi thành công
+                        window.location.reload();
+                    } else {
+                        alert("Lỗi: " + response.message);
+                        $btn.prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Đồng Ý (Reject)');
+                    }
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi kết nối khi từ chối PO!");
+                    $btn.prop('disabled', false).html('<i class="fas fa-check mr-1"></i> Đồng Ý (Reject)');
+                }
+            });
+        });
+
+    
+    // =============================================================
+    // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO SALES ORDER"
+    // =============================================================
+    $(document).on('click', '#btn-convert', function () {
+        const $btnConvert = $(this);
+
+        // 0. Tự động đồng bộ các chỉnh sửa từ giao diện vào chuỗi JSON ẩn trước khi đóng gói
+        updateHiddenRawJson();
+
+        // Lấy chuỗi raw JSON từ thẻ ẩn và parse thành object
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        let rawOcrData = {};
+        try {
+            if (rawJsonStr) {
+                rawOcrData = JSON.parse(rawJsonStr);
+            }
+        } catch (e) {
+            console.error("Lỗi parse Raw OCR JSON:", e);
+        }
+
+        // 1. Thu thập thông tin Header
+        let poNumber = $('#po-number-display').text().trim();
+        let poDate = $('#po-date-display').text().trim();
+        let customer = $('#po-customer-display').text().trim();
+        let requisitioner = $('#po-requisitioner-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
+
+        // 2. Thu thập danh sách Line Items từ bảng hiện tại
+        let lineItems = [];
+        $('#po-line-table tbody tr').each(function () {
+            const $tr = $(this);
+            if ($tr.find('td').length <= 1) return;
+
+            let itemCode = $tr.find('.cell-item-code').text().trim();
+            if (!itemCode) {
+                itemCode = $tr.find('td:nth-child(2)').text().trim();
+            }
+
+            let description = $tr.attr('data-description') || '';
+
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
+            if (isNaN(qty)) {
+                qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+            }
+
+            let unitPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
+            if (isNaN(unitPrice)) {
+                unitPrice = parseFloat($tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
+            }
+
+            let erpBasePrice = parseFloat($tr.attr('data-erp-price')) || 0;
+
+            lineItems.push({
+                Line: parseInt($tr.find('td:nth-child(1)').text()) || 1,
+                ItemCode: itemCode,
+                Description: description,
+                Qty: qty,
+                UnitPrice: unitPrice,
+                Amount: qty * unitPrice,
+                ErpBasePrice: erpBasePrice
+            });
+        });
+
+        if (lineItems.length === 0) {
+            alert("Không tìm thấy danh sách dòng hàng để tạo Sales Order!");
+            return;
+        }
+
+        // 3. Đóng gói dữ liệu thành một Payload hoàn chỉnh (Bao gồm cả RawOcrResponse)
+        let createSoPayload = {
+            PONumber: poNumber,
+            Date: poDate,
+            Customer: customer,
+            Requisitioner: requisitioner,
+            Currency: currency,
+            LineItems: lineItems,
+            RawOcrResponse: JSON.stringify(rawOcrData) // Truyền toàn bộ cấu trúc dữ liệu thô đã cập nhật thay đổi
+        };
+
+        // 4. Khóa nút và hiển thị trạng thái đang xử lý
+        $btnConvert.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Đang tạo Sales Order...');
+
+        // 5. Gửi Ajax về Controller
+        $.ajax({
+            url: '@Url.Action("CreateNetsuiteSO", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(createSoPayload),
+            success: function (response) {
+                // Mở khóa nút bấm lại
+                $btnConvert.prop('disabled', false).html('Convert to Sales Order');
+
+                // response lúc này trả về dạng object chứa { success, message, poId, poNumber, poUrl }
+                if (response.success) {
+                    // --- XỬ LÝ KHI THÀNH CÔNG ---
+                    $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
+                    $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+
+                    $('#ns-modal-message').text(response.message);
+                    $('#ns-modal-po-number').text(response.poNumber);
+                    $('#ns-modal-po-info').removeClass('d-none');
+
+                    // Gán link vào nút mở NetSuite
+                    if (response.poUrl) {
+                        $('#ns-modal-link-btn').attr('href', response.poUrl).removeClass('d-none');
+                    } else {
+                        $('#ns-modal-link-btn').addClass('d-none');
+                    }
+
+                    // Hiển thị Modal
+                    $('#netsuiteResultModal').modal('show');
+
+                    // (Tùy chọn) Reload lại trang sau khi tắt modal nếu muốn reset form
+                    $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                        location.reload();
+                    });
+
+                } else {
+                    // --- XỬ LÝ KHI THẤT BẠI ---
+                    $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
+                    $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+
+                    $('#ns-modal-message').text(response.message || "Đã xảy ra lỗi khi tạo PO lên NetSuite.");
+                    $('#ns-modal-po-info').addClass('d-none');
+                    $('#ns-modal-link-btn').addClass('d-none');
+
+                    // Hiển thị Modal lỗi
+                    $('#netsuiteResultModal').modal('show');
+                }
+            },
+            error: function () {
+                alert("Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!");
+                $btnConvert.prop('disabled', false).html('Convert to Sales Order');
+            }
+        });
+    });
+
+    // Hàm cập nhật thông tin chỉnh sửa từ giao diện vào object Raw JSON ẩn một cách chính xác
+    function updateHiddenRawJson() {
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        if (!rawJsonStr) return;
+
+        let rawOcrData = {};
+        try {
+            rawOcrData = JSON.parse(rawJsonStr);
+        } catch (e) {
+            console.error("Không thể parse JSON từ thẻ ẩn:", e);
+            return;
+        }
+
+        // 1. Cập nhật các trường Header cơ bản nếu có thay đổi
+        if (!rawOcrData.header) rawOcrData.header = {};
+
+        let poNum = $('#po-number-display').text().trim();
+        if (poNum && poNum !== 'N/A') rawOcrData.header.po_number = poNum;
+
+        let poDate = $('#po-date-display').text().trim();
+        if (poDate && poDate !== 'N/A') rawOcrData.header.po_date = poDate;
+
+        let customer = $('#po-customer-display').text().trim();
+        if (customer && customer !== 'N/A') {
+            if (!rawOcrData.header.buyer) rawOcrData.header.buyer = {};
+            rawOcrData.header.buyer.name = customer;
+        }
+
+        let requisitioner = $('#po-requisitioner-display').text().trim();
+        if (requisitioner && requisitioner !== 'N/A') {
+            if (!rawOcrData.header.buyer_contact) rawOcrData.header.buyer_contact = {};
+            rawOcrData.header.buyer_contact.name = requisitioner;
+        }
+
+        let currency = $('#po-currency-hidden').val();
+        if (currency) rawOcrData.header.currency = currency;
+
+        // 2. Cập nhật danh sách Line Items từ bảng hiển thị hiện tại
+        let updatedRawLineItems = [];
+        $('#po-line-table tbody tr').each(function (idx) {
+            const $tr = $(this);
+            if ($tr.find('td').length <= 1) return;
+
+            let lineNo = parseInt($tr.find('td:nth-child(1)').text()) || (idx + 1);
+
+            let itemCode = $tr.find('.cell-item-code').text().trim() || $tr.find('td:nth-child(2)').text().trim();
+            let description = $tr.attr('data-description') || $tr.find('td:nth-child(3)').text().trim() || '';
+
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty') || $tr.find('.cell-qty').text().replace(/,/g, '')) ||
+                      parseInt($tr.find('.input-qty').val()) || 0;
+
+            let unitPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) ||
+                            parseFloat($tr.find('.input-ocr-price').val()) ||
+                            parseFloat($tr.find('.input-price').val()) ||
+                            parseFloat($tr.find('td:nth-child(5)').text().replace(/[$,]/g, '')) || 0;
+
+            let amount = qty * unitPrice;
+
+            // Lấy lại dòng gốc tương ứng trong mảng line_items cũ (để bảo toàn các thông tin phụ như category, inv_org, uom, eta_date...)
+            let origRawItem = (rawOcrData.line_items && rawOcrData.line_items[idx]) ? rawOcrData.line_items[idx] : {};
+
+            // Ghi đè các giá trị mới nhất
+            origRawItem.line_no = lineNo;
+            origRawItem.item = itemCode;
+            origRawItem.description = description;
+            origRawItem.quantity = qty;
+            origRawItem.price_each = unitPrice;
+            origRawItem.amount = amount;
+
+            updatedRawLineItems.push(origRawItem);
+        });
+
+        // Chỉ gán lại line_items nếu có dữ liệu hợp lệ, tránh làm rỗng mảng gốc
+        if (updatedRawLineItems.length > 0) {
+            rawOcrData.line_items = updatedRawLineItems;
+        }
+
+        // Lưu ngược lại chuỗi JSON hoàn chỉnh vào thẻ ẩn
+        $('#ocr-raw-json-hidden').val(JSON.stringify(rawOcrData));
+    }
+</script>
+
+<script>
+    // Tự động bật Loader khi bất kỳ một request AJAX nào bắt đầu
+    $(document).ajaxStart(function () {
+        $('#global-loader').css('display', 'flex');
+    });
+
+    // Tự động tắt Loader khi tất cả các request AJAX hoàn tất (dù thành công hay lỗi)
+    $(document).ajaxStop(function () {
+        $('#global-loader').hide();
+    });
+</script>

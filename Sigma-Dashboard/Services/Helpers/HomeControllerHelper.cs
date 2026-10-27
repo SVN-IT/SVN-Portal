@@ -107,6 +107,10 @@ namespace Sigma_Dashboard.Services.Helpers
                         {
                             charID = charID.Replace("(SM)", "");
                         }
+                        if (charID.Contains("(BT)"))
+                        {
+                            charID = charID.Replace("(BT)", "");
+                        }
                         if (charID.Contains("(ITA)"))
                         {
                             charID = charID.Replace("(ITA)", "");
@@ -383,7 +387,7 @@ namespace Sigma_Dashboard.Services.Helpers
                         string qcChecked = "🔴";
                         string pdConfirmed = "🔴";
                         string qcConfirmed = "🔴";
-                        if (!item.Operation.Contains("(SM)") && !item.Operation.Contains("(ITA)"))
+                        if (!item.Operation.Contains("(SM)") && !item.Operation.Contains("(ITA)") && !item.Operation.Contains("(BT)"))
                         {
                             var checklistData = await svnqachecklistreportdataportal.GetDataByDateAndOperation(date, item.StoreID);
                             if (checklistData != null && checklistData.Count != 0)
@@ -509,9 +513,14 @@ namespace Sigma_Dashboard.Services.Helpers
                         opers = opers.Where(x => x.Operation.EndsWith("(ITA)")).ToList();
                         break;
 
+                    case "BT":
+                        // Lọc các item có đuôi (BT)
+                        opers = opers.Where(x => x.Operation.EndsWith("(BT)")).ToList();
+                        break;
+
                     case "SVN":
                         // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
-                        opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)")).ToList();
+                        opers = opers.Where(x => !x.Operation.EndsWith("(SM)") && !x.Operation.EndsWith("(ITA)") && !x.Operation.EndsWith("(BT)")).ToList();
                         break;
                 }
             }

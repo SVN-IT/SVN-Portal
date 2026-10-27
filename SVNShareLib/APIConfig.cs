@@ -21,5 +21,11 @@ namespace SVNShareLib
         public string model { get; set; }
         public string view_type { get; set; }
         public int default_company_id { get; set; }
+        public string BaseURL { get; set; }
+        public string ChangeCurrencyURL { get; set; }
+        public string GetLotByMODoneURL { get; set; }
+        public string GetPackageBySeriURL { get; set; }
+        public string InputProductionByWorkOrderURL { get; set; }
+        public string InputProductionByWorkOrderv1URL { get; set; }
     }
 }

@@ -2,6 +2,8 @@
 <link href="~/plugins/datatables-bs4/css/datatables.bootstrap4.min.css" rel="stylesheet" />
 <link href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" rel="stylesheet" />
 <link href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/plugins/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 @{
     ViewData["Title"] = "Hourly Target";
     string stringDate = ViewBag.stringDate;
@@ -155,7 +157,16 @@
                     <div class="row">
                         <div class="form-group col-md-3">
                             <label>Operation <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="txtOperation" required>
+                            <select class="form-control select2" id="txtOperation" style="width: 100%;" required>
+                                <option value="">-- Select Operation --</option>
+                                @if (ViewBag.OperationList != null)
+                                {
+                                    foreach (var op in (List<string>)ViewBag.OperationList)
+                                    {
+                                        <option value="@op">@op</option>
+                                    }
+                                }
+                            </select>
                         </div>
                         <div class="form-group col-md-3">
                             <label>Date Time <span class="text-danger">*</span></label>
@@ -206,17 +217,27 @@
     </div>
 </div>
 
+<script src="~/plugins/select2/js/select2.full.min.js"></script>
+
 <script>
+    $(document).ready(function () {
+        $('#txtOperation').select2({
+            theme: 'bootstrap4',
+            dropdownParent: $('#hourlyModal'),
+            placeholder: '-- Select Operation --',
+            allowClear: true
+        });
+    });
+
     function openCreateModal() {
         $('#hourlyForm')[0].reset();
         $('#isEditMode').val('false');
         $('#modalTitle').text('Thêm Mới Hourly Target');
 
-        // Mở khóa các trường nhập khóa chính
-        $('#txtOperation, #ddlShift').prop('disabled', false);
+        $('#txtOperation').val('').trigger('change').prop('disabled', false);
+        $('#ddlShift').prop('disabled', false);
         $('#txtDateTime').val('@stringDate').prop('disabled', true);
 
-        // HIỂN THỊ: Hiện Select Box, Ẩn Text Box
         $('#txtTypeValueSelect').show().prop('disabled', false);
         $('#txtTypeValueText').hide();
 
@@ -228,17 +249,15 @@
         $('#isEditMode').val('true');
         $('#modalTitle').text('Cập Nhật Hourly Target');
 
-        // Khóa các trường định danh dữ liệu cũ
-        $('#txtOperation').val($(btn).data('operation')).prop('disabled', true);
+        var opVal = $(btn).data('operation');
+        $('#txtOperation').val(opVal).trigger('change').prop('disabled', true);
         $('#txtDateTime').val($(btn).data('datetime')).prop('disabled', true);
         $('#ddlShift').val($(btn).data('shift')).prop('disabled', true);
 
-        // HIỂN THỊ: Ẩn Select Box, Hiện Text Box và gán giá trị chuỗi (kể cả "Production Qty")
         var typeValue = $(btn).data('typevalue');
         $('#txtTypeValueSelect').hide();
-        $('#txtTypeValueText').val(typeValue).show(); // TextBox luôn ở trạng thái disabled sẵn từ HTML
+        $('#txtTypeValueText').val(typeValue).show();
 
-        // Đổ các mốc dữ liệu còn lại
         $('#txtTime1').val($(btn).data('time1'));
         $('#txtTime2').val($(btn).data('time2'));
         $('#txtTime3').val($(btn).data('time3'));

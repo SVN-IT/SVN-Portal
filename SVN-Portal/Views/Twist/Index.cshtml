@@ -1,0 +1,792 @@
+﻿@{
+    ViewData["Title"] = "Tem hộp hàng thường";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- CSS Select2 & Theme Dark -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        background: #1a2740;
+    }
+
+    .main-card {
+        background: #22335a;
+        border-radius: 18px;
+        box-shadow: 0 0 24px #0004;
+    }
+
+    .wo-input {
+        font-size: 2.2rem;
+        height: 3.5rem;
+    }
+
+    .wo-btn {
+        font-size: 2rem;
+    }
+
+    .wo-info {
+        color: #fff;
+        font-size: 1.3rem;
+    }
+
+    .scan-input {
+        font-size: 2rem;
+        height: 3.5rem;
+    }
+
+    .scan-label {
+        color: #fff;
+        font-size: 1.3rem;
+    }
+
+    .side-card {
+        background: #22335a;
+        border-radius: 18px;
+        color: #fff;
+        min-height: 120px;
+    }
+
+        .side-card.success {
+            border: 3px solid #28a745;
+        }
+
+        .side-card.error {
+            border: 3px solid #dc3545;
+        }
+
+    .side-title {
+        font-size: 1.2rem;
+        color: #8ecfff;
+    }
+
+    .side-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .side-value-small {
+        font-size: 1.5rem;
+    }
+
+    .pcs-list {
+        color: #fff;
+        font-size: 1.1rem;
+    }
+
+    .animate-flash {
+        animation: flash 3s linear;
+    }
+
+    @@keyframes flash {
+        0% {
+            box-shadow: 0 0 0 0 #28a745;
+        }
+
+        50% {
+            box-shadow: 0 0 40px 10px #28a745;
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 #28a745;
+        }
+    }
+
+    .animate-flash-error {
+        animation: flash-error 3s linear;
+    }
+
+    @@keyframes flash-error {
+        0% {
+            box-shadow: 0 0 0 0 #dc3545;
+        }
+
+        50% {
+            box-shadow: 0 0 40px 10px #dc3545;
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 #dc3545;
+        }
+    }
+
+    /* Fix giao diện Dark mode cho Select2 */
+    .select2-container--bootstrap-5 .select2-selection {
+        background-color: #212529 !important;
+        color: #fff !important;
+        border-color: #495057 !important;
+    }
+
+    .select2-container--bootstrap-5 .select2-selection__rendered {
+        color: #fff !important;
+    }
+
+    .select2-dropdown {
+        background-color: #212529 !important;
+        color: #fff !important;
+        border-color: #495057 !important;
+    }
+
+    .select2-search__field {
+        background-color: #343a40 !important;
+        color: #fff !important;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <!-- Cột trái: Nhập WO, thông tin WO, scan PCS -->
+        <div class="col-xxl-8 col-xl-8 col-lg-7">
+            <div class="main-card p-4">
+                <!-- Nhập WO -->
+                <div class="mb-3 d-flex align-items-center">
+                    <input id="woInput" type="text" class="form-control wo-input me-3" placeholder="Nhập WO code..." autocomplete="off" />
+                    <button id="btnGetWO" class="btn btn-primary wo-btn px-4">Go</button>
+                </div>
+                <!-- Thông tin WO -->
+                <div id="woInfo" class="wo-info mb-3" style="display:none;">
+                    <div class="mb-2">
+                        <div class="form-group">
+                            <span class="fw-bold">WO:</span> <span id="woCode"></span>
+                        </div>
+                        <div class="form-group">
+                            <span class="fw-bold">Mã sản phẩm:</span> <span id="productCode"></span>
+                        </div>
+                        <div class="form-group">
+                            <span class="fw-bold">Tên sản phẩm:</span> <span id="productName"></span>
+                        </div>
+                    </div>
+                    <div class="mb-2 d-none">
+                        <span class="fw-bold">Ngày tạo:</span> <span id="woDate"></span>
+                        <span class="fw-bold">product_id</span> <span id="product_id"></span>
+                        <span class="fw-bold ms-4">Khách hàng:</span> <span id="customer"></span>
+                    </div>
+                </div>
+                <!-- Danh sách PCS đã scan -->
+                <div id="pcsList" class="pcs-list mb-3"></div>
+                <!-- Scan PCS -->
+                <div class="mb-2">
+                    <label for="pcsInput" class="scan-label mb-1">Scan mã PCS</label>
+                    <div class="input-group input-group-lg">
+                        <input id="pcsInput" type="text" class="form-control scan-input" autocomplete="off" placeholder="Scan mã..." />
+                        <button id="btnAddPCS" class="btn btn-success wo-btn" type="button">Scan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Cột phải: Thông tin đóng gói, thông báo, tiến độ -->
+        <div class="col-xxl-4 col-xl-4 col-lg-5">
+            <div class="d-flex flex-column gap-4">
+                <!-- Thông báo trạng thái -->
+                <div id="statusCard" class="side-card p-3 text-center">
+                    <div class="side-title mb-2">Trạng thái</div>
+                    <div id="statusIcon" style="font-size:3rem;">🛈</div>
+                    <div id="statusMsg" class="side-value-small mt-2"></div>
+                </div>
+                <!-- Thông tin SKU, PCS, Total -->
+                <div class="side-card p-3">
+                    <div class="side-title mb-2">Thông tin đóng gói</div>
+                    <div>SKU: <span id="sku" class="side-value-small"></span></div>
+                    <div>PCS: <span id="pcsCount" class="side-value"></span></div>
+                    <div>Total: <span id="totalCount" class="side-value-small"></span></div>
+                </div>
+                <!-- Số lượng PCS/hộp -->
+                <div class="side-card p-3">
+                    <div class="side-title mb-2">Số lượng đóng gói</div>
+                    <div id="pcsPerBox" class="side-value">0/0</div>
+                </div>
+                <!-- Số lượng hoàn thành / tổng số -->
+                <div class="side-card p-3">
+                    <div class="side-title mb-2">Số lượng hoàn thành / Tổng số</div>
+                    <div id="progress" class="side-value">0/0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Nhập mật khẩu (Dùng chung cho cả phím 1 và phím 3) -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Xác thực quyền thao tác</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="cfgPasswordInput" class="form-label">Nhập mật khẩu:</label>
+                    <input type="password" id="cfgPasswordInput" class="form-control" placeholder="Mật khẩu..." />
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnConfirmPassword" class="btn btn-primary">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Popup In Lại Tem (Bấm phím 1 + đúng Pass) -->
+<div class="modal fade" id="reprintModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">In Lại Tem (Reprint)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="reprintProductSelect" class="form-label fw-bold text-info">Mã sản phẩm (Product Code):</label>
+                    <select id="reprintProductSelect" class="form-select" style="width: 100%;">
+                        <option value="">-- Chọn hoặc gõ tìm mã --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reprintPrinterSelect" class="form-label fw-bold text-info">Chọn Máy in:</label>
+                    <select id="reprintPrinterSelect" class="form-select">
+                        <option value="">-- Chọn máy in --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reprintLabelType" class="form-label fw-bold text-info">Loại tem:</label>
+                    <select id="reprintLabelType" class="form-select">
+                        <option value="Box">Box</option>
+                        <option value="Carton">Carton</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reprintQuantity" class="form-label fw-bold text-info">Số lượng bản in:</label>
+                    <input type="number" id="reprintQuantity" class="form-control" value="1" min="1" />
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" id="btnDoReprint" class="btn btn-primary">Thực hiện In</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Cấu hình Máy in (Bấm phím 3 + đúng Pass) -->
+<div class="modal fade" id="printerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Cấu hình Máy in</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="printerSelect" class="form-label fw-bold text-info">Chọn Máy in:</label>
+                    <select id="printerSelect" class="form-select">
+                        <option value="">-- Chọn máy in --</option>
+                    </select>
+                </div>
+                <hr class="border-secondary" />
+                <form id="printerForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">ID Printer</label>
+                        <input type="text" id="p_ID" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tên Máy in</label>
+                        <input type="text" id="p_Name" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">IP Address</label>
+                        <input type="text" id="p_IP" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-none">
+                        <label class="form-label">MAC Address</label>
+                        <input type="text" id="p_MAC" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-none">
+                        <label class="form-label">Port</label>
+                        <input type="text" id="p_Port" class="form-control" />
+                    </div>
+                    <div class="col-md-6 d-none">
+                        <label class="form-label">Kích thước (Size)</label>
+                        <select id="p_Size" class="form-select">
+                            <option value="3x3">3x3</option>
+                            <option value="4x6">4x6</option>
+                            <option value="4x8">4x8</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <label class="form-label">Loại (Type)</label>
+                        <input type="text" id="p_Type" class="form-control" />
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <label class="form-label">ZPL Template</label>
+                        <textarea id="p_ZPL" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <label class="form-label">DPL Template</label>
+                        <textarea id="p_DPL" class="form-control" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" id="btnSavePrinter" class="btn btn-success">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // State
+        let pcsList = [];
+        let pcsPerBox = 0;
+        let productCode = "";
+        let productName = "";
+        let woCode = "";
+        let totalCount = 0;
+        let completedCount = 0;
+        let sku = "";
+
+        // Nhập WO
+        $('#btnGetWO').click(function() {
+            woCode = $('#woInput').val().trim();
+            if (!woCode) return;
+            // Lấy thông tin WO
+            $.get('/Twist/GetWOInfo', { wo: woCode }, function(data) {
+                if (data.error) {
+                    showStatus(data.error, false);
+                    return;
+                }
+                productCode = data.productCode;
+                productName = data.productName || '';
+                totalCount = data.quantity || 0;
+                sku = productCode;
+                completedCount = 0;
+                $('#woCode').text(data.woCode);
+                $('#productCode').text(productCode);
+                $('#productName').text(productName);
+                $('#woDate').text(data.date || '');
+                $('#customer').text(data.customer || '');
+                $('#sku').text(sku);
+                $('#totalCount').text(totalCount);
+
+                $('#product_id').text(data.product_id);
+
+                $('#woInfo').show();
+                // Lấy số PCS/hộp
+                $.get('/Twist/GetPcsPerBox', { productCode: productCode }, function(res) {
+                    if (res.error) {
+                        showStatus(res.error, false);
+                        return;
+                    }
+                    pcsPerBox = res.pcsPerBox;
+                    pcsList = [];
+                    updatePcsList();
+                    updatePcsPerBox();
+                    updateProgress();
+                    $('#pcsInput').focus();
+                    showStatus('Sẵn sàng scan PCS', true);
+                });
+            });
+        });
+
+        // Scan PCS
+        $('#btnAddPCS').click(function() {
+            if (completedCount >= totalCount) {
+                showStatus('Đã hoàn thành WO', false);
+                $('#pcsInput').val('');
+                return;
+            }
+
+            let pcs = $('#pcsInput').val().trim();
+            if (!pcs) return;
+
+            if (!productCode) {
+                showStatus('Vui lòng chọn WO trước khi scan PCS!', false);
+                return;
+            }
+
+            $.get('/Twist/ValidatePcs', { productCode: productCode, pcs: pcs }, function(res) {
+                if (res.isValid) {
+                    pcsList.push(pcs);
+                    updatePcsList();
+                    updatePcsPerBox();
+                    $('#pcsInput').val('');
+                    showStatus('Scan thành công', true);
+
+                    if (pcsList.length === pcsPerBox) {
+                        printLabel();
+                    }
+                } else {
+                    showStatus(res.error, false);
+                    $('#pcsInput').val('');
+                }
+            }).fail(function() {
+                showStatus('Lỗi kết nối máy chủ!', false);
+            });
+        });
+
+        // Enter để trigger nút
+        $('#woInput').keypress(function(e) { if (e.which === 13) $('#btnGetWO').click(); });
+        $('#pcsInput').keypress(function(e) { if (e.which === 13) $('#btnAddPCS').click(); });
+
+        function updatePcsList() {
+            let html = '';
+            pcsList.forEach((pcs, idx) => {
+                html += `<span class="badge bg-info me-2 mb-2" style="font-size:1.3rem;">${pcs}</span>`;
+            });
+            $('#pcsList').html(html);
+        }
+        function updatePcsPerBox() {
+            $('#pcsPerBox').text(`${pcsList.length}/${pcsPerBox}`);
+            $('#pcsCount').text(`${pcsList.length}/${pcsPerBox}`);
+        }
+        function updateProgress() {
+            $('#progress').text(`${completedCount}/${totalCount}`);
+        }
+        function showStatus(msg, isSuccess) {
+            let card = $('#statusCard');
+            let icon = isSuccess ? '✔️' : '❌';
+            let flashClass = isSuccess ? 'animate-flash' : 'animate-flash-error';
+            card.removeClass('success error animate-flash animate-flash-error');
+            card.addClass(isSuccess ? 'success' : 'error');
+            card.addClass(flashClass);
+            $('#statusIcon').text(icon);
+            $('#statusMsg').text(msg);
+            setTimeout(() => {
+                card.removeClass(flashClass);
+            }, 3000);
+        }
+        function printLabel() {
+            let savedPrinter = localStorage.getItem('selected_printer_config');
+            let printerConfig = savedPrinter ? JSON.parse(savedPrinter) : null;
+            let productId = $('#product_id').text().trim();
+
+            $.ajax({
+                url: '/Twist/PrintLabel',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ productCode: productCode, printerConfig: printerConfig }),
+                success: function(res) {
+                    if (res.success) {
+                        $.ajax({
+                            url: '/Twist/SubmitProduction',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ wo: woCode, productQty: pcsList.length, productId: productId }),
+                            success: function(res2) {
+                                if (res2.success) {
+                                    completedCount += pcsList.length;
+                                    updateProgress();
+                                    showStatus("Thành công! Đã nhập kết quả sản xuất.", true);
+                                    pcsList = [];
+                                    updatePcsList();
+                                    updatePcsPerBox();
+                                } else {
+                                    showStatus(res2.error, false);
+                                }
+                            }
+                        });
+                    } else {
+                        showStatus(res.error, false);
+                    }
+                }
+            });
+        }
+
+        // =============================================================
+        // PHÂN QUYỀN VÀ CẤU HÌNH POPUPS (PHÍM 1 VÀ PHÍM 3)
+        // =============================================================
+        const CONFIG_PASSWORD = "123";
+        let printerList = [];
+        let currentAuthAction = null; // Đánh dấu 'reprint' hoặc 'config'
+
+        // Khởi tạo Bootstrap Modals
+        const pwdModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+        const prtModal = new bootstrap.Modal(document.getElementById('printerModal'));
+        const rprModal = new bootstrap.Modal(document.getElementById('reprintModal'));
+
+        // Lắng nghe phím bấm 1 và 3
+        $(document).keydown(function(e) {
+            if ($(e.target).is('input, textarea, select')) return;
+
+            // Phím "1" -> Mở Modal Mật khẩu để In Lại
+            if (e.key === '1' || e.keyCode === 49 || e.keyCode === 97) {
+                e.preventDefault();
+                currentAuthAction = 'reprint';
+                openPasswordModal();
+            }
+
+            // Phím "3" -> Mở Modal Mật khẩu để Cấu hình Máy in
+            if (e.key === '3' || e.keyCode === 51 || e.keyCode === 99) {
+                e.preventDefault();
+                currentAuthAction = 'config';
+                openPasswordModal();
+            }
+        });
+
+        function openPasswordModal() {
+            $('#cfgPasswordInput').val('');
+            pwdModal.show();
+            setTimeout(() => $('#cfgPasswordInput').focus(), 500);
+        }
+
+        // Xác thực Mật khẩu dùng chung
+        $('#btnConfirmPassword').click(function() {
+            let pwd = $('#cfgPasswordInput').val();
+            if (pwd === CONFIG_PASSWORD) {
+                pwdModal.hide();
+                if (currentAuthAction === 'reprint') {
+                    openReprintModal();
+                } else if (currentAuthAction === 'config') {
+                    loadAndOpenPrinterConfig();
+                }
+            } else {
+                alert('Mật khẩu không chính xác!');
+                $('#cfgPasswordInput').select();
+            }
+        });
+
+        $('#cfgPasswordInput').keypress(function(e) {
+            if (e.which === 13) $('#btnConfirmPassword').click();
+        });
+
+        // -------------------------------------------------------------
+        // CÁC THAO TÁC POPUP IN LẠI TEM (REPRINT)
+        // -------------------------------------------------------------
+        function openReprintModal() {
+            // Lấy danh sách Mã sản phẩm cho Select2
+            $.get('/Twist/GetProductCodes', function(codes) {
+                let pSelect = $('#reprintProductSelect');
+                pSelect.empty().append('<option value="">-- Chọn hoặc gõ tìm mã --</option>');
+                if (codes && codes.length > 0) {
+                    codes.forEach(c => {
+                        pSelect.append(`<option value="${c}">${c}</option>`);
+                    });
+                }
+                pSelect.select2({
+                    theme: 'bootstrap-5',
+                    dropdownParent: $('#reprintModal')
+                });
+            });
+
+            // Lấy danh sách Máy in
+            $.get('/Twist/GetPrinters', function(data) {
+                if (data && data.error) {
+                    showStatus('Lỗi: ' + data.error, false);
+                    return;
+                }
+                printerList = data || [];
+                let prtSelect = $('#reprintPrinterSelect');
+                prtSelect.empty().append('<option value="">-- Chọn máy in --</option>');
+
+                printerList.forEach(p => {
+                    prtSelect.append(`<option value="${p.iD_Printer}">${p.name_Printer} (${p.iP_Printer})</option>`);
+                });
+
+                // Khôi phục máy in đã chọn cho In lại từ LocalStorage riêng
+                let savedReprintPrinter = localStorage.getItem('reprint_selected_printer_config');
+                if (savedReprintPrinter) {
+                    let localObj = JSON.parse(savedReprintPrinter);
+                    prtSelect.val(localObj.iD_Printer);
+                }
+            });
+
+            rprModal.show();
+        }
+
+        // Lưu thông tin máy in cho Reprint khi Select box thay đổi
+        $('#reprintPrinterSelect').change(function() {
+            let selectedId = $(this).val();
+            if (!selectedId) {
+                localStorage.removeItem('reprint_selected_printer_config');
+                return;
+            }
+            let p = printerList.find(x => x.iD_Printer === selectedId);
+            if (p) {
+                let reprintConfig = {
+                    iD_Printer: p.iD_Printer,
+                    name_Printer: p.name_Printer,
+                    iP_Printer: p.iP_Printer,
+                    maC_Printer: p.maC_Printer,
+                    port_Printer: p.port_Printer,
+                    size: p.size,
+                    type: p.type,
+                    zpL_Temp: p.zpL_Temp,
+                    dpL_Temp: p.dpL_Temp
+                };
+                localStorage.setItem('reprint_selected_printer_config', JSON.stringify(reprintConfig));
+            }
+        });
+
+        // Thực hiện In lại
+        $('#btnDoReprint').click(function() {
+            let pCode = $('#reprintProductSelect').val();
+            let printerId = $('#reprintPrinterSelect').val();
+            let lType = $('#reprintLabelType').val();
+            let qty = parseInt($('#reprintQuantity').val()) || 1;
+
+            if (!pCode) {
+                alert('Vui lòng chọn Mã sản phẩm!');
+                return;
+            }
+            if (!printerId) {
+                alert('Vui lòng chọn Máy in!');
+                return;
+            }
+
+            let savedReprintPrinter = localStorage.getItem('reprint_selected_printer_config');
+            let printerConfig = savedReprintPrinter ? JSON.parse(savedReprintPrinter) : null;
+
+            let requestData = {
+                productCode: pCode,
+                labelType: lType,
+                printQty: qty,
+                printerConfig: printerConfig
+            };
+
+            $.ajax({
+                url: '/Twist/PrintLabelReprint',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestData),
+                success: function(res) {
+                    if (res.success) {
+                        showStatus(`In lại thành công tem ${lType} cho ${pCode}!`, true);
+                        rprModal.hide();
+                    } else {
+                        alert('Lỗi in tem: ' + res.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Lỗi kết nối máy chủ: ' + error);
+                }
+            });
+        });
+
+        // -------------------------------------------------------------
+        // CÁC THAO TÁC POPUP CẤU HÌNH MÁY IN
+        // -------------------------------------------------------------
+        function loadAndOpenPrinterConfig() {
+            $.get('/Twist/GetPrinters', function(data) {
+                if (data && data.error) {
+                    showStatus('Báo lỗi: ' + data.error, false);
+                    return;
+                }
+
+                printerList = data || [];
+                let select = $('#printerSelect');
+                select.empty().append('<option value="">-- Chọn máy in --</option>');
+
+                printerList.forEach(p => {
+                    select.append(`<option value="${p.iD_Printer}">${p.name_Printer} (${p.iP_Printer})</option>`);
+                });
+
+                let savedConfig = localStorage.getItem('selected_printer_config');
+                if (savedConfig) {
+                    let localObj = JSON.parse(savedConfig);
+                    let selectedId = localObj.iD_Printer;
+                    select.val(selectedId);
+
+                    let currentPrinter = printerList.find(x => x.iD_Printer === selectedId);
+                    if (currentPrinter) {
+                        fillPrinterForm(currentPrinter);
+                    } else {
+                        fillPrinterForm(localObj);
+                    }
+                } else {
+                    $('#printerForm')[0].reset();
+                }
+
+                prtModal.show();
+            }).fail(function(xhr, status, error) {
+                showStatus('Lỗi kết nối máy chủ khi lấy danh sách máy in!', false);
+            });
+        }
+
+        $('#printerSelect').change(function() {
+            let selectedId = $(this).val();
+
+            if (!selectedId) {
+                $('#printerForm')[0].reset();
+                localStorage.removeItem('selected_printer_config');
+                return;
+            }
+
+            let p = printerList.find(x => x.iD_Printer === selectedId);
+            if (p) {
+                fillPrinterForm(p);
+                let selectedConfig = {
+                    iD_Printer: p.iD_Printer,
+                    name_Printer: p.name_Printer,
+                    iP_Printer: p.iP_Printer,
+                    maC_Printer: p.maC_Printer,
+                    port_Printer: p.port_Printer,
+                    size: p.size,
+                    type: p.type,
+                    zpL_Temp: p.zpL_Temp,
+                    dpL_Temp: p.dpL_Temp
+                };
+
+                localStorage.setItem('selected_printer_config', JSON.stringify(selectedConfig));
+                showStatus(`Đã chọn máy in: ${p.name_Printer}`, true);
+            }
+        });
+
+        function fillPrinterForm(p) {
+            $('#p_ID').val(p.iD_Printer || '');
+            $('#p_Name').val(p.name_Printer || '');
+            $('#p_IP').val(p.iP_Printer || '');
+            $('#p_MAC').val(p.maC_Printer || '');
+            $('#p_Port').val(p.port_Printer || '');
+            $('#p_Size').val(p.size || '4x6');
+            $('#p_Type').val(p.type || '');
+            $('#p_ZPL').val(p.zpL_Temp || '');
+            $('#p_DPL').val(p.dpL_Temp || '');
+        }
+
+        $('#btnSavePrinter').click(function () {
+            let selectedId = $('#printerSelect').val();
+            if (!selectedId) {
+                alert('Vui lòng chọn máy in!');
+                return;
+            }
+
+            let configData = {
+                ID_Printer: $('#p_ID').val(),
+                Name_Printer: $('#p_Name').val(),
+                IP_Printer: $('#p_IP').val(),
+                MAC_Printer: $('#p_MAC').val(),
+                Port_Printer: $('#p_Port').val(),
+                Size: $('#p_Size').val(),
+                Type: $('#p_Type').val(),
+                ZPL_Temp: $('#p_ZPL').val(),
+                DPL_Temp: $('#p_DPL').val()
+            };
+
+            localStorage.setItem('selected_printer_config', JSON.stringify(configData));
+
+            $.ajax({
+                url: '/Twist/SavePrinterConfig',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(configData),
+                success: function (res) {
+                    if (res.success) {
+                        showStatus(res.message || 'Lưu cấu hình máy in thành công!', true);
+                        prtModal.hide();
+                    } else {
+                        alert('Lỗi lưu vào DB: ' + res.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Lỗi kết nối máy chủ: ' + error);
+                }
+            });
+        });
+    </script>
+}

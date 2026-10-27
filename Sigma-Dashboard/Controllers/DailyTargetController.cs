@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Sigma_Dashboard.Models;
 using Sigma_Dashboard.Services.Configurations;
@@ -43,7 +44,7 @@ namespace Sigma_Dashboard.Controllers
             ViewBag.shift = shift;
             ViewBag.ControllerName = "DailyTarget";
             ViewBag.IndexPage = "Index";
-            ViewBag.TitleName = $"Daily Target - {date.ToString("dd/MM/yyyy")}";
+            ViewBag.TitleName = $"Daily Target"; //date.ToString("dd/MM/yyyy")
             ViewBag.CompanyCode = companyCode;
             ViewBag.AccessMode = "PMC";
             List<DailyTargetViewModel> viewModels = new List<DailyTargetViewModel>();
@@ -66,6 +67,11 @@ namespace Sigma_Dashboard.Controllers
                                 viewModels = viewModels.Where(x => x.Operation.Contains("(ITA)")).ToList();
                                 break;
 
+                            case "BT":
+                                // Lọc các item có đuôi (BT)
+                                viewModels = viewModels.Where(x => x.Operation.EndsWith("(BT)")).ToList();
+                                break;
+
                             case "SVN":
                                 // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
                                 viewModels = viewModels.Where(x => !x.Operation.Contains("(SM)") && !x.Operation.Contains("(ITA)")).ToList();
@@ -73,6 +79,9 @@ namespace Sigma_Dashboard.Controllers
                         }
                     }
                 }
+
+                List<string> operationList = await controllerHelper.GetOperationList(companyCode);
+                ViewBag.OperationList = operationList ?? new List<string>();
             }
             catch
             {
@@ -221,10 +230,14 @@ namespace Sigma_Dashboard.Controllers
                             {
                                 rowErrors.Add("Date_time col is Empty");
                             }
-                            else if (!string.IsNullOrWhiteSpace(stringDate) && dateTime != stringDate)
+                            else if (!string.IsNullOrWhiteSpace(stringDate))
                             {
-                                // CHẮT LỌC LỖI: Phát hiện ngày trong file lệch với ngày đang chọn ngoài giao diện
-                                rowErrors.Add($"Datetime '{dateTime}' is incorrect , pls input '{stringDate}'.");
+                                DateTime rowDateTime = DateTime.ParseExact(dateTime, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                                DateTime curDateTime = DateTime.ParseExact(stringDate, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                                if(rowDateTime < curDateTime)
+                                {
+                                    rowErrors.Add($"Datetime '{dateTime}' is invalid (must be >= '{stringDate}').");
+                                }
                             }
 
                             if (string.IsNullOrWhiteSpace(shift))

@@ -37,6 +37,29 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        public async Task<List<PrinterConfigData>> ReadListByType(string Type, string tableName = "SVN_Printer_Info")
+        {
+            List<PrinterConfigData> dataUI = new List<PrinterConfigData>();
+            int timeOut = 1000;
+            try
+            {
+                using (IDbConnection conn = new SqlConnection(connectionString))
+                {
+                    string sql = string.Empty;
+                    var param = new object();
+                    sql = "select * from " + tableName + " Where Type = @Type";
+                    param = new { Type = Type };
+                    var data = await conn.QueryAsync<PrinterConfigData>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    dataUI = data.ToList();
+                }
+                return dataUI;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<PrinterConfigData> ReadByID(string ID_Printer, string tableName = "SVN_Printer_Info")
         {
             PrinterConfigData dataUI = new PrinterConfigData();

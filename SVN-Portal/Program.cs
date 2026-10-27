@@ -22,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Host.UseSerilog();
 
 // Add services to the container.
+builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 builder.Services
 .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -75,6 +76,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=ProductionResultV1}/{id?}");
+    pattern: "{controller=Tools}/{action=Index}/{id?}");
 
 app.Run();

@@ -1,0 +1,448 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+
+    <link rel="icon" type="image/png" sizes="20x20" href="~/dist/img/sigma-logo.svg">
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link href="~/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link href="~/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+    <!-- iCheck -->
+    <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+    <!-- JQVMap -->
+    <link href="~/plugins/jqvmap/jqvmap.min.css" rel="stylesheet" />
+
+
+
+    <!-- Theme style -->
+    <link href="~/dist/css/adminlte.min.css" rel="stylesheet" />
+    <!-- overlayScrollbars -->
+    <link href="~/plugins/overlayscrollbars/css/overlayscrollbars.min.css" rel="stylesheet" />
+    <!-- Daterange picker -->
+    <link href="~/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <!-- summernote -->
+    <link href="~/plugins/summernote/summernote-bs4.min.css" rel="stylesheet" />
+    <link href="~/css/responsives.css" rel="stylesheet" />
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <!-- ChartJS -->
+    <script src="~/plugins/chart.js/chart.min.js"></script>
+    <script src="~/plugins/chart.js/chartjs-plugin-datalabels.min.js"></script>
+    <script src="~/js/site.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+    <div class="wrapper">
+        @{
+            DateTime date = DateTime.Now;
+            string shift = "Day";
+            string companyCode = "SVN";
+            string titleName = ViewBag.TitleName;
+            string accessMode = ViewBag.AccessMode;
+
+            string selectedPage = ViewBag.SelectedPage;
+
+            string controllerName = ViewBag.ControllerName;
+            string indexPage = ViewBag.IndexPage;
+            if (string.IsNullOrWhiteSpace(indexPage))
+            {
+                indexPage = "a";
+            }
+            string masterOperations = "a,b,c";
+            List<string> masterOperList = masterOperations.Split(',').ToList();
+            if (!string.IsNullOrWhiteSpace(companyCode))
+            {
+                switch (companyCode)
+                {
+                    case "SM":
+                        // Lọc các item có đuôi (SM)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(SM)")).ToList();
+                        break;
+
+                    case "ITA":
+                        // Lọc các item có đuôi (ITA)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(ITA)")).ToList();
+                        break;
+
+                    case "BT":
+                        // Lọc các item có đuôi (BT)
+                        masterOperList = masterOperList.Where(x => x.EndsWith("(BT)")).ToList();
+                        break;
+
+                    case "SVN":
+                        // Lọc các item KHÔNG chứa (SM) và KHÔNG chứa (ITA)
+                        masterOperList = masterOperList.Where(x => !x.EndsWith("(SM)") && !x.EndsWith("(ITA)")).ToList();
+                        break;
+                }
+            }
+        }
+        <!-- Preloader -->
+        <div class="preloader flex-column justify-content-center align-items-center">
+            <img class="animation__shake img-preloader" src="~/dist/img/sigma-logo.svg" alt="AdminLTELogo">
+        </div>
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <div class="navbar-search-block">
+                        <form method="post" class="form-inline">
+                            <div class="input-group input-group-sm">
+                                @if ((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home")
+                                {
+                                    int pageSize = 9;
+                                    <select class="form-control form-control-navbar" name="pageSize">
+                                        <option value="3" selected="@(pageSize == 3)">3</option>
+                                        <option value="6" selected="@(pageSize == 6)">6</option>
+                                        <option value="9" selected="@(pageSize == 9)">9</option>
+                                        <option value="12" selected="@(pageSize == 12)">12</option>
+                                        <option value="15" selected="@(pageSize == 15)">15</option>
+                                        <option value="0" selected="@(pageSize == 0)">All</option>
+                                    </select>
+                                }
+                                <select class="form-control form-control-navbar" name="companyCode">
+                                    <option value="SVN" selected="@(companyCode == "SVN")">SVN</option>
+                                    <option value="SM" selected="@(companyCode == "SM")">SM</option>
+                                    <option value="ITA" selected="@(companyCode == "ITA")">ITA</option>
+                                    <option value="BT" selected="@(companyCode == "BT")">BT</option>
+                                </select>
+                                @if (((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home") || (indexPage == "Index" && controllerName == "DailyTarget") || (indexPage == "Index" && controllerName == "HourlyTarget"))
+                                {
+                                    <select class="form-control form-control-navbar" name="shift">
+                                        <option value="Day" selected="@(shift == "Day")">Day</option>
+                                        <option value="Night" selected="@(shift == "Night")">Night</option>
+                                    </select>
+                                    <input id="inputDate" class="form-control form-control-navbar" type="date" name="date" value="@date.ToString("yyyy-MM-dd")">
+                                }
+                                @if (indexPage == "DailyProductionResultReport" && controllerName == "Report")
+                                {
+                                    DateTime fromDate = DateTime.Now;
+                                    DateTime toDate = DateTime.Now;
+                                    <input id="inputFromDate" class="form-control form-control-navbar" type="date" name="fromDate" value="@fromDate.ToString("yyyy-MM-dd")">
+                                    <input id="inputToDate" class="form-control form-control-navbar" type="date" name="toDate" value="@toDate.ToString("yyyy-MM-dd")">
+                                }
+                                
+                                
+                                <div class="input-group-append">
+                                    <button class="btn btn-navbar" type="submit" asp-controller="@controllerName" asp-action="@indexPage"
+                                        asp-route-isManualLoad=true>
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="btn btn-navbar" type="button" id="btnCloseSearchBar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a asp-controller="Home" asp-action="Index" asp-route-shift="Day" asp-route-companyCode="@companyCode" asp-route-isManualLoad=false class="brand-link">
+                <img src="~/dist/img/sigma-logo.svg" alt="AdminLTE Logo" class="sigma-brand-image" style="opacity: .8">
+                @* <span class="brand-text font-weight-light">AdminLTE 3</span> *@
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+
+                <!-- SidebarSearch Form -->
+                <div class="form-inline mt-2">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search for menu" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+                             with font-awesome or any other icon font library -->
+                        @if (accessMode == "Tools")
+                        {
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <svg width="180" height="44" viewBox="0 0 180 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- Biểu tượng logo được thu nhỏ và căn chỉnh lại kích thước -->
+                                        <g transform="translate(0, 10) scale(0.4)">
+                                            <path d="M25.6492 30.0847C25.246 29.7016 24.7097 29.4839 24.1573 29.5C21.1573 29.5847 17.7016 26.5847 16.0403 25.0847C15.7621 24.8347 15.3347 25.1331 15.4718 25.4839C16.0524 26.9879 17.496 29.5887 21.0202 31.9194C22.6694 33.0081 24.8024 33.5161 27.117 33.8186C27.7944 33.9073 28.4678 33.9718 29.121 34.0121C29.4879 34.0323 29.6694 33.5565 29.375 33.3266C28.1129 32.3307 26.867 31.25 25.6532 30.0968V30.0847H25.6492Z" fill="#E2C06B" />
+                                            <path d="M69.8589 20.0123C70.0726 20.5768 70.9113 20.476 70.9799 19.8752C71.4315 16.2462 69.5403 12.0244 67.2258 9.35504C64.9073 6.68569 61.4919 4.84294 57.8669 4.85504C54.0928 4.87117 50.7782 6.81472 48.1734 9.43165C46.8468 10.7663 45.7258 12.2784 44.629 13.8026C42.6129 16.6212 41.8186 17.0889 43.0766 18.5365L44.2097 19.855C44.8428 20.5929 45.4637 20.9679 46.254 20.3994C48.0766 19.097 50.4113 17.605 52.3347 16.4639C54.4758 15.1978 56.8186 13.9881 59.3468 13.7784C61.8145 13.5728 64.4073 14.2058 66.4234 15.6252C67.9637 16.7058 69.2218 18.222 69.8508 20.0204L69.8589 20.0123Z" fill="#94BFCE" />
+                                            <path d="M36.9395 36.5282C53.2702 48.3468 77.7661 44.2742 79.6089 22.3911C80.1976 15.3911 76.9315 6.40726 67.4355 2.19759C62.1371 -0.149189 56.2218 -0.153221 51.754 3C51.0726 3.48388 51.625 4.54033 52.4032 4.24194C56.7379 2.56855 62.246 2.96372 66.6734 6.77017C72.2258 11.5484 74.7782 20.7097 69.7177 26.7581C68.0484 28.75 65.7379 30.2177 63.1411 30.5887C58.5323 31.2379 53.8468 29.6694 50.004 27.1815C47.9234 25.8387 46.0323 24.2057 44.3831 22.3508C42.4073 20.125 40.5282 17.8105 38.7903 15.3911C35.871 11.3145 33.379 7.20565 29.1169 4.37097C25.621 2.05242 21.4556 0.717747 17.2419 0.979843C13.0282 1.24194 8.75807 3.29436 5.55242 6.29436C-0.22177 11.7177 -1.26209 20.8145 2.37904 27.879C5 32.9718 9.50807 36.629 14.6008 39.0242C15.5403 39.4718 16.1452 38.3952 15.5645 37.8629C10.7581 33.4879 6.31049 26.5605 7.88307 20.9274C8.83468 17.4798 10.7097 16.0766 13.6492 16.1129C15.8387 16.125 18.7379 18.7137 20.1411 20.6008C20.6573 21.2903 21.1694 21.9758 21.7057 22.6452C25.5242 27.4355 29.1371 31.1452 36.9395 36.5202V36.5282Z" fill="#D0E5ED" />
+                                            <path d="M34.1492 36.3467C33.9637 36.2258 33.754 36.1532 33.5322 36.1492C32.3589 36.129 29.8185 36.1209 28.1169 35.9314C19.008 35.1371 10.5524 26.8911 13.1209 18.2742C13.2298 17.9113 12.8951 17.5604 12.5282 17.6492C9.34675 18.4475 8.38304 22.7298 9.46772 26.3911C9.47982 26.4274 9.49191 26.4596 9.50401 26.4959C13.6492 37.7459 26.9879 45.9637 36.9234 40.2217C37.0242 40.1613 37.1169 40.0887 37.1976 40.004C37.1976 40.004 37.1976 39.9959 37.2097 39.9919C37.6814 39.4798 37.5927 38.6572 37.0121 38.2701L34.1572 36.3508L34.1492 36.3467Z" fill="#94BFCE" />
+                                            <path d="M19.3871 22.4881C16.7742 19.2018 14.4234 17.5002 14.4274 21.4437C14.4274 22.1453 14.8105 22.8026 15.4274 23.1776C17.8871 24.6615 20.1613 27.0405 22.7863 27.7219C23.2339 27.8389 23.5645 27.3147 23.25 26.9881C21.9395 25.605 20.7057 24.1494 19.3871 22.5002V22.4921V22.4881Z" fill="#264759" />
+                                            <path d="M55.117 28.2259C54.4436 27.9517 54.2742 27.0807 54.7904 26.5727C56.3347 25.0606 57.9154 23.5686 59.5726 22.1815C60.4718 21.4275 61.4476 20.7299 62.4516 20.113C63.4557 19.492 64.5726 18.9799 65.6291 18.3993C66.2581 18.0525 67.0162 18.238 67.4395 18.8025C68.375 20.0485 69.7057 22.359 69.0645 24.7783C68.117 28.3711 62.9395 29.1694 62.9395 29.1694C62.9395 29.1694 58.8871 29.7662 55.1129 28.2259H55.117Z" fill="#264759" />
+                                            <path d="M64.2782 17.4353C65.0282 17.0926 64.9879 15.9958 64.1976 15.7539C62.5322 15.2378 59.9274 14.5039 56.0847 16.1974C51.9476 18.02 48.8387 20.4797 47.375 21.5442C46.9476 21.8547 46.875 22.4676 47.2218 22.8668C47.9959 23.7499 49.5282 25.2297 51.9234 26.3829C52.2984 26.5644 52.75 26.4676 53.0161 26.1491C54.4355 24.4353 60.3629 19.2176 64.2782 17.4394V17.4353Z" fill="#E2C06B" />
+                                        </g>
+
+                                        <!-- Nhóm chữ ORACLE NetSuite -->
+                                        <g transform="translate(-35, 0)">
+                                            <path d="M147.31 12.3631C146.153 12.3631 145.177 11.5808 144.871 10.5163H151.302L152.19 9.13725H144.867C145.169 8.06467 146.145 7.29048 147.306 7.29048H151.726L152.609 5.91145H147.206C145.044 5.91145 143.294 7.66145 143.294 9.8308C143.294 12.0002 145.048 13.7421 147.206 13.7421H151.855L152.738 12.3631H147.31ZM128.887 13.7421H133.536L134.419 12.3631H129C127.593 12.3631 126.46 11.226 126.46 9.8308C126.46 8.43564 127.589 7.29855 129 7.29855H133.411L134.306 5.91145H128.899C126.738 5.91145 124.98 7.66145 124.98 9.8308C124.98 12.0002 126.738 13.7421 128.899 13.7421M100.302 12.3631H95.9516C94.5484 12.3631 93.4194 11.226 93.4194 9.8308C93.4194 8.43564 94.5484 7.29855 95.9516 7.29855H100.298C101.702 7.29855 102.839 8.42758 102.839 9.8308C102.839 11.234 101.71 12.3631 100.298 12.3631M95.8589 13.7421H100.411C102.573 13.7421 104.319 11.9921 104.319 9.8308C104.319 7.66951 102.573 5.91145 100.407 5.91145H95.8589C93.6895 5.91145 91.9395 7.66145 91.9395 9.8308C91.9395 12.0002 93.6895 13.7421 95.8589 13.7421ZM111.706 11.2139C113.173 11.2139 114.355 10.0284 114.355 8.56467C114.355 7.10096 113.177 5.91145 111.706 5.91145H105.117V13.7461H106.625V7.30258H111.609C112.31 7.30258 112.875 7.86709 112.875 8.56871C112.875 9.27032 112.31 9.8429 111.609 9.8429H107.367L111.867 13.7542H114.048L111.032 11.2219H111.718M136.613 12.3631V5.91145H135.105V12.9961C135.105 13.1897 135.185 13.3792 135.327 13.5163C135.468 13.6655 135.669 13.7461 135.871 13.7461H142.734L143.629 12.3671H136.609L136.613 12.3631ZM118.185 10.984H122.198L120.077 7.56467L116.181 13.7461H114.403L119.145 6.32274C119.347 6.02032 119.698 5.83887 120.073 5.83887C120.448 5.83887 120.786 6.01225 120.988 6.31064L125.742 13.7461H123.972L123.137 12.3671H119.069L118.181 10.9881L118.185 10.984Z" fill="white" />
+                                            <path d="M103.052 33.3026L94.2339 20.222L94.1936 20.1655H91.9395V37.4317H94.3468V24.2946L103.165 37.3752L103.206 37.4317H105.46V20.1655H103.052V33.3026Z" fill="white" />
+                                            <path d="M125.766 35.4193C125.597 35.4354 125.419 35.4435 125.238 35.4435C124.161 35.4435 123.637 34.8265 123.637 33.5604V26.9515H126.282V24.9636H123.637V21.5967H122.145L121.294 24.9475L119.169 25.6572V26.9555H121.274V33.5886C121.274 34.9273 121.569 35.9314 122.149 36.5765C122.75 37.2257 123.677 37.5523 124.911 37.5523C125.161 37.5523 125.399 37.5443 125.621 37.5281C125.859 37.512 126.093 37.4797 126.319 37.4314L126.419 37.4112V35.3386L126.278 35.3547C126.121 35.3709 125.948 35.3951 125.766 35.4233V35.4193Z" fill="white" />
+                                            <path d="M150.375 33.0204C150.056 33.8269 149.577 34.4842 148.948 34.9801C148.335 35.46 147.669 35.7019 146.968 35.7019C146.137 35.7019 145.504 35.4358 145.081 34.9075C144.649 34.3713 144.431 33.589 144.431 32.5769V24.96H142.069V32.6454C142.069 34.2583 142.448 35.5164 143.202 36.3793C143.972 37.2463 145.069 37.6858 146.456 37.6858C147.359 37.6858 148.206 37.4761 148.972 37.0608C149.661 36.6938 150.254 36.1858 150.734 35.5406L151.073 37.4277H152.734V24.96H150.371V33.0204H150.375Z" fill="white" />
+                                            <path d="M155.02 26.0284L156.238 26.7985V37.4316H158.601V24.9639H155.02V26.0284Z" fill="white" />
+                                            <path d="M158.577 20.9194H155.746V23.0686H158.577V20.9194Z" fill="white" />
+                                            <path d="M166.988 35.4193C166.819 35.4354 166.641 35.4435 166.46 35.4435C165.383 35.4435 164.859 34.8265 164.859 33.5604V26.9515H167.504V24.9636H164.859V21.5967H163.367L162.516 24.9475L160.391 25.6572V26.9555H162.496V33.5886C162.496 34.9273 162.79 35.9314 163.371 36.5765C163.972 37.2257 164.899 37.5523 166.133 37.5523C166.383 37.5523 166.621 37.5443 166.843 37.5281C167.081 37.512 167.315 37.4797 167.54 37.4314L167.641 37.4112V35.3386L167.5 35.3547C167.343 35.3709 167.165 35.3951 166.988 35.4233V35.4193Z" fill="white" />
+                                            <path d="M179.742 30.4717C179.742 26.6451 177.984 24.7056 174.512 24.7056C172.722 24.7056 171.319 25.254 170.347 26.3386C169.367 27.4475 168.911 28.9556 168.911 31.0806C168.911 33.2056 169.419 34.883 170.419 36.008C171.439 37.1209 172.948 37.6894 174.911 37.6894C175.774 37.6894 176.577 37.6088 177.302 37.4515C178.048 37.2902 178.653 37.0725 179.097 36.8023L179.157 36.762V34.7136L178.976 34.7943C178.335 35.0846 177.698 35.3023 177.081 35.4394C176.468 35.5765 175.81 35.6491 175.121 35.6491C173.899 35.6491 172.968 35.3467 172.359 34.7499C171.766 34.1572 171.411 33.2136 171.306 31.9515H179.742V30.4677V30.4717ZM171.306 30.0362C171.383 28.9677 171.681 28.1451 172.198 27.5846C172.746 26.9919 173.524 26.6894 174.512 26.6894C175.56 26.6894 176.314 26.9556 176.754 27.4878C177.198 28.004 177.431 28.8588 177.448 30.0362H171.302H171.306Z" fill="white" />
+                                            <path d="M113.097 24.7056C111.306 24.7056 109.903 25.254 108.931 26.3386C107.952 27.4515 107.496 28.9556 107.496 31.0806C107.496 33.2056 108.004 34.883 109.004 36.008C110.024 37.1209 111.532 37.6894 113.496 37.6894C114.359 37.6894 115.161 37.6088 115.887 37.4515C116.633 37.2902 117.238 37.0725 117.681 36.8023L117.742 36.7661V34.7177L117.56 34.7983C116.919 35.0886 116.282 35.3064 115.665 35.4435C115.052 35.5806 114.395 35.6531 113.706 35.6531C112.484 35.6531 111.552 35.3507 110.944 34.754C110.351 34.1612 109.996 33.2177 109.891 31.9556H118.327V30.4717C118.327 26.6451 116.569 24.7056 113.097 24.7056ZM109.891 30.0362C109.968 28.9677 110.266 28.1451 110.782 27.5846C111.331 26.9919 112.109 26.6894 113.097 26.6894C114.145 26.6894 114.899 26.9556 115.339 27.4878C115.782 28.004 116.016 28.8588 116.032 30.0362H109.887H109.891Z" fill="white" />
+                                            <path d="M139.238 29.9437C138.573 29.1654 137.439 28.4638 135.867 27.8469L134.064 27.1453C132.944 26.6977 132.153 26.2743 131.718 25.8832C131.29 25.5001 131.081 25.0485 131.081 24.5041C131.081 22.8429 132.286 22.0364 134.766 22.0364C136.085 22.0364 137.548 22.3791 139.113 23.0566L139.29 23.1332V20.9437L139.222 20.9074C138.637 20.5888 137.923 20.3429 137.109 20.1695C136.294 19.9799 135.488 19.8872 134.718 19.8872C132.855 19.8872 131.367 20.3066 130.286 21.1291C129.198 21.9638 128.645 23.113 128.645 24.5525C128.645 25.5606 128.988 26.4558 129.661 27.2138C130.343 27.9437 131.46 28.613 132.984 29.2098L134.786 29.9114C135.952 30.359 136.762 30.7985 137.198 31.2179C137.621 31.6251 137.839 32.1533 137.839 32.7864C137.839 33.6574 137.488 34.3187 136.77 34.8106C136.06 35.3066 135.056 35.5606 133.778 35.5606C132.242 35.5606 130.605 35.2098 128.915 34.5162L128.738 34.4437V36.6372L128.81 36.6695C129.21 36.859 129.698 37.0364 130.258 37.1896C130.823 37.3469 131.435 37.4759 132.077 37.5687C132.734 37.6614 133.67 37.7098 133.968 37.7098C135.939 37.7098 137.492 37.2743 138.585 36.4195C139.706 35.5404 140.27 34.3025 140.27 32.738C140.27 31.6493 139.919 30.7058 139.234 29.9396L139.238 29.9437Z" fill="white" />
+                                        </g>
+                                    </svg>
+                                    <p>
+                                        @* NetSuite *@
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="Home" asp-action="Index" class="nav-link @(controllerName == "Home" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Main</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a asp-controller="Oracle" asp-action="POInbound" class="nav-link @(selectedPage == "NetsuiteSO" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Create Netsuite SO</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else if (accessMode == "PMC")
+                        {
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon fas fa-file-alt"></i>
+                                    <p>
+                                        Target Input
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="DailyTarget" asp-action="Index" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "DailyTarget" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Daily Target</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a asp-controller="HourlyTarget" asp-action="Index" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "HourlyTarget" && indexPage == "Index" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Hourly Target</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item menu-open">
+                                <a href="#" class="nav-link active">
+                                    <i class="nav-icon fas fa-file-alt"></i>
+                                    <p>
+                                        Report
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a asp-controller="Report" asp-action="DailyProductionResultReport" asp-route-companyCode="@companyCode" class="nav-link @(controllerName == "Report" && indexPage == "DailyProductionResultReport" ? "active":"")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Daily Production Result Report</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">@titleName</h1>
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active">@titleName</li>
+                            </ol>
+                        </div><!-- /.col -->
+                        <div class="col-12">
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>🟢 Thành công!</strong> @TempData["SuccessMessage"]
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>🔴 Thất bại!</strong> @TempData["ErrorMessage"]
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <!-- /.content-header -->
+            <!-- Main content -->
+            <section class="content">
+                @RenderBody()
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <strong>Copyright &copy; 2026 <a href="https://sigmaworldwide.com/">Sigmaworldwide</a>.</strong>
+            All rights reserved.
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 1.0
+            </div>
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+        </aside>
+        <!-- /.control-sidebar -->
+    </div>
+    <!-- ./wrapper -->
+    <!-- REQUIRED SCRIPTS -->
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button)
+
+        $(document).ready(function () {
+            // 1. TÌM Ô CHECKBOX DARK MODE DỰA TRÊN TEXT "Dark Mode" Ở THẺ SPAN CẠNH NÓ
+            var $darkModeCheckbox = $('span:contains("Dark Mode")').siblings('input[type="checkbox"]');
+
+            // Nếu không tìm thấy bằng cách trên, thử tìm thẻ div bao ngoài theo cấu trúc của AdminLTE
+            if ($darkModeCheckbox.length === 0) {
+                $darkModeCheckbox = $('.mb-4 input[type="checkbox"]').filter(function() {
+                    return $(this).next('span').text().trim() === "Dark Mode";
+                });
+            }
+
+            // 2. KHI VỪA LOAD TRANG: Kiểm tra trạng thái đã lưu trong LocalStorage
+            var savedDarkMode = localStorage.getItem('theme-dark-mode');
+
+            if (savedDarkMode === 'true') {
+                // Nếu trước đó đã bật -> Thêm class dark-mode vào body và tích chọn sẵn ô checkbox
+                $('body').addClass('dark-mode');
+                $darkModeCheckbox.prop('checked', true);
+            } else {
+                // Nếu trước đó tắt (hoặc lần đầu vào trang) -> Gỡ bỏ class và bỏ tích chọn
+                $('body').removeClass('dark-mode');
+                $darkModeCheckbox.prop('checked', false);
+            }
+
+            // 3. KHI NGƯỜI DÙNG CLICK THAY ĐỔI Ô CHECKBOX (BẬT/TẮT)
+            $darkModeCheckbox.on('change', function () {
+                if ($(this).is(':checked')) {
+                    // Người dùng TÍCH CHỌN -> Bật Dark Mode + Lưu 'true' vào LocalStorage
+                    $('body').addClass('dark-mode');
+                    localStorage.setItem('theme-dark-mode', 'true');
+                } else {
+                    // Người dùng BỎ TÍCH -> Tắt Dark Mode + Lưu 'false' vào LocalStorage
+                    $('body').removeClass('none-dark-mode').removeClass('dark-mode');
+                    localStorage.setItem('theme-dark-mode', 'false');
+                }
+            });
+        });
+    </script>
+    
+
+    <!-- Sparkline -->
+    <script src="~/plugins/sparklines/sparkline.js"></script>
+    <!-- JQVMap -->
+    <script src="~/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    <!-- jQuery Knob Chart -->
+    <script src="~/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <!-- daterangepicker -->
+    <script src="~/plugins/moment/moment.min.js"></script>
+    <script src="~/plugins/daterangepicker/daterangepicker.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="~/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Summernote -->
+    <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
+    <!-- overlayScrollbars -->
+    <script src="~/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+
+    
+
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.js"></script>
+
+    <!-- PAGE ~/plugins -->
+    <!-- jQuery Mapael -->
+    <script src="~/plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+    <script src="~/plugins/raphael/raphael.min.js"></script>
+    <script src="~/plugins/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="~/plugins/jquery-mapael/maps/usa_states.min.js"></script>
+
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/dist/js/demo.js"></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="~/dist/js/pages/dashboard3.js"></script>
+    <script src="~/dist/js/pages/dashboard2.js"></script>
+    <script src="~/dist/js/pages/dashboard.js"></script>
+</body>
+</html>

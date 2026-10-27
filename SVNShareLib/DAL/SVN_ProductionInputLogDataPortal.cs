@@ -91,6 +91,33 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public async Task<List<SVN_ProductionInputLogUI>> GetCountDataFromDateToDateFinishedAsync(DateTime fromDate, DateTime toDate, string status, int Count)
+        {
+            // Sử dụng WHERE để lọc và tham số @dateFinished để bảo mật
+            string sql = @"SELECT TOP(#Count) * FROM SVN_ProductionInputLogs 
+                         WHERE date_finished >= @fromDate AND date_finished <= @toDate AND status = @status
+                         AND master_wo_code = 'NM/MO/05063'
+                         ORDER BY id";
+            if(Count <= 0)
+            {
+                Count = 1000; // Đảm bảo Count luôn lớn hơn 0
+            }
+            sql = sql.Replace("#Count", Count.ToString());
+            try
+            {
+                using (var db = Connection)
+                {
+                    // Truyền tham số vào QueryAsync
+                    var dataUI = await db.QueryAsync<SVN_ProductionInputLogUI>(sql, new { fromDate, toDate, status });
+                    return dataUI.ToList();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<List<SVN_ProductionInputLogUI>> GetDataByIdAsync(int id)
         {
             // Sử dụng WHERE để lọc và tham số @dateFinished để bảo mật

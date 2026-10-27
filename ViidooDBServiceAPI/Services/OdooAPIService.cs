@@ -1770,11 +1770,14 @@ namespace ViidooDBServiceAPI.Services
                 };
 
                 string onchangeField = "qty_producing";
-                if (productionOrderInfo["product_tracking"] == "serial" && (tryCount == 0 || tryCount == 2))
+                if ((productionOrderInfo["product_tracking"] == "serial" || productionOrderInfo["product_tracking"] == "lot") && (tryCount == 0 || tryCount == 2))
                 {
                     productionOrderInfo["state"] = "progress";
                     onchangeField = "lot_producing_id";
-                    qty_producing = 0;
+                    if(productionOrderInfo["product_tracking"] == "serial")
+                    {
+                        qty_producing = 0;
+                    }
                     setting = new Dictionary<string, object>
                     {
                         { "confirm_cancel", "" },
@@ -2032,7 +2035,7 @@ namespace ViidooDBServiceAPI.Services
                                 show_lock = (productionOrderInfo["show_lock"] == "False") ? false : true,
                                 move_byproduct_ids = new object[] { },
                                 state = (object)productionOrderInfo["state"],
-                                show_serial_mass_produce = (productionOrderInfo["product_tracking"] == "serial") ? false :true,
+                                show_serial_mass_produce = (productionOrderInfo["product_tracking"] == "serial" || productionOrderInfo["product_tracking"] == "lot") ? false :true,
                                 check_ids = check_ids,
                                 check_todo = (productionOrderInfo["check_todo"] == "False") ? false : true,
                                 reservation_state = (object)productionOrderInfo["reservation_state"],
@@ -2071,7 +2074,7 @@ namespace ViidooDBServiceAPI.Services
                                 product_uom_category_id = product_uom_category_id,
                                 product_uom_id = product_uom_id,
                                 product_packaging_id = (productionOrderInfo["product_packaging_id"] == "False") ? false :(object) productionOrderInfo["product_packaging_id"],
-                                lot_producing_id = (lot_id == 0) ? false : (object)lot_id,
+                                lot_producing_id = (lot_id == 0 || productionOrderInfo["product_tracking"] == "lot") ? false : (object)lot_id,
                                 date_planned_start = (productionOrderInfo["date_planned_start"] == "False") ? false :(object) productionOrderInfo["date_planned_start"],
                                 delay_alert_date = (productionOrderInfo["delay_alert_date"] == "False") ? false : (object)productionOrderInfo["delay_alert_date"],
                                 json_popover = (object)productionOrderInfo["json_popover"],
@@ -2339,6 +2342,373 @@ namespace ViidooDBServiceAPI.Services
                     throw new Exception($"MarkDoneProductionOrderAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
                 }
                 return json.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        /// <summary>
+        /// Hàm make done mới trả về dạng dynamic để dễ dang thao tác
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<dynamic> MarkDoneProductionOrderAsyncV1(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 138,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        args = new object[]
+                        {
+                            new int[] { id } // ID của mrp.production
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                default_company_id = 1,
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 },
+                                produce_all = true
+                            }
+                        },
+                        method = "button_mark_done", // sửa key "method " -> "method"
+                        model = "mrp.production"
+                    }
+                };
+
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_button", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"MarkDoneProductionOrderAsync - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để tạo bản ghi mrp.consumption.warning từ kết quả trả về của hàm MarkDone
+        /// </summary>
+        /// <param name="markDoneResult"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<int> CreateConsumptionWarningAsync(dynamic markDoneResult, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                int requestId = new Random().Next(1, 100000);
+
+                // Lấy context từ kết quả dynamic của hàm MarkDone
+                var context = markDoneResult?.result?.context;
+                if (context == null)
+                {
+                    throw new Exception("Không tìm thấy context trong kết quả trả về của hàm MarkDone.");
+                }
+
+                // Lấy productionId từ button_mark_done_production_ids
+                int productionId = (int)context.button_mark_done_production_ids[0];
+
+                // Lấy danh sách warning lines từ default_mrp_consumption_warning_line_ids
+                var rawLines = context.default_mrp_consumption_warning_line_ids;
+                var formattedLines = new List<object>();
+
+                if (rawLines != null)
+                {
+                    foreach (var line in rawLines)
+                    {
+                        // Mối dòng line có dạng: [0, 0, { ... }]
+                        var lineData = line[2];
+                        if (lineData != null)
+                        {
+                            // Tạo ID ảo dạng virtual_xxxxxx theo đúng định dạng Odoo yêu cầu
+                            string virtualId = $"virtual_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
+                            formattedLines.Add(new object[] { 0, virtualId, lineData });
+                        }
+                    }
+                }
+
+                // Đóng gói Payload theo đúng mẫu Postman
+                var payload = new
+                {
+                    id = requestId,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.consumption.warning",
+                        method = "create",
+                        args = new object[]
+                        {
+                    new
+                    {
+                        mrp_production_ids = new object[] { new object[] { 6, false, new int[] { productionId } } },
+                        mrp_consumption_warning_line_ids = formattedLines
+                    }
+                        },
+                        kwargs = new
+                        {
+                            context = context
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.consumption.warning/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic json = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                if (json.error != null)
+                {
+                    string errMessage = json.error.data?.message?.ToString() ?? json.error.message?.ToString();
+                    throw new Exception($"CreateConsumptionWarning Error: {errMessage}");
+                }
+
+                // Trả về ID của bản ghi warning vừa được tạo (kiểu int)
+                return (int)json.result;
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để xác nhận bản ghi mrp.consumption.warning từ kết quả trả về của hàm MarkDone
+        /// </summary>
+        /// <param name="warningId"></param>
+        /// <param name="markDoneResult"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<dynamic> ConfirmConsumptionWarningAsync(int warningId, dynamic markDoneResult, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                int requestId = new Random().Next(1, 100000);
+
+                // Lấy lại context từ kết quả MarkDone ban đầu truyền sang
+                var context = markDoneResult?.result?.context;
+                if (context == null)
+                {
+                    throw new Exception("Không tìm thấy context để xác nhận Consumption Warning.");
+                }
+
+                // Dựng Payload gọi button action_confirm trên model mrp.consumption.warning
+                var payload = new
+                {
+                    id = requestId,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.consumption.warning",
+                        method = "action_confirm",
+                        args = new object[]
+                        {
+                    new int[] { warningId } // Truyền ID bản ghi warning vừa tạo vào đây
+                        },
+                        kwargs = new
+                        {
+                            context = context
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                // Gọi qua endpoint call_button tương tự như lúc bấm MarkDone
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_button", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic json = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                if (json.error != null)
+                {
+                    string errMessage = json.error.data?.message?.ToString() ?? json.error.message?.ToString();
+                    throw new Exception($"ConfirmConsumptionWarning Error: {errMessage}");
+                }
+
+                // Trả về kết quả (có thể là true hoặc tiếp tục là một Client Action như Backorder vừa rồi)
+                return json;
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để tạo bản ghi mrp.production.backorder từ kết quả trả về của hàm MarkDone hoặc ConfirmWarning
+        /// </summary>
+        /// <param name="previousResult"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<int> CreateProductionBackorderAsync(dynamic previousResult, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                int requestId = new Random().Next(1, 100000);
+
+                // Lấy context trả về từ bước ngay trước đó (có thể là result của markDone hoặc confirmWarning)
+                var context = previousResult?.result?.context;
+                if (context == null)
+                {
+                    throw new Exception("Không tìm thấy context trong kết quả trả về từ Odoo.");
+                }
+
+                // Lấy danh sách backorder lines từ context
+                var rawLines = context.default_mrp_production_backorder_line_ids;
+                var formattedLines = new List<object>();
+
+                if (rawLines != null)
+                {
+                    foreach (var line in rawLines)
+                    {
+                        // Cấu trúc line từ context: [0, 0, { "mrp_production_id": ..., "to_backorder": true }]
+                        var lineData = line[2];
+                        if (lineData != null)
+                        {
+                            string virtualId = $"virtual_{Guid.NewGuid().ToString("N").Substring(0, 6)}";
+                            formattedLines.Add(new object[] { 0, virtualId, lineData });
+                        }
+                    }
+                }
+
+                // Dựng Payload khớp 100% với Postman bạn vừa test thành công
+                var payload = new
+                {
+                    id = requestId,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production.backorder",
+                        method = "create",
+                        args = new object[]
+                        {
+                    new
+                    {
+                        mrp_production_backorder_line_ids = formattedLines
+                    }
+                        },
+                        kwargs = new
+                        {
+                            context = context // Giữ nguyên toàn bộ context linh hoạt của Odoo
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production.backorder/create", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic json = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                if (json.error != null)
+                {
+                    string errMessage = json.error.data?.message?.ToString() ?? json.error.message?.ToString();
+                    throw new Exception($"CreateProductionBackorder Error: {errMessage}");
+                }
+
+                // Trả về ID của bản ghi backorder vừa tạo (ví dụ: 681907)
+                return (int)json.result;
+            }
+        }
+
+        /// <summary>
+        /// Hàm API để xác nhận bản ghi mrp.production.backorder từ kết quả trả về của hàm CreateProductionBackorder
+        /// </summary>
+        /// <param name="backorderId"></param>
+        /// <param name="previousResult"></param>
+        /// <param name="uid"></param>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<dynamic> ConfirmProductionBackorderAsync(int backorderId, dynamic previousResult, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                int requestId = new Random().Next(1, 100000);
+
+                var context = previousResult?.result?.context;
+
+                var payload = new
+                {
+                    id = requestId,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production.backorder",
+                        method = "action_backorder", // Gọi nút Xác nhận tạo Backorder
+                        args = new object[]
+                        {
+                    new int[] { backorderId } // ID 681907
+                        },
+                        kwargs = new
+                        {
+                            context = context
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_button", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic json = JsonConvert.DeserializeObject<dynamic>(responseString);
+
+                if (json.error != null)
+                {
+                    string errMessage = json.error.data?.message?.ToString() ?? json.error.message?.ToString();
+                    throw new Exception($"ConfirmProductionBackorder Error: {errMessage}");
+                }
+
+                return json;
             }
         }
 
@@ -2910,7 +3280,7 @@ namespace ViidooDBServiceAPI.Services
         /// <param name="uid"></param>
         /// <param name="sessionId"></param>
         /// <returns></returns>
-        public async Task<Dictionary<string, object>> CreateLotComponentForMO(int lot_id, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId)
+        public async Task<Dictionary<string, object>> CreateLotComponentForMO(int lot_id, int mo_id, Dictionary<string, object> stockMoveInfo, int uid, string sessionId, decimal qty_done = 1)
         {
             using (var client = new HttpClient())
             {
@@ -2973,7 +3343,7 @@ namespace ViidooDBServiceAPI.Services
                                             lot_id = lot_id,
                                             lot_name = (string?)null,
                                             can_create_equipment = false,
-                                            qty_done = 1,
+                                            qty_done = qty_done,
                                             product_uom_id = product_uom_id
                                         }
                                     }
@@ -3655,6 +4025,245 @@ namespace ViidooDBServiceAPI.Services
                 {
                     //throw new Exception(json["error"]["message"].ToString());
                     throw new Exception($"SearhProductItem - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> SearhProductItemByID(int id, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+                var payload = new
+                {
+                    id = 180,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "product.product",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                                new object[] { "id", "=", id }
+                            },
+                            fields = new string[]
+                            {
+                                "id", "name", "default_code", "product_tmpl_id"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "vi_VN",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/product.product/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    //throw new Exception(json["error"]["message"].ToString());
+                    throw new Exception($"SearhProductItem - {json["error"]["code"].ToString()} - {json["error"]["message"].ToString()} - {json["error"]["data"].ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetProgressByName(string name, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 167,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "mrp.production.progress",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                        new object[] { "name", "=", name }
+                            },
+                            fields = new string[]
+                            {
+                                "state", "date_planned_finished", "qty_produced", "priority",
+                                "name", "id", "forecasted_issue", "product_id", "bom_id",
+                                "company_id", "progress", "product_qty", "product_uom_id",
+                                "date_planned_start", "date_deadline", "display_name"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/mrp.production.progress/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"GetProgressByName - {json["error"]["code"]?.ToString()} - {json["error"]["message"]?.ToString()} - {json["error"]["data"]?.ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetSaleOrderByName(string name, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 197,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "sale.order",
+                        method = "search_read",
+                        args = new object[] { },
+                        kwargs = new
+                        {
+                            domain = new object[]
+                            {
+                        new object[] { "name", "=", name }
+                            },
+                            fields = new string[]
+                            {
+                                "name", "x_ERP_PO", "x_ERP_Deadline_Shipment", "x_LotID", "order_line"
+                            },
+                            limit = 1,
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/sale.order/search_read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"GetSaleOrderByName - {json["error"]["code"]?.ToString()} - {json["error"]["message"]?.ToString()} - {json["error"]["data"]?.ToString()}");
+                }
+
+                var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
+                return obj;
+            }
+        }
+
+        public async Task<dynamic> GetSaleOrderLinesByIds(int[] ids, int uid, string sessionId)
+        {
+            using (var client = new HttpClient())
+            {
+                // Gửi request đọc dữ liệu
+                client.DefaultRequestHeaders.Add("Cookie", $"session_id={sessionId}");
+
+                var payload = new
+                {
+                    id = 198,
+                    jsonrpc = "2.0",
+                    method = "call",
+                    @params = new
+                    {
+                        model = "sale.order.line",
+                        method = "read",
+                        args = new object[]
+                        {
+                            ids, // Mảng danh sách ID truyền vào [1618, 1619, ...]
+                            new string[]
+                            {
+                                "product_id"
+                            }
+                        },
+                        kwargs = new
+                        {
+                            context = new
+                            {
+                                lang = "en_US",
+                                tz = "Asia/Ho_Chi_Minh",
+                                uid = uid,
+                                allowed_company_ids = new int[] { 1 }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(payload),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await client.PostAsync($"{dbConfig.ServerUrl}/web/dataset/call_kw/sale.order.line/read", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                var json = JObject.Parse(responseString);
+
+                if (json["error"] != null)
+                {
+                    throw new Exception($"GetSaleOrderLinesByIds - {json["error"]["code"]?.ToString()} - {json["error"]["message"]?.ToString()} - {json["error"]["data"]?.ToString()}");
                 }
 
                 var obj = JsonConvert.DeserializeObject<dynamic>(responseString);
