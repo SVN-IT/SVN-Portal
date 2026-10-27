@@ -20,11 +20,22 @@ namespace Sigma_Authentication_Portal_API.Services
             ClaimsPrincipal principal,
             CancellationToken cancellationToken = default)
         {
-            var tenantId = principal.FindFirst("tid")?.Value;
-            var objectId = principal.FindFirst("oid")?.Value;
+            var tenantId =
+    principal.FindFirst("tid")?.Value
+    ?? principal.FindFirst(
+        "http://schemas.microsoft.com/identity/claims/tenantid")
+        ?.Value;
+
+            var objectId =
+                principal.FindFirst("oid")?.Value
+                ?? principal.FindFirst(
+                    "http://schemas.microsoft.com/identity/claims/objectidentifier")
+                    ?.Value;
+
             var email =
                 principal.FindFirst("preferred_username")?.Value
-                ?? principal.FindFirst(ClaimTypes.Email)?.Value;
+                ?? principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+
             var displayName =
                 principal.FindFirst("name")?.Value
                 ?? principal.Identity?.Name;
