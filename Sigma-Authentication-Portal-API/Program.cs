@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
+using Sigma_Authentication_Portal_API.Models;
 using Sigma_Authentication_Portal_API.Services;
 using Sigma_Authentication_Portal_API.Tickets;
 
@@ -19,6 +20,9 @@ builder.Services.AddAuthorization();
 
 // Đăng ký danh sách Client App được phép truy cập.
 builder.Services.AddSingleton<IClientAppRegistry, ClientAppRegistry>();
+
+InternalAuth internalAuth = builder.Configuration.GetSection("InternalAuth").Get<InternalAuth>();
+builder.Services.AddSingleton(internalAuth);
 
 // HTTP client gọi API xác thực nội bộ.
 builder.Services.AddHttpClient<IInternalAuthService, InternalAuthService>(
