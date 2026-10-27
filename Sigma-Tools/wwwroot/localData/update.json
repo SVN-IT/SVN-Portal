@@ -1,0 +1,108 @@
+{
+  "po_type": "TOAST",
+  "document_type": "Purchase Order",
+  "source_file": "PO14861.pdf",
+  "total_pages_scanned": 2,
+  "header": {
+    "po_type": "TOAST",
+    "po_number": "PO14861",
+    "po_date": "2026-10-19 00:00:00",
+    "buyer": {
+      "name": "Toast Inc.",
+      "address": "333 Summer Street, Boston, MA 02210, United States"
+    },
+    "vendor": {
+      "name": "Sigma Worldwide, LLC.",
+      "address": "600 3RD AVE STE 200, New York NY 10016-1901, United States"
+    },
+    "vendor_code": "",
+    "buyer_contact": {
+      "name": null,
+      "tel": null,
+      "email": null
+    },
+    "vendor_contact": {
+      "name": null,
+      "tel": null,
+      "email": null
+    },
+    "ship_to": {
+      "name": "Alom-Indiana",
+      "address": "3910 Waldemere Ave, Unit 1, Indianapolis IN 46241, United States"
+    },
+    "approval_status": "Approved",
+    "payment_terms": "Net 30",
+    "trade_terms": "FOB",
+    "currency": "USD"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "item_no": "1-1",
+      "item": "FG-TRO-CE-0001-00",
+      "category": "",
+      "description": "Toast Go 3 Handheld Charging Dock (NA)",
+      "inv_org": "",
+      "quantity": 3750,
+      "uom": "PCS",
+      "price_each": 61.86,
+      "amount": 231975,
+      "eta_date": "2027-04-09"
+    },
+    {
+      "line_no": 2,
+      "item_no": "2-1",
+      "item": "FG-TRO-CE-0002-00",
+      "category": "",
+      "description": "Toast Go 3 Handheld Protective Case (Peppercorn Gray Color)",
+      "inv_org": "",
+      "quantity": 4000,
+      "uom": "PCS",
+      "price_each": 2.96,
+      "amount": 11840,
+      "eta_date": "2027-04-09"
+    },
+    {
+      "line_no": 3,
+      "item_no": "3-1",
+      "item": "FG-TRO-CE-0003-00",
+      "category": "",
+      "description": "Toast Go 3 White Handheld Protective Case (NA)",
+      "inv_org": "",
+      "quantity": 1000,
+      "uom": "PCS",
+      "price_each": 6.48,
+      "amount": 6480,
+      "eta_date": "2027-04-09"
+    },
+    {
+      "line_no": 4,
+      "item_no": "4-1",
+      "item": "FG-TRO-CE-0004-00",
+      "category": "",
+      "description": "Toast Go 3 Charging Dock (ANZ)",
+      "inv_org": "",
+      "quantity": 150,
+      "uom": "PCS",
+      "price_each": 61.91,
+      "amount": 9286.5,
+      "eta_date": "2027-04-09"
+    }
+  ],
+  "totals": {
+    "total_units": 8900,
+    "subtotal": 259581.5,
+    "shipping_and_handling": 0,
+    "grand_total": 259581.5
+  },
+  "audit_report": {
+    "units_matched": true,
+    "calculated_units": 8900,
+    "expected_units": 8900,
+    "amount_matched": true,
+    "calculated_amount": 259581.5,
+    "expected_amount": 259581.5,
+    "line_integrity_passed": true,
+    "errors": []
+  }
+}

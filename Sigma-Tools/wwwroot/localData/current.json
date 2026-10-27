@@ -1,0 +1,90 @@
+{
+  "po_type": "TOAST",
+  "document_type": "Purchase Order",
+  "source_file": "PO14861.pdf",
+  "total_pages_scanned": 2,
+  "header": {
+    "po_type": "TOAST",
+    "po_number": "PO14861",
+    "po_date": "2026-10-19 00:00:00",
+    "buyer": {
+      "name": "Toast Inc.",
+      "address": "333 Summer Street, Boston, MA 02210, United States"
+    },
+    "vendor": {
+      "name": "Sigma Worldwide, LLC.",
+      "address": "600 3RD AVE STE 200, New York NY 10016-1901, United States"
+    },
+    "ship_to": {
+      "name": "Alom-Indiana",
+      "address": "3910 Waldemere Ave, Unit 1, Indianapolis IN 46241, United States"
+    },
+    "approval_status": "Approved",
+    "inco_terms": "FOB - Port of Origin",
+    "trade_terms": "",
+    "carrier_info": {
+      "carrier": "FedEx",
+      "account": "201979940",
+      "terms": "Collect"
+    },
+    "currency": "USD"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "quantity": 3750,
+      "item": "FG-TRO-CE-0001-00",
+      "part_number": "FG-TRO-CE-0001-00",
+      "description": "Toast Go 3 Handheld Charging Dock (NA)",
+      "expected_receipt_date": "2027-04-09 00:00:00",
+      "price_each": 61.86,
+      "amount": 231975
+    },
+    {
+      "line_no": 2,
+      "quantity": 4000,
+      "item": "FG-TRO-CE-0002-00",
+      "part_number": "FG-TRO-CE-0002-00",
+      "description": "Toast Go 3 Handheld Protective Case (Peppercorn Gray Color)",
+      "expected_receipt_date": "2027-04-09 00:00:00",
+      "price_each": 2.96,
+      "amount": 11840
+    },
+    {
+      "line_no": 3,
+      "quantity": 1000,
+      "item": "FG-TRO-CE-0003-00",
+      "part_number": "FG-TRO-CE-0003-00",
+      "description": "Toast Go 3 White Handheld Protective Case (NA)",
+      "expected_receipt_date": "2027-04-09 00:00:00",
+      "price_each": 6.48,
+      "amount": 6480
+    },
+    {
+      "line_no": 4,
+      "quantity": 150,
+      "item": "FG-TRO-CE-0004-00",
+      "part_number": "FG-TRO-CE-0004-00",
+      "description": "Toast Go 3 Charging Dock (ANZ)",
+      "expected_receipt_date": "2027-04-09 00:00:00",
+      "price_each": 61.91,
+      "amount": 9286.5
+    }
+  ],
+  "totals": {
+    "total_units": 8900,
+    "subtotal": 259581.5,
+    "shipping_and_handling": 0,
+    "grand_total": 259581.5
+  },
+  "audit_report": {
+    "units_matched": true,
+    "calculated_units": 8900,
+    "expected_units": 8900,
+    "amount_matched": true,
+    "calculated_amount": 259581.5,
+    "expected_amount": 259581.5,
+    "line_integrity_passed": true,
+    "errors": []
+  }
+}

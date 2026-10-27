@@ -145,7 +145,12 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
             }
 
             // Tìm và set Incoterm dựa trên header.trade_term
-            let tradeTerm = header.trade_terms;
+
+            // Tìm và set Incoterm linh hoạt (hỗ trợ cả trade_terms lẫn inco_terms của Toast/Goertek)
+            let rawTradeTerm = header.trade_terms || header.inco_terms;
+            let tradeTerm = rawTradeTerm ? rawTradeTerm.toString().trim().split(' ')[0] : null;
+
+            //let tradeTerm = header.trade_terms;
             if (tradeTerm) {
                 log.audit('Incoterm Debug', 'Đang tìm Incoterm với tên: "' + tradeTerm + '"');
 
@@ -179,7 +184,10 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
             }
 
             // Tìm và set Terms tổng quát, chống lệch định dạng (Net 60, NET60, net 60, v.v.)
-            let paymentTermInput = header.payment_terms;
+            // Tìm và set Payment Terms tổng quát (hỗ trợ phòng hờ trường hợp JSON thiếu trường này)
+            let paymentTermInput = header.payment_terms || header.carrier_info?.terms;
+
+            //let paymentTermInput = header.payment_terms;
             if (paymentTermInput) {
                 log.audit('Terms Debug', 'Dữ liệu payment_terms nhận từ header: "' + paymentTermInput + '"');
 
