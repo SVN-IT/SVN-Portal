@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Sign in";
+}
+<form method="post" asp-controller="Account" asp-action="Login">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h3 class="mb-4">Sigma-Tools</h3>
+
+                        @if (TempData["LoginError"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                @TempData["LoginError"]
+                            </div>
+                        }
+
+                        <p class="text-muted">
+                            Sign in with your company Microsoft account.
+                        </p>
+
+                        <button type="submit"
+                           class="btn btn-primary w-100">
+                            Sign in with Microsoft
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

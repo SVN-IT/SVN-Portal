@@ -1,37 +1,94 @@
+﻿
 using Sigma_Tools.Services.Configurations;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. MVC
 builder.Services.AddControllersWithViews();
 
-AppConfig appConfig = builder.Configuration.GetSection("AppConfig").Get<AppConfig>();
-DBConfiguration dBConfiguration = builder.Configuration.GetSection("DBConfiguration").Get<DBConfiguration>();
-dBConfiguration.ProductMode = appConfig.ProductMode;
+// 2. Load configuration
+AppConfig appConfig = builder.Configuration
+    .GetSection("AppConfig")
+    .Get<AppConfig>()
+    ?? throw new InvalidOperationException("Missing AppConfig configuration.");
+
+DBConfiguration dbConfiguration = builder.Configuration
+    .GetSection("DBConfiguration")
+    .Get<DBConfiguration>()
+    ?? throw new InvalidOperationException("Missing DBConfiguration configuration.");
+
+dbConfiguration.ProductMode = appConfig.ProductMode;
 
 builder.Services.AddSingleton(appConfig);
-builder.Services.AddSingleton(dBConfiguration);
+builder.Services.AddSingleton(dbConfiguration);
+
+// 3. HTTP client: gọi Authentication API
+builder.Services.AddHttpClient("AuthenticationAPI", client =>
+{
+    // Base URL sẽ được cấu hình ở bước tiếp theo
+    // dựa trên appsettings.json của Sigma-Tools.
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+// 4. Session: lưu thông tin đăng nhập phía server
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.Name = ".SigmaTools.Session";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// 5. Cookie Authentication
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = ".SigmaTools.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 6. HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
+// Giữ nguyên cấu hình PathBase của dự án
 app.UsePathBase(appConfig.LocationPath);
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+// Session trước khi xử lý controller
+app.UseSession();
+
+// Xác thực trước khi kiểm tra quyền
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();
