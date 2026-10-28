@@ -36,7 +36,8 @@
     downloadZpl: document.getElementById('lt-download-zpl'),
     viewModal: document.getElementById('lt-view-modal'),
     viewSubtitle: document.getElementById('lt-view-subtitle'),
-    viewEdit: document.getElementById('lt-view-edit')
+    viewEdit: document.getElementById('lt-view-edit'),
+    viewPrint: document.getElementById('lt-view-print')
   };
   const modal = new bootstrap.Modal(el.modal);
   const viewModal = new bootstrap.Modal(el.viewModal);
@@ -176,6 +177,7 @@
       '<td class="small" title="' + formatDate(r.updatedAt || r.createdAt) + '">' + formatRelativeDate(r.updatedAt || r.createdAt) + '</td>' +
       '<td><div class="d-flex gap-1">' +
         '<button type="button" class="btn btn-sm btn-icon btn-label-info" data-action="view" data-id="' + r.id + '" aria-label="Xem tem" title="Xem tem"><i class="icon-base ti tabler-eye"></i></button>' +
+        '<a href="' + printUrl(r.id) + '" class="btn btn-sm btn-icon btn-label-success" aria-label="In tem" title="In tem"><i class="icon-base ti tabler-printer"></i></a>' +
         '<button type="button" class="btn btn-sm btn-icon btn-label-primary" data-action="edit" data-id="' + r.id + '" aria-label="Sửa" title="Sửa"><i class="icon-base ti tabler-edit"></i></button>' +
         '<button type="button" class="btn btn-sm btn-icon btn-label-danger" data-action="delete" data-id="' + r.id + '" aria-label="Xoá" title="Xoá"><i class="icon-base ti tabler-trash"></i></button>' +
       '</div></td>' +
@@ -247,6 +249,7 @@
       if (!res.success) throw new Error(res.error);
       state.viewing = res.data;
       el.viewSubtitle.textContent = [res.data.partNumber, res.data.type, res.data.operation, res.data.size].join(' · ');
+      el.viewPrint.href = printUrl(res.data.id);
       viewPreview.reset();
       viewPreview.refresh();
       viewModal.show();
@@ -312,6 +315,11 @@
   }
 
   // Tên file: PN-000415_Box_Twist (bỏ ký tự không hợp lệ trong tên file)
+  // Mở màn In tem với mẫu này được chọn sẵn
+  function printUrl(id) {
+    return cfg.printUrl + '?templateId=' + encodeURIComponent(id);
+  }
+
   function fileBaseName(part, type, operation) {
     const name = [part, type, operation].filter(Boolean).join('_').replace(/[^\w.-]+/g, '-');
     return name || 'label';

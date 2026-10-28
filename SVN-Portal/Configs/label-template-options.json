@@ -13,11 +13,5 @@
       { "Value": "4x13", "Description": "101.6 × 330.2 mm" },
       { "Value": "2x6", "Description": "50.8 × 152.4 mm" }
     ]
-  },
-  "LabelTemplateAuth": {
-    "Accounts": [
-      { "Username": "admin", "Password": "Admin123a@" },
-      { "Username": "user2", "Password": "123456" }
-    ]
   }
 }

@@ -96,7 +96,10 @@
       el.tplSearchGroup.classList.add('d-none');
       el.tplToggle.classList.remove('d-none');
       renderTemplates(res.templates, 'Sản phẩm ' + res.wo.product_code + ' chưa có mẫu tem. Tạo ở màn Mẫu tem.');
-      if (res.templates.length) selectTemplate(res.templates[0].id);
+      // Đang chọn sẵn 1 mẫu của đúng sản phẩm này (VD mở từ màn Mẫu tem) thì giữ nguyên, chỉ điền lại biến theo WO
+      const keep = state.template && res.templates.find(function (t) { return t.id === state.template.id; });
+      if (keep) selectTemplate(keep.id);
+      else if (res.templates.length) selectTemplate(res.templates[0].id);
       else clearTemplate();
     } catch (err) {
       notyf.error(err.message);
@@ -528,6 +531,16 @@
   el.test.addEventListener('click', testConnection);
   el.configSave.addEventListener('click', saveDraftConfig);
 
+  // Mở từ màn Mẫu tem (?templateId=...): chọn sẵn mẫu đó và liệt kê các mẫu cùng part number
+  async function openTemplateFromLink(id) {
+    await selectTemplate(id);
+    if (!state.template) return;
+    el.tplSearch.value = state.template.partNumber;
+    await searchTemplates();
+  }
+
   renderPrinterSummary();
+  const linkedTemplateId = parseInt(new URLSearchParams(window.location.search).get('templateId'), 10);
+  if (linkedTemplateId > 0) openTemplateFromLink(linkedTemplateId);
   el.wo.focus();
 })();

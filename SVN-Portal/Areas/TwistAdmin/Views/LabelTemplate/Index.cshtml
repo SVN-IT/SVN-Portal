@@ -50,7 +50,7 @@
                         <th>Size</th>
                         <th>ZPL</th>
                         <th aria-sort="none"><button type="button" class="lt-sort" data-sort="updated">Cập nhật<i class="icon-base ti tabler-arrows-sort"></i></button></th>
-                        <th style="width: 140px;">Thao tác</th>
+                        <th style="width: 180px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="lt-tbody">
@@ -173,6 +173,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Đóng</button>
+                <a href="#" class="btn btn-label-primary" id="lt-view-print"><i class="icon-base ti tabler-printer me-1"></i>In tem</a>
                 <button type="button" class="btn btn-primary" id="lt-view-edit"><i class="icon-base ti tabler-edit me-1"></i>Sửa</button>
             </div>
         </div>
@@ -198,6 +199,7 @@
     <script>
         window.LabelTemplatePage = {
             apiUrl: '@Url.Content("~/twist/admin/label-template/api")',
+            printUrl: '@Url.Content("~/twist/admin/print")',
             loginUrl: '@Url.Content("~/twist/admin/login")',
             sizes: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Sizes.GroupBy(s => s.Value).ToDictionary(g => g.Key, g => g.First().Description ?? "")))
         };
