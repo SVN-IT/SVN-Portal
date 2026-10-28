@@ -166,7 +166,7 @@ namespace SVN_Portal.Areas.TwistAdmin.Controllers
                 var result = ZplPreviewService.Render(zpl, req.size, req.dpmm);
                 if (result.TotalLabels == 0)
                 {
-                    return Json(new { success = false, error = "Không tìm thấy tem nào (thiếu ^XA ... ^XZ?)." });
+                    return Json(new { success = false, error = "Không tìm thấy tem nào có nội dung để vẽ (thiếu ^XA ... ^XZ hoặc ^FO/^FD?)." });
                 }
                 return Json(new
                 {
@@ -176,7 +176,9 @@ namespace SVN_Portal.Areas.TwistAdmin.Controllers
                     unsupportedCommands = result.UnsupportedCommands,
                     widthMm = result.WidthMm,
                     heightMm = result.HeightMm,
-                    dpmm = result.Dpmm
+                    dpmm = result.Dpmm,
+                    sizeSource = result.SizeSource,
+                    sizeWarning = result.SizeWarning
                 });
             }
             catch (Exception ex)

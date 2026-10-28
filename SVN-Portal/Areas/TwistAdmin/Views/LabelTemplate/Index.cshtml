@@ -189,11 +189,29 @@
         .lt-sort i { font-size: 1rem; opacity: .45; }
         .lt-sort.is-active i { opacity: 1; color: var(--bs-primary); }
         .lt-sort:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; border-radius: 2px; }
-        .lt-preview-stage { background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); padding: 1rem; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
-        .lt-preview-stage figure { margin: 0; width: 100%; text-align: center; }
-        .lt-preview-stage img { max-width: 100%; max-height: 65vh; background: #fff; box-shadow: var(--bs-box-shadow); }
-        .lt-preview-stage figcaption { margin-top: .25rem; }
-        .lt-preview.is-loading .lt-preview-stage { opacity: .55; }
+        .lt-viewer-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; padding: .25rem .5rem; margin-bottom: .5rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+        .lt-viewer-divider { width: 1px; height: 1.25rem; background: var(--bs-border-color); margin: 0 .25rem; }
+        .lt-viewer-range { flex: 1 1 100px; min-width: 80px; max-width: 220px; }
+        .lt-viewer-zoom { min-width: 3rem; text-align: right; font-variant-numeric: tabular-nums; }
+        .lt-preview-stage { height: 60vh; min-height: 320px; overflow: auto; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); cursor: grab; touch-action: none; }
+        .lt-preview-stage.is-dragging { cursor: grabbing; user-select: none; }
+        .lt-preview-stage:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+        #lt-edit-preview .lt-preview-stage { height: 50vh; }
+        .lt-preview-canvas { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; box-sizing: border-box; min-width: 100%; min-height: 100%; width: max-content; }
+        .lt-preview-canvas figure { margin: 0; text-align: center; }
+        .lt-preview-item { position: relative; flex: none; margin: 0 auto; }
+        .lt-preview-item img { position: absolute; top: 50%; left: 50%; max-width: none; background: #fff; box-shadow: var(--bs-box-shadow); -webkit-user-drag: none; }
+        .lt-preview-canvas figcaption { margin-top: .25rem; }
+        .lt-preview.is-loading .lt-preview-canvas { opacity: .55; }
+        /* Mở rộng: khung xem lớn nổi trên modal, nền tối xung quanh (bấm nền tối để thu lại) */
+        .lt-preview-expanded-header { display: none; }
+        .lt-preview.is-expanded { position: fixed; inset: 3vh 3vw; z-index: 2001; display: flex; flex-direction: column; padding: 1.25rem 1.5rem; background: var(--bs-paper-bg); border-radius: var(--bs-border-radius-lg); box-shadow: var(--bs-box-shadow-lg); }
+        .lt-preview.is-expanded .lt-preview-expanded-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .lt-preview.is-expanded .lt-preview-stage { flex: 1 1 auto; height: auto !important; min-height: 0; }
+        .lt-preview-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(47, 43, 61, .6); }
+        /* Vuexy đặt transform cho .modal-dialog (core.css: .modal.show .modal-dialog) khiến position: fixed bị bó theo modal.
+           Bỏ transform khi đang mở rộng để khung xem phủ đúng cả cửa sổ, modal nhỏ hay lớn đều như nhau. */
+        .modal.lt-preview-expanded .modal-dialog { transform: none !important; transition: none; }
     </style>
 }
 

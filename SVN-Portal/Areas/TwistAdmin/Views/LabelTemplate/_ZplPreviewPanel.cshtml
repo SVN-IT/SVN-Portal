@@ -1,7 +1,12 @@
 @model string
-@* Khung xem trước hình tem, dùng chung cho modal Xem và modal Thêm/Sửa. Model = id của khung. JS: ZplPreview trong label-template.js *@
+@* Khung xem trước hình tem, dùng chung cho modal Xem và modal Thêm/Sửa. Model = id của khung. JS: createPreview trong label-template.js *@
 <div class="lt-preview" id="@Model">
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    @* Chỉ hiện khi đang mở rộng *@
+    <div class="lt-preview-expanded-header">
+        <h5 class="modal-title mb-0">Xem tem</h5>
+        <button type="button" class="btn-close" data-role="collapse" aria-label="Thu nhỏ khung xem"></button>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
         <div class="input-group input-group-sm" style="flex: 1 1 200px; width: auto;">
             <span class="input-group-text">PO</span>
             <input type="text" class="form-control" data-role="po" placeholder="Nhập PO để xem thử {PO}" aria-label="PO xem thử" />
@@ -15,8 +20,23 @@
         <button type="button" class="btn btn-sm btn-icon btn-label-secondary" data-role="refresh" aria-label="Vẽ lại" title="Vẽ lại"><i class="icon-base ti tabler-refresh"></i></button>
         <button type="button" class="btn btn-sm btn-label-primary" data-role="download" disabled><i class="icon-base ti tabler-download me-1"></i>Tải PNG</button>
     </div>
-    <div class="lt-preview-stage" data-role="stage">
-        <div class="text-muted small text-center"><i class="icon-base ti tabler-photo d-block mb-1" style="font-size: 2rem;"></i>Chưa có nội dung ZPL</div>
+
+    <div class="lt-viewer-toolbar" role="toolbar" aria-label="Điều khiển xem tem">
+        <button type="button" class="btn btn-sm btn-icon btn-text-secondary" data-role="rotate-left" aria-label="Xoay trái" title="Xoay trái 90°"><i class="icon-base ti tabler-rotate"></i></button>
+        <button type="button" class="btn btn-sm btn-icon btn-text-secondary" data-role="rotate-right" aria-label="Xoay phải" title="Xoay phải 90°"><i class="icon-base ti tabler-rotate-clockwise"></i></button>
+        <span class="lt-viewer-divider" aria-hidden="true"></span>
+        <button type="button" class="btn btn-sm btn-icon btn-text-secondary" data-role="zoom-out" aria-label="Thu nhỏ" title="Thu nhỏ"><i class="icon-base ti tabler-zoom-out"></i></button>
+        <input type="range" class="form-range lt-viewer-range" data-role="zoom-range" min="10" max="800" step="5" value="100" aria-label="Mức phóng to (%)" />
+        <button type="button" class="btn btn-sm btn-icon btn-text-secondary" data-role="zoom-in" aria-label="Phóng to" title="Phóng to"><i class="icon-base ti tabler-zoom-in"></i></button>
+        <span class="small text-heading lt-viewer-zoom" data-role="zoom-label">100%</span>
+        <button type="button" class="btn btn-sm btn-text-secondary" data-role="fit" title="Vừa khung"><i class="icon-base ti tabler-aspect-ratio me-1"></i>Vừa khung</button>
+        <button type="button" class="btn btn-sm btn-text-secondary" data-role="expand" aria-pressed="false" title="Mở rộng khung xem (bấm ra ngoài hoặc Esc để thu lại)"><i class="icon-base ti tabler-arrows-maximize me-1"></i><span>Mở rộng</span></button>
     </div>
-    <div class="small text-muted mt-2" data-role="note"></div>
+
+    <div class="lt-preview-stage" data-role="stage" tabindex="0" aria-label="Hình tem. Ctrl + lăn chuột để phóng to, Shift + lăn chuột để cuộn ngang, kéo chuột để di chuyển">
+        <div class="lt-preview-canvas" data-role="canvas">
+            <div class="text-muted small text-center"><i class="icon-base ti tabler-photo d-block mb-1" style="font-size: 2rem;"></i>Chưa có nội dung ZPL</div>
+        </div>
+    </div>
+    <div class="small text-muted mt-1" data-role="note"></div>
 </div>
