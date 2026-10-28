@@ -1,0 +1,208 @@
+@model List<LabelPrintPrinter>
+@{
+    ViewData["Title"] = "In tem";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="row g-6">
+    @* ===== Cột trái: dữ liệu ===== *@
+    <div class="col-xl-5">
+        <div class="d-flex flex-column gap-6">
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">1. Lệnh sản xuất (WO)</h5></div>
+                <div class="card-body d-flex flex-column gap-4">
+                    <form class="input-group" id="lp-wo-form" autocomplete="off">
+                        <span class="input-group-text"><i class="icon-base ti tabler-scan"></i></span>
+                        <input type="text" class="form-control" id="lp-wo" placeholder="Quét hoặc nhập mã WO, VD: 12345" aria-label="Mã WO" />
+                        <button type="submit" class="btn btn-primary" id="lp-wo-search"><i class="icon-base ti tabler-search me-1"></i>Tìm</button>
+                    </form>
+                    <dl class="lp-wo-info small mb-0 d-none" id="lp-wo-info"></dl>
+                    <span class="form-text mt-0" id="lp-wo-hint">Không có WO? Bỏ qua bước này và tìm mẫu tem ở bước 2, các biến sẽ thành ô nhập tay.</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">2. Mẫu tem</h5>
+                    <button type="button" class="btn btn-sm btn-text-primary d-none" id="lp-tpl-toggle-search">Tìm mẫu khác</button>
+                </div>
+                <div class="card-body d-flex flex-column gap-3">
+                    <div class="input-group" id="lp-tpl-search-group">
+                        <input type="text" class="form-control" id="lp-tpl-search" placeholder="Tìm theo part number..." aria-label="Tìm mẫu tem" autocomplete="off" />
+                        <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+                    </div>
+                    <div class="d-flex flex-column gap-2" id="lp-tpl-list" role="radiogroup" aria-label="Mẫu tem">
+                        <div class="lp-empty">Nhập WO hoặc tìm theo part number để hiện các mẫu tem</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">3. Biến trong tem</h5>
+                    <button type="button" class="btn btn-sm btn-label-secondary d-none" id="lp-refill"><i class="icon-base ti tabler-refresh me-1"></i>Điền lại</button>
+                </div>
+                <div class="card-body d-flex flex-column gap-4" id="lp-vars">
+                    <div class="lp-empty">Chọn mẫu tem để hiện các biến cần điền</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ===== Cột phải: xem trước + in ===== *@
+    <div class="col-xl-7">
+        <div class="d-flex flex-column gap-6">
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">4. Xem trước</h5></div>
+                <div class="card-body">
+                    @{ ViewData["ZplPreviewShowPo"] = false; }
+                    @await Html.PartialAsync("_ZplPreviewPanel", "lp-preview")
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">5. Gửi lệnh in</h5></div>
+                <div class="card-body d-flex flex-column gap-4">
+                    <div class="lp-printer-card">
+                        <span class="lp-printer-icon bg-label-primary"><i class="icon-base ti tabler-printer"></i></span>
+                        <div class="flex-grow-1" style="min-width: 0;" id="lp-printer-summary"></div>
+                        <button type="button" class="btn btn-label-primary" id="lp-config-open"><i class="icon-base ti tabler-settings me-1"></i>Đổi cấu hình</button>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 align-items-end">
+                        <div>
+                            <label class="form-label" for="lp-copies">Số bản</label>
+                            <div class="input-group flex-nowrap lp-copies">
+                                <button type="button" class="btn btn-icon btn-label-secondary" id="lp-copies-minus" aria-label="Bớt 1 bản"><i class="icon-base ti tabler-minus"></i></button>
+                                <input type="text" inputmode="numeric" class="form-control text-center" id="lp-copies" value="1" />
+                                <button type="button" class="btn btn-icon btn-label-secondary" id="lp-copies-plus" aria-label="Thêm 1 bản"><i class="icon-base ti tabler-plus"></i></button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg lp-print-btn" id="lp-print" disabled><i class="icon-base ti tabler-printer me-2"></i>In tem</button>
+                    </div>
+                    <div class="small text-muted" id="lp-hint"><i class="icon-base ti tabler-alert-triangle me-1"></i>Chọn mẫu tem trước khi in.</div>
+                    <div id="lp-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ===== Modal cấu hình máy in ===== *@
+<div class="modal fade" id="lp-config-modal" tabindex="-1" aria-labelledby="lp-config-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 680px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lp-config-title">Cấu hình máy in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-5">
+                <div>
+                    <span class="form-label d-block">Phương thức in</span>
+                    <div class="lp-modes" role="radiogroup" aria-label="Phương thức in">
+                        <button type="button" class="btn" role="radio" data-mode="server"><i class="icon-base ti tabler-server"></i><span class="fw-medium">Server TCP</span><span class="small">Server gửi tới IP</span></button>
+                        <button type="button" class="btn" role="radio" data-mode="node"><i class="icon-base ti tabler-network"></i><span class="fw-medium">TCP qua Node</span><span class="small">Qua agent máy này</span></button>
+                        <button type="button" class="btn" role="radio" data-mode="usb"><i class="icon-base ti tabler-usb"></i><span class="fw-medium">USB qua Node</span><span class="small">Máy in cắm USB</span></button>
+                    </div>
+                </div>
+
+                <div class="lp-agent d-none" id="lp-agent">
+                    <span class="small"><i class="icon-base ti tabler-plug-connected me-1"></i>Agent <code id="lp-agent-url"></code> trên máy này</span>
+                    <span class="badge bg-label-secondary" id="lp-agent-status">Đang kiểm tra...</span>
+                </div>
+
+                <div class="d-flex flex-column gap-3" id="lp-tcp-block">
+                    <div class="d-flex gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lp-src" id="lp-src-list" value="list" />
+                            <label class="form-check-label" for="lp-src-list">Chọn từ danh sách</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lp-src" id="lp-src-manual" value="manual" />
+                            <label class="form-check-label" for="lp-src-manual">Nhập IP tay</label>
+                        </div>
+                    </div>
+                    <div id="lp-src-list-block">
+                        <label class="form-label" for="lp-printer">Máy in</label>
+                        <select class="form-select" id="lp-printer">
+                            @if (Model.Count == 0)
+                            {
+                                <option value="">-- Chưa có máy in trong SVN_Printer_Info --</option>
+                            }
+                            @foreach (var p in Model)
+                            {
+                                <option value="@p.Id">@p.Name · @p.Ip:@p.Port</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="row g-3 d-none" id="lp-src-manual-block">
+                        <div class="col-8">
+                            <label class="form-label" for="lp-ip">IP máy in</label>
+                            <input type="text" class="form-control" id="lp-ip" placeholder="192.168.1.50" autocomplete="off" />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label" for="lp-port">Port</label>
+                            <input type="text" inputmode="numeric" class="form-control" id="lp-port" value="9100" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-none" id="lp-usb-block">
+                    <label class="form-label" for="lp-usb">Máy in USB trên máy này</label>
+                    <div class="input-group">
+                        <select class="form-select" id="lp-usb"><option value="">-- Bấm Làm mới để tìm máy in --</option></select>
+                        <button type="button" class="btn btn-label-secondary" id="lp-usb-refresh"><i class="icon-base ti tabler-refresh me-1"></i>Làm mới</button>
+                    </div>
+                    <div class="form-text" id="lp-usb-status"></div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center" id="lp-test-block">
+                    <button type="button" class="btn btn-sm btn-label-secondary" id="lp-test"><i class="icon-base ti tabler-plug-connected me-1"></i>Kiểm tra kết nối</button>
+                    <span class="small" id="lp-test-result"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="small text-muted me-auto">Lưu trên trình duyệt này</span>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="button" class="btn btn-primary" id="lp-config-save"><i class="icon-base ti tabler-device-floppy me-1"></i>Dùng cấu hình này</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/twist-admin/zpl-preview.css" asp-append-version="true" />
+    <style>
+        #lp-preview .lt-preview-stage { height: 45vh; }
+        .lp-empty { padding: 1rem; border: 1px dashed var(--bs-border-color); border-radius: var(--bs-border-radius); text-align: center; color: var(--bs-secondary-color); font-size: .8125rem; }
+        .lp-wo-info { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: .5rem .75rem; }
+        .lp-wo-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .lp-wo-info dd { margin: 0; color: var(--bs-heading-color); }
+        .lp-tpl { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); cursor: pointer; margin: 0; }
+        .lp-tpl:hover { border-color: rgba(var(--bs-primary-rgb), .5); }
+        .lp-tpl.is-selected { border: 2px solid var(--bs-primary); padding: calc(.75rem - 1px); }
+        .lp-printer-card { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+        .lp-printer-icon { width: 44px; height: 44px; border-radius: var(--bs-border-radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.375rem; }
+        .lp-print-btn { flex: 1 1 200px; min-height: 48px; }
+        .lp-copies .form-control { flex: 0 0 3.5rem; width: 3.5rem; padding-left: .25rem; padding-right: .25rem; }
+        .lp-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+        .lp-modes .btn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: .75rem .5rem; }
+        .lp-modes .btn i { font-size: 1.375rem; }
+        .lp-modes .btn .small { opacity: .8; }
+        .lp-agent { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .625rem .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.LabelPrintPage = {
+            apiUrl: '@Url.Content("~/twist/admin/print/api")',
+            previewUrl: '@Url.Content("~/twist/admin/label-template/api/preview")',
+            loginUrl: '@Url.Content("~/twist/admin/login")',
+            agentUrl: 'http://localhost:8021',
+            printers: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(p => new { id = p.Id, name = p.Name, ip = p.Ip, port = p.Port })))
+        };
+    </script>
+    <script src="~/js/twist-admin/zpl-preview.js" asp-append-version="true"></script>
+    <script src="~/js/twist-admin/label-print.js" asp-append-version="true"></script>
+}

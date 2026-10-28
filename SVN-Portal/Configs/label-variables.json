@@ -1,0 +1,21 @@
+{
+  "LabelVariables": {
+    "Variables": [
+      { "Key": "WO",           "Label": "Mã WO",            "Source": "wo",     "Field": "name" },
+      { "Key": "PART",         "Label": "Mã sản phẩm",      "Source": "wo",     "Field": "product_code" },
+      { "Key": "PRODUCT_NAME", "Label": "Tên sản phẩm",     "Source": "wo",     "Field": "product_name" },
+      { "Key": "WO_QTY",       "Label": "Số lượng WO",      "Source": "wo",     "Field": "product_qty" },
+      { "Key": "ORIGIN",       "Label": "Chứng từ gốc",     "Source": "wo",     "Field": "origin" },
+      { "Key": "BARCODE",      "Label": "Barcode PCS",      "Source": "sku",    "Field": "barcode" },
+      { "Key": "SKU",          "Label": "Tên SKU",          "Source": "sku",    "Field": "sku" },
+      { "Key": "PCS_PER_BOX",  "Label": "PCS / hộp",        "Source": "sku",    "Field": "pcsPerBox" },
+      { "Key": "PO",           "Label": "Số PO",            "Source": "po_eu",  "Optional": true },
+      { "Key": "DATE",         "Label": "Ngày in",          "Source": "system", "Field": "now", "Format": "dd/MM/yyyy" },
+      { "Key": "TIME",         "Label": "Giờ in",           "Source": "system", "Field": "now", "Format": "HH:mm" },
+      { "Key": "USER",         "Label": "Người in",         "Source": "system", "Field": "user" },
+      { "Key": "COLOR",        "Label": "Màu",              "Source": "manual" },
+      { "Key": "SIZE",         "Label": "Kích cỡ",          "Source": "manual" },
+      { "Key": "LOT",          "Label": "Số lô",            "Source": "manual" }
+    ]
+  }
+}

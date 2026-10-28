@@ -178,7 +178,8 @@ namespace SVN_Portal.Areas.TwistAdmin.Controllers
                     heightMm = result.HeightMm,
                     dpmm = result.Dpmm,
                     sizeSource = result.SizeSource,
-                    sizeWarning = result.SizeWarning
+                    sizeWarning = result.SizeWarning,
+                    skippedElements = result.SkippedElements
                 });
             }
             catch (Exception ex)

@@ -54,6 +54,32 @@ namespace SVN_Portal.DAL.DataPortal
             }
         }
 
+        // Màn In tem: các mẫu của 1 sản phẩm (không lấy zplData)
+        public async Task<List<SVN_label_templateUI>> GetByPartNumber(string partNumber)
+        {
+            using (IDbConnection conn = new SqlConnection(connectionString))
+            {
+                string sql = "SELECT id, partNumber, [size], [type], operation, createdAt, updatedAt " +
+                             "FROM " + CrudTable + " WHERE partNumber = @partNumber ORDER BY [type], operation";
+                var data = await conn.QueryAsync<SVN_label_templateUI>(sql, new { partNumber }, commandTimeout: CrudTimeout, commandType: CommandType.Text);
+                return data.ToList();
+            }
+        }
+
+        // Màn In tem: tìm mẫu theo part number chứa chuỗi q (không lấy zplData)
+        public async Task<List<SVN_label_templateUI>> SearchByPartNumber(string q, int top = 50)
+        {
+            using (IDbConnection conn = new SqlConnection(connectionString))
+            {
+                string sql = "SELECT TOP (@top) id, partNumber, [size], [type], operation, createdAt, updatedAt " +
+                             "FROM " + CrudTable + " WHERE partNumber LIKE @pattern ORDER BY partNumber, [type], operation";
+                // Escape ký tự đặc biệt của LIKE để tìm đúng chuỗi người dùng gõ
+                string escaped = q.Replace("[", "[[]").Replace("%", "[%]").Replace("_", "[_]");
+                var data = await conn.QueryAsync<SVN_label_templateUI>(sql, new { top, pattern = "%" + escaped + "%" }, commandTimeout: CrudTimeout, commandType: CommandType.Text);
+                return data.ToList();
+            }
+        }
+
         public async Task<SVN_label_templateUI> GetById(int id)
         {
             using (IDbConnection conn = new SqlConnection(connectionString))

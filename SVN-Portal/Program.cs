@@ -59,8 +59,10 @@ builder.Services.AddSingleton<Pagination>();
 // Sửa file trong Configs/ là có hiệu lực ngay, không cần restart. Thiếu file thì chỉ khu này bị ảnh hưởng.
 builder.Configuration
     .AddJsonFile("Configs/label-template-options.json", optional: true, reloadOnChange: true)
-    .AddJsonFile("Configs/twist-admin-accounts.json", optional: true, reloadOnChange: true);
+    .AddJsonFile("Configs/twist-admin-accounts.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("Configs/label-variables.json", optional: true, reloadOnChange: true);
 builder.Services.Configure<LabelTemplateOptions>(builder.Configuration.GetSection("LabelTemplateOptions"));
+builder.Services.Configure<LabelVariablesConfig>(builder.Configuration.GetSection("LabelVariables"));
 builder.Services.Configure<TwistAdminAuthConfig>(builder.Configuration.GetSection("TwistAdminAuth"));
 
 // Không đặt default scheme: chỉ controller kế thừa TwistAdminControllerBase mới dùng cookie này

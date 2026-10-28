@@ -45,6 +45,8 @@ namespace SVN_Portal.Areas.TwistAdmin.Services
             public string SizeSource { get; set; } = "";
             // Cảnh báo khi khổ trong ZPL khác Size đang chọn
             public string? SizeWarning { get; set; }
+            // Phần tử không vẽ được (VD: mã vạch chứa ký tự không hợp lệ, biến {KEY} chưa điền) nên bị bỏ qua
+            public List<string> SkippedElements { get; set; } = new();
         }
 
         // size dạng "4x6" (inch). dpmm ngoài danh sách cho phép thì dùng 600 dpi.
@@ -87,10 +89,42 @@ namespace SVN_Portal.Areas.TwistAdmin.Services
 
             foreach (var label in labels.Take(MaxLabels))
             {
-                byte[] png = drawer.Draw(label.ZplElements, widthMm, heightMm, density);
+                byte[] png;
+                try
+                {
+                    png = drawer.Draw(label.ZplElements, widthMm, heightMm, density);
+                }
+                catch
+                {
+                    // 1 phần tử lỗi làm hỏng cả tem: vẽ thử từng phần tử, bỏ phần tử lỗi rồi vẽ lại phần còn lại
+                    var drawable = SkipBrokenElements(drawer, label.ZplElements, result.SkippedElements);
+                    if (drawable.Count == 0) throw;
+                    png = drawer.Draw(drawable, widthMm, heightMm, density);
+                }
                 result.Images.Add(Convert.ToBase64String(png));
             }
             return result;
+        }
+
+        // Vẽ thử từng phần tử trên khổ nhỏ, mật độ thấp (chỉ để kiểm tra lỗi, nhanh), trả về các phần tử vẽ được
+        static List<ZplElementBase> SkipBrokenElements(ZplElementDrawer drawer, IEnumerable<ZplElementBase> elements, List<string> skipped)
+        {
+            const double ProbeSizeMm = 25.4;
+            const int ProbeDpmm = 6;
+            var ok = new List<ZplElementBase>();
+            foreach (var element in elements)
+            {
+                try
+                {
+                    drawer.Draw(new[] { element }, ProbeSizeMm, ProbeSizeMm, ProbeDpmm);
+                    ok.Add(element);
+                }
+                catch (Exception ex)
+                {
+                    if (!skipped.Contains(ex.Message)) skipped.Add(ex.Message);
+                }
+            }
+            return ok;
         }
 
         // Lấy giá trị cuối cùng (khối tem thật thường nằm sau khối cấu hình)

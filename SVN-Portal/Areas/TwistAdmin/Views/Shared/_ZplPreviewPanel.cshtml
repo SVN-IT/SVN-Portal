@@ -1,5 +1,9 @@
 @model string
-@* Khung xem trước hình tem, dùng chung cho modal Xem và modal Thêm/Sửa. Model = id của khung. JS: createPreview trong label-template.js *@
+@* Khung xem trước hình tem dùng chung (Mẫu tem, In tem). Model = id của khung. JS: wwwroot/js/twist-admin/zpl-preview.js
+   ViewData["ZplPreviewShowPo"] = false: ẩn ô PO (màn In tem điền PO qua biến) *@
+@{
+    bool showPo = ViewData["ZplPreviewShowPo"] as bool? ?? true;
+}
 <div class="lt-preview" id="@Model">
     @* Chỉ hiện khi đang mở rộng *@
     <div class="lt-preview-expanded-header">
@@ -7,10 +11,13 @@
         <button type="button" class="btn-close" data-role="collapse" aria-label="Thu nhỏ khung xem"></button>
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-        <div class="input-group input-group-sm" style="flex: 1 1 200px; width: auto;">
-            <span class="input-group-text">PO</span>
-            <input type="text" class="form-control" data-role="po" placeholder="Nhập PO để xem thử {PO}" aria-label="PO xem thử" />
-        </div>
+        @if (showPo)
+        {
+            <div class="input-group input-group-sm" style="flex: 1 1 200px; width: auto;">
+                <span class="input-group-text">PO</span>
+                <input type="text" class="form-control" data-role="po" placeholder="Nhập PO để xem thử {PO}" aria-label="PO xem thử" />
+            </div>
+        }
         <select class="form-select form-select-sm" data-role="dpmm" aria-label="Mật độ điểm (DPI)" title="Mật độ điểm của máy in" style="width: auto;">
             <option value="24" selected>600 dpi</option>
             <option value="12">300 dpi</option>
