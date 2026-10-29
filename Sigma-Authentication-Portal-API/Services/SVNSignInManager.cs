@@ -5,6 +5,7 @@ using Sigma_Authentication_Portal_API.Models;
 using Sigma_Authentication_Portal_API.Utilities;
 using System.Security.Claims;
 using SVNShareLib.Utils;
+using SVNShareLib.Response;
 
 namespace Sigma_Authentication_Portal_API.Services
 {

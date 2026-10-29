@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SVNShareLib;
+using SVNShareLib.Response;
+using SVNShareLib.Utils;
 
 namespace Sigma_Tools.Controllers
 {
@@ -130,108 +134,74 @@ namespace Sigma_Tools.Controllers
 
                 string json = await response.Content.ReadAsStringAsync();
 
-                using JsonDocument document = JsonDocument.Parse(json);
-                JsonElement root = document.RootElement;
+                BODataProcessResult? processResult = JsonConvert.DeserializeObject<BODataProcessResult>(json);
 
-                // 1. Kiểm tra kết quả đăng nhập
-                if (!TryGetPropertyIgnoreCase(root, "OK", out var okElement)
-                    || okElement.ValueKind != JsonValueKind.True)
+                if(processResult == null || !processResult.OK)
                 {
+                    TempData["LoginError"] = (processResult != null && !string.IsNullOrWhiteSpace(processResult.Message))? 
+                        processResult.Message :
+                        "Không thể xác nhận phiên đăng nhập. Vui lòng thử lại.";
+                    return RedirectToAction(nameof(Login));
+                }
+
+                if(string.IsNullOrWhiteSpace(processResult.Content?.ToString()))
+                {
+                    TempData["LoginError"] = "Không tìm thấy thông tin người dùng trong kết quả đăng nhập.";
+                    return RedirectToAction(nameof(Login));
+                }
+
+                LoginInfo? loginInfo = JsonConvert.DeserializeObject<LoginInfo>(processResult.Content.ToString());
+
+                string? accessToken = loginInfo?.JwtData?.AccessToken;
+
+                if (string.IsNullOrWhiteSpace(accessToken))
+                {
+                    _logger.LogWarning("LoginInfo does not contain an AccessToken.");
+
                     TempData["LoginError"] =
-                        "Đăng nhập thất bại hoặc dữ liệu trả về không hợp lệ.";
+                        "Không tìm thấy AccessToken trong kết quả đăng nhập.";
 
                     return RedirectToAction(nameof(Login));
                 }
 
-                // 2. Lấy Content -> JwtData -> User
-                if (!TryGetPropertyIgnoreCase(root, "Content", out var content)
-                    || !TryGetPropertyIgnoreCase(content, "JwtData", out var jwtData)
-                    || !TryGetPropertyIgnoreCase(jwtData, "User", out var user))
+                List<Claim> claims = new List<Claim>();
+
+                AuthJwtUtil authJwtUtil = new AuthJwtUtil();
+                UserInfo? userInfo = authJwtUtil.GetUserInfoFromToken(loginInfo?.JwtData?.AccessToken ?? "", out claims);
+
+                if (userInfo == null)
                 {
-                    _logger.LogWarning(
-                        "Login response does not contain Content.JwtData.User.");
+                    _logger.LogWarning("Unable to get UserInfo from AccessToken.");
 
                     TempData["LoginError"] =
-                        "Không tìm thấy thông tin người dùng trong kết quả đăng nhập.";
+                        "Không thể đọc thông tin người dùng từ token đăng nhập.";
 
                     return RedirectToAction(nameof(Login));
                 }
 
-                // 3. Đọc thông tin người dùng
-                string userId = GetStringProperty(user, "ID") ?? "";
-                string userName = GetStringProperty(user, "UserName") ?? "";
-                string fullName = GetStringProperty(user, "FullName") ?? userName;
-                string email = GetStringProperty(user, "EmailAddress") ?? "";
-                string companyId = GetStringProperty(user, "CompanyID") ?? "";
-                string department = GetStringProperty(user, "Department") ?? "";
 
-                // Bắt buộc có định danh người dùng
-                if (string.IsNullOrWhiteSpace(userId)
-                    || string.IsNullOrWhiteSpace(userName))
-                {
-                    TempData["LoginError"] =
-                        "Thông tin người dùng trả về không đầy đủ.";
-
-                    return RedirectToAction(nameof(Login));
-                }
-
-                // 4. Tạo claims cơ bản
-                var claims = new List<Claim>
-                            {
-                                new(ClaimTypes.NameIdentifier, userId),
-                                new(ClaimTypes.Name, userName),
-                                new("FullName", fullName),
-                                new("CompanyID", companyId),
-                                new("Department", department)
-                            };
-
-                if (!string.IsNullOrWhiteSpace(email))
-                    claims.Add(new Claim(ClaimTypes.Email, email));
-
-                // 5. Đưa Roles vào role claims nếu API trả về mảng chuỗi
-                if (TryGetPropertyIgnoreCase(user, "Roles", out var roles))
-                {
-                    if (roles.ValueKind == JsonValueKind.Array)
-                    {
-                        foreach (var role in roles.EnumerateArray())
-                        {
-                            if (role.ValueKind == JsonValueKind.String
-                                && !string.IsNullOrWhiteSpace(role.GetString()))
-                            {
-                                claims.Add(new Claim(
-                                    ClaimTypes.Role, role.GetString()!));
-                            }
-                        }
-                    }
-                    else if (roles.ValueKind == JsonValueKind.String)
-                    {
-                        string? role = roles.GetString();
-
-                        if (!string.IsNullOrWhiteSpace(role))
-                            claims.Add(new Claim(ClaimTypes.Role, role));
-                    }
-                }
 
                 // 6. Lưu dữ liệu gốc để sử dụng trong các controller khác
                 HttpContext.Session.SetString(
-                    "LoginResult", root.GetRawText());
+                    "LoginResult", processResult.OK.ToString());
 
                 HttpContext.Session.SetString(
-                    "JwtData", jwtData.GetRawText());
+                    "JwtData", accessToken);
 
                 HttpContext.Session.SetString(
-                    "UserInfo", user.GetRawText());
+                    "UserInfo", JsonConvert.SerializeObject(userInfo));
 
-                if (TryGetPropertyIgnoreCase(user, "ObjectRights", out var objectRights))
-                {
-                    HttpContext.Session.SetString(
-                        "ObjectRights", objectRights.GetRawText());
-                }
+                HttpContext.Session.SetString(
+                        "ObjectRights", JsonConvert.SerializeObject(userInfo.ObjectRights));
 
-                if (TryGetPropertyIgnoreCase(user, "StoreIDs", out var storeIds))
+                if (claims == null || claims.Count == 0)
                 {
-                    HttpContext.Session.SetString(
-                        "StoreIDs", storeIds.GetRawText());
+                    _logger.LogWarning("No claims were extracted from AccessToken.");
+
+                    TempData["LoginError"] =
+                        "Không thể tạo phiên đăng nhập từ token.";
+
+                    return RedirectToAction(nameof(Login));
                 }
 
                 // 7. Tạo cookie đăng nhập

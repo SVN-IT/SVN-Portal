@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Sigma_Authentication_Portal_API.Models;
 using SVNShareLib;
+using SVNShareLib.Response;
 using SVNShareLib.Utils;
 
 namespace Sigma_Authentication_Portal_API.Services
