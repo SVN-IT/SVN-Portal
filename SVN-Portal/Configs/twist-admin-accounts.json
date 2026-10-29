@@ -1,0 +1,8 @@
+{
+  "TwistAdminAuth": {
+    "Accounts": [
+      { "Username": "admin", "Password": "Admin123a@" },
+      { "Username": "user2", "Password": "12345" }
+    ]
+  }
+}

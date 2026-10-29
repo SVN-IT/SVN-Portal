@@ -394,12 +394,18 @@
             <!-- footer -->
             @if (ViewData["IsTwistPage"] is true)
             {
-                <footer class="footer" style="text-align:center;">
-                    <span style="font-size:1rem;color:#ccc;">
-                        <strong>Hướng dẫn:</strong>
-                        In lại tem hoặc In tem thùng: Phím 1 / Numpad 1 &nbsp;|&nbsp;
-                        Cấu hình máy in: Phím 3 / Numpad 3
-                    </span>
+                @* Nút chức năng trang Twist: bấm nút hoặc phím số tương ứng. Xử lý click ở Views/Twist/Index.cshtml (data-twist-action) *@
+                <footer class="footer twist-actions">
+                    <span class="twist-actions-label">Chức năng:</span>
+                    <button type="button" class="twist-action-btn" data-twist-action="reprint" title="Bấm nút hoặc phím 1 / Numpad 1">
+                        <kbd>1</kbd> In lại tem / In tem thùng
+                    </button>
+                    <button type="button" class="twist-action-btn" data-twist-action="eu_po" title="Bấm nút hoặc phím 2 / Numpad 2">
+                        <kbd>2</kbd> Quản lý PO EU
+                    </button>
+                    <button type="button" class="twist-action-btn" data-twist-action="config" title="Bấm nút hoặc phím 3 / Numpad 3">
+                        <kbd>3</kbd> Cấu hình máy in
+                    </button>
                 </footer>
             }
             else

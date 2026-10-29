@@ -233,6 +233,44 @@
         background-color: #343a40 !important;
         color: #fff !important;
     }
+
+    /* Footer nút chức năng (Views/Shared/_Layout.cshtml) */
+    .twist-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+    }
+    .twist-actions-label {
+        color: #ccc;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    .twist-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .375rem .875rem;
+        font-size: 1rem;
+        color: #fff;
+        background: #22335a;
+        border: 1px solid #4a6aa8;
+        border-radius: .375rem;
+        cursor: pointer;
+    }
+    .twist-action-btn:hover { background: #2d4475; border-color: #7fa2e6; }
+    .twist-action-btn:focus-visible { outline: 2px solid #7fa2e6; outline-offset: 2px; }
+    .twist-action-btn kbd {
+        min-width: 1.6rem;
+        padding: .1rem .4rem;
+        font-size: .95rem;
+        font-weight: 700;
+        color: #1a2740;
+        background: #e9eef8;
+        border-radius: .25rem;
+        text-align: center;
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -242,7 +280,7 @@
             <div class="main-card p-4">
                 <!-- Nhập WO -->
                 <div class="mb-3 d-flex align-items-center">
-                    <input id="woInput" type="text" class="form-control wo-input me-3" placeholder="Nhập WO code..." autocomplete="off" />
+                    <input id="woInput" type="text" class="form-control wo-input me-3" placeholder="Nhập WO code..." autocomplete="off" data-lpignore="true" data-1p-ignore />
                     <button id="btnGetWO" class="btn btn-primary wo-btn px-4">Go</button>
                 </div>
                 <!-- Thông tin WO -->
@@ -273,7 +311,7 @@
                 <div class="mb-2">
                     <label for="pcsInput" class="scan-label mb-1">Mã sản phẩm quét</label>
                     <div class="input-group input-group-lg">
-                        <input id="pcsInput" type="text" class="form-control scan-input" autocomplete="off" placeholder="Scan mã..." />
+                        <input id="pcsInput" type="text" class="form-control scan-input" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="Scan mã..." />
                         <button id="btnAddPCS" class="btn btn-success wo-btn" type="button">Scan</button>
                     </div>
                 </div>
@@ -321,7 +359,8 @@
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="cfgPasswordInput" class="form-label">Nhập mật khẩu:</label>
-                    <input type="password" id="cfgPasswordInput" class="form-control" placeholder="Mật khẩu..." />
+                    <input type="password" id="cfgPasswordInput" class="form-control" placeholder="Mật khẩu..." autocomplete="new-password" data-lpignore="true" data-1p-ignore />
+
                 </div>
             </div>
             <div class="modal-footer border-secondary">
@@ -457,7 +496,7 @@
         <div class="block-pwd-box">
             <div class="block-pwd-label">Tổ trưởng nhập mật khẩu xác nhận</div>
             <input type="password" id="blockPasswordInput" class="form-control form-control-lg mb-2"
-                   placeholder="Mật khẩu..." autocomplete="off" />
+                   placeholder="Mật khẩu..." autocomplete="new-password" data-lpignore="true" data-1p-ignore />
             <div id="blockPasswordError" class="text-danger small mt-1 d-none">Mật khẩu không đúng, vui lòng thử lại!</div>
             <button id="btnBlockConfirm" class="btn btn-danger w-100 mt-2">Xác nhận</button>
         </div>
@@ -848,6 +887,24 @@
             $('#cfgPasswordInput').val('');
             pwdModal.show();
         }
+
+        // Nút ở footer (Views/Shared/_Layout.cshtml): giống bấm phím 1 / 2 / 3, vẫn hỏi mật khẩu
+        $(document).on('click', '[data-twist-action]', function () {
+            this.blur(); // không giữ focus ở nút, tránh máy quét gõ số vào trang làm bật nhầm phím tắt
+            if ($('.modal.show').length > 0) return;
+            currentAuthAction = $(this).data('twist-action');
+            openPasswordModal();
+        });
+
+        // Đóng các popup chức năng: trả con trỏ về ô quét để quét tiếp được ngay (trừ khi màn hình đang bị khoá)
+        ['passwordModal', 'reprintModal', 'printerModal', 'euPOModal'].forEach(function (id) {
+            document.getElementById(id).addEventListener('hidden.bs.modal', function () {
+                setTimeout(function () {
+                    if ($('.modal.show').length > 0 || $('#blockOverlay').css('display') !== 'none') return;
+                    $('#pcsInput').focus();
+                }, 400);
+            });
+        });
 
         document.getElementById('passwordModal').addEventListener('shown.bs.modal', function () {
             document.getElementById('cfgPasswordInput').focus();
