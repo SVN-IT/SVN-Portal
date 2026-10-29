@@ -1,6 +1,8 @@
 ﻿
-using Sigma_Tools.Services.Configurations;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Sigma_Tools.Services.Authorizations;
+using Sigma_Tools.Services.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,9 @@ builder.Services.AddHttpClient("AuthenticationAPI", client =>
 // 4. Session: lưu thông tin đăng nhập phía server
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -59,6 +64,32 @@ builder.Services
 
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.SlidingExpiration = true;
+
+        // Kiểm tra Session khi xác thực cookie
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var session = context.HttpContext.Session;
+
+            string? loginResult =
+                session.GetString("LoginResult");
+
+            string? accessToken =
+                session.GetString("JwtData");
+
+            string? userInfo =
+                session.GetString("UserInfo");
+
+            // Cookie còn hiệu lực nhưng Session không còn dữ liệu đăng nhập
+            if (loginResult != "True" ||
+                string.IsNullOrEmpty(accessToken) ||
+                string.IsNullOrEmpty(userInfo))
+            {
+                context.RejectPrincipal();
+
+                await context.HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+        };
     });
 
 builder.Services.AddAuthorization();

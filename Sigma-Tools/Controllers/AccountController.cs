@@ -168,6 +168,7 @@ namespace Sigma_Tools.Controllers
 
                 AuthJwtUtil authJwtUtil = new AuthJwtUtil();
                 UserInfo? userInfo = authJwtUtil.GetUserInfoFromToken(loginInfo?.JwtData?.AccessToken ?? "", out claims);
+                userInfo.LoginDate = loginInfo?.LoginDate ?? DateTime.UtcNow;
 
                 if (userInfo == null)
                 {
@@ -240,6 +241,9 @@ namespace Sigma_Tools.Controllers
         public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Remove("LoginResult");
+            HttpContext.Session.Remove("JwtData");
+            HttpContext.Session.Remove("UserInfo");
+            HttpContext.Session.Remove("ObjectRights");
 
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);

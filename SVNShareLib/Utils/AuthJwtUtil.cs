@@ -30,9 +30,9 @@ namespace SVNShareLib.Utils
                     userInfo.CompanyID = CompanyID;
                 }
 
-                if (claims.FirstOrDefault(claim => claim.Type == "Email") != null)
+                if (claims.FirstOrDefault(claim => claim.Type == "email") != null)
                 {
-                    string EmailAddress = claims.First(claim => claim.Type == "Email").Value;
+                    string EmailAddress = claims.First(claim => claim.Type == "email").Value;
                     userInfo.EmailAddress = EmailAddress;
                 }
                 if (claims.FirstOrDefault(claim => claim.Type == "FullName") != null)

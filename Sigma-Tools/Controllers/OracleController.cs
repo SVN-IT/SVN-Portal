@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sigma_Tools.Models;
+using Sigma_Tools.Services.Authorizations;
 using Sigma_Tools.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL;
@@ -15,11 +16,13 @@ namespace Sigma_Tools.Controllers
         DBConfiguration dbConfiguration;
         string connectionString;
         LogService logger;
-        public OracleController(DBConfiguration dBConfiguration)
+        private readonly IPermissionService _permissionService;
+        public OracleController(DBConfiguration dBConfiguration, IPermissionService permissionService)
         {
             this.dbConfiguration = dBConfiguration;
             connectionString = dbConfiguration.GetConnectionString();
             logger = new LogService(connectionString);
+            _permissionService = permissionService;
         }
         public IActionResult Index()
         {
@@ -28,6 +31,16 @@ namespace Sigma_Tools.Controllers
 
         public IActionResult POInbound()
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!_permissionService.HasRight("createnetsuitepo", "read"))
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             string accessMode = "Tools";
             string controllerName = "Oracle";
             string indexPage = "POInbound";

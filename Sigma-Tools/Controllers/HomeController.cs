@@ -1,20 +1,33 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Sigma_Tools.Models;
+using Sigma_Tools.Services.Authorizations;
+using System.Diagnostics;
 
 namespace Sigma_Tools.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IPermissionService _permissionService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IPermissionService permissionService)
     {
         _logger = logger;
+        _permissionService = permissionService;
     }
 
     public IActionResult Index()
     {
+        if (!User.Identity?.IsAuthenticated ?? true)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        if (!_permissionService.HasRight("home", "read"))
+        {
+            return RedirectToAction("AccessDenied", "Account");
+        }
+
         string accessMode = "Tools";
         string controllerName = "Home";
         string indexPage = "Index";
