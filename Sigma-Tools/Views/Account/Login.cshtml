@@ -1,32 +1,108 @@
 ﻿@{
-    ViewData["Title"] = "Sign in";
+    Layout = null; // Trang Login thường đứng độc lập, không dùng chung Main Layout
+    ViewData["Title"] = "Đăng nhập hệ thống";
 }
-<form method="post" asp-controller="Account" asp-action="Login">
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-5">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <h3 class="mb-4">Sigma-Tools</h3>
 
-                        @if (TempData["LoginError"] != null)
-                        {
-                            <div class="alert alert-danger">
-                                @TempData["LoginError"]
-                            </div>
-                        }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
 
-                        <p class="text-muted">
-                            Sign in with your company Microsoft account.
-                        </p>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link href="~/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <!-- iCheck -->
+    <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+    <!-- Theme style -->
+    <link href="~/dist/css/adminlte.min.css" rel="stylesheet" />
 
-                        <button type="submit"
-                           class="btn btn-primary w-100">
-                            Sign in with Microsoft
+    <link href="~/css/site.css" rel="stylesheet" />
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <!-- /.login-logo -->
+        <div class="card card-outline card-primary">
+            <div class="card-header text-center">
+                <img src="~/dist/img/sigma-logo.svg" alt="AdminLTE Logo" class="sigma-brand-image" style="opacity: .8">
+            </div>
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">Đăng nhập để bắt đầu phiên làm việc</p>
+
+                <!-- Hiển thị thông báo lỗi nếu đăng nhập thất bại -->
+                @if (TempData["LoginError"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> @TempData["LoginError"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
+                }
+
+                <!-- Form Đăng nhập truyền thống -->
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    <div class="input-group mb-3">
+                        <input type="text" name="Username" class="form-control" placeholder="Tài khoản / Username" required autofocus>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" name="Password" class="form-control" placeholder="Mật khẩu / Password" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                <input type="checkbox" id="remember" name="RememberMe" value="true">
+                                <label for="remember">
+                                    Nhớ mật khẩu
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-sigma-pink btn-block">Đăng nhập</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+
+                <div class="social-auth-links text-center mt-3 mb-3">
+                    <p>- HOẶC -</p>
+                    <!-- Nút Đăng nhập bằng Microsoft -->
+                    <a href="@Url.Action("SignInMicrosoft", "Account")" class="btn btn-block btn-outline-dark">
+                        <!-- SVG Logo Microsoft chuẩn màu -->
+                        <svg class="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 21 21">
+                            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                            <rect x="1" y="11" width="9" height="9" fill="#01a4ef" />
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                        </svg>
+                        Đăng nhập bằng tài khoản Microsoft
+                    </a>
                 </div>
+                <!-- /.social-auth-links -->
+
             </div>
+            <!-- /.login-card-body -->
         </div>
     </div>
-</form>
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.min.js"></script>
+</body>
+</html>

@@ -36,8 +36,8 @@ namespace Sigma_Tools.Controllers
         }
 
         // GET: /Account/Login
-        [HttpPost]
-        public IActionResult Login(bool isLogin = true)
+        [HttpGet]
+        public IActionResult SignInMicrosoft()
         {
             int appId = _configuration.GetValue<int>("AppConfig:AppID");
 
@@ -229,7 +229,7 @@ namespace Sigma_Tools.Controllers
                     ex, "Error processing Microsoft SSO callback.");
 
                 TempData["LoginError"] =
-                    "Có lỗi khi xử lý đăng nhập. Vui lòng thử lại.";
+                    $"Có lỗi khi xử lý đăng nhập. Vui lòng thử lại: {ex.Message}";
 
                 return RedirectToAction(nameof(Login));
             }

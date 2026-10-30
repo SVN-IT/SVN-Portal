@@ -183,7 +183,7 @@
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex" style="cursor: pointer;" data-toggle="modal" data-target="#userInfoModal">
                     @{
                         var currentUser = permissionService.GetCurrentUser();
                         string displayName = currentUser?.FullName
@@ -191,12 +191,14 @@
                         ?? "Unknown User";
                     }
                     <div class="image">
-                        <img src="../../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                        <img src="~/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">@displayName</a>
+                        <a href="#" class="d-block" onclick="return false;">@displayName</a>
                     </div>
                 </div>
+
+                
                 <!-- SidebarSearch Form -->
                 <div class="form-inline mt-2">
                     <div class="input-group" data-widget="sidebar-search">
@@ -368,6 +370,54 @@
             </section>
             <!-- /.content -->
         </div>
+
+        <!-- Modal thông tin chi tiết và Nút Đăng xuất -->
+        <div class="modal fade" id="userInfoModal" tabindex="-1" role="dialog" aria-labelledby="userInfoModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title" id="userInfoModalLabel"><i class="fas fa-user-circle mr-2"></i> Thông tin tài khoản</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            string email = currentUser?.EmailAddress ?? "Chưa cập nhật";
+                        }
+                        <div class="text-center mb-3">
+                            <img src="~/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image" width="80" height="80">
+                            <h4 class="profile-username text-center mt-2">@displayName</h4>
+                            <p class="text-muted text-center">@email</p>
+                        </div>
+
+                        <ul class="list-group list-group-unbordered mb-3">
+                            <li class="list-group-item">
+                                <b>Tên tài khoản (Username)</b> <span class="float-right">@currentUser?.UserName</span>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Họ và tên (FullName)</b> <span class="float-right">@currentUser?.FullName</span>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Email</b> <span class="float-right">@email</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+
+                        <!-- Nút Đăng xuất -->
+                        <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-sign-out-alt mr-1"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- /.content-wrapper -->
         <footer class="main-footer">
             <strong>Copyright &copy; 2026 <a href="https://sigmaworldwide.com/">Sigmaworldwide</a>.</strong>
