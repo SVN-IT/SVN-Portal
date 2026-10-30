@@ -275,7 +275,7 @@
                                     @if (permissionService.HasRight("home", "read"))
                                     {
                                         <li class="nav-item">
-                                            <a asp-controller="Home" asp-action="Index" class="nav-link @(controllerName == "Home" && indexPage == "Index" ? "active" : "")">
+                                            <a asp-controller="Home" asp-action="Index" class="nav-link d-none @(controllerName == "Home" && indexPage == "Index" ? "active" : "")">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Main</p>
                                             </a>

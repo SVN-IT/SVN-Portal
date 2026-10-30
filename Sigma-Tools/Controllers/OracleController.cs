@@ -74,7 +74,7 @@ namespace Sigma_Tools.Controllers
         {
             if (pdfFile == null || pdfFile.Length == 0)
             {
-                return Json(new { success = false, message = "Không tìm thấy file tải lên." });
+                return Json(new { success = false, messageKey = "FileNotFound", message = "Không tìm thấy file tải lên." });
             }
 
             try
@@ -96,7 +96,7 @@ namespace Sigma_Tools.Controllers
                     HttpResponseMessage response = await client.PostAsync(apiUrl, content);
                     if (!response.IsSuccessStatusCode)
                     {
-                        return Json(new { success = false, message = "Lỗi khi gọi API bóc tách dữ liệu." });
+                        return Json(new { success = false, messageKey = "ApiOcrError", message = "Lỗi khi gọi API bóc tách dữ liệu." });
                     }
 
                     string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -240,7 +240,7 @@ namespace Sigma_Tools.Controllers
             if (request == null || request.Items == null || request.Items.Count == 0)
             {
                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Không có dữ liệu line items để đối chiếu. Customer: {request?.Customer}, Currency: {request?.Currency}");
-                return Json(new { success = false, message = "Không có dữ liệu line items để đối chiếu." });
+                return Json(new { success = false, messageKey = "NoLineItemsError", message = "Không có dữ liệu line items để đối chiếu." });
             }
 
             try
@@ -340,7 +340,7 @@ namespace Sigma_Tools.Controllers
             if (request == null || string.IsNullOrWhiteSpace(request.Reason))
             {
                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lý do từ chối PO bị trống. PONumber: {request?.PONumber}");
-                return Json(new { success = false, message = "Lý do từ chối không được để trống." });
+                return Json(new { success = false, messageKey = "RejectReasonEmpty", message = "Lý do từ chối không được để trống." });
             }
 
             try
@@ -363,7 +363,7 @@ namespace Sigma_Tools.Controllers
         {
             if (request == null || request.LineItems == null || request.LineItems.Count == 0)
             {
-                return Json(new { success = false, message = "Dữ liệu truyền lên bị trống." });
+                return Json(new { success = false, messageKey = "EmptyPayloadError", message = "Dữ liệu truyền lên bị trống." });
             }
 
             try

@@ -23,13 +23,22 @@
 </head>
 <body class="hold-transition login-page">
     <div class="login-box">
+        <!-- Bộ chọn ngôn ngữ nhanh góc trên -->
+        <div class="text-right mb-2">
+            <select id="login-lang-switch" class="form-control form-control-sm" style="width: 110px; display: inline-block;">
+                <option value="vi">Tiếng Việt</option>
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+            </select>
+        </div>
+
         <!-- /.login-logo -->
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
                 <img src="~/dist/img/sigma-logo.svg" alt="AdminLTE Logo" class="sigma-brand-image" style="opacity: .8">
             </div>
             <div class="card-body login-card-body">
-                <p class="login-box-msg">Đăng nhập để bắt đầu phiên làm việc</p>
+                <p class="login-box-msg" data-key="login_msg">Đăng nhập để bắt đầu phiên làm việc</p>
 
                 <!-- Hiển thị thông báo lỗi nếu đăng nhập thất bại -->
                 @if (TempData["LoginError"] != null)
@@ -45,7 +54,7 @@
                 <!-- Form Đăng nhập truyền thống -->
                 <form asp-controller="Account" asp-action="Login" method="post">
                     <div class="input-group mb-3">
-                        <input type="text" name="Username" class="form-control" placeholder="Tài khoản / Username" required autofocus>
+                        <input type="text" name="Username" class="form-control" placeholder="Tài khoản / Username" id="input-username" required autofocus>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-user"></span>
@@ -53,7 +62,7 @@
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" name="Password" class="form-control" placeholder="Mật khẩu / Password" required>
+                        <input type="password" name="Password" class="form-control" placeholder="Mật khẩu / Password" id="input-password" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
@@ -64,21 +73,21 @@
                         <div class="col-8">
                             <div class="icheck-primary">
                                 <input type="checkbox" id="remember" name="RememberMe" value="true">
-                                <label for="remember">
+                                <label for="remember" data-key="remember_me">
                                     Nhớ mật khẩu
                                 </label>
                             </div>
                         </div>
                         <!-- /.col -->
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-sigma-pink btn-block">Đăng nhập</button>
+                        <div class="col-12 mt-2">
+                            <button type="submit" class="btn btn-sigma-pink btn-block" data-key="btn_login">Đăng nhập</button>
                         </div>
                         <!-- /.col -->
                     </div>
                 </form>
 
                 <div class="social-auth-links text-center mt-3 mb-3">
-                    <p>- HOẶC -</p>
+                    <p data-key="or_divider">- HOẶC -</p>
                     <!-- Nút Đăng nhập bằng Microsoft -->
                     <a href="@Url.Action("SignInMicrosoft", "Account")" class="btn btn-block btn-outline-dark">
                         <!-- SVG Logo Microsoft chuẩn màu -->
@@ -88,7 +97,7 @@
                             <rect x="1" y="11" width="9" height="9" fill="#01a4ef" />
                             <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                         </svg>
-                        Đăng nhập bằng tài khoản Microsoft
+                        <span data-key="btn_microsoft">Đăng nhập bằng tài khoản Microsoft</span>
                     </a>
                 </div>
                 <!-- /.social-auth-links -->
@@ -104,5 +113,44 @@
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="~/dist/js/adminlte.min.js"></script>
+
+    <!-- Script xử lý đa ngôn ngữ load từ file JSON -->
+    <script>
+        function loadLoginTranslations(lang) {
+            $.getJSON(`/json/${lang}.json`, function (data) {
+                // Duyệt qua các thẻ có attribute data-key
+                $('[data-key]').each(function() {
+                    const key = $(this).attr('data-key');
+                    if (data[key]) {
+                        $(this).text(data[key]);
+                    }
+                });
+
+                // Cập nhật Placeholder cho ô input dựa trên file JSON hoặc giá trị fallback
+                if (data['placeholder_username']) {
+                    $('#input-username').attr('placeholder', data['placeholder_username']);
+                }
+                if (data['placeholder_password']) {
+                    $('#input-password').attr('placeholder', data['placeholder_password']);
+                }
+            }).fail(function() {
+                console.error("Không thể tải file ngôn ngữ: " + lang);
+            });
+        }
+
+        $(document).ready(function() {
+            // Lấy ngôn ngữ đã lưu hoặc mặc định là 'vi'
+            const currentLang = localStorage.getItem('app_lang') || 'vi';
+            $('#login-lang-switch').val(currentLang);
+            loadLoginTranslations(currentLang);
+
+            // Khi user thay đổi ngôn ngữ trên dropdown góc trên
+            $('#login-lang-switch').on('change', function() {
+                const selectedLang = $(this).val();
+                localStorage.setItem('app_lang', selectedLang);
+                loadLoginTranslations(selectedLang);
+            });
+        });
+    </script>
 </body>
 </html>

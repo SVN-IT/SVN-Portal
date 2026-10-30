@@ -38,7 +38,8 @@ public class HomeController : Controller
         ViewBag.IndexPage = indexPage;
         ViewBag.TitleName = titleName;
 
-        return View();
+        return RedirectToAction("POInbound", "Oracle");
+        //return View();
     }
 
     public IActionResult Privacy()
