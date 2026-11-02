@@ -117,7 +117,10 @@
     <!-- Script xử lý đa ngôn ngữ load từ file JSON -->
     <script>
         function loadLoginTranslations(lang) {
-            $.getJSON(`/json/${lang}.json`, function (data) {
+            // Trỏ đúng vào thư mục json/ thông qua Url.Content để tự động nhận diện PathBase khi chạy qua Nginx
+            const jsonUrl = '@Url.Content("~/json/")' + lang + '.json';
+
+            $.getJSON(jsonUrl, function (data) {
                 // Duyệt qua các thẻ có attribute data-key
                 $('[data-key]').each(function() {
                     const key = $(this).attr('data-key');
@@ -126,7 +129,7 @@
                     }
                 });
 
-                // Cập nhật Placeholder cho ô input dựa trên file JSON hoặc giá trị fallback
+                // Cập nhật Placeholder cho ô input dựa trên file JSON
                 if (data['placeholder_username']) {
                     $('#input-username').attr('placeholder', data['placeholder_username']);
                 }
@@ -134,7 +137,7 @@
                     $('#input-password').attr('placeholder', data['placeholder_password']);
                 }
             }).fail(function() {
-                console.error("Không thể tải file ngôn ngữ: " + lang);
+                console.error("Không thể tải file ngôn ngữ: " + jsonUrl);
             });
         }
 

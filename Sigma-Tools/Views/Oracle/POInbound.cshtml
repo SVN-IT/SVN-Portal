@@ -688,7 +688,10 @@
                     document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
 
                     // Tải file JSON từ điển để dịch động dòng số lượng lines tìm thấy
-                    $.getJSON('/json/' + currentLang + '.json', function (dict) {
+                    // Sử dụng Url.Content của Razor để tự động sinh đúng path (ví dụ: /sigmatools/json/vi.json)
+                    const jsonUrl = '@Url.Content("~/json/")' + currentLang + '.json';
+
+                    $.getJSON(jsonUrl, function (dict) {
                         let lineFoundTemplate = dict["EXTRACTED LINE ITEMS (0 LINES FOUND)"] || "EXTRACTED LINE ITEMS ({0} LINES FOUND)";
                         // Thay thế số lượng lines thực tế vào chuỗi
                         let formattedLineText = lineFoundTemplate.replace("0", m.lineItems.length);

@@ -548,8 +548,10 @@
         function applyLanguage(lang) {
             if (!lang) lang = localStorage.getItem('app_lang') || 'vi';
 
-            // Nếu là tiếng Việt (gốc) thì không cần thay đổi nếu đã chuẩn
-            $.getJSON('/json/' + lang + '.json', function (dictionary) {
+            // Sử dụng Url.Content để tự động nhận diện đúng đường dẫn khi chạy qua Nginx Reverse Proxy (ví dụ: /sigmatools/json/en.json)
+            var jsonUrl = '@Url.Content("~/json/")' + lang + '.json';
+
+            $.getJSON(jsonUrl, function (dictionary) {
 
                 // Dịch tất cả các thẻ <p>, <span>, <a>, <h1>-<h6>, <button>, <b>, <strong>
                 $('p, span, a, h1, h2, h3, h4, h5, h6, button, b, strong, .breadcrumb-item').each(function () {
@@ -599,11 +601,11 @@
                 });
 
             }).fail(function () {
-                console.warn('Could not load dictionary file: /json/' + lang + '.json');
+                console.warn('Could not load dictionary file: ' + jsonUrl);
             });
         }
 
-        // 3. Tự động áp dụng ngôn ngữ ngay khi trang tải xong
+        // Tự động áp dụng ngôn ngữ ngay khi trang tải xong
         $(document).ready(function () {
             var currentLang = localStorage.getItem('app_lang') || 'vi';
             applyLanguage(currentLang);
