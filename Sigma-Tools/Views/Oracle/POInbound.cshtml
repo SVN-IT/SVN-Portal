@@ -2308,11 +2308,11 @@
     $(document).on('click', '#btn-confirm-create-so', function () {
         const currentLang = localStorage.getItem('app_lang') || 'vi';
 
-        // Đọc giá trị từ các thẻ select
-        const selectedSubsidiary = $('#select-subsidiary').val();
-        const selectedLocation = $('#select-location').val();
-        const selectedTaxCode = $('#select-taxcode').val();
-        const selectedProjectCode = $('#select-projectcode').val(); // Đã chuyển sang lấy giá trị select
+        // Đọc giá trị từ các thẻ select và ép kiểu sang int
+        const selectedSubsidiary = parseInt($('#select-subsidiary').val(), 10) || 0;
+        const selectedLocation = parseInt($('#select-location').val(), 10) || 0;
+        const selectedTaxCode = parseInt($('#select-taxcode').val(), 10) || 0;
+        const selectedProjectCode = parseInt($('#select-projectcode').val(), 10) || 0;
 
         $('#subsidiarySelectModal').modal('hide');
 
@@ -2371,10 +2371,10 @@
                 Customer: customer,
                 Requisitioner: requisitioner,
                 Currency: currency,
-                Subsidiary: selectedSubsidiary,
-                Location: selectedLocation,
-                TaxCode: selectedTaxCode,
-                ProjectCode: selectedProjectCode, // Truyền giá trị từ select vào payload
+                Subsidiary: selectedSubsidiary,     // Gửi lên kiểu int
+                Location: selectedLocation,         // Gửi lên kiểu int
+                TaxCode: selectedTaxCode,           // Gửi lên kiểu int
+                ProjectCode: selectedProjectCode,   // Gửi lên kiểu int
                 LineItems: lineItems,
                 RawOcrResponse: JSON.stringify(rawOcrData)
             };

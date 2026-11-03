@@ -557,14 +557,14 @@ namespace Sigma_Tools.Controllers
                 {
                     // Parse chuỗi RawOcrResponse thành JObject để tiêm Subsidiary vào header nếu cần
                     JObject ocrData = JsonConvert.DeserializeObject<JObject>(request.RawOcrResponse);
-                    if (ocrData != null && !string.IsNullOrEmpty(request.Subsidiary))
+                    if (ocrData != null && request.Subsidiary > 0)
                     {
                         if (ocrData["header"] == null) ocrData["header"] = new JObject();
 
-                        if (!string.IsNullOrEmpty(request.Subsidiary)) ocrData["header"]["subsidiary"] = request.Subsidiary;
-                        if (!string.IsNullOrEmpty(request.Location)) ocrData["header"]["location"] = request.Location;
-                        if (!string.IsNullOrEmpty(request.TaxCode)) ocrData["header"]["tax_code"] = request.TaxCode;
-                        if (!string.IsNullOrEmpty(request.ProjectCode)) ocrData["header"]["project_code"] = request.ProjectCode;
+                        if (request.Subsidiary > 0) ocrData["header"]["subsidiary"] = request.Subsidiary;
+                        if (request.Location > 0) ocrData["header"]["location"] = request.Location;
+                        if (request.TaxCode > 0) ocrData["header"]["tax_code"] = request.TaxCode;
+                        if (request.ProjectCode > 0) ocrData["header"]["project_code"] = request.ProjectCode;
 
                         request.RawOcrResponse = JsonConvert.SerializeObject(ocrData);
                     }
