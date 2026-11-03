@@ -32,6 +32,10 @@ namespace SVNShareLib.Request
         public string? payment_terms { get; set; }
         public string? trade_terms { get; set; }
         public string? currency { get; set; }
+        public int subsidiary { get; set; }
+        public int location { get; set; }
+        public int tax_code { get; set; }
+        public int project_code { get; set; }
     }
 
     public class BuyerInfo { public string? name { get; set; } public string? address { get; set; } }
