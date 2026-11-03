@@ -16,13 +16,15 @@ namespace Sigma_Tools.Controllers
         DBConfiguration dbConfiguration;
         string connectionString;
         LogService logger;
+        AppConfig appConfig;
         private readonly IPermissionService _permissionService;
-        public OracleController(DBConfiguration dBConfiguration, IPermissionService permissionService)
+        public OracleController(DBConfiguration dBConfiguration, IPermissionService permissionService, AppConfig appConfig)
         {
             this.dbConfiguration = dBConfiguration;
             connectionString = dbConfiguration.GetConnectionString();
             logger = new LogService(connectionString);
             _permissionService = permissionService;
+            this.appConfig = appConfig;
         }
         public IActionResult Index()
         {
@@ -245,7 +247,7 @@ namespace Sigma_Tools.Controllers
 
             try
             {
-                string apiUrl = "https://api.sigmaworldwide.io/api/Netsuite/GetCustomerItemPricing";
+                string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetCustomerItemPricing";
                 ErpApiResponse erpPricingData = null;
 
                 // 1. Gọi API lấy chính sách giá từ ERP/NetSuite
@@ -335,6 +337,183 @@ namespace Sigma_Tools.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> GetSubsidiaries([FromBody] SubsidiaryRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.customerId))
+            {
+                return Json(new { success = false, message = "Customer ID không được để trống." });
+            }
+
+            try
+            {
+                string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetSubsidiaries";
+                using (var client = new HttpClient())
+                {
+                    string jsonPayload = JsonConvert.SerializeObject(request);
+                    var httpContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, httpContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResult = await response.Content.ReadAsStringAsync();
+
+                        // 1. Parse chuỗi JSON trả về thành JObject để bóc lớp ngoài
+                        JObject rootObject = JsonConvert.DeserializeObject<JObject>(jsonResult);
+
+                        // 2. Lấy phần giá trị nằm trong key "data"
+                        var dataToken = rootObject?["data"];
+
+                        if (dataToken != null)
+                        {
+                            // 3. Convert phần "data" đó trực tiếp ra class SubsidiaryApiResponse
+                            SubsidiaryApiResponse subsidiaryApiResponse = dataToken.ToObject<SubsidiaryApiResponse>();
+
+                            // Trả về giao diện theo cấu trúc bọc cũ của bạn nhưng bên trong data chính là SubsidiaryApiResponse đã bóc tách
+                            return Json(new { success = true, data = subsidiaryApiResponse });
+                        }
+
+                        return Json(new { success = false, message = "Không tìm thấy khối dữ liệu data từ API NetSuite." });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Lỗi khi gọi API lấy Subsidiaries từ NetSuite." });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi lấy danh sách Subsidiaries: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetLocationsBySubsidiary([FromBody] LocationRequest request)
+        {
+            if (request.subsidiaryId == 0)
+            {
+                return Json(new { success = false, message = "Subsidiary ID không được để trống." });
+            }
+
+            try
+            {
+                string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetLocations"; // Thay đổi endpoint API NetSuite tương ứng của bạn
+                using (var client = new HttpClient())
+                {
+                    string jsonPayload = JsonConvert.SerializeObject(request);
+                    var httpContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, httpContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResult = await response.Content.ReadAsStringAsync();
+
+                        // Parse lớp ngoài để bóc tách khối "data" chứa LocationApiResponse
+                        JObject rootObject = JsonConvert.DeserializeObject<JObject>(jsonResult);
+                        var dataToken = rootObject?["data"];
+
+                        if (dataToken != null)
+                        {
+                            LocationApiResponse locationApiResponse = dataToken.ToObject<LocationApiResponse>();
+                            return Json(new { success = true, data = locationApiResponse });
+                        }
+
+                        return Json(new { success = false, message = "Không tìm thấy khối dữ liệu data từ API NetSuite." });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Lỗi khi gọi API lấy Locations từ NetSuite." });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi lấy danh sách Locations: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetTaxCodesBySubsidiary([FromBody] LocationRequest request) // Hoặc dùng chung một kiểu Request nhận subsidiaryId (int)
+        {
+            if (request == null || request.subsidiaryId <= 0)
+            {
+                return Json(new { success = false, message = "Subsidiary ID không hợp lệ." });
+            }
+
+            try
+            {
+                string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetTaxCodes";
+                using (var client = new HttpClient())
+                {
+                    string jsonPayload = JsonConvert.SerializeObject(request);
+                    var httpContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, httpContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResult = await response.Content.ReadAsStringAsync();
+                        JObject rootObject = JsonConvert.DeserializeObject<JObject>(jsonResult);
+                        var dataToken = rootObject?["data"];
+
+                        if (dataToken != null)
+                        {
+                            TaxCodeApiResponse apiResponse = dataToken.ToObject<TaxCodeApiResponse>();
+                            return Json(new { success = true, data = apiResponse });
+                        }
+                        return Json(new { success = false, message = "Không tìm thấy dữ liệu Tax Codes." });
+                    }
+                    return Json(new { success = false, message = "Lỗi khi gọi API Tax Codes từ NetSuite." });
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi Tax Codes: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetProjectCodesBySubsidiary([FromBody] LocationRequest request)
+        {
+            if (request == null || request.subsidiaryId <= 0)
+            {
+                return Json(new { success = false, message = "Subsidiary ID không hợp lệ." });
+            }
+
+            try
+            {
+                string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetProjectCodes";
+                using (var client = new HttpClient())
+                {
+                    string jsonPayload = JsonConvert.SerializeObject(request);
+                    var httpContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, httpContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResult = await response.Content.ReadAsStringAsync();
+                        JObject rootObject = JsonConvert.DeserializeObject<JObject>(jsonResult);
+                        var dataToken = rootObject?["data"];
+
+                        if (dataToken != null)
+                        {
+                            ProjectCodeApiResponse apiResponse = dataToken.ToObject<ProjectCodeApiResponse>();
+                            return Json(new { success = true, data = apiResponse });
+                        }
+                        return Json(new { success = false, message = "Không tìm thấy dữ liệu Project Codes." });
+                    }
+                    return Json(new { success = false, message = "Lỗi khi gọi API Project Codes từ NetSuite." });
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi Project Codes: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
         public IActionResult RejectPO([FromBody] RejectPORequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Reason))
@@ -391,7 +570,7 @@ namespace Sigma_Tools.Controllers
                     }
 
                     //OCRPurchaseOrderRequest? dataRequest = JsonConvert.DeserializeObject<OCRPurchaseOrderRequest>(request.RawOcrResponse);
-                    string apiUrl = "https://api.sigmaworldwide.io/api/Netsuite/CreatePurchaseOrderAsync";
+                    string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/CreatePurchaseOrderAsync";
 
                     using (var client = new HttpClient())
                     {
@@ -531,10 +710,10 @@ namespace Sigma_Tools.Controllers
         public string Currency { get; set; }
 
         // Các trường cấu hình NetSuite bổ sung
-        public string Subsidiary { get; set; }
-        public string Location { get; set; }
-        public string TaxCode { get; set; }
-        public string ProjectCode { get; set; }
+        public int Subsidiary { get; set; }
+        public int Location { get; set; }
+        public int TaxCode { get; set; }
+        public int ProjectCode { get; set; }
 
         public List<POLineItem> LineItems { get; set; }
 

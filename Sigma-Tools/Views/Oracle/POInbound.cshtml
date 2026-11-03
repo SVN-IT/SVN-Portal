@@ -2111,9 +2111,196 @@
     // =============================================================
     // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO SALES ORDER"
     // =============================================================
-    // 1. Khi bấm nút Convert trên Action Bar -> Chỉ MỞ POPUP chọn Subsidiary
+    // 1. Khi bấm nút Convert trên Action Bar -> Gọi API lấy Subsidiaries và mở Modal
     $(document).on('click', '#btn-convert', function () {
-        $('#subsidiarySelectModal').modal('show');
+        $('#select-location, #select-taxcode, #select-projectcode').prop('disabled', true);
+        $('#btn-confirm-create-so').prop('disabled', true);
+
+        const customerId = $('#po-customer-display').text().trim();
+        const currentLang = localStorage.getItem('app_lang') || 'vi';
+
+        $.ajax({
+            url: '@Url.Action("GetSubsidiaries", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ customerId: customerId }),
+            success: function (response) {
+                console.log("=== API SUBSIDIARIES RESPONSE ===", response);
+
+                let $subSelect = $('#select-subsidiary');
+                $subSelect.empty();
+
+                let defaultText = (currentLang === 'en') ? '-- Select Subsidiary --' :
+                                  (currentLang === 'zh') ? '-- 请选择子公司 --' : '-- Chọn Subsidiary --';
+                $subSelect.append(`<option value="" selected disabled>${defaultText}</option>`);
+
+                // Hứng qua response.data vì response.data lúc này chính là SubsidiaryApiResponse
+                if (response && response.success && response.data) {
+                    let subs = response.data.subsidiaries || [];
+
+                    if (subs.length > 0) {
+                        subs.forEach(sub => {
+                            let name = sub.name;
+                            let legalName = sub.legalname;
+                            let id = sub.id;
+
+                            let displayName = name;
+                            $subSelect.append(`<option value="${id}">${displayName}</option>`);
+                        });
+                    } else {
+                        $subSelect.append(`<option value="" disabled>Không có dữ liệu Subsidiary</option>`);
+                    }
+                }
+
+                $('#subsidiarySelectModal').modal('show');
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi AJAX GetSubsidiaries:", error);
+                alert('Lỗi khi tải dữ liệu Subsidiaries!');
+                $('#subsidiarySelectModal').modal('show');
+            }
+        });
+    });
+
+    // Hàm kiểm tra xem cả 4 select đã được chọn giá trị đầy đủ chưa để bật nút Confirm
+    function checkFormReady() {
+        const sub = $('#select-subsidiary').val();
+        const loc = $('#select-location').val();
+        const tax = $('#select-taxcode').val();
+        const prj = $('#select-projectcode').val();
+
+        // Chỉ khi tất cả 4 ô đều có giá trị thì mới enable nút Confirm & Create SO
+        if (sub && loc && tax && prj) {
+            $('#btn-confirm-create-so').prop('disabled', false);
+        } else {
+            $('#btn-confirm-create-so').prop('disabled', true);
+        }
+    }
+
+    // 2. Khi người dùng chọn/thay đổi Subsidiary trên selectbox chính
+    // Sự kiện khi chọn/thay đổi Subsidiary
+    $(document).on('change', '#select-subsidiary', function () {
+        const selectedSubId = $(this).val();
+        const currentLang = localStorage.getItem('app_lang') || 'vi';
+
+        // Lấy các element select
+        let $locSelect = $('#select-location');
+        let $taxSelect = $('#select-taxcode');
+        let $prjSelect = $('#select-projectcode');
+
+        // Reset và đưa về trạng thái mặc định cho 3 select còn lại
+        $locSelect.empty().append(`<option value="" selected disabled>-- Chọn Location --</option>`);
+        $taxSelect.empty().append(`<option value="" selected disabled>-- Chọn Tax Code --</option>`);
+        $prjSelect.empty().append(`<option value="" selected disabled>-- Chọn Project Code --</option>`);
+
+        // Check lại form (lúc này sẽ disable nút Confirm vì thiếu 3 mục kia)
+        checkFormReady();
+
+        if (selectedSubId) {
+            // Mở khóa tạm thời các ô select phía sau
+            $('#select-location, #select-taxcode, #select-projectcode').prop('disabled', false);
+
+            const subsidiaryIdInt = parseInt(selectedSubId, 10);
+            const requestPayload = JSON.stringify({ SubsidiaryId: subsidiaryIdInt });
+
+            // ==========================================
+            // 1. GỌI AJAX LẤY LOCATIONS
+            // ==========================================
+            $.ajax({
+                url: '@Url.Action("GetLocationsBySubsidiary", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: requestPayload,
+                success: function (response) {
+                    if (response && response.success && response.data) {
+                        let locations = response.data.locations || [];
+                        if (locations.length > 0) {
+                            locations.forEach(loc => {
+                                if (!loc.isinactive) {
+                                    $locSelect.append(`<option value="${loc.id}">${loc.name}</option>`);
+                                }
+                            });
+                        } else {
+                            $locSelect.append(`<option value="" disabled>Không có dữ liệu Location</option>`);
+                        }
+                    }
+                    checkFormReady();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi AJAX Locations:", error);
+                    checkFormReady();
+                }
+            });
+
+            // ==========================================
+            // 2. GỌI AJAX LẤY TAX CODES
+            // ==========================================
+            $.ajax({
+                url: '@Url.Action("GetTaxCodesBySubsidiary", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: requestPayload,
+                success: function (response) {
+                    if (response && response.success && response.data) {
+                        let taxCodes = response.data.taxCodes || [];
+                        if (taxCodes.length > 0) {
+                            taxCodes.forEach(tax => {
+                                if (!tax.isinactive) {
+                                    // Hiển thị itemid kết hợp rate hoặc country theo đúng TaxCodeItem
+                                    $taxSelect.append(`<option value="${tax.id}">${tax.itemid} (Rate: ${tax.rate})</option>`);
+                                }
+                            });
+                        } else {
+                            $taxSelect.append(`<option value="" disabled>Không có dữ liệu Tax Code</option>`);
+                        }
+                    }
+                    checkFormReady();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi AJAX Tax Codes:", error);
+                    checkFormReady();
+                }
+            });
+
+            // ==========================================
+            // 3. GỌI AJAX LẤY PROJECT CODES
+            // ==========================================
+            $.ajax({
+                url: '@Url.Action("GetProjectCodesBySubsidiary", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: requestPayload,
+                success: function (response) {
+                    if (response && response.success && response.data) {
+                        let projectCodes = response.data.projectCodes || [];
+                        if (projectCodes.length > 0) {
+                            projectCodes.forEach(prj => {
+                                if (!prj.isinactive) {
+                                    $prjSelect.append(`<option value="${prj.id}">${prj.name}</option>`);
+                                }
+                            });
+                        } else {
+                            $prjSelect.append(`<option value="" disabled>Không có dữ liệu Project Code</option>`);
+                        }
+                    }
+                    checkFormReady();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Lỗi AJAX Project Codes:", error);
+                    checkFormReady();
+                }
+            });
+
+        } else {
+            // Nếu bỏ chọn Subsidiary -> Khóa và reset trắng cả 3 ô còn lại
+            $('#select-location, #select-taxcode, #select-projectcode').prop('disabled', true);
+            checkFormReady();
+        }
+    });
+
+    // 2. Theo dõi sự kiện change trên các ô Location, Tax Code, Project Code để tự động cập nhật nút Confirm
+    $(document).on('change', '#select-location, #select-taxcode, #select-projectcode', function () {
+        checkFormReady();
     });
 
     // 2. Khi bấm nút "Confirm & Create SO" trong Popup -> Tiến hành gom dữ liệu và gọi AJAX
