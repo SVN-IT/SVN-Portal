@@ -10,5 +10,9 @@
         public string TokenSecret { get; set; }
         public string accountId { get; set; }
         public string CreatePOFromOCRURL { get; set; }
+        public string GetSubsidiariesURL { get; set; }
+        public string GetLocationURL { get; set; }
+        public string GetTaxCodeURL { get; set; }
+        public string GetProjectCodeURL { get; set; }
     }
 }

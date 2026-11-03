@@ -376,6 +376,20 @@ namespace Sigma_Tools.Controllers
                 // VÍ DỤ: Đọc các trường phụ từ RawOcrResponse nếu cần dùng để đẩy lên NetSuite
                 if (!string.IsNullOrEmpty(request.RawOcrResponse))
                 {
+                    // Parse chuỗi RawOcrResponse thành JObject để tiêm Subsidiary vào header nếu cần
+                    JObject ocrData = JsonConvert.DeserializeObject<JObject>(request.RawOcrResponse);
+                    if (ocrData != null && !string.IsNullOrEmpty(request.Subsidiary))
+                    {
+                        if (ocrData["header"] == null) ocrData["header"] = new JObject();
+
+                        if (!string.IsNullOrEmpty(request.Subsidiary)) ocrData["header"]["subsidiary"] = request.Subsidiary;
+                        if (!string.IsNullOrEmpty(request.Location)) ocrData["header"]["location"] = request.Location;
+                        if (!string.IsNullOrEmpty(request.TaxCode)) ocrData["header"]["tax_code"] = request.TaxCode;
+                        if (!string.IsNullOrEmpty(request.ProjectCode)) ocrData["header"]["project_code"] = request.ProjectCode;
+
+                        request.RawOcrResponse = JsonConvert.SerializeObject(ocrData);
+                    }
+
                     //OCRPurchaseOrderRequest? dataRequest = JsonConvert.DeserializeObject<OCRPurchaseOrderRequest>(request.RawOcrResponse);
                     string apiUrl = "https://api.sigmaworldwide.io/api/Netsuite/CreatePurchaseOrderAsync";
 
@@ -515,6 +529,13 @@ namespace Sigma_Tools.Controllers
         public string Customer { get; set; }
         public string Requisitioner { get; set; }
         public string Currency { get; set; }
+
+        // Các trường cấu hình NetSuite bổ sung
+        public string Subsidiary { get; set; }
+        public string Location { get; set; }
+        public string TaxCode { get; set; }
+        public string ProjectCode { get; set; }
+
         public List<POLineItem> LineItems { get; set; }
 
         // Bổ sung thêm thuộc tính này để hứng trọn vẹn cấu trúc Raw OCR JSON từ Client gửi lên

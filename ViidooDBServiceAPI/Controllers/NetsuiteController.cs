@@ -195,6 +195,189 @@ namespace ViidooDBServiceAPI.Controllers
             }
         }
 
+        [HttpPost("GetSubsidiaries")]
+        public async Task<IActionResult> GetSubsidiaries([FromBody] SubsidiaryRequest dataRequest)
+        {
+            try
+            {
+                // 1. Lấy URL của RESTlet lấy danh sách Subsidiary từ file cấu hình NetSuiteScriptService
+                // (Đảm bảo bạn đã khai báo thuộc tính GetSubsidiariesURL trong service của bạn)
+                string requestUrl = $"{netSuiteScriptService.GetSubsidiariesURL}&customerId={dataRequest.customerId}";
+
+                // 2. Lấy thông tin cấu hình Token OAuth 1.0
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Phương thức GET)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "GET", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi gọi sang NetSuite RESTlet
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse kết quả trả về từ NetSuite sang DTO đã định nghĩa
+                    var jsonResult = JsonSerializer.Deserialize<SubsidiaryApiResponse>(responseString, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Ok(new { success = true, data = jsonResult });
+                }
+
+                return BadRequest(new { success = false, message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost("GetLocations")]
+        public async Task<IActionResult> GetLocations([FromBody] LocationRequest dataRequest)
+        {
+            try
+            {
+                // 1. Lấy URL của RESTlet lấy danh sách Subsidiary từ file cấu hình NetSuiteScriptService
+                // (Đảm bảo bạn đã khai báo thuộc tính GetLocationURL trong service của bạn)
+                string requestUrl = $"{netSuiteScriptService.GetLocationURL}&subsidiaryId={dataRequest.subsidiaryId}";
+
+                // 2. Lấy thông tin cấu hình Token OAuth 1.0
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Phương thức GET)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "GET", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi gọi sang NetSuite RESTlet
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse kết quả trả về từ NetSuite sang DTO đã định nghĩa
+                    var jsonResult = JsonSerializer.Deserialize<LocationApiResponse>(responseString, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Ok(new { success = true, data = jsonResult });
+                }
+
+                return BadRequest(new { success = false, message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost("GetTaxCodes")]
+        public async Task<IActionResult> GetTaxCodes([FromBody] LocationRequest dataRequest)
+        {
+            try
+            {
+                // 1. Lấy URL của RESTlet lấy danh sách Subsidiary từ file cấu hình NetSuiteScriptService
+                // (Đảm bảo bạn đã khai báo thuộc tính GetLocationURL trong service của bạn)
+                string requestUrl = $"{netSuiteScriptService.GetTaxCodeURL}";
+
+                // 2. Lấy thông tin cấu hình Token OAuth 1.0
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Phương thức GET)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "GET", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi gọi sang NetSuite RESTlet
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse kết quả trả về từ NetSuite sang DTO đã định nghĩa
+                    var jsonResult = JsonSerializer.Deserialize<TaxCodeApiResponse>(responseString, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Ok(new { success = true, data = jsonResult });
+                }
+
+                return BadRequest(new { success = false, message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost("GetProjectCodes")]
+        public async Task<IActionResult> GetProjectCodes([FromBody] LocationRequest dataRequest)
+        {
+            try
+            {
+                // 1. Lấy URL của RESTlet lấy danh sách Project Code từ file cấu hình
+                string requestUrl = $"{netSuiteScriptService.GetProjectCodeURL}";
+
+                // 2. Lấy thông tin cấu hình Token OAuth 1.0
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Phương thức GET)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "GET", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi gọi sang NetSuite RESTlet
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Parse kết quả trả về từ NetSuite sang DTO Project Code
+                    var jsonResult = JsonSerializer.Deserialize<ProjectCodeApiResponse>(responseString, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Ok(new { success = true, data = jsonResult });
+                }
+
+                return BadRequest(new { success = false, message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
         private string GenerateNetsuiteOAuthHeader(string fullUrl, string httpMethod, string accountId, string consumerKey, string consumerSecret, string tokenId, string tokenSecret)
         {
             string nonce = Guid.NewGuid().ToString("N");

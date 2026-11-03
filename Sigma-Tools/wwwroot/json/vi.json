@@ -90,5 +90,15 @@
   "btn_microsoft": "Đăng nhập bằng tài khoản Microsoft",
   "placeholder_username": "Tài khoản / Username",
   "placeholder_password": "Mật khẩu / Password",
-  "loadingData": "Đang tải dữ liệu..."
+  "loadingData": "Đang tải dữ liệu...",
+  "NetSuite Configuration": "Cấu hình đơn hàng NetSuite",
+  "Subsidiary": "Đơn vị trực thuộc (Subsidiary)",
+  "Location": "Địa điểm / Kho (Location)",
+  "Tax Code": "Mã thuế (Tax Code)",
+  "Project Code": "Mã dự án (Project Code)",
+  "Confirm & Create SO": "Xác nhận & Tạo Sales Order",
+  "No line items found to create a Sales Order!": "Không tìm thấy danh sách dòng hàng để tạo Sales Order!",
+  "Creating Sales Order...": "Đang tạo Sales Order...",
+  "An error occurred while creating the PO in NetSuite.": "Đã xảy ra lỗi khi tạo PO lên NetSuite.",
+  "A connection error occurred while sending the Sales Order request to the server!": "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!"
 }

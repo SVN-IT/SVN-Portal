@@ -90,5 +90,15 @@
   "btn_microsoft": "使用 Microsoft 账号登录",
   "placeholder_username": "用户名 / Username",
   "placeholder_password": "密码 / Password",
-  "loadingData": "正在加载数据……"
+  "loadingData": "正在加载数据……",
+  "NetSuite Configuration": "NetSuite 订单配置",
+  "Subsidiary": "子公司 (Subsidiary)",
+  "Location": "地点 / 仓库 (Location)",
+  "Tax Code": "税码 (Tax Code)",
+  "Project Code": "项目代码 (Project Code)",
+  "Confirm & Create SO": "确认并创建销售订单",
+  "No line items found to create a Sales Order!": "未找到用于创建销售订单的行项目！",
+  "Creating Sales Order...": "正在创建销售订单...",
+  "An error occurred while creating the PO in NetSuite.": "在 NetSuite 中创建 PO 时发生错误。",
+  "A connection error occurred while sending the Sales Order request to the server!": "向服务器发送销售订单请求时发生连接错误！"
 }

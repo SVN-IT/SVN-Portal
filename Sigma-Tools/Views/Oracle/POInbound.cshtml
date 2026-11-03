@@ -459,7 +459,80 @@
         </div>
     </div>
 
+    <!-- Modal Chọn Subsidiary trước khi tạo Sales Order -->
+    <!-- Modal Chọn Thông Số NetSuite trước khi tạo Sales Order -->
+    <div class="modal fade" id="subsidiarySelectModal" tabindex="-1" role="dialog" aria-labelledby="subsidiarySelectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h6 class="modal-title font-weight-bold" id="subsidiarySelectModalLabel">
+                        <i class="fas fa-sliders-h mr-1"></i> <span class="lang-text" data-key="NetSuite Configuration">NetSuite Configuration</span>
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body py-3">
+                    <!-- 1. Subsidiary -->
+                    <div class="form-group mb-2">
+                        <label for="select-subsidiary" class="small font-weight-bold text-muted mb-1">
+                            <span class="lang-text" data-key="Subsidiary">Subsidiary</span> <span class="text-danger">*</span>:
+                        </label>
+                        <select id="select-subsidiary" class="form-control text-dark">
+                            <option value="Sigma Worldwide (SVN)">Sigma Worldwide (SVN)</option>
+                            <option value="Sigma Manufacturing (SM)">Sigma Manufacturing (SM)</option>
+                            <option value="Sigma ITA">Sigma ITA</option>
+                        </select>
+                    </div>
 
+                    <!-- 2. Location -->
+                    <div class="form-group mb-2">
+                        <label for="select-location" class="small font-weight-bold text-muted mb-1">
+                            <span class="lang-text" data-key="Location">Location</span> <span class="text-danger">*</span>:
+                        </label>
+                        <select id="select-location" class="form-control text-dark">
+                            <option value="SVN_KhoChinh">SVN - Kho Chính</option>
+                            <option value="SM_KhoChinh">SM - Kho Chính</option>
+                            <option value="ITA_KhoChinh">ITA - Kho Chính</option>
+                        </select>
+                    </div>
+
+                    <!-- 3. Tax Code -->
+                    <div class="form-group mb-2">
+                        <label for="select-taxcode" class="small font-weight-bold text-muted mb-1">
+                            <span class="lang-text" data-key="Tax Code">Tax Code</span> <span class="text-danger">*</span>:
+                        </label>
+                        <select id="select-taxcode" class="form-control text-dark">
+                            <option value="VAT_0">VAT 0%</option>
+                            <option value="VAT_8">VAT 8%</option>
+                            <option value="VAT_10">VAT 10%</option>
+                            <option value="UNDEF_TAX">Undef Tax / Exempt</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. Project Code -->
+                    <div class="form-group mb-0">
+                        <label for="select-projectcode" class="small font-weight-bold text-muted mb-1">
+                            <span class="lang-text" data-key="Project Code">Project Code</span>:
+                        </label>
+                        <select id="select-projectcode" class="form-control text-dark">
+                            <option value="PRJ-2026-001">PRJ-2026-001 - Sigma ERP Rollout</option>
+                            <option value="PRJ-2026-002">PRJ-2026-002 - MES Integration</option>
+                            <option value="PRJ-2026-003">PRJ-2026-003 - Smart Factory</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i> <span class="lang-text" data-key="Cancel">Cancel</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary font-weight-bold" id="btn-confirm-create-so">
+                        <i class="fas fa-check mr-1"></i> <span class="lang-text" data-key="Confirm & Create SO">Confirm & Create SO</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Badge Trạng thái phía trên góc phải -->
     <div class="d-flex align-items-center">
@@ -2038,54 +2111,52 @@
     // =============================================================
     // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO SALES ORDER"
     // =============================================================
+    // 1. Khi bấm nút Convert trên Action Bar -> Chỉ MỞ POPUP chọn Subsidiary
     $(document).on('click', '#btn-convert', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-        const $btnConvert = $(this);
+        $('#subsidiarySelectModal').modal('show');
+    });
 
-        // 0. Tự động đồng bộ các chỉnh sửa từ giao diện vào chuỗi JSON ẩn trước khi đóng gói
+    // 2. Khi bấm nút "Confirm & Create SO" trong Popup -> Tiến hành gom dữ liệu và gọi AJAX
+    // Khi bấm "Confirm & Create SO" trong Popup
+    $(document).on('click', '#btn-confirm-create-so', function () {
+        const currentLang = localStorage.getItem('app_lang') || 'vi';
+
+        // Đọc giá trị từ các thẻ select
+        const selectedSubsidiary = $('#select-subsidiary').val();
+        const selectedLocation = $('#select-location').val();
+        const selectedTaxCode = $('#select-taxcode').val();
+        const selectedProjectCode = $('#select-projectcode').val(); // Đã chuyển sang lấy giá trị select
+
+        $('#subsidiarySelectModal').modal('hide');
+
+        const $btnConvert = $('#btn-convert');
+
+        // Đồng bộ dữ liệu sửa đổi vào raw JSON ẩn
         updateHiddenRawJson();
 
-        // Lấy chuỗi raw JSON từ thẻ ẩn và parse thành object
         let rawJsonStr = $('#ocr-raw-json-hidden').val();
         let rawOcrData = {};
         try {
-            if (rawJsonStr) {
-                rawOcrData = JSON.parse(rawJsonStr);
-            }
+            if (rawJsonStr) rawOcrData = JSON.parse(rawJsonStr);
         } catch (e) {
             console.error("Lỗi parse Raw OCR JSON:", e);
         }
 
-        // 1. Thu thập thông tin Header
         let poNumber = $('#po-number-display').text().trim();
         let poDate = $('#po-date-display').text().trim();
         let customer = $('#po-customer-display').text().trim();
         let requisitioner = $('#po-requisitioner-display').text().trim();
         let currency = $('#po-currency-hidden').val() || 'USD';
 
-        // 2. Thu thập danh sách Line Items từ bảng hiện tại
         let lineItems = [];
         $('#po-line-table tbody tr').each(function () {
             const $tr = $(this);
             if ($tr.find('td').length <= 1) return;
 
-            let itemCode = $tr.find('.cell-item-code').text().trim();
-            if (!itemCode) {
-                itemCode = $tr.find('td:nth-child(2)').text().trim();
-            }
-
+            let itemCode = $tr.find('.cell-item-code').text().trim() || $tr.find('td:nth-child(2)').text().trim();
             let description = $tr.attr('data-description') || '';
-
-            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty'));
-            if (isNaN(qty)) {
-                qty = parseInt($tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
-            }
-
-            let unitPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price'));
-            if (isNaN(unitPrice)) {
-                unitPrice = parseFloat($tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
-            }
-
+            let qty = parseInt($tr.find('.cell-qty').attr('data-original-qty') || $tr.find('.cell-qty').text().replace(/,/g, '')) || 0;
+            let unitPrice = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price') || $tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0;
             let erpBasePrice = parseFloat($tr.attr('data-erp-price')) || 0;
 
             lineItems.push({
@@ -2099,91 +2170,73 @@
             });
         });
 
-        if (lineItems.length === 0) {
-            let emptyLineMsg = (currentLang === 'en') ? "No line items found to create a Sales Order!" :
-                               (currentLang === 'zh') ? "未找到用于创建销售订单的行项目！" :
-                               "Không tìm thấy danh sách dòng hàng để tạo Sales Order!";
-            alert(emptyLineMsg);
-            return;
-        }
-
-        // 3. Đóng gói dữ liệu thành một Payload hoàn chỉnh (Bao gồm cả RawOcrResponse)
-        let createSoPayload = {
-            PONumber: poNumber,
-            Date: poDate,
-            Customer: customer,
-            Requisitioner: requisitioner,
-            Currency: currency,
-            LineItems: lineItems,
-            RawOcrResponse: JSON.stringify(rawOcrData) // Truyền toàn bộ cấu trúc dữ liệu thô đã cập nhật thay đổi
-        };
-
-        // 4. Khóa nút và hiển thị trạng thái đang xử lý
-        let processingSoText = (currentLang === 'en') ? 'Creating Sales Order...' :
-                               (currentLang === 'zh') ? '正在创建销售订单...' : 'Đang tạo Sales Order...';
-        $btnConvert.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${processingSoText}`);
-
-        let btnDefaultText = (currentLang === 'en') ? 'Convert to Sales Order' :
-                             (currentLang === 'zh') ? '转换为销售订单' : 'Convert to Sales Order';
-
-        // 5. Gửi Ajax về Controller
-        $.ajax({
-            url: '@Url.Action("CreateNetsuiteSO", "Oracle")',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(createSoPayload),
-            success: function (response) {
-                // Mở khóa nút bấm lại
-                $btnConvert.prop('disabled', false).html(btnDefaultText);
-
-                // response lúc này trả về dạng object chứa { success, message, poId, poNumber, poUrl }
-                if (response.success) {
-                    // --- XỬ LÝ KHI THÀNH CÔNG ---
-                    $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
-                    $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
-
-                    $('#ns-modal-message').text(response.message);
-                    $('#ns-modal-po-number').text(response.poNumber);
-                    $('#ns-modal-po-info').removeClass('d-none');
-
-                    // Gán link vào nút mở NetSuite
-                    if (response.poUrl) {
-                        $('#ns-modal-link-btn').attr('href', response.poUrl).removeClass('d-none');
-                    } else {
-                        $('#ns-modal-link-btn').addClass('d-none');
-                    }
-
-                    // Hiển thị Modal
-                    $('#netsuiteResultModal').modal('show');
-
-                    // (Tùy chọn) Reload lại trang sau khi tắt modal nếu muốn reset form
-                    $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
-                        location.reload();
-                    });
-
-                } else {
-                    // --- XỬ LÝ KHI THẤT BẠI ---
-                    $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
-                    $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
-
-                    let defaultErr = (currentLang === 'en') ? "An error occurred while creating the PO in NetSuite." :
-                                     (currentLang === 'zh') ? "在 NetSuite 中创建 PO 时发生错误。" :
-                                     "Đã xảy ra lỗi khi tạo PO lên NetSuite.";
-                    $('#ns-modal-message').text(response.message || defaultErr);
-                    $('#ns-modal-po-info').addClass('d-none');
-                    $('#ns-modal-link-btn').addClass('d-none');
-
-                    // Hiển thị Modal lỗi
-                    $('#netsuiteResultModal').modal('show');
-                }
-            },
-            error: function () {
-                let connErrMsg = (currentLang === 'en') ? "A connection error occurred while sending the Sales Order request to the server!" :
-                                 (currentLang === 'zh') ? "向服务器发送销售订单请求时发生连接错误！" :
-                                 "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!";
-                alert(connErrMsg);
-                $btnConvert.prop('disabled', false).html(btnDefaultText);
+        const jsonUrl = '@Url.Content("~/json/")' + currentLang + '.json';
+        $.getJSON(jsonUrl, function (dict) {
+            if (lineItems.length === 0) {
+                let emptyLineMsg = dict["No line items found to create a Sales Order!"] || "Không tìm thấy danh sách dòng hàng để tạo Sales Order!";
+                alert(emptyLineMsg);
+                return;
             }
+
+            let createSoPayload = {
+                PONumber: poNumber,
+                Date: poDate,
+                Customer: customer,
+                Requisitioner: requisitioner,
+                Currency: currency,
+                Subsidiary: selectedSubsidiary,
+                Location: selectedLocation,
+                TaxCode: selectedTaxCode,
+                ProjectCode: selectedProjectCode, // Truyền giá trị từ select vào payload
+                LineItems: lineItems,
+                RawOcrResponse: JSON.stringify(rawOcrData)
+            };
+
+            let processingSoText = dict["Creating Sales Order..."] || "Đang tạo Sales Order...";
+            $btnConvert.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${processingSoText}`);
+            let btnDefaultText = dict["Convert to Sales Order"] || "Convert to Sales Order";
+
+            $.ajax({
+                url: '@Url.Action("CreateNetsuiteSO", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(createSoPayload),
+                success: function (response) {
+                    $btnConvert.prop('disabled', false).html(btnDefaultText);
+
+                    if (response.success) {
+                        $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
+                        $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+                        $('#ns-modal-message').text(response.message);
+                        $('#ns-modal-po-number').text(response.poNumber);
+                        $('#ns-modal-po-info').removeClass('d-none');
+
+                        if (response.poUrl) {
+                            $('#ns-modal-link-btn').attr('href', response.poUrl).removeClass('d-none');
+                        } else {
+                            $('#ns-modal-link-btn').addClass('d-none');
+                        }
+
+                        $('#netsuiteResultModal').modal('show');
+                        $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                            location.reload();
+                        });
+                    } else {
+                        $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
+                        $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+                        let defaultErr = dict["An error occurred while creating the PO in NetSuite."] || "Đã xảy ra lỗi khi tạo PO lên NetSuite.";
+                        $('#ns-modal-message').text(response.message || defaultErr);
+                        $('#ns-modal-po-info').addClass('d-none');
+                        $('#ns-modal-link-btn').addClass('d-none');
+                        $('#netsuiteResultModal').modal('show');
+                    }
+                },
+                error: function () {
+                    let connErrMsg = dict["A connection error occurred while sending the Sales Order request to the server!"] || "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!";
+                    alert(connErrMsg);
+                    $btnConvert.prop('disabled', false).html(btnDefaultText);
+                }
+            });
         });
     });
 
