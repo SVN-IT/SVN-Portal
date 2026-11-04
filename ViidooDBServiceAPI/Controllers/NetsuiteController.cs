@@ -294,7 +294,7 @@ namespace ViidooDBServiceAPI.Controllers
             {
                 // 1. Lấy URL của RESTlet lấy danh sách Subsidiary từ file cấu hình NetSuiteScriptService
                 // (Đảm bảo bạn đã khai báo thuộc tính GetLocationURL trong service của bạn)
-                string requestUrl = $"{netSuiteScriptService.GetTaxCodeURL}";
+                string requestUrl = $"{netSuiteScriptService.GetTaxCodeURL}&subsidiaryId={dataRequest.subsidiaryId}";
 
                 // 2. Lấy thông tin cấu hình Token OAuth 1.0
                 string accountId = netSuiteScriptService.accountId;

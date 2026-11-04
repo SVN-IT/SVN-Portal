@@ -2169,8 +2169,14 @@
         const tax = $('#select-taxcode').val();
         const prj = $('#select-projectcode').val();
 
-        // Chỉ khi tất cả 4 ô đều có giá trị thì mới enable nút Confirm & Create SO
-        if (sub && loc && tax && prj) {
+        // Kiểm tra xem Tax Code có bắt buộc phải chọn ở Subsidiary này hay không
+        const isTaxRequired = $('#select-taxcode').data('required') === true;
+
+        // Điều kiện hợp lệ cho Tax Code: Hoặc là không bắt buộc, hoặc là bắt buộc và đã được chọn giá trị
+        const isTaxValid = !isTaxRequired || (isTaxRequired && tax);
+
+        // Nút Confirm chỉ sáng khi: Đã chọn Subsidiary, Location, Project Code VÀ Tax Code thỏa mãn điều kiện (có hoặc đã chọn)
+        if (sub && loc && isTaxValid && prj) {
             $('#btn-confirm-create-so').prop('disabled', false);
         } else {
             $('#btn-confirm-create-so').prop('disabled', true);
@@ -2243,21 +2249,37 @@
                 success: function (response) {
                     if (response && response.success && response.data) {
                         let taxCodes = response.data.taxCodes || [];
+
                         if (taxCodes.length > 0) {
+                            // Trường hợp CÓ dữ liệu Tax Code -> Đổ dữ liệu và đánh dấu BẮT BUỘC chọn
                             taxCodes.forEach(tax => {
                                 if (!tax.isinactive) {
-                                    // Hiển thị itemid kết hợp rate hoặc country theo đúng TaxCodeItem
                                     $taxSelect.append(`<option value="${tax.id}">${tax.itemid} (Rate: ${tax.rate})</option>`);
                                 }
                             });
+                            $taxSelect.prop('disabled', false);
+                            $taxSelect.data('required', true); // Gắn cờ bắt buộc
                         } else {
-                            $taxSelect.append(`<option value="" disabled>Không có dữ liệu Tax Code</option>`);
+                            // Trường hợp KHÔNG CÓ dữ liệu Tax Code -> Cho phép bỏ qua, đánh dấu KHÔNG BẮT BUỘC
+                            let noTaxText = (currentLang === 'en') ? '-- No Tax Code available --' :
+                                            (currentLang === 'zh') ? '-- 无可用税码 --' : '-- Không có Tax Code --';
+                            $taxSelect.empty().append(`<option value="" selected>${noTaxText}</option>`);
+                            $taxSelect.prop('disabled', true); // Khóa ô lại vì không có gì để chọn
+                            $taxSelect.data('required', false); // Gắn cờ không bắt buộc
                         }
+                    } else {
+                        // Xử lý khi phản hồi lỗi hoặc rỗng
+                        $taxSelect.empty().append(`<option value="" selected>-- Không có Tax Code --</option>`);
+                        $taxSelect.prop('disabled', true);
+                        $taxSelect.data('required', false);
                     }
                     checkFormReady();
                 },
                 error: function (xhr, status, error) {
                     console.error("Lỗi AJAX Tax Codes:", error);
+                    $taxSelect.empty().append(`<option value="" selected>-- Không có Tax Code --</option>`);
+                    $taxSelect.prop('disabled', true);
+                    $taxSelect.data('required', false);
                     checkFormReady();
                 }
             });
