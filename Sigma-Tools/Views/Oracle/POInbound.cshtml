@@ -316,6 +316,12 @@
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
 </style>
+<!-- Thêm CSS của Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
+<!-- Thêm JS của Select2 (Đảm bảo đặt sau thư viện jQuery) -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <!-- ========================================================= -->
 <!-- GLOBAL AJAX LOADING SPINNER OVERLAY -->
@@ -621,18 +627,18 @@
                         <table class="table table-custom table-hover mb-0" id="po-line-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 6%;" class="lang-text" data-key="Line">Line</th>
-                                    <th style="width: 22%;" class="lang-text" data-key="Item Code">Item Code</th>
-                                    <th style="width: 32%;" class="lang-text" data-key="Description">Description</th>
-                                    <th style="width: 12%; text-align: right;" class="lang-text" data-key="Qty">Qty</th>
-                                    <th style="width: 12%; text-align: right;" class="lang-text" data-key="Unit Price">Unit Price</th>
-                                    <th style="width: 12%; text-align: right;" class="lang-text" data-key="Amount">Amount</th>
-                                    <th style="width: 4%; text-align: center;" class="col-action d-none lang-text" data-key="Action">Action</th>
+                                    <th style="width: 6%;" data-key="Line"><span class="lang-text">Line</span></th>
+                                    <th style="width: 22%;" data-key="Item Code"><span class="lang-text">Item Code</span></th>
+                                    <th style="width: 32%;" data-key="Description"><span class="lang-text">Description</span></th>
+                                    <th style="width: 12%; text-align: right;" data-key="Qty"><span class="lang-text">Qty</span></th>
+                                    <th style="width: 12%; text-align: right;" data-key="Unit Price"><span class="lang-text">Unit Price</span></th>
+                                    <th style="width: 12%; text-align: right;" data-key="Amount"><span class="lang-text">Amount</span></th>
+                                    <th style="width: 4%; text-align: center;" class="col-action d-none" data-key="Action"><span class="lang-text">Action</span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-3 lang-text" data-key="No Data Notice">Chưa có dữ liệu. Vui lòng import file PDF để bắt đầu bóc tách.</td>
+                                    <td colspan="7" class="text-center text-muted py-3" data-key="No Data Notice"><span class="lang-text">No data available</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -672,6 +678,17 @@
 
 <!-- JavaScript Xử lý Import PDF và Thế chỗ File Cũ -->
 <script>
+    $(document).ready(function() {
+        // Khởi tạo Select2 cho các ô select trong Modal cấu hình NetSuite
+        $('#select-subsidiary, #select-location, #select-taxcode, #select-projectcode').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: '-- Chọn giá trị --',
+            allowClear: true,
+            dropdownParent: $('#subsidiarySelectModal') // Quan trọng giúp ô tìm kiếm hoạt động mượt mà trong Modal
+        });
+    });
+
     // Biến đánh dấu bước hiện tại
     let currentStep = 1;
 
@@ -773,13 +790,17 @@
 
                     let tbodyHtml = '';
                     m.lineItems.forEach(item => {
+                        // Định dạng Unit Price và Amount có dấu phẩy phần nghìn và 2 chữ số thập phân
+                        let formattedPrice = Number(item.unitPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        let formattedAmount = Number(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
                         tbodyHtml += `<tr>
                             <td>${item.line}</td>
                             <td>${item.itemCode || ''}</td>
                             <td>${item.description || ''}</td>
                             <td class="text-right">${Number(item.qty).toLocaleString()}</td>
-                            <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice)}</td>
-                            <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
+                            <td class="text-right" data-original-price="${item.unitPrice}">$${formattedPrice}</td>
+                            <td class="text-right" data-original-amount="${item.amount}">$${formattedAmount}</td>
                             <td class="text-center col-action d-none">
                                 <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
                             </td>
@@ -925,8 +946,12 @@
                         renderStep2Table(response.data);
 
                         if ($('#btn-confirm-next').length > 0) {
+                            // Lấy từ điển đa ngôn ngữ (dict) hoặc dùng từ khóa fallback
+                            let proceedText = (currentLang === 'en') ? 'Proceed to Create ERP PO' :
+                                              (currentLang === 'zh') ? '继续创建 ERP PO' : 'Tiến hành tạo ERP PO';
+
                             $('#btn-confirm-next')
-                                .html('<i class="fas fa-arrow-right mr-1"></i> Proceed to Create ERP SO')
+                                .html(`<i class="fas fa-arrow-right mr-1"></i> ${proceedText}`)
                                 .attr('id', 'btn-proceed-step3');
                         }
 
@@ -1518,7 +1543,7 @@
 
     function saveTableEdits() {
         $('#po-line-table tbody tr').each(function () {
-            const $tr =$(this);
+            const $tr = $(this);
             if ($tr.find('input').length > 0) {
                 const code = $tr.find('.input-item-code').val();
                 const desc = $tr.find('.input-desc').val();
@@ -1526,9 +1551,15 @@
                 const price = parseFloat($tr.find('.input-price').val()) || 0;
                 const amt = qty * price;
 
-                $tr.find('td:nth-child(2)').text(code);$tr.find('td:nth-child(3)').text(desc);
-                $tr.find('td:nth-child(4)').text(qty.toLocaleString());$tr.find('td:nth-child(5)').text(`$${price}`);
-                $tr.find('td:nth-child(6)').text(`$${amt.toFixed(2)}`);
+                // Định dạng có dấu phẩy phần nghìn
+                let formattedPrice = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                let formattedAmt = amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                $tr.find('td:nth-child(2)').text(code);
+                $tr.find('td:nth-child(3)').text(desc);
+                $tr.find('td:nth-child(4)').text(qty.toLocaleString());
+                $tr.find('td:nth-child(5)').text(`$${formattedPrice}`);
+                $tr.find('td:nth-child(6)').text(`$${formattedAmt}`);
             }
         });
     }
@@ -1767,13 +1798,16 @@
     function renderTableFromData(lineItems) {
         let tbodyHtml = '';
         lineItems.forEach(item => {
+            let formattedPrice = Number(item.unitPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            let formattedAmount = Number(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
             tbodyHtml += `<tr>
                 <td>${item.line}</td>
                 <td>${item.itemCode}</td>
                 <td>${item.description}</td>
                 <td class="text-right">${Number(item.qty).toLocaleString()}</td>
-                <td class="text-right" data-original-price="${item.unitPrice}">$${Number(item.unitPrice)}</td>
-                <td class="text-right" data-original-amount="${item.amount}">$${Number(item.amount).toFixed(2)}</td>
+                <td class="text-right" data-original-price="${item.unitPrice}">$${formattedPrice}</td>
+                <td class="text-right" data-original-amount="${item.amount}">$${formattedAmount}</td>
                 <td class="text-center col-action d-none">
                     <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
                 </td>
@@ -2312,6 +2346,10 @@
                     checkFormReady();
                 }
             });
+
+            $locSelect.trigger('change');
+            $taxSelect.trigger('change');
+            $prjSelect.trigger('change');
 
         } else {
             // Nếu bỏ chọn Subsidiary -> Khóa và reset trắng cả 3 ô còn lại

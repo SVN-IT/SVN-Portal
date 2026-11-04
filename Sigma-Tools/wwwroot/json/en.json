@@ -101,5 +101,6 @@
   "No line items found to create a Sales Order!": "No line items found to create a Sales Order!",
   "Creating Sales Order...": "Creating Sales Order...",
   "An error occurred while creating the PO in NetSuite.": "An error occurred while creating the PO in NetSuite.",
-  "A connection error occurred while sending the Sales Order request to the server!": "A connection error occurred while sending the Sales Order request to the server!"
+  "A connection error occurred while sending the Sales Order request to the server!": "A connection error occurred while sending the Sales Order request to the server!",
+  "No data available": "No data available. Please import a PDF file to begin extraction."
 }

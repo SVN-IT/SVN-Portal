@@ -100,5 +100,6 @@
   "No line items found to create a Sales Order!": "Không tìm thấy danh sách dòng hàng để tạo Sales Order!",
   "Creating Sales Order...": "Đang tạo Sales Order...",
   "An error occurred while creating the PO in NetSuite.": "Đã xảy ra lỗi khi tạo PO lên NetSuite.",
-  "A connection error occurred while sending the Sales Order request to the server!": "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!"
+  "A connection error occurred while sending the Sales Order request to the server!": "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!",
+  "No data available": "Chưa có dữ liệu. Vui lòng import file PDF để bắt đầu bóc tách."
 }
