@@ -82,13 +82,13 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
             });
             log.audit('Set Header Field', `Subsidiary -> ID: ${targetSubsidiaryId}`);
 
-            // Set Location từ request header
+            // Set Location từ request header lên header PO
             if (targetLocationId) {
                 poRecord.setValue({
                     fieldId: 'location',
                     value: targetLocationId
                 });
-                log.audit('Set Header Field', `Location -> ID: ${targetLocationId}`);
+                log.audit('Set Header Field', `Location Header -> ID: ${targetLocationId}`);
             } else {
                 log.audit('Set Header Field Warning', 'Không có location ID từ header request, bỏ qua gán location header.');
             }
@@ -230,9 +230,22 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
                 poRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'quantity', value: line.quantity });
                 poRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'rate', value: line.price_each });
 
-                // Gán Tax Code lên từng dòng nếu request header có truyền tax_code
+                // Gán Location lên từng dòng item nếu có truyền targetLocationId từ header
+                if (targetLocationId) {
+                    try {
+                        poRecord.setCurrentSublistValue({
+                            sublistId: 'item',
+                            fieldId: 'location',
+                            value: targetLocationId
+                        });
+                        log.audit(`Line [${i + 1}] Location Set`, `Location ID: ${targetLocationId}`);
+                    } catch (locErr) {
+                        log.error(`Line [${i + 1}] Location Error`, `Không thể gán Location ID ${targetLocationId} trên dòng item: ${locErr.message}`);
+                    }
+                }
+
+                // Gán Tax Code lên từng dòng nếu request header có truyền tax_code khác 0
                 let lineTaxCode = header.tax_code;
-                // Nếu có giá trị, không null/undefined và khác 0 thì mới tiến hành gán Tax Code
                 if (lineTaxCode !== null && lineTaxCode !== undefined && lineTaxCode !== 0) {
                     try {
                         poRecord.setCurrentSublistValue({
@@ -246,7 +259,6 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
                     }
                 }
 
-
                 if (line.eta_date) {
                     let etaParts = line.eta_date.split('-');
                     if (etaParts.length === 3) {
@@ -259,8 +271,7 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
                 log.audit(`Line [${i + 1}] Success`, `Đã add thành công Item ID ${itemId} vào PO line`);
             }
 
-            // === DỜI VIỆC GÁN PROJECT CODE XUỐNG ĐÂY (NGAY TRƯỚC KHI SAVE) ===
-            // Thử gán và log kiểm tra ngay lập tức giá trị hiện tại của field
+            // Gán Project Code ngay trước khi save
             if (header.project_code) {
                 let targetProjectCodeId = parseInt(header.project_code, 10);
                 poRecord.setValue({
@@ -268,7 +279,6 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
                     value: targetProjectCodeId
                 });
 
-                // Đọc lại giá trị vừa set để check xem NetSuite có chịu nhận không
                 let checkValue = poRecord.getValue({ fieldId: 'cseg_sig_projcode' });
                 log.audit('VERIFY PROJECT CODE', `Giá trị vừa set xong trên record object là: ${checkValue}`);
             }
@@ -290,7 +300,6 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
             let poTranId = poFields.tranid;
             log.audit('Step 8 Document Number', `Số PO hiển thị trên hệ thống (Document Number): ${poTranId}`);
 
-            // Lấy URL bản ghi PO
             let relativeUrl = url.resolveRecord({
                 recordType: record.Type.PURCHASE_ORDER,
                 recordId: poId,
@@ -321,7 +330,6 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
         }
     };
 
-    // Các hàm helper an toàn với log chi tiết
     function getInternalIdByField(type, fieldName, value) {
         let internalId = null;
         let s = search.create({ type: type, filters: [[fieldName, 'is', value]], columns: ['internalid'] });
