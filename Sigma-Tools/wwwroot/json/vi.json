@@ -101,5 +101,15 @@
   "Creating Sales Order...": "Đang tạo Sales Order...",
   "An error occurred while creating the PO in NetSuite.": "Đã xảy ra lỗi khi tạo PO lên NetSuite.",
   "A connection error occurred while sending the Sales Order request to the server!": "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!",
-  "No data available": "Chưa có dữ liệu. Vui lòng import file PDF để bắt đầu bóc tách."
+  "No data available": "Chưa có dữ liệu. Vui lòng import file PDF để bắt đầu bóc tách.",
+  "Filter Data": "Lọc dữ liệu",
+  "PO & Part Number Tracking History Report": "Báo cáo Lịch sử Tracking PO & Part Number",
+  "Creation time": "Thời gian tạo",
+  "Creator": "Người tạo",
+  "Part Number": "Part Number",
+  "Order Qty": "Order Qty",
+  "Open Order Qty": "Open Order Qty",
+  "There is no tracking data for this period.": "Không có dữ liệu tracking nào trong khoảng thời gian này.",
+  "From Date:": "Từ ngày:",
+  "To Date:":  "Đến ngày:"
 }

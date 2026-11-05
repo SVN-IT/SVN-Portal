@@ -102,5 +102,15 @@
   "Creating Sales Order...": "Creating Sales Order...",
   "An error occurred while creating the PO in NetSuite.": "An error occurred while creating the PO in NetSuite.",
   "A connection error occurred while sending the Sales Order request to the server!": "A connection error occurred while sending the Sales Order request to the server!",
-  "No data available": "No data available. Please import a PDF file to begin extraction."
+  "No data available": "No data available. Please import a PDF file to begin extraction.",
+  "Filter Data": "Filter Data",
+  "PO & Part Number Tracking History Report": "PO & Part Number Tracking History Report",
+  "Creation time": "Creation time",
+  "Creator": "Creator",
+  "Part Number": "Part Number",
+  "Order Qty": "Order Qty",
+  "Open Order Qty": "Open Order Qty",
+  "There is no tracking data for this period.": "There is no tracking data for this period.",
+  "From Date:": "From Date:",
+  "To Date:": "To Date:"
 }

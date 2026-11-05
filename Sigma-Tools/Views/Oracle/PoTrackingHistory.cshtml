@@ -13,15 +13,15 @@
             <form method="get" asp-action="PoTrackingHistory" class="form-inline justify-content-between">
                 <div class="d-flex align-items-center flex-wrap">
                     <div class="form-group mr-3 mb-2">
-                        <label class="small font-weight-bold mr-2 text-muted">Từ ngày:</label>
+                        <label class="small font-weight-bold mr-2 text-muted"><span class="lang-text">From Date:</span></label>
                         <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control form-control-sm" />
                     </div>
                     <div class="form-group mr-3 mb-2">
-                        <label class="small font-weight-bold mr-2 text-muted">Đến ngày:</label>
+                        <label class="small font-weight-bold mr-2 text-muted"><span class="lang-text">To Date:</span></label>
                         <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control form-control-sm" />
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary font-weight-bold mb-2 px-3">
-                        <i class="fas fa-filter mr-1"></i> Lọc dữ liệu
+                        <i class="fas fa-filter mr-1"></i> <span class="lang-text"></span> Filter Data
                     </button>
                 </div>
                 <div class="small text-muted mb-2">
@@ -35,7 +35,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
             <h6 class="mb-0 font-weight-bold">
-                <i class="fas fa-table mr-1"></i> Báo cáo Lịch sử Tracking PO & Part Number
+                <i class="fas fa-table mr-1"></i> <span class="lang-text">PO & Part Number Tracking History Report</span>
             </h6>
         </div>
         <div class="card-body p-0">
@@ -43,13 +43,13 @@
                 <table class="table table-bordered table-hover table-striped mb-0 text-dark" style="font-size: 0.88rem;">
                     <thead class="thead-light text-uppercase" style="font-size: 0.78rem;">
                         <tr>
-                            <th style="width: 13%;">Thời gian tạo</th>
-                            <th style="width: 11%;">Người tạo (By)</th>
-                            <th style="width: 12%;">Mã PO (Sigma PO)</th>
-                            <th style="width: 14%;">Part Number</th>
-                            <th style="width: 27%;">Description</th>
-                            <th style="width: 11%; text-align: right;">Order Qty</th>
-                            <th style="width: 12%; text-align: right;">Open Order Qty</th>
+                            <th style="width: 13%;"><span class="lang-text">Creation time</span></th>
+                            <th style="width: 11%;"><span class="lang-text">Creator</span></th>
+                            <th style="width: 12%;"><span class="lang-text">PO Number</span></th>
+                            <th style="width: 14%;"><span class="lang-text">Part Number</span></th>
+                            <th style="width: 27%;"><span class="lang-text">Description</span></th>
+                            <th style="width: 11%; text-align: right;"><span class="lang-text">Order Qty</span></th>
+                            <th style="width: 12%; text-align: right;"><span class="lang-text">Open Order Qty</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,7 +85,7 @@
                         {
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
-                                    <i class="fas fa-info-circle mr-1"></i> Không có dữ liệu tracking nào trong khoảng thời gian này.
+                                    <i class="fas fa-info-circle mr-1"></i> <span class="lang-text">There is no tracking data for this period.</span>
                                 </td>
                             </tr>
                         }

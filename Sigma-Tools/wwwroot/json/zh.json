@@ -101,5 +101,15 @@
   "Creating Sales Order...": "正在创建销售订单...",
   "An error occurred while creating the PO in NetSuite.": "在 NetSuite 中创建 PO 时发生错误。",
   "A connection error occurred while sending the Sales Order request to the server!": "向服务器发送销售订单请求时发生连接错误！",
-  "No data available": "暂无数据。请导入PDF文件以开始数据提取。"
+  "No data available": "暂无数据。请导入PDF文件以开始数据提取。",
+  "Filter Data": "筛选数据",
+  "PO & Part Number Tracking History Report": "采购订单及零件编号跟踪历史记录报告",
+  "Creation time": "创世时间",
+  "Creator": "创作者",
+  "Part Number": "Part Number",
+  "Order Qty": "Order Qty",
+  "Open Order Qty": "Open Order Qty",
+  "There is no tracking data for this period.": "此期间没有可用的跟踪数据。",
+  "From Date:": "起始日期：",
+  "To Date:": "迄今为止："
 }
