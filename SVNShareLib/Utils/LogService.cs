@@ -43,6 +43,21 @@ namespace SVNShareLib.Utils
             }
         }
 
+        public List<SVN_summary_logUI> GetLogs(LogAction Action, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
+                return dataPortal.ReadListFromDateToData(Action.ToString(), fromDate, toDate);
+            }
+            catch(Exception ex)
+            {
+                Log(LogApp.SVNPortal, LogAction.NetsuitePOLogInfo, LogType.Error, $"GetLogs Error: {ex.Message}");
+                return null;
+            }
+            
+        }
+
         public enum LogApp
         {
             QACheckList,
@@ -62,7 +77,8 @@ namespace SVNShareLib.Utils
             ConfigPOManual,
             CreateNetsuitePO,
             VerifyErpPrices,
-            RejectPO
+            RejectPO,
+            NetsuitePOLogInfo
         }
 
         public enum LogType

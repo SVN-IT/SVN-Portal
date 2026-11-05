@@ -18,6 +18,27 @@ namespace SVNShareLib.DAL
             this.connectionString = connectionString;
         }
 
+        public List<SVN_summary_logUI> ReadListFromDateToData(string Action, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                List<SVN_summary_logUI> dataUI = new List<SVN_summary_logUI>();
+                string sql = "SELECT * FROM SVN_summary_log WHERE [Action] = @Action AND CreatedOn BETWEEN @FromDate AND @ToDate";
+                var param = new { Action = Action, FromDate = fromDate, ToDate = toDate };
+
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    dataUI = connection.Query<SVN_summary_logUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text).ToList();
+                    return dataUI;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public int InsertBulk(List<SVN_summary_logUI> dataUI)
         {
             int timeOut = 1000;

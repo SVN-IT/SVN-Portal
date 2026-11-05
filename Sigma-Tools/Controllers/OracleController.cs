@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sigma_Tools.Models;
@@ -6,6 +7,7 @@ using Sigma_Tools.Services.Authorizations;
 using Sigma_Tools.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL;
+using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using SVNShareLib.Utils;
 
@@ -71,9 +73,122 @@ namespace Sigma_Tools.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Action hiển thị trang danh sách PO Tracking được bóc tách từ lịch sử log
+        /// </summary>
+        [HttpGet]
+        public IActionResult PoTrackingHistory(DateTime? fromDate, DateTime? toDate, int page = 1, int pageSize = 20)
+        {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            string accessMode = "Tools";
+            string controllerName = "Oracle";
+            string indexPage = "PoTrackingHistory";
+            string titleName = "PO Tracking History";
+            string selectedPage = "PoTrackingHistory";
+
+            ViewBag.AccessMode = accessMode;
+            ViewBag.ControllerName = controllerName;
+            ViewBag.IndexPage = indexPage;
+            ViewBag.TitleName = titleName;
+            ViewBag.SelectedPage = selectedPage;
+
+            try
+            {
+                // 1. CHUẨN HÓA KHOẢNG THỜI GIAN TRƯỚC KHI QUERY DB
+                DateTime fDate = fromDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime tDate = toDate ?? DateTime.Now.Date;
+
+                if (fDate.Date > DateTime.Now.Date) fDate = DateTime.Now.Date;
+                if (tDate.Date > DateTime.Now.Date) tDate = DateTime.Now.Date;
+
+                // Đảm bảo tDate lấy trọn đến cuối ngày (23:59:59)
+                tDate = tDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+                if (fDate > tDate)
+                {
+                    fDate = tDate.Date;
+                }
+
+                ViewBag.FromDate = fDate.ToString("yyyy-MM-dd");
+                ViewBag.ToDate = tDate.ToString("yyyy-MM-dd");
+
+                // 2. GỌI LOG SERVICE VỚI KHOẢNG THỜI GIAN ĐÃ CHUẨN HÓA
+                var logList = logger.GetLogs(LogService.LogAction.NetsuitePOLogInfo, fDate, tDate);
+
+                // 3. BÓC TÁCH CONTENT THÀNH DANH SÁCH TRACKING ITEMS
+                var allTrackingItems = new List<PoOrderTrackingDisplayModel>();
+
+                if (logList != null)
+                {
+                    foreach (var log in logList)
+                    {
+                        if (string.IsNullOrEmpty(log.Content)) continue;
+
+                        try
+                        {
+                            var items = JsonConvert.DeserializeObject<List<PoOrderTrackingDto>>(log.Content);
+                            if (items != null && items.Count > 0)
+                            {
+                                foreach (var item in items)
+                                {
+                                    allTrackingItems.Add(new PoOrderTrackingDisplayModel
+                                    {
+                                        CreatedOn = log.CreatedOn,
+                                        CreatedBy = log.CreatedBy ?? "System",
+                                        PartNumber = item.PartNumber,
+                                        SigmaPO = item.SigmaPO,
+                                        Description = item.Description,
+                                        OrderQty = item.OrderQty,
+                                        OpenOrderQty = item.OpenOrderQty,
+                                        PoUrl = item.PoUrl
+                                    });
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                }
+
+                // Sắp xếp mới nhất lên đầu
+                allTrackingItems = allTrackingItems.OrderByDescending(x => x.CreatedOn).ToList();
+
+                // 4. PHÂN TRANG (PAGING) CƠ BẢN TRÊN BỘ NHỚ
+                int totalItems = allTrackingItems.Count;
+                int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                if (page < 1) page = 1;
+                if (page > totalPages && totalPages > 0) page = totalPages;
+
+                var pagedItems = allTrackingItems
+                                    .Skip((page - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+
+                // Đẩy thông tin phân trang sang ViewBag để render giao diện
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalItems = totalItems;
+
+                return View(pagedItems);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Lỗi khi tải lịch sử tracking: " + ex.Message;
+                return View(new List<PoOrderTrackingDisplayModel>());
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> UploadPOPdf(IFormFile pdfFile)
         {
+            var currentUser = _permissionService.GetCurrentUser();
             if (pdfFile == null || pdfFile.Length == 0)
             {
                 return Json(new { success = false, messageKey = "FileNotFound", message = "Không tìm thấy file tải lên." });
@@ -176,7 +291,7 @@ namespace Sigma_Tools.Controllers
 
                         if (dataUI == null)
                         {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không tìm thấy mã item ERP tương ứng với mã item của khách hàng. Customer: {model.Customer}, PONumber: {model.PONumber}");
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không tìm thấy mã item ERP tương ứng với mã item của khách hàng. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser.UserName);
                             return Json(new { success = false, message = "Không tìm thấy mã item ERP tương ứng với mã item của khách hàng" });
                         }
 
@@ -211,27 +326,27 @@ namespace Sigma_Tools.Controllers
 
                         if (itemCodeNotFound.Count > 0)
                         {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên.");
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên.", currentUser.UserName);
                             return Json(new { success = false, message = $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên." });
                         }
                     }
                     else
                     {
-                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không đọc được danh sách item trong PO. Customer: {model.Customer}, PONumber: {model.PONumber}");
+                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không đọc được danh sách item trong PO. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser.UserName);
                         return Json(new { success = false, message = "Không đọc được danh sách item trong PO" });
                     }
 
                     // 1. Serialize toàn bộ JObject thành chuỗi JSON string an toàn ngay tại server
                     string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
 
-                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF thành công. Customer: {model.Customer}, PONumber: {model.PONumber}, Currency: {currencyCode}");
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF thành công. Customer: {model.Customer}, PONumber: {model.PONumber}, Currency: {currencyCode}", currentUser.UserName);
                     // Trả về dữ liệu JSON kèm theo đối tượng `rawJson` (chứa apiData đã được cập nhật sigma_code)
                     return Json(new { success = true, data = model, rawJsonStr = rawJsonString, currency = currencyCode });
                 }
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Lỗi khi upload PO PDF: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Lỗi khi upload PO PDF: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = ex.Message });
             }
         }
@@ -239,9 +354,10 @@ namespace Sigma_Tools.Controllers
         [HttpPost]
         public async Task<IActionResult> VerifyErpPrices([FromBody] ErpPriceVerificationRequest request)
         {
+            var currentUser = _permissionService.GetCurrentUser();
             if (request == null || request.Items == null || request.Items.Count == 0)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Không có dữ liệu line items để đối chiếu. Customer: {request?.Customer}, Currency: {request?.Currency}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Không có dữ liệu line items để đối chiếu. Customer: {request?.Customer}, Currency: {request?.Currency}", currentUser.UserName);
                 return Json(new { success = false, messageKey = "NoLineItemsError", message = "Không có dữ liệu line items để đối chiếu." });
             }
 
@@ -326,12 +442,12 @@ namespace Sigma_Tools.Controllers
                         variance = variance
                     });
                 }
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Info, $"Đối chiếu giá ERP thành công. Customer: {request.Customer}, Currency: {request.Currency}, TotalItems: {request.Items.Count}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Info, $"Đối chiếu giá ERP thành công. Customer: {request.Customer}, Currency: {request.Currency}, TotalItems: {request.Items.Count}", currentUser.UserName);
                 return Json(new { success = true, data = verificationResult });
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Lỗi khi gọi API lấy giá ERP: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.VerifyErpPrices, LogService.LogType.Error, $"Lỗi khi gọi API lấy giá ERP: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi khi gọi API lấy giá ERP: " + ex.Message });
             }
         }
@@ -339,6 +455,7 @@ namespace Sigma_Tools.Controllers
         [HttpPost]
         public async Task<IActionResult> GetSubsidiaries([FromBody] SubsidiaryRequest request)
         {
+            var currentUser = _permissionService.GetCurrentUser();
             if (request == null || string.IsNullOrEmpty(request.customerId))
             {
                 return Json(new { success = false, message = "Customer ID không được để trống." });
@@ -382,7 +499,7 @@ namespace Sigma_Tools.Controllers
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi lấy danh sách Subsidiaries: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi lấy danh sách Subsidiaries: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -394,6 +511,8 @@ namespace Sigma_Tools.Controllers
             {
                 return Json(new { success = false, message = "Subsidiary ID không được để trống." });
             }
+            
+            var currentUser = _permissionService.GetCurrentUser();
 
             try
             {
@@ -428,7 +547,7 @@ namespace Sigma_Tools.Controllers
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi lấy danh sách Locations: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi lấy danh sách Locations: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -440,7 +559,7 @@ namespace Sigma_Tools.Controllers
             {
                 return Json(new { success = false, message = "Subsidiary ID không hợp lệ." });
             }
-
+            var currentUser = _permissionService.GetCurrentUser();
             try
             {
                 string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetTaxCodes";
@@ -468,7 +587,7 @@ namespace Sigma_Tools.Controllers
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi Tax Codes: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi Tax Codes: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -480,7 +599,7 @@ namespace Sigma_Tools.Controllers
             {
                 return Json(new { success = false, message = "Subsidiary ID không hợp lệ." });
             }
-
+            var currentUser = _permissionService.GetCurrentUser();
             try
             {
                 string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetProjectCodes";
@@ -508,7 +627,7 @@ namespace Sigma_Tools.Controllers
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi Project Codes: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi Project Codes: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -516,9 +635,10 @@ namespace Sigma_Tools.Controllers
         [HttpPost]
         public IActionResult RejectPO([FromBody] RejectPORequest request)
         {
+            var currentUser = _permissionService.GetCurrentUser();
             if (request == null || string.IsNullOrWhiteSpace(request.Reason))
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lý do từ chối PO bị trống. PONumber: {request?.PONumber}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lý do từ chối PO bị trống. PONumber: {request?.PONumber}", currentUser.UserName);
                 return Json(new { success = false, messageKey = "RejectReasonEmpty", message = "Lý do từ chối không được để trống." });
             }
 
@@ -527,12 +647,12 @@ namespace Sigma_Tools.Controllers
                 // TODO: Thực hiện logic cập nhật trạng thái PO thành 'Rejected' trong DB hoặc NetSuite tại đây
                 string poNum = string.IsNullOrEmpty(request.PONumber) ? "N/A" : request.PONumber;
 
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Info, $"Đã từ chối PO {poNum} với lý do: {request.Reason}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Info, $"Đã từ chối PO {poNum} với lý do: {request.Reason}", currentUser.UserName);
                 return Json(new { success = true, message = $"Đã từ chối PO {poNum} thành công!" });
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lỗi khi xử lý từ chối PO: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.RejectPO, LogService.LogType.Error, $"Lỗi khi xử lý từ chối PO: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi khi xử lý từ chối PO: " + ex.Message });
             }
         }
@@ -544,7 +664,7 @@ namespace Sigma_Tools.Controllers
             {
                 return Json(new { success = false, messageKey = "EmptyPayloadError", message = "Dữ liệu truyền lên bị trống." });
             }
-
+            var currentUser = _permissionService.GetCurrentUser();
             try
             {
                 string poNumber = request.PONumber;
@@ -600,32 +720,56 @@ namespace Sigma_Tools.Controllers
                                 // Sau khi đã lọc sạch text thừa, tiến hành parse chuỗi JSON an toàn
                                 var parsedResponse = JsonConvert.DeserializeObject<CreateNetsuiteSOResponse>(jsonString);
 
-                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, Netsuite PO ID: {parsedResponse?.poId}, Netsuite SO Number: {parsedResponse?.poNumber}");
+                                string createdPoNumber = parsedResponse.poNumber ?? request.PONumber;
+
+                                // Trích xuất list tracking từ RawOcrResponse kết hợp mã PO từ response NetSuite để log
+                                var trackingList = new List<PoOrderTrackingDto>();
+                                string createdPoUrl = parsedResponse?.poUrl ?? "";
+                                if (ocrData != null && ocrData["line_items"] is JArray rawLineItemsArray)
+                                {
+                                    foreach (var item in rawLineItemsArray)
+                                    {
+                                        trackingList.Add(new PoOrderTrackingDto
+                                        {
+                                            PartNumber = item["item"]?.ToString() ?? "",
+                                            SigmaPO = createdPoNumber,
+                                            Description = item["description"]?.ToString() ?? "",
+                                            OrderQty = item["quantity"]?.Value<decimal>() ?? 0,
+                                            OpenOrderQty = item["quantity"]?.Value<decimal>() ?? 0,
+                                            PoUrl = createdPoUrl
+                                        });
+                                    }
+                                }
+
+                                string trackingJsonLog = JsonConvert.SerializeObject(trackingList);
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, trackingJsonLog, currentUser.UserName);
+
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, Netsuite PO ID: {parsedResponse?.poId}, Netsuite SO Number: {parsedResponse?.poNumber}", currentUser.UserName);
                                 // Trả kết quả chuẩn về cho client
                                 return Json(parsedResponse);
                             }
                             else
                             {
-                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {processResult?.Message}");
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {processResult?.Message}", currentUser.UserName);
                                 return Json(new { success = false, message = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
                             }
                         }
                         else
                         {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}");
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}", currentUser.UserName);
                             return Json(new { success = false, message = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" });
                         }
                     }
                 }
                 else
                 {
-                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}");
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}", currentUser.UserName);
                     return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite." });
                 }
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}");
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -633,12 +777,13 @@ namespace Sigma_Tools.Controllers
         [HttpPost]
         public IActionResult LogPoEdits([FromBody] PoEditLogRequest request)
         {
+            var currentUser = _permissionService.GetCurrentUser();
             try
             {
                 if (request != null)
                 {
                     string logMessage = $"[PO EDIT AUDIT] PO: {request.PONumber} | BEFORE: {request.BeforeState} | AFTER: {request.AfterState}";
-                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.ConfigPOManual, LogService.LogType.Info, logMessage);
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.ConfigPOManual, LogService.LogType.Info, logMessage, currentUser.UserName);
                 }
                 return Json(new { success = true });
             }
@@ -728,5 +873,15 @@ namespace Sigma_Tools.Controllers
         public int poId { get; set; }
         public string poNumber { get; set; }
         public string poUrl { get; set; }
+    }
+
+    public class PoOrderTrackingDto
+    {
+        public string PartNumber { get; set; }
+        public string SigmaPO { get; set; }
+        public string Description { get; set; }
+        public decimal OrderQty { get; set; }
+        public decimal OpenOrderQty { get; set; }
+        public string PoUrl { get; set; } // Thêm thuộc tính lưu URL PO
     }
 }
