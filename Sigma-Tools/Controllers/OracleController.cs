@@ -84,6 +84,11 @@ namespace Sigma_Tools.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            if (!_permissionService.HasRight("potrackinghistory", "read"))
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             string accessMode = "Tools";
             string controllerName = "Oracle";
             string indexPage = "PoTrackingHistory";
