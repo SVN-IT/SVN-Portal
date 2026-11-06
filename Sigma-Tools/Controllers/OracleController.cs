@@ -294,25 +294,21 @@ namespace Sigma_Tools.Controllers
 
                         var dataUI = itemCodeMappingDataPortal.GetDataByCustomerCode(customerItemCode);
 
-                        if (dataUI == null)
-                        {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Không tìm thấy mã item ERP tương ứng với mã item của khách hàng. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser.UserName);
-                            return Json(new { success = false, message = "Không tìm thấy mã item ERP tương ứng với mã item của khách hàng" });
-                        }
-
                         List<string> itemCodeNotFound = new List<string>();
 
-                        // Lấy mảng line_items từ JObject gốc để update trực tiếp sigma_code vào đó
+                        // Lấy mảng line_items từ JObject gốc để update trực tiếp sigma_code vào đó nếu có
                         var rawItemsArray = apiData["line_items"] as Newtonsoft.Json.Linq.JArray;
 
                         for (int i = 0; i < model.LineItems.Count; i++)
                         {
                             var item = model.LineItems[i];
-                            var data = dataUI.FirstOrDefault(x => x.customer_code == item.ItemCode);
+                            var data = dataUI?.FirstOrDefault(x => x.customer_code == item.ItemCode);
 
-                            if (data == null)
+                            if (data == null || string.IsNullOrEmpty(data.sigma_code))
                             {
+                                // Không tìm thấy sigma_code -> Giữ nguyên customer code làm itemCode và ghi nhận cảnh báo
                                 itemCodeNotFound.Add(item.ItemCode);
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Warning, $"Không tìm thấy mã item ERP tương ứng với mã khách hàng: {item.ItemCode}. Giữ nguyên mã gốc.", currentUser.UserName);
                             }
                             else
                             {
@@ -329,11 +325,19 @@ namespace Sigma_Tools.Controllers
                             }
                         }
 
-                        if (itemCodeNotFound.Count > 0)
+                        // Trả về kết quả kèm theo danh sách mã chưa mapping để hiển thị cảnh báo trên giao diện
+                        string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
+
+                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser.UserName);
+
+                        return Json(new
                         {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Error, $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên.", currentUser.UserName);
-                            return Json(new { success = false, message = $"Các mã của khách hàng sau chưa có mã ERP tương ứng: {string.Join(",", itemCodeNotFound)}. Hãy liên hệ với quản trị viên." });
-                        }
+                            success = true,
+                            data = model,
+                            rawJsonStr = rawJsonString,
+                            currency = currencyCode,
+                            unmappedCodes = itemCodeNotFound // Truyền sang giao diện để cảnh báo dòng
+                        });
                     }
                     else
                     {
@@ -342,11 +346,11 @@ namespace Sigma_Tools.Controllers
                     }
 
                     // 1. Serialize toàn bộ JObject thành chuỗi JSON string an toàn ngay tại server
-                    string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
+                    //string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
 
-                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF thành công. Customer: {model.Customer}, PONumber: {model.PONumber}, Currency: {currencyCode}", currentUser.UserName);
+                    //logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF thành công. Customer: {model.Customer}, PONumber: {model.PONumber}, Currency: {currencyCode}", currentUser.UserName);
                     // Trả về dữ liệu JSON kèm theo đối tượng `rawJson` (chứa apiData đã được cập nhật sigma_code)
-                    return Json(new { success = true, data = model, rawJsonStr = rawJsonString, currency = currencyCode });
+                    //return Json(new { success = true, data = model, rawJsonStr = rawJsonString, currency = currencyCode });
                 }
             }
             catch (Exception ex)

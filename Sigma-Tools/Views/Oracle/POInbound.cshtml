@@ -465,6 +465,34 @@
         </div>
     </div>
 
+    <!-- Modal Xác nhận đúng SigmaCode khi Edit ItemCode -->
+    <div class="modal fade" id="confirmSigmaCodeModal" tabindex="-1" role="dialog" aria-labelledby="confirmSigmaCodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-warning text-dark py-2">
+                    <h6 class="modal-title font-weight-bold" id="confirmSigmaCodeModalLabel">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Xác nhận Mã hàng ERP (SigmaCode)
+                    </h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2 text-dark">Bạn vừa thay đổi mã mặt hàng (ItemCode). Vui lòng đảm bảo rằng mã bạn vừa nhập là đúng <strong>SigmaCode</strong> đã được cấu hình trên hệ thống ERP.</p>
+                    <p class="small text-muted mb-0">Mã đang sửa: <strong id="lbl-editing-itemcode" class="text-primary"></strong></p>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" id="btn-cancel-sigmacode">
+                        <i class="fas fa-times mr-1"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary font-weight-bold" id="btn-confirm-sigmacode">
+                        <i class="fas fa-check mr-1"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Chọn Subsidiary trước khi tạo Sales Order -->
     <!-- Modal Chọn Thông Số NetSuite trước khi tạo Sales Order -->
     <div class="modal fade" id="subsidiarySelectModal" tabindex="-1" role="dialog" aria-labelledby="subsidiarySelectModalLabel" aria-hidden="true">
@@ -756,6 +784,7 @@
             success: function (response) {
                 if (response.success) {
                     let m = response.data;
+                    let unmappedList = response.unmappedCodes || []; // Lấy danh sách mã chưa ánh xạ được từ server
 
                     // LƯU TOÀN BỘ RAW JSON VÀO THẺ ẨN
                     if (response.rawJsonStr) {
@@ -778,25 +807,26 @@
                     document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
 
                     // Tải file JSON từ điển để dịch động dòng số lượng lines tìm thấy
-                    // Sử dụng Url.Content của Razor để tự động sinh đúng path (ví dụ: /sigmatools/json/vi.json)
                     const jsonUrl = '@Url.Content("~/json/")' + currentLang + '.json';
 
                     $.getJSON(jsonUrl, function (dict) {
                         let lineFoundTemplate = dict["EXTRACTED LINE ITEMS (0 LINES FOUND)"] || "EXTRACTED LINE ITEMS ({0} LINES FOUND)";
-                        // Thay thế số lượng lines thực tế vào chuỗi
                         let formattedLineText = lineFoundTemplate.replace("0", m.lineItems.length);
                         document.getElementById('line-items-header').innerText = formattedLineText;
                     });
 
                     let tbodyHtml = '';
                     m.lineItems.forEach(item => {
-                        // Định dạng Unit Price và Amount có dấu phẩy phần nghìn và 2 chữ số thập phân
                         let formattedPrice = Number(item.unitPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                         let formattedAmount = Number(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+                        // Kiểm tra xem mã mặt hàng này có nằm trong danh sách thiếu SigmaCode không để gắn icon cảnh báo
+                        let isUnmapped = unmappedList.includes(item.itemCode) || !item.itemCode;
+                        let warningIcon = isUnmapped ? `<span class="text-warning ml-1" title="Cảnh báo: Chưa tìm thấy SigmaCode tương ứng trên hệ thống ERP!"><i class="fas fa-exclamation-triangle text-warning"></i></span>` : '';
+
                         tbodyHtml += `<tr>
                             <td>${item.line}</td>
-                            <td>${item.itemCode || ''}</td>
+                            <td><span class="display-item-code">${item.itemCode || ''}</span>${warningIcon}</td>
                             <td>${item.description || ''}</td>
                             <td class="text-right">${Number(item.qty).toLocaleString()}</td>
                             <td class="text-right" data-original-price="${item.unitPrice}">$${formattedPrice}</td>
@@ -807,6 +837,20 @@
                         </tr>`;
                     });
                     $('#po-line-table tbody').html(tbodyHtml);
+
+                    // =========================================================
+                    // THÊM ALERT THÔNG BÁO CÁC MÃ CHƯA ÁNH XẠ Ở ĐÂY
+                    // =========================================================
+                    if (unmappedList.length > 0) {
+                        let msg = (currentLang === 'en') ? 
+                            `Warning: The following ${unmappedList.length} item code(s) could not be mapped to an ERP SigmaCode: \n\n- ${unmappedList.join('\n- ')}\n\nPlease check and update them.` :
+                            (currentLang === 'zh') ? 
+                            `警告：以下 ${unmappedList.length} 个物料代码无法映射到 ERP SigmaCode：\n\n- ${unmappedList.join('\n- ')}\n\请检查并更新。` :
+                            `Cảnh báo: Có ${unmappedList.length} mã hàng sau chưa ánh xạ được sang SigmaCode trên hệ thống ERP:\n\n- ${unmappedList.join('\n- ')}\n\nVui lòng kiểm tra lại.`;
+                
+                        alert(msg);
+                    }
+                    // =========================================================
 
                     const calcUnits = Number(m.calculatedUnits).toLocaleString();
                     const calcAmt = Number(m.calculatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1254,143 +1298,182 @@
         if (currentStep === 1) recalculateAndAudit();
     });
 
-    // LƯU CHỈNH SỬA (SAVE CHANGES)
-    $('#btn-save-edit').on('click', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
+    let pendingSaveAction = false;
 
-        if (currentStep === 1) {
-            let hasEmptyError = false;
-            let emptyErrorMessage = "";
+// 1. TOÀN BỘ SỰ KIỆN NÚT SAVE CHANGES VÀ XỬ LÝ MODAL SIGMACODE
+$('#btn-save-edit').on('click', function () {
+    const currentLang = localStorage.getItem('app_lang') || 'vi';
 
-            // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
-            $('#po-line-table tbody tr').each(function (index) {
-                const $tr = $(this);
-                const itemCode = $tr.find('.input-item-code').val().trim();
-                const qty = parseFloat($tr.find('.input-qty').val()) || 0;
-                const price = parseFloat($tr.find('.input-price').val()) || 0;
+    // Kiểm tra xem người dùng có đang sửa cột Item Code (Mã hàng) hay không
+    let codeChanged = false;
+    let modifiedCode = "";
 
-                if (itemCode === "" || qty <= 0 || price <= 0) {
-                    hasEmptyError = true;
-                    emptyErrorMessage = (currentLang === 'en') ? `Line ${index + 1} is empty or has invalid data (Item Code, Quantity, or Unit Price). Please review or delete extra rows before saving!` :
-                                        (currentLang === 'zh') ? `第 ${index + 1} 行数据为空或无效（物料代码、数量或单价）。保存前请检查或删除多余的行！` :
-                                        `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
-                    return false;
-                }
-            });
-
-            if (hasEmptyError) {
-                alert(emptyErrorMessage);
-                return;
-            }
-
-            // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
-            let totalUnits = 0;
-            let totalAmount = 0;
-
-            $('#po-line-table tbody tr').each(function () {
-                const $tr = $(this);
-                const qty = parseFloat($tr.find('.input-qty').val()) || 0;
-                const price = parseFloat($tr.find('.input-price').val()) || 0;
-                totalUnits += qty;
-                totalAmount += (qty * price);
-            });
-
-            totalAmount = Math.round(totalAmount * 100) / 100;
-
-            const expText = $('#expected-sum-display').text();
-            const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
-            let expectedUnits = 0;
-            let expectedAmount = 0;
-
-            if (expMatch) {
-                expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
-                expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
-            }
-
-            const isUnitsMatched = (totalUnits === expectedUnits);
-            const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
-
-            if (!isUnitsMatched || !isAmountMatched) {
-                let titleMsg = (currentLang === 'en') ? "Cannot save data because it does not match the totals on the PDF!\n\n" :
-                               (currentLang === 'zh') ? "无法保存数据，因为与 PDF 上的总计不符！\n\n" :
-                               "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
-                let auditErrorMsg = titleMsg;
-
-                if (!isUnitsMatched) {
-                    let unitLabel = (currentLang === 'en') ? `- Total Units: Calculated (${totalUnits.toLocaleString()}) != Expected (${expectedUnits.toLocaleString()})\n` :
-                                    (currentLang === 'zh') ? `- 总数量 (Units)：计算值 (${totalUnits.toLocaleString()}) != 期望值 (${expectedUnits.toLocaleString()})\n` :
-                                    `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
-                    auditErrorMsg += unitLabel;
-                }
-                if (!isAmountMatched) {
-                    let amtLabel = (currentLang === 'en') ? `- Total Amount: Calculated ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Expected ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n` :
-                                   (currentLang === 'zh') ? `- 总金额 (Amount)：计算值 ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != 期望值 ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n` :
-                                   `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
-                    auditErrorMsg += amtLabel;
-                }
-                alert(auditErrorMsg);
-                return;
-            }
-
-            // ==========================================
-            // 3. THU THẬP TRẠNG THÁI "SAU KHI SỬA" (AFTER)
-            // ==========================================
-            let afterStateData = {
-                poNumber: $('#po-number-display').find('input').val() || $('#po-number-display').text().trim(),
-                date: $('#po-date-display').find('input').val() || $('#po-date-display').text().trim(),
-                customer: $('#po-customer-display').find('input').val() || $('#po-customer-display').text().trim(),
-                requisitioner: $('#po-requisitioner-display').find('input').val() || $('#po-requisitioner-display').text().trim(),
-                lineItems: []
-            };
-
-            $('#po-line-table tbody tr').each(function () {
-                const $tr = $(this);
-                let qty = parseFloat($tr.find('.input-qty').val()) || 0;
-                let price = parseFloat($tr.find('.input-price').val()) || 0;
-                afterStateData.lineItems.push({
-                    line: $tr.find('td:nth-child(1)').text().trim(),
-                    itemCode: $tr.find('.input-item-code').val() || '',
-                    description: $tr.find('.input-desc').val() || '',
-                    qty: qty,
-                    unitPrice: price,
-                    amount: qty * price
-                });
-            });
-
-            // 4. IN RA CONSOLE HOẶC GỬI NGẦM LÊN SERVER ĐỂ LOG LẠI
-            console.log("--- TRẠNG THÁI TRƯỚC KHI SỬA (BEFORE) ---", originalDataBackup);
-            console.log("--- TRẠNG THÁI SAU KHI SỬA (AFTER) ---", afterStateData);
-
-            $.ajax({
-                url: '@Url.Action("LogPoEdits", "Oracle")',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    PONumber: afterStateData.poNumber,
-                    BeforeState: JSON.stringify(originalDataBackup),
-                    AfterState: JSON.stringify(afterStateData)
-                })
-            });
-
-            // 5. LƯU THỰC THẾ TRÊN GIAO DIỆN
-            saveTableEdits();
-            updateHiddenRawJson();
-            enableEditMode(false);
-            recalculateAndAudit();
-
-            let successMsg1 = (currentLang === 'en') ? "PO data updated successfully!" :
-                              (currentLang === 'zh') ? "PO 数据更新成功！" : "Đã cập nhật dữ liệu PO thành công!";
-            alert(successMsg1);
-
-        } else if (currentStep === 2) {
-            saveStep2Edits();
-            enableEditMode(false);
-
-            let successMsg2 = (currentLang === 'en') ? "OCR Price updated successfully!" :
-                              (currentLang === 'zh') ? "OCR 价格更新成功！" : "Đã cập nhật OCR Price thành công!";
-            alert(successMsg2);
+    $('#po-line-table tbody tr').each(function () {
+        const $tr = $(this);
+        const $input = $tr.find('.input-item-code');
+        if ($input.length > 0) {
+            codeChanged = true;
+            modifiedCode = $input.val().trim();
         }
     });
+
+    // Nếu có sửa đổi ItemCode và chưa qua bước bấm Confirm ở Modal -> Bật Modal cảnh báo yêu cầu đúng SigmaCode
+    if (codeChanged && !pendingSaveAction) {
+        $('#lbl-editing-itemcode').text(modifiedCode);
+        $('#confirmSigmaCodeModal').modal('show');
+        return; // Dừng lại chờ user bấm Confirm/Cancel trên modal
+    }
+
+    if (currentStep === 1) {
+        let hasEmptyError = false;
+        let emptyErrorMessage = "";
+
+        // 1. KIỂM TRA DỮ LIỆU BỎ TRỐNG / KHÔNG HỢP LỆ TRÊN TỪNG DÒNG
+        $('#po-line-table tbody tr').each(function (index) {
+            const $tr = $(this);
+            const itemCode = $tr.find('.input-item-code').val().trim();
+            const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+            const price = parseFloat($tr.find('.input-price').val()) || 0;
+
+            if (itemCode === "" || qty <= 0 || price <= 0) {
+                hasEmptyError = true;
+                emptyErrorMessage = (currentLang === 'en') ? `Line ${index + 1} is empty or has invalid data (Item Code, Quantity, or Unit Price). Please review or delete extra rows before saving!` :
+                                    (currentLang === 'zh') ? `第 ${index + 1} 行数据为空或无效（物料代码、数量或单价）。保存前请检查或删除多余的行！` :
+                                    `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
+                return false;
+            }
+        });
+
+        if (hasEmptyError) {
+            alert(emptyErrorMessage);
+            pendingSaveAction = false;
+            return;
+        }
+
+        // 2. KIỂM TRA TÍNH KHỐP CỦA AUDIT (CALCULATED VS EXPECTED)
+        let totalUnits = 0;
+        let totalAmount = 0;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr = $(this);
+            const qty = parseFloat($tr.find('.input-qty').val()) || 0;
+            const price = parseFloat($tr.find('.input-price').val()) || 0;
+            totalUnits += qty;
+            totalAmount += (qty * price);
+        });
+
+        totalAmount = Math.round(totalAmount * 100) / 100;
+
+        const expText = $('#expected-sum-display').text();
+        const expMatch = expText.match(/([\d,]+)\s*Units\s*\/\s*\$([\d,.]+)/);
+        let expectedUnits = 0;
+        let expectedAmount = 0;
+
+        if (expMatch) {
+            expectedUnits = parseInt(expMatch[1].replace(/,/g, '')) || 0;
+            expectedAmount = parseFloat(expMatch[2].replace(/,/g, '')) || 0;
+        }
+
+        const isUnitsMatched = (totalUnits === expectedUnits);
+        const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
+
+        if (!isUnitsMatched || !isAmountMatched) {
+            let titleMsg = (currentLang === 'en') ? "Cannot save data because it does not match the totals on the PDF!\n\n" :
+                           (currentLang === 'zh') ? "无法保存数据，因为与 PDF 上的总计不符！\n\n" :
+                           "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
+            let auditErrorMsg = titleMsg;
+
+            if (!isUnitsMatched) {
+                let unitLabel = (currentLang === 'en') ? `- Total Units: Calculated (${totalUnits.toLocaleString()}) != Expected (${expectedUnits.toLocaleString()})\n` :
+                                (currentLang === 'zh') ? `- 总数量 (Units)：计算值 (${totalUnits.toLocaleString()}) != 期望值 (${expectedUnits.toLocaleString()})\n` :
+                                `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
+                auditErrorMsg += unitLabel;
+            }
+            if (!isAmountMatched) {
+                let amtLabel = (currentLang === 'en') ? `- Total Amount: Calculated ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Expected ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n` :
+                               (currentLang === 'zh') ? `- 总金额 (Amount)：计算值 ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != 期望值 ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n` :
+                               `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
+                auditErrorMsg += amtLabel;
+            }
+            alert(auditErrorMsg);
+            pendingSaveAction = false;
+            return;
+        }
+
+        // ==========================================
+        // 3. THU THẬP TRẠNG THÁI "SAU KHI SỬA" (AFTER)
+        // ==========================================
+        let afterStateData = {
+            poNumber: $('#po-number-display').find('input').val() || $('#po-number-display').text().trim(),
+            date: $('#po-date-display').find('input').val() || $('#po-date-display').text().trim(),
+            customer: $('#po-customer-display').find('input').val() || $('#po-customer-display').text().trim(),
+            requisitioner: $('#po-requisitioner-display').find('input').val() || $('#po-requisitioner-display').text().trim(),
+            lineItems: []
+        };
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr = $(this);
+            let qty = parseFloat($tr.find('.input-qty').val()) || 0;
+            let price = parseFloat($tr.find('.input-price').val()) || 0;
+            afterStateData.lineItems.push({
+                line: $tr.find('td:nth-child(1)').text().trim(),
+                itemCode: $tr.find('.input-item-code').val() || '',
+                description: $tr.find('.input-desc').val() || '',
+                qty: qty,
+                unitPrice: price,
+                amount: qty * price
+            });
+        });
+
+        // 4. IN RA CONSOLE HOẶC GỬI NGẦM LÊN SERVER ĐỂ LOG LẠI
+        console.log("--- TRẠNG THÁI TRƯỚC KHI SỬA (BEFORE) ---", originalDataBackup);
+        console.log("--- TRẠNG THÁI SAU KHI SỬA (AFTER) ---", afterStateData);
+
+        $.ajax({
+            url: '@Url.Action("LogPoEdits", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                PONumber: afterStateData.poNumber,
+                BeforeState: JSON.stringify(originalDataBackup),
+                AfterState: JSON.stringify(afterStateData)
+            })
+        });
+
+        // 5. LƯU THỰC THẾ TRÊN GIAO DIỆN
+        saveTableEdits();
+        updateHiddenRawJson();
+        enableEditMode(false);
+        recalculateAndAudit();
+        pendingSaveAction = false; // Reset cờ trạng thái
+
+        let successMsg1 = (currentLang === 'en') ? "PO data updated successfully!" :
+                          (currentLang === 'zh') ? "PO 数据更新成功！" : "Đã cập nhật dữ liệu PO thành công!";
+        alert(successMsg1);
+
+    } else if (currentStep === 2) {
+        saveStep2Edits();
+        enableEditMode(false);
+        pendingSaveAction = false; // Reset cờ trạng thái
+
+        let successMsg2 = (currentLang === 'en') ? "OCR Price updated successfully!" :
+                          (currentLang === 'zh') ? "OCR 价格更新成功！" : "Đã cập nhật OCR Price thành công!";
+        alert(successMsg2);
+    }
+});
+
+// 2. SỰ KIỆN BẤM CONFIRM TRÊN MODAL XÁC NHẬN SIGMACODE
+$(document).on('click', '#btn-confirm-sigmacode', function () {
+    pendingSaveAction = true; // Đánh dấu đã xác nhận qua modal
+    $('#confirmSigmaCodeModal').modal('hide');
+    $('#btn-save-edit').trigger('click'); // Kích hoạt lại sự kiện Save
+});
+
+// 3. SỰ KIỆN BẤM CANCEL TRÊN MODAL XÁC NHẬN SIGMACODE
+$(document).on('click', '#btn-cancel-sigmacode', function () {
+    pendingSaveAction = false;
+    $('#confirmSigmaCodeModal').modal('hide');
+});
 
     // -------------------------------------------------------------
     // 2. CHUYỂN ĐỔI GIAO DIỆN EDIT <-> VIEW
