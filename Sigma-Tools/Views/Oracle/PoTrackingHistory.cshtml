@@ -13,19 +13,19 @@
             <form method="get" asp-action="PoTrackingHistory" class="form-inline justify-content-between">
                 <div class="d-flex align-items-center flex-wrap">
                     <div class="form-group mr-3 mb-2">
-                        <label class="small font-weight-bold mr-2 text-muted"><span class="lang-text">From Date:</span></label>
+                        <label class="small font-weight-bold mr-2 text-muted"><span>From Date:</span></label>
                         <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control form-control-sm" />
                     </div>
                     <div class="form-group mr-3 mb-2">
-                        <label class="small font-weight-bold mr-2 text-muted"><span class="lang-text">To Date:</span></label>
+                        <label class="small font-weight-bold mr-2 text-muted"><span>To Date:</span></label>
                         <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control form-control-sm" />
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary font-weight-bold mb-2 px-3">
-                        <i class="fas fa-filter mr-1"></i> <span class="lang-text"></span> Filter Data
+                        <i class="fas fa-filter mr-1"></i> <span>Filter Data</span>
                     </button>
                 </div>
                 <div class="small text-muted mb-2">
-                    Tổng số bản ghi: <strong class="text-dark">@totalItems</strong>
+                    <span>Total row:</span> <strong class="text-dark">@totalItems</strong>
                 </div>
             </form>
         </div>
@@ -35,7 +35,7 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
             <h6 class="mb-0 font-weight-bold">
-                <i class="fas fa-table mr-1"></i> <span class="lang-text">PO & Part Number Tracking History Report</span>
+                <i class="fas fa-table mr-1"></i> <span>PO & Part Number Tracking History Report</span>
             </h6>
         </div>
         <div class="card-body p-0">
@@ -43,13 +43,14 @@
                 <table class="table table-bordered table-hover table-striped mb-0 text-dark" style="font-size: 0.88rem;">
                     <thead class="thead-light text-uppercase" style="font-size: 0.78rem;">
                         <tr>
-                            <th style="width: 13%;"><span class="lang-text">Creation time</span></th>
-                            <th style="width: 11%;"><span class="lang-text">Creator</span></th>
-                            <th style="width: 12%;"><span class="lang-text">PO Number</span></th>
-                            <th style="width: 14%;"><span class="lang-text">Part Number</span></th>
-                            <th style="width: 27%;"><span class="lang-text">Description</span></th>
-                            <th style="width: 11%; text-align: right;"><span class="lang-text">Order Qty</span></th>
-                            <th style="width: 12%; text-align: right;"><span class="lang-text">Open Order Qty</span></th>
+                            <th style="width: 13%;"><span>Creation time</span></th>
+                            <th style="width: 11%;"><span>Creator</span></th>
+                            <th style="width: 12%;"><span>PO Number</span></th>
+                            <th style="width: 14%;"><span>Part Number</span></th>
+                            <th style="width: 27%;"><span>Description</span></th>
+                            <th style="width: 11%; text-align: right;"><span>Order Qty</span></th>
+                            <!-- Sử dụng text có trong JSON hoặc thay thế tạm thời bằng key tương thích -->
+                            <th style="width: 12%; text-align: right;"><span>Open Order Qty</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,13 +64,13 @@
                                     <td>
                                         @if (!string.IsNullOrEmpty(row.PoUrl))
                                         {
-                                            <a href="@row.PoUrl" target="_blank" class="badge badge-primary font-weight-bold px-2 py-1 text-decoration-none" style="font-size: 0.8rem;" title="Mở trên NetSuite">
+                                            <a href="@row.PoUrl" target="_blank" class="badge badge-primary font-weight-bold px-2 py-1 text-decoration-none" style="font-size: 0.80rem;" title="Mở trên NetSuite">
                                                 @row.SigmaPO <i class="fas fa-external-link-alt ml-1" style="font-size: 0.7rem;"></i>
                                             </a>
                                         }
                                         else
                                         {
-                                            <span class="badge badge-secondary font-weight-bold px-2 py-1" style="font-size: 0.8rem;">
+                                            <span class="badge badge-secondary font-weight-bold px-2 py-1" style="font-size: 0.80rem;">
                                                 @row.SigmaPO
                                             </span>
                                         }
@@ -85,7 +86,7 @@
                         {
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
-                                    <i class="fas fa-info-circle mr-1"></i> <span class="lang-text">There is no tracking data for this period.</span>
+                                    <i class="fas fa-info-circle mr-1"></i> <span>There is no tracking data for this period.</span>
                                 </td>
                             </tr>
                         }

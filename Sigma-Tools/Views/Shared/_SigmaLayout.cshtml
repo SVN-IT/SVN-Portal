@@ -549,7 +549,9 @@
             if (!lang) lang = localStorage.getItem('app_lang') || 'vi';
 
             // Sử dụng Url.Content để tự động nhận diện đúng đường dẫn khi chạy qua Nginx Reverse Proxy (ví dụ: /sigmatools/json/en.json)
-            var jsonUrl = '@Url.Content("~/json/")' + lang + '.json';
+            // var jsonUrl = '@Url.Content("~/json/")' + lang + '.json';
+            // Sửa dòng này trong Layout:
+            var jsonUrl = '@Url.Content("~/json/")' + lang + '.json?v=' + new Date().getTime();
 
             $.getJSON(jsonUrl, function (dictionary) {
 
