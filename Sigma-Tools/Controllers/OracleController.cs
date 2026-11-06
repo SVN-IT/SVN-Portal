@@ -805,19 +805,19 @@ namespace Sigma_Tools.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult ExportPoTrackingToExcel(DateTime? fromDate, DateTime? toDate)
+        [HttpPost]
+        public IActionResult ExportPoTrackingToExcel([FromBody] ExportTrackingRequest request)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
-                return RedirectToAction("Login", "Account");
+                return Unauthorized(new { success = false, message = "Unauthorized" });
             }
 
             try
             {
-                // 1. Chuẩn hóa khoảng thời gian tương tự như action PoTrackingHistory
-                DateTime fDate = fromDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                DateTime tDate = toDate ?? DateTime.Now.Date;
+                // 1. Chuẩn hóa khoảng thời gian
+                DateTime fDate = request?.FromDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime tDate = request?.ToDate ?? DateTime.Now.Date;
 
                 if (fDate.Date > DateTime.Now.Date) fDate = DateTime.Now.Date;
                 if (tDate.Date > DateTime.Now.Date) tDate = DateTime.Now.Date;
@@ -825,7 +825,7 @@ namespace Sigma_Tools.Controllers
 
                 if (fDate > tDate) fDate = tDate.Date;
 
-                // 2. Lấy toàn bộ dữ liệu log từ Service (Không phân trang)
+                // 2. Lấy toàn bộ dữ liệu log từ Service
                 var logList = logger.GetLogs(LogService.LogAction.NetsuitePOLogInfo, fDate, tDate);
                 var allTrackingItems = new List<PoOrderTrackingDisplayModel>();
 
@@ -879,7 +879,7 @@ namespace Sigma_Tools.Controllers
                     // Định dạng Header
                     var headerRow = worksheet.Row(1);
                     headerRow.Style.Font.Bold = true;
-                    headerRow.Style.Fill.BackgroundColor = XLColor.FromHtml("#007BFF"); // Màu xanh Primary
+                    headerRow.Style.Fill.BackgroundColor = XLColor.FromHtml("#007BFF");
                     headerRow.Style.Font.FontColor = XLColor.White;
 
                     // Đổ dữ liệu vào các dòng
@@ -898,7 +898,6 @@ namespace Sigma_Tools.Controllers
                         rowIdx++;
                     }
 
-                    // Tự động căn chỉnh độ rộng cột
                     worksheet.Columns().AdjustToContents();
 
                     // Xuất ra Stream
@@ -914,8 +913,7 @@ namespace Sigma_Tools.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Lỗi khi xuất file Excel: " + ex.Message;
-                return RedirectToAction("PoTrackingHistory", new { fromDate, toDate });
+                return BadRequest(new { success = false, message = "Lỗi khi xuất file Excel: " + ex.Message });
             }
         }
     }
@@ -1009,5 +1007,11 @@ namespace Sigma_Tools.Controllers
         public decimal OrderQty { get; set; }
         public decimal OpenOrderQty { get; set; }
         public string PoUrl { get; set; } // Thêm thuộc tính lưu URL PO
+    }
+
+    public class ExportTrackingRequest
+    {
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
     }
 }

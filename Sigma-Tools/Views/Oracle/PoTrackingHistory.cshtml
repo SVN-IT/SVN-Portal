@@ -25,12 +25,10 @@
                     </button>
 
                     <!-- NÚT EXPORT EXCEL BỔ SUNG -->
-                    <a asp-action="ExportPoTrackingToExcel"
-                       asp-route-fromDate="@ViewBag.FromDate"
-                       asp-route-toDate="@ViewBag.ToDate"
-                       class="btn btn-sm btn-success font-weight-bold mb-2 px-3 ml-3">
+                    <!-- Thay thế thẻ a cũ bằng nút bấm có gắn sự kiện script -->
+                    <button type="button" id="btn-export-excel" class="btn btn-sm btn-success font-weight-bold mb-2 px-3 ml-3">
                         <i class="fas fa-file-excel mr-1"></i> <span>Export Data</span>
-                    </a>
+                    </button>
                 </div>
                 <div class="small text-muted mb-2">
                     <span>Total row:</span> <strong class="text-dark">@totalItems</strong>
@@ -136,3 +134,52 @@
         }
     </div>
 </div>
+
+
+<script>
+        $('#btn-export-excel').on('click', function () {
+            const fromDate = $('input[name="fromDate"]').val();
+            const toDate = $('input[name="toDate"]').val();
+
+            const payload = {
+                fromDate: fromDate ? fromDate : null,
+                toDate: toDate ? toDate : null
+            };
+
+            // Hiển thị trạng thái đang xử lý nếu muốn
+            const $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> <span>Exporting...</span>');
+
+            fetch('@Url.Action("ExportPoTrackingToExcel", "Oracle")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể xuất file Excel từ server.');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `PO_Tracking_History_${fromDate || 'all'}_${toDate || 'all'}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Export Error:', error);
+                alert('Đã xảy ra lỗi trong quá trình xuất file Excel!');
+            })
+            .finally(() => {
+                $btn.prop('disabled', false).html('<i class="fas fa-file-excel mr-1"></i> <span>Export Data</span>');
+            });
+        });
+    </script>
