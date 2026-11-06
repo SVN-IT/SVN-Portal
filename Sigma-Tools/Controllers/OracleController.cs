@@ -695,6 +695,9 @@ namespace Sigma_Tools.Controllers
                         if (request.TaxCode > 0) ocrData["header"]["tax_code"] = request.TaxCode;
                         if (request.ProjectCode > 0) ocrData["header"]["project_code"] = request.ProjectCode;
 
+                        //khi tạo PO thì lấy ngày hiện tại
+                        ocrData["header"]["po_date"] = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+
                         request.RawOcrResponse = JsonConvert.SerializeObject(ocrData);
                     }
 
