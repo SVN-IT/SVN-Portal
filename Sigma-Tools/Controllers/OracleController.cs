@@ -1,5 +1,4 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sigma_Tools.Models;
@@ -7,9 +6,10 @@ using Sigma_Tools.Services.Authorizations;
 using Sigma_Tools.Services.Configurations;
 using SVNShareLib;
 using SVNShareLib.DAL;
-using SVNShareLib.DTO;
 using SVNShareLib.Request;
 using SVNShareLib.Utils;
+using ClosedXML.Excel; // Thêm namespace này (hoặc EPPlus tùy dự án)
+using System.IO;
 
 namespace Sigma_Tools.Controllers
 {
@@ -790,6 +790,120 @@ namespace Sigma_Tools.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ExportPoTrackingToExcel(DateTime? fromDate, DateTime? toDate)
+        {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                // 1. Chuẩn hóa khoảng thời gian tương tự như action PoTrackingHistory
+                DateTime fDate = fromDate ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime tDate = toDate ?? DateTime.Now.Date;
+
+                if (fDate.Date > DateTime.Now.Date) fDate = DateTime.Now.Date;
+                if (tDate.Date > DateTime.Now.Date) tDate = DateTime.Now.Date;
+                tDate = tDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+                if (fDate > tDate) fDate = tDate.Date;
+
+                // 2. Lấy toàn bộ dữ liệu log từ Service (Không phân trang)
+                var logList = logger.GetLogs(LogService.LogAction.NetsuitePOLogInfo, fDate, tDate);
+                var allTrackingItems = new List<PoOrderTrackingDisplayModel>();
+
+                if (logList != null)
+                {
+                    foreach (var log in logList)
+                    {
+                        if (string.IsNullOrEmpty(log.Content)) continue;
+                        try
+                        {
+                            var items = JsonConvert.DeserializeObject<List<PoOrderTrackingDto>>(log.Content);
+                            if (items != null && items.Count > 0)
+                            {
+                                foreach (var item in items)
+                                {
+                                    allTrackingItems.Add(new PoOrderTrackingDisplayModel
+                                    {
+                                        CreatedOn = log.CreatedOn,
+                                        CreatedBy = log.CreatedBy ?? "System",
+                                        PartNumber = item.PartNumber,
+                                        SigmaPO = item.SigmaPO,
+                                        Description = item.Description,
+                                        OrderQty = item.OrderQty,
+                                        OpenOrderQty = item.OpenOrderQty,
+                                        PoUrl = item.PoUrl
+                                    });
+                                }
+                            }
+                        }
+                        catch { continue; }
+                    }
+                }
+
+                allTrackingItems = allTrackingItems.OrderByDescending(x => x.CreatedOn).ToList();
+
+                // 3. Khởi tạo File Excel bằng ClosedXML
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("PO Tracking History");
+
+                    // Tạo Header
+                    worksheet.Cell(1, 1).Value = "Created Time";
+                    worksheet.Cell(1, 2).Value = "Creator";
+                    worksheet.Cell(1, 3).Value = "PO Number";
+                    worksheet.Cell(1, 4).Value = "Part Number";
+                    worksheet.Cell(1, 5).Value = "Description";
+                    worksheet.Cell(1, 6).Value = "Order Qty";
+                    worksheet.Cell(1, 7).Value = "Open Order Qty";
+                    worksheet.Cell(1, 8).Value = "NetSuite Link";
+
+                    // Định dạng Header
+                    var headerRow = worksheet.Row(1);
+                    headerRow.Style.Font.Bold = true;
+                    headerRow.Style.Fill.BackgroundColor = XLColor.FromHtml("#007BFF"); // Màu xanh Primary
+                    headerRow.Style.Font.FontColor = XLColor.White;
+
+                    // Đổ dữ liệu vào các dòng
+                    int rowIdx = 2;
+                    foreach (var item in allTrackingItems)
+                    {
+                        worksheet.Cell(rowIdx, 1).Value = item.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss");
+                        worksheet.Cell(rowIdx, 2).Value = item.CreatedBy;
+                        worksheet.Cell(rowIdx, 3).Value = item.SigmaPO;
+                        worksheet.Cell(rowIdx, 4).Value = item.PartNumber;
+                        worksheet.Cell(rowIdx, 5).Value = item.Description;
+                        worksheet.Cell(rowIdx, 6).Value = item.OrderQty;
+                        worksheet.Cell(rowIdx, 7).Value = item.OpenOrderQty;
+                        worksheet.Cell(rowIdx, 8).Value = item.PoUrl;
+
+                        rowIdx++;
+                    }
+
+                    // Tự động căn chỉnh độ rộng cột
+                    worksheet.Columns().AdjustToContents();
+
+                    // Xuất ra Stream
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+                        string fileName = $"PO_Tracking_History_{fDate:yyyyMMdd}_{tDate:yyyyMMdd}.xlsx";
+
+                        return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Lỗi khi xuất file Excel: " + ex.Message;
+                return RedirectToAction("PoTrackingHistory", new { fromDate, toDate });
             }
         }
     }
