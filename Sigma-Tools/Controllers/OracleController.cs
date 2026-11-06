@@ -42,7 +42,7 @@ namespace Sigma_Tools.Controllers
 
             if (!_permissionService.HasRight("createnetsuitepo", "read"))
             {
-                return RedirectToAction("AccessDenied", "Account");
+                return RedirectToAction("AccessDenied", "Account", new { permission = "read", right = "createnetsuitepo" });
             }
 
             string accessMode = "Tools";
@@ -86,7 +86,7 @@ namespace Sigma_Tools.Controllers
 
             if (!_permissionService.HasRight("potrackinghistory", "read"))
             {
-                return RedirectToAction("AccessDenied", "Account");
+                return RedirectToAction("AccessDenied", "Account", new { permission = "read", right = "potrackinghistory" });
             }
 
             string accessMode = "Tools";

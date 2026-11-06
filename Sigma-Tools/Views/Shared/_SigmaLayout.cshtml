@@ -290,6 +290,15 @@
                                             </a>
                                         </li>
                                     }
+                                    @if (permissionService.HasRight("potrackinghistory", "read"))
+                                    {
+                                        <li class="nav-item">
+                                            <a asp-controller="Oracle" asp-action="PoTrackingHistory" class="nav-link @(selectedPage == "PoTrackingHistory" ? "active" : "")">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>PO Tracking History</p>
+                                            </a>
+                                        </li>
+                                    }
                                 </ul>
                             </li>
                         }

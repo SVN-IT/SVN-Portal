@@ -451,7 +451,7 @@
                 <div class="modal-body">
                     <p id="ns-modal-message" class="font-weight-bold mb-2 text-dark"></p>
                     <div id="ns-modal-po-info" class="small text-muted d-none">
-                        Mã PO: <strong id="ns-modal-po-number" class="text-primary"></strong>
+                        <span>PO Number</span>: <strong id="ns-modal-po-number" class="text-primary"></strong>
                     </div>
                 </div>
                 <div class="modal-footer py-2 bg-light">
@@ -471,15 +471,15 @@
             <div class="modal-content shadow">
                 <div class="modal-header bg-warning text-dark py-2">
                     <h6 class="modal-title font-weight-bold" id="confirmSigmaCodeModalLabel">
-                        <i class="fas fa-exclamation-triangle mr-1"></i> Xác nhận Mã hàng ERP (SigmaCode)
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Confirm that the item code matches the ERP system.
                     </h6>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-2 text-dark">Bạn vừa thay đổi mã mặt hàng (ItemCode). Vui lòng đảm bảo rằng mã bạn vừa nhập là đúng <strong>SigmaCode</strong> đã được cấu hình trên hệ thống ERP.</p>
-                    <p class="small text-muted mb-0">Mã đang sửa: <strong id="lbl-editing-itemcode" class="text-primary"></strong></p>
+                    <p class="mb-2 text-dark"><span>You have just changed the item code (ItemCode). Please ensure that the code you have entered is correct</span> <strong>SigmaCode</strong> <span>has been configured on the ERP system.</span></p>
+                    <p class="small text-muted mb-0"><span>Code currently being modified:</span> <strong id="lbl-editing-itemcode" class="text-primary"></strong></p>
                 </div>
                 <div class="modal-footer py-2 bg-light">
                     <button type="button" class="btn btn-sm btn-secondary font-weight-bold" id="btn-cancel-sigmacode">
@@ -513,9 +513,7 @@
                             <span class="lang-text" data-key="Subsidiary">Subsidiary</span> <span class="text-danger">*</span>:
                         </label>
                         <select id="select-subsidiary" class="form-control text-dark">
-                            <option value="Sigma Worldwide (SVN)">Sigma Worldwide (SVN)</option>
-                            <option value="Sigma Manufacturing (SM)">Sigma Manufacturing (SM)</option>
-                            <option value="Sigma ITA">Sigma ITA</option>
+                            <option value="">-- Select --</option>
                         </select>
                     </div>
 
@@ -525,9 +523,7 @@
                             <span class="lang-text" data-key="Location">Location</span> <span class="text-danger">*</span>:
                         </label>
                         <select id="select-location" class="form-control text-dark">
-                            <option value="SVN_KhoChinh">SVN - Kho Chính</option>
-                            <option value="SM_KhoChinh">SM - Kho Chính</option>
-                            <option value="ITA_KhoChinh">ITA - Kho Chính</option>
+                            <option value="">-- Select --</option>
                         </select>
                     </div>
 
@@ -537,10 +533,7 @@
                             <span class="lang-text" data-key="Tax Code">Tax Code</span> <span class="text-danger">*</span>:
                         </label>
                         <select id="select-taxcode" class="form-control text-dark">
-                            <option value="VAT_0">VAT 0%</option>
-                            <option value="VAT_8">VAT 8%</option>
-                            <option value="VAT_10">VAT 10%</option>
-                            <option value="UNDEF_TAX">Undef Tax / Exempt</option>
+                            <option value="">-- Select --</option>
                         </select>
                     </div>
 
@@ -550,9 +543,7 @@
                             <span class="lang-text" data-key="Project Code">Project Code</span>:
                         </label>
                         <select id="select-projectcode" class="form-control text-dark">
-                            <option value="PRJ-2026-001">PRJ-2026-001 - Sigma ERP Rollout</option>
-                            <option value="PRJ-2026-002">PRJ-2026-002 - MES Integration</option>
-                            <option value="PRJ-2026-003">PRJ-2026-003 - Smart Factory</option>
+                            <option value="">-- Select --</option>
                         </select>
                     </div>
                 </div>
@@ -711,7 +702,7 @@
         $('#select-subsidiary, #select-location, #select-taxcode, #select-projectcode').select2({
             theme: 'bootstrap4',
             width: '100%',
-            placeholder: '-- Chọn giá trị --',
+            placeholder: '-- Select --',
             allowClear: true,
             dropdownParent: $('#subsidiarySelectModal') // Quan trọng giúp ô tìm kiếm hoạt động mượt mà trong Modal
         });

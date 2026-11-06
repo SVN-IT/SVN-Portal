@@ -113,5 +113,17 @@
   "From Date:": "Từ ngày:",
   "To Date:": "Đến ngày:",
   "Total row:": "Tổng số bản ghi",
-  "Export Data": "Xuất dữ liệu"
+  "Export Data": "Xuất dữ liệu",
+  "Access Denied": "Truy cập bị từ chối",
+  "Access Denied Message": "Rất tiếc, tài khoản của bạn không có quyền hạn cần thiết để thực hiện thao tác này. Vui lòng liên hệ với Quản trị viên hệ thống để được cấp quyền bổ sung.",
+  "Required Right:": "Chức năng yêu cầu (Right):",
+  "Required Permission:": "Hành động yêu cầu (Permission):",
+  "Back to Home": "Quay về trang chủ",
+  "Go Back": "Quay lại",
+  "PO Tracking History": "Lịch sử tạo PO",
+  "Confirm": "Xác nhận",
+  "You have just changed the item code (ItemCode). Please ensure that the code you have entered is correct": "Bạn vừa thay đổi mã mặt hàng (ItemCode). Vui lòng đảm bảo rằng mã bạn vừa nhập là đúng",
+  "has been configured on the ERP system.": "đã được cấu hình trên hệ thống ERP.",
+  "Code currently being modified:": "Mã đang sửa:",
+  "Confirm that the item code matches the ERP system.": "Xác nhận Mã hàng đã khớp với ERP"
 }

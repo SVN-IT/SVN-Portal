@@ -253,8 +253,27 @@ namespace Sigma_Tools.Controllers
 
         // GET: /Account/AccessDenied
         [HttpGet]
-        public IActionResult AccessDenied()
+        public IActionResult AccessDenied(string permission, string right)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            string accessMode = "Tools";
+            string controllerName = "Account";
+            string indexPage = "AccessDenied";
+            string titleName = "Access Denied";
+            string selectedPage = "AccessDenied";
+
+            ViewBag.AccessMode = accessMode;
+            ViewBag.ControllerName = controllerName;
+            ViewBag.IndexPage = indexPage;
+            ViewBag.TitleName = titleName;
+            ViewBag.SelectedPage = selectedPage;
+            ViewBag.RequiredPermission = permission ?? "N/A";
+            ViewBag.RequiredRight = right ?? "N/A";
+
             return View();
         }
 

@@ -114,5 +114,17 @@
   "From Date:": "From Date:",
   "To Date:": "To Date:",
   "Total row:": "Total row:",
-  "Export Data": "Export Data"
+  "Export Data": "Export Data",
+  "Access Denied": "Access Denied",
+  "Access Denied Message": "Sorry, your account does not have the required permissions to perform this action. Please contact your system administrator.",
+  "Required Right:": "Required Right:",
+  "Required Permission:": "Required Permission:",
+  "Back to Home": "Back to Home",
+  "Go Back": "Go Back",
+  "PO Tracking History": "PO Tracking History",
+  "Confirm": "Confirm",
+  "You have just changed the item code (ItemCode). Please ensure that the code you have entered is correct": "You have just changed the item code (ItemCode). Please ensure that the code you have entered is correct",
+  "has been configured on the ERP system.": "has been configured on the ERP system.",
+  "Code currently being modified:": "Code currently being modified:",
+  "Confirm that the item code matches the ERP system.": "Confirm that the item code matches the ERP system."
 }

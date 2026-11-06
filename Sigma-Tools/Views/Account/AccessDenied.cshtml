@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = ViewBag.TitleName ?? "Access Denied";
+    string permission = ViewBag.RequiredPermission;
+    string right = ViewBag.RequiredRight;
+}
+
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .netsuite-header {
+        background-color: #0d5287;
+        color: #ffffff;
+        padding: 8px 16px;
+    }
+
+    .access-denied-container {
+        min-height: calc(100vh - 100px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .access-denied-card {
+        background: #ffffff;
+        border: 1px solid #e3e6f0;
+        border-radius: 6px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        max-width: 520px;
+        width: 100%;
+        text-align: center;
+        padding: 40px 30px;
+    }
+
+    .error-icon-box {
+        width: 80px;
+        height: 80px;
+        background-color: #fdf2f2;
+        color: #dc3545;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 20px auto;
+        border: 2px solid #f8b4b4;
+    }
+
+    .access-denied-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2e384d;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .access-denied-message {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .permission-badge-box {
+        background-color: #f8f9fc;
+        border: 1px dashed #d1d3e2;
+        border-radius: 4px;
+        padding: 10px 15px;
+        margin-bottom: 25px;
+        font-size: 0.85rem;
+        text-align: left;
+    }
+
+    .btn-netsuite-primary {
+        background-color: #0d5287;
+        color: #ffffff;
+        font-weight: 600;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+    }
+
+        .btn-netsuite-primary:hover {
+            background-color: #093b62;
+            color: #ffffff;
+        }
+</style>
+
+<!-- Header NetSuite Đồng Bộ -->
+<div class="netsuite-header d-flex justify-content-between align-items-center">
+    <div class="font-weight-bold">ORACLE NetSuite <span class="font-weight-normal">| <span class="lang-text" data-key="Access Denied">Access Denied</span></span></div>
+</div>
+
+<div class="container access-denied-container">
+    <div class="access-denied-card">
+        <div class="error-icon-box shadow-sm">
+            <i class="fas fa-lock"></i>
+        </div>
+
+        <h4 class="access-denied-title"><span class="lang-text" data-key="Access Denied">Access Denied</span></h4>
+
+        <p class="access-denied-message">
+            <span class="lang-text" data-key="Access Denied Message">Access Denied Message</span>
+        </p>
+
+        @if (!string.IsNullOrEmpty(right) && right != "N/A")
+        {
+            <div class="permission-badge-box text-dark">
+                <div class="mb-1"><strong><span class="lang-text" data-key="Required Right:">Required Right:</span></strong> <code class="text-danger">@right</code></div>
+                <div><strong><span class="lang-text" data-key="Required Permission:">Required Permission:</span></strong> <code class="text-danger">@permission</code></div>
+            </div>
+        }
+
+        <div class="d-flex justify-content-center">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-netsuite-primary shadow-sm mr-2">
+                <i class="fas fa-home mr-1"></i> <span class="lang-text" data-key="Back to Home">Back to Home</span>
+            </a>
+            <button type="button" class="btn btn-outline-secondary font-weight-bold px-3" onclick="history.back();">
+                <i class="fas fa-arrow-left mr-1"></i> <span class="lang-text" data-key="Go Back">Go Back</span>
+            </button>
+        </div>
+    </div>
+</div>

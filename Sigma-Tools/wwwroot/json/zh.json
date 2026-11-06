@@ -113,5 +113,17 @@
   "From Date:": "起始日期：",
   "To Date:": "迄今为止：",
   "Total row:": "总计行：",
-  "Export Data": "导出数据"
+  "Export Data": "导出数据",
+  "Access Denied": "拒绝访问",
+  "Access Denied Message": "抱歉，您的账户没有执行此操作所需的权限。请联系系统管理员。",
+  "Required Right:": "所需功能 (Right):",
+  "Required Permission:": "所需权限 (Permission):",
+  "Back to Home": "返回首页",
+  "Go Back": "返回",
+  "PO Tracking History": "采购订单跟踪记录",
+  "Confirm": "确认",
+  "You have just changed the item code (ItemCode). Please ensure that the code you have entered is correct": "您刚刚更改了商品编码。请确保您输入的编码正确无误",
+  "has been configured on the ERP system.": "它已在ERP系统中配置完毕。",
+  "Code currently being modified:": "正在编辑的代码：",
+  "Confirm that the item code matches the ERP system.": "确认产品代码与ERP系统一致。"
 }
