@@ -394,7 +394,58 @@
     </div>
 </div><!--/. container-fluid -->
 <script>
+    // 1. Lưu lại ngày và ca làm việc lúc trang vừa được render từ Server
+    var pageLoadedDate = '@date.ToString("yyyy-MM-dd")';
+    var pageLoadedShift = '@shift';
+    // 2. Kiểm tra xem người dùng có đang chủ động tìm kiếm ngày lịch sử bằng Form hay không
+    // (Nếu URL có chứa isManualLoad=true nghĩa là người dùng đang xem lại quá khứ, không tự reload nhảy ngày)
+    var urlParams = new URLSearchParams(window.location.search);
+    var isManualSearch = urlParams.get('isManualLoad') === 'true';
     $(function () {
+        // Gọi tải dữ liệu lần đầu ngay khi trang vừa load xong
+        refreshDashboard();
+        // Chu kỳ 1: Cứ mỗi 10 giây gọi Ajax cập nhật biểu đồ trong ngày như bình thường
+        setInterval(function () {
+            refreshDashboard();
+        }, 10000);
+        // Chu kỳ 2: Cứ mỗi 30 giây kiểm tra xem đã qua nửa đêm (hoặc đổi ca) hay chưa
+        setInterval(function () {
+            checkAndReloadOnShiftOrDayChange();
+        }, 30000);
+    });
+    // Hàm kiểm tra thời gian thực tế để reload toàn trang khi sang ngày mới / ca mới
+    function checkAndReloadOnShiftOrDayChange() {
+        if (isManualSearch) {
+            return; // Nếu đang xem lại lịch sử thì không tự reload
+        }
+        var now = new Date();
+        var hour = now.getHours();
+        // Quy ước ca làm việc:
+        // - Ca ngày: từ 08:00 đến 19:59
+        // - Ca đêm: từ 20:00 hôm nay đến 07:59 sáng hôm sau
+        var currentShift = (hour >= 8 && hour < 20) ? "Day" : "Night";
+        // Quy ước Ngày sản xuất (Production Date):
+        // Nếu trong khung giờ 00:00 - 07:59 sáng, vẫn thuộc Ca đêm của ngày hôm trước
+        var prodDate = new Date(now);
+        if (hour < 8) {
+            prodDate.setDate(prodDate.getDate() - 1);
+        }
+        var yyyy = prodDate.getFullYear();
+        var mm = String(prodDate.getMonth() + 1).padStart(2, '0');
+        var dd = String(prodDate.getDate()).padStart(2, '0');
+        var currentDateStr = yyyy + '-' + mm + '-' + dd;
+        // Nếu ngày hoặc ca hiện tại khác với ngày/ca lúc ban đầu trang tải về
+        if (currentDateStr !== pageLoadedDate || currentShift !== pageLoadedShift) {
+            console.log("Phát hiện sang ngày mới hoặc chuyển ca. Đang reload trang...", {
+                cu: { date: pageLoadedDate, shift: pageLoadedShift },
+                moi: { date: currentDateStr, shift: currentShift }
+            });
+            // Tải lại trang sạch (xóa query params cũ để Server tự lấy DateTime.Now)
+            window.location.href = window.location.pathname;
+        }
+    }
+
+    @* $(function () {
         // Gọi lần đầu ngay khi trang vừa load xong
         refreshDashboard();
 
@@ -402,7 +453,7 @@
         setInterval(function () {
             refreshDashboard();
         }, 10000);
-    });
+    }); *@
 
     function refreshDashboard() {
         var params = {
