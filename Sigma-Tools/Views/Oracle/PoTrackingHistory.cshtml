@@ -105,11 +105,11 @@
         @if (totalPages > 1)
         {
             <div class="card-footer bg-white py-2 d-flex justify-content-between align-items-center">
-                <span class="small text-muted">Trang <strong>@currentPage</strong> / <strong>@totalPages</strong></span>
+                <span class="small text-muted"><span data-i18n="Page">Trang</span> <strong>@currentPage</strong> / <strong>@totalPages</strong></span>
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = 1 })">Đầu</a>
+                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = 1 })" data-i18n="First">Đầu</a>
                         </li>
                         <li class="page-item @(currentPage == 1 ? "disabled" : "")">
                             <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = currentPage - 1 })">&laquo;</a>
@@ -126,7 +126,7 @@
                             <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = currentPage + 1 })">&raquo;</a>
                         </li>
                         <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = totalPages })">Cuối</a>
+                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = totalPages })" data-i18n="Last">Cuối</a>
                         </li>
                     </ul>
                 </nav>

@@ -286,7 +286,7 @@
                                         <li class="nav-item">
                                             <a asp-controller="Oracle" asp-action="POInbound" class="nav-link @(selectedPage == "NetsuiteSO" ? "active" : "")">
                                                 <i class="far fa-circle nav-icon"></i>
-                                                <p>Create Netsuite SO</p>
+                                                <p data-i18n="Create Netsuite PO">Create Netsuite PO</p>
                                             </a>
                                         </li>
                                     }
@@ -544,82 +544,12 @@
     <script src="~/dist/js/pages/dashboard.js"></script>
 
     <!-- ========================================== -->
-    <!-- SCRIPT DỊCH TỰ ĐỘNG BẰNG FILE JSON         -->
+    <!-- SCRIPT DỊCH TỰ ĐỘNG BẰNG FILE JSON (i18n)  -->
     <!-- ========================================== -->
+    <script src="~/js/i18n.js"></script>
     <script>
-        // 1. Hàm lưu ngôn ngữ vào Cookie & Reload
-        function setAppLanguage(lang) {
-            localStorage.setItem('app_lang', lang);
-            applyLanguage(lang);
-        }
-
-        // 2. Hàm đọc file JSON và thay đổi văn bản trên giao diện
-        function applyLanguage(lang) {
-            if (!lang) lang = localStorage.getItem('app_lang') || 'vi';
-
-            // Sử dụng Url.Content để tự động nhận diện đúng đường dẫn khi chạy qua Nginx Reverse Proxy (ví dụ: /sigmatools/json/en.json)
-            // var jsonUrl = '@Url.Content("~/json/")' + lang + '.json';
-            // Sửa dòng này trong Layout:
-            var jsonUrl = '@Url.Content("~/json/")' + lang + '.json?v=' + new Date().getTime();
-
-            $.getJSON(jsonUrl, function (dictionary) {
-
-                // Dịch tất cả các thẻ <p>, <span>, <a>, <h1>-<h6>, <button>, <b>, <strong>
-                $('p, span, a, h1, h2, h3, h4, h5, h6, button, b, strong, .breadcrumb-item').each(function () {
-                    var $el = $(this);
-
-                    // Nếu là thẻ li trong breadcrumb thì lấy text trực tiếp của nó
-                    var originalText = $el.data('orig-text');
-
-                    if (!originalText) {
-                        originalText = $el.clone().children().remove().end().text().trim(); // Lấy text bỏ qua thẻ con
-                        if (originalText) {
-                            $el.data('orig-text', originalText);
-                        }
-                    }
-
-                    if (originalText && dictionary[originalText]) {
-                        // Nếu là thẻ chứa thẻ a bên trong (như li breadcrumb), xử lý cẩn thận hơn
-                        if ($el.hasClass('breadcrumb-item') && $el.find('a').length > 0) {
-                            // Trường hợp này để thẻ <a> con tự dịch, ta chỉ dịch các li thuần
-                            return;
-                        }
-
-                        var $icon = $el.children('i').clone();
-                        if ($icon.length > 0) {
-                            $el.text(' ' + dictionary[originalText]).prepend($icon);
-                        } else {
-                            // Nếu không có thẻ con phức tạp, gán nội dung mới
-                            if ($el.children().length === 0) {
-                                $el.text(dictionary[originalText]);
-                            }
-                        }
-                    }
-                });
-
-                // Dịch Placeholder của các ô input (như ô Search menu)
-                $('input[placeholder]').each(function () {
-                    var $input = $(this);
-                    var origPlaceholder = $input.data('orig-holder') || $input.attr('placeholder');
-
-                    if (!$input.data('orig-holder')) {
-                        $input.data('orig-holder', origPlaceholder);
-                    }
-
-                    if (origPlaceholder && dictionary[origPlaceholder]) {
-                        $input.attr('placeholder', dictionary[origPlaceholder]);
-                    }
-                });
-
-            }).fail(function () {
-                console.warn('Could not load dictionary file: ' + jsonUrl);
-            });
-        }
-
-        // Tự động áp dụng ngôn ngữ ngay khi trang tải xong
         $(document).ready(function () {
-            var currentLang = localStorage.getItem('app_lang') || 'vi';
-            applyLanguage(currentLang);
+            window.i18n.init('@Url.Content("~/json/")');
         });
     </script>
 </body>

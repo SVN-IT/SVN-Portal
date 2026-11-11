@@ -756,32 +756,32 @@ namespace Sigma_Tools.Controllers
                                 string trackingJsonLog = JsonConvert.SerializeObject(trackingList);
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, trackingJsonLog, currentUser.UserName);
 
-                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, Netsuite PO ID: {parsedResponse?.poId}, Netsuite SO Number: {parsedResponse?.poNumber}", currentUser.UserName);
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Purchase Order trên NetSuite thành công. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, Netsuite PO ID: {parsedResponse?.poId}, Netsuite PO Number: {parsedResponse?.poNumber}", currentUser.UserName);
                                 // Trả kết quả chuẩn về cho client
                                 return Json(parsedResponse);
                             }
                             else
                             {
-                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {processResult?.Message}", currentUser.UserName);
-                                return Json(new { success = false, message = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {processResult?.Message}", currentUser.UserName);
+                                return Json(new { success = false, message = "Lỗi khi tạo Purchase Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
                             }
                         }
                         else
                         {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}", currentUser.UserName);
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}", currentUser.UserName);
                             return Json(new { success = false, message = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" });
                         }
                     }
                 }
                 else
                 {
-                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}", currentUser.UserName);
-                    return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite." });
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống, không thể tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}", currentUser.UserName);
+                    return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Purchase Order trên NetSuite." });
                 }
             }
             catch (Exception ex)
             {
-                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}", currentUser.UserName);
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Purchase Order trên NetSuite: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -969,7 +969,7 @@ namespace Sigma_Tools.Controllers
         public ErpApiResponseData Data { get; set; }
     }
 
-    // Request Model dùng để nhận dữ liệu từ bước Create SO
+    // Request Model dùng để nhận dữ liệu từ bước Create PO
     public class CreateNetsuiteSORequest
     {
         public string PONumber { get; set; }

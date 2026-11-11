@@ -436,7 +436,7 @@
         </div>
     </div>
 
-    <!-- Modal Thông báo kết quả tạo Sales Order / PO NetSuite -->
+    <!-- Modal Thông báo kết quả tạo Purchase Order / PO NetSuite -->
     <div class="modal fade" id="netsuiteResultModal" tabindex="-1" role="dialog" aria-labelledby="netsuiteResultModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content shadow">
@@ -493,8 +493,7 @@
         </div>
     </div>
 
-    <!-- Modal Chọn Subsidiary trước khi tạo Sales Order -->
-    <!-- Modal Chọn Thông Số NetSuite trước khi tạo Sales Order -->
+    <!-- Modal Chọn Thông Số NetSuite trước khi tạo Purchase Order -->
     <div class="modal fade" id="subsidiarySelectModal" tabindex="-1" role="dialog" aria-labelledby="subsidiarySelectModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content shadow">
@@ -552,7 +551,7 @@
                         <i class="fas fa-times mr-1"></i> <span class="lang-text" data-key="Cancel">Cancel</span>
                     </button>
                     <button type="button" class="btn btn-sm btn-primary font-weight-bold" id="btn-confirm-create-so">
-                        <i class="fas fa-check mr-1"></i> <span class="lang-text" data-key="Confirm & Create SO">Confirm & Create SO</span>
+                        <i class="fas fa-check mr-1"></i> <span class="lang-text" data-key="Confirm & Create PO">Confirm & Create PO</span>
                     </button>
                 </div>
             </div>
@@ -571,10 +570,10 @@
             <i id="erp-badge-icon" class="fas fa-info-circle mr-1"></i>
             <span id="erp-badge-text">ERP Pricing: <span class="lang-text">Pending Verification</span></span>
         </span>
-        <!-- Badge Trạng thái Bước 3 (Sales Order Conversion) - Độc lập cho Bước 3 -->
+        <!-- Badge Trạng thái Bước 3 (Purchase Order Conversion) - Độc lập cho Bước 3 -->
         <span id="so-badge-status" class="badge badge-secondary p-2 font-weight-normal ml-2 d-none">
             <i id="so-badge-icon" class="fas fa-check-circle mr-1"></i>
-            <span id="so-badge-text">Sales Order: <span class="lang-text">Ready for Conversion</span></span>
+            <span id="so-badge-text">Purchase Order: <span class="lang-text">Ready for Conversion</span></span>
         </span>
     </div>
 </div>
@@ -716,14 +715,9 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        // Lấy ngôn ngữ hiện tại đang chọn (mặc định là 'vi')
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-
-        // Kiểm tra loại file (Có thể chuẩn hóa thông báo qua file JSON nếu muốn)
+        // Kiểm tra loại file
         if (file.type !== 'application/pdf') {
-            let msg = (currentLang === 'en') ? 'Please select a PDF format file!' :
-                      (currentLang === 'zh') ? '请选择 PDF 格式的文件！' : 'Vui lòng chọn file định dạng PDF!';
-            alert(msg);
+            alert(t('Please select a PDF format file!'));
             return;
         }
 
@@ -745,10 +739,8 @@
         pdfObject.height = '100%';
 
         // Thông báo dự phòng nếu trình duyệt chặn viewer
-        let browserSupportMsg = (currentLang === 'en') ? 'Your browser does not support direct PDF viewing.' :
-                                (currentLang === 'zh') ? '您的浏览器不支持直接查看 PDF。' : 'Trình duyệt của bạn không hỗ trợ xem trực tiếp PDF.';
-        let downloadBtnText = (currentLang === 'en') ? 'Download file to view' :
-                              (currentLang === 'zh') ? '下载文件查看' : 'Tải file về xem';
+        let browserSupportMsg = t('Your browser does not support direct PDF viewing.');
+        let downloadBtnText = t('Download file to view');
 
         pdfObject.innerHTML = `
             <div class="p-4 text-center">
@@ -797,14 +789,10 @@
                     document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
                     document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
 
-                    // Tải file JSON từ điển để dịch động dòng số lượng lines tìm thấy
-                    const jsonUrl = '@Url.Content("~/json/")' + currentLang + '.json';
-
-                    $.getJSON(jsonUrl, function (dict) {
-                        let lineFoundTemplate = dict["EXTRACTED LINE ITEMS (0 LINES FOUND)"] || "EXTRACTED LINE ITEMS ({0} LINES FOUND)";
-                        let formattedLineText = lineFoundTemplate.replace("0", m.lineItems.length);
-                        document.getElementById('line-items-header').innerText = formattedLineText;
-                    });
+                    // Dịch động dòng số lượng lines tìm thấy bằng hàm t()
+                    let lineFoundTemplate = t("EXTRACTED LINE ITEMS (0 LINES FOUND)", "EXTRACTED LINE ITEMS ({0} LINES FOUND)");
+                    let formattedLineText = lineFoundTemplate.replace("{0}", m.lineItems.length).replace("0", m.lineItems.length);
+                    document.getElementById('line-items-header').innerText = formattedLineText;
 
                     let tbodyHtml = '';
                     m.lineItems.forEach(item => {
@@ -833,13 +821,9 @@
                     // THÊM ALERT THÔNG BÁO CÁC MÃ CHƯA ÁNH XẠ Ở ĐÂY
                     // =========================================================
                     if (unmappedList.length > 0) {
-                        let msg = (currentLang === 'en') ? 
-                            `Warning: The following ${unmappedList.length} item code(s) could not be mapped to an ERP SigmaCode: \n\n- ${unmappedList.join('\n- ')}\n\nPlease check and update them.` :
-                            (currentLang === 'zh') ? 
-                            `警告：以下 ${unmappedList.length} 个物料代码无法映射到 ERP SigmaCode：\n\n- ${unmappedList.join('\n- ')}\n\请检查并更新。` :
-                            `Cảnh báo: Có ${unmappedList.length} mã hàng sau chưa ánh xạ được sang SigmaCode trên hệ thống ERP:\n\n- ${unmappedList.join('\n- ')}\n\nVui lòng kiểm tra lại.`;
-                
-                        alert(msg);
+                        let warnHeader = t('Warning: The following item code(s) could not be mapped to an ERP SigmaCode:', 'Cảnh báo: Các mã hàng sau chưa ánh xạ được sang SigmaCode trên hệ thống ERP:');
+                        let checkMsg = t('Please check and update them.', 'Vui lòng kiểm tra lại.');
+                        alert(`${warnHeader} (${unmappedList.length})\n\n- ${unmappedList.join('\n- ')}\n\n${checkMsg}`);
                     }
                     // =========================================================
 
@@ -859,15 +843,12 @@
                     updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
 
                 } else {
-                    let errorPrefix = (currentLang === 'en') ? 'Error: ' : (currentLang === 'zh') ? '错误：' : 'Lỗi: ';
-                    alert(errorPrefix + response.message);
+                    alert(t('Error:') + ' ' + response.message);
                 }
             },
             error: function (xhr, status, error) {
                 console.error("Lỗi kết nối:", error);
-                let connErrorMsg = (currentLang === 'en') ? 'An error occurred while sending the file to the server!' :
-                                   (currentLang === 'zh') ? '将文件发送到服务器时发生错误！' : 'Đã xảy ra lỗi khi gửi file lên server!';
-                alert(connErrorMsg);
+                alert(t('An error occurred while sending the file to the server!'));
             }
         });
     });
@@ -876,7 +857,6 @@
     // HÀM CHUNG: LẤY VÀ ĐỐI CHIẾU GIÁ ERP CHO BƯỚC 2
     // =============================================================
     function loadStep2ErpPrices() {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         let currentLineItems = [];
 
         $('#po-line-table tbody tr').each(function () {
@@ -926,9 +906,7 @@
         });
 
         if (currentLineItems.length === 0) {
-            let noDataMsg = (currentLang === 'en') ? "No Line Items data available for comparison!" :
-                            (currentLang === 'zh') ? "没有可用于比对的行项目数据！" : "Không có dữ liệu Line Items để đối chiếu!";
-            alert(noDataMsg);
+            alert(t("No Line Items data available for comparison!"));
             return;
         }
 
@@ -981,9 +959,7 @@
                         renderStep2Table(response.data);
 
                         if ($('#btn-confirm-next').length > 0) {
-                            // Lấy từ điển đa ngôn ngữ (dict) hoặc dùng từ khóa fallback
-                            let proceedText = (currentLang === 'en') ? 'Proceed to Create ERP PO' :
-                                              (currentLang === 'zh') ? '继续创建 ERP PO' : 'Tiến hành tạo ERP PO';
+                            let proceedText = t('Proceed to Create ERP PO');
 
                             $('#btn-confirm-next')
                                 .html(`<i class="fas fa-arrow-right mr-1"></i> ${proceedText}`)
@@ -995,15 +971,11 @@
                     });
 
                 } else {
-                    let errPrefix = (currentLang === 'en') ? "ERP price comparison error: " :
-                                    (currentLang === 'zh') ? "ERP 价格比对错误：" : "Lỗi đối chiếu giá ERP: ";
-                    alert(errPrefix + response.message);
+                    alert(t("ERP price comparison error: ") + response.message);
                 }
             },
             error: function () {
-                let connError = (currentLang === 'en') ? "Connection error while fetching ERP data from server!" :
-                                (currentLang === 'zh') ? "从服务器获取 ERP 数据时连接出错！" : "Lỗi kết nối khi gọi dữ liệu ERP từ server!";
-                alert(connError);
+                alert(t("Connection error while fetching ERP data from server!"));
             }
         });
     }
@@ -1016,16 +988,12 @@
     });
 
     // =============================================================
-    // XỬ LÝ SỰ KIỆN CHUYỂN TỪ BƯỚC 2 SANG BƯỚC 3 (CREATE SO)
+    // XỬ LÝ SỰ KIỆN CHUYỂN TỪ BƯỚC 2 SANG BƯỚC 3 (CREATE PO)
     // =============================================================
     $(document).on('click', '#btn-proceed-step3', function () {
         const $btnStep3 = $(this);
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-
         // 1. Khóa nút tạm thời để tránh bấm nhiều lần và thông báo đang kiểm tra
-        let checkingMsg = (currentLang === 'en') ? '<i class="fas fa-spinner fa-spin mr-1"></i> Re-verifying ERP prices...' :
-                          (currentLang === 'zh') ? '<i class="fas fa-spinner fa-spin mr-1"></i> 正在重新验证 ERP 价格...' :
-                          '<i class="fas fa-spinner fa-spin mr-1"></i> Đang kiểm tra lại giá ERP...';
+        let checkingMsg = `<i class="fas fa-spinner fa-spin mr-1"></i> ${t('Re-verifying ERP prices...')}`;
         $btnStep3.prop('disabled', true).html(checkingMsg);
 
         // 2. Thu thập lại danh sách dòng hiện tại
@@ -1068,9 +1036,7 @@
             contentType: 'application/json',
             data: JSON.stringify(requestData),
             success: function (response) {
-                let btnResetHtml = (currentLang === 'en') ? '<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Step 3)' :
-                                   (currentLang === 'zh') ? '<i class="fas fa-arrow-right mr-1"></i> 继续创建 SO (步骤 3)' :
-                                   '<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)';
+                let btnResetHtml = `<i class="fas fa-arrow-right mr-1"></i> ${t('Proceed to Create PO (Step 3)')}`;
 
                 if (response.success) {
                     let hasNewVariance = false;
@@ -1084,10 +1050,7 @@
                     renderStep2Table(response.data);
 
                     if (hasNewVariance) {
-                        let varianceWarn = (currentLang === 'en') ? "WARNING: ERP system prices have changed since the previous comparison. Please review the mismatched lines before proceeding to Step 3!" :
-                                           (currentLang === 'zh') ? "警告：与上次比对相比，ERP 系统价格刚发生了变化。进入步骤 3 之前请检查存在偏差的行！" :
-                                           "CẢNH BÁO: Giá trên hệ thống ERP vừa có sự thay đổi so với lúc đối chiếu trước đó. Vui lòng kiểm tra lại các dòng bị lệch trước khi chuyển sang Bước 3!";
-                        alert(varianceWarn);
+                        alert(t("WARNING: ERP system prices have changed compared to last check. Please review before proceeding to Step 3."));
                         $btnStep3.prop('disabled', false).html(btnResetHtml);
                         return;
                     }
@@ -1105,7 +1068,7 @@
                     $btnStep3.fadeOut(200);
 
                     const $cardContainer = $('#po-line-table').closest('.card-custom');
-                    $cardContainer.find('.card-header span:first').text('READY TO CONVERT SALES ORDER (STEP 3)');
+                    $cardContainer.find('.card-header span:first').text('READY TO CONVERT PURCHASE ORDER (STEP 3)');
 
                     $('#erp-badge-status').removeClass('d-none');
                     $('#so-badge-status')
@@ -1113,7 +1076,7 @@
                         .removeClass('badge-secondary badge-warning')
                         .addClass('badge-success')
                         .css({ 'background-color': '#28a745', 'color': '#fff' });
-                    $('#so-badge-text').text('Sales Order: Ready for Conversion');
+                    $('#so-badge-text').text('Purchase Order: Ready for Conversion');
 
                     const $alertBox = $('#ocr-audit-alert-box');
                     $alertBox.show()
@@ -1121,34 +1084,25 @@
                              .addClass('alert-success-custom')
                              .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
 
-                    $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> SALES ORDER CREATION READY: Re-verified Successfully');
+                    $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> PURCHASE ORDER CREATION READY: Re-verified Successfully');
                     $('#ocr-audit-details').html(`
                         <li><strong>Final Price Check:</strong> ERP base prices re-verified successfully just before conversion.</li>
-                        <li><strong>Status:</strong> All compliance checkpoints passed securely. Ready for NetSuite SO generation.</li>
+                        <li><strong>Status:</strong> All compliance checkpoints passed securely. Ready for NetSuite PO generation.</li>
                     `);
                     $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
                            .css('color', '#0e9f6e')
                            .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to ERP PO"</strong> above to finalize.');
 
-                    let successMsg = (currentLang === 'en') ? "Confirmation successful! ERP prices re-checked and ready to Convert to Sales Order." :
-                                     (currentLang === 'zh') ? "确认成功！ERP 价格已重新核对，随时可以转换为销售订单。" :
-                                     "Xác nhận thành công! Hệ thống đã re-check lại giá ERP và sẵn sàng để Convert to Sales Order.";
-                    alert(successMsg);
+                    alert(t("Confirmation successful! ERP prices re-checked and ready for PO creation."));
 
                 } else {
-                    let errCheckMsg = (currentLang === 'en') ? "Error re-verifying ERP prices: " :
-                                      (currentLang === 'zh') ? "重新验证 ERP 价格出错：" : "Lỗi kiểm tra lại giá ERP: ";
-                    alert(errCheckMsg + response.message);
+                    alert(t("Error re-verifying ERP prices: ") + response.message);
                     $btnStep3.prop('disabled', false).html(btnResetHtml);
                 }
             },
             error: function () {
-                let connErr = (currentLang === 'en') ? "Connection error while re-verifying ERP prices from server!" :
-                              (currentLang === 'zh') ? "从服务器重新验证 ERP 价格时连接出错！" : "Đã xảy ra lỗi kết nối khi kiểm tra lại giá ERP từ server!";
-                let btnResetHtml = (currentLang === 'en') ? '<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Step 3)' :
-                                   (currentLang === 'zh') ? '<i class="fas fa-arrow-right mr-1"></i> 继续创建 SO (步骤 3)' :
-                                   '<i class="fas fa-arrow-right mr-1"></i> Proceed to Create SO (Bước 3)';
-                alert(connErr);
+                alert(t("Connection error while re-verifying ERP prices from server!"));
+                let btnResetHtml = `<i class="fas fa-arrow-right mr-1"></i> ${t('Proceed to Create PO (Step 3)')}`;
                 $btnStep3.prop('disabled', false).html(btnResetHtml);
             }
         });
@@ -1158,7 +1112,6 @@
     // 2. HÀM RENDER BẢNG BƯỚC 2 & HIỂN THỊ CẢNH BÁO NOTICE
     // -------------------------------------------------------------
     function renderStep2Table(dataList) {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         let hasVariance = false;
         let tbodyHtml = '';
 
@@ -1171,16 +1124,12 @@
             const isMatched = Math.abs(variance) < 0.0001;
 
             if (isMatched) {
-                let matchedText = (currentLang === 'en') ? 'Matched' :
-                                  (currentLang === 'zh') ? '已匹配' : 'Đã khớp';
-                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> ${matchedText}</span>`;
+                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> ${t('Matched')}</span>`;
             } else {
                 hasVariance = true;
                 rowClass = 'row-variance animate-fade-in';
-                let varianceLabel = (currentLang === 'en') ? 'Variance' :
-                                    (currentLang === 'zh') ? '偏差' : 'Lệch giá';
                 let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
-                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${varianceLabel}: ${sign}</span>`;
+                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${t('Variance')}: ${sign}</span>`;
             }
 
             // ĐÃ XÓA CỘT DESCRIPTION TRÊN GIAO DIỆN, LƯU NGẦM QUA data-description
@@ -1207,20 +1156,15 @@
 
     // Hàm bật/tắt khung thông báo Notice thời gian thực
     function updateStep2NoticeBox(hasVariance) {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         const $cardContainer = $('#po-line-table').closest('.card-custom');
         $('#variance-notice-box').remove();
 
         if (hasVariance) {
-            let noticeTitle = (currentLang === 'en') ? 'Notice:' :
-                              (currentLang === 'zh') ? '注意：' : 'Lưu ý:';
-            let noticeDesc = (currentLang === 'en') ? 'One or more lines trigger custom pricing logic. Converting this record will route the Sales Order to <strong>Pending Approval</strong> status.' :
-                             (currentLang === 'zh') ? '一个或多个行触发了自定义定价逻辑。转换此记录将使销售订单进入<strong>待审批 (Pending Approval)</strong> 状态。' :
-                             'Một hoặc nhiều dòng kích hoạt logic định giá tùy chỉnh. Việc chuyển đổi bản ghi này sẽ chuyển Đơn hàng Bán sang trạng thái <strong>Chờ phê duyệt (Pending Approval)</strong>.';
+            let noticeDesc = t('One or more lines trigger custom pricing logic. Converting this record will route the Purchase Order to Pending Approval status.');
 
             let noticeHtml = `
                 <div class="verification-notice animate-fade-in" id="variance-notice-box">
-                    <i class="fas fa-info-circle mr-1"></i> <strong>${noticeTitle}</strong> ${noticeDesc}
+                    <i class="fas fa-info-circle mr-1"></i> <strong>${t('Notice:')}</strong> ${noticeDesc}
                 </div>
             `;
             $cardContainer.after(noticeHtml);
@@ -1241,9 +1185,7 @@
     });
 
     // HỦY CHỈNH SỬA (CANCEL)
-        $('#btn-cancel-edit').on('click', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-
+    $('#btn-cancel-edit').on('click', function () {
         if (originalDataBackup) {
             if (currentStep === 1) {
                 // Restore lại bảng dữ liệu cũ
@@ -1268,13 +1210,11 @@
                         const isMatched = Math.abs(variance) < 0.0001;
 
                         if (isMatched) {
-                            let matchedText = (currentLang === 'en') ? 'Matched' :
-                                              (currentLang === 'zh') ? '已匹配' : 'Đã khớp';
+                            let matchedText = t('Matched');
                             $tr.removeClass('row-variance');
                             $tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> ${matchedText}</span>`);
                         } else {
-                            let varianceLabel = (currentLang === 'en') ? 'Variance' :
-                                                (currentLang === 'zh') ? '偏差' : 'Lệch giá';
+                            let varianceLabel = t('Variance');
                             $tr.addClass('row-variance');
                             let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
                             $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${varianceLabel}: ${sign}</span>`);
@@ -1293,8 +1233,6 @@
 
 // 1. TOÀN BỘ SỰ KIỆN NÚT SAVE CHANGES VÀ XỬ LÝ MODAL SIGMACODE
 $('#btn-save-edit').on('click', function () {
-    const currentLang = localStorage.getItem('app_lang') || 'vi';
-
     // Kiểm tra xem người dùng có đang sửa cột Item Code (Mã hàng) hay không
     let codeChanged = false;
     let modifiedCode = "";
@@ -1328,9 +1266,8 @@ $('#btn-save-edit').on('click', function () {
 
             if (itemCode === "" || qty <= 0 || price <= 0) {
                 hasEmptyError = true;
-                emptyErrorMessage = (currentLang === 'en') ? `Line ${index + 1} is empty or has invalid data (Item Code, Quantity, or Unit Price). Please review or delete extra rows before saving!` :
-                                    (currentLang === 'zh') ? `第 ${index + 1} 行数据为空或无效（物料代码、数量或单价）。保存前请检查或删除多余的行！` :
-                                    `Dòng số ${index + 1} đang bị bỏ trống hoặc có dữ liệu không hợp lệ (Mã hàng, Số lượng hoặc Đơn giá). Vui lòng kiểm tra lại hoặc xóa dòng thừa trước khi lưu!`;
+                let emptyTemplate = t("Line {0} is empty or has invalid data (Item Code, Quantity, or Unit Price). Please review or delete extra rows before saving!");
+                emptyErrorMessage = emptyTemplate.replace("{0}", index + 1);
                 return false;
             }
         });
@@ -1369,22 +1306,16 @@ $('#btn-save-edit').on('click', function () {
         const isAmountMatched = (Math.abs(totalAmount - expectedAmount) < 0.01);
 
         if (!isUnitsMatched || !isAmountMatched) {
-            let titleMsg = (currentLang === 'en') ? "Cannot save data because it does not match the totals on the PDF!\n\n" :
-                           (currentLang === 'zh') ? "无法保存数据，因为与 PDF 上的总计不符！\n\n" :
-                           "Không thể lưu dữ liệu vì dữ liệu chưa khớp với tổng trên PDF!\n\n";
+            let titleMsg = t("Cannot save data because it does not match the totals on the PDF!") + "\n\n";
             let auditErrorMsg = titleMsg;
 
             if (!isUnitsMatched) {
-                let unitLabel = (currentLang === 'en') ? `- Total Units: Calculated (${totalUnits.toLocaleString()}) != Expected (${expectedUnits.toLocaleString()})\n` :
-                                (currentLang === 'zh') ? `- 总数量 (Units)：计算值 (${totalUnits.toLocaleString()}) != 期望值 (${expectedUnits.toLocaleString()})\n` :
-                                `- Tổng số lượng (Units): Tính toán (${totalUnits.toLocaleString()}) != Kỳ vọng (${expectedUnits.toLocaleString()})\n`;
-                auditErrorMsg += unitLabel;
+                let unitTemplate = t("- Total Units: Calculated ({0}) != Expected ({1})") + "\n";
+                auditErrorMsg += unitTemplate.replace("{0}", totalUnits.toLocaleString()).replace("{1}", expectedUnits.toLocaleString());
             }
             if (!isAmountMatched) {
-                let amtLabel = (currentLang === 'en') ? `- Total Amount: Calculated ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Expected ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n` :
-                               (currentLang === 'zh') ? `- 总金额 (Amount)：计算值 ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != 期望值 ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n` :
-                               `- Tổng tiền (Amount): Tính toán ($${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}) != Kỳ vọng ($${expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })})\n`;
-                auditErrorMsg += amtLabel;
+                let amtTemplate = t("- Total Amount: Calculated (${0}) != Expected (${1})") + "\n";
+                auditErrorMsg += amtTemplate.replace("{0}", totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })).replace("{1}", expectedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }));
             }
             alert(auditErrorMsg);
             pendingSaveAction = false;
@@ -1438,8 +1369,7 @@ $('#btn-save-edit').on('click', function () {
         recalculateAndAudit();
         pendingSaveAction = false; // Reset cờ trạng thái
 
-        let successMsg1 = (currentLang === 'en') ? "PO data updated successfully!" :
-                          (currentLang === 'zh') ? "PO 数据更新成功！" : "Đã cập nhật dữ liệu PO thành công!";
+        let successMsg1 = t("PO data updated successfully!");
         alert(successMsg1);
 
     } else if (currentStep === 2) {
@@ -1447,8 +1377,7 @@ $('#btn-save-edit').on('click', function () {
         enableEditMode(false);
         pendingSaveAction = false; // Reset cờ trạng thái
 
-        let successMsg2 = (currentLang === 'en') ? "OCR Price updated successfully!" :
-                          (currentLang === 'zh') ? "OCR 价格更新成功！" : "Đã cập nhật OCR Price thành công!";
+        let successMsg2 = t("OCR Price updated successfully!");
         alert(successMsg2);
     }
 });
@@ -1725,7 +1654,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     // 6. CẬP NHẬT MÀU SẮC & THÔNG BÁO CẢNH BÁO
     // -------------------------------------------------------------
     function updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt) {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         const calcUnitsStr = calcUnits.toLocaleString();
         const expUnitsStr = expUnits.toLocaleString();
         const calcAmtStr = calcAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1736,23 +1664,19 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             $('#ocr-badge-status').removeClass('badge-danger').addClass('badge-success').css({'background-color': '#28a745', 'color': '#fff'});
             $('#ocr-badge-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
 
-            let badgeText = (currentLang === 'en') ? 'OCR Audit: PASSED (Data Verified)' :
-                            (currentLang === 'zh') ? 'OCR 审计：通过（数据已验证）' : 'OCR Audit: ĐÃ KHỚP (Đã xác thực dữ liệu)';
-            $('#ocr-badge-text').text(badgeText);
+            $('#ocr-badge-text').text(t('OCR Audit: PASSED (Data Verified)'));
 
             $('#ocr-audit-alert-box').removeClass('alert-error-custom').addClass('alert-success-custom')
                 .css({'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f'});
 
-            let titlePassed = (currentLang === 'en') ? 'OCR AUDIT PASSED: Data Integrity Verified' :
-                              (currentLang === 'zh') ? 'OCR 审计通过：数据完整性已验证' : 'OCR AUDIT PASSED: Đã xác thực tính toàn vẹn dữ liệu';
-            $('#ocr-audit-title').html(`<span class="text-success mr-1">●</span> ${titlePassed}`);
+            $('#ocr-audit-title').html(`<span class="text-success mr-1">●</span> ${t('OCR AUDIT PASSED: Data Integrity Verified')}`);
 
-            let unitsMatchedLabel = (currentLang === 'en') ? 'Units Matched:' : (currentLang === 'zh') ? '数量匹配：' : 'Khớp số lượng (Units):';
-            let sumUnitsLabel = (currentLang === 'en') ? 'Sum of line items' : (currentLang === 'zh') ? '行项目总和' : 'Tổng các dòng';
-            let expectedUnitsLabel = (currentLang === 'en') ? 'Total Units Expected' : (currentLang === 'zh') ? '期望总数量' : 'Tổng số lượng kỳ vọng';
+            let unitsMatchedLabel = t('Units Matched:');
+            let sumUnitsLabel = t('Sum of line items');
+            let expectedUnitsLabel = t('Total Units Expected');
 
-            let amountMatchedLabel = (currentLang === 'en') ? 'Amount Matched:' : (currentLang === 'zh') ? '金额匹配：' : 'Khớp thành tiền (Amount):';
-            let subtotalExpectedLabel = (currentLang === 'en') ? 'Subtotal Expected' : (currentLang === 'zh') ? '期望小计' : 'Thành tiền kỳ vọng';
+            let amountMatchedLabel = t('Amount Matched:');
+            let subtotalExpectedLabel = t('Subtotal Expected');
 
             let detailsHtml = `
                 <li><strong>${unitsMatchedLabel}</strong> ${sumUnitsLabel} (${calcUnitsStr}) == ${expectedUnitsLabel} (${expUnitsStr})</li>
@@ -1760,9 +1684,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             `;
             $('#ocr-audit-details').html(detailsHtml);
 
-            let statusActionPassed = (currentLang === 'en') ? '<strong>Status:</strong> All line items matched perfectly. Ready to compare with ERP price.' :
-                                     (currentLang === 'zh') ? '<strong>状态：</strong> 所有行项目完全匹配。准备与 ERP 价格进行比对。' :
-                                     '<strong>Trạng thái:</strong> Tất cả các dòng đã khớp hoàn toàn. Sẵn sàng đối chiếu với giá ERP.';
+            let statusActionPassed = t('Status: All line items matched perfectly. Ready to compare with ERP price.');
             $('#ocr-audit-action').removeClass('text-danger').addClass('text-success').css('color', '#0e9f6e')
                 .html(statusActionPassed);
 
@@ -1777,35 +1699,23 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             $('#ocr-badge-status').removeClass('badge-success').addClass('badge-danger').css({'background-color': '#dc3545', 'color': '#fff'});
             $('#ocr-badge-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
 
-            let badgeTextErr = (currentLang === 'en') ? 'OCR Audit: FATAL ERROR (Mismatch)' :
-                               (currentLang === 'zh') ? 'OCR 审计：严重错误（不匹配）' : 'OCR Audit: LỖI NGHIÊM TRỌNG (Không khớp)';
-            $('#ocr-badge-text').text(badgeTextErr);
+            $('#ocr-badge-text').text(t('OCR Audit: FAILED (Data Integrity Error)'));
 
             $('#ocr-audit-alert-box').removeClass('alert-success-custom').addClass('alert-error-custom')
                 .css({'background-color': '#fdf2f2', 'border': '1px solid #f8b4b4', 'color': '#9b1c1c'});
 
-            let titleErr = (currentLang === 'en') ? 'CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed' :
-                           (currentLang === 'zh') ? '严重 OCR 审计错误：数据完整性检查失败' : 'LỖI KIỂM TRA OCR: Kiểm tra tính toàn vẹn dữ liệu thất bại';
-            $('#ocr-audit-title').html(`<span class="text-danger mr-1">●</span> ${titleErr}`);
+            $('#ocr-audit-title').html(`<span class="text-danger mr-1">●</span> ${t('CRITICAL OCR AUDIT ERROR: Data Integrity Check Failed')}`);
 
             let detailsHtml = '';
             if (calcUnits !== expUnits) {
-                let unitsMismatchLabel = (currentLang === 'en') ? 'Units Mismatch:' : (currentLang === 'zh') ? '数量不匹配：' : 'Lệch số lượng (Units):';
-                let sumUnitsLabel = (currentLang === 'en') ? 'Sum of line items' : (currentLang === 'zh') ? '行项目总和' : 'Tổng các dòng';
-                let expectedUnitsLabel = (currentLang === 'en') ? 'Total Units Expected' : (currentLang === 'zh') ? '期望总数量' : 'Tổng số lượng kỳ vọng';
-                detailsHtml += `<li><strong>${unitsMismatchLabel}</strong> ${sumUnitsLabel} (${calcUnitsStr}) != ${expectedUnitsLabel} (${expUnitsStr})</li>`;
+                detailsHtml += `<li><strong>${t('Units Mismatch:', 'Lệch số lượng (Units):')}</strong> ${t('Sum of line items')} (${calcUnitsStr}) != ${t('Total Units Expected')} (${expUnitsStr})</li>`;
             }
             if (Math.abs(calcAmt - expAmt) >= 0.01) {
-                let amountMismatchLabel = (currentLang === 'en') ? 'Amount Mismatch:' : (currentLang === 'zh') ? '金额不匹配：' : 'Lệch thành tiền (Amount):';
-                let sumUnitsLabel = (currentLang === 'en') ? 'Sum of line items' : (currentLang === 'zh') ? '行项目总和' : 'Tổng các dòng';
-                let subtotalExpectedLabel = (currentLang === 'en') ? 'Subtotal Expected' : (currentLang === 'zh') ? '期望小计' : 'Thành tiền kỳ vọng';
-                detailsHtml += `<li><strong>${amountMismatchLabel}</strong> ${sumUnitsLabel} ($${calcAmtStr}) != ${subtotalExpectedLabel} ($${expAmtStr})</li>`;
+                detailsHtml += `<li><strong>${t('Amount Mismatch:', 'Lệch thành tiền (Amount):')}</strong> ${t('Sum of line items')} ($${calcAmtStr}) != ${t('Subtotal Expected')} ($${expAmtStr})</li>`;
             }
             $('#ocr-audit-details').html(detailsHtml);
 
-            let actionRequiredText = (currentLang === 'en') ? '<strong>Action Required:</strong> Data mismatch detected. Please add/edit lines to match expected totals or reject the PO.' :
-                                     (currentLang === 'zh') ? '<strong>操作要求：</strong> 检测到数据不匹配。请添加/编辑行以匹配期望总计或拒绝该 PO。' :
-                                     '<strong>Yêu cầu hành động:</strong> Phát hiện dữ liệu không khớp. Vui lòng thêm/sửa các dòng để khớp với tổng kỳ vọng hoặc từ chối PO.';
+            let actionRequiredText = t('Action Required: Please review price variances or proceed to route to Pending Approval.');
             $('#ocr-audit-action').removeClass('text-success').addClass('text-danger').css('color', '#9b1c1c')
                 .html(actionRequiredText);
 
@@ -1816,12 +1726,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
     // Bấm nút Xác Nhận để chuẩn bị cho Bước 2
     $(document).on('click', '#btn-confirm-next', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-
-        let confirmMsg = (currentLang === 'en') ? "Data confirmation successful! Moving to Step 2: Custom Record..." :
-                         (currentLang === 'zh') ? "数据确认成功！正在转到步骤 2：自定义记录..." :
-                         "Xác nhận dữ liệu thành công! Đang chuyển sang Bước 2: Custom Record...";
-        alert(confirmMsg);
+        alert(t("Confirmation successful! ERP prices re-checked and ready for PO creation."));
 
         // Đổi trạng thái hiển thị trên Progress bar sang Bước 2 (Nếu cần test hiệu ứng)
         $('#step-node-1').removeClass('active').addClass('completed');
@@ -1893,7 +1798,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
     // Tự động tính toán lại Validation Status & Notice khi gõ thay đổi OCR Price ở Bước 2
     $(document).on('input', '.input-ocr-price', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         const $tr = $(this).closest('tr');
         const newOcrPrice = parseFloat($(this).val()) || 0;
         const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
@@ -1902,13 +1806,11 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // Cập nhật nhãn trạng thái trực tiếp trên dòng
         if (isMatched) {
-            let matchedText = (currentLang === 'en') ? 'Matched' :
-                              (currentLang === 'zh') ? '已匹配' : 'Đã khớp';
+            let matchedText = t('Matched');
             $tr.removeClass('row-variance');
             $tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> ${matchedText}</span>`);
         } else {
-            let varianceLabel = (currentLang === 'en') ? 'Variance' :
-                                (currentLang === 'zh') ? '偏差' : 'Lệch giá';
+            let varianceLabel = t('Variance');
             $tr.addClass('row-variance');
             let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
             $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${varianceLabel}: ${sign}</span>`);
@@ -1946,7 +1848,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
     // Lưu giá trị chỉnh sửa ô Input ở Bước 2
     function saveStep2Edits() {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         let hasVariance = false;
 
         $('#po-line-table tbody tr').each(function () {
@@ -1964,15 +1865,13 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                     .text(`$${newOcrPrice}`);
 
                 if (isMatched) {
-                    let matchedText = (currentLang === 'en') ? 'Matched' :
-                                      (currentLang === 'zh') ? '已匹配' : 'Đã khớp';
+                    let matchedText = t('Matched');
                     $tr.removeClass('row-variance');
                     $tr.find('.cell-ocr-price').removeClass('text-variance font-weight-bold');
                     $tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> ${matchedText}</span>`);
                 } else {
                     hasVariance = true;
-                    let varianceLabel = (currentLang === 'en') ? 'Variance' :
-                                        (currentLang === 'zh') ? '偏差' : 'Lệch giá';
+                    let varianceLabel = t('Variance');
                     $tr.addClass('row-variance');
                     $tr.find('.cell-ocr-price').addClass('text-variance font-weight-bold');
                     let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
@@ -2022,20 +1921,12 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // Sự kiện bấm nút Tải lại dữ liệu ERP ở vị trí khoanh đỏ
     $(document).on('click', '#btn-reload-erp', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-
-        let reloadMsg = (currentLang === 'en') ? "Reconnecting to the ERP system to synchronize the latest data..." :
-                        (currentLang === 'zh') ? "正在重新连接 ERP 系统以同步最新数据..." :
-                        "Đang kết nối lại hệ thống ERP để đồng bộ dữ liệu mới nhất...";
-        alert(reloadMsg);
-
-        // Thực hiện logic reload hoặc gọi lại hàm kiểm tra đối chiếu giá ERP tại đây
-        loadStep2ErpPrices(); // Tự động trigger lại dữ liệu bước 2
+        alert(t("Reconnecting to the ERP system to synchronize the latest data..."));
+        loadStep2ErpPrices();
     });
 
         // Hàm cập nhật trạng thái Badge cho Bước 2
     function updateStep2BadgeStatus(hasVariance) {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         const $badge = $('#erp-badge-status');
         const $icon = $('#erp-badge-icon');
         const $text = $('#erp-badge-text');
@@ -2051,20 +1942,14 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                   .css({ 'background-color': '#28a745', 'color': '#fff' });
             $icon.removeClass('fa-exclamation-triangle fa-info-circle').addClass('fa-check-circle');
 
-            let passedText = (currentLang === 'en') ? 'ERP Pricing: PASSED (All Matched)' :
-                             (currentLang === 'zh') ? 'ERP 定价：通过（全部匹配）' :
-                             'Giá ERP: ĐÃ KHỚP (Tất cả đã khớp)';
-            $text.text(passedText);
+            $text.text(t('ERP Pricing: PASSED (All Matched)'));
         } else {
             // TRƯỜNG HỢP CÒN LỆCH GIÁ (Variance detected -> Pending Approval)
             $badge.removeClass('badge-success badge-secondary').addClass('badge-warning')
                   .css({ 'background-color': '#f0ad4e', 'color': '#fff' });
             $icon.removeClass('fa-check-circle fa-info-circle').addClass('fa-exclamation-triangle');
 
-            let varianceText = (currentLang === 'en') ? 'ERP Pricing: VARIANCE DETECTED (Pending Approval)' :
-                               (currentLang === 'zh') ? 'ERP 定价：检测到偏差（待审批）' :
-                               'Giá ERP: PHÁT HIỆN LỆCH GIÁ (Chờ phê duyệt)';
-            $text.text(varianceText);
+            $text.text(t('ERP Pricing: VARIANCE DETECTED (Pending Approval)'));
         }
     }
 
@@ -2073,7 +1958,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         // Đảm bảo chỉ chạy khi đang ở Bước 2
         if (currentStep !== 2) return;
 
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         const $alertBox = $('#ocr-audit-alert-box');
         const $title = $('#ocr-audit-title');
         const $details = $('#ocr-audit-details');
@@ -2086,20 +1970,13 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             $alertBox.removeClass('alert-error-custom alert-warning-custom').addClass('alert-success-custom')
                      .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
 
-            let titlePassed = (currentLang === 'en') ? 'ERP PRICING PASSED: Data & Base Prices Verified' :
-                              (currentLang === 'zh') ? 'ERP 定价通过：数据与基准价已验证' :
-                              'ĐỐI CHIẾU GIÁ ERP ĐÃ KHỚP: Đã xác thực dữ liệu & giá cơ sở';
-            $title.html(`<span class="text-success mr-1">●</span> ${titlePassed}`);
+            $title.html(`<span class="text-success mr-1">●</span> ${t('ERP PRICING PASSED: Data & Base Prices Verified')}`);
 
-            let reconTitle = (currentLang === 'en') ? 'Reconciliation:' : (currentLang === 'zh') ? '对账：' : 'Đối chiếu:';
-            let reconDesc = (currentLang === 'en') ? 'All line items matched perfectly with ERP Base Prices.' :
-                            (currentLang === 'zh') ? '所有行项目与 ERP 基准价完全匹配。' :
-                            'Tất cả các dòng hàng đã khớp hoàn toàn với giá cơ sở ERP.';
+            let reconTitle = t('Reconciliation:');
+            let reconDesc = t('All line items matched perfectly with ERP Base Prices.');
 
-            let varStatusTitle = (currentLang === 'en') ? 'Variance Status:' : (currentLang === 'zh') ? '差异状态：' : 'Trạng thái chênh lệch:';
-            let varStatusDesc = (currentLang === 'en') ? 'No price discrepancies detected across all line items.' :
-                                (currentLang === 'zh') ? '所有行项目均未检测到价格差异。' :
-                                'Không phát hiện sự chênh lệch giá nào trên tất cả các dòng.';
+            let varStatusTitle = t('Variance Status:');
+            let varStatusDesc = t('No price discrepancies detected across all line items.');
 
             let detailsHtml = `
                 <li><strong>${reconTitle}</strong> ${reconDesc}</li>
@@ -2107,31 +1984,21 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             `;
             $details.html(detailsHtml);
 
-            let actionPassed = (currentLang === 'en') ? '<strong>Status:</strong> All line items matched perfectly. Ready to compare with ERP price.' :
-                               (currentLang === 'zh') ? '<strong>状态：</strong> 所有行项目完全匹配。准备与 ERP 价格进行比对。' :
-                               '<strong>Trạng thái:</strong> Tất cả các dòng đã khớp hoàn toàn. Sẵn sàng đối chiếu với giá ERP.';
             $action.removeClass('text-danger text-warning').addClass('text-success')
                    .css('color', '#0e9f6e')
-                   .html(actionPassed);
+                   .html(t('Status: All line items matched perfectly. Ready for conversion.'));
         } else {
             // --- TRƯỜNG HỢP BƯỚC 2: VARIANCE DETECTED (MÀU CAM/VÀNG) ---
             $alertBox.removeClass('alert-error-custom alert-success-custom').addClass('alert-warning-custom')
                      .css({ 'background-color': '#fffbeb', 'border': '1px solid #fde68a', 'color': '#92400e' });
 
-            let titleVariance = (currentLang === 'en') ? 'ERP PRICING VARIANCE: Custom Pricing Logic Triggered' :
-                                (currentLang === 'zh') ? 'ERP 定价差异：触发了自定义定价逻辑' :
-                                'LỆCH GIÁ ERP: Đã kích hoạt logic định giá tùy chỉnh';
-            $title.html(`<span class="text-warning mr-1" style="color: #d97706 !important;">●</span> ${titleVariance}`);
+            $title.html(`<span class="text-warning mr-1" style="color: #d97706 !important;">●</span> ${t('ERP PRICING VARIANCE: Custom Pricing Logic Triggered')}`);
 
-            let noticeTitle = (currentLang === 'en') ? 'Notice:' : (currentLang === 'zh') ? '注意：' : 'Lưu ý:';
-            let noticeDesc = (currentLang === 'en') ? 'One or more lines trigger custom pricing logic.' :
-                             (currentLang === 'zh') ? '一个或多个行触发了自定义定价逻辑。' :
-                             'Một hoặc nhiều dòng kích hoạt logic định giá tùy chỉnh.';
+            let noticeTitle = t('Notice:');
+            let noticeDesc = t('One or more lines trigger custom pricing logic.');
 
-            let workflowTitle = (currentLang === 'en') ? 'Workflow Notice:' : (currentLang === 'zh') ? '工作流通知：' : 'Thông báo quy trình:';
-            let workflowDesc = (currentLang === 'en') ? 'Please make approval to update price or report to administrator.' :
-                               (currentLang === 'zh') ? '请进行审批以更新价格或向管理员报告。' :
-                               'Vui lòng thực hiện phê duyệt để cập nhật giá hoặc báo cáo quản trị viên.';
+            let workflowTitle = t('Workflow Notice:');
+            let workflowDesc = t('Please make approval to update price or report to administrator.');
 
             let detailsHtml = `
                 <li><strong>${noticeTitle}</strong> ${noticeDesc}</li>
@@ -2139,12 +2006,9 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             `;
             $details.html(detailsHtml);
 
-            let actionRequired = (currentLang === 'en') ? '<strong>Action Required:</strong> Please review price variances or proceed to route for Pending Approval.' :
-                                 (currentLang === 'zh') ? '<strong>操作要求：</strong> 请检查价格差异或继续路由至待审批状态。' :
-                                 '<strong>Yêu cầu hành động:</strong> Vui lòng xem xét các khoản chênh lệch giá hoặc tiếp tục chuyển sang trạng thái Chờ phê duyệt (Pending Approval).';
             $action.removeClass('text-success text-danger').addClass('text-warning')
                    .css('color', '#b45309')
-                   .html(actionRequired);
+                   .html(t('Action Required: Please review price variances or proceed to route to Pending Approval.'));
         }
     }
 
@@ -2161,7 +2025,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // 2. Khi bấm nút Đồng Ý (Reject) trong Popup
     $(document).on('click', '#btn-confirm-reject', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
         const reason = $('#reject-reason').val().trim();
         const poNumber = $('#po-number-display').text().trim();
 
@@ -2174,9 +2037,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // Khóa nút để tránh bấm nhiều lần
         const $btn = $(this);
-        let processingText = (currentLang === 'en') ? 'Processing...' :
-                             (currentLang === 'zh') ? '处理中...' : 'Đang xử lý...';
-        $btn.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${processingText}`);
+        $btn.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${t('Processing...')}`);
 
         // Gửi dữ liệu xuống Controller
         $.ajax({
@@ -2194,30 +2055,20 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                     // Refresh lại trang khi thành công
                     window.location.reload();
                 } else {
-                    let errorPrefix = (currentLang === 'en') ? 'Error: ' :
-                                      (currentLang === 'zh') ? '错误：' : 'Lỗi: ';
-                    alert(errorPrefix + response.message);
-
-                    let btnRejectText = (currentLang === 'en') ? 'Confirm (Reject)' :
-                                        (currentLang === 'zh') ? '确认（拒绝）' : 'Đồng Ý (Từ chối)';
-                    $btn.prop('disabled', false).html(`<i class="fas fa-check mr-1"></i> ${btnRejectText}`);
+                    alert(t('Error:') + ' ' + response.message);
+                    $btn.prop('disabled', false).html(`<i class="fas fa-check mr-1"></i> ${t('Confirm (Reject)')}`);
                 }
             },
             error: function () {
-                let connErrorMsg = (currentLang === 'en') ? 'A connection error occurred while rejecting the PO!' :
-                                   (currentLang === 'zh') ? '拒绝 PO 时发生连接错误！' : 'Đã xảy ra lỗi kết nối khi từ chối PO!';
-                alert(connErrorMsg);
-
-                let btnRejectText = (currentLang === 'en') ? 'Confirm (Reject)' :
-                                    (currentLang === 'zh') ? '确认（拒绝）' : 'Đồng Ý (Từ chối)';
-                $btn.prop('disabled', false).html(`<i class="fas fa-check mr-1"></i> ${btnRejectText}`);
+                alert(t('A connection error occurred while rejecting the PO!'));
+                $btn.prop('disabled', false).html(`<i class="fas fa-check mr-1"></i> ${t('Confirm (Reject)')}`);
             }
         });
     });
 
     
     // =============================================================
-    // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO SALES ORDER"
+    // SỰ KIỆN GỬI DỮ LIỆU LÊN CONTROLLER KHI BẤM "CONVERT TO PURCHASE ORDER"
     // =============================================================
     // 1. Khi bấm nút Convert trên Action Bar -> Gọi API lấy Subsidiaries và mở Modal
     $(document).on('click', '#btn-convert', function () {
@@ -2225,7 +2076,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         $('#btn-confirm-create-so').prop('disabled', true);
 
         const customerId = $('#po-customer-display').text().trim();
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
 
         $.ajax({
             url: '@Url.Action("GetSubsidiaries", "Oracle")',
@@ -2238,8 +2088,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 let $subSelect = $('#select-subsidiary');
                 $subSelect.empty();
 
-                let defaultText = (currentLang === 'en') ? '-- Select Subsidiary --' :
-                                  (currentLang === 'zh') ? '-- 请选择子公司 --' : '-- Chọn Subsidiary --';
+                let defaultText = t('-- Select Subsidiary --');
                 $subSelect.append(`<option value="" selected disabled>${defaultText}</option>`);
 
                 // Hứng qua response.data vì response.data lúc này chính là SubsidiaryApiResponse
@@ -2295,7 +2144,6 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     // Sự kiện khi chọn/thay đổi Subsidiary
     $(document).on('change', '#select-subsidiary', function () {
         const selectedSubId = $(this).val();
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
 
         // Lấy các element select
         let $locSelect = $('#select-location');
@@ -2303,9 +2151,9 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         let $prjSelect = $('#select-projectcode');
 
         // Reset và đưa về trạng thái mặc định cho 3 select còn lại
-        $locSelect.empty().append(`<option value="" selected disabled>-- Chọn Location --</option>`);
-        $taxSelect.empty().append(`<option value="" selected disabled>-- Chọn Tax Code --</option>`);
-        $prjSelect.empty().append(`<option value="" selected disabled>-- Chọn Project Code --</option>`);
+        $locSelect.empty().append(`<option value="" selected disabled>${t('-- Select Location --')}</option>`);
+        $taxSelect.empty().append(`<option value="" selected disabled>${t('-- Select Tax Code --')}</option>`);
+        $prjSelect.empty().append(`<option value="" selected disabled>${t('-- Select Project Code --')}</option>`);
 
         // Check lại form (lúc này sẽ disable nút Confirm vì thiếu 3 mục kia)
         checkFormReady();
@@ -2369,15 +2217,14 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                             $taxSelect.data('required', true); // Gắn cờ bắt buộc
                         } else {
                             // Trường hợp KHÔNG CÓ dữ liệu Tax Code -> Cho phép bỏ qua, đánh dấu KHÔNG BẮT BUỘC
-                            let noTaxText = (currentLang === 'en') ? '-- No Tax Code available --' :
-                                            (currentLang === 'zh') ? '-- 无可用税码 --' : '-- Không có Tax Code --';
+                            let noTaxText = t('-- No Tax Code available --');
                             $taxSelect.empty().append(`<option value="" selected>${noTaxText}</option>`);
                             $taxSelect.prop('disabled', true); // Khóa ô lại vì không có gì để chọn
                             $taxSelect.data('required', false); // Gắn cờ không bắt buộc
                         }
                     } else {
                         // Xử lý khi phản hồi lỗi hoặc rỗng
-                        $taxSelect.empty().append(`<option value="" selected>-- Không có Tax Code --</option>`);
+                        $taxSelect.empty().append(`<option value="" selected>${t('-- No Tax Code available --')}</option>`);
                         $taxSelect.prop('disabled', true);
                         $taxSelect.data('required', false);
                     }
@@ -2385,7 +2232,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 },
                 error: function (xhr, status, error) {
                     console.error("Lỗi AJAX Tax Codes:", error);
-                    $taxSelect.empty().append(`<option value="" selected>-- Không có Tax Code --</option>`);
+                    $taxSelect.empty().append(`<option value="" selected>${t('-- No Tax Code available --')}</option>`);
                     $taxSelect.prop('disabled', true);
                     $taxSelect.data('required', false);
                     checkFormReady();
@@ -2437,11 +2284,9 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         checkFormReady();
     });
 
-    // 2. Khi bấm nút "Confirm & Create SO" trong Popup -> Tiến hành gom dữ liệu và gọi AJAX
-    // Khi bấm "Confirm & Create SO" trong Popup
+    // 2. Khi bấm nút "Confirm & Create PO" trong Popup -> Tiến hành gom dữ liệu và gọi AJAX
+    // Khi bấm "Confirm & Create PO" trong Popup
     $(document).on('click', '#btn-confirm-create-so', function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
-
         // Đọc giá trị từ các thẻ select và ép kiểu sang int
         const selectedSubsidiary = parseInt($('#select-subsidiary').val(), 10) || 0;
         const selectedLocation = parseInt($('#select-location').val(), 10) || 0;
@@ -2491,73 +2336,70 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             });
         });
 
-        const jsonUrl = '@Url.Content("~/json/")' + currentLang + '.json';
-        $.getJSON(jsonUrl, function (dict) {
-            if (lineItems.length === 0) {
-                let emptyLineMsg = dict["No line items found to create a Sales Order!"] || "Không tìm thấy danh sách dòng hàng để tạo Sales Order!";
-                alert(emptyLineMsg);
-                return;
-            }
+        if (lineItems.length === 0) {
+            let emptyLineMsg = t("No line items found to create a Purchase Order!");
+            alert(emptyLineMsg);
+            return;
+        }
 
-            let createSoPayload = {
-                PONumber: poNumber,
-                Date: poDate,
-                Customer: customer,
-                Requisitioner: requisitioner,
-                Currency: currency,
-                Subsidiary: selectedSubsidiary,     // Gửi lên kiểu int
-                Location: selectedLocation,         // Gửi lên kiểu int
-                TaxCode: selectedTaxCode,           // Gửi lên kiểu int
-                ProjectCode: selectedProjectCode,   // Gửi lên kiểu int
-                LineItems: lineItems,
-                RawOcrResponse: JSON.stringify(rawOcrData)
-            };
+        let createSoPayload = {
+            PONumber: poNumber,
+            Date: poDate,
+            Customer: customer,
+            Requisitioner: requisitioner,
+            Currency: currency,
+            Subsidiary: selectedSubsidiary,     // Gửi lên kiểu int
+            Location: selectedLocation,         // Gửi lên kiểu int
+            TaxCode: selectedTaxCode,           // Gửi lên kiểu int
+            ProjectCode: selectedProjectCode,   // Gửi lên kiểu int
+            LineItems: lineItems,
+            RawOcrResponse: JSON.stringify(rawOcrData)
+        };
 
-            let processingSoText = dict["Creating Sales Order..."] || "Đang tạo Sales Order...";
-            $btnConvert.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${processingSoText}`);
-            let btnDefaultText = dict["Convert to Sales Order"] || "Convert to Sales Order";
+        let processingPoText = t("Creating Purchase Order...");
+        $btnConvert.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${processingPoText}`);
+        let btnDefaultText = t("Convert to Purchase Order");
 
-            $.ajax({
-                url: '@Url.Action("CreateNetsuiteSO", "Oracle")',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(createSoPayload),
-                success: function (response) {
-                    $btnConvert.prop('disabled', false).html(btnDefaultText);
+        $.ajax({
+            url: '@Url.Action("CreateNetsuiteSO", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(createSoPayload),
+            success: function (response) {
+                $btnConvert.prop('disabled', false).html(btnDefaultText);
 
-                    if (response.success) {
-                        $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
-                        $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
-                        $('#ns-modal-message').text(response.message);
-                        $('#ns-modal-po-number').text(response.poNumber);
-                        $('#ns-modal-po-info').removeClass('d-none');
+                if (response.success) {
+                    $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
+                    $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+                    $('#ns-modal-message').text(response.message);
+                    $('#ns-modal-po-number').text(response.poNumber);
+                    $('#ns-modal-po-info').removeClass('d-none');
 
-                        if (response.poUrl) {
-                            $('#ns-modal-link-btn').attr('href', response.poUrl).removeClass('d-none');
-                        } else {
-                            $('#ns-modal-link-btn').addClass('d-none');
-                        }
-
-                        $('#netsuiteResultModal').modal('show');
-                        $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
-                            location.reload();
-                        });
+                    if (response.poUrl) {
+                        $('#ns-modal-link-btn').attr('href', response.poUrl).removeClass('d-none');
                     } else {
-                        $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
-                        $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
-                        let defaultErr = dict["An error occurred while creating the PO in NetSuite."] || "Đã xảy ra lỗi khi tạo PO lên NetSuite.";
-                        $('#ns-modal-message').text(response.message || defaultErr);
-                        $('#ns-modal-po-info').addClass('d-none');
                         $('#ns-modal-link-btn').addClass('d-none');
-                        $('#netsuiteResultModal').modal('show');
                     }
-                },
-                error: function () {
-                    let connErrMsg = dict["A connection error occurred while sending the Sales Order request to the server!"] || "Đã xảy ra lỗi kết nối khi gửi yêu cầu tạo Sales Order lên server!";
-                    alert(connErrMsg);
-                    $btnConvert.prop('disabled', false).html(btnDefaultText);
+
+                    $('#netsuiteResultModal').modal('show');
+                    $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                        location.reload();
+                    });
+                } else {
+                    $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
+                    $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+                    let defaultErr = t("An error occurred while creating the PO in NetSuite.");
+                    $('#ns-modal-message').text(response.message || defaultErr);
+                    $('#ns-modal-po-info').addClass('d-none');
+                    $('#ns-modal-link-btn').addClass('d-none');
+                    $('#netsuiteResultModal').modal('show');
                 }
-            });
+            },
+            error: function () {
+                let connErrMsg = t("A connection error occurred while sending the Purchase Order request to the server!");
+                alert(connErrMsg);
+                $btnConvert.prop('disabled', false).html(btnDefaultText);
+            }
         });
     });
 
