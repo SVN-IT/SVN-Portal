@@ -268,5 +268,45 @@ namespace Sigma_Dashboard.Services
                 return strValue;
             }
         }
+
+        public async Task<bool> BackupOperInfo()
+        {
+            var dataPortal = new SVN_AppSetting_v1DataPortal(connectionString);
+            int result = await dataPortal.BackupSetting("OperInfo", "OperInfoBackup");
+            return result > 0;
+        }
+
+        public async Task<bool> UpdateOperInfoConfig(OperInfoConfig operInfoConfig)
+        {
+            if (operInfoConfig == null || operInfoConfig.OperInfo == null) return false;
+            var dataPortal = new SVN_AppSetting_v1DataPortal(connectionString);
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            string json = System.Text.Json.JsonSerializer.Serialize(operInfoConfig.OperInfo, options);
+            int result = await dataPortal.UpdateSettingValue("OperInfo", json);
+            return result > 0;
+        }
+
+        public async Task<bool> AppendToMasterOperList(string newMasterOper)
+        {
+            if (string.IsNullOrWhiteSpace(newMasterOper)) return false;
+            newMasterOper = newMasterOper.Trim();
+
+            string currentList = await GetMasterOperList();
+            var items = (currentList ?? "").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
+
+            if (!items.Any(x => x.Equals(newMasterOper, StringComparison.OrdinalIgnoreCase)))
+            {
+                items.Add(newMasterOper);
+                string updatedList = string.Join(",", items);
+                var dataPortal = new SVN_AppSetting_v1DataPortal(connectionString);
+                int result = await dataPortal.UpdateSettingValue("MasterOperList", updatedList);
+                return result > 0;
+            }
+            return true;
+        }
     }
 }

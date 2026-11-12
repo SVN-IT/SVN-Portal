@@ -18,6 +18,7 @@ builder.Services.AddSingleton(dBConfiguration);
 //Add Services
 builder.Services.AddSingleton<AppSettingServices>();
 builder.Services.AddSingleton<SectionTimeServices>();
+builder.Services.AddSingleton<OperationRegistrationService>();
 
 //Add Helper
 builder.Services.AddSingleton<HomeControllerHelper>();

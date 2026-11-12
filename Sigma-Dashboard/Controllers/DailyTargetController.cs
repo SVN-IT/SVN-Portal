@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 using Sigma_Dashboard.Models;
+using Sigma_Dashboard.Services;
 using Sigma_Dashboard.Services.Configurations;
 using Sigma_Dashboard.Services.Helpers;
 using System.Threading.Tasks;
@@ -12,10 +13,16 @@ namespace Sigma_Dashboard.Controllers
     {
         AppConfig appConfig;
         DailyTargetControllerHelper controllerHelper;
-        public DailyTargetController(AppConfig appConfig, DailyTargetControllerHelper controllerHelper)
+        OperationRegistrationService operationRegistrationService;
+
+        public DailyTargetController(
+            AppConfig appConfig, 
+            DailyTargetControllerHelper controllerHelper,
+            OperationRegistrationService operationRegistrationService)
         {
             this.appConfig = appConfig;
             this.controllerHelper = controllerHelper;
+            this.operationRegistrationService = operationRegistrationService;
         }
         public async Task<IActionResult> Index(DateTime date, string shift = "Day", string companyCode = "SVN", bool isManualLoad = false)
         {
@@ -101,9 +108,21 @@ namespace Sigma_Dashboard.Controllers
                     return Json(new { success = false, message = "Data invalid" });
                 }
 
-                var result = await controllerHelper.InsertData(model);
+                model.Operation = OperationRegistrationService.CleanOperationName(model.Operation);
+                var regResult = await operationRegistrationService.EnsureOperationsExistAsync(new[] { model.Operation });
+                if (!regResult.Success && regResult.Errors.ContainsKey(model.Operation))
+                {
+                    return Json(new { success = false, message = regResult.Errors[model.Operation] });
+                }
 
-                return Json(new { success = result.OK, message = result.Message });
+                var result = await controllerHelper.InsertData(model);
+                string message = result.Message;
+                if (regResult.CreatedOperations.Count > 0)
+                {
+                    message += $" (Đã tự động khởi tạo công đoạn mới: {model.Operation})";
+                }
+
+                return Json(new { success = result.OK, message = message });
             }
             catch (Exception ex)
             {
@@ -122,6 +141,7 @@ namespace Sigma_Dashboard.Controllers
                     return Json(new { success = false, message = "Data invalid" });
                 }
 
+                model.Operation = OperationRegistrationService.CleanOperationName(model.Operation);
                 var result = await controllerHelper.UpdateData(model);
 
                 return Json(new { success = result.OK, message = result.Message });
@@ -189,6 +209,8 @@ namespace Sigma_Dashboard.Controllers
 
                 var listTargets = new List<DailyTargetViewModel>();
                 bool hasError = false;
+                var rowOperationMap = new Dictionary<int, string>();
+                OperationRegistrationService.OperationValidationResult opValidation = null;
 
                 using (var stream = new MemoryStream(fileBytes))
                 {
@@ -211,8 +233,9 @@ namespace Sigma_Dashboard.Controllers
                         {
                             var rowErrors = new List<string>();
 
-                            // Đọc dữ liệu thô (ClosedXML dùng .Cell(row, col).GetValue<string>())
-                            string operation = worksheet.Cell(row, 1).GetValue<string>()?.Trim();
+                            // Đọc dữ liệu thô và làm sạch tên Operation (chuẩn hóa khoảng trắng, gạch nối, dấu ngoặc)
+                            string rawOperation = worksheet.Cell(row, 1).GetValue<string>();
+                            string operation = OperationRegistrationService.CleanOperationName(rawOperation);
                             string dailyPlanRaw = worksheet.Cell(row, 2).GetValue<string>()?.Trim();
                             string uphRaw = worksheet.Cell(row, 3).GetValue<string>()?.Trim();
                             string upphRaw = worksheet.Cell(row, 4).GetValue<string>()?.Trim();
@@ -223,7 +246,14 @@ namespace Sigma_Dashboard.Controllers
                             string shift = worksheet.Cell(row, 9).GetValue<string>()?.Trim();
 
                             // --- VALIDATION LOGIC ---
-                            if (string.IsNullOrWhiteSpace(operation)) rowErrors.Add("Operation col is Empty");
+                            if (string.IsNullOrWhiteSpace(operation))
+                            {
+                                rowErrors.Add("Operation col is Empty");
+                            }
+                            else
+                            {
+                                rowOperationMap[row] = operation;
+                            }
 
                             // KIỂM TRA NGÀY THÁNG HỢP LỆ VÀ ĐỒNG BỘ VỚI VIEW
                             if (string.IsNullOrWhiteSpace(dateTime))
@@ -232,11 +262,19 @@ namespace Sigma_Dashboard.Controllers
                             }
                             else if (!string.IsNullOrWhiteSpace(stringDate))
                             {
-                                DateTime rowDateTime = DateTime.ParseExact(dateTime, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
-                                DateTime curDateTime = DateTime.ParseExact(stringDate, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
-                                if(rowDateTime < curDateTime)
+                                if (DateTime.TryParseExact(dateTime, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime rowDateTime))
                                 {
-                                    rowErrors.Add($"Datetime '{dateTime}' is invalid (must be >= '{stringDate}').");
+                                    if (DateTime.TryParseExact(stringDate, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime curDateTime))
+                                    {
+                                        if (rowDateTime < curDateTime)
+                                        {
+                                            rowErrors.Add($"Datetime '{dateTime}' is invalid (must be >= '{stringDate}').");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    rowErrors.Add($"Datetime '{dateTime}' is invalid format (yyyyMMdd).");
                                 }
                             }
 
@@ -246,7 +284,7 @@ namespace Sigma_Dashboard.Controllers
                             }
                             else if (shift.ToLower() != "day" && shift.ToLower() != "night")
                             {
-                                // THÊM MỚI: Bắt buộc giá trị cột Shift phải thuộc 1 trong 2 từ khóa cố định
+                                // Bắt buộc giá trị cột Shift phải thuộc 1 trong 2 từ khóa cố định
                                 rowErrors.Add($"Shift '{shift}' not valid (Must input 'day' or 'night').");
                             }
 
@@ -285,7 +323,26 @@ namespace Sigma_Dashboard.Controllers
                             }
                         }
 
-                        // THÀNH PHẦN XUẤT LỖI: Nếu phát hiện bất kỳ dòng nào lỗi, dừng tiến trình và trả file
+                        // --- THẨM ĐỊNH CÔNG ĐOẠN MỚI TRONG HỆ THỐNG & ERP ---
+                        var distinctOperations = rowOperationMap.Values.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                        opValidation = await operationRegistrationService.ValidateOperationsAsync(distinctOperations);
+
+                        if (!opValidation.IsValid)
+                        {
+                            hasError = true;
+                            for (int row = 3; row <= rowCount; row++)
+                            {
+                                if (rowOperationMap.TryGetValue(row, out string op) && opValidation.Errors.TryGetValue(op, out string opError))
+                                {
+                                    var errorCell = worksheet.Cell(row, 10);
+                                    string existingErr = errorCell.GetValue<string>()?.Trim();
+                                    errorCell.Value = string.IsNullOrEmpty(existingErr) ? opError : $"{existingErr} | {opError}";
+                                    errorCell.Style.Font.SetFontColor(XLColor.Red);
+                                }
+                            }
+                        }
+
+                        // THÀNH PHẦN XUẤT LỖI: Nếu phát hiện bất kỳ dòng nào lỗi hoặc công đoạn không tìm thấy trong ERP
                         if (hasError)
                         {
                             var headerCell = worksheet.Cell(2, 10);
@@ -306,9 +363,15 @@ namespace Sigma_Dashboard.Controllers
                                     hasExcelError = true,
                                     fileBase64 = base64File,
                                     fileName = "Import_DailyTarget_Errors.xlsx",
-                                    message = "Import failed! data invalid. System will export details error file."
+                                    message = "Import failed! Data invalid or missing products in ERP. System exported detailed error file."
                                 });
                             }
+                        }
+
+                        // NẾU TOÀN BỘ FILE HỢP LỆ VÀ CÓ CÔNG ĐOẠN MỚI: TIẾN HÀNH TỰ ĐỘNG KHỞI TẠO CÔNG ĐOẠN VÀO HỆ THỐNG
+                        if (opValidation.HasNewOperations)
+                        {
+                            await operationRegistrationService.CommitNewOperationsAsync(opValidation);
                         }
                     }
                 }
@@ -317,8 +380,14 @@ namespace Sigma_Dashboard.Controllers
                 try
                 {
                     var result = await controllerHelper.InsertAndUpdateData(listTargets);
+                    string successMsg = result.Message;
+                    if (opValidation != null && opValidation.HasNewOperations)
+                    {
+                        string newOpsStr = string.Join(", ", opValidation.PreparedOperInfo.Select(x => x.Operation));
+                        successMsg += $" (Đã tự động khởi tạo {opValidation.PreparedOperInfo.Count} công đoạn mới: {newOpsStr})";
+                    }
 
-                    return Json(new { success = result.OK, message = result.Message });
+                    return Json(new { success = result.OK, message = successMsg });
                 }
                 catch (Exception ex)
                 {
