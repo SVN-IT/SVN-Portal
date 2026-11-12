@@ -199,6 +199,137 @@
 
         return { backgroundColors: bgColors, borderColors: borderColors };
     }
+
+    // Xác định ca/khung giờ hiện tại đang diễn ra và kiểm tra điều kiện áp dụng hiệu ứng
+    function getActiveSectionInfo(sections, actualData, targetData) {
+        if (!sections || !Array.isArray(sections) || sections.length === 0) {
+            return null;
+        }
+
+        var now = new Date();
+        var todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+        // Nếu đang xem lịch sử ngày quá khứ hoặc ngày tương lai -> không áp dụng
+        if (typeof pageLoadedDate !== 'undefined' && pageLoadedDate !== todayStr && typeof isManualSearch !== 'undefined' && isManualSearch) {
+            return null;
+        }
+
+        var currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        for (var i = 0; i < sections.length; i++) {
+            var times = sections[i].split('-');
+            if (times.length < 2) continue;
+
+            var startM = parseSectionTimeToMinutes(times[0]);
+            var endM = parseSectionTimeToMinutes(times[1]);
+
+            // Xử lý ca qua đêm (VD: 22h - 2h)
+            if (endM <= startM) {
+                endM += 24 * 60;
+            }
+
+            var curM = currentMinutes;
+            if (startM >= 20 * 60 && curM < 8 * 60) {
+                curM += 24 * 60;
+            }
+            if (startM < 8 * 60 && typeof pageLoadedShift !== 'undefined' && pageLoadedShift === 'Night') {
+                startM += 24 * 60;
+                endM += 24 * 60;
+                if (curM < 8 * 60) curM += 24 * 60;
+            }
+
+            // Khung giờ thực tế ĐANG DIỄN RA
+            if (curM >= startM && curM < endM) {
+                var actual = (actualData && actualData[i] != null) ? Number(actualData[i]) : 0;
+                var target = (targetData && targetData[i] != null) ? Number(targetData[i]) : 0;
+
+                // Cột đã đạt hoặc vượt target rồi thì thôi (không có hiệu ứng)
+                if (target > 0 && actual >= target) {
+                    return null;
+                }
+
+                return {
+                    index: i,
+                    actual: actual,
+                    target: target
+                };
+            }
+        }
+
+        return null;
+    }
+
+    // Cập nhật vị trí hiệu ứng ánh sáng nhẹ lướt lên trên cho riêng cột ở ca hiện tại
+    function updateActiveBarGlow(chart) {
+        if (!chart || !chart.canvas || chart.config.type !== 'bar') return;
+
+        var labels = chart.data.labels;
+        if (!labels || !Array.isArray(labels) || labels.length === 0) return;
+
+        var $canvas = $(chart.canvas);
+        var $wrapper = $canvas.closest('.chart-progress-wrapper');
+        if ($wrapper.length === 0) return;
+
+        var $glow = $wrapper.find('.active-bar-glow');
+        if ($glow.length === 0) {
+            $glow = $('<div class="active-bar-glow"></div>');
+            $wrapper.append($glow);
+        }
+
+        var actualData = chart.data.datasets && chart.data.datasets[0] ? chart.data.datasets[0].data : null;
+        var targetData = chart.data.datasets && chart.data.datasets[1] ? chart.data.datasets[1].data : null;
+
+        var activeInfo = getActiveSectionInfo(labels, actualData, targetData);
+        if (!activeInfo) {
+            $glow.hide();
+            return;
+        }
+
+        var meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || !meta.data[activeInfo.index]) {
+            $glow.hide();
+            return;
+        }
+
+        var vm = meta.data[activeInfo.index]._view;
+        if (!vm) {
+            $glow.hide();
+            return;
+        }
+
+        var barHeight = vm.base - vm.y;
+        // Chỉ hiện hiệu ứng khi cột có chiều cao mọc lên (sản lượng > 0)
+        if (barHeight <= 2) {
+            $glow.hide();
+            return;
+        }
+
+        var offsetLeft = chart.canvas.offsetLeft || 0;
+        var offsetTop = chart.canvas.offsetTop || 0;
+
+        $glow.css({
+            display: 'block',
+            left: (offsetLeft + vm.x - vm.width / 2) + 'px',
+            top: (offsetTop + vm.y) + 'px',
+            width: vm.width + 'px',
+            height: barHeight + 'px'
+        });
+    }
+
+    // Đăng ký Plugin toàn cục cho Chart.js để tự động kích hoạt hiệu ứng trên mọi biểu đồ Bar
+    if (typeof Chart !== 'undefined' && Chart.plugins) {
+        var existingGlowPlugin = Chart.plugins.getAll ? Chart.plugins.getAll().find(function (p) { return p && p.id === 'activeBarGlowPlugin'; }) : null;
+        if (!existingGlowPlugin) {
+            Chart.plugins.register({
+                id: 'activeBarGlowPlugin',
+                afterDraw: function (chart) {
+                    if (chart.config.type === 'bar') {
+                        updateActiveBarGlow(chart);
+                    }
+                }
+            });
+        }
+    }
 </script>
 <div class="container-fluid">
     <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
@@ -794,5 +925,24 @@
             $('#carouselExampleSlidesOnly').carousel('cycle');
          }
       }
+    });
+
+    // Đồng bộ lại hiệu ứng cột đang chạy khi chuyển slide carousel hoặc resize màn hình
+    $('#carouselExampleSlidesOnly').on('slid.bs.carousel', function () {
+        $('.carousel-item.active canvas').each(function () {
+            var chart = getChartByCanvasId(this.id);
+            if (chart && chart.config.type === 'bar') {
+                updateActiveBarGlow(chart);
+            }
+        });
+    });
+
+    $(window).on('resize', function () {
+        $('.carousel-item.active canvas').each(function () {
+            var chart = getChartByCanvasId(this.id);
+            if (chart && chart.config.type === 'bar') {
+                updateActiveBarGlow(chart);
+            }
+        });
     });
 </script>
