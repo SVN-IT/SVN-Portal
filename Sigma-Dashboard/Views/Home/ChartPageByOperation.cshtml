@@ -85,6 +85,121 @@
         return shortParts + words[words.Length - 1] + staffCode;
     }
 }
+<script>
+    var pageLoadedDate = '@date.ToString("yyyy-MM-dd")';
+    var pageLoadedShift = '@shift';
+    var urlParams = new URLSearchParams(window.location.search);
+    var isManualSearch = urlParams.get('isManualLoad') === 'true';
+
+    function parseSectionTimeToMinutes(str) {
+        if (!str) return 0;
+        str = str.trim().toLowerCase();
+        var hour = 0, min = 0;
+        if (str.indexOf(':') !== -1) {
+            var p = str.split(':');
+            hour = parseInt(p[0], 10) || 0;
+            min = parseInt(p[1], 10) || 0;
+        } else if (str.indexOf('h') !== -1) {
+            var p = str.split('h');
+            hour = parseInt(p[0], 10) || 0;
+            min = parseInt(p[1], 10) || 0;
+        } else {
+            hour = parseInt(str, 10) || 0;
+        }
+        return hour * 60 + min;
+    }
+
+    function calculateBarColors(actualData, targetData, sections) {
+        var defaultBg = 'rgba(60, 141, 188, 0.9)';
+        var defaultBorder = 'rgba(60, 141, 188, 0.8)';
+        var dangerBg = 'rgba(220, 53, 69, 0.9)';
+        var dangerBorder = 'rgba(220, 53, 69, 1)';
+
+        var bgColors = [];
+        var borderColors = [];
+
+        if (!sections || !Array.isArray(sections) || sections.length === 0) {
+            return { backgroundColors: defaultBg, borderColors: defaultBorder };
+        }
+
+        var now = new Date();
+        var currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // 1. Xác định ca/section hiện tại
+        var currentIndex = -1;
+        var todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+        if (typeof pageLoadedDate !== 'undefined' && pageLoadedDate < todayStr && typeof isManualSearch !== 'undefined' && isManualSearch) {
+            // Xem lại ngày trong quá khứ -> tất cả các ca đã kết thúc
+            currentIndex = sections.length;
+        } else if (typeof pageLoadedDate !== 'undefined' && pageLoadedDate > todayStr && typeof isManualSearch !== 'undefined' && isManualSearch) {
+            // Xem ngày tương lai -> chưa ca nào chạy
+            currentIndex = 0;
+        } else {
+            for (var i = 0; i < sections.length; i++) {
+                var times = sections[i].split('-');
+                if (times.length < 2) continue;
+
+                var startM = parseSectionTimeToMinutes(times[0]);
+                var endM = parseSectionTimeToMinutes(times[1]);
+
+                // Xử lý ca qua đêm (VD: 22h - 2h)
+                if (endM <= startM) {
+                    endM += 24 * 60;
+                }
+
+                var curM = currentMinutes;
+                if (startM >= 20 * 60 && curM < 8 * 60) {
+                    curM += 24 * 60;
+                }
+                if (startM < 8 * 60 && typeof pageLoadedShift !== 'undefined' && pageLoadedShift === 'Night') {
+                    startM += 24 * 60;
+                    endM += 24 * 60;
+                    if (curM < 8 * 60) curM += 24 * 60;
+                }
+
+                if (curM >= startM && curM < endM) {
+                    currentIndex = i; // Đang nằm trong ca i
+                    break;
+                }
+                if (curM < startM) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+
+            if (currentIndex === -1) {
+                currentIndex = sections.length;
+            }
+        }
+
+        // 2. Tính tổng actual và tổng target của tất cả các ca TRƯỚC currentIndex
+        var totalActualBefore = 0;
+        var totalTargetBefore = 0;
+        for (var i = 0; i < currentIndex; i++) {
+            totalActualBefore += (actualData && actualData[i] != null) ? Number(actualData[i]) : 0;
+            totalTargetBefore += (targetData && targetData[i] != null) ? Number(targetData[i]) : 0;
+        }
+
+        // Đánh giá không đạt nếu tổng target > 0 và tổng actual < tổng target
+        var isFailedBefore = (totalTargetBefore > 0 && totalActualBefore < totalTargetBefore);
+
+        // 3. Phân bổ màu cho từng cột
+        for (var i = 0; i < sections.length; i++) {
+            if (i < currentIndex && isFailedBefore) {
+                // Các ca trước đó chuyển sang màu đỏ nếu tổng không đạt target
+                bgColors.push(dangerBg);
+                borderColors.push(dangerBorder);
+            } else {
+                // Ca hiện tại hoặc ca tương lai hoặc ca trước đạt target -> màu xanh mặc định
+                bgColors.push(defaultBg);
+                borderColors.push(defaultBorder);
+            }
+        }
+
+        return { backgroundColors: bgColors, borderColors: borderColors };
+    }
+</script>
 <div class="container-fluid">
     <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
         <div class="carousel-inner">
@@ -240,6 +355,7 @@
                             </div>
                             <script>
                                     $(function () {
+                                  var initBarColors = calculateBarColors(@Html.Raw(resultData), @Html.Raw(targetData), @Html.Raw(sectionList));
                                   var areaChartData = {
                                     labels  : @Html.Raw(sectionList),
                                     datasets: [
@@ -260,8 +376,8 @@
                                       {
                                         label               : '@item.ActualLabel',
                                         //type: 'bar',
-                                        backgroundColor     : 'rgba(60,141,188,0.9)',
-                                        borderColor         : 'rgba(60,141,188,0.8)',
+                                        backgroundColor     : initBarColors.backgroundColors,
+                                        borderColor         : initBarColors.borderColors,
                                         pointRadius          : false,
                                         pointColor          : '#3b8bba',
                                         pointStrokeColor    : 'rgba(60,141,188,1)',
@@ -394,13 +510,6 @@
     </div>
 </div><!--/. container-fluid -->
 <script>
-    // 1. Lưu lại ngày và ca làm việc lúc trang vừa được render từ Server
-    var pageLoadedDate = '@date.ToString("yyyy-MM-dd")';
-    var pageLoadedShift = '@shift';
-    // 2. Kiểm tra xem người dùng có đang chủ động tìm kiếm ngày lịch sử bằng Form hay không
-    // (Nếu URL có chứa isManualLoad=true nghĩa là người dùng đang xem lại quá khứ, không tự reload nhảy ngày)
-    var urlParams = new URLSearchParams(window.location.search);
-    var isManualSearch = urlParams.get('isManualLoad') === 'true';
     $(function () {
         // Gọi tải dữ liệu lần đầu ngay khi trang vừa load xong
         refreshDashboard();
@@ -596,6 +705,11 @@
             barChart.data.datasets[1].data = item.targetData;
             barChart.data.datasets[0].label = item.actualLabel;
             barChart.data.datasets[0].data = item.actualData;
+
+            var barColors = calculateBarColors(item.actualData, item.targetData, sections);
+            barChart.data.datasets[0].backgroundColor = barColors.backgroundColors;
+            barChart.data.datasets[0].borderColor = barColors.borderColors;
+
     @* barChart.update(); *@
             barChart.update({
                 duration: 2000,          // Thời gian mọc lên (2 giây)
