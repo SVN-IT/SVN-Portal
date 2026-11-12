@@ -53,32 +53,29 @@ a {
     background: transparent;
 }
 
-    /* Lớp phủ hiệu ứng quét ánh sáng */
+    /* Tạm tắt hiệu ứng quét dải sáng theo yêu cầu (comment lại, không xóa để có thể bật lại khi cần)
     .chart-progress-wrapper::after {
         content: "";
         position: absolute;
         top: 0;
-        left: -150%; /* Bắt đầu từ ngoài bên trái */
+        left: -150%;
         width: 100%;
         height: 100%;
-        /* Tạo dải sáng xiên 45 độ */
         background: linear-gradient( 120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 70% );
-        /* Chạy hiệu ứng vô tận */
         animation: shimmer-loop 3s infinite linear;
-        /* Quan trọng: Cho phép click xuyên qua lớp này để tương tác với biểu đồ */
         pointer-events: none;
     }
 
-/* Định nghĩa chuyển động quét */
-@keyframes shimmer-loop {
-    0% {
-        left: -150%;
-    }
+    @keyframes shimmer-loop {
+        0% {
+            left: -150%;
+        }
 
-    100% {
-        left: 150%;
+        100% {
+            left: 150%;
+        }
     }
-}
+    */
 
 @media (max-width: 1920px) {
     .content-font-size {
