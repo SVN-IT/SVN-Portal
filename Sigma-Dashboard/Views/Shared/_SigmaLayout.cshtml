@@ -44,6 +44,16 @@
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+    <script>
+        (function () {
+            if (localStorage.getItem('theme-dark-mode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            if (localStorage.getItem('always-show-search') === 'true') {
+                document.body.classList.add('always-show-search');
+            }
+        })();
+    </script>
     <div class="wrapper">
         @{
             DateTime date = ViewBag.date;
@@ -385,6 +395,35 @@
                     // Người dùng BỎ TÍCH -> Tắt Dark Mode + Lưu 'false' vào LocalStorage
                     $('body').removeClass('none-dark-mode').removeClass('dark-mode');
                     localStorage.setItem('theme-dark-mode', 'false');
+                }
+            });
+
+            // 4. ALWAYS SHOW SEARCH BAR:
+            var $alwaysSearchCheckbox = $('span:contains("Always Show Search Bar")').siblings('input[type="checkbox"]');
+            if ($alwaysSearchCheckbox.length === 0) {
+                $alwaysSearchCheckbox = $('.control-sidebar input[type="checkbox"]').filter(function() {
+                    return $(this).next('span').text().trim() === "Always Show Search Bar";
+                });
+            }
+
+            var savedAlwaysSearch = localStorage.getItem('always-show-search');
+            if (savedAlwaysSearch === 'true') {
+                $('body').addClass('always-show-search');
+                $alwaysSearchCheckbox.prop('checked', true);
+            } else {
+                $('body').removeClass('always-show-search');
+                $alwaysSearchCheckbox.prop('checked', false);
+            }
+
+            $alwaysSearchCheckbox.on('change click', function () {
+                if ($(this).is(':checked')) {
+                    $('body').addClass('always-show-search');
+                    localStorage.setItem('always-show-search', 'true');
+                } else {
+                    $('body').removeClass('always-show-search');
+                    localStorage.setItem('always-show-search', 'false');
+                    $('.navbar-search-block').removeClass('navbar-search-open').removeAttr('style');
+                    $('[data-widget="navbar-search"]').removeAttr('style');
                 }
             });
         });

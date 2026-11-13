@@ -301,3 +301,147 @@ a {
         height: 200px;
     }
 }
+
+/* ==========================================================
+   Always Show Search Bar (Customize AdminLTE Option)
+   Áp dụng trên Desktop / màn hình lớn (> 768px)
+   ========================================================== */
+@media (min-width: 769px) {
+    .navbar-search-block input[type="date"].form-control-navbar {
+        min-width: 185px;
+    }
+
+    body.always-show-search .navbar-search-block {
+        display: flex !important;
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 55px !important;
+        right: 95px !important;
+        background-color: transparent !important;
+        z-index: 9 !important;
+        padding: 0 0.5rem !important;
+        justify-content: center !important;
+        flex-direction: column !important;
+    }
+
+    body.always-show-search .navbar-search-block form {
+        display: flex !important;
+        justify-content: flex-end !important;
+        width: 100% !important;
+    }
+
+    body.always-show-search .navbar-search-block .input-group {
+        width: auto !important;
+        max-width: 800px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    /* Kích thước rộng rãi cho từng control để hiển thị đầy đủ thông tin, không bị cắt date/dropdown */
+    body.always-show-search .navbar-search-block select[name="pageSize"].form-control-navbar {
+        width: 80px !important;
+        min-width: 80px !important;
+        flex: 0 0 auto !important;
+        text-align: center;
+    }
+
+    body.always-show-search .navbar-search-block select[name="companyCode"].form-control-navbar {
+        width: 95px !important;
+        min-width: 95px !important;
+        flex: 0 0 auto !important;
+        text-align: center;
+    }
+
+    body.always-show-search .navbar-search-block select[name="shift"].form-control-navbar {
+        width: 100px !important;
+        min-width: 100px !important;
+        flex: 0 0 auto !important;
+        text-align: center;
+    }
+
+    body.always-show-search .navbar-search-block input[type="date"].form-control-navbar {
+        width: 185px !important;
+        min-width: 185px !important;
+        flex: 0 0 auto !important;
+        text-align: center;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    body.always-show-search .navbar-search-block .input-group-append .btn-navbar {
+        width: 45px !important;
+        min-width: 45px !important;
+        flex: 0 0 auto !important;
+    }
+
+    body.always-show-search [data-widget="navbar-search"] {
+        display: none !important;
+    }
+
+    body.always-show-search #btnCloseSearchBar {
+        display: none !important;
+    }
+}
+
+/* ==========================================================
+   Vô hiệu hóa Always Show Search Bar trên màn hình điện thoại (<= 768px)
+   Khôi phục hành vi mặc định của AdminLTE:
+   - Thu gọn thanh search lại (display: none).
+   - Luôn hiện nút kính lúp để người dùng ấn mở khi cần.
+   - Khi mở, hiển thị trọn thanh navbar kèm nút đóng "X".
+   ========================================================== */
+@media (max-width: 768px) {
+    body.always-show-search .navbar-search-block {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 100 !important;
+        display: none !important;
+        padding: 0 0.5rem !important;
+        background-color: #fff !important;
+    }
+
+    body.dark-mode.always-show-search .navbar-search-block {
+        background-color: #343a40 !important;
+    }
+
+    body.always-show-search .navbar-search-block.navbar-search-open {
+        display: flex !important;
+    }
+
+    body.always-show-search [data-widget="navbar-search"] {
+        display: block !important;
+    }
+
+    body.always-show-search #btnCloseSearchBar {
+        display: inline-block !important;
+    }
+
+    .navbar-search-block.navbar-search-open form {
+        width: 100% !important;
+    }
+
+    .navbar-search-block.navbar-search-open .input-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .navbar-search-block.navbar-search-open select.form-control-navbar,
+    .navbar-search-block.navbar-search-open input[type="date"].form-control-navbar {
+        width: auto !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        font-size: 11px !important;
+        padding: 2px 3px !important;
+    }
+
+    .navbar-search-block.navbar-search-open .input-group-append .btn-navbar {
+        width: auto !important;
+        min-width: 32px !important;
+        padding: 2px 6px !important;
+    }
+}
+

@@ -64,17 +64,41 @@
   var $dark_mode_checkbox = $('<input />', {
     type: 'checkbox',
     value: 1,
-    checked: $('body').hasClass('dark-mode'),
+    checked: $('body').hasClass('dark-mode') || localStorage.getItem('theme-dark-mode') === 'true',
     class: 'mr-1'
   }).on('click', function () {
     if ($(this).is(':checked')) {
       $('body').addClass('dark-mode')
+      localStorage.setItem('theme-dark-mode', 'true')
     } else {
       $('body').removeClass('dark-mode')
+      localStorage.setItem('theme-dark-mode', 'false')
     }
   })
-  var $dark_mode_container = $('<div />', { class: 'mb-4' }).append($dark_mode_checkbox).append('<span>Dark Mode</span>')
+  var $dark_mode_container = $('<div />', { class: 'mb-2' }).append($dark_mode_checkbox).append('<span>Dark Mode</span>')
   $container.append($dark_mode_container)
+
+  var $always_show_search_checkbox = $('<input />', {
+    type: 'checkbox',
+    value: 1,
+    checked: $('body').hasClass('always-show-search') || localStorage.getItem('always-show-search') === 'true',
+    class: 'mr-1'
+  }).on('click', function () {
+    if ($(this).is(':checked')) {
+      $('body').addClass('always-show-search')
+      localStorage.setItem('always-show-search', 'true')
+    } else {
+      $('body').removeClass('always-show-search')
+      localStorage.setItem('always-show-search', 'false')
+      $('.navbar-search-block').removeClass('navbar-search-open').removeAttr('style')
+      $('[data-widget="navbar-search"]').removeAttr('style')
+    }
+  })
+  var $always_show_search_container = $('<div />', { class: 'mb-4' })
+    .append($always_show_search_checkbox)
+    .append('<span>Always Show Search Bar</span>')
+    .append('<small class="text-muted d-block font-italic d-md-none" style="font-size: 11px;">(Tự động vô hiệu hóa trên điện thoại)</small>')
+  $container.append($always_show_search_container)
 
   $container.append('<h6>Header Options</h6>')
   var $header_fixed_checkbox = $('<input />', {
