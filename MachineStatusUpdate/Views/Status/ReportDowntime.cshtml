@@ -1,0 +1,1410 @@
+@model List<MachineStatusUpdate.Models.DowntimeReportByOperation>
+@{
+    ViewData["Title"] = "Báo Cáo Downtime";
+    var chartData = ViewBag.ChartData as MachineStatusUpdate.Models.DowntimeChartData;
+    var dailyChartData = ViewBag.DailyChartData as MachineStatusUpdate.Models.DailyDowntimeChartData;
+    var runningTimeByProjectChartData = ViewBag.RunningTimeByProjectChartData as MachineStatusUpdate.Models.RunningTimeByProjectChartData;
+    var heatmapData = ViewBag.HeatmapData as MachineStatusUpdate.Models.HeatmapDowntimeData;
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalRecords = ViewBag.TotalRecords ?? 0;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    bool hasPreviousPage = ViewBag.HasPreviousPage ?? false;
+    bool hasNextPage = ViewBag.HasNextPage ?? false;
+
+    var allData = ViewBag.AllData as List<MachineStatusUpdate.Models.DowntimeReportByOperation> ?? Model;
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const CHART_PALETTE = ['#2a78d6', '#1baf7a', '#eda100', '#008300', '#4a3aa7', '#e34948', '#e87ba4', '#eb6834'];
+        const CHART_PALETTE_DARK = ['#184f95', '#127a54', '#a86e00', '#005900', '#332674', '#a92625', '#b84c76', '#a8431c'];
+        function chartColor(i) { return CHART_PALETTE[i % CHART_PALETTE.length]; }
+        function chartColorDark(i) { return CHART_PALETTE_DARK[i % CHART_PALETTE_DARK.length]; }
+    </script>
+    <style>
+        /* ─── Design Tokens ─────────────────────────────── */
+        :root {
+            --brand:        #dc2626;
+            --brand-dark:   #991b1b;
+            --brand-dim:    rgba(220, 38, 38, 0.08);
+            --ink:          #09090b;
+            --ink-2:        #3f3f46;
+            --ink-3:        #71717a;
+            --ink-4:        #a1a1aa;
+            --surface:      #ffffff;
+            --base:         #f4f4f5;
+            --border:       #e4e4e7;
+            --border-2:     #d4d4d8;
+            --sh-sm:        0 1px 2px rgba(0,0,0,.05);
+            --sh:           0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+            --sh-md:        0 4px 12px rgba(0,0,0,.08);
+            --r:            8px;
+            --r-lg:         12px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+            background: var(--base);
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Layout wrapper ─────────────────────────────── */
+        .dash {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 20px 48px;
+        }
+
+        /* ─── Page header ────────────────────────────────── */
+        .dash-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .dash-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -.3px;
+            margin: 0 0 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dash-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 22px;
+            background: var(--brand);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .dash-subtitle {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin: 0;
+        }
+
+        /* ─── Btn Export ─────────────────────────────────── */
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 16px;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            border-radius: var(--r);
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: background .15s;
+            white-space: nowrap;
+        }
+        .btn-export:hover { background: #15803d; color: #fff; }
+
+        /* ─── Filter card ────────────────────────────────── */
+        .filter-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 16px 18px;
+            margin-bottom: 20px;
+            box-shadow: var(--sh-sm);
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-control, .form-select {
+            border: 1px solid var(--border-2);
+            border-radius: var(--r);
+            font-size: 13.5px;
+            color: var(--ink);
+            background: var(--surface);
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+            outline: none;
+        }
+        .btn-filter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            padding: 0 18px;
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            border-radius: var(--r);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-filter:hover { background: var(--brand-dark); }
+
+        .btn-reset {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            padding: 0 18px;
+            background: var(--surface);
+            color: var(--ink-2);
+            border: 1px solid var(--border-2);
+            border-radius: var(--r);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .15s, border-color .15s;
+        }
+        .btn-reset:hover { background: var(--base); border-color: var(--ink-3); color: var(--ink); }
+
+        /* ─── Metric cards ───────────────────────────────── */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 16px 18px;
+            box-shadow: var(--sh-sm);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .metric-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .c-ops   .metric-icon { background: rgba(63,63,70,.08);  color: var(--ink-2); }
+        .c-count .metric-icon { background: var(--brand-dim);    color: var(--brand); }
+        .c-time  .metric-icon { background: rgba(153,27,27,.08); color: var(--brand-dark); }
+        .metric-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--ink-3);
+            margin-bottom: 6px;
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -.5px;
+            line-height: 1;
+            color: var(--ink);
+        }
+        .c-count .metric-value { color: var(--brand); }
+        .c-time  .metric-value { color: var(--brand-dark); font-size: 22px; }
+
+        /* ─── Section heading ────────────────────────────── */
+        .section-head {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            color: var(--ink-3);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-head::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ─── Chart cards ────────────────────────────────── */
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 18px 18px 14px;
+            box-shadow: var(--sh-sm);
+            display: flex;
+            flex-direction: column;
+            height: 340px;
+        }
+        .chart-card-lg {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 20px 20px 14px;
+            box-shadow: var(--sh-sm);
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .chart-title i { color: var(--brand); font-size: 13px; }
+        .chart-title .chart-badge {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            background: var(--base);
+            color: var(--ink-3);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        .chart-card canvas { flex: 1; min-height: 0; }
+        .chart-card-lg canvas { flex: 1; min-height: 0; }
+
+        /* Chart "Thời gian chạy của từng dự án" - to hơn chiều cao lẫn không gian cho từng cột so với chart-card-lg mặc định */
+        .chart-card-rtp { height: 480px; }
+
+        /* ─── Heatmap ────────────────────────────────────── */
+        .heatmap-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 14px 16px 12px;
+            box-shadow: var(--sh-sm);
+            margin-bottom: 20px;
+        }
+        .heatmap-legend {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--ink-3);
+        }
+        .heatmap-legend span { display: inline-flex; align-items: center; gap: 3px; }
+        .heatmap-scroll { overflow-x: auto; }
+        .heatmap-grid {
+            display: grid;
+            gap: 4px;
+            justify-content: center;
+        }
+        .heatmap-grid .hm-corner { }
+        .heatmap-grid .hm-day-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-align: center;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .heatmap-grid .hm-hour-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--ink-3);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 6px;
+            white-space: nowrap;
+        }
+        .heatmap-cell {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 3px;
+            background: var(--base);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--ink-4);
+            cursor: default;
+            transition: transform .1s;
+        }
+        .heatmap-cell:hover { transform: scale(1.25); position: relative; z-index: 2; box-shadow: var(--sh-md); }
+        .heatmap-cell.hm-empty { color: var(--ink-4); }
+        .heatmap-cell.hm-low { background: #bbf7d0; border-color: #86efac; color: #14532d; }
+        .heatmap-cell.hm-medium { background: #fef08a; border-color: #fde047; color: #713f12; }
+        .heatmap-cell.hm-high { background: #fca5a5; border-color: #f87171; color: #7f1d1d; }
+        .heatmap-mobile-hint {
+            display: none;
+            font-size: 11px;
+            color: var(--ink-3);
+            margin-bottom: 8px;
+        }
+
+        /* ─── Operation blocks ───────────────────────────── */
+        .op-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            margin-bottom: 14px;
+            box-shadow: var(--sh-sm);
+        }
+        .op-head {
+            padding: 11px 18px;
+            background: #2a78d6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: background .15s;
+        }
+        .op-head:hover { background: #256abf; }
+        .op-head-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .op-head-name i { color: #9ec5f4; }
+        .op-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,.18);
+            color: rgba(255,255,255,.88);
+            background: rgba(255,255,255,.1);
+            white-space: nowrap;
+        }
+        .op-badge-red {
+            background: rgba(158,197,244,.15) !important;
+            border-color: rgba(158,197,244,.3) !important;
+            color: #9ec5f4 !important;
+        }
+        .op-chevron {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.12);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .op-chevron i {
+            font-size: 11px; color: rgba(255,255,255,.8);
+            transition: transform .25s ease;
+        }
+        .op-head.open .op-chevron i { transform: rotate(180deg); }
+        .op-body { display: none; }
+
+        .op-table {
+            width: 100%;
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+        .op-table thead th {
+            background: #fafafa;
+            border-bottom: 1px solid var(--border);
+            color: var(--ink-3);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            padding: 9px 14px;
+        }
+        .op-table tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--ink-2);
+        }
+        .op-table tbody tr:last-child td { border-bottom: none; }
+        .op-table tbody tr:hover td { background: var(--brand-dim); }
+        .op-table tfoot td {
+            padding: 10px 14px;
+            background: var(--ink);
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+
+        /* Badges in table */
+        .tag-iss {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(220,38,38,.1);
+            color: var(--brand-dark);
+            border: 1px solid rgba(220,38,38,.2);
+        }
+        .tag-count {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #f4f4f5;
+            color: var(--ink-2);
+            border: 1px solid var(--border-2);
+        }
+
+        /* Progress bar */
+        .prog-wrap {
+            background: var(--base);
+            border-radius: 99px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .prog-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width .3s;
+        }
+        .prog-label {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        /* ─── Pagination ─────────────────────────────────── */
+        .pager-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 24px;
+        }
+        .pager-wrap .page-link {
+            min-width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-2);
+            border-radius: var(--r);
+            color: var(--ink-2);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .15s;
+            background: var(--surface);
+            padding: 0 10px;
+        }
+        .pager-wrap .page-link:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+            background: var(--brand-dim);
+        }
+        .pager-wrap .page-item.active .page-link {
+            background: var(--brand);
+            border-color: var(--brand-dark);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(220,38,38,.3);
+        }
+        .pager-wrap .page-item.disabled .page-link {
+            color: var(--ink-4);
+            background: var(--base);
+            border-color: var(--border);
+            cursor: default;
+        }
+        .pager-info {
+            font-size: 12px;
+            color: var(--ink-3);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* ─── Alert ──────────────────────────────────────── */
+        .dash-alert {
+            padding: 14px 18px;
+            border-radius: var(--r-lg);
+            border: 1px solid var(--brand-dim);
+            background: rgba(220,38,38,.04);
+            color: var(--ink-2);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dash-alert i { color: var(--brand); }
+
+        /* ─── Responsive ──────────────────────────────────── */
+        @@media (max-width: 768px) {
+            .metrics-row { grid-template-columns: 1fr; }
+            .dash { padding: 16px 14px 32px; }
+            .heatmap-card { padding: 12px 12px 10px; }
+            .heatmap-card .chart-title { flex-wrap: wrap; row-gap: 6px; }
+            .heatmap-legend { margin-left: 0; width: 100%; justify-content: flex-start; }
+            .heatmap-mobile-hint { display: block; }
+        }
+        @@media (max-width: 576px) {
+            .chart-card { height: 280px; }
+            .heatmap-grid { gap: 2px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="dash">
+
+    <!-- ░░ HEADER ░░ -->
+    <div class="dash-header">
+        <div>
+            <h1 class="dash-title">Báo Cáo Downtime</h1>
+            <p class="dash-subtitle">Phân tích thời gian dừng máy theo Operation và mã lỗi</p>
+        </div>
+        @if (allData != null && allData.Any())
+        {
+            <a href="@Url.Action("ExportDowntimeReportToExcel", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate })"
+                class="btn-export">
+                <i class="fas fa-file-excel"></i> Xuất Excel
+            </a>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="dash-alert mb-3">
+            <i class="fas fa-exclamation-circle"></i> @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <!-- ░░ FILTER ░░ -->
+    <div class="filter-card">
+        <form method="get" asp-action="ReportDowntime" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="filter-label"><i class="fas fa-calendar-alt me-1"></i>Từ ngày</label>
+                    <input type="date" class="form-control" name="fromDate" value="@ViewBag.FromDate" />
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label"><i class="fas fa-calendar-alt me-1"></i>Đến ngày</label>
+                    <input type="date" class="form-control" name="toDate" value="@ViewBag.ToDate" />
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label"><i class="fas fa-list me-1"></i>Bản ghi / trang</label>
+                    <select class="form-select" name="pageSize" id="pageSize">
+                        <option value="1"  selected="@(pageSize == 1)">1 bản ghi</option>
+                        <option value="5"  selected="@(pageSize == 5)">5 bản ghi</option>
+                        <option value="10" selected="@(pageSize == 10)">10 bản ghi</option>
+                        <option value="25" selected="@(pageSize == 25)">25 bản ghi</option>
+                        <option value="50" selected="@(pageSize == 50)">50 bản ghi</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("ReportDowntime")" class="btn-reset w-50" title="Bỏ chọn bộ lọc">
+                            <i class="fas fa-rotate-left"></i> Reset
+                        </a>
+                        <button type="submit" class="btn-filter w-50">
+                            <i class="fas fa-search"></i> Lọc dữ liệu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (allData != null && allData.Any())
+    {
+        <!-- ░░ METRICS ░░ -->
+        <div class="metrics-row">
+            <div class="metric-card c-ops">
+                <div class="metric-icon"><i class="fas fa-cogs"></i></div>
+                <div>
+                    <div class="metric-label">Tổng Operation</div>
+                    <div class="metric-value">@allData.Count</div>
+                </div>
+            </div>
+            <div class="metric-card c-count">
+                <div class="metric-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div>
+                    <div class="metric-label">Tổng lần Downtime</div>
+                    <div class="metric-value">@allData.Sum(x => x.TotalDowntimeCount)</div>
+                </div>
+            </div>
+            <div class="metric-card c-time">
+                <div class="metric-icon"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="metric-label">Tổng thời gian</div>
+                    <div class="metric-value">
+                        @{
+                            var totalMinutes = allData.Sum(x => x.TotalDowntimeMinutes);
+                            var hours = (int)(totalMinutes / 60);
+                            var mins = (int)(totalMinutes % 60);
+                        }
+                        @hours<small style="font-size:.5em;font-weight:600;letter-spacing:0">h</small> @mins<small style="font-size:.5em;font-weight:600;letter-spacing:0">m</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ░░ CHARTS ROW ░░ -->
+        <div class="section-head">Biểu đồ phân tích</div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Downtime theo Công đoạn
+                    </div>
+                    <canvas id="operationChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Phân bố Downtime theo Công đoạn (%)
+                    </div>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Downtime theo Mã lỗi
+                    </div>
+                    <canvas id="issCodeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ░░ RUNNING TIME BY PROJECT CHART ░░ -->
+        @if (runningTimeByProjectChartData != null && runningTimeByProjectChartData.Items.Any())
+        {
+            var rtpToLabel = DateTime.ParseExact(runningTimeByProjectChartData.ReportDateTo, "yyyyMMdd", null).ToString("dd/MM/yyyy");
+            string rtpDateLabel;
+            if (string.IsNullOrEmpty(runningTimeByProjectChartData.ReportDateFrom))
+            {
+                rtpDateLabel = $"Đến ngày {rtpToLabel}";
+            }
+            else
+            {
+                var rtpFromLabel = DateTime.ParseExact(runningTimeByProjectChartData.ReportDateFrom, "yyyyMMdd", null).ToString("dd/MM/yyyy");
+                rtpDateLabel = rtpFromLabel == rtpToLabel ? $"Ngày {rtpFromLabel}" : $"{rtpFromLabel} - {rtpToLabel}";
+            }
+            <div class="chart-card-lg chart-card-rtp">
+                <div class="chart-title">
+                    <i class="fas fa-industry"></i>
+                    Thời gian chạy của từng dự án (Tổng thời gian - Thời gian Downtime)
+                    <span class="chart-badge">@rtpDateLabel</span>
+                </div>
+                <canvas id="runningTimeByProjectChart"></canvas>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const rtpLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(runningTimeByProjectChartData.Items.Select(x => x.Project)));
+                    const rtpRunning = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(runningTimeByProjectChartData.Items.Select(x => x.RunningTime)));
+                    const rtpDowntime = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(runningTimeByProjectChartData.Items.Select(x => x.Downtime)));
+                    const rtpTotal = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(runningTimeByProjectChartData.Items.Select(x => x.TotalWorkingTime)));
+                    const rtpRunningPct = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(runningTimeByProjectChartData.Items.Select(x => x.RunningPercent)));
+                    const rtpDowntimePct = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(runningTimeByProjectChartData.Items.Select(x => x.DowntimePercent)));
+
+                    const rtpTooltipDefaults = {
+                        backgroundColor: '#09090b',
+                        titleColor: '#fff',
+                        bodyColor: 'rgba(255,255,255,.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        borderColor: 'rgba(255,255,255,.06)',
+                        borderWidth: 1
+                    };
+
+                    new Chart(document.getElementById('runningTimeByProjectChart').getContext('2d'), {
+                        type: 'bar',
+                        plugins: [ChartDataLabels],
+                        data: {
+                            labels: rtpLabels,
+                            datasets: [
+                                {
+                                    label: 'Thời gian chạy (giờ)',
+                                    data: rtpRunning,
+                                    backgroundColor: rtpLabels.map((_, i) => chartColor(i)),
+                                    borderColor: '#fff',
+                                    borderWidth: 2,
+                                    borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                                    borderSkipped: false,
+                                    maxBarThickness: 72,
+                                    categoryPercentage: 0.7,
+                                    barPercentage: 0.85,
+                                    datalabels: {
+                                        anchor: 'end', align: 'end',
+                                        color: '#3f3f46', font: { weight: '700', size: 12 },
+                                        formatter: (v) => `${v.toFixed(2)}h`
+                                    }
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            layout: { padding: { top: 24 } },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    ...rtpTooltipDefaults,
+                                    callbacks: {
+                                        label: function (ctx) {
+                                            const i = ctx.dataIndex;
+                                            return ` Thời gian chạy: ${ctx.parsed.y.toFixed(2)}h (${rtpRunningPct[i]}%)`;
+                                        },
+                                        footer: function (items) {
+                                            const i = items[0].dataIndex;
+                                            return `Tổng thời gian: ${rtpTotal[i].toFixed(2)}h  •  Downtime: ${rtpDowntime[i].toFixed(2)}h (${rtpDowntimePct[i]}%)`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { font: { size: 12, weight: '600' }, color: '#3f3f46' },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: { display: true, text: 'Giờ', font: { size: 11, weight: '600' }, color: '#71717a' },
+                                    ticks: { font: { size: 11 }, color: '#71717a' },
+                                    grid: { color: 'rgba(0,0,0,.04)', drawBorder: false }
+                                }
+                            },
+                            animation: { duration: 1400, easing: 'easeOutQuart' }
+                        }
+                    });
+                });
+            </script>
+        }
+        else
+        {
+            <div class="chart-card-lg mb-3">
+                <div class="chart-title">
+                    <i class="fas fa-industry"></i>
+                    Thời gian chạy của từng dự án (Tổng thời gian - Thời gian Downtime)
+                </div>
+                <div class="dash-alert mt-auto mb-auto">
+                    <i class="fas fa-info-circle"></i>
+                    Không có dữ liệu SVN_target cho khoảng ngày liền trước ngày được chọn.
+                </div>
+            </div>
+        }
+
+        <!-- ░░ TREND CHART ░░ -->
+        @if (dailyChartData != null && dailyChartData.Dates.Any())
+        {
+            <div class="chart-card-lg">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Lịch sử Downtime theo ngày
+                    <span class="chart-badge">Real-time</span>
+                </div>
+                <canvas id="dailyTrendChart"></canvas>
+            </div>
+
+            <script>
+                const dailyCtx = document.getElementById('dailyTrendChart').getContext('2d');
+
+                const grad1 = dailyCtx.createLinearGradient(0, 0, 0, 320);
+                grad1.addColorStop(0, 'rgba(220, 38, 38, 0.18)');
+                grad1.addColorStop(1, 'rgba(220, 38, 38, 0)');
+
+                const grad2 = dailyCtx.createLinearGradient(0, 0, 0, 320);
+                grad2.addColorStop(0, 'rgba(9, 9, 11, 0.12)');
+                grad2.addColorStop(1, 'rgba(9, 9, 11, 0)');
+
+                new Chart(dailyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(dailyChartData.Dates)),
+                        datasets: [
+                            {
+                                label: 'Thời gian Downtime (phút)',
+                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(dailyChartData.DowntimeMinutes)),
+                                borderColor: '#dc2626',
+                                backgroundColor: grad1,
+                                borderWidth: 2.5,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#dc2626',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                                pointHoverBorderWidth: 2,
+                                animation: { duration: 2000, easing: 'easeOutQuart' }
+                            },
+                            {
+                                label: 'Số lần Downtime',
+                                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(dailyChartData.DowntimeCounts)),
+                                borderColor: '#09090b',
+                                backgroundColor: grad2,
+                                borderWidth: 2,
+                                borderDash: [6, 3],
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#09090b',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 7,
+                                yAxisID: 'y1',
+                                animation: { duration: 2500, easing: 'easeOutQuart', delay: 500 }
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: { size: 12, weight: '600' },
+                                    usePointStyle: true,
+                                    pointStyleWidth: 16,
+                                    padding: 20,
+                                    color: '#3f3f46'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#09090b',
+                                titleColor: '#fff',
+                                bodyColor: 'rgba(255,255,255,.8)',
+                                padding: 12,
+                                cornerRadius: 8,
+                                borderColor: 'rgba(255,255,255,.08)',
+                                borderWidth: 1,
+                                usePointStyle: true,
+                                callbacks: {
+                                    label: function(ctx) {
+                                        let v = ctx.parsed.y;
+                                        if (ctx.dataset.label.includes('Thời gian')) {
+                                            let h = Math.floor(v/60), m = Math.round(v%60);
+                                            return ` ${ctx.dataset.label}: ${h}h ${m}m (${v.toFixed(1)} phút)`;
+                                        }
+                                        return ` ${ctx.dataset.label}: ${v} lần`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Ngày', font: { size: 11, weight: '600' }, color: '#71717a' },
+                                ticks: { font: { size: 11 }, color: '#71717a' },
+                                grid: { color: 'rgba(0,0,0,.04)', drawBorder: false }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Thời gian (phút)', font: { size: 11, weight: '600' }, color: '#71717a' },
+                                ticks: { font: { size: 11 }, color: '#71717a' },
+                                grid: { color: 'rgba(0,0,0,.04)', drawBorder: false }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'Số lần', font: { size: 11, weight: '600' }, color: '#71717a' },
+                                ticks: { font: { size: 11 }, color: '#71717a' },
+                                grid: { drawOnChartArea: false, drawBorder: false }
+                            }
+                        }
+                    }
+                });
+            </script>
+        }
+        else
+        {
+            <div class="chart-card-lg mb-3">
+                <div class="chart-title"><i class="fas fa-chart-line"></i> Lịch sử Downtime theo ngày</div>
+                <div class="dash-alert mt-auto mb-auto">
+                    <i class="fas fa-info-circle"></i>
+                    Không có dữ liệu downtime theo ngày trong khoảng thời gian được chọn.
+                </div>
+            </div>
+        }
+
+        <!-- ░░ HEATMAP DOWNTIME BY DAY & TIME ░░ -->
+        @if (heatmapData != null && heatmapData.MaxCount > 0)
+        {
+            <div class="heatmap-card">
+                <div class="chart-title" style="margin-bottom:12px;">
+                    <i class="fas fa-th"></i>
+                    Bản Đồ Nhiệt Downtime Theo Ngày Và Giờ
+                    <div class="heatmap-legend">
+                        <span>🟩 Thấp</span>
+                        <span>🟨 Trung Bình</span>
+                        <span>🟥 Cao</span>
+                    </div>
+                </div>
+                <div class="heatmap-mobile-hint">Vuốt ngang để xem đủ 24 giờ →</div>
+                <div class="heatmap-scroll">
+                    <div class="heatmap-grid" style="grid-template-columns: 58px repeat(@heatmapData.HourLabels.Count, minmax(20px, 28px));">
+                        <div class="hm-corner"></div>
+                        @foreach (var hourLabel in heatmapData.HourLabels)
+                        {
+                            <div class="hm-day-label">@hourLabel</div>
+                        }
+
+                        @for (int d = 0; d < heatmapData.Days.Count; d++)
+                        {
+                            <div class="hm-hour-label">@heatmapData.Days[d]</div>
+                            @for (int h = 0; h < heatmapData.HourLabels.Count; h++)
+                            {
+                                int count = heatmapData.Counts[d][h];
+                                string level = count == 0 ? "hm-empty"
+                                    : count <= heatmapData.LowThreshold ? "hm-low"
+                                    : count <= heatmapData.MediumThreshold ? "hm-medium"
+                                    : "hm-high";
+                                <div class="heatmap-cell @level" title="@(heatmapData.Days[d]) @(heatmapData.HourLabels[h])-@(((h + 1) % 24).ToString("D2"))h: @count lần downtime">@(count == 0 ? "" : count.ToString())</div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- ░░ OPERATION DETAIL ░░ -->
+        @if (Model != null && Model.Any())
+        {
+            <div class="section-head">Chi tiết theo Operation <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-4)">(@Model.Count / @totalRecords)</span></div>
+
+            @foreach (var (operation, opIdx) in Model.Select((x, i) => (x, i + 1)))
+            {
+                <div class="op-block">
+                    <div class="op-head" onclick="toggleOp(this)" data-body="op-body-@opIdx">
+                        <div class="op-head-name">
+                            <i class="fas fa-industry"></i>
+                            @operation.Operation
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span class="op-badge"><i class="fas fa-stopwatch"></i> @operation.TotalDowntimeFormatted</span>
+                            <span class="op-badge op-badge-red">
+                                <i class="fas fa-list"></i> @operation.TotalDowntimeCount lần
+                            </span>
+                            <span class="op-chevron"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="op-body" id="op-body-@opIdx">
+                        <table class="op-table">
+                            <thead>
+                                <tr>
+                                    <th width="4%">#</th>
+                                    <th width="13%">ISS Code</th>
+                                    <th width="32%">Tên Lỗi</th>
+                                    <th width="10%" class="text-center">Số lần</th>
+                                    <th width="16%" class="text-center">Tổng thời gian</th>
+                                    <th width="25%">Tỷ lệ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int index = 0;
+                                }
+                                @foreach (var error in operation.ErrorDetails)
+                                {
+                                    index++;
+                                    var percentage = operation.TotalDowntimeMinutes > 0
+                                        ? (error.TotalDowntimeMinutes / operation.TotalDowntimeMinutes * 100)
+                                        : 0;
+                                    var lightness = 38.0 + 34.0 * (1.0 - percentage / 100.0);
+                                    var fillColor = $"hsl(0,88%,{lightness:F1}%)";
+                                    <tr>
+                                        <td style="color:var(--ink-4);font-weight:600;">@index</td>
+                                        <td><span class="tag-iss">@error.ISS_Code</span></td>
+                                        <td style="color:var(--ink);">@error.ErrorName</td>
+                                        <td class="text-center"><span class="tag-count">@error.DowntimeCount</span></td>
+                                        <td class="text-center">
+                                            <strong style="color:var(--ink);">@error.TotalDowntimeFormatted</strong>
+                                            <div style="font-size:11px;color:var(--ink-4);">@Math.Round(error.TotalDowntimeMinutes, 1) phút</div>
+                                        </td>
+                                        <td>
+                                            <div class="prog-wrap">
+                                                <div class="prog-fill" style="width:@percentage%;background:@fillColor;"></div>
+                                            </div>
+                                            <div class="prog-label" style="color:@fillColor;">@Math.Round(percentage, 1)%</div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end" style="letter-spacing:.5px;">TỔNG CỘNG</td>
+                                    <td class="text-center">@operation.TotalDowntimeCount</td>
+                                    <td class="text-center">@operation.TotalDowntimeFormatted</td>
+                                    <td style="color:rgba(255,255,255,.5);">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <!-- ░░ PAGINATION ░░ -->
+            @if (totalPages > 1)
+            {
+                <nav>
+                    <ul class="pager-wrap list-unstyled mb-0">
+                        <li class="page-item @(!hasPreviousPage ? "disabled" : "")">
+                            @if (hasPreviousPage)
+                            {
+                                <a class="page-link" href="@Url.Action("ReportDowntime", new { fromDate=ViewBag.FromDate, toDate=ViewBag.ToDate, page=currentPage-1, pageSize=pageSize })">
+                                    <i class="fas fa-chevron-left" style="font-size:11px;"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="page-link"><i class="fas fa-chevron-left" style="font-size:11px;"></i></span>
+                            }
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            if (i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2))
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("ReportDowntime", new { fromDate=ViewBag.FromDate, toDate=ViewBag.ToDate, page=i, pageSize=pageSize })">@i</a>
+                                </li>
+                            }
+                            else if (i == currentPage - 3 || i == currentPage + 3)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                        }
+
+                        <li class="page-item @(!hasNextPage ? "disabled" : "")">
+                            @if (hasNextPage)
+                            {
+                                <a class="page-link" href="@Url.Action("ReportDowntime", new { fromDate=ViewBag.FromDate, toDate=ViewBag.ToDate, page=currentPage+1, pageSize=pageSize })">
+                                    <i class="fas fa-chevron-right" style="font-size:11px;"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="page-link"><i class="fas fa-chevron-right" style="font-size:11px;"></i></span>
+                            }
+                        </li>
+                    </ul>
+                </nav>
+                <div class="pager-info">Trang @currentPage / @totalPages — @totalRecords operation</div>
+            }
+        }
+    }
+    else
+    {
+        <div class="dash-alert">
+            <i class="fas fa-info-circle"></i>
+            Không có dữ liệu downtime trong khoảng thời gian được chọn.
+        </div>
+    }
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>
+    function toggleOp(header) {
+        var bodyId = header.getAttribute('data-body');
+        var body = document.getElementById(bodyId);
+        var isOpen = header.classList.contains('open');
+        if (isOpen) {
+            header.classList.remove('open');
+            body.style.display = 'none';
+        } else {
+            header.classList.add('open');
+            body.style.display = 'block';
+        }
+    }
+</script>
+
+@if (chartData != null && chartData.Operations.Any())
+{
+    var issCodeData = ViewBag.IssCodeChartData as MachineStatusUpdate.Models.IssCodeChartData;
+    <script>
+        function formatMinutes(minutes) {
+            const h = Math.floor(minutes / 60), m = Math.round(minutes % 60);
+            return `${h}h ${m}m`;
+        }
+        function calculatePercentage(value, total) {
+            return total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+        }
+
+        // ***** LOGIC gộp Operation *****
+        var originalLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartData.Operations));
+        var originalData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(chartData.DowntimeMinutes));
+        var aggregatedData = {};
+
+        function getNewLabel(label) {
+            if (label.includes('Injection_POP')) return 'POP';
+            var idx = label.indexOf('-');
+            return idx !== -1 ? label.substring(0, idx) : label;
+        }
+
+        for (var i = 0; i < originalLabels.length; i++) {
+            var nl = getNewLabel(originalLabels[i]);
+            aggregatedData[nl] = (aggregatedData[nl] || 0) + originalData[i];
+        }
+
+        var finalLabels = Object.keys(aggregatedData);
+        var finalData   = Object.values(aggregatedData);
+
+        const tooltipDefaults = {
+            backgroundColor: '#09090b',
+            titleColor: '#fff',
+            bodyColor: 'rgba(255,255,255,.8)',
+            padding: 12,
+            cornerRadius: 8,
+            borderColor: 'rgba(255,255,255,.06)',
+            borderWidth: 1
+        };
+
+        /* ── 1. Bar chart ── */
+        new Chart(document.getElementById('operationChart').getContext('2d'), {
+            type: 'bar',
+            plugins: [ChartDataLabels],
+            data: {
+                labels: finalLabels,
+                datasets: [{
+                    label: 'Thời gian Downtime (phút)',
+                    data: finalData,
+                    backgroundColor: finalLabels.map((_, i) => chartColor(i)),
+                    borderColor: finalLabels.map((_, i) => chartColorDark(i)),
+                    borderWidth: 1.5,
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        ...tooltipDefaults,
+                        callbacks: {
+                            label: function(ctx) {
+                                let m = ctx.parsed.y;
+                                let h = Math.floor(m/60), mn = Math.round(m%60);
+                                return ` ${h}h ${mn}m  (${m.toFixed(1)} phút)`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        anchor: 'center', align: 'center',
+                        color: '#fff', font: { weight: '700', size: 11 },
+                        formatter: v => {
+                            if (!v) return '';
+                            let h = Math.floor(v/60), m = Math.round(v%60);
+                            return h > 0 ? `${h}h${m}m` : `${m}m`;
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 11 }, color: '#71717a' },
+                        title: { display: true, text: 'Phút', font: { size: 11, weight: '600' }, color: '#71717a' },
+                        grid: { color: 'rgba(0,0,0,.04)', drawBorder: false }
+                    },
+                    x: {
+                        ticks: { font: { size: 11 }, color: '#71717a' },
+                        grid: { display: false }
+                    }
+                },
+                animation: { duration: 1400, easing: 'easeOutQuart' }
+            }
+        });
+
+        /* ── 2. Doughnut chart ── */
+        const pieColors = finalLabels.map((_, i) => chartColor(i));
+        new Chart(document.getElementById('pieChart').getContext('2d'), {
+            type: 'doughnut',
+            plugins: [ChartDataLabels],
+            data: {
+                labels: finalLabels,
+                datasets: [{
+                    data: finalData,
+                    backgroundColor: pieColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right',
+                        labels: { font: { size: 11 }, padding: 10, color: '#3f3f46' }
+                    },
+                    tooltip: {
+                        ...tooltipDefaults,
+                        callbacks: {
+                            label: function(ctx) {
+                                let v = ctx.parsed;
+                                let h = Math.floor(v/60), m = Math.round(v%60);
+                                let total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                                let pct = ((v/total)*100).toFixed(1);
+                                return ` ${ctx.label}: ${h}h ${m}m (${pct}%)`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                            const pct = (value/total*100).toFixed(1);
+                            return pct >= 3 ? pct+'%' : '';
+                        },
+                        color: '#fff',
+                        font: { weight: '700', size: 12 },
+                        textAlign: 'center', align: 'center', anchor: 'center'
+                    }
+                }
+            }
+        });
+
+        /* ── 3. ISS Code chart ── */
+        @if (issCodeData != null && issCodeData.IssCodeLabels.Any())
+        {
+            var issCodeLabelsJson  = System.Text.Json.JsonSerializer.Serialize(issCodeData.IssCodeLabels);
+            var issCodeMinutesJson = System.Text.Json.JsonSerializer.Serialize(issCodeData.DowntimeMinutes);
+            var issCodeCountsJson  = System.Text.Json.JsonSerializer.Serialize(issCodeData.DowntimeCounts);
+
+            <text>
+                const issCodeCtx    = document.getElementById('issCodeChart').getContext('2d');
+                const issCodeCounts = @Html.Raw(issCodeCountsJson);
+                const issCodeLabels = @Html.Raw(issCodeLabelsJson);
+                const issCodeMinutes = @Html.Raw(issCodeMinutesJson);
+
+                if (issCodeLabels && issCodeLabels.length > 0) {
+                    new Chart(issCodeCtx, {
+                        type: 'bar',
+                        plugins: [ChartDataLabels],
+                        data: {
+                            labels: issCodeLabels,
+                            datasets: [{
+                                label: 'Thời gian Downtime (phút)',
+                                data: issCodeMinutes,
+                                backgroundColor: issCodeLabels.map((_, i) => chartColor(i)),
+                                borderColor: issCodeLabels.map((_, i) => chartColorDark(i)),
+                                borderWidth: 1.5
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#09090b', titleColor: '#fff',
+                                    bodyColor: 'rgba(255,255,255,.8)', padding: 12, cornerRadius: 8,
+                                    callbacks: {
+                                        label: function(ctx) {
+                                            let minutes = ctx.parsed.x;
+                                            let h = Math.floor(minutes/60), m = Math.round(minutes%60);
+                                            let count = issCodeCounts[ctx.dataIndex] || 0;
+                                            return [
+                                                `Thời gian: ${h}h ${m}m (${minutes.toFixed(1)} phút)`,
+                                                `Số lần: ${count}`
+                                            ];
+                                        }
+                                    }
+                                },
+                                datalabels: {
+                                    anchor: 'center', align: 'center',
+                                    color: '#fff', font: { weight: '700', size: 11 },
+                                    formatter: function(v) {
+                                        if (!v) return '';
+                                        let h = Math.floor(v/60), m = Math.round(v%60);
+                                        return h > 0 ? `${h}h${m}m` : `${m}m`;
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: { font: { size: 11 }, color: '#71717a' },
+                                    title: { display: true, text: 'Thời gian (phút)', font: { size: 11, weight: '600' }, color: '#71717a' },
+                                    grid: { color: 'rgba(0,0,0,.04)', drawBorder: false }
+                                },
+                                y: {
+                                    ticks: { font: { size: 11 }, color: '#71717a' },
+                                    title: { display: true, text: 'ISS Code', font: { size: 11, weight: '600' }, color: '#71717a' },
+                                    categoryPercentage: 0.9, barPercentage: 0.95
+                                }
+                            },
+                            animation: { duration: 1800, easing: 'easeOutQuart' }
+                        }
+                    });
+                } else {
+                    issCodeCtx.fillStyle = '#71717a';
+                    issCodeCtx.font = '14px Arial';
+                    issCodeCtx.textAlign = 'center';
+                    issCodeCtx.fillText('Không có dữ liệu ISS Code', 150, 100);
+                }
+            </text>
+        }
+        else
+        {
+            <text>
+                const issCodeCtx = document.getElementById('issCodeChart').getContext('2d');
+                issCodeCtx.fillStyle = '#71717a';
+                issCodeCtx.font = '14px Arial';
+                issCodeCtx.textAlign = 'center';
+                issCodeCtx.fillText('Không có dữ liệu ISS Code', 150, 100);
+            </text>
+        }
+    </script>
+}
+
+</body>
+
+</html>

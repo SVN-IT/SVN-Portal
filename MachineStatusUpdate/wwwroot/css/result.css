@@ -1,0 +1,179 @@
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            border-top: 3px solid #c41e1e;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+            border-radius: 10px;
+        }
+
+        .table thead th {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.4px;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(196, 30, 30, 0.04);
+        }
+
+        .image-preview {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-control:focus {
+            border-color: #c41e1e;
+            box-shadow: 0 0 0 .2rem rgba(196, 30, 30, .15);
+        }
+
+        .btn-primary {
+            background-color: #c41e1e;
+            border-color: #8b0000;
+        }
+
+        .btn-primary:hover {
+            background-color: #8b0000;
+            border-color: #8b0000;
+        }
+
+        .btn-secondary {
+            background-color: #3d3d3d;
+            border-color: #2d2d2d;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #1a1a1a;
+            border-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .text-null {
+            color: #c41e1e;
+            font-style: italic;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .custom-pagination .page-link {
+            color: #c41e1e;
+            border-color: #e0e0e0;
+            padding: 6px 10px;
+            font-size: 13px;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .custom-pagination .page-item.active .page-link {
+            background-color: #c41e1e;
+            border-color: #8b0000;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .custom-pagination .page-link:hover {
+            color: #fff;
+            background-color: #c41e1e;
+            border-color: #c41e1e;
+        }
+
+        .custom-pagination .page-link i {
+            font-size: 11px;
+        }
+
+        .custom-pagination .page-item {
+            margin: 0 1px;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .page-size-selector select {
+            width: auto;
+            min-width: 60px;
+            padding: 4px 8px;
+            font-size: 13px;
+            height: 32px;
+        }
+
+        @media (max-width: 768px) {
+            a[style*="margin-left: 9px"] {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+            }
+
+            .row.mt-3 .col-12 {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 8px;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            .row.mt-3 .col-12 .btn {
+                flex: 1;
+                min-width: 100px;
+                margin: 0;
+                text-align: center;
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .custom-pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .custom-pagination .page-link {
+                padding: 5px 8px;
+                font-size: 12px;
+                min-width: 28px;
+                height: 28px;
+            }
+
+            .page-size-selector {
+                justify-content: center;
+            }
+
+            .pagination-info {
+                font-size: 12px;
+            }
+        }

@@ -1,0 +1,689 @@
+@model IEnumerable<MachineStatusUpdate.Models.SVN_Downtime_Info>
+@{
+    ViewData["Title"] = "Danh sách Downtime";
+    var ops = (IEnumerable<string>)ViewBag.OperationOptions ?? Enumerable.Empty<string>();
+    string qOp = ViewBag.Operation as string ?? "";
+    string qFrom = ViewBag.FromDate as string ?? "";
+    string qTo = ViewBag.ToDate as string ?? "";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    bool hasPrev = ViewBag.HasPreviousPage ?? false;
+    bool hasNext = ViewBag.HasNextPage ?? false;
+}
+
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+        --brand:      #dc2626;
+        --brand-dark: #991b1b;
+        --brand-dim:  rgba(220,38,38,.06);
+        --ink:        #09090b;
+        --ink-2:      #3f3f46;
+        --ink-3:      #71717a;
+        --ink-4:      #a1a1aa;
+        --surface:    #ffffff;
+        --base:       #f4f4f5;
+        --border:     #e4e4e7;
+        --border-2:   #d4d4d8;
+        --sh-sm:      0 1px 2px rgba(0,0,0,.05);
+        --sh:         0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+        --r:          8px;
+        --r-lg:       12px;
+    }
+
+    body {
+        font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+        background: var(--base);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+        padding: 0 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 0 20px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .page-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -.3px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .page-title::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 20px;
+        background: var(--brand);
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    /* ── Filter card ── */
+    .filter-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 16px 18px;
+        margin-bottom: 18px;
+        box-shadow: var(--sh-sm);
+    }
+    .filter-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        align-items: end;
+    }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .filter-bar label {
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--ink-3);
+        text-transform: uppercase;
+        letter-spacing: .6px;
+    }
+    .filter-bar .form-control,
+    .filter-bar select {
+        height: 38px;
+        border: 1px solid var(--border-2);
+        border-radius: var(--r);
+        padding: 0 12px;
+        font-size: 13.5px;
+        background: var(--surface);
+        color: var(--ink);
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .filter-bar .form-control:focus,
+    .filter-bar select:focus {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+    }
+
+    /* ── Custom searchable dropdown ── */
+    .op-dropdown { position: relative; }
+    .op-trigger {
+        height: 38px;
+        border: 1px solid var(--border-2);
+        border-radius: var(--r);
+        padding: 0 34px 0 12px;
+        font-size: 13.5px;
+        background: var(--surface);
+        color: var(--ink);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        user-select: none;
+        transition: border-color .15s, box-shadow .15s;
+        width: 100%;
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .op-trigger::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid var(--ink-3);
+        pointer-events: none;
+    }
+    .op-trigger.open {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+    }
+    .op-panel {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border: 1px solid var(--border-2);
+        border-radius: var(--r);
+        box-shadow: 0 4px 12px rgba(0,0,0,.12);
+        z-index: 200;
+        display: none;
+        flex-direction: column;
+        min-width: 220px;
+    }
+    .op-panel.open { display: flex; }
+    .op-search-wrap {
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+    .op-search {
+        width: 100%;
+        height: 32px;
+        border: 1px solid var(--border-2);
+        border-radius: 6px;
+        padding: 0 10px;
+        font-size: 13px;
+        outline: none;
+        transition: border-color .15s;
+    }
+    .op-search:focus { border-color: var(--brand); }
+    .op-list {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 4px 0;
+    }
+    .op-item {
+        padding: 8px 12px;
+        font-size: 13.5px;
+        cursor: pointer;
+        color: var(--ink-2);
+        transition: background .1s;
+    }
+    .op-item:hover, .op-item.focused { background: var(--brand-dim); }
+    .op-item.selected { font-weight: 700; color: var(--brand); }
+    .op-item.hidden { display: none; }
+    .op-no-result {
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--ink-4);
+        text-align: center;
+        display: none;
+    }
+    .op-loading {
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--ink-4);
+        text-align: center;
+        display: none;
+    }
+    .filter-actions {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+        border: 0;
+        border-radius: var(--r);
+        padding: 9px 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
+        white-space: nowrap;
+        transition: all .15s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        line-height: 1;
+    }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover { background: var(--brand-dark); color: #fff; }
+    .btn-secondary { background: var(--ink-2); color: #fff; }
+    .btn-secondary:hover { background: var(--ink); color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-success:hover { background: #15803d; color: #fff; }
+
+    /* ── Table ── */
+    .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        background: var(--surface);
+        box-shadow: var(--sh);
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+    th, td {
+        border-bottom: 1px solid var(--border);
+        padding: 11px 14px;
+        font-size: 13px;
+        text-align: left;
+    }
+    th {
+        background: var(--ink);
+        color: #fff;
+        font-weight: 700;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: .5px;
+    }
+    tbody tr:hover td { background: var(--brand-dim); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ── State text colors (applied to <td>) ── */
+    .state-stop { color: var(--brand-dark); font-weight: 700; }
+    .state-run  { color: #15803d; font-weight: 700; }
+
+    /* ── Mobile card view ── */
+    .card-view { display: none; }
+    .downtime-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 16px;
+        margin-bottom: 10px;
+        box-shadow: var(--sh-sm);
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--ink);
+    }
+    .card-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border);
+    }
+    .card-row:last-child { border-bottom: none; }
+    .card-label { font-weight: 600; color: var(--ink-3); font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+    .card-value { color: var(--ink-2); text-align: right; }
+
+    /* ── Pagination ── */
+    .pager {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        padding-bottom: 24px;
+    }
+    .pager .btn { min-width: 38px; height: 38px; padding: 0 12px; }
+    .page-info { font-size: 13px; color: var(--ink-3); font-weight: 600; }
+
+    .no-data {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--ink-4);
+        font-size: 14px;
+    }
+
+    /* ── Responsive ── */
+    @@media (max-width: 1024px) {
+        .filter-bar { grid-template-columns: repeat(2, 1fr); }
+        .filter-actions { grid-column: span 2; }
+        .filter-actions .btn { flex: 1; }
+        th, td { padding: 10px 10px; }
+    }
+
+    @@media (max-width: 768px) {
+        .container { padding: 0 14px; }
+        .filter-bar { grid-template-columns: 1fr; }
+        .filter-actions { grid-column: 1; flex-direction: column; }
+        .filter-actions .btn { width: 100%; }
+        .table-wrap { display: none; }
+        .card-view { display: block; }
+        .pager { gap: 8px; }
+        .page-info { width: 100%; text-align: center; }
+    }
+
+    @@media (max-width: 480px) {
+        .page-title { font-size: 17px; }
+        .downtime-card { padding: 12px; }
+        .card-title { font-size: 14px; }
+        .btn { font-size: 12px; padding: 8px 12px; }
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h2 class="page-title">Lịch sử nhập downtime</h2>
+    </div>
+
+    <div class="filter-card">
+        <form method="get" asp-action="DowntimeList">
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Từ ngày</label>
+                    <input type="date" name="fromDate" value="@qFrom" class="form-control" />
+                </div>
+                <div class="filter-group">
+                    <label>Đến ngày</label>
+                    <input type="date" name="toDate" value="@qTo" class="form-control" />
+                </div>
+                <div class="filter-group">
+                    <label>Operation</label>
+                    <input type="hidden" name="operation" id="op-hidden" value="@qOp" />
+                    <div class="op-dropdown" id="op-dropdown">
+                        <div class="op-trigger" id="op-trigger" tabindex="0">
+                            <span id="op-label">@(string.IsNullOrEmpty(qOp) ? "-- Tất cả --" : qOp)</span>
+                        </div>
+                        <div class="op-panel" id="op-panel">
+                            <div class="op-search-wrap">
+                                <input type="text" class="op-search" id="op-search" placeholder="Tìm operation..." autocomplete="off" />
+                            </div>
+                            <div class="op-loading" id="op-loading">Đang tải...</div>
+                            <div class="op-list" id="op-list">
+                                <div class="op-item @(string.IsNullOrEmpty(qOp) ? "selected" : "")" data-value="">-- Tất cả --</div>
+                                @foreach (var op in ops)
+                                {
+                                    <div class="op-item @(op == qOp ? "selected" : "")" data-value="@op">@op</div>
+                                }
+                                <div class="op-no-result" id="op-no-result">Không tìm thấy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                    <a class="btn btn-secondary" href="@Url.Action("DowntimeList", "Status")">Xoá lọc</a>
+                    <a class="btn btn-success"
+                        href="@Url.Action("ExportDowntimeListToExcel", "Status", new { operation = qOp, fromDate = qFrom, toDate = qTo })">
+                        Excel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Desktop/Tablet Table View -->
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>SVN Code</th>
+                    <th>Operation</th>
+                    <th>ISS Code</th>
+                    <th>Tên lỗi</th>
+                    <th>State</th>
+                    <th>Mô tả</th>
+                    <th>Thời gian</th>
+                    <th>Ước tính</th>
+                    <th>Ảnh</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var i = (currentPage - 1) * (ViewBag.PageSize ?? 25);
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="no-data">Không có dữ liệu</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        i++;
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.SVNCode</td>
+                            <td>@item.Operation</td>
+                            <td>@item.ISS_Code</td>
+                            <td>@item.ErrorName</td>
+                            <td
+                                class="@(string.Equals(item.State, "Stop", StringComparison.OrdinalIgnoreCase) ? "state-stop" : "state-run")">
+                                @item.State
+                            </td>
+                            <td>@item.Description</td>
+                            <td>@(item.Datetime?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                            <td>@(string.IsNullOrEmpty(item.EstimateTime) ? "-" : item.EstimateTime)</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Image))
+                                {
+                                    <a href="@Url.Content(item.Image)" target="_blank" style="color:var(--brand);text-decoration:none;">Xem ảnh</a>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Mobile Card View -->
+    <div class="card-view">
+        @if (!Model.Any())
+        {
+            <div class="no-data">Không có dữ liệu</div>
+        }
+        else
+        {
+            i = (currentPage - 1) * (ViewBag.PageSize ?? 25);
+            foreach (var item in Model)
+            {
+                i++;
+                <div class="downtime-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">@item.SVNCode</div>
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">#@i</div>
+                        </div>
+                        <span
+                            class="@(string.Equals(item.State, "Stop", StringComparison.OrdinalIgnoreCase) ? "state-stop" : "state-run")">
+                            @item.State
+                        </span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">Operation:</span>
+                        <span class="card-value">@item.Operation</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">ISS Code:</span>
+                        <span class="card-value">@item.ISS_Code</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">Tên lỗi:</span>
+                        <span class="card-value">@item.ErrorName</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(item.Description))
+                    {
+                        <div class="card-row">
+                            <span class="card-label">Mô tả:</span>
+                            <span class="card-value">@item.Description</span>
+                        </div>
+                    }
+                    <div class="card-row">
+                        <span class="card-label">Thời gian:</span>
+                        <span class="card-value">@(item.Datetime?.ToString("dd/MM/yyyy HH:mm") ?? "-")</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">Ước tính:</span>
+                        <span class="card-value">@(string.IsNullOrEmpty(item.EstimateTime) ? "-" : item.EstimateTime)</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(item.Image))
+                    {
+                        <div class="card-row">
+                            <span class="card-label">Ảnh:</span>
+                            <span class="card-value">
+                                <a href="@Url.Content(item.Image)" target="_blank" style="color: var(--brand); text-decoration: none; font-size:13px;">
+                                        Xem ảnh
+                                    </a>
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <div class="pager">
+            @if (hasPrev)
+            {
+                <a class="btn btn-secondary"
+                    href="@Url.Action("DowntimeList", new { operation = qOp, fromDate = qFrom, toDate = qTo, page = currentPage - 1, pageSize = ViewBag.PageSize })">
+                    ← Trước
+                </a>
+            }
+            <span class="page-info">Trang @currentPage / @totalPages</span>
+            @if (hasNext)
+            {
+                <a class="btn btn-secondary"
+                    href="@Url.Action("DowntimeList", new { operation = qOp, fromDate = qFrom, toDate = qTo, page = currentPage + 1, pageSize = ViewBag.PageSize })">
+                    Sau →
+                </a>
+            }
+        </div>
+    }
+</div>
+
+<script>
+(function () {
+    const trigger  = document.getElementById('op-trigger');
+    const panel    = document.getElementById('op-panel');
+    const search   = document.getElementById('op-search');
+    const list     = document.getElementById('op-list');
+    const hidden   = document.getElementById('op-hidden');
+    const label    = document.getElementById('op-label');
+    const loading  = document.getElementById('op-loading');
+    const fromInp  = document.querySelector('input[name="fromDate"]');
+    const toInp    = document.querySelector('input[name="toDate"]');
+
+    function getNoResult() { return list.querySelector('.op-no-result'); }
+
+    function openPanel() {
+        panel.classList.add('open');
+        trigger.classList.add('open');
+        search.value = '';
+        filterItems('');
+        search.focus();
+    }
+    function closePanel() {
+        panel.classList.remove('open');
+        trigger.classList.remove('open');
+    }
+
+    trigger.addEventListener('click', () => panel.classList.contains('open') ? closePanel() : openPanel());
+    trigger.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(); }
+    });
+
+    document.addEventListener('click', e => {
+        if (!document.getElementById('op-dropdown').contains(e.target)) closePanel();
+    });
+
+    search.addEventListener('input', () => filterItems(search.value));
+
+    function filterItems(q) {
+        const items = list.querySelectorAll('.op-item');
+        const lq = q.toLowerCase().trim();
+        let visible = 0;
+        items.forEach(it => {
+            const match = it.textContent.toLowerCase().includes(lq);
+            it.classList.toggle('hidden', !match);
+            if (match) visible++;
+        });
+        const nr = getNoResult();
+        if (nr) nr.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    list.addEventListener('click', e => {
+        const item = e.target.closest('.op-item');
+        if (!item || item.classList.contains('op-no-result')) return;
+        const val = item.dataset.value;
+        hidden.value = val;
+        label.textContent = val === '' ? '-- Tất cả --' : val;
+        list.querySelectorAll('.op-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        closePanel();
+    });
+
+    // Khi thay đổi fromDate hoặc toDate → reload operation list qua AJAX
+    let debounceTimer;
+    function reloadOps() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+            const from = fromInp ? fromInp.value : '';
+            const to   = toInp   ? toInp.value   : '';
+            loading.style.display = 'block';
+            list.style.display = 'none';
+
+            try {
+                const url = '@Url.Action("GetOperationsByDate", "Status")'
+                    + '?fromDate=' + encodeURIComponent(from)
+                    + '&toDate='   + encodeURIComponent(to);
+                const res = await fetch(url);
+                const ops = await res.json();
+                const currentVal = hidden.value;
+
+                list.innerHTML = '';
+
+                const allItem = document.createElement('div');
+                allItem.className = 'op-item' + (currentVal === '' ? ' selected' : '');
+                allItem.dataset.value = '';
+                allItem.textContent = '-- Tất cả --';
+                list.appendChild(allItem);
+
+                ops.forEach(op => {
+                    const div = document.createElement('div');
+                    div.className = 'op-item' + (op === currentVal ? ' selected' : '');
+                    div.dataset.value = op;
+                    div.textContent = op;
+                    list.appendChild(div);
+                });
+
+                // Nếu giá trị đang chọn không còn trong list → reset
+                if (currentVal !== '' && !ops.includes(currentVal)) {
+                    hidden.value = '';
+                    label.textContent = '-- Tất cả --';
+                    list.querySelector('.op-item')?.classList.add('selected');
+                }
+
+                const nr = document.createElement('div');
+                nr.className = 'op-no-result';
+                nr.textContent = 'Không tìm thấy';
+                list.appendChild(nr);
+            } catch (err) {
+                console.error('Failed to load operations', err);
+            } finally {
+                loading.style.display = 'none';
+                list.style.display = 'block';
+                filterItems(search.value);
+            }
+        }, 400);
+    }
+
+    if (fromInp) fromInp.addEventListener('change', reloadOps);
+    if (toInp)   toInp.addEventListener('change', reloadOps);
+})();
+</script>
