@@ -77,9 +77,9 @@ namespace Sigma_Dashboard.Services.Helpers
                         vm.UPH = Math.Round(group.Average(x => x.UPH != 0 ? x.Current_UPH / x.UPH * 100 : 0), 2).ToString() + "%";
                         vm.UPPH = Math.Round(group.Average(x => x.UPPH != 0 ? x.Current_UPPH / x.UPPH * 100 : 0), 2).ToString() + "%";
 
-                        vm.LaborTarget = Math.Round(group.Average(x => x.MaxLabor), 2).ToString();
-                        vm.LaborCurrent = Math.Round(group.Average(x => x.Labor), 2).ToString();
-                        vm.Labor = Math.Round(group.Average(x => x.Labor != 0 ? x.MaxLabor / x.Labor * 100 : 0), 2).ToString() + "%";
+                        vm.LaborTarget = Math.Ceiling(group.Average(x => x.MaxLabor)).ToString();
+                        vm.LaborCurrent = Math.Ceiling(group.Average(x => x.Labor)).ToString();
+                        vm.Labor = Math.Round(group.Average(x => x.MaxLabor != 0 ? x.Labor / x.MaxLabor * 100 : 0), 2).ToString() + "%";
 
                         // Defect
                         double defectTarget = group.Average(x => x.Defect);
@@ -147,9 +147,9 @@ namespace Sigma_Dashboard.Services.Helpers
                         viewModel.Daily_plan = x.Daily_plan;
                         viewModel.UPH = x.UPH;
                         viewModel.UPPH = x.UPPH;
-                        viewModel.Labor = x.Labor;
+                        viewModel.Labor = Math.Ceiling(x.Labor);
                         viewModel.Total_Qty = x.Total_Qty;
-                        viewModel.MaxLabor = x.MaxLabor;
+                        viewModel.MaxLabor = Math.Ceiling(x.MaxLabor);
                         viewModel.Current_UPH = x.Current_UPH;
                         viewModel.Current_UPPH = x.Current_UPPH;
                         viewModel.Defect = x.Defect;

@@ -8,6 +8,124 @@
     DateTime toDate = ViewBag.ToDate;
     List<DailyTargetDetailsViewModel> viewModelDetails = ViewBag.DailyResultDetails;
 }
+
+@functions {
+    string FormatNumber(object value)
+    {
+        if (value == null) return "0";
+        string str = value.ToString().Trim();
+        if (string.IsNullOrEmpty(str)) return "0";
+
+        string cleanStr = str.Replace(",", "");
+        if (double.TryParse(cleanStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double num))
+        {
+            return num.ToString("#,##0.##", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        return str;
+    }
+
+    string FormatLabor(object value)
+    {
+        if (value == null) return "0";
+        string str = value.ToString().Trim();
+        if (string.IsNullOrEmpty(str)) return "0";
+
+        string cleanStr = str.Replace(",", "");
+        if (double.TryParse(cleanStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double num))
+        {
+            return Math.Ceiling(num).ToString("#,##0", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        return str;
+    }
+
+    string GetLaborPercent(PDResultDailyViewModel item)
+    {
+        double target = 0;
+        double current = 0;
+        if (double.TryParse(item.LaborTarget?.Replace(",", ""), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double t))
+        {
+            target = Math.Ceiling(t);
+        }
+        if (double.TryParse(item.LaborCurrent?.Replace(",", ""), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double c))
+        {
+            current = Math.Ceiling(c);
+        }
+        if (target > 0)
+        {
+            return Math.Round(current / target * 100, 2).ToString() + "%";
+        }
+        return "0%";
+    }
+
+    string GetCleanNumber(object value)
+    {
+        if (value == null) return "0";
+        string str = value.ToString().Replace("%", "").Replace(",", "").Trim();
+        if (double.TryParse(str, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double num))
+        {
+            return num.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+        return "0";
+    }
+
+    string GetBadgeClass(string percentStr, bool isDefect = false)
+    {
+        if (string.IsNullOrWhiteSpace(percentStr)) return "";
+
+        string cleanStr = percentStr.Replace("%", "").Trim();
+        if (double.TryParse(cleanStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double val))
+        {
+            if (isDefect)
+            {
+                if (val >= 100) return "badge-danger";
+                if (val >= 92 && val < 100) return "badge-warning";
+                if (val >= 75 && val < 92) return "badge-success";
+                return "badge-primary";
+            }
+            else
+            {
+                if (val >= 100) return "badge-primary";
+                if (val >= 92 && val < 100) return "badge-success";
+                if (val >= 75 && val < 92) return "badge-warning";
+                return "badge-danger";
+            }
+        }
+        return "";
+    }
+}
+
+<style>
+    .report-percent-badge {
+        display: inline-block;
+        min-width: 65px;
+        padding: 3px 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        border-radius: 4px;
+        color: #fff;
+    }
+    .report-percent-badge.badge-primary {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .report-percent-badge.badge-success {
+        background-color: #28a745;
+        color: #fff;
+    }
+    .report-percent-badge.badge-warning {
+        background-color: #ffc107;
+        color: #1f2d3d !important;
+    }
+    .report-percent-badge.badge-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+    #example1 th, #example2 th {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
 <div class="container-fluid">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center row">
@@ -67,20 +185,23 @@
                                     }
                                     <tr style="@rowClass">
                                         <td>@item.OperationActive</td>
-                                        <td>@item.DailyPlanTarget</td>
-                                        <td>@item.DailyPlanCurrent</td>
-                                        <td>@item.DailyPlanAchieve</td>
-                                        <td>@item.UPHTarget</td>
-                                        <td>@item.UPHCurrent</td>
-                                        <td>@item.UPH</td>
-                                        <td>@item.UPPH</td>
-                                        <td>@item.LaborTarget</td>
-                                        <td>@item.LaborCurrent</td>
-                                        <td>@item.Labor</td>
-                                        <td>@item.DefectTargetRate</td>
-                                        <td>@item.DefectCurrentRate</td>
-                                        <td>@item.DefectRate</td>
-                                        <td>@item.CheckListOnSystem</td>
+                                        <td data-order="@GetCleanNumber(item.DailyPlanTarget)" class="text-right">@FormatNumber(item.DailyPlanTarget)</td>
+                                        <td data-order="@GetCleanNumber(item.DailyPlanCurrent)" class="text-right">@FormatNumber(item.DailyPlanCurrent)</td>
+                                        <td data-order="@GetCleanNumber(item.DailyPlanAchieve)" class="text-center"><span class="report-percent-badge @GetBadgeClass(item.DailyPlanAchieve)">@item.DailyPlanAchieve</span></td>
+                                        <td data-order="@GetCleanNumber(item.UPHTarget)" class="text-right">@FormatNumber(item.UPHTarget)</td>
+                                        <td data-order="@GetCleanNumber(item.UPHCurrent)" class="text-right">@FormatNumber(item.UPHCurrent)</td>
+                                        <td data-order="@GetCleanNumber(item.UPH)" class="text-center"><span class="report-percent-badge @GetBadgeClass(item.UPH)">@item.UPH</span></td>
+                                        <td data-order="@GetCleanNumber(item.UPPH)" class="text-center"><span class="report-percent-badge @GetBadgeClass(item.UPPH)">@item.UPPH</span></td>
+                                        <td data-order="@GetCleanNumber(FormatLabor(item.LaborTarget))" class="text-right">@FormatLabor(item.LaborTarget)</td>
+                                        <td data-order="@GetCleanNumber(FormatLabor(item.LaborCurrent))" class="text-right">@FormatLabor(item.LaborCurrent)</td>
+                                        @{
+                                            var laborPercentTotals = GetLaborPercent(item);
+                                        }
+                                        <td data-order="@GetCleanNumber(laborPercentTotals)" class="text-center"><span class="report-percent-badge @GetBadgeClass(laborPercentTotals)">@laborPercentTotals</span></td>
+                                        <td class="text-center">@item.DefectTargetRate</td>
+                                        <td class="text-center">@item.DefectCurrentRate</td>
+                                        <td data-order="@GetCleanNumber(item.DefectRate)" class="text-center"><span class="report-percent-badge @GetBadgeClass(item.DefectRate, true)">@item.DefectRate</span></td>
+                                        <td class="text-center">@item.CheckListOnSystem</td>
                                         <td>@item.Remark</td>
                                     </tr>
                                 }
@@ -88,7 +209,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="14" class="text-center">No data available.</td>
+                                    <td colspan="16" class="text-center">No data available.</td>
                                 </tr>
                             }
                         </tbody>
@@ -129,36 +250,36 @@
                                     <tr style="@rowClass">
                                         <td>@item.Project</td>
                                         <td>@item.PartNumber</td>
-                                        <td>@item.Date_time</td>
-                                        <td>@item.Daily_plan</td>
-                                        <td>@item.Total_Qty</td>
+                                        <td class="text-center">@item.Date_time</td>
+                                        <td data-order="@item.Daily_plan" class="text-right">@FormatNumber(item.Daily_plan)</td>
+                                        <td data-order="@item.Total_Qty" class="text-right">@FormatNumber(item.Total_Qty)</td>
                                         @{
                                             var dailyPercent = item.Daily_plan == 0 ? "0%" : Math.Round(item.Total_Qty / item.Daily_plan * 100, 2).ToString() + "%";
                                         }
-                                        <td>@dailyPercent</td>
-                                        <td>@item.UPH</td>
-                                        <td>@item.Current_UPH</td>
+                                        <td data-order="@GetCleanNumber(dailyPercent)" class="text-center"><span class="report-percent-badge @GetBadgeClass(dailyPercent)">@dailyPercent</span></td>
+                                        <td data-order="@item.UPH" class="text-right">@FormatNumber(item.UPH)</td>
+                                        <td data-order="@item.Current_UPH" class="text-right">@FormatNumber(item.Current_UPH)</td>
                                         @{
                                             var uphPercent = item.UPH == 0 ? "0%" : Math.Round(item.Current_UPH / item.UPH * 100, 2).ToString() + "%";
                                         }
-                                        <td>@uphPercent</td>
+                                        <td data-order="@GetCleanNumber(uphPercent)" class="text-center"><span class="report-percent-badge @GetBadgeClass(uphPercent)">@uphPercent</span></td>
                                         @{
                                             var upphPercent = item.UPPH == 0 ? "0%" : Math.Round(item.Current_UPPH / item.UPPH * 100, 2).ToString() + "%";
                                         }
-                                        <td>@upphPercent</td>
-                                        <td>@item.MaxLabor</td>
-                                        <td>@item.Labor</td>
+                                        <td data-order="@GetCleanNumber(upphPercent)" class="text-center"><span class="report-percent-badge @GetBadgeClass(upphPercent)">@upphPercent</span></td>
+                                        <td data-order="@Math.Ceiling(item.MaxLabor)" class="text-right">@FormatLabor(item.MaxLabor)</td>
+                                        <td data-order="@Math.Ceiling(item.Labor)" class="text-right">@FormatLabor(item.Labor)</td>
                                         @{
                                             var laborPercent = item.MaxLabor == 0 ? "0%" : Math.Round(item.Labor / item.MaxLabor * 100, 2).ToString() + "%";
                                         }
-                                        <td>@laborPercent</td>
+                                        <td data-order="@GetCleanNumber(laborPercent)" class="text-center"><span class="report-percent-badge @GetBadgeClass(laborPercent)">@laborPercent</span></td>
                                     </tr>
                                 }
                             }
                             else
                             {
                                 <tr>
-                                    <td colspan="14" class="text-center">No data available.</td>
+                                    <td colspan="13" class="text-center">No data available.</td>
                                 </tr>
                             }
                         </tbody>
