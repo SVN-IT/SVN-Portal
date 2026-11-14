@@ -1,0 +1,31 @@
+{
+  // Biến {KEY} trong mẫu tem ZPL tự lấy giá trị từ đâu (giống SVN-Portal Configs/label-variables.json của Twist).
+  // Source: wo (Field: name, product_code, product_name, product_qty, origin,
+  //              customer_part_number = x_custcode, qty_per_code = x_quantity_per_code, sale_order, po, lot_id = đơn bán)
+  //         product (Field: default_code, name, barcode, pcs_per_box, outer_type, box_per_outer) = Toast_Product
+  //         package (Field: no, qty) = box đang in
+  //         system (Field: now + Format, user)
+  //         manual = nhập tay (ở biến của sản phẩm, hoặc lúc in ở màn In tem)
+  // Optional: true = được để trống (không chặn quét / in, in ra chuỗi rỗng).
+  // Giá trị lưu trong mẫu tem (màn Mẫu tem) luôn thắng giá trị tự lấy ở đây.
+  // Sửa file này không cần khởi động lại app.
+  "LabelVariables": {
+    "Variables": [
+      {"Key": "WO", "Label": "Mã WO", "Source": "wo", "Field": "name"},
+      {"Key": "PRODUCT_NAME", "Label": "Tên sản phẩm", "Source": "wo", "Field": "product_name"},
+      {"Key": "WO_QTY", "Label": "Số lượng WO", "Source": "wo", "Field": "product_qty"},
+      {"Key": "ORIGIN", "Label": "Chứng từ gốc", "Source": "wo", "Field": "origin"},
+      {"Key": "PART_NUMBER", "Label": "Part number của khách", "Source": "wo", "Field": "customer_part_number"},
+      {"Key": "PO", "Label": "PO (đơn bán)", "Source": "wo", "Field": "po"},
+      {"Key": "LOT_ID", "Label": "Lot ID (đơn bán)", "Source": "wo", "Field": "lot_id"},
+      {"Key": "BARCODE", "Label": "Barcode pcs", "Source": "product", "Field": "barcode"},
+      {"Key": "PCS_PER_BOX", "Label": "Pcs / box", "Source": "product", "Field": "pcs_per_box"},
+      {"Key": "BOX_NO", "Label": "Số thứ tự box", "Source": "package", "Field": "no"},
+      // QTY = Pcs / box của sản phẩm (màn Sản phẩm điền từ x_quantity_per_code)
+      {"Key": "QTY", "Label": "Pcs / box", "Source": "product", "Field": "pcs_per_box"},
+      {"Key": "DATE", "Label": "Ngày in", "Source": "system", "Field": "now", "Format": "dd/MM/yyyy"},
+      {"Key": "TIME", "Label": "Giờ in", "Source": "system", "Field": "now", "Format": "HH:mm"},
+      {"Key": "USER", "Label": "Người in", "Source": "system", "Field": "user"}
+    ]
+  }
+}

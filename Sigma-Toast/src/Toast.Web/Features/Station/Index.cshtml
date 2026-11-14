@@ -1,0 +1,378 @@
+@model List<Toast.Web.Features.Printer.Printer>
+@{
+    ViewData["Title"] = "Trạm quét";
+    ViewData["NoMenu"] = true;
+}
+@Html.AntiForgeryToken()
+
+<div class="container-xxl py-4 st-page">
+    @* ===== Thanh trên: máy in đang dùng + Menu (F2). Đổi máy in / kết thúc phiên trong Menu ===== *@
+    <div class="card mb-4">
+        <div class="card-body d-flex flex-wrap align-items-center gap-3 py-3">
+            <div class="d-flex align-items-center gap-2 me-auto">
+                <span class="avatar-initial rounded bg-label-primary p-2"><i class="icon-base ti tabler-scan icon-24px"></i></span>
+                <h4 class="mb-0">Trạm quét</h4>
+            </div>
+            <div class="st-printer-card">
+                <span class="st-printer-icon bg-label-primary"><i class="icon-base ti tabler-printer"></i></span>
+                <div style="min-width: 0;" id="st-printer-name"><span class="text-muted">Chưa chọn máy in</span></div>
+            </div>
+            @* Kết nối tới server: trạm ping mỗi 10 giây + mỗi lần gọi API *@
+            <span class="badge bg-label-secondary st-net" id="st-net" role="img" title="Đang kiểm tra kết nối tới server" aria-label="Đang kiểm tra kết nối tới server"><i class="icon-base ti tabler-wifi"></i></span>
+            <button type="button" class="btn btn-primary" id="st-menu-open"><i class="icon-base ti tabler-menu-2 me-1"></i>Menu<span class="st-key ms-2">F2</span></button>
+        </div>
+    </div>
+
+
+    @* ===== Bước 1: nhập WO ===== *@
+    <div class="card" id="st-wo-step">
+        <div class="card-body py-6">
+            <form class="d-flex flex-wrap gap-3 align-items-end" id="st-wo-form" autocomplete="off">
+                <div class="flex-grow-1">
+                    <label class="form-label fs-5" for="st-wo">Quét hoặc nhập mã WO để mở phiên làm việc</label>
+                    @* Tiền tố NM/MO/ cố định; ô chỉ nhận số (và dấu - của backorder, VD 02533-002) *@
+                    <div class="input-group input-group-lg" id="st-wo-group">
+                        <span class="input-group-text st-big-input">NM/MO/</span>
+                        <input type="text" inputmode="numeric" class="form-control st-big-input" id="st-wo" placeholder="Nhập mã WO vào đây" />
+                    </div>
+                    @* Lỗi ở bước này (card Thông báo chỉ có ở màn làm việc): gõ lại thì mất *@
+                    <div class="st-wo-error d-none" id="st-wo-error" role="alert"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" id="st-wo-open"><i class="icon-base ti tabler-player-play me-1"></i>Mở WO</button>
+            </form>
+        </div>
+    </div>
+
+    @* ===== Bước 2: quét pcs ===== *@
+    <div class="d-none" id="st-run">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-5">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Lệnh sản xuất</div>
+                        <div class="fs-3 fw-semibold text-heading mb-3" id="st-wo-name"></div>
+                        <dl class="st-info mb-0" id="st-info"></dl>
+                        <div id="st-warnings" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <div class="text-muted small" id="st-box-label">Box đang quét</div>
+                                <div class="st-counter"><span id="st-box-qty">0</span><span class="text-muted"> / <span id="st-box-cap">0</span></span></div>
+                            </div>
+                            <div class="text-end">
+                                <div class="text-muted small">Đã đóng</div>
+                                <div class="fs-3 fw-semibold text-heading"><span id="st-closed">0</span> box</div>
+                            </div>
+                        </div>
+                        <div class="progress" style="height: 14px;"><div class="progress-bar" id="st-box-bar" role="progressbar" style="width: 0%"></div></div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Tổng: <strong class="text-heading" id="st-total">0</strong> / <span id="st-planned">0</span> pcs</span>
+                            <span id="st-last"></span>
+                        </div>
+                        @* Pcs đếm ở máy này chưa gửi lên server (gửi khi đủ box / trước thao tác box) *@
+                        <div class="small d-none" id="st-sync"></div>
+                        <form id="st-scan-form" autocomplete="off">
+                            <label class="form-label fs-5" for="st-scan">Quét barcode pcs</label>
+                            <input type="text" class="form-control form-control-lg st-big-input" id="st-scan" placeholder="Quét mã..." />
+                            <div class="form-text text-danger d-none" id="st-scan-block"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+        <div class="col-xl-7">
+        <div class="card" id="st-boxes-card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="card-title mb-0">Box gần nhất</h5>
+                    <span id="st-boxes-badges"></span>
+                </div>
+                <span class="text-muted small">In lại / sửa / xoá: Menu (F2) → Box</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th style="width: 80px;">#</th><th>Box</th><th>Pcs</th><th>Trạng thái</th><th>In tem</th><th>Đóng lúc</th></tr>
+                    </thead>
+                    <tbody id="st-boxes"></tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-center align-items-center gap-3 py-2 d-none" id="st-boxes-more">
+                <span class="small text-muted" id="st-boxes-count"></span>
+                <button type="button" class="btn btn-sm btn-label-primary" id="st-boxes-toggle"></button>
+            </div>
+        </div>
+        </div>
+        @* ===== Thông báo (lỗi / cảnh báo / thành công), chỉ trong trang: ô mới nhất to + danh sách "Trước đó" cuộn trong card.
+             Cao bằng card Box gần nhất (màn rộng). JS: notice() trong station.js ===== *@
+        <div class="col-xl-5 st-notices-col">
+            <div class="card st-notices" id="st-notices">
+                <div class="card-header py-3"><h5 class="card-title mb-0">Thông báo</h5></div>
+                <div class="st-notices-body" id="st-notices-body"></div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+@* ===== Modal mở phiên: kiểm tra đủ điều kiện, tick xác nhận + mã nhân viên rồi mới vào làm ===== *@
+<div class="modal fade" id="st-session-modal" tabindex="-1" aria-labelledby="st-session-title" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+        <form class="modal-content" id="st-session-form" autocomplete="off" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="st-session-title">Xác nhận thông tin · <span id="st-session-wo"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <div class="alert alert-info py-2 mb-0 d-none" id="st-session-resume"></div>
+                <ul class="list-unstyled d-flex flex-column gap-2 mb-0" id="st-session-items"></ul>
+                <dl class="st-info small mb-0 p-3 rounded bg-body-tertiary" id="st-session-values"></dl>
+                @* Mã nhân viên: SVN cố định + 4 số. Mã không có trên Viindoo: báo lúc bấm Vào làm việc *@
+                <div>
+                    <label class="form-label" for="st-session-employee">Mã nhân viên</label>
+                    <div class="input-group input-group-lg st-employee">
+                        <span class="input-group-text">SVN</span>
+                        <input type="text" inputmode="numeric" maxlength="4" class="form-control" id="st-session-employee"
+                               placeholder="Nhập mã nhân viên vào đây" autocomplete="off" />
+                    </div>
+                    <div class="invalid-feedback" id="st-session-employee-error"></div>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="st-session-confirm" />
+                    <label class="form-check-label" for="st-session-confirm">Tôi đã kiểm tra và xác nhận các thông tin trên là chính xác.</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="submit" class="btn btn-primary" id="st-session-start" disabled><i class="icon-base ti tabler-player-play me-1"></i>Vào làm việc</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* ===== Menu F2: mở khoá bằng PIN leader, rồi chọn ô [Box] [Máy in] [In tem] [Kết thúc] ===== *@
+<div class="modal fade" id="st-menu-modal" tabindex="-1" aria-labelledby="st-menu-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 640px;">
+        <div class="modal-content">
+            <div class="modal-header gap-2">
+                <button type="button" class="btn btn-sm btn-icon btn-label-secondary d-none" id="st-menu-back" aria-label="Quay lại menu"><i class="icon-base ti tabler-arrow-left"></i></button>
+                <h5 class="modal-title me-auto" id="st-menu-title">Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                @* Mở khoá *@
+                <form class="d-flex flex-column gap-3" id="st-menu-pin-view" autocomplete="off">
+                    <label class="form-label mb-0" for="st-menu-pin">PIN leader</label>
+                    <input type="password" inputmode="numeric" class="form-control form-control-lg" id="st-menu-pin" />
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="icon-base ti tabler-lock-open me-1"></i>Mở khoá</button>
+                </form>
+
+                @* Các ô chức năng (bấm số theo thứ tự). Ngoài phiên chỉ có Máy in, In tem *@
+                <div class="st-tiles d-none" id="st-menu-home">
+                    <button type="button" class="btn btn-label-info st-tile" data-view="printer"><span class="st-key"></span><i class="icon-base ti tabler-printer icon-40px"></i>Máy in</button>
+                    <button type="button" class="btn btn-label-success st-tile" data-view="manual"><span class="st-key"></span><i class="icon-base ti tabler-file-barcode icon-40px"></i>In tem</button>
+                    <button type="button" class="btn btn-label-primary st-tile" data-view="box" data-session-only><span class="st-key"></span><i class="icon-base ti tabler-package icon-40px"></i>Box</button>
+                </div>
+
+                @* Box: chọn box rồi chọn thao tác *@
+                <div class="d-none flex-column gap-3" id="st-menu-box">
+                    <div class="list-group st-box-list" id="st-menu-box-list"></div>
+                    <div class="d-none flex-column gap-2 p-3 rounded bg-body-tertiary" id="st-menu-box-actions">
+                        <div class="fw-semibold text-heading" id="st-menu-box-title"></div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-primary" data-box-action="reprint"><i class="icon-base ti tabler-printer me-1"></i>In lại tem</button>
+                            <button type="button" class="btn btn-warning" data-box-action="close"><i class="icon-base ti tabler-package-export me-1"></i>Đóng box thiếu</button>
+                            <button type="button" class="btn btn-label-primary" data-box-action="qty"><i class="icon-base ti tabler-edit me-1"></i>Sửa số pcs</button>
+                            <button type="button" class="btn btn-label-danger" data-box-action="delete"><i class="icon-base ti tabler-trash me-1"></i><span>Xoá box</span></button>
+                        </div>
+                        <form class="d-none gap-2 align-items-end" id="st-menu-qty-form" autocomplete="off">
+                            <div class="flex-grow-1">
+                                <label class="form-label" for="st-menu-qty">Số pcs</label>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-label-secondary" data-step="-1" data-step-for="st-menu-qty" aria-label="Giảm"><i class="icon-base ti tabler-minus"></i></button>
+                                    <input type="text" inputmode="numeric" class="form-control text-center" id="st-menu-qty" data-min="1" autocomplete="off" />
+                                    <button type="button" class="btn btn-label-secondary" data-step="1" data-step-for="st-menu-qty" aria-label="Tăng"><i class="icon-base ti tabler-plus"></i></button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                        </form>
+                        <div class="small text-muted" id="st-menu-box-hint"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ===== Modal Cấu hình máy in: dùng chung với màn In tem (Menu → Máy in mở modal này) ===== *@
+@await Html.PartialAsync("_PrinterConfigModal", Model)
+
+@* ===== Modal In tem (Menu → In tem, PIN): in lại tem box, in tem plate / carton; trong hoặc ngoài phiên ===== *@
+<div class="modal fade" id="st-manual-modal" tabindex="-1" aria-labelledby="st-manual-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <form class="modal-content" id="st-manual-form" autocomplete="off" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="st-manual-title">In tem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-lg-6 d-flex flex-column gap-4">
+                        @* 1. WO (giống màn In tem admin): có WO thì phần 2 chỉ hiện mẫu tem của sản phẩm *@
+                        <section>
+                            <h6 class="mb-2">1. Lệnh sản xuất (WO) <span class="small text-muted fw-normal">không bắt buộc, để điền dữ liệu</span></h6>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="icon-base ti tabler-scan"></i></span>
+                                <input type="text" class="form-control" id="st-lbl-wo" placeholder="Quét hoặc nhập mã WO, VD: 06387" aria-label="Mã WO" />
+                                <button type="button" class="btn btn-outline-secondary" id="st-lbl-clear" title="Bỏ chọn WO" aria-label="Bỏ chọn WO" disabled><i class="icon-base ti tabler-x"></i></button>
+                                <button type="button" class="btn btn-primary" id="st-lbl-load"><i class="icon-base ti tabler-search me-1"></i>Tìm</button>
+                            </div>
+                            <dl class="st-lbl-info mt-3 mb-0 d-none" id="st-lbl-wo-info"></dl>
+                        </section>
+                        @* 2. Mẫu tem: theo WO (mẫu của sản phẩm) hoặc tìm theo mã; không liệt kê hết *@
+                        <section>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">2. Mẫu tem</h6>
+                                <button type="button" class="btn btn-sm btn-text-primary d-none" id="st-lbl-tpl-toggle">Tìm mẫu khác</button>
+                            </div>
+                            <div class="input-group input-group-sm mb-2" id="st-lbl-tpl-search">
+                                <input type="text" class="form-control" id="st-lbl-tpl-q" placeholder="Tìm theo mã sản phẩm..." aria-label="Tìm mẫu tem" autocomplete="off" />
+                                <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+                            </div>
+                            <div class="d-flex flex-column gap-2 st-tpl-list" id="st-lbl-tpls" role="radiogroup" aria-label="Mẫu tem"></div>
+                        </section>
+                        <section>
+                            <h6 class="mb-2">3. Biến trên tem</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead class="table-light"><tr><th>Biến</th><th>Giá trị</th><th style="width: 96px;">Lấy từ</th></tr></thead>
+                                    <tbody id="st-lbl-vars"><tr><td colspan="3" class="text-muted small text-center py-3">Chọn mẫu tem.</td></tr></tbody>
+                                </table>
+                            </div>
+                        </section>
+                        <div id="st-lbl-warnings"></div>
+                    </div>
+                    <div class="col-lg-6 st-lbl-preview-col">
+                        @await Html.PartialAsync("_ZplPreviewPanel", "st-lbl-preview", new ViewDataDictionary(ViewData) { ["ZplPreviewShowPo"] = false })
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="input-group flex-nowrap me-auto" style="width: 250px;">
+                    <span class="input-group-text">Số bản</span>
+                    <button type="button" class="btn btn-label-secondary" data-step="-1" data-step-for="st-copies" aria-label="Giảm"><i class="icon-base ti tabler-minus"></i></button>
+                    <input type="text" inputmode="numeric" class="form-control text-center" id="st-copies" value="1" data-min="1" data-max="100" autocomplete="off" aria-label="Số bản" style="min-width: 60px;" />
+                    <button type="button" class="btn btn-label-secondary" data-step="1" data-step-for="st-copies" aria-label="Tăng"><i class="icon-base ti tabler-plus"></i></button>
+                </div>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary" id="st-manual-print" disabled><i class="icon-base ti tabler-printer me-1"></i>In tem</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/label-template/zpl-preview.css" asp-append-version="true" />
+    <style>
+        /* Mã nhân viên sai: viền đỏ cả ô SVN và ô nhập */
+        .st-employee.is-invalid .input-group-text,
+        .st-employee.is-invalid .form-control { border-color: var(--bs-form-invalid-border-color, var(--bs-danger)) !important; }
+        .st-big-input { font-size: 1.5rem; padding: .75rem 1rem; }
+        /* Lỗi bước nhập WO */
+        .st-wo-error { display: flex; align-items: center; gap: .625rem; margin-top: .75rem; color: var(--bs-danger); font-size: 1.25rem; font-weight: 600; }
+        .st-wo-error i { font-size: 1.75rem; }
+        #st-wo-group.is-invalid .input-group-text, #st-wo-group.is-invalid .form-control { border-color: var(--bs-danger) !important; }
+        /* Thông báo (môi trường xưởng: chữ to, màu rõ). Màn rộng: cao bằng card Box gần nhất, danh sách cuộn bên trong */
+        .st-notices { display: flex; flex-direction: column; max-height: 42rem; }
+        @@media (min-width: 1200px) {
+            .st-notices-col { position: relative; min-height: 32rem; }
+            .st-notices { position: absolute; inset: 0 calc(var(--bs-gutter-x) * .5); max-height: none; }
+        }
+        .st-notices-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 1rem 1rem; }
+        .st-notice-latest { display: flex; align-items: center; gap: .875rem; padding: 1.125rem 1.25rem; border-radius: .5rem; }
+        .st-notice-latest i { font-size: 3rem; flex-shrink: 0; }
+        .st-notice-latest .st-notice-msg { flex: 1 1 auto; min-width: 0; font-size: 1.75rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+        .st-notice-latest .st-notice-time { font-size: 1rem; margin-top: .25rem; opacity: .92; }
+        /* Thông báo nhiều dòng: tiêu đề (to) + từng ý "Nhãn: nội dung" (nhỏ hơn, mỗi ý 1 dòng) */
+        .st-notice-latest .st-notice-line { font-size: 1.125rem; font-weight: 500; line-height: 1.35; margin-top: .25rem; }
+        .st-notice-item .st-notice-title { font-weight: 600; }
+        .st-notice-item .st-notice-line { font-size: .9375rem; color: var(--bs-secondary-color); margin-top: .125rem; }
+        .st-notice-label { font-weight: 700; }
+        .st-notice-latest .st-notice-count { flex-shrink: 0; border-radius: .375rem; padding: .25rem .75rem; font-size: 1.5rem; font-weight: 700; background: #fff; }
+        .st-notice-latest.is-error { background: var(--bs-danger); color: #fff; }
+        .st-notice-latest.is-error .st-notice-count { color: var(--bs-danger); }
+        .st-notice-latest.is-success { background: #1f9d57; color: #fff; }
+        .st-notice-latest.is-success .st-notice-count { color: #1f9d57; }
+        .st-notice-latest.is-warning { background: #ffb264; color: #2f2b3d; }
+        .st-notice-latest.is-warning .st-notice-count { color: #2f2b3d; }
+        .st-notice-prev-title { padding: .875rem .5rem .375rem; font-size: .8125rem; text-transform: uppercase; letter-spacing: .4px; color: var(--bs-secondary-color); }
+        .st-notice-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: .375rem; }
+        .st-notice-item { display: flex; align-items: flex-start; gap: .625rem; padding: .625rem .5rem; border-radius: .375rem; font-size: 1.0625rem; color: var(--bs-heading-color); }
+        .st-notice-item .st-notice-time { width: 3rem; flex-shrink: 0; padding-top: .125rem; font-size: .9375rem; color: var(--bs-secondary-color); font-variant-numeric: tabular-nums; }
+        .st-notice-item i { font-size: 1.375rem; flex-shrink: 0; }
+        .st-notice-item .st-notice-msg { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+        .st-notice-item .st-notice-count { align-self: center; flex-shrink: 0; }
+        .st-notice-item.is-error { background: rgba(var(--bs-danger-rgb), .1); }
+        .st-notice-item.is-warning { background: rgba(var(--bs-warning-rgb), .14); }
+        .st-notice-empty { flex: 1 1 auto; min-height: 12rem; border: 2px dashed var(--bs-border-color); border-radius: .5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .625rem; font-size: 1.125rem; color: var(--bs-secondary-color); }
+        .st-notice-empty i { font-size: 2.75rem; }
+        .st-counter { font-size: 4rem; line-height: 1; font-weight: 700; color: var(--bs-heading-color); font-variant-numeric: tabular-nums; }
+        .st-info { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: .375rem .75rem; }
+        .st-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .st-info dd { margin: 0; color: var(--bs-heading-color); }
+        /* In tem: danh sách mẫu, thông tin WO (giống /toastv2), bảng biến */
+        .st-tpl-list { max-height: 240px; overflow: auto; }
+        .st-lbl-empty { padding: 1rem; border: 1px dashed var(--bs-border-color); border-radius: var(--bs-border-radius); text-align: center; color: var(--bs-secondary-color); font-size: .8125rem; }
+        .st-tpl { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); cursor: pointer; margin: 0; }
+        .st-tpl.is-selected { border-color: var(--bs-primary); background: rgba(var(--bs-primary-rgb), .06); }
+        .st-lbl-info { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: .25rem .75rem; font-size: .875rem; }
+        .st-lbl-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .st-lbl-info dd { margin: 0; color: var(--bs-heading-color); overflow-wrap: anywhere; }
+        .st-lbl-key { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8125rem; white-space: nowrap; }
+        #st-lbl-vars td { vertical-align: middle; }
+        #st-lbl-vars .badge { min-width: 76px; }
+        /* Biến bị khoá (chỉ đọc): nền xám, bấm ổ khoá để sửa */
+        #st-lbl-vars .st-lbl-locked { background-color: var(--bs-secondary-bg); color: var(--bs-heading-color); cursor: default; }
+        @@media (min-width: 992px) { .st-lbl-preview-col { position: sticky; top: 0; align-self: flex-start; } }
+        /* sticky tạo lớp xếp chồng riêng: khung xem "Mở rộng" (position: fixed) bị các nút ngoài cột đè lên. Đang mở rộng thì bỏ sticky */
+        .modal.lt-preview-expanded .st-lbl-preview-col { position: static; }
+        .st-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+        .st-tile { position: relative; aspect-ratio: 3 / 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; font-size: 1.15rem; font-weight: 600; }
+        .st-tile .st-key { position: absolute; top: .5rem; left: .5rem; }
+        /* Nhãn phím tắt (không dùng <kbd> vì theme tô nền làm chữ khó thấy) */
+        .st-key { display: inline-block; min-width: 1.5rem; padding: .05rem .4rem; border: 1px solid currentColor; border-radius: .25rem;
+                  font-size: .75rem; font-weight: 600; line-height: 1.3; text-align: center; opacity: .9; }
+        .st-printer-card { display: flex; align-items: center; gap: .75rem; }
+        .st-net { font-size: 1.125rem; padding: .5rem; line-height: 1; }
+        .st-printer-icon { width: 40px; height: 40px; border-radius: var(--bs-border-radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.25rem; }
+        .st-box-list { max-height: 300px; overflow: auto; }
+        /* Box gần nhất: box in lỗi tô nền đỏ nhạt */
+        #st-boxes tr.st-box-error td { background: rgba(var(--bs-danger-rgb), .06); }
+        /* Box đủ hàng ở máy này, chưa đồng bộ lên server (cột # trống) */
+        #st-boxes tr.st-box-local td { background: rgba(var(--bs-warning-rgb), .10); }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.StationPage = {
+            apiUrl: '@Url.Content("~/toast/api")',
+            agentUrl: 'http://localhost:8021',
+            // Toast:RequireLeaderPin: false = Menu F2 vào thẳng, không hỏi PIN
+            requirePin: @(ViewData["RequirePin"] as bool? == false ? "false" : "true"),
+            // Toast:ScanSyncEvery: còn từ N pcs chưa gửi thì gửi lên server (0 = chỉ khi đủ box)
+            syncEvery: @(ViewData["ScanSyncEvery"] as int? ?? 0),
+            printers: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(p => new { id = p.Id.ToString(), code = p.Code, name = p.Name, ip = p.Ip, port = p.Port })))
+        };
+    </script>
+    <script src="~/js/shared/printer-config.js" asp-append-version="true"></script>
+    <script src="~/js/label-template/zpl-preview.js" asp-append-version="true"></script>
+    <script src="~/js/station/station.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,136 @@
+@model int[]
+@{
+    ViewData["Title"] = "Máy in";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1">Máy in</h4>
+            <span class="text-muted small" id="pr-summary">Đang tải...</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <div class="input-group" style="flex: 2 1 280px; width: auto;">
+                <input type="text" class="form-control" id="pr-search" placeholder="Tìm theo mã, tên, IP, vị trí..." aria-label="Tìm máy in" />
+                <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+            </div>
+            <select class="form-select" id="pr-filter-active" aria-label="Lọc trạng thái" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả trạng thái</option>
+                <option value="1">Đang dùng</option>
+                <option value="0">Ngừng dùng</option>
+            </select>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-primary" id="pr-add"><i class="icon-base ti tabler-plus me-1"></i>Thêm</button>
+                <button type="button" class="btn btn-icon btn-label-secondary" id="pr-reload" aria-label="Tải lại" title="Tải lại"><i class="icon-base ti tabler-refresh"></i></button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 900px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 130px;" aria-sort="none"><button type="button" class="list-sort" data-sort="code">Mã<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th aria-sort="none"><button type="button" class="list-sort" data-sort="name">Tên<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th style="width: 170px;">IP : Port</th>
+                        <th style="width: 80px;">DPI</th>
+                        <th>Vị trí</th>
+                        <th style="width: 120px;">Trạng thái</th>
+                        <th style="width: 140px;" aria-sort="none"><button type="button" class="list-sort" data-sort="updated">Cập nhật<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th style="width: 100px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="pr-tbody">
+                    <tr><td colspan="8" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        @await Html.PartialAsync("_ListFooter", "pr")
+    </div>
+</div>
+
+@* Modal Thêm / Sửa *@
+<div class="modal fade" id="pr-modal" tabindex="-1" aria-labelledby="pr-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" id="pr-form" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="pr-modal-title">Thêm máy in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label class="form-label" for="pr-code">Mã <span class="text-danger">*</span></label>
+                        <input id="pr-code" type="text" class="form-control text-uppercase" maxlength="50" placeholder="VD: L1-BOX" required autocomplete="off" />
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="pr-name">Tên <span class="text-danger">*</span></label>
+                        <input id="pr-name" type="text" class="form-control" maxlength="100" placeholder="VD: Zebra ZT411 line 1" required />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label" for="pr-ip">IP <span class="text-danger">*</span></label>
+                        <input id="pr-ip" type="text" class="form-control" placeholder="192.168.1.50" required autocomplete="off" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="pr-port">Port <span class="text-danger">*</span></label>
+                        <input id="pr-port" type="text" inputmode="numeric" class="form-control" required />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="button" class="btn btn-label-primary w-100" id="pr-test"><i class="icon-base ti tabler-plug-connected me-1"></i>Thử kết nối</button>
+                    </div>
+                    <div class="col-12 mt-1">
+                        <div class="form-text" id="pr-test-result">Chỉ mở rồi đóng kết nối tới máy in, không in gì.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="pr-dpi">DPI</label>
+                        <select id="pr-dpi" class="form-select">
+                            <option value="">Không rõ</option>
+                            @foreach (var d in Model)
+                            {
+                                <option value="@d">@d dpi</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="pr-location">Vị trí</label>
+                        <input id="pr-location" type="text" class="form-control" maxlength="100" placeholder="VD: Line 1 Toast" />
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="pr-active" checked />
+                            <label class="form-check-label" for="pr-active">Đang dùng <span class="text-muted small">(tắt = không hiện ở màn In tem và trạm quét)</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="submit" class="btn btn-primary" id="pr-save"><i class="icon-base ti tabler-device-floppy me-1"></i>Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .pr-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.PrinterPage = {
+            apiUrl: '@Url.Content("~/toast/admin/printer/api")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")',
+            defaultPort: @Toast.Web.Features.Printer.Printer.DefaultPort
+        };
+    </script>
+    <script src="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="~/js/shared/list-table.js" asp-append-version="true"></script>
+    <script src="~/js/shared/row-click.js" asp-append-version="true"></script>
+    <script src="~/js/printer/printer.js" asp-append-version="true"></script>
+}

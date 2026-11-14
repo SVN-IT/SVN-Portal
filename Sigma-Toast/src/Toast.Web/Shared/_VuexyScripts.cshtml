@@ -1,0 +1,17 @@
+<script src="~/themes/vuexy/vendor/libs/jquery/jquery.js"></script>
+<script src="~/themes/vuexy/vendor/libs/popper/popper.js"></script>
+<script src="~/themes/vuexy/vendor/js/bootstrap.js"></script>
+<script src="~/themes/vuexy/vendor/libs/node-waves/node-waves.js"></script>
+<script src="~/themes/vuexy/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<script src="~/themes/vuexy/vendor/libs/hammer/hammer.js"></script>
+<script src="~/themes/vuexy/vendor/js/menu.js"></script>
+<script src="~/themes/vuexy/vendor/libs/notyf/notyf.js"></script>
+<script src="~/themes/vuexy/js/main.js"></script>
+<script>
+  // Thông báo sau khi lưu (TempData["Message"]) hiện dạng toast góc phải
+  window.notyf = new Notyf({ duration: 3500, position: { x: 'right', y: 'top' }, dismissible: true });
+  @if (TempData["Message"] is string message)
+  {
+      @:window.notyf.success(@Json.Serialize(message));
+  }
+</script>

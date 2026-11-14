@@ -1,0 +1,37 @@
+@model string?
+@{
+    ViewData["Title"] = "Đăng nhập quản trị";
+    ViewData["NoMenu"] = true;
+}
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner py-6" style="max-width: 420px; margin: 0 auto;">
+            <div class="card">
+                <div class="card-body">
+                    <div class="app-brand justify-content-center mb-4 d-flex align-items-center gap-2">
+                        <i class="icon-base ti tabler-barcode icon-32px text-primary"></i>
+                        <span class="app-brand-text demo text-heading fw-bold fs-3">Toast</span>
+                    </div>
+                    <h4 class="mb-1">Đăng nhập quản trị</h4>
+                    <p class="mb-5 text-body-secondary">Đăng nhập để tiếp tục.</p>
+                    @if (ViewBag.Error is string e)
+                    {
+                        <div class="alert alert-danger">@e</div>
+                    }
+                    <form method="post">
+                        <input type="hidden" name="returnUrl" value="@Model" />
+                        <div class="mb-4">
+                            <label class="form-label" for="userName">Tài khoản</label>
+                            <input id="userName" name="userName" class="form-control" autofocus />
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label" for="password">Mật khẩu</label>
+                            <input id="password" name="password" type="password" class="form-control" />
+                        </div>
+                        <button class="btn btn-primary d-grid w-100">Đăng nhập</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

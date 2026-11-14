@@ -1,0 +1,84 @@
+@{
+    ViewData["Title"] = "Tra cứu đơn bán";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h4 class="card-title mb-1">Tra cứu đơn bán</h4>
+        <span class="text-muted small">Đọc Viindoo (chỉ đọc): dòng đơn, PO / Lot theo dòng, nhóm WO ghép theo số lượng.</span>
+    </div>
+    <div class="card-body">
+        <form class="input-group" id="so-form" autocomplete="off" style="max-width: 480px;">
+            <input type="text" class="form-control so-mono" id="so-input" placeholder="Nhập đơn bán, VD: 589 hoặc S00589" aria-label="Mã đơn bán" autofocus />
+            <button type="submit" class="btn btn-primary" id="so-submit"><i class="icon-base ti tabler-search me-1"></i>Tra</button>
+        </form>
+    </div>
+</div>
+
+<div id="so-alerts" class="d-flex flex-column gap-2 mb-4"></div>
+
+<div class="d-none" id="so-body">
+    <div class="card mb-4">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="card-title mb-0" id="so-title"></h5>
+            <button type="button" class="btn btn-sm btn-icon btn-label-secondary" id="so-reload" title="Đọc lại Viindoo" aria-label="Đọc lại Viindoo"><i class="icon-base ti tabler-refresh"></i></button>
+        </div>
+        <div class="card-body">
+            <dl class="so-info mb-0" id="so-info"></dl>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="card-title mb-0">Dòng đơn và nhóm WO</h5></div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 1100px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 50px;">#</th><th>Sản phẩm</th><th class="text-end" style="width: 90px;">SL</th>
+                        <th>PO</th><th>Lot</th><th style="width: 110px;">Deadline</th>
+                        <th>Nhóm WO</th><th class="text-end" style="width: 80px;">Số lệnh</th><th class="text-end" style="width: 100px;">Tổng SL</th>
+                        <th>Lệnh đang mở / mới nhất</th>
+                    </tr>
+                </thead>
+                <tbody id="so-lines"></tbody>
+            </table>
+        </div>
+        <div class="card-footer small text-muted py-3">
+            Viindoo không lưu WO thuộc dòng nào: nhóm WO (lệnh gốc + backorder) ghép với dòng có cùng sản phẩm và tổng SL nhóm = SL dòng;
+            nhiều dòng cùng SL thì ghép theo thứ tự. Bấm tên WO để xem tem ở /toastv2.
+        </div>
+    </div>
+
+    <div class="card d-none" id="so-unmatched-card">
+        <div class="card-header"><h5 class="card-title mb-0">Nhóm WO chưa ghép được dòng nào</h5></div>
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0" style="min-width: 800px;">
+                <thead class="table-light">
+                    <tr><th>Nhóm WO</th><th>Sản phẩm</th><th class="text-end">Số lệnh</th><th class="text-end">Tổng SL</th><th>Lệnh đang mở / mới nhất</th></tr>
+                </thead>
+                <tbody id="so-unmatched"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .so-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+        .so-info { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: .5rem .75rem; }
+        .so-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .so-info dd { margin: 0; color: var(--bs-heading-color); overflow-wrap: anywhere; }
+        @@media (max-width: 575.98px) { .so-info { grid-template-columns: minmax(0, 1fr); gap: 0; } .so-info dd { margin-bottom: .5rem; } }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.SaleOrderPage = {
+            apiUrl: '@Url.Content("~/toast/admin/sale-order/api")',
+            v2Url: '@Url.Content("~/toastv2")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")'
+        };
+    </script>
+    <script src="~/js/sale-order/sale-order.js" asp-append-version="true"></script>
+}

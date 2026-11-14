@@ -1,0 +1,94 @@
+@model IReadOnlyList<Toast.Web.Features.Printer.Printer>
+@*
+    Modal "Cấu hình máy in" dùng chung cho màn In tem (/toast/admin/print) và màn công nhân (/toast).
+    JS: wwwroot/js/shared/printer-config.js (ToastPrinterConfig.create). Cấu hình lưu trên trình duyệt (localStorage toast.print.config),
+    2 màn trên cùng 1 máy dùng chung 1 cấu hình.
+*@
+<div class="modal fade" id="lp-config-modal" tabindex="-1" aria-labelledby="lp-config-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 680px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lp-config-title">Cấu hình máy in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-5">
+                <div>
+                    <span class="form-label d-block">Phương thức in</span>
+                    <div class="lp-modes" role="radiogroup" aria-label="Phương thức in">
+                        <button type="button" class="btn" role="radio" data-mode="server"><i class="icon-base ti tabler-server"></i><span class="fw-medium">Server TCP</span><span class="small">Server gửi tới IP</span></button>
+                        <button type="button" class="btn" role="radio" data-mode="node"><i class="icon-base ti tabler-network"></i><span class="fw-medium">TCP qua Node</span><span class="small">Qua agent máy này</span></button>
+                        <button type="button" class="btn" role="radio" data-mode="usb"><i class="icon-base ti tabler-usb"></i><span class="fw-medium">USB qua Node</span><span class="small">Máy in cắm USB</span></button>
+                    </div>
+                </div>
+
+                <div class="lp-agent d-none" id="lp-agent">
+                    <span class="small"><i class="icon-base ti tabler-plug-connected me-1"></i>Agent <code id="lp-agent-url"></code> trên máy này</span>
+                    <span class="badge bg-label-secondary" id="lp-agent-status">Đang kiểm tra...</span>
+                </div>
+
+                <div class="d-flex flex-column gap-3" id="lp-tcp-block">
+                    <div class="d-flex gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lp-src" id="lp-src-list" value="list" />
+                            <label class="form-check-label" for="lp-src-list">Chọn từ danh sách</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="lp-src" id="lp-src-manual" value="manual" />
+                            <label class="form-check-label" for="lp-src-manual">Nhập IP tay</label>
+                        </div>
+                    </div>
+                    <div id="lp-src-list-block">
+                        <label class="form-label" for="lp-printer">Máy in</label>
+                        <select class="form-select" id="lp-printer">
+                            @if (Model.Count == 0)
+                            {
+                                <option value="">-- Chưa có máy in, thêm ở Dữ liệu → Máy in --</option>
+                            }
+                            @foreach (var p in Model)
+                            {
+                                <option value="@p.Id">@p.Code · @p.Name · @p.Ip:@p.Port</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="row g-3 d-none" id="lp-src-manual-block">
+                        <div class="col-8">
+                            <label class="form-label" for="lp-ip">IP máy in</label>
+                            <input type="text" class="form-control" id="lp-ip" placeholder="192.168.1.50" autocomplete="off" />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label" for="lp-port">Port</label>
+                            <input type="text" inputmode="numeric" class="form-control" id="lp-port" value="9100" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-none" id="lp-usb-block">
+                    <label class="form-label" for="lp-usb">Máy in USB trên máy này</label>
+                    <div class="input-group">
+                        <select class="form-select" id="lp-usb"><option value="">-- Bấm Làm mới để tìm máy in --</option></select>
+                        <button type="button" class="btn btn-label-secondary" id="lp-usb-refresh"><i class="icon-base ti tabler-refresh me-1"></i>Làm mới</button>
+                    </div>
+                    <div class="form-text" id="lp-usb-status"></div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center" id="lp-test-block">
+                    <button type="button" class="btn btn-sm btn-label-secondary" id="lp-test"><i class="icon-base ti tabler-plug-connected me-1"></i>Kiểm tra kết nối</button>
+                    <span class="small" id="lp-test-result"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="small text-muted me-auto">Lưu trên trình duyệt này</span>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="button" class="btn btn-primary" id="lp-config-save"><i class="icon-base ti tabler-device-floppy me-1"></i>Dùng cấu hình này</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+        .lp-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+        .lp-modes .btn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: .75rem .5rem; }
+        .lp-modes .btn i { font-size: 1.375rem; }
+        .lp-modes .btn .small { opacity: .8; }
+        .lp-agent { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .625rem .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+</style>

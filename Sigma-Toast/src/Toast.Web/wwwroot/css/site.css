@@ -1,0 +1,11 @@
+/* Bổ sung nhỏ trên nền Vuexy. Màu lấy theo biến của theme (var(--bs-...)). */
+.table td, .table th { vertical-align: middle; }
+
+/* Tiêu đề cột sắp xếp được (wwwroot/js/shared/list-table.js), giống .lt-sort của màn Mẫu tem */
+.list-sort { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .25rem; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
+.list-sort i { font-size: 1rem; opacity: .45; }
+.list-sort.is-active i { opacity: 1; color: var(--bs-primary); }
+.list-sort:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; border-radius: 2px; }
+
+/* Dòng bảng bấm 1 lần để xem / sửa (js/shared/row-click.js); dòng thông báo (1 ô colspan) không tính */
+tbody.row-click > tr:not(:has(> td[colspan])) { cursor: pointer; }

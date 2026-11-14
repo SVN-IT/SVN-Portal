@@ -1,0 +1,126 @@
+@model List<Toast.Web.Features.Printer.Printer>
+@{
+    ViewData["Title"] = "In tem";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="row g-6">
+    @* ===== Cột trái: dữ liệu ===== *@
+    <div class="col-xl-5">
+        <div class="d-flex flex-column gap-6">
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">1. Lệnh sản xuất (WO)</h5></div>
+                <div class="card-body d-flex flex-column gap-4">
+                    <form class="input-group" id="lp-wo-form" autocomplete="off">
+                        <span class="input-group-text"><i class="icon-base ti tabler-scan"></i></span>
+                        <input type="text" class="form-control" id="lp-wo" placeholder="Quét hoặc nhập mã WO, VD: 12345" aria-label="Mã WO" />
+                        <button type="button" class="btn btn-outline-secondary" id="lp-wo-clear" title="Bỏ chọn WO" aria-label="Bỏ chọn WO" disabled><i class="icon-base ti tabler-x"></i></button>
+                        <button type="submit" class="btn btn-primary" id="lp-wo-search"><i class="icon-base ti tabler-search me-1"></i>Tìm</button>
+                    </form>
+                    <dl class="lp-wo-info small mb-0 d-none" id="lp-wo-info"></dl>
+                    <div class="alert alert-warning small mb-0 d-none" id="lp-wo-warn" role="alert"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">2. Mẫu tem</h5>
+                    <button type="button" class="btn btn-sm btn-text-primary d-none" id="lp-tpl-toggle-search">Tìm mẫu khác</button>
+                </div>
+                <div class="card-body d-flex flex-column gap-3">
+                    <div class="input-group" id="lp-tpl-search-group">
+                        <input type="text" class="form-control" id="lp-tpl-search" placeholder="Tìm theo mã sản phẩm..." aria-label="Tìm mẫu tem" autocomplete="off" />
+                        <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+                    </div>
+                    <div class="d-flex flex-column gap-2 lp-tpl-list" id="lp-tpl-list" role="radiogroup" aria-label="Mẫu tem">
+                        <div class="lp-empty">Nhập WO hoặc tìm theo mã sản phẩm để hiện các mẫu tem</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">3. Biến trong tem</h5>
+                    <button type="button" class="btn btn-sm btn-label-secondary d-none" id="lp-refill"><i class="icon-base ti tabler-refresh me-1"></i>Điền lại</button>
+                </div>
+                <div class="card-body d-flex flex-column gap-4" id="lp-vars">
+                    <div class="lp-empty">Chọn mẫu tem để hiện các biến cần điền</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ===== Cột phải: xem trước + in ===== *@
+    <div class="col-xl-7">
+        <div class="d-flex flex-column gap-6">
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">4. Xem trước</h5></div>
+                <div class="card-body">
+                    @await Html.PartialAsync("_ZplPreviewPanel", "lp-preview", new ViewDataDictionary(ViewData) { ["ZplPreviewShowPo"] = false })
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">5. Gửi lệnh in</h5></div>
+                <div class="card-body d-flex flex-column gap-4">
+                    <div class="lp-printer-card">
+                        <span class="lp-printer-icon bg-label-primary"><i class="icon-base ti tabler-printer"></i></span>
+                        <div class="flex-grow-1" style="min-width: 0;" id="lp-printer-summary"></div>
+                        <button type="button" class="btn btn-label-primary" id="lp-config-open"><i class="icon-base ti tabler-settings me-1"></i>Đổi cấu hình</button>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 align-items-end">
+                        <div>
+                            <label class="form-label" for="lp-copies">Số bản</label>
+                            <div class="input-group flex-nowrap lp-copies">
+                                <button type="button" class="btn btn-icon btn-label-secondary" id="lp-copies-minus" aria-label="Bớt 1 bản"><i class="icon-base ti tabler-minus"></i></button>
+                                <input type="text" inputmode="numeric" class="form-control text-center" id="lp-copies" value="1" />
+                                <button type="button" class="btn btn-icon btn-label-secondary" id="lp-copies-plus" aria-label="Thêm 1 bản"><i class="icon-base ti tabler-plus"></i></button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg lp-print-btn" id="lp-print" disabled><i class="icon-base ti tabler-printer me-2"></i>In tem</button>
+                    </div>
+                    <div class="small text-muted" id="lp-hint"><i class="icon-base ti tabler-alert-triangle me-1"></i>Chọn mẫu tem trước khi in.</div>
+                    <div id="lp-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_PrinterConfigModal", Model)
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/label-template/zpl-preview.css" asp-append-version="true" />
+    <style>
+        #lp-preview .lt-preview-stage { height: 45vh; }
+        .lp-empty { padding: 1rem; border: 1px dashed var(--bs-border-color); border-radius: var(--bs-border-radius); text-align: center; color: var(--bs-secondary-color); font-size: .8125rem; }
+        .lp-wo-info { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: .5rem .75rem; }
+        .lp-wo-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .lp-wo-info dd { margin: 0; color: var(--bs-heading-color); }
+        /* Danh sách mẫu tem cuộn trong khung (kết quả tìm tối đa 50 mẫu), giống Menu → In tem ở trạm */
+        .lp-tpl-list { max-height: 240px; overflow: auto; }
+        .lp-tpl { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); cursor: pointer; margin: 0; }
+        .lp-tpl:hover { border-color: rgba(var(--bs-primary-rgb), .5); }
+        .lp-tpl.is-selected { border: 2px solid var(--bs-primary); padding: calc(.75rem - 1px); }
+        .lp-printer-card { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+        .lp-printer-icon { width: 44px; height: 44px; border-radius: var(--bs-border-radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.375rem; }
+        .lp-print-btn { flex: 1 1 200px; min-height: 48px; }
+        .lp-copies .form-control { flex: 0 0 3.5rem; width: 3.5rem; padding-left: .25rem; padding-right: .25rem; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.LabelPrintPage = {
+            apiUrl: '@Url.Content("~/toast/admin/print/api")',
+            previewUrl: '@Url.Content("~/toast/admin/label-template/api/preview")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")',
+            agentUrl: 'http://localhost:8021',
+            printers: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(p => new { id = p.Id.ToString(), code = p.Code, name = p.Name, ip = p.Ip, port = p.Port })))
+        };
+    </script>
+    <script src="~/js/label-template/zpl-preview.js" asp-append-version="true"></script>
+    <script src="~/js/shared/printer-config.js" asp-append-version="true"></script>
+    <script src="~/js/label-print/label-print.js" asp-append-version="true"></script>
+}
