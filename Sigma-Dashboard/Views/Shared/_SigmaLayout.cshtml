@@ -395,7 +395,8 @@
 
             // 3. KHI NGƯỜI DÙNG CLICK THAY ĐỔI Ô CHECKBOX (BẬT/TẮT)
             $darkModeCheckbox.on('change', function () {
-                if ($(this).is(':checked')) {
+                var isDark = $(this).is(':checked');
+                if (isDark) {
                     // Người dùng TÍCH CHỌN -> Bật Dark Mode + Lưu 'true' vào LocalStorage
                     $('body').addClass('dark-mode');
                     localStorage.setItem('theme-dark-mode', 'true');
@@ -403,6 +404,16 @@
                     // Người dùng BỎ TÍCH -> Tắt Dark Mode + Lưu 'false' vào LocalStorage
                     $('body').removeClass('none-dark-mode').removeClass('dark-mode');
                     localStorage.setItem('theme-dark-mode', 'false');
+                }
+                // Cập nhật màu chữ chú thích cho các biểu đồ Pie Chart khi đổi theme
+                if (typeof Chart !== 'undefined' && Chart.instances) {
+                    var legendColor = isDark ? '#ccc' : '#495057';
+                    Chart.helpers.each(Chart.instances, function (instance) {
+                        if (instance.config && instance.config.type === 'pie' && instance.options && instance.options.legend && instance.options.legend.labels) {
+                            instance.options.legend.labels.fontColor = legendColor;
+                            instance.update();
+                        }
+                    });
                 }
             });
 

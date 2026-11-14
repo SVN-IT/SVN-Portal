@@ -445,7 +445,62 @@ a {
     }
 }
 
-/* ── Top 5 Downtime list custom scrollbar & dark-mode styling ── */
+/* ── Top 5 Downtime styles for Dark Mode and Light Mode ── */
+.top-downtime-wrapper {
+    border-top: 1px dashed rgba(0, 0, 0, 0.15);
+    padding-top: 6px;
+}
+body.dark-mode .top-downtime-wrapper {
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.top-downtime-title {
+    color: #b07d00;
+    font-weight: 700;
+    font-size: 13px;
+}
+body.dark-mode .top-downtime-title {
+    color: #ffc107;
+}
+
+.top-downtime-list {
+    height: 120px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.top-downtime-list li {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: #212529;
+}
+body.dark-mode .top-downtime-list li {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8f9fa;
+}
+
+.top-downtime-list li:last-child {
+    border-bottom: none !important;
+}
+
+.top-downtime-item-name {
+    color: inherit;
+    font-weight: 500;
+}
+
+.top-downtime-badge {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    font-weight: 700;
+    font-size: 10px;
+    padding: 2px 6px;
+}
+body.dark-mode .top-downtime-badge {
+    background-color: #2b3035;
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
 .top-downtime-list::-webkit-scrollbar {
     width: 4px;
 }
@@ -453,14 +508,17 @@ a {
     background: transparent;
 }
 .top-downtime-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
 }
-.top-downtime-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+body.dark-mode .top-downtime-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
 }
-.top-downtime-list li:last-child {
-    border-bottom: none !important;
+.top-downtime-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+body.dark-mode .top-downtime-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 

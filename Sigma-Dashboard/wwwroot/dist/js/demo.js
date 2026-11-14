@@ -74,6 +74,16 @@
       $('body').removeClass('dark-mode')
       localStorage.setItem('theme-dark-mode', 'false')
     }
+    if (typeof Chart !== 'undefined' && Chart.instances) {
+      var isDark = $(this).is(':checked');
+      var legendColor = isDark ? '#ccc' : '#495057';
+      Chart.helpers.each(Chart.instances, function (instance) {
+        if (instance.config && instance.config.type === 'pie' && instance.options && instance.options.legend && instance.options.legend.labels) {
+          instance.options.legend.labels.fontColor = legendColor;
+          instance.update();
+        }
+      });
+    }
   })
   var $dark_mode_container = $('<div />', { class: 'mb-2' }).append($dark_mode_checkbox).append('<span>Dark Mode</span>')
   $container.append($dark_mode_container)
