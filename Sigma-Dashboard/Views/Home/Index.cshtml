@@ -465,8 +465,15 @@
 
                                                 <!-- Top 5 Downtime -->
                                                 <div class="top-downtime-wrapper mt-2">
-                                                    <p class="text-center header-font-size mb-1 top-downtime-title">
-                                                        <i class="fas fa-exclamation-triangle mr-1"></i><strong>Top 5 Downtime</strong>
+                                                    @{
+                                                        var hasDowntime = item.TopDowntimes != null && item.TopDowntimes.Count > 0;
+                                                    }
+                                                    <p id="downtimeTitle_@charID" class="text-center header-font-size mb-1 top-downtime-title @(hasDowntime ? "has-downtime" : "no-downtime")">
+                                                        @if (hasDowntime)
+                                                        {
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        }
+                                                        <strong>Top 5 Downtime</strong>
                                                     </p>
                                                     <div id="downtimeList_@charID" class="top-downtime-list">
                                                         @if (item.TopDowntimes != null && item.TopDowntimes.Count > 0)
@@ -959,10 +966,23 @@
     }
 
     function renderTopDowntimes(chartID, topDowntimes) {
+        var titleEl = $("#downtimeTitle_" + chartID);
         var container = $("#downtimeList_" + chartID);
         if (!container.length) return;
 
-        if (!topDowntimes || topDowntimes.length === 0) {
+        var hasDowntime = topDowntimes && topDowntimes.length > 0;
+
+        if (titleEl.length) {
+            if (hasDowntime) {
+                titleEl.removeClass('no-downtime').addClass('has-downtime');
+                titleEl.html('<i class="fas fa-exclamation-triangle mr-1"></i><strong>Top 5 Downtime</strong>');
+            } else {
+                titleEl.removeClass('has-downtime').addClass('no-downtime');
+                titleEl.html('<strong>Top 5 Downtime</strong>');
+            }
+        }
+
+        if (!hasDowntime) {
             container.html('<div class="text-muted text-center py-3" style="font-size: 11px; font-style: italic;"><i class="fas fa-check-circle text-success mr-1"></i>No downtime</div>');
             return;
         }

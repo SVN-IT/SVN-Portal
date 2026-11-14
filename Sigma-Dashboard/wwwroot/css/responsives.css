@@ -455,11 +455,20 @@ body.dark-mode .top-downtime-wrapper {
 }
 
 .top-downtime-title {
-    color: #b07d00;
     font-weight: 700;
     font-size: 13px;
+    transition: color 0.2s ease-in-out;
 }
-body.dark-mode .top-downtime-title {
+.top-downtime-title.no-downtime {
+    color: #212529;
+}
+body.dark-mode .top-downtime-title.no-downtime {
+    color: #f8f9fa;
+}
+.top-downtime-title.has-downtime {
+    color: #b07d00;
+}
+body.dark-mode .top-downtime-title.has-downtime {
     color: #ffc107;
 }
 
