@@ -174,8 +174,18 @@
                 @if ((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home")
                 {
                     <li class="nav-item">
+                        <a class="nav-link" id="btnPrevCarousel" href="#" role="button" title="Trang trước (←)">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" id="btnToggleCarousel" href="#" role="button" title="Tạm dừng chuyển trang (P)">
                             <i class="fas fa-pause" id="iconToggleCarousel"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="btnNextCarousel" href="#" role="button" title="Trang sau (→)">
+                            <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>
                 }

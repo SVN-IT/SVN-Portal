@@ -1036,6 +1036,16 @@
         toggleCarousel();
     });
 
+    $(document).on('click', '#btnPrevCarousel', function (e) {
+        e.preventDefault();
+        $('#carouselExampleSlidesOnly').carousel('prev');
+    });
+
+    $(document).on('click', '#btnNextCarousel', function (e) {
+        e.preventDefault();
+        $('#carouselExampleSlidesOnly').carousel('next');
+    });
+
     $(document).on('keydown', function (e) {
       if (e.key === 'ArrowLeft') {
         $('#carouselExampleSlidesOnly').carousel('prev');
