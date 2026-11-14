@@ -317,7 +317,7 @@ a {
         top: 0 !important;
         bottom: 0 !important;
         left: 55px !important;
-        right: 95px !important;
+        right: 140px !important;
         background-color: transparent !important;
         z-index: 9 !important;
         padding: 0 0.5rem !important;
@@ -444,4 +444,23 @@ a {
         padding: 2px 6px !important;
     }
 }
+
+/* ── Top 5 Downtime list custom scrollbar & dark-mode styling ── */
+.top-downtime-list::-webkit-scrollbar {
+    width: 4px;
+}
+.top-downtime-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.top-downtime-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+.top-downtime-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+.top-downtime-list li:last-child {
+    border-bottom: none !important;
+}
+
 

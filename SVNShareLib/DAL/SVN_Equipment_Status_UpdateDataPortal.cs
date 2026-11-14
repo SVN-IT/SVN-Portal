@@ -108,5 +108,69 @@ namespace SVNShareLib.DAL
                 return null;
             }
         }
+
+        public async Task<List<SVN_Top_Downtime_UI>> GetTopDowntimeByDate(string date)
+        {
+            int timeOut = 1000;
+            try
+            {
+                string sql = @"
+WITH StopRuns AS (
+    SELECT 
+        s.Id AS StopId,
+        s.Code,
+        ISNULL(NULLIF(s.Operation, ''), s.Code) AS Operation,
+        s.[ISS-Code] AS IssCode,
+        ISNULL(r.reason_name, N'Chưa xác định') AS ErrorName,
+        s.Datetime AS StopTime,
+        s.EstimateTime,
+        s.Description,
+        (
+            SELECT MIN(r2.Datetime)
+            FROM dbo.SVN_Downtime_Info r2
+            WHERE (r2.Code = s.Code OR (s.Code IS NULL AND r2.Operation = s.Operation))
+              AND r2.State = 'Run'
+              AND r2.Datetime > s.Datetime
+              AND CAST(r2.Datetime AS DATE) = CAST(s.Datetime AS DATE)
+        ) AS NextRunTime
+    FROM dbo.SVN_Downtime_Info s
+    LEFT JOIN dbo.SVN_Downtime_Reason r ON s.[ISS-Code] = r.reason_code
+    WHERE s.State <> 'Run'
+      AND CAST(s.Datetime AS DATE) = @WorkDate
+)
+SELECT 
+    Operation,
+    Code,
+    IssCode,
+    ErrorName,
+    COUNT(*) AS Occurrences,
+    SUM(
+        CASE 
+            WHEN NextRunTime IS NOT NULL AND NextRunTime > StopTime 
+                THEN DATEDIFF(SECOND, StopTime, NextRunTime) / 60.0
+            WHEN NextRunTime IS NULL AND @WorkDate = CAST(GETDATE() AS DATE) AND GETDATE() > StopTime
+                THEN DATEDIFF(SECOND, StopTime, GETDATE()) / 60.0
+            WHEN NextRunTime IS NULL AND Try_Convert(time, EstimateTime) IS NOT NULL
+                THEN DATEDIFF(SECOND, StopTime, DATEADD(SECOND, DATEDIFF(SECOND, 0, Try_Convert(time, EstimateTime)), CAST(@WorkDate AS DATETIME))) / 60.0
+            ELSE 0 
+        END
+    ) AS TotalMinutes
+FROM StopRuns
+WHERE Operation IS NOT NULL AND Operation <> ''
+GROUP BY Operation, Code, IssCode, ErrorName
+ORDER BY TotalMinutes DESC";
+
+                var param = new { WorkDate = date };
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = await connection.QueryAsync<SVN_Top_Downtime_UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data.ToList();
+                }
+            }
+            catch
+            {
+                return new List<SVN_Top_Downtime_UI>();
+            }
+        }
     }
 }

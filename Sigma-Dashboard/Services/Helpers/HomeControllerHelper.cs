@@ -2,6 +2,7 @@
 using Sigma_Dashboard.Services.Configurations;
 using SVNShareLib.DAL;
 using SVNShareLib.DAL.NewDashboard;
+using SVNShareLib.DTO;
 using SVNShareLib.DTO.NewDashboard;
 using System;
 using System.Globalization;
@@ -74,6 +75,14 @@ namespace Sigma_Dashboard.Services.Helpers
                 defect_RecordUI = await defectdataportal.ReadList(date); //lấy dữ liệu defect record từ csdl theo ngày
                 quantity_ReasonUI = await quntityreasondataportal.ReadList(); //lấy dữ liệu quantity reason từ csdl (các mã lỗi và tên lỗi)
                 dataUI = await productionResultDataPortal.ReadListByOperationsRunning(date, tableName); //lấy dữ liệu sản xuất thực tế theo ngày và theo các operation đang chạy hiện tại
+
+                List<SVN_Top_Downtime_UI> allDowntimeSummary = new List<SVN_Top_Downtime_UI>();
+                try
+                {
+                    DateTime workDate = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
+                    allDowntimeSummary = await svn_equipment_StatusDataPortal.GetTopDowntimeByDate(workDate.ToString("yyyy-MM-dd"));
+                }
+                catch { }
 
                 if (targetDataUI != null && targetDataUI.Count > 0)
                 {
@@ -213,6 +222,30 @@ namespace Sigma_Dashboard.Services.Helpers
 
                             barChartData.DefectLabel = defectLabel.ToArray();
                             barChartData.DefectData = defectData.ToArray();
+                        }
+
+                        // Lấy Top 5 Downtime trong ngày cho operation này
+                        if (allDowntimeSummary != null && allDowntimeSummary.Count > 0)
+                        {
+                            var opDowntimes = allDowntimeSummary
+                                .Where(x => !string.IsNullOrEmpty(x.Operation) &&
+                                            (x.Operation.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase) ||
+                                             (!string.IsNullOrEmpty(x.Code) && x.Code.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase))))
+                                .GroupBy(x => new { x.IssCode, x.ErrorName })
+                                .Select(g => new TopDowntimeItem
+                                {
+                                    Operation = item.Operation,
+                                    IssCode = g.Key.IssCode,
+                                    ErrorName = g.Key.ErrorName,
+                                    Occurrences = g.Sum(x => x.Occurrences),
+                                    TotalMinutes = Math.Round(g.Sum(x => x.TotalMinutes), 1),
+                                    FormattedDuration = FormatDowntimeDuration(g.Sum(x => x.TotalMinutes))
+                                })
+                                .OrderByDescending(x => x.TotalMinutes)
+                                .Take(5)
+                                .ToList();
+
+                            barChartData.TopDowntimes = opDowntimes;
                         }
 
                         //Lấy Daily target của từng operation
@@ -542,5 +575,17 @@ namespace Sigma_Dashboard.Services.Helpers
             return opers;
         }
         #endregion
+
+        private string FormatDowntimeDuration(double minutes)
+        {
+            if (minutes <= 0) return "0m";
+            int hours = (int)(minutes / 60);
+            int mins = (int)Math.Round(minutes % 60);
+            if (hours > 0)
+            {
+                return mins > 0 ? $"{hours}h {mins}m" : $"{hours}h";
+            }
+            return $"{mins}m";
+        }
     }
 }

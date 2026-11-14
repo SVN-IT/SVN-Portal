@@ -451,13 +451,55 @@
                                                 <!-- /.chart-responsive -->
                                             </div>
                                             <!-- /.col -->
-                                            <div class="col-md-4 col-12">
-                                                <p class="text-center header-font-size">
-                                                    <strong>Defect by category</strong>
-                                                </p>
-                                                <div class="chart">
-                                                    <!-- Sales Chart Canvas -->
-                                                    <canvas id="pieChart_@charID" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                            <div class="col-md-4 col-12 d-flex flex-column justify-content-between">
+                                                <!-- Defect by category -->
+                                                <div class="defect-chart-wrapper">
+                                                    <p class="text-center header-font-size mb-1">
+                                                        <strong>Defect by category</strong>
+                                                    </p>
+                                                    <div class="chart" style="height: 105px; max-height: 105px; position: relative;">
+                                                        <!-- Sales Chart Canvas -->
+                                                        <canvas id="pieChart_@charID" style="min-height: 105px; height: 105px; max-height: 105px; max-width: 100%;"></canvas>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Top 5 Downtime -->
+                                                <div class="top-downtime-wrapper mt-2" style="border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 4px;">
+                                                    <p class="text-center header-font-size mb-1 text-warning" style="font-size: 13px;">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i><strong>Top 5 Downtime</strong>
+                                                    </p>
+                                                    <div id="downtimeList_@charID" class="top-downtime-list" style="height: 120px; max-height: 120px; overflow-y: auto;">
+                                                        @if (item.TopDowntimes != null && item.TopDowntimes.Count > 0)
+                                                        {
+                                                            <ul class="list-unstyled mb-0" style="font-size: 11px; line-height: 1.35;">
+                                                                @for (int dtIdx = 0; dtIdx < item.TopDowntimes.Count; dtIdx++)
+                                                                {
+                                                                    var dtItem = item.TopDowntimes[dtIdx];
+                                                                    var rank = dtIdx + 1;
+                                                                    var badgeBg = rank == 1 ? "badge-danger" : (rank == 2 ? "badge-warning" : "badge-secondary");
+                                                                    <li class="d-flex justify-content-between align-items-center py-1 border-bottom border-dark text-truncate" title="@dtItem.ErrorName: @dtItem.FormattedDuration (@dtItem.Occurrences lần)">
+                                                                        <span class="text-truncate mr-1 text-light">
+                                                                            <span class="badge @badgeBg mr-1" style="font-size: 9px; padding: 2px 4px;">@rank</span>
+                                                                            <span>@dtItem.ErrorName</span>
+                                                                            @if (dtItem.Occurrences > 1)
+                                                                            {
+                                                                                <small class="text-muted">(@(dtItem.Occurrences)x)</small>
+                                                                            }
+                                                                        </span>
+                                                                        <span class="badge badge-pill badge-dark text-warning border border-warning font-weight-bold ml-auto text-nowrap" style="font-size: 10px;">
+                                                                            @dtItem.FormattedDuration
+                                                                        </span>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="text-muted text-center py-3" style="font-size: 11px; font-style: italic;">
+                                                                <i class="fas fa-check-circle text-success mr-1"></i>No downtime
+                                                            </div>
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                             <!-- /.col -->
@@ -539,6 +581,23 @@
                                     animation: false,
                                     maintainAspectRatio : false,
                                     responsive : true,
+                                    legend: {
+                                      display: true,
+                                      position: 'top',
+                                      labels: {
+                                        boxWidth: 8,
+                                        fontSize: 9,
+                                        padding: 3,
+                                        fontColor: '#ccc'
+                                      }
+                                    },
+                                    plugins: {
+                                      datalabels: {
+                                        font: {
+                                          size: 9
+                                        }
+                                      }
+                                    }
                                   }
                                   //Create pie or douhnut chart
                                   // You can switch between pie and douhnut using the method below.
@@ -875,6 +934,7 @@
         $("#checklist_" + item.chartID).text(item.checkListStatus);
         $("#workingtime_" + item.chartID).text(item.workingTimeStatus);
         $("#downtime_" + item.chartID).text(item.downtimeStatus);
+        renderTopDowntimes(item.chartID, item.topDowntimes);
 
         $("#overlay-" + item.chartID).removeClass('d-none');
         if(!item.isChecklist || !item.isDowntime){
@@ -898,12 +958,64 @@
         }
     }
 
+    function renderTopDowntimes(chartID, topDowntimes) {
+        var container = $("#downtimeList_" + chartID);
+        if (!container.length) return;
+
+        if (!topDowntimes || topDowntimes.length === 0) {
+            container.html('<div class="text-muted text-center py-3" style="font-size: 11px; font-style: italic;"><i class="fas fa-check-circle text-success mr-1"></i>No downtime</div>');
+            return;
+        }
+
+        var html = '<ul class="list-unstyled mb-0" style="font-size: 11px; line-height: 1.35;">';
+        for (var i = 0; i < topDowntimes.length; i++) {
+            var dt = topDowntimes[i];
+            var rank = i + 1;
+            var badgeBg = rank === 1 ? 'badge-danger' : (rank === 2 ? 'badge-warning' : 'badge-secondary');
+            var occurrences = dt.occurrences !== undefined ? dt.occurrences : (dt.Occurrences !== undefined ? dt.Occurrences : 1);
+            var formattedDuration = dt.formattedDuration || dt.FormattedDuration || '0m';
+            var errorName = dt.errorName || dt.ErrorName || 'Chưa xác định';
+            var countText = occurrences > 1 ? '<small class="text-muted">(' + occurrences + 'x)</small>' : '';
+
+            html += '<li class="d-flex justify-content-between align-items-center py-1 border-bottom border-dark text-truncate" title="' + errorName + ': ' + formattedDuration + ' (' + occurrences + ' lần)">';
+            html += '  <span class="text-truncate mr-1 text-light">';
+            html += '    <span class="badge ' + badgeBg + ' mr-1" style="font-size: 9px; padding: 2px 4px;">' + rank + '</span>';
+            html += '    <span>' + errorName + '</span> ' + countText;
+            html += '  </span>';
+            html += '  <span class="badge badge-pill badge-dark text-warning border border-warning font-weight-bold ml-auto text-nowrap" style="font-size: 10px;">';
+            html += '    ' + formattedDuration;
+            html += '  </span>';
+            html += '</li>';
+        }
+        html += '</ul>';
+        container.html(html);
+    }
+
     $('#carouselExampleSlidesOnly').carousel({
       interval: 10000,   // 8s
       pause: false      // không pause khi hover
     });
 
     let isPaused = false;
+
+    function toggleCarousel() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            $('#carouselExampleSlidesOnly').carousel('pause');
+            $('#iconToggleCarousel').removeClass('fa-pause').addClass('fa-play text-warning');
+            $('#btnToggleCarousel').attr('title', 'Tiếp tục chuyển trang (P)');
+        } else {
+            $('#carouselExampleSlidesOnly').carousel('cycle');
+            $('#iconToggleCarousel').removeClass('fa-play text-warning').addClass('fa-pause');
+            $('#btnToggleCarousel').attr('title', 'Tạm dừng chuyển trang (P)');
+        }
+    }
+
+    $(document).on('click', '#btnToggleCarousel', function (e) {
+        e.preventDefault();
+        toggleCarousel();
+    });
+
     $(document).on('keydown', function (e) {
       if (e.key === 'ArrowLeft') {
         $('#carouselExampleSlidesOnly').carousel('prev');
@@ -914,13 +1026,7 @@
       }
 
       if (e.key.toLowerCase() === 'p') {
-         isPaused = !isPaused;
-
-         if (isPaused) {
-            $('#carouselExampleSlidesOnly').carousel('pause');
-         } else {
-            $('#carouselExampleSlidesOnly').carousel('cycle');
-         }
+         toggleCarousel();
       }
     });
 

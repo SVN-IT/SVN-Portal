@@ -53,6 +53,17 @@
         public string QCURL { get; set; }
         public string PDURL { get; set; }
         public string TechURL { get; set; }
+        public List<TopDowntimeItem> TopDowntimes { get; set; } = new List<TopDowntimeItem>();
+    }
+
+    public class TopDowntimeItem
+    {
+        public string Operation { get; set; }
+        public string ErrorName { get; set; }
+        public string IssCode { get; set; }
+        public int Occurrences { get; set; }
+        public double TotalMinutes { get; set; }
+        public string FormattedDuration { get; set; }
     }
 
     public class DefectData
