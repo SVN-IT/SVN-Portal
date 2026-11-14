@@ -49,7 +49,7 @@
             if (localStorage.getItem('theme-dark-mode') === 'true') {
                 document.body.classList.add('dark-mode');
             }
-            if (localStorage.getItem('always-show-search') === 'true') {
+            if (localStorage.getItem('always-show-search') !== 'false') {
                 document.body.classList.add('always-show-search');
             }
         })();
@@ -407,7 +407,7 @@
             }
 
             var savedAlwaysSearch = localStorage.getItem('always-show-search');
-            if (savedAlwaysSearch === 'true') {
+            if (savedAlwaysSearch !== 'false') {
                 $('body').addClass('always-show-search');
                 $alwaysSearchCheckbox.prop('checked', true);
             } else {

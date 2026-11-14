@@ -81,7 +81,7 @@
   var $always_show_search_checkbox = $('<input />', {
     type: 'checkbox',
     value: 1,
-    checked: $('body').hasClass('always-show-search') || localStorage.getItem('always-show-search') === 'true',
+    checked: $('body').hasClass('always-show-search') || localStorage.getItem('always-show-search') !== 'false',
     class: 'mr-1'
   }).on('click', function () {
     if ($(this).is(':checked')) {
