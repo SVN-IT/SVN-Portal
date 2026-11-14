@@ -105,23 +105,11 @@ namespace Sigma_Dashboard.Services
             foreach (var op in result.NewOperationsToCreate)
             {
                 // Bóc tách hậu tố công ty: (SM), (ITA), (BT)
-                string companySuffix = string.Empty;
+                string companySuffix = ExtractCompanySuffix(op);
                 string baseOp = op;
-
-                if (op.EndsWith("(SM)", StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrEmpty(companySuffix) && baseOp.EndsWith(companySuffix, StringComparison.OrdinalIgnoreCase))
                 {
-                    companySuffix = "(SM)";
-                    baseOp = op.Substring(0, op.Length - 4).Trim();
-                }
-                else if (op.EndsWith("(ITA)", StringComparison.OrdinalIgnoreCase))
-                {
-                    companySuffix = "(ITA)";
-                    baseOp = op.Substring(0, op.Length - 5).Trim();
-                }
-                else if (op.EndsWith("(BT)", StringComparison.OrdinalIgnoreCase))
-                {
-                    companySuffix = "(BT)";
-                    baseOp = op.Substring(0, op.Length - 4).Trim();
+                    baseOp = baseOp.Substring(0, baseOp.Length - companySuffix.Length).Trim();
                 }
 
                 // Tách MasterOperation (prefix) và ProductCode
@@ -160,13 +148,25 @@ namespace Sigma_Dashboard.Services
 
                 // Xác định MasterOperation chuẩn (kế thừa nếu cùng dòng sản phẩm)
                 string finalMasterOper = masterOper;
+                string targetNormMaster = NormalizeMasterOperName(masterOper);
+                string targetFamily = GetFamilyName(targetNormMaster);
+
                 if (template != null && !string.IsNullOrWhiteSpace(template.MasterOperation))
                 {
-                    string templateFamily = template.MasterOperation.Split(' ', '-')[0];
-                    if (string.Equals(templateFamily, masterOper, StringComparison.OrdinalIgnoreCase))
+                    string tmNorm = NormalizeMasterOperName(template.MasterOperation);
+                    string tmFamily = GetFamilyName(tmNorm);
+
+                    if (string.Equals(tmNorm, targetNormMaster, StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrEmpty(targetFamily) && string.Equals(tmFamily, targetFamily, StringComparison.OrdinalIgnoreCase)))
                     {
                         finalMasterOper = template.MasterOperation;
                     }
+                }
+
+                // Đảm bảo hậu tố công ty trên MasterOperation nhất quán với Operation
+                if (!string.IsNullOrEmpty(companySuffix) && !finalMasterOper.EndsWith(companySuffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    finalMasterOper = $"{finalMasterOper}{companySuffix}";
                 }
 
                 // Thiết lập Produce_id: Nếu có sản phẩm trong ERP thì gán ProductId, ngược lại để rỗng []
@@ -321,52 +321,114 @@ namespace Sigma_Dashboard.Services
         }
 
         /// <summary>
-        /// Tìm Operation mẫu tương đồng nhất trong danh sách hiện có
+        /// Tìm Operation mẫu tương đồng nhất trong danh sách hiện có,
+        /// BẮT BUỘC ưu tiên cùng công ty trước tiên để không bao giờ lấy nhầm cấu hình của công ty khác (SM, ITA, BT, SVN).
         /// </summary>
         private static OperInfo FindBestMatchingTemplate(List<OperInfo> list, string masterOper, string wcType, string companySuffix)
         {
             if (list == null || list.Count == 0) return null;
 
-            // Ưu tiên 1: Cùng MasterOperation + Cùng WCType + Cùng Company Suffix
-            var match = list.FirstOrDefault(x =>
-                string.Equals(x.MasterOperation, masterOper, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(x.WCType, wcType, StringComparison.OrdinalIgnoreCase) &&
-                HasMatchingCompanySuffix(x.Operation, companySuffix)
+            // 1. Phân nhóm theo công ty: Nếu công ty đã có mẫu, CHỈ tìm trong các mẫu của công ty đó
+            var sameCompanyList = list.Where(x => HasMatchingCompanySuffix(x.Operation, companySuffix)).ToList();
+            var searchPool = (sameCompanyList.Count > 0) ? sameCompanyList : list;
+
+            string targetNormMaster = NormalizeMasterOperName(masterOper);
+            string targetFamily = GetFamilyName(targetNormMaster);
+
+            // Ưu tiên 1: Cùng MasterOperation (khớp chính xác tên sau chuẩn hóa) + Khớp WCType
+            var match = searchPool.FirstOrDefault(x =>
+                string.Equals(NormalizeMasterOperName(x.MasterOperation), targetNormMaster, StringComparison.OrdinalIgnoreCase) &&
+                MatchesWcType(x, wcType)
             );
             if (match != null) return match;
 
-            // Ưu tiên 2: Cùng MasterOperation + Cùng WCType
-            match = list.FirstOrDefault(x =>
-                string.Equals(x.MasterOperation, masterOper, StringComparison.OrdinalIgnoreCase) &&
+            // Ưu tiên 2: Cùng MasterOperation (khớp chính xác tên sau chuẩn hóa) bất kỳ WCType
+            match = searchPool.FirstOrDefault(x =>
+                string.Equals(NormalizeMasterOperName(x.MasterOperation), targetNormMaster, StringComparison.OrdinalIgnoreCase)
+            );
+            if (match != null) return match;
+
+            // Ưu tiên 3: Cùng Family (tiền tố nhóm sản phẩm) + Khớp WCType
+            if (!string.IsNullOrEmpty(targetFamily))
+            {
+                match = searchPool.FirstOrDefault(x =>
+                    string.Equals(GetFamilyName(NormalizeMasterOperName(x.MasterOperation)), targetFamily, StringComparison.OrdinalIgnoreCase) &&
+                    MatchesWcType(x, wcType)
+                );
+                if (match != null) return match;
+
+                // Ưu tiên 4: Cùng Family bất kỳ WCType
+                match = searchPool.FirstOrDefault(x =>
+                    string.Equals(GetFamilyName(NormalizeMasterOperName(x.MasterOperation)), targetFamily, StringComparison.OrdinalIgnoreCase)
+                );
+                if (match != null) return match;
+            }
+
+            // Ưu tiên 5: Khớp WCType (trong cùng công ty)
+            match = searchPool.FirstOrDefault(x => MatchesWcType(x, wcType));
+            if (match != null) return match;
+
+            // Ưu tiên 6: Cùng WCType theo giá trị trường gốc
+            match = searchPool.FirstOrDefault(x =>
                 string.Equals(x.WCType, wcType, StringComparison.OrdinalIgnoreCase)
             );
             if (match != null) return match;
 
-            // Ưu tiên 3: Cùng MasterOperation bất kỳ
-            match = list.FirstOrDefault(x =>
-                string.Equals(x.MasterOperation, masterOper, StringComparison.OrdinalIgnoreCase)
-            );
-            if (match != null) return match;
-
-            // Ưu tiên 4: Lấy mẫu bất kỳ có cùng WCType
-            match = list.FirstOrDefault(x =>
-                string.Equals(x.WCType, wcType, StringComparison.OrdinalIgnoreCase)
-            );
-            if (match != null) return match;
-
-            // Fallback cuối cùng: phần tử đầu tiên
-            return list.FirstOrDefault();
+            // Fallback cuối cùng: Lấy mẫu đầu tiên của công ty
+            return searchPool.FirstOrDefault();
         }
 
-        private static bool HasMatchingCompanySuffix(string op, string companySuffix)
+        public static string ExtractCompanySuffix(string op)
         {
-            if (string.IsNullOrEmpty(companySuffix))
+            if (string.IsNullOrWhiteSpace(op)) return string.Empty;
+            string trimmed = op.Trim();
+            if (trimmed.EndsWith("(SM)", StringComparison.OrdinalIgnoreCase)) return "(SM)";
+            if (trimmed.EndsWith("(ITA)", StringComparison.OrdinalIgnoreCase)) return "(ITA)";
+            if (trimmed.EndsWith("(BT)", StringComparison.OrdinalIgnoreCase)) return "(BT)";
+            return string.Empty;
+        }
+
+        public static bool HasMatchingCompanySuffix(string op, string companySuffix)
+        {
+            if (string.IsNullOrWhiteSpace(op)) return false;
+            string opSuffix = ExtractCompanySuffix(op);
+            return string.Equals(opSuffix, companySuffix ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string NormalizeMasterOperName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+            string n = name.Trim();
+            if (n.EndsWith("(SM)", StringComparison.OrdinalIgnoreCase)) n = n.Substring(0, n.Length - 4).Trim();
+            else if (n.EndsWith("(ITA)", StringComparison.OrdinalIgnoreCase)) n = n.Substring(0, n.Length - 5).Trim();
+            else if (n.EndsWith("(BT)", StringComparison.OrdinalIgnoreCase)) n = n.Substring(0, n.Length - 4).Trim();
+            return n;
+        }
+
+        private static string GetFamilyName(string normalizedMaster)
+        {
+            if (string.IsNullOrWhiteSpace(normalizedMaster)) return string.Empty;
+            return normalizedMaster.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+        }
+
+        private static bool MatchesWcType(OperInfo op, string wcType)
+        {
+            if (op == null) return false;
+            if (string.Equals(op.WCType, wcType, StringComparison.OrdinalIgnoreCase)) return true;
+
+            string normMaster = NormalizeMasterOperName(op.MasterOperation);
+            if (string.Equals(wcType, "FG", StringComparison.OrdinalIgnoreCase))
             {
-                return !op.EndsWith("(SM)", StringComparison.OrdinalIgnoreCase) &&
-                       !op.EndsWith("(ITA)", StringComparison.OrdinalIgnoreCase) &&
-                       !op.EndsWith("(BT)", StringComparison.OrdinalIgnoreCase);
+                return normMaster.Contains("FG", StringComparison.OrdinalIgnoreCase) ||
+                       normMaster.Contains("F/G", StringComparison.OrdinalIgnoreCase) ||
+                       (op.Operation != null && op.Operation.Contains("-FG-", StringComparison.OrdinalIgnoreCase));
             }
-            return op.EndsWith(companySuffix, StringComparison.OrdinalIgnoreCase);
+            else if (string.Equals(wcType, "WIP", StringComparison.OrdinalIgnoreCase))
+            {
+                return normMaster.Contains("WIP", StringComparison.OrdinalIgnoreCase) ||
+                       (op.Operation != null && op.Operation.Contains("WIP", StringComparison.OrdinalIgnoreCase));
+            }
+            return false;
         }
 
         private static List<WC> CloneWorkCenter(List<WC> source, int newProductId, string wcType)
@@ -447,10 +509,12 @@ namespace Sigma_Dashboard.Services
                 else
                 {
                     // Không có trong ProductMapping, tra cứu ERP
+                    string companySuffix = ExtractCompanySuffix(op);
                     string baseOp = op;
-                    if (op.EndsWith("(SM)", StringComparison.OrdinalIgnoreCase)) baseOp = op.Substring(0, op.Length - 4).Trim();
-                    else if (op.EndsWith("(ITA)", StringComparison.OrdinalIgnoreCase)) baseOp = op.Substring(0, op.Length - 5).Trim();
-                    else if (op.EndsWith("(BT)", StringComparison.OrdinalIgnoreCase)) baseOp = op.Substring(0, op.Length - 4).Trim();
+                    if (!string.IsNullOrEmpty(companySuffix) && baseOp.EndsWith(companySuffix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        baseOp = baseOp.Substring(0, baseOp.Length - companySuffix.Length).Trim();
+                    }
 
                     int dash = baseOp.IndexOf('-');
                     string code = dash > 0 ? baseOp.Substring(dash + 1).Trim() : baseOp.Trim();
