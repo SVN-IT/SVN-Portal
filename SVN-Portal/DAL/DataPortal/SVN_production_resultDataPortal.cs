@@ -2340,32 +2340,32 @@ namespace SVN_Portal.DAL.DataPortal
                             DateTime startDatetime = minStartSection;
                             DateTime endDatetime = maxEndSection;
 
-                            var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetDowntimeInfo(oper.Operation);
-                            if(equipmentStatusDetail != null && !string.IsNullOrWhiteSpace(equipmentStatusDetail.State) && equipmentStatusDetail.State != "Run")
+                            var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetDowntimeInfo(oper.Operation, endDatetime);
+                            if (equipmentStatusDetail != null && !string.IsNullOrWhiteSpace(equipmentStatusDetail.State) && equipmentStatusDetail.State != "Run")
                             {
-                                if(startDatetime >= equipmentStatusDetail.Datetime)
+                                if (equipmentStatusDetail.Datetime < startDatetime || equipmentStatusDetail.Datetime > endDatetime || curDateTime > endDatetime)
                                 {
-                                    Duration = 0;
+                                    // Bỏ qua nếu downtime ngoài ca hoặc ca đã kết thúc
                                 }
                                 else
                                 {
-                                    if(equipmentStatusDetail.State != "Run")
+                                    if (equipmentStatusDetail.State != "Run")
                                     {
                                         viewModel.CanProductionByDowntime = false;
                                     }
                                     if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
                                     {
-                                        //TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
-                                        DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                        DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                        //int totalSeconds = (int)duration.TotalSeconds;
-
-                                        if (endTime <= endDatetime)
+                                        try
                                         {
-                                            viewModel.EndDownTime = endTime;
+                                            DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+                                            if (endTime <= endDatetime)
+                                            {
+                                                viewModel.EndDownTime = endTime;
+                                            }
                                         }
+                                        catch { }
                                     }
-                                    
                                 }
                             }
                             //if (equipmentStatus != null)

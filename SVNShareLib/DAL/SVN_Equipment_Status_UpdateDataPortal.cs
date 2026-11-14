@@ -89,14 +89,32 @@ namespace SVNShareLib.DAL
             }
         }
 
-        public async Task<SVN_Downtime_InfoUI> GetDowntimeInfo(string operation)
+        public async Task<SVN_Downtime_InfoUI> GetDowntimeInfo(string operation, DateTime? endDatetime = null)
         {
             SVN_Downtime_InfoUI dataUI = new SVN_Downtime_InfoUI();
             int timeOut = 1000;
             try
             {
-                string sql = "select TOP(1) * from SVN_Downtime_Info where Operation = @operation order by Datetime desc";
-                var param = new { operation = operation };
+                string sql;
+                object param;
+                if (endDatetime.HasValue)
+                {
+                    sql = @"SELECT TOP(1) * 
+                            FROM dbo.SVN_Downtime_Info 
+                            WHERE (Operation = @operation OR Code = @operation) 
+                              AND Datetime <= @endDatetime 
+                            ORDER BY Datetime DESC";
+                    param = new { operation = operation, endDatetime = endDatetime.Value };
+                }
+                else
+                {
+                    sql = @"SELECT TOP(1) * 
+                            FROM dbo.SVN_Downtime_Info 
+                            WHERE (Operation = @operation OR Code = @operation) 
+                            ORDER BY Datetime DESC";
+                    param = new { operation = operation };
+                }
+
                 using (IDbConnection connection = new SqlConnection(connectionString))
                 {
                     var data = await connection.QueryFirstOrDefaultAsync<SVN_Downtime_InfoUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);

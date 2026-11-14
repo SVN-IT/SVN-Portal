@@ -309,37 +309,32 @@ namespace Sigma_Dashboard.Services.Helpers
                                 DateTime startDatetime = minStartSection;
                                 DateTime endDatetime = maxEndSection;
 
-                                var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetDowntimeInfo(item.Operation);
+                                var equipmentStatusDetail = await svn_equipment_StatusDataPortal.GetDowntimeInfo(item.Operation, endDatetime);
                                 if (equipmentStatusDetail != null && !string.IsNullOrWhiteSpace(equipmentStatusDetail.State) && equipmentStatusDetail.State != "Run")
                                 {
-                                    if (startDatetime >= equipmentStatusDetail.Datetime)
+                                    // Chỉ áp dụng cảnh báo bảo trì nếu bản ghi downtime nằm trong khung giờ của ca (startDatetime <= Datetime <= endDatetime)
+                                    // và ca làm việc này chưa kết thúc (curDateTime <= endDatetime).
+                                    // Nếu ca đã kết thúc trong quá khứ, không che biểu đồ lịch sử bằng overlay bảo trì.
+                                    if (equipmentStatusDetail.Datetime < startDatetime || equipmentStatusDetail.Datetime > endDatetime || curDateTime > endDatetime)
                                     {
                                         barChartData.IsDowntime = true;
-                                        Duration = 0;
                                     }
                                     else
                                     {
-                                        if (equipmentStatusDetail.State != "Run")
-                                        {
-                                            barChartData.IsDowntime = false;
-                                            //viewModel.CanProductionByDowntime = false;
-                                        }
+                                        barChartData.IsDowntime = false;
                                         barChartData.DowntimeInfo = "Machine maintenance";
                                         if (!string.IsNullOrWhiteSpace(equipmentStatusDetail.EstimateTime))
                                         {
-                                            //TimeSpan duration = TimeSpan.FromHours(double.Parse(equipmentStatusDetail.EstimateTime));
-                                            DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                            DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
-                                            //int totalSeconds = (int)duration.TotalSeconds;
-
-                                            barChartData.DowntimeInfo = $"Machine maintenance until {endTime}";
-
-                                            if (endTime <= endDatetime)
+                                            try
                                             {
-                                                //viewModel.EndDownTime = endTime;
+                                                DateTime endTime = DateTime.ParseExact(equipmentStatusDetail.Datetime.ToString("yyyy-MM-dd") + " " + equipmentStatusDetail.EstimateTime, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                                                barChartData.DowntimeInfo = $"Machine maintenance until {endTime}";
+                                            }
+                                            catch
+                                            {
+                                                barChartData.DowntimeInfo = $"Machine maintenance until {equipmentStatusDetail.EstimateTime}";
                                             }
                                         }
-
                                     }
                                 }
                                 else
