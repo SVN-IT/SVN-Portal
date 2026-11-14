@@ -1,0 +1,117 @@
+@*
+    Layout Vuexy (copy từ SVN-Portal/wwwroot/themes/vuexy), cùng khung với TwistAdmin/_AdminLayout.
+    ViewData["NoMenu"] = true: ẩn sidebar (trang đăng nhập).
+    Thêm mục menu: thêm 1 dòng vào menuItems.
+*@
+@{
+    bool noMenu = ViewData["NoMenu"] as bool? == true;
+    string currentPath = Context.Request.Path.Value?.TrimEnd('/') ?? "";
+
+    var menuItems = new List<(string Header, string Label, string Icon, string Href)>
+    {
+        ("Chung", "Trang chủ", "tabler-home", "/toast/admin"),
+        ("Vận hành", "Trạm quét", "tabler-scan", "/toast"),
+        ("Vận hành", "In tem", "tabler-file-barcode", "/toast/admin/print"),
+        ("Vận hành", "Đóng gói", "tabler-box", "/toast/admin/package"),
+        ("Vận hành", "Phiên làm việc", "tabler-user-check", "/toast/admin/session"),
+        ("Vận hành", "Log trạm", "tabler-file-text", "/toast/admin/client-log"),
+        ("Dữ liệu", "Sản phẩm", "tabler-package", "/toast/admin/product"),
+        ("Dữ liệu", "Mẫu tem", "tabler-tags", "/toast/admin/label-template"),
+        ("Dữ liệu", "Máy in", "tabler-printer", "/toast/admin/printer"),
+        ("Tra cứu", "Lệnh sản xuất", "tabler-clipboard-list", "/toast/admin/work-order"),
+        ("Tra cứu", "Sản phẩm Viindoo", "tabler-search", "/toast/admin/viindoo-product"),
+        ("Tra cứu", "Đơn bán", "tabler-file-search", "/toast/admin/sale-order"),
+    };
+
+    // Mục đang mở = mục có href dài nhất khớp với đầu đường dẫn (/toast/admin/print không làm sáng /toast/admin hay /toast)
+    string? activeHref = menuItems.Select(m => m.Href)
+        .Where(h => currentPath.Equals(h, StringComparison.OrdinalIgnoreCase) || currentPath.StartsWith(h + "/", StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(h => h.Length)
+        .FirstOrDefault();
+    bool IsActive(string href) => href == activeHref;
+}
+<!doctype html>
+<html lang="vi" class="layout-navbar-hidden layout-menu-fixed layout-compact" dir="ltr" data-skin="default"
+      data-assets-path="@Url.Content("~/themes/vuexy/")" data-template="vertical-menu-template-no-customizer" data-bs-theme="light">
+<head>
+    <partial name="_VuexyHead" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @if (noMenu)
+    {
+        @RenderBody()
+    }
+    else
+    {
+        <div class="layout-wrapper layout-content-navbar">
+            <div class="layout-container">
+                <aside id="layout-menu" class="layout-menu menu-vertical menu">
+                    <div class="app-brand demo">
+                        <a href="/toast/admin" class="app-brand-link">
+                            <span class="app-brand-logo demo text-primary"><i class="icon-base ti tabler-barcode icon-32px"></i></span>
+                            <span class="app-brand-text demo menu-text fw-bold ms-2">Toast</span>
+                        </a>
+                        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+                            <i class="icon-base ti menu-toggle-icon d-none d-xl-block"></i>
+                            <i class="icon-base ti tabler-x d-block d-xl-none"></i>
+                        </a>
+                    </div>
+                    <div class="menu-inner-shadow"></div>
+                    <ul class="menu-inner py-1">
+                        @foreach (var group in menuItems.GroupBy(m => m.Header))
+                        {
+                            <li class="menu-header small"><span class="menu-header-text">@group.Key</span></li>
+                            @foreach (var item in group)
+                            {
+                                <li class="menu-item @(IsActive(item.Href) ? "active" : "")">
+                                    <a href="@item.Href" class="menu-link">
+                                        <i class="menu-icon icon-base ti @item.Icon"></i>
+                                        <div>@item.Label</div>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="px-4 py-3 border-top d-flex align-items-center justify-content-between gap-2">
+                            <span class="small text-heading text-truncate"><i class="icon-base ti tabler-user me-1"></i>@User.Identity.Name</span>
+                            <form method="post" action="/toast/admin/account/logout" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-label-secondary"><i class="icon-base ti tabler-logout me-1"></i>Thoát</button>
+                            </form>
+                        </div>
+                    }
+                </aside>
+
+                <div class="menu-mobile-toggler d-xl-none rounded-1">
+                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
+                        <i class="ti tabler-menu icon-base"></i>
+                        <i class="ti tabler-chevron-right icon-base"></i>
+                    </a>
+                </div>
+
+                <div class="layout-page">
+                    <div class="content-wrapper">
+                        <div class="container-fluid flex-grow-1 container-p-y">
+                            @if (TempData["Error"] is string error)
+                            {
+                                <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+                                    <i class="icon-base ti tabler-alert-triangle mt-1"></i><div>@error</div>
+                                </div>
+                            }
+                            @RenderBody()
+                        </div>
+                        <div class="content-backdrop fade"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layout-overlay layout-menu-toggle"></div>
+            <div class="drag-target"></div>
+        </div>
+    }
+    <partial name="_VuexyScripts" />
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

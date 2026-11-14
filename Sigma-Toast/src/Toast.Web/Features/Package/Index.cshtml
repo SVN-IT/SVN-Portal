@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Đóng gói";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1">Box đã đóng gói</h4>
+            <span class="text-muted small" id="pk-summary">Đang tải...</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <div class="input-group" style="flex: 2 1 280px; width: auto;">
+                <input type="text" class="form-control" id="pk-search" placeholder="Tìm theo WO hoặc mã sản phẩm..." aria-label="Tìm box" />
+                <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+            </div>
+            <select class="form-select" id="pk-filter-status" aria-label="Lọc trạng thái" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả trạng thái</option>
+                <option value="Open">Đang quét (Open)</option>
+                <option value="Closed">Đã đóng (Closed)</option>
+            </select>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-icon btn-label-secondary" id="pk-reload" aria-label="Tải lại" title="Tải lại"><i class="icon-base ti tabler-refresh"></i></button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 960px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;" aria-sort="none"><button type="button" class="list-sort" data-sort="id">ID<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="list-sort" data-sort="wo">WO<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="list-sort" data-sort="code">Mã sản phẩm<i class="icon-base ti tabler-arrows-sort"></i></button></th><th style="width: 90px;" aria-sort="none"><button type="button" class="list-sort" data-sort="no">Box<i class="icon-base ti tabler-arrows-sort"></i></button></th><th style="width: 110px;">Pcs</th>
+                        <th style="width: 120px;">Trạng thái</th><th>In tem</th>
+                        <th style="width: 90px;" title="Dòng SVN_ProductionInputLogs (dashboard) ghi lúc đóng box">Log</th>
+                        <th style="width: 160px;" aria-sort="none"><button type="button" class="list-sort" data-sort="closed">Đóng lúc<i class="icon-base ti tabler-arrows-sort"></i></button></th><th style="width: 100px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="pk-tbody">
+                    <tr><td colspan="10" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        @await Html.PartialAsync("_ListFooter", "pk")
+    </div>
+</div>
+
+<div class="modal fade" id="pk-modal" tabindex="-1" aria-labelledby="pk-modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="pk-form" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="pk-modal-title">Sửa box</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <label class="form-label" for="pk-wo">WO</label>
+                        <input id="pk-wo" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label" for="pk-part">Mã sản phẩm</label>
+                        <input id="pk-part" type="text" class="form-control" disabled />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="pk-no">Số box</label>
+                        <input id="pk-no" type="text" inputmode="numeric" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="pk-qty">Pcs</label>
+                        <input id="pk-qty" type="number" min="1" step="1" inputmode="numeric" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="pk-cap">Pcs / box</label>
+                        <input id="pk-cap" type="text" inputmode="numeric" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="pk-status">Trạng thái</label>
+                        <select id="pk-status" class="form-select">
+                            <option value="Closed">Đã đóng (Closed)</option>
+                            <option value="Open">Đang quét (Open)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-text mt-3">Sửa ở đây không in tem. Số pcs sửa luôn ở dòng log dashboard; chuyển sang Đang quét thì xoá dòng log, đóng lại thì ghi dòng mới. Mỗi WO chỉ có 1 box đang quét.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="submit" class="btn btn-primary" id="pk-save"><i class="icon-base ti tabler-device-floppy me-1"></i>Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.css" />
+}
+
+@section Scripts {
+    <script>
+        window.PackagePage = {
+            apiUrl: '@Url.Content("~/toast/admin/package/api")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")'
+        };
+    </script>
+    <script src="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="~/js/shared/list-table.js" asp-append-version="true"></script>
+    <script src="~/js/shared/row-click.js" asp-append-version="true"></script>
+    <script src="~/js/package/package.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Trạm quét v2 (nháp)";
+    ViewData["NoMenu"] = true;
+}
+@Html.AntiForgeryToken()
+
+<div class="container-xxl py-4">
+    <div class="card mb-4">
+        <div class="card-body d-flex flex-wrap align-items-center gap-3 py-3">
+            <div class="d-flex align-items-center gap-2 me-auto">
+                <span class="avatar-initial rounded bg-label-primary p-2"><i class="icon-base ti tabler-scan icon-24px"></i></span>
+                <div>
+                    <h4 class="mb-0">Trạm quét v2 <span class="badge bg-label-warning align-middle ms-1">Nháp</span></h4>
+                    <div class="small text-muted">Chỉ xem dữ liệu điền vào tem: không quét, không in, không lưu.</div>
+                </div>
+            </div>
+            <form class="d-flex gap-2" id="v2-form" autocomplete="off" style="flex: 1 1 360px; max-width: 520px;">
+                <label class="visually-hidden" for="v2-wo">Mã WO</label>
+                <input type="text" class="form-control pd-mono" id="v2-wo" placeholder="Nhập WO, VD: 06229" autofocus />
+                <button type="submit" class="btn btn-primary text-nowrap" id="v2-open"><i class="icon-base ti tabler-search me-1"></i>Mở WO</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="v2-alerts" class="d-flex flex-column gap-2 mb-4"></div>
+
+    <div class="row g-4 d-none" id="v2-body">
+        <div class="col-xl-7 d-flex flex-column gap-4">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Dữ liệu lấy từ Viindoo</h5>
+                    <button type="button" class="btn btn-sm btn-icon btn-label-secondary" id="v2-reload" title="Đọc lại Viindoo" aria-label="Đọc lại Viindoo"><i class="icon-base ti tabler-refresh"></i></button>
+                </div>
+                <div class="card-body">
+                    <dl class="v2-info mb-0" id="v2-wo-info"></dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">Toast</h5></div>
+                <div class="card-body">
+                    <dl class="v2-info mb-0" id="v2-toast-info"></dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">Biến trên tem</h5></div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr><th>Biến</th><th>Giá trị</th><th>Lấy từ</th></tr>
+                        </thead>
+                        <tbody id="v2-vars"></tbody>
+                    </table>
+                </div>
+                <div class="card-footer small text-muted py-3">Thứ tự: giá trị lưu trong mẫu &gt; tự động theo <code>Configs/label-variables.json</code>. Trống mà không có nguồn = THIẾU.</div>
+            </div>
+        </div>
+        <div class="col-xl-5">
+            <div class="card v2-preview-card">
+                <div class="card-header"><h5 class="card-title mb-0">Xem trước tem</h5></div>
+                <div class="card-body">
+                    @await Html.PartialAsync("_ZplPreviewPanel", "v2-preview", new ViewDataDictionary(ViewData) { ["ZplPreviewShowPo"] = false })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/label-template/zpl-preview.css" asp-append-version="true" />
+    <style>
+        .pd-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+        .v2-info { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: .5rem .75rem; }
+        .v2-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .v2-info dd { margin: 0; color: var(--bs-heading-color); overflow-wrap: anywhere; }
+        .v2-key { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8125rem; white-space: nowrap; }
+        .v2-value { overflow-wrap: anywhere; }
+        #v2-preview .lt-preview-stage { height: 60vh; }
+        @@media (min-width: 1200px) { .v2-preview-card { position: sticky; top: 1rem; } }
+        @@media (max-width: 575.98px) { .v2-info { grid-template-columns: minmax(0, 1fr); gap: 0 0; } .v2-info dd { margin-bottom: .5rem; } }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.StationV2Page = {
+            apiUrl: '@Url.Content("~/toastv2/api")'
+        };
+    </script>
+    <script src="~/js/label-template/zpl-preview.js" asp-append-version="true"></script>
+    <script src="~/js/station-v2/station-v2.js" asp-append-version="true"></script>
+}

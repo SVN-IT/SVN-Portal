@@ -1,0 +1,100 @@
+/*
+* demo.css
+* File include item demo only specific css only
+******************************************************************************/
+
+/* Base font-size: 0.85rem (~13.6px) */
+html {
+  font-size: 16px; /* keep 1rem = 16px */
+}
+body,
+.layout-wrapper,
+.layout-page,
+.content-wrapper,
+.container-p-y {
+  font-size: 0.85rem !important;
+}
+
+/* Override Bootstrap CSS variables for consistent sizing */
+:root {
+  --bs-body-font-size: 0.85rem;
+  --bs-btn-font-size: 0.85rem;
+  --bs-nav-link-font-size: 0.85rem;
+  --bs-dropdown-font-size: 0.85rem;
+  --bs-pagination-font-size: 0.85rem;
+  --bs-badge-font-size: 0.75rem;
+  --bs-progress-font-size: 0.75rem;
+  --bs-tooltip-font-size: 0.75rem;
+  --bs-toast-font-size: 0.85rem;
+  --bs-menu-width: 220px;
+}
+
+/* Flatpickr font-size */
+.flatpickr-calendar {
+  font-size: 0.85rem !important;
+}
+.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-calendar .flatpickr-current-month input.cur-year {
+  font-size: 0.85rem !important;
+}
+.flatpickr-calendar .flatpickr-weekday {
+  font-size: 0.75rem !important;
+}
+.flatpickr-calendar .flatpickr-day {
+  max-width: 32px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 0.85rem !important;
+}
+.flatpickr-calendar .flatpickr-time input {
+  font-size: 0.85rem !important;
+}
+.flatpickr-calendar .flatpickr-time .flatpickr-am-pm {
+  font-size: 0.85rem !important;
+}
+
+.btn {
+  font-size: var(--bs-btn-font-size);
+}
+
+h4, .h4, .card-title {
+  font-size: 1.125rem !important; /* 18px */
+  margin-bottom: 0 !important;
+}
+.modal-title {
+  font-size: 1rem !important; /* 16px */
+}
+
+/* Explicit overrides for elements that don't use variables */
+small, .small {
+  font-size: 0.75rem !important;
+}
+.text-muted,
+.form-label,
+.form-text {
+  font-size: 0.85rem !important;
+}
+.menu .menu-item .menu-link,
+.menu .menu-header small {
+  font-size: 0.85rem !important;
+}
+
+/* Force inheritance for Bootstrap components with explicit font-size */
+.table,
+.form-control,
+.form-select,
+.input-group-text,
+.page-link {
+  font-size: inherit !important;
+}
+.card-body,
+.modal-body {
+  font-size: inherit !important;
+}
+.btn .ti {
+  font-size: 1.1em;
+}
+
+.menu .app-brand.demo {
+  height: 64px;
+}

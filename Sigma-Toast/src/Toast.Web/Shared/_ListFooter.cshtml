@@ -1,0 +1,15 @@
+@model string
+@* Chân bảng danh sách (wwwroot/js/shared/list-table.js): thông tin "Hiển thị x–y / n", phân trang, số dòng / trang. Model = tiền tố id (VD "pk") *@
+<div class="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div class="text-muted small" id="@(Model)-info"></div>
+    <nav aria-label="Phân trang"><ul class="pagination pagination-sm mb-0" id="@(Model)-pagination"></ul></nav>
+    <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small">Hiển thị</span>
+        <select class="form-select form-select-sm" id="@(Model)-page-size" aria-label="Số dòng mỗi trang" style="width: 76px;">
+            <option>10</option>
+            <option selected>25</option>
+            <option>50</option>
+            <option>100</option>
+        </select>
+    </div>
+</div>

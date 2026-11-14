@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Tra cứu sản phẩm Viindoo";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title mb-1">Tra cứu sản phẩm Viindoo</h4>
+        <span class="text-muted small" id="pl-summary">Đọc Viindoo (chỉ đọc). Dự án lấy từ nhóm sản phẩm.</span>
+    </div>
+    <div class="card-body">
+        <form class="d-flex flex-wrap align-items-center gap-2 mb-4" id="pl-form" autocomplete="off">
+            <div class="input-group" style="flex: 3 1 300px; width: auto;">
+                <input type="text" class="form-control" id="pl-q" placeholder="Mã, tên sản phẩm hoặc mã khách (VD HW0032)..." aria-label="Tìm sản phẩm" />
+                <button type="submit" class="btn btn-primary"><i class="icon-base ti tabler-search"></i></button>
+            </div>
+            <div style="flex: 1 1 220px; min-width: 0;">
+                <select class="form-select" id="pl-project" aria-label="Lọc dự án"><option value="">Tất cả dự án</option></select>
+            </div>
+            <select class="form-select" id="pl-kind" aria-label="Lọc loại" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả loại</option>
+                <option value="F/G" selected>Thành phẩm (F/G)</option>
+                <option value="WIP">Bán thành phẩm (WIP)</option>
+                <option value="Raw MAT">Nguyên vật liệu</option>
+            </select>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-icon btn-label-secondary" id="pl-reload" aria-label="Tải lại" title="Tải lại"><i class="icon-base ti tabler-refresh"></i></button>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 960px;">
+                <thead class="table-light">
+                    <tr><th aria-sort="none"><button type="button" class="lk-sort" data-sort="code">Mã<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="lk-sort" data-sort="name">Tên<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="lk-sort" data-sort="category">Dự án<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="lk-sort" data-sort="customerCode">Mã khách<i class="icon-base ti tabler-arrows-sort"></i></button></th><th class="text-end" aria-sort="none"><button type="button" class="lk-sort" data-sort="qty">Pcs / box<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="lk-sort" data-sort="tracking">Theo dõi<i class="icon-base ti tabler-arrows-sort"></i></button></th><th class="text-end" aria-sort="none"><button type="button" class="lk-sort" data-sort="id">ID<i class="icon-base ti tabler-arrows-sort"></i></button></th><th style="width: 70px;"></th></tr>
+                </thead>
+                <tbody id="pl-tbody"><tr><td colspan="8" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr></tbody>
+            </table>
+        </div>
+        <div class="text-center mt-4 d-none" id="pl-more-box">
+            <button type="button" class="btn btn-label-secondary" id="pl-more">Xem thêm</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pl-modal" tabindex="-1" aria-labelledby="pl-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pl-modal-title">Sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" id="pl-detail"></div>
+            <div class="modal-footer"><button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Đóng</button></div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/themes/vuexy/vendor/libs/select2/select2.css" />
+    <style>
+        .lk-sort { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .25rem; font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; }
+        .lk-sort i { font-size: 1rem; opacity: .45; }
+        .lk-sort.is-active i { opacity: 1; color: var(--bs-primary); }
+        .lk-sort:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; border-radius: 2px; }
+        .lk-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+        .lk-info { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: .375rem .75rem; margin: 0; }
+        .lk-info dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .lk-info dd { margin: 0; color: var(--bs-heading-color); overflow-wrap: anywhere; }
+        .lk-section { border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); padding: 1rem; height: 100%; }
+        .lk-section h6 { margin-bottom: .75rem; }
+        /* Danh sách dự án của select2: rộng bằng ô chọn, tên dài thì xuống dòng (không tràn ra ngoài màn hình) */
+        .select2-container--open .select2-dropdown { max-width: calc(100vw - 2rem); }
+        .select2-results__option { white-space: normal; overflow-wrap: anywhere; }
+        @@media (max-width: 575.98px) { .lk-info { grid-template-columns: minmax(0, 1fr); gap: 0; } .lk-info dd { margin-bottom: .5rem; } }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.ProductLookupPage = {
+            apiUrl: '@Url.Content("~/toast/admin/viindoo-product/api")',
+            workOrderUrl: '@Url.Content("~/toast/admin/work-order")',
+            saleOrderUrl: '@Url.Content("~/toast/admin/sale-order")',
+            toastProductUrl: '@Url.Content("~/toast/admin/product")',
+            templateUrl: '@Url.Content("~/toast/admin/label-template")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")'
+        };
+    </script>
+    <script src="~/themes/vuexy/vendor/libs/select2/select2.js"></script>
+    <script src="~/js/shared/row-click.js" asp-append-version="true"></script>
+    <script src="~/js/lookup/lookup-common.js" asp-append-version="true"></script>
+    <script src="~/js/lookup/product-lookup.js" asp-append-version="true"></script>
+}

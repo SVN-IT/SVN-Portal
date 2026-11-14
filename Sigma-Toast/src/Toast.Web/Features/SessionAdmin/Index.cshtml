@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Phiên làm việc";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1">Phiên làm việc</h4>
+            <span class="text-muted small" id="ss-summary">Đang tải...</span>
+        </div>
+        <div class="small" id="ss-push-status" title="Bật / tắt bằng Toast:PushProduction trong appsettings (lưu file là app tự nhận)"></div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <div class="input-group" style="flex: 2 1 280px; width: auto;">
+                <input type="text" class="form-control" id="ss-search" placeholder="Tìm theo WO, mã sản phẩm, mã hoặc tên nhân viên..." aria-label="Tìm phiên" />
+                <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+            </div>
+            <select class="form-select" id="ss-filter-status" aria-label="Lọc trạng thái" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả trạng thái</option>
+                <option value="Open">Đang mở</option>
+                <option value="Ended">Đã kết thúc</option>
+            </select>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-icon btn-label-secondary" id="ss-reload" aria-label="Tải lại" title="Tải lại"><i class="icon-base ti tabler-refresh"></i></button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 1000px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 70px;" aria-sort="none"><button type="button" class="list-sort" data-sort="id">ID<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="list-sort" data-sort="wo">WO<i class="icon-base ti tabler-arrows-sort"></i></button></th><th aria-sort="none"><button type="button" class="list-sort" data-sort="code">Product<i class="icon-base ti tabler-arrows-sort"></i></button></th><th style="width: 110px;">Status</th>
+                        <th style="width: 150px;" aria-sort="none"><button type="button" class="list-sort" data-sort="started">Bắt đầu<i class="icon-base ti tabler-arrows-sort"></i></button></th><th style="width: 170px;" aria-sort="none"><button type="button" class="list-sort" data-sort="ended">Kết thúc<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th style="min-width: 240px;">Xác nhận gần nhất</th><th style="width: 110px;" class="text-center" title="Số lần xác nhận thông tin: lần mở phiên + mỗi lần vào lại phiên (refresh, đổi máy)">Lần xác nhận</th>
+                        <th style="width: 150px;">Box</th>
+                        <th style="width: 130px;" title="Nhập kết quả sản xuất lên Viindoo lúc kết thúc phiên">KQSX</th>
+                        <th style="width: 140px;" aria-sort="none" title="Phiên đang mở: thời gian từ lần quét / cập nhật box mới nhất của lệnh (hoặc lần xác nhận nếu muộn hơn) đến giờ"><button type="button" class="list-sort" data-sort="idle">Inactive<i class="icon-base ti tabler-arrows-sort"></i></button></th>
+                        <th style="width: 70px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="ss-tbody">
+                    <tr><td colspan="12" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        @await Html.PartialAsync("_ListFooter", "ss")
+    </div>
+</div>
+
+@* ===== Chi tiết phiên: thông tin chung · các lần xác nhận · box ===== *@
+<div class="modal fade" id="ss-modal" tabindex="-1" aria-labelledby="ss-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex flex-wrap align-items-center gap-2" id="ss-modal-title">Phiên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" id="ss-detail"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-danger d-none" id="ss-end"><i class="icon-base ti tabler-door-exit me-1"></i>Kết thúc phiên</button>
+                <button type="button" class="btn btn-label-primary d-none" id="ss-push"><i class="icon-base ti tabler-cloud-upload me-1"></i>Đẩy KQSX</button>
+                <span class="me-auto"></span>
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .ss-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem 1.5rem; }
+        .ss-info dt { font-weight: 400; color: var(--bs-secondary-color); font-size: .8125rem; margin-bottom: .125rem; }
+        .ss-info dd { margin: 0; color: var(--bs-heading-color); font-weight: 500; }
+        .ss-values { display: grid; grid-template-columns: minmax(140px, max-content) minmax(0, 1fr); gap: .375rem 1rem; margin: 0; }
+        .ss-values dt { font-weight: 400; color: var(--bs-secondary-color); }
+        .ss-values dd { margin: 0; color: var(--bs-heading-color); font-weight: 500; overflow-wrap: anywhere; }
+        .ss-confirm-row { cursor: pointer; }
+        .ss-confirm-row .ss-chevron { transition: transform .15s; }
+        .ss-confirm-row.is-open .ss-chevron { transform: rotate(90deg); }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.SessionAdminPage = {
+            apiUrl: '@Url.Content("~/toast/admin/session/api")',
+            packageUrl: '@Url.Content("~/toast/admin/package")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")'
+        };
+    </script>
+    <script src="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="~/js/shared/list-table.js" asp-append-version="true"></script>
+    <script src="~/js/shared/row-click.js" asp-append-version="true"></script>
+    <script src="~/js/session/session.js" asp-append-version="true"></script>
+}

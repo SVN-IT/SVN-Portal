@@ -1,0 +1,150 @@
+@model string[]
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h4 class="card-title mb-1">Quy cách sản phẩm</h4>
+            <span class="text-muted small" id="pd-summary">Đang tải...</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+            <div class="input-group" style="flex: 2 1 280px; width: auto;">
+                <input type="text" class="form-control" id="pd-search" placeholder="Tìm theo mã sản phẩm, tên, barcode..." aria-label="Tìm sản phẩm" />
+                <span class="input-group-text"><i class="icon-base ti tabler-search"></i></span>
+            </div>
+            <select class="form-select" id="pd-filter-outer" aria-label="Lọc theo cấp 2" style="flex: 1 1 150px; width: auto;">
+                <option value="">Tất cả cấp 2</option>
+                <option value="-">Chỉ có box</option>
+                @foreach (var t in Model)
+                {
+                    <option value="@t">@t</option>
+                }
+            </select>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-primary" id="pd-add"><i class="icon-base ti tabler-plus me-1"></i>Thêm</button>
+                <button type="button" class="btn btn-icon btn-label-secondary" id="pd-reload" aria-label="Tải lại" title="Tải lại"><i class="icon-base ti tabler-refresh"></i></button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0" style="min-width: 900px;">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã sản phẩm</th>
+                        <th>Tên</th>
+                        <th style="width: 110px;">Viindoo PID</th>
+                        <th>Mã quét pcs</th>
+                        <th style="width: 150px;">Pcs / box</th>
+                        <th style="width: 150px;">Cấp 2</th>
+                        <th style="width: 140px;">Cập nhật</th>
+                        <th style="width: 100px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="pd-tbody">
+                    <tr><td colspan="8" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* Modal Thêm / Sửa *@
+<div class="modal fade" id="pd-modal" tabindex="-1" aria-labelledby="pd-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" id="pd-form" novalidate>
+            <div class="modal-header">
+                <h5 class="modal-title" id="pd-modal-title">Thêm sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <label class="form-label" for="pd-part">Mã sản phẩm (default code) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input id="pd-part" type="text" class="form-control pd-mono" maxlength="50" required autocomplete="off" placeholder="VD: FG-TRO-CE-0002-00" aria-describedby="pd-fetch-result" />
+                            <button type="button" class="btn btn-outline-secondary pd-reload" id="pd-fetch" title="Lấy lại dữ liệu từ Viindoo" aria-label="Lấy lại dữ liệu từ Viindoo"><i class="icon-base ti tabler-refresh"></i></button>
+                        </div>
+                        <div class="form-text" id="pd-fetch-result">Nhập mã rồi Enter: tự điền Viindoo ID, tên và pcs/box từ Viindoo.</div>
+                        <button type="button" class="btn btn-link btn-sm p-0 mt-1" id="pd-wo-toggle" aria-expanded="false" aria-controls="pd-wo-box"><i class="icon-base ti tabler-search me-1"></i>Không nhớ mã? Tra theo WO</button>
+                        <div class="input-group input-group-sm mt-2 d-none" id="pd-wo-box">
+                            <input type="text" class="form-control" id="pd-wo" placeholder="Nhập WO, VD: 06229" autocomplete="off" aria-label="Mã WO để tra mã sản phẩm" />
+                            <button type="button" class="btn btn-label-primary" id="pd-wo-fetch">Tra</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="pd-vid">Viindoo product ID <span class="text-danger">*</span></label>
+                        <input id="pd-vid" type="text" inputmode="numeric" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="pd-name">Tên sản phẩm</label>
+                        <input id="pd-name" type="text" class="form-control" maxlength="255" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="pd-scan">Mã quét pcs</label>
+                        <select id="pd-scan" class="form-select" aria-describedby="pd-scan-hint">
+                            <option value="Barcode">Barcode cố định</option>
+                            <option value="LotId">Lot ID của WO (đơn bán)</option>
+                        </select>
+                        <div class="form-text d-none" id="pd-scan-hint">Mã quét = Lot ID đọc từ đơn bán của WO, đổi theo đơn. WO không xác định được Lot thì không mở được phiên.</div>
+                    </div>
+                    <div class="col-md-6" id="pd-barcode-col">
+                        <label class="form-label" for="pd-barcode">Barcode pcs <span class="text-danger">*</span></label>
+                        <input id="pd-barcode" type="text" class="form-control" maxlength="50" required autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="pd-pcs">Pcs / box <span class="text-danger">*</span></label>
+                        <input id="pd-pcs" type="text" inputmode="numeric" class="form-control" required aria-describedby="pd-pcs-hint" />
+                        <div class="form-text" id="pd-pcs-hint">Lấy từ x_quantity_per_code trên Viindoo, phải lớn hơn 0 và khớp Viindoo thì mới mở được phiên.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="pd-outer">Cấp 2</label>
+                        <select id="pd-outer" class="form-select">
+                            <option value="">Không có (chỉ box)</option>
+                            @foreach (var t in Model)
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="pd-box-per-outer" id="pd-box-per-outer-label">Số box / cấp 2</label>
+                        <input id="pd-box-per-outer" type="text" inputmode="numeric" class="form-control" disabled />
+                    </div>
+                </div>
+                <div class="alert alert-warning small mt-4 mb-0 d-none" id="pd-compare" role="status"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Huỷ</button>
+                <button type="submit" class="btn btn-primary" id="pd-save"><i class="icon-base ti tabler-device-floppy me-1"></i>Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .pd-reload { padding-inline: .75rem; }
+        .pd-reload.is-loading i { animation: pd-spin .8s linear infinite; }
+        @@keyframes pd-spin { to { transform: rotate(360deg); } }
+        .pd-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.ProductPage = {
+            apiUrl: '@Url.Content("~/toast/admin/product/api")',
+            loginUrl: '@Url.Content("~/toast/admin/account/login")'
+        };
+    </script>
+    <script src="~/themes/vuexy/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="~/js/shared/row-click.js" asp-append-version="true"></script>
+    <script src="~/js/product/product.js" asp-append-version="true"></script>
+}
