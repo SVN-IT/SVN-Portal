@@ -202,5 +202,8 @@
   "Convert to Purchase Order": "Chuyển đổi thành Purchase Order",
   "Purchase Order: Ready for Conversion": "Purchase Order: Sẵn sàng chuyển đổi",
   "READY TO CONVERT PURCHASE ORDER (STEP 3)": "SẴN SÀNG TẠO PURCHASE ORDER (BƯỚC 3)",
-  "PURCHASE ORDER CREATION READY: Re-verified Successfully": "SẴN SÀNG TẠO PURCHASE ORDER: Đã xác thực lại thành công"
+  "PURCHASE ORDER CREATION READY: Re-verified Successfully": "SẴN SÀNG TẠO PURCHASE ORDER: Đã xác thực lại thành công",
+  "Exporting...": "Đang xuất dữ liệu...",
+  "Could not export Excel file from server.": "Không thể xuất file Excel từ server.",
+  "An error occurred while exporting the Excel file!": "Đã xảy ra lỗi trong quá trình xuất file Excel!"
 }

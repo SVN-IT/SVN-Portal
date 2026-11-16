@@ -202,5 +202,8 @@
   "Convert to Purchase Order": "Convert to Purchase Order",
   "Purchase Order: Ready for Conversion": "Purchase Order: Ready for Conversion",
   "READY TO CONVERT PURCHASE ORDER (STEP 3)": "READY TO CONVERT PURCHASE ORDER (STEP 3)",
-  "PURCHASE ORDER CREATION READY: Re-verified Successfully": "PURCHASE ORDER CREATION READY: Re-verified Successfully"
+  "PURCHASE ORDER CREATION READY: Re-verified Successfully": "PURCHASE ORDER CREATION READY: Re-verified Successfully",
+  "Exporting...": "Exporting...",
+  "Could not export Excel file from server.": "Could not export Excel file from server.",
+  "An error occurred while exporting the Excel file!": "An error occurred while exporting the Excel file!"
 }

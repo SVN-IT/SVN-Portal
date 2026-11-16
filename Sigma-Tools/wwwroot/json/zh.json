@@ -202,5 +202,8 @@
   "Convert to Purchase Order": "转换为采购订单",
   "Purchase Order: Ready for Conversion": "采购订单：准备转换",
   "READY TO CONVERT PURCHASE ORDER (STEP 3)": "准备转换采购订单（步骤 3）",
-  "PURCHASE ORDER CREATION READY: Re-verified Successfully": "采购订单创建就绪：重新验证成功"
+  "PURCHASE ORDER CREATION READY: Re-verified Successfully": "采购订单创建就绪：重新验证成功",
+  "Exporting...": "正在导出数据...",
+  "Could not export Excel file from server.": "无法从服务器导出 Excel 文件。",
+  "An error occurred while exporting the Excel file!": "导出 Excel 文件时发生错误！"
 }

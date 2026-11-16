@@ -148,7 +148,7 @@
 
             // Hiển thị trạng thái đang xử lý nếu muốn
             const $btn = $(this);
-            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> <span>Exporting...</span>');
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> <span>' + t('Exporting...', 'Exporting...') + '</span>');
 
             fetch('@Url.Action("ExportPoTrackingToExcel", "Oracle")', {
                 method: 'POST',
@@ -160,7 +160,7 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Không thể xuất file Excel từ server.');
+                    throw new Error(t('Could not export Excel file from server.'));
                 }
                 return response.blob();
             })
@@ -176,10 +176,10 @@
             })
             .catch(error => {
                 console.error('Export Error:', error);
-                alert('Đã xảy ra lỗi trong quá trình xuất file Excel!');
+                alert(t('An error occurred while exporting the Excel file!'));
             })
             .finally(() => {
-                $btn.prop('disabled', false).html('<i class="fas fa-file-excel mr-1"></i> <span>Export Data</span>');
+                $btn.prop('disabled', false).html('<i class="fas fa-file-excel mr-1"></i> <span>' + t('Export Data') + '</span>');
             });
         });
     </script>
