@@ -6,88 +6,7 @@
     "MasterOperation": "POP",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      21,
-      24,
-      25,
-      267,
-      268,
-      269,
-      294,
-      295,
-      296,
-      299,
-      298,
-      300,
-      301,
-      307,
-      308,
-      309,
-      310,
-      313,
-      314,
-      315,
-      316,
-      321,
-      320,
-      322,
-      323,
-      325,
-      326,
-      327,
-      328,
-      273,
-      274,
-      275,
-      276,
-      281,
-      282,
-      283,
-      284,
-      340,
-      339,
-      341,
-      338,
-      344,
-      345,
-      346,
-      347,
-      626,
-      625,
-      627,
-      628,
-      630,
-      631,
-      288,
-      632,
-      633,
-      634,
-      635,
-      636,
-      640,
-      639,
-      638,
-      641,
-      647,
-      646,
-      645,
-      648,
-      650,
-      651,
-      652,
-      653,
-      657,
-      658,
-      737,
-      330,
-      332,
-      331,
-      333,
-      798,
-      797,
-      799,
-      800
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -137,11 +56,7 @@
     "MasterOperation": "Solar",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      36,
-      348,
-      349
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -166,11 +81,7 @@
     "MasterOperation": "Injection",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      898,
-      899,
-      900
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -196,7 +107,6 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      801,
       803
     ],
     "WC": [
@@ -248,20 +158,7 @@
     "MasterOperation": "ITA",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      370,
-      606,
-      608,
-      610,
-      609,
-      612,
-      611,
-      613,
-      615,
-      614,
-      616,
-      617
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -2555,7 +2452,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1169
+      1537
     ],
     "WC": [
       {
@@ -2582,7 +2479,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1195
+      1538
     ],
     "WC": [
       {
@@ -2609,7 +2506,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1169
+      1534
     ],
     "WC": [
       {
@@ -2636,7 +2533,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1195
+      1535
     ],
     "WC": [
       {
@@ -2663,7 +2560,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1169
+      1531
     ],
     "WC": [
       {
@@ -2690,7 +2587,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1195
+      1532
     ],
     "WC": [
       {
@@ -4660,9 +4557,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      465
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4687,9 +4582,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      466
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4714,9 +4607,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      467
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4741,9 +4632,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      475
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4768,9 +4657,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      476
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4795,9 +4682,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      477
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4822,9 +4707,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      478
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4849,9 +4732,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      479
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4876,9 +4757,7 @@
     "MasterOperation": "De burring(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      480
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4903,9 +4782,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      481
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4930,9 +4807,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      482
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4957,9 +4832,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      483
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -4984,9 +4857,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      484
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5011,9 +4882,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      485
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5038,9 +4907,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      486
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5065,9 +4932,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      487
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5092,9 +4957,7 @@
     "MasterOperation": "Auto Polish",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      488
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5119,9 +4982,7 @@
     "MasterOperation": "Auto Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      489
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5146,9 +5007,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      498
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5173,9 +5032,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      499
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5200,9 +5057,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      500
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5227,9 +5082,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      501
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5254,9 +5107,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      502
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5281,9 +5132,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      503
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5308,9 +5157,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      504
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5335,9 +5182,7 @@
     "MasterOperation": "Painting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      505
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5362,9 +5207,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      506
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5389,9 +5232,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      507
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5416,9 +5257,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      508
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5443,9 +5282,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      509
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5470,9 +5307,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      510
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5497,9 +5332,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      511
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5524,9 +5357,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      512
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5551,9 +5382,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      513
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5578,9 +5407,7 @@
     "MasterOperation": "Machining(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      514
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5605,9 +5432,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      515
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5632,9 +5457,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      516
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5659,9 +5482,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      517
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5686,9 +5507,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      518
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5713,9 +5532,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      519
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5740,9 +5557,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      520
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5767,9 +5582,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      521
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5794,9 +5607,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      522
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5821,9 +5632,7 @@
     "MasterOperation": "Die casting(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      523
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5848,9 +5657,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      524
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5875,9 +5682,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      525
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5902,9 +5707,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      526
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5929,9 +5732,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      527
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5956,9 +5757,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      528
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -5983,9 +5782,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      529
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6010,9 +5807,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      530
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6037,9 +5832,7 @@
     "MasterOperation": "Painting_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      531
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6064,9 +5857,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      532
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6091,9 +5882,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      533
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6118,9 +5907,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      534
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6145,9 +5932,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      535
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6172,9 +5957,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      536
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6199,9 +5982,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      537
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6226,9 +6007,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      538
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6253,9 +6032,7 @@
     "MasterOperation": "Plating_Polish(ITA)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6280,9 +6057,7 @@
     "MasterOperation": "Spa_regular(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6307,9 +6082,7 @@
     "MasterOperation": "Osprey_sleep_cover(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6334,9 +6107,7 @@
     "MasterOperation": "Osprey_Stylus(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6361,9 +6132,7 @@
     "MasterOperation": "Hand_Strap(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6388,9 +6157,7 @@
     "MasterOperation": "Traditional(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6415,9 +6182,7 @@
     "MasterOperation": "iPAD(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6442,9 +6207,7 @@
     "MasterOperation": "POP(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -6469,9 +6232,7 @@
     "MasterOperation": "New_Hand_Strap(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -7604,7 +7365,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1540
+      1526
     ],
     "WC": [
       {
@@ -7631,7 +7392,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1541
+      1527
     ],
     "WC": [
       {
@@ -7658,7 +7419,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1540
+      1543
     ],
     "WC": [
       {
@@ -7685,7 +7446,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1541
+      1544
     ],
     "WC": [
       {
@@ -7712,7 +7473,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1540
+      1635
     ],
     "WC": [
       {
@@ -7739,7 +7500,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1541
+      1636
     ],
     "WC": [
       {
@@ -7766,7 +7527,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1540
+      1638
     ],
     "WC": [
       {
@@ -7793,7 +7554,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1541
+      1639
     ],
     "WC": [
       {
@@ -7820,7 +7581,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1540
+      1785
     ],
     "WC": [
       {
@@ -7847,7 +7608,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1541
+      1786
     ],
     "WC": [
       {
@@ -7874,7 +7635,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1445
+      1440
     ],
     "WC": [
       {
@@ -8144,61 +7905,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1441
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 12,
-    "StoreID": 10,
-    "Top_row": 0,
-    "QCName": "Bùi Thị Hằng (SVN0902)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Twist-7100406624",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Twist",
-    "WCName": null,
-    "WCType": "FG",
-    "Produce_id": [
-      1445
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 12,
-    "StoreID": 10,
-    "Top_row": 0,
-    "QCName": "Bùi Thị Hằng (SVN0902)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/en/document/share/content/1102/4f8716d6-b20b-4757-88ab-e39dc3ec49b0",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Twist-7100406580",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Twist",
-    "WCName": null,
-    "WCType": "FG",
-    "Produce_id": [
-      1443
+      1459
     ],
     "WC": [
       {
@@ -8603,7 +8310,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1541
+      1819
     ],
     "WC": [
       {
@@ -8630,7 +8337,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1540
+      1828
     ],
     "WC": [
       {
@@ -8657,7 +8364,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1808
+      1821
     ],
     "WC": [
       {
@@ -8684,7 +8391,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1808
+      1809
     ],
     "WC": [
       {
@@ -8711,7 +8418,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1808
+      1815
     ],
     "WC": [
       {
@@ -8738,7 +8445,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1808
+      1806
     ],
     "WC": [
       {
@@ -8900,7 +8607,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1810
+      1816
     ],
     "WC": [
       {
@@ -8927,7 +8634,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1810
+      1832
     ],
     "WC": [
       {
@@ -8954,7 +8661,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1810
+      1830
     ],
     "WC": [
       {
@@ -9007,9 +8714,7 @@
     "MasterOperation": "Walter(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      1257
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9034,9 +8739,7 @@
     "MasterOperation": "TG3(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      9999
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9089,7 +8792,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
+      1844
     ],
     "WC": [
       {
@@ -9196,9 +8899,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9223,9 +8924,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9251,61 +8950,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WCT01-00823",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WSS03-00645",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
+      1847
     ],
     "WC": [
       {
@@ -9332,7 +8977,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
+      1849
     ],
     "WC": [
       {
@@ -9358,9 +9003,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9385,9 +9028,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9413,61 +9054,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WCT01-00824",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WSS03-00648",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
+      1851
     ],
     "WC": [
       {
@@ -9494,7 +9081,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
+      1853
     ],
     "WC": [
       {
@@ -9520,9 +9107,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9547,9 +9132,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9575,61 +9158,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WCT01-00825",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WSS03-00651",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
+      1855
     ],
     "WC": [
       {
@@ -9656,7 +9185,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
+      1857
     ],
     "WC": [
       {
@@ -9682,9 +9211,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9709,9 +9236,7 @@
     "MasterOperation": "Walter",
     "WCName": null,
     "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -9737,61 +9262,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WCT01-00826",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
-    ],
-    "WC": [
-      {
-        "WCName": "FG",
-        "Produce_id": [],
-        "Top_row": 5
-      }
-    ],
-    "ColWidth": 4,
-    "StoreID": 3,
-    "Top_row": 0,
-    "QCName": "Vũ Thị Lan Anh (SVN0334)",
-    "PDName": "Vũ Văn Công (SVN0003)",
-    "TechName": null,
-    "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
-    "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
-    "TechURL": null
-  },
-  {
-    "Operation": "Walter-WSS03-00654",
-    "Name": "",
-    "Price": 0,
-    "MasterOperation": "Walter",
-    "WCName": null,
-    "WCType": "WIP",
-    "Produce_id": [
-      1831
+      1859
     ],
     "WC": [
       {
@@ -9818,7 +9289,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
+      1862
     ],
     "WC": [
       {
@@ -9845,7 +9316,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1846
     ],
     "WC": [
       {
@@ -9872,7 +9343,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1848
     ],
     "WC": [
       {
@@ -9899,7 +9370,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1850
     ],
     "WC": [
       {
@@ -9926,7 +9397,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1852
     ],
     "WC": [
       {
@@ -9953,7 +9424,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1854
     ],
     "WC": [
       {
@@ -9980,7 +9451,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1856
     ],
     "WC": [
       {
@@ -10007,7 +9478,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1858
     ],
     "WC": [
       {
@@ -10034,7 +9505,7 @@
     "WCName": null,
     "WCType": "FG",
     "Produce_id": [
-      1504
+      1861
     ],
     "WC": [
       {
@@ -10061,7 +9532,7 @@
     "WCName": null,
     "WCType": "WIP",
     "Produce_id": [
-      1831
+      1801
     ],
     "WC": [
       {
@@ -10114,9 +9585,7 @@
     "MasterOperation": "Holster(SM)",
     "WCName": null,
     "WCType": "FG",
-    "Produce_id": [
-      539
-    ],
+    "Produce_id": [],
     "WC": [
       {
         "WCName": "FG",
@@ -10322,5 +9791,30 @@
     "QCURL": "https://sigmaworldwide.io/document/share/content/421/04b87bf4-e20a-4020-882f-cbff9024ebfb",
     "PDURL": "https://sigmaworldwide.io/document/share/content/441/e1a69f59-7d25-48f7-9f9d-865de0d6a714",
     "TechURL": ""
+  },
+  {
+    "Operation": "AirPods_Pro(SM)",
+    "Name": "",
+    "Price": 0,
+    "MasterOperation": "AirPods_Pro",
+    "WCName": null,
+    "WCType": "WIP",
+    "Produce_id": [],
+    "WC": [
+      {
+        "WCName": "FG",
+        "Produce_id": [],
+        "Top_row": 5
+      }
+    ],
+    "ColWidth": 6,
+    "StoreID": 6,
+    "Top_row": 0,
+    "QCName": "刘桂华",
+    "PDName": "梁江盼",
+    "TechName": "曾志龙",
+    "QCURL": "https://sigmaworldwide.io/document/share/content/1096/a96cef9b-66ac-4330-9fda-99e87e5f62c0",
+    "PDURL": "https://sigmaworldwide.io/document/share/content/1093/81f3177d-8195-43b5-a3ea-16d20b9eb5be",
+    "TechURL": "https://sigmaworldwide.io/en/document/share/content/1029/73caa1eb-2045-43bc-af17-6999a613e897"
   }
 ]

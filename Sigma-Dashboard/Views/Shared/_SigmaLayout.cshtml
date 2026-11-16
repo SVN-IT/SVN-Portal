@@ -44,6 +44,16 @@
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+    <script>
+        (function () {
+            if (localStorage.getItem('theme-dark-mode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            if (localStorage.getItem('always-show-search') !== 'false') {
+                document.body.classList.add('always-show-search');
+            }
+        })();
+    </script>
     <div class="wrapper">
         @{
             DateTime date = ViewBag.date;
@@ -161,6 +171,24 @@
                         </form>
                     </div>
                 </li>
+                @if ((indexPage == "Index" || indexPage == "ChartPageByOperation") && controllerName == "Home")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" id="btnPrevCarousel" href="#" role="button" title="Trang trước (←)">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="btnToggleCarousel" href="#" role="button" title="Tạm dừng chuyển trang (P)">
+                            <i class="fas fa-pause" id="iconToggleCarousel"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="btnNextCarousel" href="#" role="button" title="Trang sau (→)">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                }
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>
@@ -377,7 +405,8 @@
 
             // 3. KHI NGƯỜI DÙNG CLICK THAY ĐỔI Ô CHECKBOX (BẬT/TẮT)
             $darkModeCheckbox.on('change', function () {
-                if ($(this).is(':checked')) {
+                var isDark = $(this).is(':checked');
+                if (isDark) {
                     // Người dùng TÍCH CHỌN -> Bật Dark Mode + Lưu 'true' vào LocalStorage
                     $('body').addClass('dark-mode');
                     localStorage.setItem('theme-dark-mode', 'true');
@@ -385,6 +414,45 @@
                     // Người dùng BỎ TÍCH -> Tắt Dark Mode + Lưu 'false' vào LocalStorage
                     $('body').removeClass('none-dark-mode').removeClass('dark-mode');
                     localStorage.setItem('theme-dark-mode', 'false');
+                }
+                // Cập nhật màu chữ chú thích cho các biểu đồ Pie Chart khi đổi theme
+                if (typeof Chart !== 'undefined' && Chart.instances) {
+                    var legendColor = isDark ? '#ccc' : '#495057';
+                    Chart.helpers.each(Chart.instances, function (instance) {
+                        if (instance.config && instance.config.type === 'pie' && instance.options && instance.options.legend && instance.options.legend.labels) {
+                            instance.options.legend.labels.fontColor = legendColor;
+                            instance.update();
+                        }
+                    });
+                }
+            });
+
+            // 4. ALWAYS SHOW SEARCH BAR:
+            var $alwaysSearchCheckbox = $('span:contains("Always Show Search Bar")').siblings('input[type="checkbox"]');
+            if ($alwaysSearchCheckbox.length === 0) {
+                $alwaysSearchCheckbox = $('.control-sidebar input[type="checkbox"]').filter(function() {
+                    return $(this).next('span').text().trim() === "Always Show Search Bar";
+                });
+            }
+
+            var savedAlwaysSearch = localStorage.getItem('always-show-search');
+            if (savedAlwaysSearch !== 'false') {
+                $('body').addClass('always-show-search');
+                $alwaysSearchCheckbox.prop('checked', true);
+            } else {
+                $('body').removeClass('always-show-search');
+                $alwaysSearchCheckbox.prop('checked', false);
+            }
+
+            $alwaysSearchCheckbox.on('change click', function () {
+                if ($(this).is(':checked')) {
+                    $('body').addClass('always-show-search');
+                    localStorage.setItem('always-show-search', 'true');
+                } else {
+                    $('body').removeClass('always-show-search');
+                    localStorage.setItem('always-show-search', 'false');
+                    $('.navbar-search-block').removeClass('navbar-search-open').removeAttr('style');
+                    $('[data-widget="navbar-search"]').removeAttr('style');
                 }
             });
         });
