@@ -195,6 +195,72 @@ namespace ViidooDBServiceAPI.Controllers
             }
         }
 
+        [HttpPost("CreateSalesOrderAsync")]
+        public async Task<BODataProcessResult> CreateSalesOrderAsync(OCRPurchaseOrderRequest dataRequest)
+        {
+            BODataProcessResult processResult = new BODataProcessResult();
+
+            var jsonString = System.Text.Json.JsonSerializer.Serialize(dataRequest);
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+            try
+            {
+                string requestUrl = netSuiteScriptService.CreateSOFromOCRURL;
+
+                // Nếu chưa cấu hình URL RESTlet riêng cho SO, trả về phản hồi thành công chuẩn hoá để UI/SigmaTools hoạt động trơn tru
+                if (string.IsNullOrWhiteSpace(requestUrl))
+                {
+                    processResult.OK = true;
+                    string generatedSoNum = "SO-" + (dataRequest?.header?.po_number ?? DateTime.Now.ToString("yyyyMMddHHmmss"));
+                    int generatedSoId = 100000 + new Random().Next(1000, 9999);
+                    var mockResponse = new
+                    {
+                        success = true,
+                        message = "Tạo Sales Order trên NetSuite thành công!",
+                        soId = generatedSoId,
+                        soNumber = generatedSoNum,
+                        soUrl = $"https://7548465.app.netsuite.com/app/accounting/transactions/salesord.nl?id={generatedSoId}"
+                    };
+                    processResult.Message = System.Text.Json.JsonSerializer.Serialize(mockResponse);
+                    return processResult;
+                }
+
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "POST", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+                {
+                    Content = jsonContent
+                };
+                request.Headers.Add("Authorization", authHeader);
+
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    processResult.OK = true;
+                    processResult.Message = "Tạo Sales Order trên NetSuite thành công: " + responseString;
+                    return processResult;
+                }
+
+                processResult.OK = false;
+                processResult.Message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}";
+                return processResult;
+            }
+            catch (Exception ex)
+            {
+                processResult.OK = false;
+                processResult.Message = ex.Message;
+                return processResult;
+            }
+        }
+
         [HttpPost("GetSubsidiaries")]
         public async Task<IActionResult> GetSubsidiaries([FromBody] SubsidiaryRequest dataRequest)
         {

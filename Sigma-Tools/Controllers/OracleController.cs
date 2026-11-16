@@ -692,6 +692,8 @@ namespace Sigma_Tools.Controllers
 
                         if (request.Subsidiary > 0) ocrData["header"]["subsidiary"] = request.Subsidiary;
                         if (request.Location > 0) ocrData["header"]["location"] = request.Location;
+                        if (request.Subsidiary > 0) ocrData["header"]["subsidiary"] = request.Subsidiary;
+                        if (request.Location > 0) ocrData["header"]["location"] = request.Location;
                         if (request.TaxCode > 0) ocrData["header"]["tax_code"] = request.TaxCode;
                         if (request.ProjectCode > 0) ocrData["header"]["project_code"] = request.ProjectCode;
 
@@ -782,6 +784,150 @@ namespace Sigma_Tools.Controllers
             catch (Exception ex)
             {
                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Purchase Order trên NetSuite: {ex.Message}", currentUser.UserName);
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateSalesOrder([FromBody] CreateSalesOrderRequest request)
+        {
+            if (request == null || request.LineItems == null || request.LineItems.Count == 0)
+            {
+                return Json(new { success = false, messageKey = "EmptyPayloadError", message = "Dữ liệu truyền lên bị trống." });
+            }
+            var currentUser = _permissionService.GetCurrentUser();
+            try
+            {
+                string soRefPO = request.PONumber;
+                string customer = request.Customer;
+                string currency = request.Currency;
+                int totalLines = request.LineItems.Count;
+
+                // Đồng bộ cập nhật giá mới từ request.LineItems vào RawOcrResponse nếu có
+                if (!string.IsNullOrEmpty(request.RawOcrResponse))
+                {
+                    JObject ocrData = JsonConvert.DeserializeObject<JObject>(request.RawOcrResponse);
+                    if (ocrData != null)
+                    {
+                        if (ocrData["header"] == null) ocrData["header"] = new JObject();
+
+                        if (request.Subsidiary > 0) ocrData["header"]["subsidiary"] = request.Subsidiary;
+                        if (request.Location > 0) ocrData["header"]["location"] = request.Location;
+                        if (request.TaxCode > 0) ocrData["header"]["tax_code"] = request.TaxCode;
+                        if (request.ProjectCode > 0)
+                        {
+                            ocrData["header"]["project_code"] = request.ProjectCode;
+                            ocrData["header"]["project_code_id"] = request.ProjectCode;
+                        }
+
+                        // Thiết lập các trường theo chuẩn logic "SO in ERP" (16 điểm quy định)
+                        ocrData["header"]["customform"] = !string.IsNullOrEmpty(request.CustomForm) ? request.CustomForm : "Sigma Worldwide Sales order"; // No. 1
+                        ocrData["header"]["customer"] = customer; // No. 2
+                        ocrData["header"]["po_number"] = !string.IsNullOrEmpty(request.CustomerPONumber) ? request.CustomerPONumber : request.PONumber; // No. 5
+                        ocrData["header"]["so_date"] = !string.IsNullOrEmpty(request.Date) ? request.Date : DateTime.Now.ToString("yyyy-MM-dd"); // No. 6
+                        ocrData["header"]["person_in_charge"] = request.PersonInCharge ?? ""; // No. 7: DRI PM
+                        ocrData["header"]["dri_pm"] = request.PersonInCharge ?? ""; // No. 7
+
+                        // Luôn cố định Subsidiary và Location là Sigma Worldwide theo quy định SO (No. 8 & No. 9)
+                        ocrData["header"]["subsidiary_name"] = "Sigma Worldwide"; // No. 8
+                        ocrData["header"]["location_name"] = "Sigma Worldwide"; // No. 9
+                        if (!string.IsNullOrEmpty(request.ProjectCodeStr))
+                        {
+                            ocrData["header"]["project_code"] = request.ProjectCodeStr; // No. 10: 3 digits
+                            ocrData["header"]["project_code_str"] = request.ProjectCodeStr;
+                        }
+                        ocrData["header"]["po_type"] = !string.IsNullOrEmpty(request.PoType) ? request.PoType : "MP"; // No. 11: MP or NPI
+                        ocrData["header"]["pr_type"] = !string.IsNullOrEmpty(request.PrType) ? request.PrType : "DRI"; // No. 12: DRI
+                        ocrData["header"]["allow_cross_sub_fulfillment"] = true; // No. 14
+                        ocrData["header"]["ref_po"] = soRefPO;
+
+                        if (ocrData["line_items"] is JArray rawLineItemsArray)
+                        {
+                            for (int i = 0; i < rawLineItemsArray.Count && i < request.LineItems.Count; i++)
+                            {
+                                var itemObj = rawLineItemsArray[i];
+                                var updatedLine = request.LineItems[i];
+                                itemObj["price_each"] = updatedLine.price_each;
+                                itemObj["amount"] = updatedLine.quantity * updatedLine.price_each;
+                                itemObj["tax_code"] = 0; // No. 3: Tax Code 0 for SW
+                                itemObj["expected_ship_date"] = !string.IsNullOrEmpty(updatedLine.expected_ship_date) ? updatedLine.expected_ship_date : (!string.IsNullOrEmpty(updatedLine.eta_date) ? updatedLine.eta_date : request.Date); // No. 15
+                                itemObj["inventory_location"] = !string.IsNullOrEmpty(updatedLine.inventory_location) ? updatedLine.inventory_location : (!string.IsNullOrEmpty(request.InventoryLocation) ? request.InventoryLocation : "Sigma Asia"); // No. 16
+                            }
+                        }
+
+                        // Tính lại totals
+                        if (ocrData["totals"] != null)
+                        {
+                            decimal newGrandTotal = request.LineItems.Sum(x => x.quantity * x.price_each);
+                            ocrData["totals"]["subtotal"] = newGrandTotal;
+                            ocrData["totals"]["grand_total"] = newGrandTotal;
+                        }
+
+                        request.RawOcrResponse = JsonConvert.SerializeObject(ocrData);
+                    }
+
+                    string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/CreateSalesOrderAsync";
+
+                    using (var client = new HttpClient())
+                    {
+                        var httpContent = new StringContent(request.RawOcrResponse, System.Text.Encoding.UTF8, "application/json");
+
+                        HttpResponseMessage apiResponse = await client.PostAsync(apiUrl, httpContent);
+                        if (apiResponse.IsSuccessStatusCode)
+                        {
+                            string jsonResult = await apiResponse.Content.ReadAsStringAsync();
+                            BODataProcessResult? processResult = JsonConvert.DeserializeObject<BODataProcessResult>(jsonResult);
+                            if (processResult != null && processResult.OK)
+                            {
+                                string? jsonString = processResult.Message;
+                                int jsonStartIndex = processResult.Message.IndexOf('{');
+                                if (jsonStartIndex == -1)
+                                {
+                                    jsonStartIndex = processResult.Message.IndexOf('[');
+                                }
+
+                                if (jsonStartIndex != -1)
+                                {
+                                    jsonString = processResult.Message.Substring(jsonStartIndex);
+                                }
+
+                                var parsedResponse = JsonConvert.DeserializeObject<CreateSalesOrderResponse>(jsonString);
+                                string createdSoNumber = parsedResponse?.soNumber ?? ("SO-" + soRefPO);
+
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. SO Number: {createdSoNumber}, Ref PO: {soRefPO}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, SO ID: {parsedResponse?.soId}", currentUser.UserName);
+
+                                return Json(new
+                                {
+                                    success = true,
+                                    message = parsedResponse?.message ?? "Tạo Sales Order trên NetSuite thành công!",
+                                    soId = parsedResponse?.soId,
+                                    soNumber = createdSoNumber,
+                                    soUrl = parsedResponse?.soUrl
+                                });
+                            }
+                            else
+                            {
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. Ref PO: {soRefPO}, Customer: {customer}, ErrorMessage: {processResult?.Message}", currentUser.UserName);
+                                return Json(new { success = false, message = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
+                            }
+                        }
+                        else
+                        {
+                            string errContent = await apiResponse.Content.ReadAsStringAsync();
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. Ref PO: {soRefPO}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}, Detail: {errContent}", currentUser.UserName);
+                            return Json(new { success = false, message = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" + (!string.IsNullOrWhiteSpace(errContent) ? $": {errContent}" : "") });
+                        }
+                    }
+                }
+                else
+                {
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống khi tạo Sales Order. Ref PO: {soRefPO}", currentUser.UserName);
+                    return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite." });
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
@@ -997,6 +1143,41 @@ namespace Sigma_Tools.Controllers
         public int poId { get; set; }
         public string poNumber { get; set; }
         public string poUrl { get; set; }
+    }
+
+    public class CreateSalesOrderRequest
+    {
+        public string PONumber { get; set; }
+        public string CustomerPONumber { get; set; }
+        public string Customer { get; set; }
+        public string Date { get; set; }
+        public string Currency { get; set; }
+        public int Subsidiary { get; set; }
+        public int Location { get; set; }
+        public int TaxCode { get; set; }
+        public int ProjectCode { get; set; }
+        public int CreatedPoId { get; set; }
+        public string CreatedPoUrl { get; set; }
+        public List<POLineItem> LineItems { get; set; }
+        public string RawOcrResponse { get; set; }
+
+        // Bổ sung các tham số theo logic "SO in ERP"
+        public string? PersonInCharge { get; set; } // No. 7: DRI PM
+        public string? PoType { get; set; } = "MP"; // No. 11: MP or NPI
+        public string? PrType { get; set; } = "DRI"; // No. 12: DRI for purchasing team
+        public string? ProjectCodeStr { get; set; } // No. 10: 3 digits
+        public bool AllowCrossSubsidiaryFulfillment { get; set; } = true; // No. 14
+        public string? InventoryLocation { get; set; } = "Sigma Asia"; // No. 16: Sigma Asia
+        public string? CustomForm { get; set; } = "Sigma Worldwide Sales order"; // No. 1
+    }
+
+    public class CreateSalesOrderResponse
+    {
+        public bool success { get; set; }
+        public string message { get; set; }
+        public int? soId { get; set; }
+        public string soNumber { get; set; }
+        public string soUrl { get; set; }
     }
 
     public class PoOrderTrackingDto

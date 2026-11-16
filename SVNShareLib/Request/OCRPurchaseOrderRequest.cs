@@ -32,10 +32,25 @@ namespace SVNShareLib.Request
         public string? payment_terms { get; set; }
         public string? trade_terms { get; set; }
         public string? currency { get; set; }
-        public int subsidiary { get; set; }
-        public int location { get; set; }
-        public int tax_code { get; set; }
-        public int project_code { get; set; }
+        public int? subsidiary { get; set; }
+        public int? location { get; set; }
+        public int? tax_code { get; set; }
+        public object? project_code { get; set; }
+        public string? project_code_str { get; set; }
+        public int? project_code_id { get; set; }
+        public string? subsidiary_name { get; set; }
+        public string? location_name { get; set; }
+        public string? ref_po { get; set; }
+        public string? customer { get; set; }
+        public string? customer_po_number { get; set; }
+        public string? date { get; set; }
+        public string? so_date { get; set; }
+        public string? person_in_charge { get; set; }
+        public string? dri_pm { get; set; }
+        public string? pr_type { get; set; }
+        public bool allow_cross_sub_fulfillment { get; set; }
+        public string? inventory_location { get; set; }
+        public string? customform { get; set; }
     }
 
     public class BuyerInfo { public string? name { get; set; } public string? address { get; set; } }
@@ -56,6 +71,9 @@ namespace SVNShareLib.Request
         public decimal price_each { get; set; }
         public decimal amount { get; set; }
         public string? eta_date { get; set; }
+        public string? expected_ship_date { get; set; }
+        public string? inventory_location { get; set; }
+        public int? tax_code { get; set; }
     }
 
     public class POTotals

@@ -145,7 +145,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        max-width: 550px;
+        max-width: 720px;
         margin: 0 auto;
         position: relative;
     }
@@ -154,8 +154,8 @@
     .netsuite-stepper-line {
         position: absolute;
         top: 15px;
-        left: 80px;
-        right: 80px;
+        left: 60px;
+        right: 60px;
         height: 2px;
         background-color: #d1d5db;
         z-index: 1;
@@ -361,7 +361,13 @@
         <!-- Step 3 -->
         <div class="netsuite-step" id="step-node-3">
             <div class="step-num">3</div>
-            <div class="step-text"><span class="lang-text">Create ERP PO</span></div>
+            <div class="step-text"><span class="lang-text" data-i18n="Create ERP PO">Create ERP PO</span></div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="netsuite-step" id="step-node-4">
+            <div class="step-num">4</div>
+            <div class="step-text"><span class="lang-text" data-i18n="Create Sales Order">Create Sales Order</span></div>
         </div>
     </div>
 </div>
@@ -377,6 +383,11 @@
 
         <!-- Các nút chức năng khác mặc định bị disabled -->
         <button type="button" class="btn btn-sm btn-secondary font-weight-bold mr-1 d-none" id="btn-convert" disabled><span class="lang-text">Convert to ERP PO</span></button>
+
+        <!-- Nút Submit Sales Order (Chỉ hiển thị ở Bước 4) -->
+        <button type="button" class="btn btn-sm btn-success font-weight-bold mr-1 d-none shadow-sm" id="btn-submit-so">
+            <i class="fas fa-paper-plane mr-1"></i> <span class="lang-text" data-i18n="Submit & Create SO">Submit & Create SO</span>
+        </button>
 
         <!-- Nút Edit Data -->
         <button type="button" class="btn btn-sm btn-warning text-white font-weight-bold mr-1" id="btn-edit-data" disabled>
@@ -459,6 +470,42 @@
                     <!-- Nút mở link NetSuite (Chỉ hiện khi thành công) -->
                     <a href="#" id="ns-modal-link-btn" target="_blank" class="btn btn-sm btn-success font-weight-bold d-none">
                         <i class="fas fa-external-link-alt mr-1"></i> <span class="lang-text">OpenAPOInNetSuite</span>
+                    </a>
+                    <!-- Nút chuyển sang Bước 4: Tạo Sales Order (Chỉ hiện khi tạo PO thành công) -->
+                    <button type="button" class="btn btn-sm btn-primary font-weight-bold d-none shadow-sm" id="btn-proceed-step4-so">
+                        <i class="fas fa-arrow-right mr-1"></i> <span class="lang-text" data-i18n="Proceed to Create SO (Step 4)">Proceed to Create SO (Step 4)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thông báo kết quả tạo Sales Order NetSuite (Bước 4) -->
+    <div class="modal fade" id="salesOrderResultModal" tabindex="-1" role="dialog" aria-labelledby="salesOrderResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-success text-white py-2" id="so-result-modal-header">
+                    <h6 class="modal-title font-weight-bold" id="salesOrderResultModalLabel">
+                        <i id="so-result-modal-icon" class="fas fa-check-circle mr-1"></i> <span class="lang-text" data-i18n="Sales Order Result">Sales Order Result</span>
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="so-result-modal-message" class="font-weight-bold mb-2 text-dark"></p>
+                    <div id="so-result-modal-info" class="small text-muted mb-2">
+                        <span class="lang-text" data-i18n="Sales Order Number">Sales Order Number</span>: <strong id="so-result-modal-number" class="text-primary font-weight-bold"></strong>
+                    </div>
+                    <div id="so-result-modal-ref-po" class="small text-muted">
+                        <span class="lang-text" data-i18n="Ref NetSuite PO:">Ref NetSuite PO:</span> <strong id="so-result-modal-po-number" class="text-success font-weight-bold"></strong>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" data-dismiss="modal"><span class="lang-text" data-i18n="Close">Close</span></button>
+                    <!-- Nút mở link SO NetSuite (Chỉ hiện khi thành công và có URL) -->
+                    <a href="#" id="so-result-modal-link-btn" target="_blank" class="btn btn-sm btn-success font-weight-bold d-none">
+                        <i class="fas fa-external-link-alt mr-1"></i> <span class="lang-text" data-i18n="Open SO in NetSuite">Open SO in NetSuite</span>
                     </a>
                 </div>
             </div>
@@ -575,6 +622,11 @@
             <i id="so-badge-icon" class="fas fa-check-circle mr-1"></i>
             <span id="so-badge-text">Purchase Order: <span class="lang-text">Ready for Conversion</span></span>
         </span>
+        <!-- Badge Trạng thái Bước 4 (Sales Order Creation) - Mặc định ẩn, hiện khi sang Bước 4 -->
+        <span id="so-step4-badge-status" class="badge badge-secondary p-2 font-weight-normal ml-2 d-none">
+            <i class="fas fa-file-invoice mr-1"></i>
+            <span id="so-step4-badge-text">Sales Order: <strong class="lang-text" data-i18n="Pending Submission">Pending Submission</strong></span>
+        </span>
     </div>
 </div>
 
@@ -631,6 +683,75 @@
                         <div class="col-md-3" id="po-date-display">N/A</div>
                         <div class="col-md-3" id="po-customer-display">N/A</div>
                         <div class="col-md-3" id="po-requisitioner-display">N/A</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cấu hình thông số tạo Sales Order (SO in ERP - Bước 4) -->
+            <div class="card card-custom mb-3 d-none" id="so-config-card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                    <span class="font-weight-bold"><i class="fas fa-file-invoice mr-1"></i> <span class="lang-text" data-i18n="SO in ERP Configuration">SO in ERP Configuration</span></span>
+                    <span class="badge badge-light text-primary font-weight-bold">Sigma Worldwide</span>
+                </div>
+                <div class="card-body py-2 px-3 bg-white">
+                    <div class="row">
+                        <!-- 1. Custom Form & 8. Subsidiary & 9. Location (Pre-set) -->
+                        <div class="col-md-3 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="Custom Form">Custom Form</span>:</label>
+                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-customform-display" value="Sigma Worldwide Sales Order" readonly />
+                        </div>
+                        <div class="col-md-3 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="Subsidiary">Subsidiary</span>:</label>
+                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-subsidiary-display" value="Sigma Worldwide" readonly />
+                        </div>
+                        <div class="col-md-3 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="Location">Location</span>:</label>
+                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-location-display" value="Sigma Worldwide" readonly />
+                        </div>
+                        <!-- 6. Date -->
+                        <div class="col-md-3 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="SO Date">SO Date</span> <span class="text-danger">*</span>:</label>
+                            <input type="date" class="form-control form-control-sm font-weight-bold text-primary" id="so-date-input" value="" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- 7. Person in charge (DRI PM) -->
+                        <div class="col-md-3 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="Person in charge (DRI PM)">Person in charge (DRI PM)</span>:</label>
+                            <input type="text" class="form-control form-control-sm" id="so-dri-pm-input" placeholder="e.g. DRI PM" />
+                        </div>
+                        <!-- 10. Project code (Auto-inherited from PO) -->
+                        <div class="col-md-3 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1 d-flex justify-content-between align-items-center">
+                                <span>
+                                    <span class="lang-text" data-i18n="Project Code">Project Code</span>
+                                    <span class="badge badge-success ml-1 font-weight-normal" id="so-projcode-badge" style="font-size: 0.68rem;" title="Tự động kế thừa từ thông tin tạo PO"><i class="fas fa-check mr-1"></i><span class="lang-text" data-i18n="Auto from PO">Auto from PO</span></span>:
+                                </span>
+                                <a href="javascript:void(0)" id="btn-toggle-edit-projcode" class="text-primary small font-weight-normal" style="font-size: 0.72rem;" title="Nhấn để mở khóa chỉnh sửa nếu cần"><i class="fas fa-pen mr-1"></i><span class="lang-text" data-i18n="Edit">Edit</span></a>
+                            </label>
+                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-projcode-input" readonly maxlength="20" placeholder="e.g. 059" />
+                            <input type="hidden" id="so-projcode-id-hidden" value="" />
+                        </div>
+                        <!-- 11. PO Type (MP or NPI) -->
+                        <div class="col-md-2 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="PO Type">PO Type</span>:</label>
+                            <select class="form-control form-control-sm font-weight-bold" id="so-potype-select">
+                                <option value="MP" selected>MP</option>
+                                <option value="NPI">NPI</option>
+                            </select>
+                        </div>
+                        <!-- 12. PR Type -->
+                        <div class="col-md-2 form-group mb-2">
+                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="PR Type">PR Type</span>:</label>
+                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-prtype-display" value="DRI" readonly />
+                        </div>
+                        <!-- 14. Cross-subsidiary fulfillment -->
+                        <div class="col-md-2 form-group mb-2 d-flex align-items-center pt-3">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="so-cross-sub-chk" checked />
+                                <label class="custom-control-label small font-weight-bold text-dark cursor-pointer" for="so-cross-sub-chk" data-i18n="Allow Cross-Sub Fulfillment">Cross-Sub Fulfillment</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -709,6 +830,8 @@
 
     // Biến đánh dấu bước hiện tại
     let currentStep = 1;
+    let createdPoData = null;
+    let proceedingToStep4 = false;
 
 
     document.getElementById('pdf-file-input').addEventListener('change', function (event) {
@@ -2287,11 +2410,15 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     // 2. Khi bấm nút "Confirm & Create PO" trong Popup -> Tiến hành gom dữ liệu và gọi AJAX
     // Khi bấm "Confirm & Create PO" trong Popup
     $(document).on('click', '#btn-confirm-create-so', function () {
-        // Đọc giá trị từ các thẻ select và ép kiểu sang int
+        // Đọc giá trị và text từ các thẻ select
         const selectedSubsidiary = parseInt($('#select-subsidiary').val(), 10) || 0;
+        const selectedSubsidiaryText = $('#select-subsidiary option:selected').text().trim();
         const selectedLocation = parseInt($('#select-location').val(), 10) || 0;
+        const selectedLocationText = $('#select-location option:selected').text().trim();
         const selectedTaxCode = parseInt($('#select-taxcode').val(), 10) || 0;
+        const selectedTaxCodeText = $('#select-taxcode option:selected').text().trim();
         const selectedProjectCode = parseInt($('#select-projectcode').val(), 10) || 0;
+        const selectedProjectCodeText = $('#select-projectcode option:selected').text().trim();
 
         $('#subsidiarySelectModal').modal('hide');
 
@@ -2369,6 +2496,22 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 $btnConvert.prop('disabled', false).html(btnDefaultText);
 
                 if (response.success) {
+                    // Lưu lại toàn bộ dữ liệu vừa tạo PO thành công để phục vụ chuyển tiếp sang Bước 4 (Tạo SO)
+                    createdPoData = {
+                        poId: response.poId,
+                        poNumber: response.poNumber || poNumber,
+                        poUrl: response.poUrl,
+                        subsidiary: selectedSubsidiary,
+                        subsidiaryText: selectedSubsidiaryText,
+                        location: selectedLocation,
+                        locationText: selectedLocationText,
+                        taxCode: selectedTaxCode,
+                        taxCodeText: selectedTaxCodeText,
+                        projectCode: selectedProjectCode,
+                        projectCodeText: selectedProjectCodeText
+                    };
+                    proceedingToStep4 = false;
+
                     $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
                     $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
                     $('#ns-modal-message').text(response.message);
@@ -2381,11 +2524,17 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                         $('#ns-modal-link-btn').addClass('d-none');
                     }
 
+                    // Hiển thị nút chuyển tiếp sang Bước 4 tạo Sales Order
+                    $('#btn-proceed-step4-so').removeClass('d-none');
+
                     $('#netsuiteResultModal').modal('show');
                     $('#netsuiteResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
-                        location.reload();
+                        if (!proceedingToStep4) {
+                            location.reload();
+                        }
                     });
                 } else {
+                    $('#btn-proceed-step4-so').addClass('d-none');
                     $('#ns-modal-header').removeClass('bg-success').addClass('bg-danger');
                     $('#ns-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
                     let defaultErr = t("An error occurred while creating the PO in NetSuite.");
@@ -2483,6 +2632,424 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         // Lưu ngược lại chuỗi JSON hoàn chỉnh vào thẻ ẩn
         $('#ocr-raw-json-hidden').val(JSON.stringify(rawOcrData));
     }
+
+    // =============================================================
+    // BƯỚC 4: TẠO SALES ORDER (SO) SAU KHI TẠO PO THÀNH CÔNG
+    // =============================================================
+
+    // 1. Khi bấm nút "Proceed to Create SO (Step 4)" từ Modal kết quả PO
+    $(document).on('click', '#btn-proceed-step4-so', function () {
+        proceedingToStep4 = true;
+        $('#netsuiteResultModal').modal('hide');
+        goToStep4();
+    });
+
+    // 2. Chuyển giao diện sang Bước 4 (Create Sales Order)
+    function goToStep4() {
+        currentStep = 4;
+
+        // Cập nhật Stepper: Bước 3 completed, Bước 4 active
+        $('#step-node-3').removeClass('active').addClass('completed');
+        $('#step-node-4').removeClass('completed').addClass('active');
+
+        // Ẩn tất cả nút chức năng của các bước trước, hiển thị nút Submit SO
+        $('#btn-convert, #btn-edit-data, #btn-reject, #btn-reload-erp, #btn-import-wrapper').addClass('d-none');
+        $('#edit-actions-group').attr('style', 'display: none !important');
+        $('#btn-submit-so').removeClass('d-none').prop('disabled', false);
+
+        // Hiển thị Card cấu hình "SO in ERP"
+        $('#so-config-card').removeClass('d-none');
+
+        // Điền ngày SO mặc định là ngày hôm nay
+        let todayStr = new Date().toISOString().substring(0, 10);
+        $('#so-date-input').val(todayStr);
+
+        // 1. Subsidiary & Location luôn cố định là "Sigma Worldwide" theo quy định SO (No. 8 & No. 9)
+        $('#so-subsidiary-display').val('Sigma Worldwide');
+        $('#so-location-display').val('Sigma Worldwide');
+
+        // 2. Tự động kế thừa Project Code từ Bước 3 (PO)
+        let projText = (createdPoData && createdPoData.projectCodeText) ? createdPoData.projectCodeText : $('#select-projectcode option:selected').text().trim();
+        let projId = (createdPoData && createdPoData.projectCode) ? createdPoData.projectCode : $('#select-projectcode').val();
+
+        $('#so-projcode-id-hidden').val(projId || '');
+
+        let projMatch = projText.match(/\d{3}/);
+        if (projMatch) {
+            $('#so-projcode-input').val(projMatch[0]);
+        } else if (projText && projText !== '-- Select --' && projText !== '-- Select Project Code --' && !projText.includes('-- Select')) {
+            $('#so-projcode-input').val(projText);
+        } else if (projId) {
+            let pVal = projId.toString();
+            $('#so-projcode-input').val(pVal.length > 3 ? pVal.substring(pVal.length - 3) : pVal.padStart(3, '0'));
+        }
+
+        // Mặc định khóa readonly và hiển thị trạng thái kế thừa tự động từ PO
+        $('#so-projcode-input').prop('readonly', true).removeClass('bg-white').addClass('bg-light');
+        $('#btn-toggle-edit-projcode').html(`<i class="fas fa-pen mr-1"></i><span class="lang-text">${t("Edit")}</span>`);
+
+        // Cập nhật Badges
+        $('#so-badge-status').addClass('d-none');
+        $('#so-step4-badge-status')
+            .removeClass('d-none badge-secondary badge-warning')
+            .addClass('badge-primary')
+            .css({ 'background-color': '#0d5287', 'color': '#fff' });
+        let readyText = t("Ready for Submission");
+        $('#so-step4-badge-text').html(`Sales Order: <strong>${readyText}</strong>`);
+
+        // Cập nhật Alert Box
+        const $alertBox = $('#ocr-audit-alert-box');
+        $alertBox.show()
+                 .removeClass('alert-error-custom alert-warning-custom')
+                 .addClass('alert-success-custom')
+                 .css({ 'background-color': '#f0fdf4', 'border': '1px solid #bbf7d0', 'color': '#166534' });
+
+        let refPoNum = (createdPoData && createdPoData.poNumber) ? createdPoData.poNumber : $('#po-number-display').text().trim();
+        $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> ' + t("STEP 4: SALES ORDER CREATION READY"));
+        $('#ocr-audit-details').html(`
+            <li><strong>${t("Ref NetSuite PO:")}</strong> ${refPoNum}</li>
+            <li><strong>${t("Sales Order Customization")}:</strong> ${t("You can review and adjust Unit Prices in the table below before creating the Sales Order.")}</li>
+            <li><strong>${t("SO in ERP Rules:")}</strong> Custom Form: <em>Sigma Worldwide Sales Order</em> | Tax Code: <em>0 (SW)</em> | Cross-Sub Fulfillment: <em>Enabled</em> | Inv Loc: <em>Sigma Asia</em></li>
+        `);
+        $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
+               .css('color', '#15803d')
+               .html(`<strong>${t("Notice")}:</strong> ${t("Adjust prices if needed, then click 'Submit & Create SO' to finalize.")}`);
+
+        // Cập nhật Card Header
+        const $cardContainer = $('#po-line-table').closest('.card-custom');
+        $cardContainer.find('.card-header span:first').html(`<i class="fas fa-file-invoice mr-1 text-primary"></i> ${t("SALES ORDER CREATION (STEP 4)")} <span class="badge badge-success ml-2 font-weight-normal">${t("Ref NetSuite PO:")} ${refPoNum}</span>`);
+
+        // Cập nhật Header Bảng dữ liệu cho Bước 4 (Có cột Expected Ship Date, Inventory Location, Tax Code theo SO in ERP)
+        $('#po-line-table thead').html(`
+            <tr>
+                <th style="width: 4%;">#</th>
+                <th style="width: 17%;"><span class="lang-text">${t("Item Code")}</span></th>
+                <th style="width: 22%;"><span class="lang-text">${t("Description")}</span></th>
+                <th style="width: 8%; text-align: right;"><span class="lang-text">${t("Qty")}</span></th>
+                <th style="width: 13%; text-align: right;"><span class="lang-text">${t("Unit Price")}</span> <span class="badge badge-warning text-dark ml-1" style="font-size: 0.68rem;">${t("Editable")}</span></th>
+                <th style="width: 13%; text-align: center;"><span class="lang-text">${t("Expected Ship Date")}</span></th>
+                <th style="width: 11%; text-align: center;"><span class="lang-text">${t("Inv Location")}</span></th>
+                <th style="width: 12%; text-align: right;"><span class="lang-text">${t("Amount")}</span></th>
+            </tr>
+        `);
+
+        // Render toàn bộ các dòng hàng hóa cho Bước 4
+        renderStep4Table();
+    }
+
+    // 3. Render bảng dữ liệu cho Bước 4
+    function renderStep4Table() {
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        let lineItems = [];
+        try {
+            if (rawJsonStr) {
+                let ocrObj = JSON.parse(rawJsonStr);
+                if (ocrObj && ocrObj.line_items) {
+                    lineItems = ocrObj.line_items;
+                }
+            }
+        } catch (e) {
+            console.error("Lỗi parse Raw OCR JSON trong Bước 4:", e);
+        }
+
+        // Dự phòng nếu không đọc được từ thẻ ẩn thì đọc từ DOM table
+        if (!lineItems || lineItems.length === 0) {
+            $('#po-line-table tbody tr').each(function (idx) {
+                const $tr = $(this);
+                if ($tr.find('td').length <= 1) return;
+                lineItems.push({
+                    line_no: idx + 1,
+                    item: $tr.find('.cell-item-code').text().trim() || $tr.find('td:nth-child(2)').text().trim(),
+                    description: $tr.attr('data-description') || $tr.find('td:nth-child(3)').text().trim() || '',
+                    quantity: parseFloat($tr.find('.cell-qty').attr('data-original-qty') || $tr.find('.cell-qty').text().replace(/,/g, '')) || 1,
+                    price_each: parseFloat($tr.find('.cell-ocr-price').attr('data-original-price') || $tr.find('.cell-ocr-price').text().replace(/[$,]/g, '')) || 0,
+                    expected_ship_date: $tr.attr('data-eta-date') || ''
+                });
+            });
+        }
+
+        let tbodyHtml = '';
+        let totalQty = 0;
+        let totalAmount = 0;
+        let todayStr = new Date().toISOString().substring(0, 10);
+
+        lineItems.forEach((item, idx) => {
+            let lineNo = item.line_no || (idx + 1);
+            let itemCode = item.item || item.item_no || '';
+            let desc = item.description || '';
+            let qty = parseFloat(item.quantity) || 0;
+            let price = parseFloat(item.price_each) || 0;
+            let amount = qty * price;
+            let shipDate = item.expected_ship_date || item.eta_date || todayStr;
+
+            totalQty += qty;
+            totalAmount += amount;
+
+            tbodyHtml += `<tr class="step4-row" data-line="${lineNo}" data-item="${itemCode}" data-description="${desc}" data-qty="${qty}">
+                <td class="align-middle">${lineNo}</td>
+                <td class="align-middle font-weight-bold text-dark">${itemCode}</td>
+                <td class="align-middle text-muted small">${desc}</td>
+                <td class="align-middle text-right font-weight-bold cell-step4-qty">${qty.toLocaleString()}</td>
+                <td class="align-middle text-right">
+                    <div class="input-group input-group-sm justify-content-end" style="max-width: 125px; margin-left: auto;">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text py-0 px-2 font-weight-bold text-muted">$</span>
+                        </div>
+                        <input type="number" step="0.01" min="0" class="form-control form-control-sm text-right font-weight-bold input-so-price" value="${price.toFixed(2)}" data-original-price="${price}" style="font-size: 0.88rem; color: #0d5287;" />
+                    </div>
+                </td>
+                <td class="align-middle text-center">
+                    <input type="date" class="form-control form-control-sm text-center font-weight-bold input-so-shipdate mx-auto" value="${shipDate}" style="max-width: 140px; font-size: 0.82rem;" title="Expected Ship Date" />
+                </td>
+                <td class="align-middle text-center">
+                    <span class="badge badge-info font-weight-normal py-1 px-2" style="font-size: 0.78rem;">Sigma Asia</span>
+                </td>
+                <td class="align-middle text-right font-weight-bold text-dark cell-step4-amount">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>`;
+        });
+
+        $('#po-line-table tbody').html(tbodyHtml);
+
+        // Hiển thị Footer Tổng cộng
+        let formattedTotalAmount = totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        let totalLabel = t("SO Calculated Total:");
+        let totalUnitsLabel = t("Total Units:");
+        let tfootHtml = `
+            <tr class="bg-light font-weight-bold text-dark" id="step4-total-row" style="border-top: 2px solid #cbd5e1;">
+                <td colspan="3" class="text-right text-uppercase small text-muted">${totalUnitsLabel} <span id="so-total-units" class="text-dark font-weight-bold ml-1">${totalQty.toLocaleString()}</span></td>
+                <td class="text-right"></td>
+                <td colspan="3" class="text-right text-uppercase small text-muted">${totalLabel}</td>
+                <td class="text-right text-primary h6 mb-0 font-weight-bold" id="so-total-amount">$${formattedTotalAmount}</td>
+            </tr>
+        `;
+
+        if ($('#po-line-table tfoot').length === 0) {
+            $('#po-line-table').append(`<tfoot>${tfootHtml}</tfoot>`);
+        } else {
+            $('#po-line-table tfoot').html(tfootHtml);
+        }
+
+        // Cập nhật card summary phía dưới
+        $('#calculated-sum-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmount}`);
+    }
+
+    // 4. Bắt sự kiện chỉnh sửa giá (Unit Price) trong Bước 4 để tự động tính lại Amount & Totals
+    $(document).on('input', '.input-so-price', function () {
+        const $input = $(this);
+        const $tr = $input.closest('tr');
+        let newPrice = parseFloat($input.val()) || 0;
+        if (newPrice < 0) {
+            newPrice = 0;
+            $input.val(0);
+        }
+
+        let qty = parseFloat($tr.attr('data-qty')) || 0;
+        let newAmount = qty * newPrice;
+
+        $tr.find('.cell-step4-amount').text('$' + newAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+        // Tính lại tổng số tiền toàn bảng
+        recalculateStep4Totals();
+    });
+
+    // Hàm tính lại tổng các dòng ở Bước 4
+    function recalculateStep4Totals() {
+        let totalAmount = 0;
+        let totalQty = 0;
+
+        $('#po-line-table tbody tr.step4-row').each(function () {
+            const $tr = $(this);
+            let qty = parseFloat($tr.attr('data-qty')) || 0;
+            let price = parseFloat($tr.find('.input-so-price').val()) || 0;
+            totalQty += qty;
+            totalAmount += (qty * price);
+        });
+
+        let formattedTotal = totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        $('#so-total-units').text(totalQty.toLocaleString());
+        $('#so-total-amount').text('$' + formattedTotal);
+        $('#calculated-sum-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotal}`);
+    }
+
+    // Cho phép người dùng chuyển đổi giữa chế độ Khóa (Readonly) và Chỉnh sửa Project Code nếu cần
+    $(document).on('click', '#btn-toggle-edit-projcode', function () {
+        let $input = $('#so-projcode-input');
+        if ($input.prop('readonly')) {
+            $input.prop('readonly', false).removeClass('bg-light').addClass('bg-white').focus();
+            $(this).html(`<i class="fas fa-lock mr-1"></i><span class="lang-text">${t("Lock")}</span>`);
+        } else {
+            $input.prop('readonly', true).removeClass('bg-white').addClass('bg-light');
+            $(this).html(`<i class="fas fa-pen mr-1"></i><span class="lang-text">${t("Edit")}</span>`);
+        }
+    });
+
+    // 5. Khi bấm nút "Submit & Create SO"
+    $(document).on('click', '#btn-submit-so', function () {
+        const $btn = $('#btn-submit-so');
+        let hasInvalidPrice = false;
+        let updatedLines = [];
+
+        let soDateVal = $('#so-date-input').val();
+        if (!soDateVal) {
+            alert(t("Please fill in the SO Date!"));
+            $('#so-date-input').focus();
+            return;
+        }
+
+        let projCodeVal = $('#so-projcode-input').val().trim();
+        let projCodeId = parseInt($('#so-projcode-id-hidden').val(), 10) || (createdPoData?.projectCode) || 0;
+
+        // Nếu ô nhập trống thì tự động fallback lấy từ createdPoData hoặc Bước 3
+        if (!projCodeVal && createdPoData && createdPoData.projectCodeText) {
+            let m = createdPoData.projectCodeText.match(/\d{3}/);
+            projCodeVal = m ? m[0] : createdPoData.projectCodeText;
+            $('#so-projcode-input').val(projCodeVal);
+        }
+        if (!projCodeVal && projCodeId) {
+            projCodeVal = projCodeId.toString();
+            $('#so-projcode-input').val(projCodeVal);
+        }
+
+        if (!projCodeVal && !projCodeId) {
+            alert(t("Project code must be entered (3 digits)!"));
+            $('#so-projcode-input').prop('readonly', false).removeClass('bg-light').addClass('bg-white').focus();
+            return;
+        }
+
+        $('#po-line-table tbody tr.step4-row').each(function (idx) {
+            const $tr = $(this);
+            let lineNo = parseInt($tr.attr('data-line'), 10) || (idx + 1);
+            let itemCode = $tr.attr('data-item') || '';
+            let desc = $tr.attr('data-description') || '';
+            let qty = parseFloat($tr.attr('data-qty')) || 0;
+            let priceVal = $tr.find('.input-so-price').val();
+            let price = parseFloat(priceVal);
+            let lineShipDate = $tr.find('.input-so-shipdate').val() || soDateVal;
+
+            if (isNaN(price) || price < 0) {
+                hasInvalidPrice = true;
+                $tr.find('.input-so-price').addClass('is-invalid');
+                return false;
+            } else {
+                $tr.find('.input-so-price').removeClass('is-invalid');
+            }
+
+            updatedLines.push({
+                line_no: lineNo,
+                item: itemCode,
+                description: desc,
+                quantity: qty,
+                price_each: price,
+                amount: qty * price,
+                expected_ship_date: lineShipDate,
+                inventory_location: 'Sigma Asia',
+                tax_code: 0
+            });
+        });
+
+        if (hasInvalidPrice) {
+            alert(t("Unit Price cannot be negative!"));
+            return;
+        }
+
+        if (updatedLines.length === 0) {
+            alert(t("No line items found to create a Sales Order!"));
+            return;
+        }
+
+        // Cập nhật lại chuỗi JSON ẩn với giá mới đã sửa
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        let rawOcrData = {};
+        try {
+            if (rawJsonStr) rawOcrData = JSON.parse(rawJsonStr);
+        } catch (e) {
+            console.error("Lỗi parse raw JSON khi submit SO:", e);
+        }
+
+        if (rawOcrData && rawOcrData.line_items) {
+            for (let i = 0; i < rawOcrData.line_items.length && i < updatedLines.length; i++) {
+                rawOcrData.line_items[i].price_each = updatedLines[i].price_each;
+                rawOcrData.line_items[i].amount = updatedLines[i].amount;
+                rawOcrData.line_items[i].expected_ship_date = updatedLines[i].expected_ship_date;
+                rawOcrData.line_items[i].inventory_location = updatedLines[i].inventory_location;
+                rawOcrData.line_items[i].tax_code = 0;
+            }
+        }
+
+        let poNumber = $('#po-number-display').text().trim();
+        let customer = $('#po-customer-display').text().trim();
+        let currency = $('#po-currency-hidden').val() || 'USD';
+
+        let submitPayload = {
+            PONumber: createdPoData?.poNumber || poNumber,
+            CustomerPONumber: poNumber,
+            Customer: customer,
+            Date: soDateVal,
+            Currency: currency,
+            Subsidiary: createdPoData?.subsidiary || 0,
+            Location: createdPoData?.location || 0,
+            SubsidiaryName: 'Sigma Worldwide',
+            LocationName: 'Sigma Worldwide',
+            TaxCode: 0,
+            ProjectCode: projCodeId || (parseInt(projCodeVal, 10) || 0),
+            ProjectCodeStr: projCodeVal,
+            PersonInCharge: $('#so-dri-pm-input').val().trim(),
+            PoType: $('#so-potype-select').val() || 'MP',
+            PrType: 'DRI',
+            AllowCrossSubsidiaryFulfillment: $('#so-cross-sub-chk').is(':checked'),
+            CustomForm: 'Sigma Worldwide Sales order',
+            InventoryLocation: 'Sigma Asia',
+            CreatedPoId: createdPoData?.poId || 0,
+            CreatedPoUrl: createdPoData?.poUrl || '',
+            LineItems: updatedLines,
+            RawOcrResponse: JSON.stringify(rawOcrData)
+        };
+
+        let originalBtnHtml = $btn.html();
+        $btn.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${t("Submitting Sales Order...")}`);
+
+        $.ajax({
+            url: '@Url.Action("CreateSalesOrder", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(submitPayload),
+            success: function (response) {
+                $btn.prop('disabled', false).html(originalBtnHtml);
+
+                if (response.success) {
+                    $('#so-result-modal-header').removeClass('bg-danger').addClass('bg-success');
+                    $('#so-result-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
+                    $('#so-result-modal-message').text(response.message || t("Sales Order Created Successfully!"));
+                    $('#so-result-modal-number').text(response.soNumber || 'N/A');
+                    $('#so-result-modal-po-number').text(submitPayload.PONumber);
+
+                    if (response.soUrl) {
+                        $('#so-result-modal-link-btn').attr('href', response.soUrl).removeClass('d-none');
+                    } else {
+                        $('#so-result-modal-link-btn').addClass('d-none');
+                    }
+
+                    $('#salesOrderResultModal').modal('show');
+                    $('#salesOrderResultModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                        location.reload();
+                    });
+                } else {
+                    $('#so-result-modal-header').removeClass('bg-success').addClass('bg-danger');
+                    $('#so-result-modal-icon').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
+                    let defaultErr = t("An error occurred while creating the Sales Order in NetSuite.");
+                    $('#so-result-modal-message').text(response.message || defaultErr);
+                    $('#so-result-modal-info').addClass('d-none');
+                    $('#so-result-modal-link-btn').addClass('d-none');
+                    $('#salesOrderResultModal').modal('show');
+                }
+            },
+            error: function () {
+                let connErrMsg = t("A connection error occurred while sending the Sales Order request to the server!");
+                alert(connErrMsg);
+                $btn.prop('disabled', false).html(originalBtnHtml);
+            }
+        });
+    });
 </script>
 
 <script>
