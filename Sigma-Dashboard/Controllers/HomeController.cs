@@ -25,7 +25,7 @@ public class HomeController : Controller
         {
             if (string.IsNullOrWhiteSpace(companyCode))
             {
-                companyCode = appConfig.DefaultCompany;
+                companyCode = !string.IsNullOrWhiteSpace(appConfig.DefaultCompany) ? appConfig.DefaultCompany : "SVN";
             }
             string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
             string strdate = "20241220";
@@ -37,9 +37,13 @@ public class HomeController : Controller
 
             if (!isManualLoad)
             {
-                if (date.Hour >= 20)
+                if (date.Hour >= 20 || date.Hour < 8)
                 {
                     shift = "Night";
+                    if (date.Hour < 8)
+                    {
+                        date = date.AddDays(-1);
+                    }
                 }
                 else
                 {
@@ -95,7 +99,11 @@ public class HomeController : Controller
         {
             if (string.IsNullOrWhiteSpace(companyCode))
             {
-                companyCode = appConfig.DefaultCompany;
+                companyCode = !string.IsNullOrWhiteSpace(appConfig.DefaultCompany) ? appConfig.DefaultCompany : "SVN";
+            }
+            if (string.IsNullOrWhiteSpace(masterOperation))
+            {
+                masterOperation = "All";
             }
             string storedProceduce = "SVN_Pro_CalTarget_Viindoo";
             string strdate = "20241220";
@@ -106,9 +114,13 @@ public class HomeController : Controller
             }
             if (!isManualLoad)
             {
-                if (date.Hour >= 20)
+                if (date.Hour >= 20 || date.Hour < 8)
                 {
                     shift = "Night";
+                    if (date.Hour < 8)
+                    {
+                        date = date.AddDays(-1);
+                    }
                 }
                 else
                 {
@@ -160,11 +172,25 @@ public class HomeController : Controller
         DateTime searchDate = date ?? DateTime.Now;
 
         if (string.IsNullOrWhiteSpace(companyCode))
-            companyCode = "SVN";
+            companyCode = !string.IsNullOrWhiteSpace(appConfig.DefaultCompany) ? appConfig.DefaultCompany : "SVN";
+
+        if (string.IsNullOrWhiteSpace(masterOperation))
+            masterOperation = "All";
 
         if (!isManualLoad)
         {
-            shift = (searchDate.Hour >= 20) ? "Night" : "Day";
+            if (searchDate.Hour >= 20 || searchDate.Hour < 8)
+            {
+                shift = "Night";
+                if (searchDate.Hour < 8)
+                {
+                    searchDate = searchDate.AddDays(-1);
+                }
+            }
+            else
+            {
+                shift = "Day";
+            }
         }
 
         string strdate = searchDate.ToString("yyyyMMdd");

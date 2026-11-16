@@ -436,9 +436,9 @@ namespace Sigma_Dashboard.Services.Helpers
                     }
 
                     //Lọc lại các operation theo line
-                    if(!string.IsNullOrWhiteSpace(masterOperation) && masterOperation != "All" && masterOperation.Contains("-line"))
+                    if (!string.IsNullOrWhiteSpace(masterOperation) && masterOperation != "All" && masterOperation.Contains("-line"))
                     {
-                        dashboardData.BarChartData = dashboardData.BarChartData.Where(x => masterOperation.Contains(x.Line)).ToList();
+                        dashboardData.BarChartData = dashboardData.BarChartData.Where(x => !string.IsNullOrEmpty(x.Line) && masterOperation.Contains(x.Line)).ToList();
                     }    
                     
                 }
@@ -525,19 +525,18 @@ namespace Sigma_Dashboard.Services.Helpers
                 }
             }
 
-            if(masterOperation != "All")
+            if (!string.IsNullOrWhiteSpace(masterOperation) && masterOperation != "All")
             {
                 string masterOperationWithSuffix = masterOperation;
                 try
                 {
-                    masterOperationWithSuffix = masterOperation.Split("-")[0];
+                    masterOperationWithSuffix = masterOperation.Split("-")[0].Trim();
                 }
                 catch
                 {
-                    masterOperationWithSuffix = masterOperation;
+                    masterOperationWithSuffix = masterOperation.Trim();
                 }
-                masterOperationWithSuffix = masterOperation.Split("-")[0];
-                opers = opers.Where(x => x.MasterOperation == masterOperationWithSuffix).ToList();
+                opers = opers.Where(x => x.MasterOperation != null && x.MasterOperation.Trim() == masterOperationWithSuffix).ToList();
             }
             return opers;
         }

@@ -677,8 +677,12 @@
                 cu: { date: pageLoadedDate, shift: pageLoadedShift },
                 moi: { date: currentDateStr, shift: currentShift }
             });
-            // Tải lại trang sạch (xóa query params cũ để Server tự lấy DateTime.Now)
-            window.location.href = window.location.pathname;
+            // Giữ lại companyCode, pageSize nếu có, chỉ xóa date và shift để Server tự tính theo thời gian thực
+            var url = new URL(window.location.href);
+            url.searchParams.delete('date');
+            url.searchParams.delete('shift');
+            url.searchParams.set('isManualLoad', 'false');
+            window.location.href = url.toString();
         }
     }
 
@@ -729,9 +733,17 @@
                         });
                         console.log("Cập nhật Dashboard thành công!");
                     } else {
-                        // Nếu số lượng KHÁC nhau -> Load lại trang
-                        console.warn("Số lượng card và dữ liệu không khớp! Đang reload lại trang...");
-                        location.reload();
+                        // Nếu số lượng KHÁC nhau -> Kiểm tra phòng ngừa reload loop
+                        console.warn("Số lượng card và dữ liệu không khớp! UI: " + cardCount + ", API: " + dataCount);
+                        var lastReload = sessionStorage.getItem('lastDashboardReloadTime_Index');
+                        var nowMs = Date.now();
+                        if (!lastReload || (nowMs - parseInt(lastReload, 10)) > 30000) {
+                            sessionStorage.setItem('lastDashboardReloadTime_Index', nowMs.toString());
+                            console.warn("Đang reload lại trang để đồng bộ card...");
+                            location.reload();
+                        } else {
+                            console.warn("Đã reload gần đây, tạm hoãn reload để tránh reload loop.");
+                        }
                     }
                 }
             },
