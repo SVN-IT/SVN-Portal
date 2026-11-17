@@ -444,6 +444,55 @@ namespace ViidooDBServiceAPI.Controllers
             }
         }
 
+        [HttpGet("GetPersonInCharge")]
+        [HttpPost("GetPersonInCharge")]
+        public async Task<IActionResult> GetPersonInCharge()
+        {
+            try
+            {
+                // 1. Lấy URL của RESTlet lấy danh sách Person in charge từ cấu hình
+                string requestUrl = netSuiteScriptService.GetPersonInChargeURL;
+                if (string.IsNullOrEmpty(requestUrl))
+                {
+                    requestUrl = netSuiteScriptService.CreateSOFromOCRURL;
+                }
+
+                // 2. Lấy thông tin cấu hình Token OAuth 1.0
+                string accountId = netSuiteScriptService.accountId;
+                string consumerKey = netSuiteScriptService.ConsumerKey;
+                string consumerSecret = netSuiteScriptService.ConsumerSecret;
+                string tokenId = netSuiteScriptService.TokenId;
+                string tokenSecret = netSuiteScriptService.TokenSecret;
+
+                // 3. Tạo chuỗi Header Authorization OAuth 1.0 (Phương thức GET)
+                string authHeader = GenerateNetsuiteOAuthHeader(requestUrl, "GET", accountId, consumerKey, consumerSecret, tokenId, tokenSecret);
+
+                // Gắn Header vào HttpRequestMessage
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", authHeader);
+
+                // 4. Thực thi gọi sang NetSuite RESTlet
+                var response = await _httpClient.SendAsync(request);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonResult = JsonSerializer.Deserialize<EmployeeApiResponse>(responseString, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return Ok(new { success = true, data = jsonResult });
+                }
+
+                return BadRequest(new { success = false, message = $"Lỗi từ NetSuite ({response.StatusCode}): {responseString}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
         private string GenerateNetsuiteOAuthHeader(string fullUrl, string httpMethod, string accountId, string consumerKey, string consumerSecret, string tokenId, string tokenSecret)
         {
             string nonce = Guid.NewGuid().ToString("N");
@@ -505,5 +554,22 @@ namespace ViidooDBServiceAPI.Controllers
                    $"oauth_version=\"{version}\", " +
                    $"oauth_signature=\"{escapedSignature}\"";
         }
+    }
+
+    public class EmployeeItemDto
+    {
+        public object id { get; set; }
+        public string name { get; set; }
+        public string entityId { get; set; }
+        public string email { get; set; }
+        public string title { get; set; }
+    }
+
+    public class EmployeeApiResponse
+    {
+        public bool success { get; set; }
+        public int total { get; set; }
+        public List<EmployeeItemDto> employees { get; set; }
+        public string message { get; set; }
     }
 }

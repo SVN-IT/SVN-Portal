@@ -15,5 +15,6 @@
         public string GetLocationURL { get; set; }
         public string GetTaxCodeURL { get; set; }
         public string GetProjectCodeURL { get; set; }
+        public string GetPersonInChargeURL { get; set; }
     }
 }

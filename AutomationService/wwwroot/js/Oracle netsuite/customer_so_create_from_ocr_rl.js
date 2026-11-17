@@ -614,5 +614,123 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
         return null;
     }
 
-    return { post };
+    /**
+     * GET Handler: Lấy danh sách Person in charge (Active Employees) từ NetSuite
+     * Phục vụ fill vào dropdown / datalist giao diện tạo SO
+     */
+    const get = (requestParams) => {
+        try {
+            log.audit('GET Person in charge', 'Bắt đầu truy vấn danh sách Person in charge (Employees) từ NetSuite');
+
+            let employeeList = [];
+
+            // Cách 1: Thử truy vấn qua SuiteQL
+            try {
+                let sql = `
+                    SELECT 
+                        id, 
+                        entityid, 
+                        firstname, 
+                        lastname, 
+                        email, 
+                        title 
+                    FROM 
+                        employee 
+                    WHERE 
+                        isinactive = 'F' 
+                    ORDER BY 
+                        entityid ASC
+                `;
+                let queryResults = query.runSuiteQL({ query: sql }).asMappedResults();
+                if (queryResults && queryResults.length > 0) {
+                    queryResults.forEach(function (row) {
+                        let empId = parseInt(row.id, 10);
+                        let entityId = (row.entityid || '').trim();
+                        let firstName = (row.firstname || '').trim();
+                        let lastName = (row.lastname || '').trim();
+                        let email = (row.email || '').trim();
+                        let title = (row.title || '').trim();
+
+                        let displayName = entityId;
+                        if (!displayName && (firstName || lastName)) {
+                            displayName = (firstName + ' ' + lastName).trim();
+                        }
+
+                        employeeList.push({
+                            id: empId,
+                            name: displayName || ('Employee #' + empId),
+                            entityId: entityId,
+                            email: email,
+                            title: title
+                        });
+                    });
+                    log.audit('GET Person in charge SuiteQL', `Đã lấy thành công ${employeeList.length} nhân viên qua SuiteQL`);
+                }
+            } catch (qlErr) {
+                log.debug('SuiteQL query notice', qlErr.message);
+            }
+
+            // Cách 2: Dự phòng qua N/search
+            if (employeeList.length === 0) {
+                let empSearch = search.create({
+                    type: search.Type.EMPLOYEE,
+                    filters: [
+                        ['isinactive', 'is', 'F']
+                    ],
+                    columns: [
+                        search.createColumn({ name: 'internalid', sort: search.Sort.ASC }),
+                        search.createColumn({ name: 'entityid' }),
+                        search.createColumn({ name: 'firstname' }),
+                        search.createColumn({ name: 'lastname' }),
+                        search.createColumn({ name: 'email' }),
+                        search.createColumn({ name: 'title' })
+                    ]
+                });
+
+                let pagedData = empSearch.runPaged({ pageSize: 1000 });
+                pagedData.pageRanges.forEach(function (pageRange) {
+                    let page = pagedData.fetch({ index: pageRange.index });
+                    page.data.forEach(function (result) {
+                        let id = result.getValue({ name: 'internalid' });
+                        let entityId = (result.getValue({ name: 'entityid' }) || '').trim();
+                        let firstName = (result.getValue({ name: 'firstname' }) || '').trim();
+                        let lastName = (result.getValue({ name: 'lastname' }) || '').trim();
+                        let email = (result.getValue({ name: 'email' }) || '').trim();
+                        let title = (result.getValue({ name: 'title' }) || '').trim();
+
+                        let displayName = entityId;
+                        if (!displayName && (firstName || lastName)) {
+                            displayName = ((firstName ? firstName + ' ' : '') + (lastName || '')).trim();
+                        }
+
+                        employeeList.push({
+                            id: parseInt(id, 10),
+                            name: displayName || ('Employee #' + id),
+                            entityId: entityId,
+                            email: email,
+                            title: title
+                        });
+                    });
+                });
+                log.audit('GET Person in charge N/search', `Đã lấy thành công ${employeeList.length} nhân viên qua N/search`);
+            }
+
+            log.audit('GET Person in charge Success', `Tổng số nhân viên trả về: ${employeeList.length}`);
+
+            return JSON.stringify({
+                success: true,
+                total: employeeList.length,
+                employees: employeeList
+            });
+        } catch (e) {
+            log.error('GET Person in charge Error', e.message);
+            return JSON.stringify({
+                success: false,
+                message: 'Lỗi khi lấy danh sách Person in charge từ NetSuite: ' + e.message,
+                employees: []
+            });
+        }
+    };
+
+    return { get, post };
 });

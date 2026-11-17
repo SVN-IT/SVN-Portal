@@ -717,8 +717,19 @@
                     <div class="row">
                         <!-- 7. Person in charge (DRI PM) -->
                         <div class="col-md-3 form-group mb-2">
-                            <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="Person in charge (DRI PM)">Person in charge (DRI PM)</span>:</label>
-                            <input type="text" class="form-control form-control-sm" id="so-dri-pm-input" list="dri-pm-datalist" placeholder="e.g. Alex Chen, Owen Zhang, Sean Jin..." autocomplete="off" />
+                            <label class="small text-muted font-weight-bold mb-1 d-flex justify-content-between align-items-center">
+                                <span><span class="lang-text" data-i18n="Person in charge (DRI PM)">Person in charge (DRI PM)</span>:</span>
+                                <span class="badge badge-light text-muted font-weight-normal" id="so-pic-count-badge" style="font-size: 0.68rem;" title="Danh sách Person in charge từ NetSuite ERP"><i class="fas fa-spinner fa-spin mr-1"></i>ERP syncing...</span>
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control form-control-sm font-weight-bold text-dark" id="so-dri-pm-input" list="dri-pm-datalist" placeholder="Select or type Person in charge..." autocomplete="off" />
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="btn-toggle-dri-pm-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Xem danh sách Person in charge từ ERP"></button>
+                                    <div class="dropdown-menu dropdown-menu-right shadow-sm p-1" id="so-dri-pm-dropdown-menu" style="max-height: 280px; overflow-y: auto; min-width: 290px;">
+                                        <div class="px-2 py-1 small text-muted font-italic">Loading from NetSuite ERP...</div>
+                                    </div>
+                                </div>
+                            </div>
                             <datalist id="dri-pm-datalist">
                                 <option value="Alex Chen" data-id="2703">Alex Chen (VD-1462)</option>
                                 <option value="Owen Zhang" data-id="2702">Owen Zhang (VD-1461)</option>
@@ -840,6 +851,9 @@
             allowClear: true,
             dropdownParent: $('#subsidiarySelectModal') // Quan trọng giúp ô tìm kiếm hoạt động mượt mà trong Modal
         });
+
+        // Tải trước danh sách Person in charge từ NetSuite ERP để sẵn sàng cho Bước 4
+        loadPersonInChargeList();
     });
 
     // Biến đánh dấu bước hiện tại
@@ -2702,6 +2716,9 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         $('#so-projcode-input').prop('readonly', true).removeClass('bg-white').addClass('bg-light');
         $('#btn-toggle-edit-projcode').html(`<i class="fas fa-pen mr-1"></i><span class="lang-text">${t("Edit")}</span>`);
 
+        // Prefetch & Fill danh sách Person in charge từ NetSuite ERP
+        loadPersonInChargeList();
+
         // Tự động kiểm tra và prefill DRI PM nếu có từ Requisitioner
         let reqVal = $('#po-requisitioner-display').text().trim();
         if (!$('#so-dri-pm-input').val() && reqVal && reqVal !== 'N/A' && reqVal !== 'None' && reqVal.length > 2) {
@@ -2903,15 +2920,105 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         }
     });
 
+    // -------------------------------------------------------------
+    // QUẢN LÝ DANH SÁCH PERSON IN CHARGE (DRI PM) TỪ NETSUITE ERP
+    // -------------------------------------------------------------
+    let erpEmployeesList = [];
+    let isPersonInChargeLoading = false;
+
+    function loadPersonInChargeList() {
+        if (erpEmployeesList.length > 0) {
+            renderPersonInChargeOptions(erpEmployeesList);
+            return;
+        }
+        if (isPersonInChargeLoading) return;
+        isPersonInChargeLoading = true;
+
+        $('#so-pic-count-badge').html('<i class="fas fa-spinner fa-spin mr-1"></i>ERP syncing...');
+
+        $.ajax({
+            url: '@Url.Action("GetPersonInCharge", "Oracle")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                isPersonInChargeLoading = false;
+                if (res && res.success && res.data && res.data.employees && res.data.employees.length > 0) {
+                    erpEmployeesList = res.data.employees;
+                    renderPersonInChargeOptions(erpEmployeesList);
+                } else {
+                    $('#so-pic-count-badge').html('<span class="text-warning">Default ERP</span>');
+                }
+            },
+            error: function (err) {
+                isPersonInChargeLoading = false;
+                console.warn("Could not fetch Person in charge from ERP:", err);
+                $('#so-pic-count-badge').html('<span class="text-muted">Standard list</span>');
+            }
+        });
+    }
+
+    function renderPersonInChargeOptions(employees) {
+        if (!employees || employees.length === 0) return;
+
+        let datalistHtml = '';
+        let dropdownHtml = '';
+
+        employees.forEach(function (emp) {
+            let empId = emp.id || '';
+            let empName = emp.name || emp.entityId || '';
+            let extra = emp.entityId && emp.entityId !== empName ? ` (${emp.entityId})` : (emp.email ? ` (${emp.email})` : '');
+            let subtext = emp.email || emp.title || emp.entityId || '';
+
+            datalistHtml += `<option value="${empName}" data-id="${empId}">${empName}${extra}</option>`;
+
+            dropdownHtml += `<a class="dropdown-item py-1 px-2 small d-flex justify-content-between align-items-center pic-dropdown-item" href="javascript:void(0)" data-id="${empId}" data-name="${empName}">
+                <span class="font-weight-bold text-dark">${empName}</span>
+                <span class="text-muted small ml-2 font-italic" style="font-size: 0.75rem;">${subtext}</span>
+            </a>`;
+        });
+
+        $('#dri-pm-datalist').html(datalistHtml);
+        $('#so-dri-pm-dropdown-menu').html(dropdownHtml);
+        $('#so-pic-count-badge').html(`<i class="fas fa-check text-success mr-1"></i>${employees.length} ERP`);
+
+        // Tự động kiểm tra giá trị hiện tại của input để map ID nếu có
+        let currentVal = $('#so-dri-pm-input').val().trim();
+        if (currentVal) {
+            syncPersonInChargeId(currentVal);
+        }
+    }
+
+    function syncPersonInChargeId(nameOrVal) {
+        if (!nameOrVal) {
+            $('#so-dri-pm-id-hidden').val('');
+            return;
+        }
+        let matched = erpEmployeesList.find(e => e.name && e.name.toLowerCase() === nameOrVal.toLowerCase());
+        if (!matched) {
+            matched = erpEmployeesList.find(e => (e.entityId && e.entityId.toLowerCase() === nameOrVal.toLowerCase()) || 
+                                                 (e.name && e.name.toLowerCase().includes(nameOrVal.toLowerCase())));
+        }
+        if (matched) {
+            $('#so-dri-pm-id-hidden').val(matched.id || '');
+        } else {
+            let opt = $(`#dri-pm-datalist option[value="${nameOrVal}"]`);
+            if (opt.length > 0) {
+                $('#so-dri-pm-id-hidden').val(opt.data('id') || '');
+            }
+        }
+    }
+
+    $(document).on('click', '.pic-dropdown-item', function () {
+        let id = $(this).data('id');
+        let name = $(this).data('name');
+        $('#so-dri-pm-input').val(name);
+        $('#so-dri-pm-id-hidden').val(id);
+    });
+
     // Đồng bộ ID của DRI PM khi người dùng chọn hoặc gõ tên
     $(document).on('input change', '#so-dri-pm-input', function () {
         let val = $(this).val().trim();
-        let opt = $(`#dri-pm-datalist option[value="${val}"]`);
-        if (opt.length > 0) {
-            $('#so-dri-pm-id-hidden').val(opt.data('id') || '');
-        } else {
-            $('#so-dri-pm-id-hidden').val('');
-        }
+        syncPersonInChargeId(val);
     });
 
     // 5. Khi bấm nút "Submit & Create SO"
@@ -3016,6 +3123,10 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         if (!driPmId && driPmName) {
             let opt = $(`#dri-pm-datalist option[value="${driPmName}"]`);
             if (opt.length > 0) driPmId = opt.data('id');
+        }
+        if (!driPmId && driPmName && erpEmployeesList && erpEmployeesList.length > 0) {
+            let matched = erpEmployeesList.find(e => e.name && e.name.toLowerCase() === driPmName.toLowerCase());
+            if (matched) driPmId = matched.id;
         }
 
         let submitPayload = {

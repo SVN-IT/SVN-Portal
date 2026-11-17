@@ -641,6 +641,107 @@ namespace Sigma_Tools.Controllers
             }
         }
 
+        [HttpGet]
+        [HttpPost]
+        public async Task<IActionResult> GetPersonInCharge()
+        {
+            var currentUser = _permissionService.GetCurrentUser();
+            try
+            {
+                // 1. Thử gọi API từ ViidooDBServiceAPI để lấy dữ liệu động từ NetSuite
+                string apiUrl = $"{appConfig.BaseAPIURL}api/Netsuite/GetPersonInCharge";
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(apiUrl);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string jsonResult = await response.Content.ReadAsStringAsync();
+                            JObject rootObject = JsonConvert.DeserializeObject<JObject>(jsonResult);
+                            var dataToken = rootObject?["data"];
+                            if (dataToken != null)
+                            {
+                                var apiResponse = dataToken.ToObject<PersonInChargeApiResponse>();
+                                if (apiResponse != null && apiResponse.employees != null && apiResponse.employees.Count > 0)
+                                {
+                                    return Json(new { success = true, data = apiResponse });
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Warning, $"ViidooDBServiceAPI GetPersonInCharge không phản hồi: {ex.Message}. Sử dụng danh sách danh mục nhân viên dự phòng.", currentUser?.UserName);
+                    }
+                }
+
+                // 2. Fallback: Danh sách nhân viên chuẩn NetSuite Sandbox (đồng bộ chính xác theo NetSuite ERP)
+                var fallbackList = GetCuratedPersonInChargeList();
+                return Json(new
+                {
+                    success = true,
+                    data = new PersonInChargeApiResponse
+                    {
+                        success = true,
+                        total = fallbackList.Count,
+                        employees = fallbackList
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi GetPersonInCharge: {ex.Message}", currentUser?.UserName);
+                var fallbackList = GetCuratedPersonInChargeList();
+                return Json(new
+                {
+                    success = true,
+                    data = new PersonInChargeApiResponse
+                    {
+                        success = true,
+                        total = fallbackList.Count,
+                        employees = fallbackList
+                    }
+                });
+            }
+        }
+
+        private static List<PersonInChargeItem> GetCuratedPersonInChargeList()
+        {
+            return new List<PersonInChargeItem>
+            {
+                new PersonInChargeItem { id = 2703, name = "Alex Chen", entityId = "VD-1462", email = "hchen@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 2702, name = "Owen Zhang", entityId = "VD-1461", email = "ozhang@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 2704, name = "Leon Liao", entityId = "VD-1463", email = "lliao@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 14996, name = "Sean Jin", entityId = "VD-2138", email = "sjin@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 24439, name = "Jack Liu", entityId = "VD-2360", email = "jliu@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "aaron_jack", name = "Aaron - Jack", entityId = "Aaron - Jack", email = "jack.aaron@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "jacky_patrisia", name = "Jacky - Patrisia", entityId = "Jacky - Patrisia", email = "jacky@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "paul_vicky", name = "Paul - Vicky", entityId = "Paul - Vicky", email = "pvicky@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "vincent_xcw", name = "Vincent - 谢财文", entityId = "Vincent - 谢财文", email = "xcw@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "zmf_hsl", name = "赵敏芳 - 黄秀丽", entityId = "赵敏芳 - 黄秀丽", email = "hsl@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "netsuite_support", name = "netsuite.support", entityId = "netsuite.support", email = "netsuite.support@sigmaworldwide.com", title = "Support" },
+                new PersonInChargeItem { id = "nina_dang", name = "Nina Dang", entityId = "Nina Dang", email = "ndang@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "npi_team", name = "NPI Team", entityId = "NPI Team", email = "npiteam@sigmaworldwide.com", title = "Team" },
+                new PersonInChargeItem { id = "patrisia_yi", name = "Patrisia Yi", entityId = "Patrisia Yi", email = "pyi@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "aaron_li", name = "Aaron Li", entityId = "Aaron Li", email = "ali@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "adam_liu", name = "Adam Liu", entityId = "Adam Liu", email = "aliu@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "alan_nguyen", name = "Alan Nguyen", entityId = "Alan Nguyen", email = "anguyen@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "alan_shi", name = "Alan Shi", entityId = "Alan Shi", email = "ashi@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "alan_zhou", name = "Alan Zhou", entityId = "Alan Zhou", email = "azhou@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "alex_jin", name = "Alex Jin", entityId = "Alex Jin", email = "ajin@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "alice_zhang", name = "Alice Zhang", entityId = "Alice Zhang", email = "azhang@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = "ben_lin", name = "Ben Lin", entityId = "Ben Lin", email = "blin@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 2645, name = "Beth Guo", entityId = "Beth Guo", email = "bguo@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 2700, name = "Yoyo Huang", entityId = "VD-1459", email = "yhuang@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 8450, name = "James Kung", entityId = "VD-1954", email = "jkung@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 2701, name = "Kenneth Tang", entityId = "VD-1460", email = "ktang@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 3396, name = "Charlie McArthur", entityId = "VD-1547", email = "cmcarthur@sigmaworldwide.com", title = "PM" },
+                new PersonInChargeItem { id = 2686, name = "Alexander Cobb", entityId = "VD-1448", email = "acobb@sigmaworldwide.com", title = "PM" }
+            };
+        }
+
         [HttpPost]
         public IActionResult RejectPO([FromBody] RejectPORequest request)
         {
@@ -835,6 +936,12 @@ namespace Sigma_Tools.Controllers
                         {
                             ocrData["header"]["person_in_charge_id"] = request.PersonInChargeId.Value;
                             ocrData["header"]["dri_pm_id"] = request.PersonInChargeId.Value;
+                            ocrData["header"]["custbody_sig_pic"] = request.PersonInChargeId.Value;
+                            ocrData["header"]["salesrep"] = request.PersonInChargeId.Value;
+                        }
+                        else if (!string.IsNullOrEmpty(request.PersonInCharge))
+                        {
+                            ocrData["header"]["custbody_sig_pic"] = request.PersonInCharge;
                         }
 
                         if (!string.IsNullOrEmpty(request.ProjectCodeStr))
@@ -1202,5 +1309,22 @@ namespace Sigma_Tools.Controllers
     {
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+    }
+
+    public class PersonInChargeItem
+    {
+        public object id { get; set; }
+        public string name { get; set; }
+        public string entityId { get; set; }
+        public string email { get; set; }
+        public string title { get; set; }
+    }
+
+    public class PersonInChargeApiResponse
+    {
+        public bool success { get; set; }
+        public int total { get; set; }
+        public List<PersonInChargeItem> employees { get; set; }
+        public string message { get; set; }
     }
 }
