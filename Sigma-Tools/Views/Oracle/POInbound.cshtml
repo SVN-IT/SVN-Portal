@@ -718,7 +718,21 @@
                         <!-- 7. Person in charge (DRI PM) -->
                         <div class="col-md-3 form-group mb-2">
                             <label class="small text-muted font-weight-bold mb-1"><span class="lang-text" data-i18n="Person in charge (DRI PM)">Person in charge (DRI PM)</span>:</label>
-                            <input type="text" class="form-control form-control-sm" id="so-dri-pm-input" placeholder="e.g. DRI PM" />
+                            <input type="text" class="form-control form-control-sm" id="so-dri-pm-input" list="dri-pm-datalist" placeholder="e.g. Alex Chen, Owen Zhang, Sean Jin..." autocomplete="off" />
+                            <datalist id="dri-pm-datalist">
+                                <option value="Alex Chen" data-id="2703">Alex Chen (VD-1462)</option>
+                                <option value="Owen Zhang" data-id="2702">Owen Zhang (VD-1461)</option>
+                                <option value="Leon Liao" data-id="2704">Leon Liao (VD-1463)</option>
+                                <option value="Sean Jin" data-id="14996">Sean Jin (VD-2138)</option>
+                                <option value="Jack Liu" data-id="24439">Jack Liu (VD-2360)</option>
+                                <option value="Beth Guo" data-id="2645">Beth Guo</option>
+                                <option value="Yoyo Huang" data-id="2700">Yoyo Huang (VD-1459)</option>
+                                <option value="James Kung" data-id="8450">James Kung (VD-1954)</option>
+                                <option value="Kenneth Tang" data-id="2701">Kenneth Tang (VD-1460)</option>
+                                <option value="Charlie McArthur" data-id="3396">Charlie McArthur (VD-1547)</option>
+                                <option value="Alexander Cobb" data-id="2686">Alexander Cobb (VD-1448)</option>
+                            </datalist>
+                            <input type="hidden" id="so-dri-pm-id-hidden" value="" />
                         </div>
                         <!-- 10. Project code (Auto-inherited from PO) -->
                         <div class="col-md-3 form-group mb-2">
@@ -2688,6 +2702,12 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         $('#so-projcode-input').prop('readonly', true).removeClass('bg-white').addClass('bg-light');
         $('#btn-toggle-edit-projcode').html(`<i class="fas fa-pen mr-1"></i><span class="lang-text">${t("Edit")}</span>`);
 
+        // Tự động kiểm tra và prefill DRI PM nếu có từ Requisitioner
+        let reqVal = $('#po-requisitioner-display').text().trim();
+        if (!$('#so-dri-pm-input').val() && reqVal && reqVal !== 'N/A' && reqVal !== 'None' && reqVal.length > 2) {
+            $('#so-dri-pm-input').val(reqVal).trigger('input');
+        }
+
         // Cập nhật Badges
         $('#so-badge-status').addClass('d-none');
         $('#so-step4-badge-status')
@@ -2709,7 +2729,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         $('#ocr-audit-details').html(`
             <li><strong>${t("Ref NetSuite PO:")}</strong> ${refPoNum}</li>
             <li><strong>${t("Sales Order Customization")}:</strong> ${t("You can review and adjust Unit Prices in the table below before creating the Sales Order.")}</li>
-            <li><strong>${t("SO in ERP Rules:")}</strong> Custom Form: <em>Sigma Worldwide Sales Order</em> | Tax Code: <em>0 (SW)</em> | Cross-Sub Fulfillment: <em>Enabled</em> | Inv Loc: <em>Sigma Asia</em></li>
+            <li><strong>${t("SO in ERP Rules:")}</strong> Custom Form: <em>Sigma Worldwide Sales Order</em> | Tax Code: <em>0 (SW)</em> | Cross-Sub Fulfillment: <em>Enabled</em> | Inv Loc: <em>Sigma Worldwide</em></li>
         `);
         $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
                .css('color', '#15803d')
@@ -2802,7 +2822,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                     <input type="date" class="form-control form-control-sm text-center font-weight-bold input-so-shipdate mx-auto" value="${shipDate}" style="max-width: 140px; font-size: 0.82rem;" title="Expected Ship Date" />
                 </td>
                 <td class="align-middle text-center">
-                    <span class="badge badge-info font-weight-normal py-1 px-2" style="font-size: 0.78rem;">Sigma Asia</span>
+                    <span class="badge badge-info font-weight-normal py-1 px-2" style="font-size: 0.78rem;">Sigma Worldwide</span>
                 </td>
                 <td class="align-middle text-right font-weight-bold text-dark cell-step4-amount">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>`;
@@ -2883,6 +2903,17 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         }
     });
 
+    // Đồng bộ ID của DRI PM khi người dùng chọn hoặc gõ tên
+    $(document).on('input change', '#so-dri-pm-input', function () {
+        let val = $(this).val().trim();
+        let opt = $(`#dri-pm-datalist option[value="${val}"]`);
+        if (opt.length > 0) {
+            $('#so-dri-pm-id-hidden').val(opt.data('id') || '');
+        } else {
+            $('#so-dri-pm-id-hidden').val('');
+        }
+    });
+
     // 5. Khi bấm nút "Submit & Create SO"
     $(document).on('click', '#btn-submit-so', function () {
         const $btn = $('#btn-submit-so');
@@ -2942,7 +2973,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 price_each: price,
                 amount: qty * price,
                 expected_ship_date: lineShipDate,
-                inventory_location: 'Sigma Asia',
+                inventory_location: 'Sigma Worldwide',
                 tax_code: 0
             });
         });
@@ -2980,25 +3011,33 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         let customer = $('#po-customer-display').text().trim();
         let currency = $('#po-currency-hidden').val() || 'USD';
 
+        let driPmName = $('#so-dri-pm-input').val().trim();
+        let driPmId = $('#so-dri-pm-id-hidden').val() || null;
+        if (!driPmId && driPmName) {
+            let opt = $(`#dri-pm-datalist option[value="${driPmName}"]`);
+            if (opt.length > 0) driPmId = opt.data('id');
+        }
+
         let submitPayload = {
             PONumber: createdPoData?.poNumber || poNumber,
             CustomerPONumber: poNumber,
             Customer: customer,
             Date: soDateVal,
             Currency: currency,
-            Subsidiary: createdPoData?.subsidiary || 0,
-            Location: createdPoData?.location || 0,
+            Subsidiary: 1, // Rule 8: Always Sigma Worldwide (1) for Sales Order
+            Location: 105, // Rule 9: Always Sigma Worldwide (105) for Sales Order
             SubsidiaryName: 'Sigma Worldwide',
             LocationName: 'Sigma Worldwide',
             TaxCode: 0,
             ProjectCode: projCodeId || (parseInt(projCodeVal, 10) || 0),
             ProjectCodeStr: projCodeVal,
-            PersonInCharge: $('#so-dri-pm-input').val().trim(),
+            PersonInCharge: driPmName,
+            PersonInChargeId: driPmId ? parseInt(driPmId, 10) : null,
             PoType: $('#so-potype-select').val() || 'MP',
             PrType: 'DRI',
             AllowCrossSubsidiaryFulfillment: $('#so-cross-sub-chk').is(':checked'),
-            CustomForm: 'Sigma Worldwide Sales order',
-            InventoryLocation: 'Sigma Asia',
+            CustomForm: '111', // Rule 1: Sigma Worldwide Sales Order (111)
+            InventoryLocation: 'Sigma Worldwide',
             CreatedPoId: createdPoData?.poId || 0,
             CreatedPoUrl: createdPoData?.poUrl || '',
             LineItems: updatedLines,

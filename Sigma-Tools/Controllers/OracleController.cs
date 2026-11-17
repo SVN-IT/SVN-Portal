@@ -811,8 +811,12 @@ namespace Sigma_Tools.Controllers
                     {
                         if (ocrData["header"] == null) ocrData["header"] = new JObject();
 
-                        if (request.Subsidiary > 0) ocrData["header"]["subsidiary"] = request.Subsidiary;
-                        if (request.Location > 0) ocrData["header"]["location"] = request.Location;
+                        // Luôn cố định Subsidiary (1) và Location (105) là Sigma Worldwide theo quy định SO in ERP (Rule 8 & 9)
+                        ocrData["header"]["subsidiary"] = 1; // No. 8: Sigma Worldwide
+                        ocrData["header"]["location"] = 105; // No. 9: Sigma Worldwide
+                        ocrData["header"]["subsidiary_name"] = "Sigma Worldwide"; // No. 8
+                        ocrData["header"]["location_name"] = "Sigma Worldwide"; // No. 9
+
                         if (request.TaxCode > 0) ocrData["header"]["tax_code"] = request.TaxCode;
                         if (request.ProjectCode > 0)
                         {
@@ -821,16 +825,18 @@ namespace Sigma_Tools.Controllers
                         }
 
                         // Thiết lập các trường theo chuẩn logic "SO in ERP" (16 điểm quy định)
-                        ocrData["header"]["customform"] = !string.IsNullOrEmpty(request.CustomForm) ? request.CustomForm : "Sigma Worldwide Sales order"; // No. 1
+                        ocrData["header"]["customform"] = !string.IsNullOrEmpty(request.CustomForm) ? request.CustomForm : "111"; // No. 1
                         ocrData["header"]["customer"] = customer; // No. 2
                         ocrData["header"]["po_number"] = !string.IsNullOrEmpty(request.CustomerPONumber) ? request.CustomerPONumber : request.PONumber; // No. 5
                         ocrData["header"]["so_date"] = !string.IsNullOrEmpty(request.Date) ? request.Date : DateTime.Now.ToString("yyyy-MM-dd"); // No. 6
                         ocrData["header"]["person_in_charge"] = request.PersonInCharge ?? ""; // No. 7: DRI PM
                         ocrData["header"]["dri_pm"] = request.PersonInCharge ?? ""; // No. 7
+                        if (request.PersonInChargeId.HasValue && request.PersonInChargeId.Value > 0)
+                        {
+                            ocrData["header"]["person_in_charge_id"] = request.PersonInChargeId.Value;
+                            ocrData["header"]["dri_pm_id"] = request.PersonInChargeId.Value;
+                        }
 
-                        // Luôn cố định Subsidiary và Location là Sigma Worldwide theo quy định SO (No. 8 & No. 9)
-                        ocrData["header"]["subsidiary_name"] = "Sigma Worldwide"; // No. 8
-                        ocrData["header"]["location_name"] = "Sigma Worldwide"; // No. 9
                         if (!string.IsNullOrEmpty(request.ProjectCodeStr))
                         {
                             ocrData["header"]["project_code"] = request.ProjectCodeStr; // No. 10: 3 digits
@@ -839,6 +845,7 @@ namespace Sigma_Tools.Controllers
                         ocrData["header"]["po_type"] = !string.IsNullOrEmpty(request.PoType) ? request.PoType : "MP"; // No. 11: MP or NPI
                         ocrData["header"]["pr_type"] = !string.IsNullOrEmpty(request.PrType) ? request.PrType : "DRI"; // No. 12: DRI
                         ocrData["header"]["allow_cross_sub_fulfillment"] = true; // No. 14
+                        ocrData["header"]["isCrossSubTransaction"] = true; // No. 14
                         ocrData["header"]["ref_po"] = soRefPO;
 
                         if (ocrData["line_items"] is JArray rawLineItemsArray)
@@ -851,7 +858,7 @@ namespace Sigma_Tools.Controllers
                                 itemObj["amount"] = updatedLine.quantity * updatedLine.price_each;
                                 itemObj["tax_code"] = 0; // No. 3: Tax Code 0 for SW
                                 itemObj["expected_ship_date"] = !string.IsNullOrEmpty(updatedLine.expected_ship_date) ? updatedLine.expected_ship_date : (!string.IsNullOrEmpty(updatedLine.eta_date) ? updatedLine.eta_date : request.Date); // No. 15
-                                itemObj["inventory_location"] = !string.IsNullOrEmpty(updatedLine.inventory_location) ? updatedLine.inventory_location : (!string.IsNullOrEmpty(request.InventoryLocation) ? request.InventoryLocation : "Sigma Asia"); // No. 16
+                                itemObj["inventory_location"] = !string.IsNullOrEmpty(updatedLine.inventory_location) ? updatedLine.inventory_location : (!string.IsNullOrEmpty(request.InventoryLocation) ? request.InventoryLocation : "Sigma Worldwide"); // No. 16: Sigma Worldwide
                             }
                         }
 
@@ -1163,12 +1170,13 @@ namespace Sigma_Tools.Controllers
 
         // Bổ sung các tham số theo logic "SO in ERP"
         public string? PersonInCharge { get; set; } // No. 7: DRI PM
+        public int? PersonInChargeId { get; set; } // No. 7: DRI PM Employee ID
         public string? PoType { get; set; } = "MP"; // No. 11: MP or NPI
         public string? PrType { get; set; } = "DRI"; // No. 12: DRI for purchasing team
         public string? ProjectCodeStr { get; set; } // No. 10: 3 digits
         public bool AllowCrossSubsidiaryFulfillment { get; set; } = true; // No. 14
-        public string? InventoryLocation { get; set; } = "Sigma Asia"; // No. 16: Sigma Asia
-        public string? CustomForm { get; set; } = "Sigma Worldwide Sales order"; // No. 1
+        public string? InventoryLocation { get; set; } = "Sigma Worldwide"; // No. 16: Sigma Worldwide
+        public string? CustomForm { get; set; } = "111"; // No. 1: Sigma Worldwide Sales order (111)
     }
 
     public class CreateSalesOrderResponse

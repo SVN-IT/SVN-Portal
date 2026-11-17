@@ -19,7 +19,7 @@
  * 13. Email-Receipt --- created automatically in ERP
  * 14. Choose ALLOW CROSS-SUBSIDIARY FULFILLMENT
  * 15. Expected ship Date --- need to fill in for each line
- * 16. Inventory Location --- Choose Sigma Asia
+ * 16. Inventory Location --- Choose Sigma Worldwide (ID: 105)
  */
 define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, log, url, query) => {
 
@@ -43,19 +43,17 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             // 1. CHOOSE CUSTOM FORM: "Sigma Worldwide Sales order" (No. 1)
             // =========================================================
             log.audit('Step 1: Custom Form', 'Đang xác định Custom Form "Sigma Worldwide Sales order"');
-            let customFormId = null;
+            let customFormId = 111; // ID chuẩn của "Sigma Worldwide Sales Order" trên NetSuite Sandbox
             if (header.customform) {
                 let parsedForm = parseInt(header.customform, 10);
                 if (!isNaN(parsedForm) && parsedForm > 0) {
                     customFormId = parsedForm;
-                } else if (typeof header.customform === 'string') {
-                    customFormId = getCustomFormIdByName(header.customform);
+                } else if (typeof header.customform === 'string' && !header.customform.toLowerCase().includes('worldwide')) {
+                    let lookedUpForm = getCustomFormIdByName(header.customform);
+                    if (lookedUpForm) customFormId = lookedUpForm;
                 }
             }
-            if (!customFormId) {
-                customFormId = getCustomFormIdByName('Sigma Worldwide Sales Order');
-            }
-            log.audit('Step 1 Result', 'Custom Form ID: ' + (customFormId || 'Default / Standard'));
+            log.audit('Step 1 Result', 'Custom Form ID: ' + customFormId);
 
             // =========================================================
             // 2. CUSTOMER: collect from customer PO (No. 2) - BẮT BUỘC TÌM VÀ CHỌN TRƯỚC TIÊN
@@ -82,10 +80,9 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             // =========================================================
             // KHỞI TẠO BẢN GHI SALES ORDER DYNAMIC
             // =========================================================
-            let defaultInitValues = {};
-            if (customFormId) {
-                defaultInitValues.customform = customFormId;
-            }
+            let defaultInitValues = {
+                customform: customFormId
+            };
 
             let soRecord = record.create({
                 type: record.Type.SALES_ORDER,
@@ -98,13 +95,10 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             log.audit('Step 2: Customer Set', 'Entity đã set, NetSuite tự động sinh Currency, Exchange Rate, Terms & Email-Receipt.');
 
             // =========================================================
-            // 8. SUBSIDIARY: "Sigma Worldwide" (No. 8) - CHỌN SAU KHI ĐÃ CÓ CUSTOMER
+            // 8. SUBSIDIARY: "Sigma Worldwide" (No. 8) - BẮT BUỘC CHỌN SIGMA WORLDWIDE (ID: 1)
             // =========================================================
-            log.audit('Step 8: Subsidiary', 'Đang xác định Subsidiary "Sigma Worldwide"');
-            let targetSubsidiaryId = header.subsidiary ? parseInt(header.subsidiary, 10) : null;
-            if (!targetSubsidiaryId) {
-                targetSubsidiaryId = getSubsidiaryIdByName('Sigma Worldwide');
-            }
+            log.audit('Step 8: Subsidiary', 'Đang xác định Subsidiary "Sigma Worldwide" (ID: 1)');
+            let targetSubsidiaryId = 1; // Luôn luôn là 1 (Sigma Worldwide) theo quy định SO in ERP Rule 8
 
             let currentSub = null;
             try {
@@ -112,38 +106,28 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
                 log.audit('Customer Primary Subsidiary', 'Subsidiary hiện tại sau khi set Customer: ' + currentSub);
             } catch (e) {}
 
-            if (targetSubsidiaryId) {
-                try {
-                    if (parseInt(currentSub, 10) !== parseInt(targetSubsidiaryId, 10)) {
-                        soRecord.setValue({ fieldId: 'subsidiary', value: parseInt(targetSubsidiaryId, 10) });
-                        log.audit('Step 8 Result', 'Đã đổi Subsidiary sang: ' + targetSubsidiaryId);
-                    } else {
-                        log.audit('Step 8 Result', 'Subsidiary đã tự động khớp: ' + currentSub);
-                    }
-                } catch (subErr) {
-                    log.audit('Step 8 Notice', 'Không thể đổi sang Subsidiary ' + targetSubsidiaryId + ', sử dụng Subsidiary của Customer: ' + currentSub + ' (' + subErr.message + ')');
+            try {
+                if (parseInt(currentSub, 10) !== targetSubsidiaryId) {
+                    soRecord.setValue({ fieldId: 'subsidiary', value: targetSubsidiaryId });
+                    log.audit('Step 8 Result', 'Đã gán Subsidiary sang Sigma Worldwide (ID: 1)');
+                } else {
+                    log.audit('Step 8 Result', 'Subsidiary đã tự động khớp Sigma Worldwide (ID: 1)');
                 }
+            } catch (subErr) {
+                log.error('Step 8 Notice', 'Lỗi khi gán Subsidiary 1: ' + subErr.message);
             }
-            let actualSubId = soRecord.getValue({ fieldId: 'subsidiary' }) || targetSubsidiaryId;
+            let actualSubId = 1;
 
             // =========================================================
-            // 9. LOCATION: "Sigma Worldwide" (No. 9) - CHỌN SAU SUBSIDIARY
+            // 9. LOCATION: "Sigma Worldwide" (No. 9) - BẮT BUỘC CHỌN SIGMA WORLDWIDE (ID: 105)
             // =========================================================
-            log.audit('Step 9: Location', 'Đang tìm Location "Sigma Worldwide"');
-            let targetLocationId = header.location ? parseInt(header.location, 10) : null;
-            if (!targetLocationId) {
-                targetLocationId = getLocationIdByName('Sigma Worldwide', actualSubId);
-            }
-            if (!targetLocationId) {
-                targetLocationId = getLocationIdByName('Sigma Worldwide');
-            }
-            if (targetLocationId) {
-                try {
-                    soRecord.setValue({ fieldId: 'location', value: parseInt(targetLocationId, 10) });
-                    log.audit('Step 9 Result', 'Location Header ID: ' + targetLocationId);
-                } catch (locErr) {
-                    log.error('Step 9 Set Location Error', locErr.message);
-                }
+            log.audit('Step 9: Location', 'Đang thiết lập Location "Sigma Worldwide" (ID: 105)');
+            let targetLocationId = 105; // ID của Location "Sigma Worldwide"
+            try {
+                soRecord.setValue({ fieldId: 'location', value: targetLocationId });
+                log.audit('Step 9 Result', 'Location Header ID: ' + targetLocationId);
+            } catch (locErr) {
+                log.error('Step 9 Set Location Error', locErr.message);
             }
 
             // Nếu request có truyền currency riêng và muốn override
@@ -173,20 +157,40 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             log.audit('Step 6: Date Set', 'TranDate -> ' + tranDate.toISOString());
 
             // =========================================================
-            // 7. PERSON IN CHARGE: input the DRI PM (No. 7)
+            // 7. PERSON IN CHARGE: input the DRI PM (No. 7) -> custbody_sig_pic & salesrep
             // =========================================================
             let driPm = header.person_in_charge || header.dri_pm || '';
-            if (driPm) {
+            let driPmId = header.person_in_charge_id || header.dri_pm_id || null;
+            let empId = null;
+
+            if (driPmId) {
+                let parsedEmpId = parseInt(driPmId, 10);
+                if (!isNaN(parsedEmpId) && parsedEmpId > 0) {
+                    empId = parsedEmpId;
+                }
+            }
+            if (!empId && driPm) {
+                empId = getEmployeeIdByName(driPm);
+            }
+
+            if (empId) {
+                try {
+                    soRecord.setValue({ fieldId: 'custbody_sig_pic', value: parseInt(empId, 10) });
+                    log.audit('Step 7 Result', `Đã gán custbody_sig_pic = ${empId} (${driPm})`);
+                } catch (picErr) {
+                    log.error('Step 7 Error setting custbody_sig_pic', picErr.message);
+                }
+
+                try {
+                    soRecord.setValue({ fieldId: 'salesrep', value: parseInt(empId, 10) });
+                    log.audit('Step 7 SalesRep', `Đã gán salesrep = ${empId}`);
+                } catch (srErr) {
+                    log.debug('Step 7 SalesRep Notice', srErr.message);
+                }
+            } else if (driPm) {
+                log.audit('Step 7 Notice', `Không tìm thấy Employee ID tương ứng với "${driPm}", thử gán dạng text.`);
                 setCustomFieldIfExists(soRecord, 'custbody_dri_pm', driPm);
                 setCustomFieldIfExists(soRecord, 'custbody_person_in_charge', driPm);
-                setCustomFieldIfExists(soRecord, 'custbody_sig_dri_pm', driPm);
-
-                // Nếu DRI PM là nhân viên (Sales Rep) trong hệ thống
-                let empId = getEmployeeIdByName(driPm);
-                if (empId) {
-                    try { soRecord.setValue({ fieldId: 'salesrep', value: parseInt(empId, 10) }); } catch (e) {}
-                }
-                log.audit('Step 7: Person in charge Set', 'DRI PM -> ' + driPm);
             }
 
             // =========================================================
@@ -205,12 +209,16 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             }
 
             // =========================================================
-            // 11. PO TYPE: choose MP or NPI (No. 11)
+            // 11. PO TYPE: choose MP or NPI (No. 11) (1 = MP, 2 = NPI)
             // =========================================================
             let poType = header.po_type || 'MP';
-            setCustomFieldIfExists(soRecord, 'custbody_po_type', poType);
-            setCustomFieldIfExists(soRecord, 'custbody_sig_potype', poType);
-            log.audit('Step 11: PO Type Set', 'PO Type -> ' + poType);
+            let poTypeValue = (poType === 'NPI' || poType === '2' || poType === 2) ? 2 : 1;
+            try {
+                soRecord.setValue({ fieldId: 'custbody_po_type', value: poTypeValue });
+                log.audit('Step 11: PO Type Set', `custbody_po_type -> ${poTypeValue} (${poType})`);
+            } catch (poTypeErr) {
+                setCustomFieldIfExists(soRecord, 'custbody_po_type', poType);
+            }
 
             // =========================================================
             // 12. PR TYPE: Choose DRI for purchasing team (No. 12)
@@ -221,20 +229,38 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             log.audit('Step 12: PR Type Set', 'PR Type -> ' + prType);
 
             // =========================================================
-            // 14. ALLOW CROSS-SUBSIDIARY FULFILLMENT (No. 14)
+            // 14. ALLOW CROSS-SUBSIDIARY FULFILLMENT (No. 14) -> isCrossSubTransaction = true
             // =========================================================
-            log.audit('Step 14: Cross-Subsidiary Fulfillment', 'Bật cờ ALLOW CROSS-SUBSIDIARY FULFILLMENT');
-            setBooleanFieldIfExists(soRecord, 'crosssubfulfillment', true);
-            setBooleanFieldIfExists(soRecord, 'allowcrosssubsidiaryfulfillment', true);
+            log.audit('Step 14: Cross-Subsidiary Fulfillment', 'Bật cờ ALLOW CROSS-SUBSIDIARY FULFILLMENT (isCrossSubTransaction)');
+            try {
+                soRecord.setValue({ fieldId: 'isCrossSubTransaction', value: true });
+                log.audit('Step 14 Result', 'isCrossSubTransaction đã bật: true');
+            } catch (crossErr) {
+                log.error('Step 14 Error setting isCrossSubTransaction', crossErr.message);
+                setBooleanFieldIfExists(soRecord, 'crosssubfulfillment', true);
+            }
 
             // =========================================================
-            // TÌM TAX CODE 0 CHO SIGMA WORLDWIDE (No. 3) & INVENTORY LOCATION "Sigma Asia" (No. 16)
+            // TÌM TAX CODE 0 CHO SIGMA WORLDWIDE (No. 3) & INVENTORY LOCATION "Sigma Worldwide" (No. 16)
             // =========================================================
-            let taxCodeZeroId = header.tax_code ? parseInt(header.tax_code, 10) : getTaxCodeZeroId(targetSubsidiaryId);
+            let taxCodeZeroId = header.tax_code ? parseInt(header.tax_code, 10) : getTaxCodeZeroId(1);
+            if (!taxCodeZeroId) taxCodeZeroId = 6; // Default to 6 (VAT_HK:UNDEF-HK, 0%)
             log.audit('Step 3: Tax Code 0 ID', 'Tax Code ID: ' + taxCodeZeroId);
 
-            let sigmaAsiaLocationId = header.inventory_location ? parseInt(header.inventory_location, 10) : getLocationIdByName('Sigma Asia');
-            log.audit('Step 16: Inventory Location ID', 'Sigma Asia Location ID: ' + sigmaAsiaLocationId);
+            let inventoryLocationId = 105; // Default to 105 (Sigma Worldwide) theo Rule 16
+            if (header.inventory_location) {
+                let parsedInvLoc = parseInt(header.inventory_location, 10);
+                if (!isNaN(parsedInvLoc) && parsedInvLoc > 0) {
+                    inventoryLocationId = parsedInvLoc;
+                } else if (typeof header.inventory_location === 'string') {
+                    if (header.inventory_location.toLowerCase().includes('asia')) {
+                        inventoryLocationId = 2;
+                    } else if (header.inventory_location.toLowerCase().includes('worldwide')) {
+                        inventoryLocationId = 105;
+                    }
+                }
+            }
+            log.audit('Step 16: Inventory Location ID', 'Inventory Location ID: ' + inventoryLocationId);
 
             // =========================================================
             // DUYỆT TỪNG DÒNG HÀNG HÓA (LINE ITEMS)
@@ -285,17 +311,17 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
                     }
                 }
 
-                // 16. Inventory Location: Choose Sigma Asia (No. 16)
-                if (sigmaAsiaLocationId) {
+                // 16. Inventory Location: Choose Sigma Worldwide (No. 16)
+                if (inventoryLocationId) {
                     try {
-                        soRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'inventorylocation', value: sigmaAsiaLocationId });
+                        soRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'inventorylocation', value: inventoryLocationId });
                     } catch (invLocErr) {
                         log.error(`Line [${i + 1}] Inventory Location Error`, invLocErr.message);
                     }
                 }
 
                 soRecord.commitLine({ sublistId: 'item' });
-                log.audit(`Line [${i + 1}] Added`, `SKU: ${itemSku} | Qty: ${qty} | Rate: ${rate} | ShipDate: ${lineShipDateVal} | InvLoc: Sigma Asia`);
+                log.audit(`Line [${i + 1}] Added`, `SKU: ${itemSku} | Qty: ${qty} | Rate: ${rate} | ShipDate: ${lineShipDateVal} | InvLoc: ${inventoryLocationId}`);
             }
 
             // =========================================================
@@ -468,20 +494,70 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
 
     function getEmployeeIdByName(name) {
         if (!name) return null;
-        let empId = null;
+        name = name.toString().trim();
+        if (!name) return null;
+
+        // Nếu chuỗi có dạng "Alex Chen (2703)" hoặc là ID số nguyên trực tiếp
+        let idMatch = name.match(/\b(\d{3,6})\b/);
+        if (idMatch) {
+            return parseInt(idMatch[1], 10);
+        }
+
+        // Bảng tra cứu trực tiếp các nhân sự DRI PM phổ biến trên NetSuite Sandbox
+        const knownStaff = {
+            'alex chen': 2703,
+            'owen zhang': 2702,
+            'leon liao': 2704,
+            'sean jin': 14996,
+            'jack liu': 24439,
+            'yoyo huang': 2700,
+            'james kung': 8450,
+            'kenneth tang': 2701,
+            'charlie mcarthur': 3396,
+            'alexander cobb': 2686,
+            'beth guo': 2645
+        };
+        let lowerName = name.toLowerCase();
+        for (let key in knownStaff) {
+            if (lowerName.includes(key)) {
+                return knownStaff[key];
+            }
+        }
+
+        // 1. Tìm qua SuiteQL trên entity
+        try {
+            let sql = `SELECT id FROM entity WHERE isperson = 'T' AND isinactive = 'F' AND (UPPER(altname) LIKE UPPER(?) OR UPPER(entityid) LIKE UPPER(?)) ORDER BY id ASC`;
+            let res = query.runSuiteQL({ query: sql, params: ['%' + name + '%', '%' + name + '%'] }).asMappedResults();
+            if (res && res.length > 0) return parseInt(res[0].id, 10);
+        } catch (e) {
+            log.debug('getEmployeeIdByName SuiteQL error, fallback to search', e.message);
+        }
+
+        // 2. Tìm qua N/search trên employee
         try {
             let s = search.create({
                 type: search.Type.EMPLOYEE,
                 filters: [
-                    ['entityid', 'contains', name],
-                    'OR',
-                    ['firstname', 'contains', name]
+                    ['isinactive', 'is', 'F'],
+                    'AND',
+                    [
+                        ['entityid', 'contains', name],
+                        'OR',
+                        ['firstname', 'contains', name],
+                        'OR',
+                        ['lastname', 'contains', name]
+                    ]
                 ],
                 columns: ['internalid']
             });
+            let empId = null;
             s.run().each((res) => { empId = res.getValue({ name: 'internalid' }); return false; });
-        } catch (e) {}
-        return empId;
+            if (empId) return parseInt(empId, 10);
+        } catch (e) {
+            log.debug('getEmployeeIdByName Search error', e.message);
+        }
+
+        return null;
     }
 
     function getCurrencyIdByName(code) {
