@@ -368,7 +368,7 @@
             <i class="fas fa-history text-warning mr-2" style="font-size: 1.3rem;"></i>
             <div>
                 <strong class="text-dark"><span class="lang-text" data-i18n="Active Incomplete Session Detected">Phát hiện tiến trình đang thực hiện dở</span>:</strong>
-                <span class="text-dark ml-1">PO <strong id="restore-po-number" class="text-primary">-</strong> | Khách hàng: <strong id="restore-customer-name" class="text-primary">-</strong> (<span id="restore-step-desc" class="badge badge-warning text-dark font-weight-bold">Bước 4</span>)</span>
+                <span class="text-dark ml-1">PO <strong id="restore-po-number" class="text-primary">-</strong> | <span class="lang-text" data-i18n="Customer">Customer</span>: <strong id="restore-customer-name" class="text-primary">-</strong> (<span id="restore-step-desc" class="badge badge-warning text-dark font-weight-bold">Bước 4</span>)</span>
             </div>
         </div>
         <div class="py-1">
@@ -1086,10 +1086,18 @@
         }
 
         let pdfPath = snapshot.PdfPath || snapshot.pdfPath || '';
+        if (!pdfPath && currentTransactionId && pdfName) {
+            pdfPath = '@Url.Action("ViewPoPdf", "Oracle")?fileName=' + encodeURIComponent(currentTransactionId + '_' + pdfName);
+        } else if (pdfPath && !pdfPath.startsWith('http') && !pdfPath.startsWith('blob:')) {
+            let appBase = '@Url.Content("~/")';
+            if (pdfPath.startsWith('/uploads/')) {
+                pdfPath = appBase + pdfPath.substring(1);
+            }
+        }
         currentPdfPath = pdfPath;
         const $pdfContainer = $('#pdf-preview-container');
         if (pdfPath) {
-            $pdfContainer.html('');
+            $pdfContainer.empty();
             const pdfObject = document.createElement('object');
             pdfObject.data = pdfPath + '#toolbar=0&view=FitH';
             pdfObject.type = 'application/pdf';
@@ -1097,16 +1105,12 @@
             pdfObject.height = '100%';
             $pdfContainer.append(pdfObject);
         } else {
-            $pdfContainer.html(`
-                <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted p-4 text-center">
-                    <i class="fas fa-file-pdf fa-4x mb-3 text-primary"></i>
-                    <h5 class="font-weight-bold text-dark mb-1">${pdfName}</h5>
-                    <span class="badge badge-success mb-3 py-1 px-2"><i class="fas fa-check-circle mr-1"></i>${t("PO Session Data Restored Successfully")}</span>
-                    <p class="small text-muted mb-0" style="max-width: 320px;">
-                        ${t("OCR extracted data and line items have been restored. You can continue processing on the right.")}
-                    </p>
-                </div>
-            `);
+            var $box = $('<div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted p-4 text-center"></div>');
+            $box.append('<i class="fas fa-file-pdf fa-4x mb-3 text-primary"></i>');
+            $box.append($('<h5 class="font-weight-bold text-dark mb-1"></h5>').text(pdfName));
+            $box.append($('<span class="badge badge-success mb-3 py-1 px-2"></span>').html('<i class="fas fa-check-circle mr-1"></i><span class="lang-text" data-i18n="PO Session Data Restored Successfully">' + t("PO Session Data Restored Successfully") + '</span>'));
+            $box.append($('<p class="small text-muted mb-0" style="max-width: 320px;">' + t("OCR extracted data and line items have been restored. You can continue processing on the right.") + '</p>'));
+            $pdfContainer.empty().append($box);
         }
 
         // 2. Phục hồi NetSuite PO nếu đã tạo ở Bước 3
@@ -1269,6 +1273,9 @@
 
         $('#restore-session-banner').addClass('d-none');
         $('#btn-reject-po').removeClass('d-none');
+        if (window.i18n && window.i18n.apply) {
+            window.i18n.apply();
+        }
     }
 
     function checkAndRestoreSession() {
@@ -1277,7 +1284,7 @@
         let resumeTxId = urlParams.get('transactionId');
         if (resumeTxId) {
             $('#global-loader-overlay').removeClass('d-none');
-            $('#loader-text').text('Đang khôi phục tiến trình...');
+            $('#loader-text').text(t('Restoring session data...', 'Đang khôi phục tiến trình...'));
 
             $.ajax({
                 url: '@Url.Action("GetTransactionState", "Oracle")?transactionId=' + resumeTxId,
@@ -1287,12 +1294,12 @@
                     if (res && res.success && res.data) {
                         restoreSessionData(res.data);
                     } else {
-                        alert('Không tìm thấy dữ liệu tiến trình từ server.');
+                        alert(t('Process data not found from server.', 'Không tìm thấy dữ liệu tiến trình từ server.'));
                     }
                 },
                 error: function () {
                     $('#global-loader-overlay').addClass('d-none');
-                    alert('Lỗi kết nối khi tải tiến trình từ server.');
+                    alert(t('Connection error while loading process data.', 'Lỗi kết nối khi tải tiến trình từ server.'));
                 }
             });
             return;
@@ -1310,7 +1317,7 @@
                 if (!isComplete && hasPo && ageHours < 48) {
                     $('#restore-po-number').text(localSnapshot.CustomerPONumber || localSnapshot.customerPONumber || '-');
                     $('#restore-customer-name').text(localSnapshot.Customer || localSnapshot.customer || 'N/A');
-                    let stepDesc = (localSnapshot.CreatedPoId || localSnapshot.createdPoId) ? 'Bước 4 (Đã tạo NetSuite PO)' : ('Bước ' + (localSnapshot.CurrentStep || localSnapshot.currentStep || 1));
+                    let stepDesc = (localSnapshot.CreatedPoId || localSnapshot.createdPoId) ? t('Step 4 (NetSuite PO Created)', 'Bước 4 (Đã tạo NetSuite PO)') : (t('Step', 'Bước') + ' ' + (localSnapshot.CurrentStep || localSnapshot.currentStep || 1));
                     $('#restore-step-desc').text(stepDesc);
                     $('#restore-session-banner').removeClass('d-none');
 
@@ -1389,8 +1396,8 @@
                     if (response.transactionId) {
                         currentTransactionId = response.transactionId;
                     }
-                    if (response.pdfUrl) {
-                        currentPdfPath = response.pdfUrl;
+                    if (response.viewPdfUrl || response.pdfUrl) {
+                        currentPdfPath = response.viewPdfUrl || response.pdfUrl;
                     }
                     let m = response.data;
                     let unmappedList = response.unmappedCodes || []; // Lấy danh sách mã chưa ánh xạ được từ server
@@ -1468,6 +1475,9 @@
 
                     updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
                     saveLocalSession();
+                    if (window.i18n && window.i18n.apply) {
+                        window.i18n.apply();
+                    }
 
                 } else {
                     alert(t('Error:') + ' ' + response.message);
@@ -3380,6 +3390,10 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // Cập nhật card summary phía dưới
         $('#calculated-sum-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmount}`);
+
+        if (window.i18n && window.i18n.apply) {
+            window.i18n.apply();
+        }
     }
 
     // 4. Bắt sự kiện chỉnh sửa giá (Unit Price) trong Bước 4 để tự động tính lại Amount & Totals

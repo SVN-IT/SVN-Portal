@@ -103,6 +103,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Hỗ trợ Nginx / Reverse Proxy chuyển tiếp headers
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.All
+});
+
 // Giữ nguyên cấu hình PathBase của dự án
 app.UsePathBase(appConfig.LocationPath);
 

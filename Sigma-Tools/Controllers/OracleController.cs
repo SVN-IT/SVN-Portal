@@ -20,13 +20,47 @@ namespace Sigma_Tools.Controllers
         LogService logger;
         AppConfig appConfig;
         private readonly IPermissionService _permissionService;
-        public OracleController(DBConfiguration dBConfiguration, IPermissionService permissionService, AppConfig appConfig)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public OracleController(
+            DBConfiguration dBConfiguration, 
+            IPermissionService permissionService, 
+            AppConfig appConfig,
+            IWebHostEnvironment webHostEnvironment)
         {
             this.dbConfiguration = dBConfiguration;
             connectionString = dbConfiguration.GetConnectionString();
             logger = new LogService(connectionString);
             _permissionService = permissionService;
             this.appConfig = appConfig;
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        private string GetPoUploadsDirectory()
+        {
+            string webRoot = !string.IsNullOrEmpty(_webHostEnvironment.WebRootPath)
+                ? _webHostEnvironment.WebRootPath
+                : Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
+            string uploadsDir = Path.Combine(webRoot, "uploads", "po_pdf");
+            if (!Directory.Exists(uploadsDir))
+            {
+                Directory.CreateDirectory(uploadsDir);
+            }
+            return uploadsDir;
+        }
+
+        [HttpGet]
+        public IActionResult ViewPoPdf(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName)) return NotFound();
+            string cleanFileName = Path.GetFileName(fileName);
+            string uploadsDir = GetPoUploadsDirectory();
+            string fullPath = Path.Combine(uploadsDir, cleanFileName);
+            if (!System.IO.File.Exists(fullPath))
+            {
+                return NotFound("File not found");
+            }
+            return PhysicalFile(fullPath, "application/pdf");
         }
         public IActionResult Index()
         {
@@ -294,6 +328,8 @@ namespace Sigma_Tools.Controllers
         }
 
         [HttpPost]
+        [RequestSizeLimit(52428800)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 52428800)]
         public async Task<IActionResult> UploadPOPdf(IFormFile pdfFile)
         {
             var currentUser = _permissionService.GetCurrentUser();
@@ -309,20 +345,17 @@ namespace Sigma_Tools.Controllers
 
                 // Lưu file PDF vào wwwroot/uploads/po_pdf để có thể preview lại khi F5 / Resume
                 string relativePdfUrl = "";
+                string safeFileName = $"{transactionId}_{Path.GetFileName(fileName)}";
                 try
                 {
-                    string uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "po_pdf");
-                    if (!Directory.Exists(uploadsDir))
-                    {
-                        Directory.CreateDirectory(uploadsDir);
-                    }
-                    string safeFileName = $"{transactionId}_{Path.GetFileName(fileName)}";
+                    string uploadsDir = GetPoUploadsDirectory();
                     string fullPath = Path.Combine(uploadsDir, safeFileName);
                     using (var fs = new FileStream(fullPath, FileMode.Create))
                     {
                         await pdfFile.CopyToAsync(fs);
                     }
-                    relativePdfUrl = $"/uploads/po_pdf/{safeFileName}";
+                    string pathBase = Request.PathBase.HasValue ? Request.PathBase.Value : (appConfig?.LocationPath ?? "");
+                    relativePdfUrl = $"{pathBase.TrimEnd('/')}/uploads/po_pdf/{safeFileName}";
                 }
                 catch (Exception saveEx)
                 {
@@ -469,7 +502,7 @@ namespace Sigma_Tools.Controllers
                                 Status = "PROCESSING",
                                 CurrentStep = 1,
                                 PdfFileName = pdfFile.FileName,
-                                PdfPath = relativePdfUrl,
+                                PdfPath = !string.IsNullOrEmpty(relativePdfUrl) ? (Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl) : "",
                                 RawOcrJson = rawJsonString,
                                 LineItems = model.LineItems?.Select(l => new POTransactionLineItem
                                 {
@@ -496,6 +529,7 @@ namespace Sigma_Tools.Controllers
 
                         logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser?.UserName ?? "System");
 
+                        string viewPdfUrl = Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl;
                         return Json(new
                         {
                             success = true,
@@ -504,7 +538,8 @@ namespace Sigma_Tools.Controllers
                             currency = currencyCode,
                             unmappedCodes = itemCodeNotFound, // Truyền sang giao diện để cảnh báo dòng
                             transactionId = transactionId,
-                            pdfUrl = relativePdfUrl
+                            pdfUrl = relativePdfUrl,
+                            viewPdfUrl = viewPdfUrl
                         });
                     }
                     else
