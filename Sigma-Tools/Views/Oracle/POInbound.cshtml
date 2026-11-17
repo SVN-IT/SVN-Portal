@@ -315,6 +315,26 @@
             border-color: #2e59d9;
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
+
+    /* Đồng bộ kích thước Select2 cho Person in charge trong Card Bước 4 */
+    #so-config-card .select2-container--bootstrap4 .select2-selection--single {
+        height: calc(1.8125rem + 2px) !important;
+        font-size: 0.85rem !important;
+        padding: 0.2rem 0.5rem !important;
+    }
+    #so-config-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        line-height: 1.4 !important;
+        padding-left: 0 !important;
+        font-weight: 600 !important;
+        color: #212529 !important;
+    }
+    #so-config-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+        height: calc(1.8125rem + 2px) !important;
+        top: 0 !important;
+    }
+    #so-config-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__clear {
+        margin-right: 18px !important;
+    }
 </style>
 <!-- Thêm CSS của Select2 -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -717,32 +737,14 @@
                     <div class="row">
                         <!-- 7. Person in charge (DRI PM) -->
                         <div class="col-md-3 form-group mb-2">
-                            <label class="small text-muted font-weight-bold mb-1 d-flex justify-content-between align-items-center">
+                            <label for="so-dri-pm-select" class="small text-muted font-weight-bold mb-1 d-flex justify-content-between align-items-center">
                                 <span><span class="lang-text" data-i18n="Person in charge (DRI PM)">Person in charge (DRI PM)</span>:</span>
                                 <span class="badge badge-light text-muted font-weight-normal" id="so-pic-count-badge" style="font-size: 0.68rem;" title="Danh sách Person in charge từ NetSuite ERP"><i class="fas fa-spinner fa-spin mr-1"></i>ERP syncing...</span>
                             </label>
-                            <div class="input-group input-group-sm">
-                                <input type="text" class="form-control form-control-sm font-weight-bold text-dark" id="so-dri-pm-input" list="dri-pm-datalist" placeholder="Select or type Person in charge..." autocomplete="off" />
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="btn-toggle-dri-pm-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Xem danh sách Person in charge từ ERP"></button>
-                                    <div class="dropdown-menu dropdown-menu-right shadow-sm p-1" id="so-dri-pm-dropdown-menu" style="max-height: 280px; overflow-y: auto; min-width: 290px;">
-                                        <div class="px-2 py-1 small text-muted font-italic">Loading from NetSuite ERP...</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <datalist id="dri-pm-datalist">
-                                <option value="Alex Chen" data-id="2703">Alex Chen (VD-1462)</option>
-                                <option value="Owen Zhang" data-id="2702">Owen Zhang (VD-1461)</option>
-                                <option value="Leon Liao" data-id="2704">Leon Liao (VD-1463)</option>
-                                <option value="Sean Jin" data-id="14996">Sean Jin (VD-2138)</option>
-                                <option value="Jack Liu" data-id="24439">Jack Liu (VD-2360)</option>
-                                <option value="Beth Guo" data-id="2645">Beth Guo</option>
-                                <option value="Yoyo Huang" data-id="2700">Yoyo Huang (VD-1459)</option>
-                                <option value="James Kung" data-id="8450">James Kung (VD-1954)</option>
-                                <option value="Kenneth Tang" data-id="2701">Kenneth Tang (VD-1460)</option>
-                                <option value="Charlie McArthur" data-id="3396">Charlie McArthur (VD-1547)</option>
-                                <option value="Alexander Cobb" data-id="2686">Alexander Cobb (VD-1448)</option>
-                            </datalist>
+                            <select id="so-dri-pm-select" class="form-control form-control-sm text-dark font-weight-bold">
+                                <option value="">-- Select Person in charge --</option>
+                            </select>
+                            <input type="hidden" id="so-dri-pm-input" value="" />
                             <input type="hidden" id="so-dri-pm-id-hidden" value="" />
                         </div>
                         <!-- 10. Project code (Auto-inherited from PO) -->
@@ -850,6 +852,42 @@
             placeholder: '-- Select --',
             allowClear: true,
             dropdownParent: $('#subsidiarySelectModal') // Quan trọng giúp ô tìm kiếm hoạt động mượt mà trong Modal
+        });
+
+        // Khởi tạo Select2 cho Person in charge có tính năng tìm kiếm chuẩn giống Subsidiary, Location
+        $('#so-dri-pm-select').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: '-- Select Person in charge --',
+            allowClear: true,
+            templateSelection: function (item) {
+                if (!item.id) return item.text;
+                let $el = $(item.element);
+                return $el.attr('data-name') || item.text;
+            },
+            templateResult: function (item) {
+                if (!item.id) return item.text;
+                let $el = $(item.element);
+                let name = $el.attr('data-name') || item.text;
+                let email = $el.attr('data-email') || '';
+                let entityId = $el.attr('data-entityid') || '';
+                let extra = email || (entityId && entityId !== name ? entityId : '');
+                if (extra) {
+                    return $(`<div class="d-flex justify-content-between align-items-center">
+                        <span class="font-weight-bold text-dark">${name}</span>
+                        <span class="text-muted small ml-2 font-italic" style="font-size: 0.75rem;">${extra}</span>
+                    </div>`);
+                }
+                return $(`<span class="font-weight-bold text-dark">${name}</span>`);
+            }
+        });
+
+        // Tự động focus vào ô search khi mở Select2 dropdown
+        $(document).on('select2:open', function () {
+            let searchField = document.querySelector('.select2-container--open .select2-search__field');
+            if (searchField) {
+                searchField.focus();
+            }
         });
 
         // Tải trước danh sách Person in charge từ NetSuite ERP để sẵn sàng cho Bước 4
@@ -2721,8 +2759,12 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // Tự động kiểm tra và prefill DRI PM nếu có từ Requisitioner
         let reqVal = $('#po-requisitioner-display').text().trim();
-        if (!$('#so-dri-pm-input').val() && reqVal && reqVal !== 'N/A' && reqVal !== 'None' && reqVal.length > 2) {
-            $('#so-dri-pm-input').val(reqVal).trigger('input');
+        if (reqVal && reqVal !== 'N/A' && reqVal !== 'None' && reqVal.length > 2) {
+            let matched = erpEmployeesList.find(e => (e.name && e.name.toLowerCase() === reqVal.toLowerCase()) ||
+                                                     (e.entityId && e.entityId.toLowerCase() === reqVal.toLowerCase()));
+            if (matched && matched.id != null) {
+                $('#so-dri-pm-select').val(matched.id.toString()).trigger('change');
+            }
         }
 
         // Cập nhật Badges
@@ -2960,65 +3002,76 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     function renderPersonInChargeOptions(employees) {
         if (!employees || employees.length === 0) return;
 
-        let datalistHtml = '';
-        let dropdownHtml = '';
+        let $picSelect = $('#so-dri-pm-select');
+        let currentVal = $picSelect.val() || $('#so-dri-pm-id-hidden').val();
+        let currentName = $('#so-dri-pm-input').val();
+
+        $picSelect.empty();
+        $picSelect.append('<option value="">-- Select Person in charge --</option>');
 
         employees.forEach(function (emp) {
-            let empId = emp.id || '';
-            let empName = emp.name || emp.entityId || '';
-            let extra = emp.entityId && emp.entityId !== empName ? ` (${emp.entityId})` : (emp.email ? ` (${emp.email})` : '');
-            let subtext = emp.email || emp.title || emp.entityId || '';
+            let empId = (emp.id != null) ? emp.id.toString() : '';
+            let empName = (emp.name || emp.entityId || '').trim();
+            if (!empName && !empId) return;
 
-            datalistHtml += `<option value="${empName}" data-id="${empId}">${empName}${extra}</option>`;
+            let extraParts = [];
+            if (emp.entityId && emp.entityId !== empName && !empName.includes(emp.entityId)) {
+                extraParts.push(emp.entityId);
+            }
+            if (emp.email && empName !== emp.email && !empName.includes(String.fromCharCode(64))) {
+                extraParts.push(emp.email);
+            }
+            let extra = extraParts.length > 0 ? ` (${extraParts.join(' - ')})` : '';
+            let displayLabel = `${empName}${extra}`;
 
-            dropdownHtml += `<a class="dropdown-item py-1 px-2 small d-flex justify-content-between align-items-center pic-dropdown-item" href="javascript:void(0)" data-id="${empId}" data-name="${empName}">
-                <span class="font-weight-bold text-dark">${empName}</span>
-                <span class="text-muted small ml-2 font-italic" style="font-size: 0.75rem;">${subtext}</span>
-            </a>`;
+            let opt = new Option(displayLabel, empId, false, false);
+            $(opt).attr('data-id', empId)
+                  .attr('data-name', empName)
+                  .attr('data-entityid', emp.entityId || '')
+                  .attr('data-email', emp.email || '');
+            $picSelect.append(opt);
         });
 
-        $('#dri-pm-datalist').html(datalistHtml);
-        $('#so-dri-pm-dropdown-menu').html(dropdownHtml);
         $('#so-pic-count-badge').html(`<i class="fas fa-check text-success mr-1"></i>${employees.length} ERP`);
 
-        // Tự động kiểm tra giá trị hiện tại của input để map ID nếu có
-        let currentVal = $('#so-dri-pm-input').val().trim();
-        if (currentVal) {
-            syncPersonInChargeId(currentVal);
-        }
-    }
-
-    function syncPersonInChargeId(nameOrVal) {
-        if (!nameOrVal) {
-            $('#so-dri-pm-id-hidden').val('');
-            return;
-        }
-        let matched = erpEmployeesList.find(e => e.name && e.name.toLowerCase() === nameOrVal.toLowerCase());
-        if (!matched) {
-            matched = erpEmployeesList.find(e => (e.entityId && e.entityId.toLowerCase() === nameOrVal.toLowerCase()) || 
-                                                 (e.name && e.name.toLowerCase().includes(nameOrVal.toLowerCase())));
-        }
-        if (matched) {
-            $('#so-dri-pm-id-hidden').val(matched.id || '');
+        // Khôi phục giá trị đã chọn nếu có
+        if (currentVal && employees.some(e => e.id != null && e.id.toString() === currentVal.toString())) {
+            $picSelect.val(currentVal.toString()).trigger('change');
+        } else if (currentName) {
+            let matched = employees.find(e => (e.name && e.name.toLowerCase() === currentName.toLowerCase()) ||
+                                              (e.entityId && e.entityId.toLowerCase() === currentName.toLowerCase()));
+            if (matched && matched.id != null) {
+                $picSelect.val(matched.id.toString()).trigger('change');
+            }
         } else {
-            let opt = $(`#dri-pm-datalist option[value="${nameOrVal}"]`);
-            if (opt.length > 0) {
-                $('#so-dri-pm-id-hidden').val(opt.data('id') || '');
+            // Tự động kiểm tra theo Requisitioner nếu chưa chọn
+            let reqVal = $('#po-requisitioner-display').text().trim();
+            if (reqVal && reqVal !== 'N/A' && reqVal !== 'None' && reqVal.length > 2) {
+                let matched = employees.find(e => (e.name && e.name.toLowerCase() === reqVal.toLowerCase()) ||
+                                                  (e.entityId && e.entityId.toLowerCase() === reqVal.toLowerCase()));
+                if (matched && matched.id != null) {
+                    $picSelect.val(matched.id.toString()).trigger('change');
+                }
             }
         }
     }
 
-    $(document).on('click', '.pic-dropdown-item', function () {
-        let id = $(this).data('id');
-        let name = $(this).data('name');
-        $('#so-dri-pm-input').val(name);
-        $('#so-dri-pm-id-hidden').val(id);
-    });
-
-    // Đồng bộ ID của DRI PM khi người dùng chọn hoặc gõ tên
-    $(document).on('input change', '#so-dri-pm-input', function () {
-        let val = $(this).val().trim();
-        syncPersonInChargeId(val);
+    // Sự kiện khi chọn Person in charge trên Select2 (chuẩn tìm kiếm giống Subsidiary, Location)
+    $(document).on('change', '#so-dri-pm-select', function () {
+        let selId = $(this).val();
+        if (!selId) {
+            $('#so-dri-pm-input').val('');
+            $('#so-dri-pm-id-hidden').val('');
+            return;
+        }
+        let selOpt = $(this).find('option:selected');
+        let selName = selOpt.attr('data-name') || '';
+        if (!selName && erpEmployeesList) {
+            let emp = erpEmployeesList.find(e => e.id != null && e.id.toString() === selId.toString());
+            if (emp) selName = emp.name || emp.entityId || '';
+        }
+        $('#so-dri-pm-id-hidden').val(selId);
+        $('#so-dri-pm-input').val(selName);
     });
 
     // 5. Khi bấm nút "Submit & Create SO"
@@ -3118,15 +3171,11 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         let customer = $('#po-customer-display').text().trim();
         let currency = $('#po-currency-hidden').val() || 'USD';
 
-        let driPmName = $('#so-dri-pm-input').val().trim();
-        let driPmId = $('#so-dri-pm-id-hidden').val() || null;
-        if (!driPmId && driPmName) {
-            let opt = $(`#dri-pm-datalist option[value="${driPmName}"]`);
-            if (opt.length > 0) driPmId = opt.data('id');
-        }
-        if (!driPmId && driPmName && erpEmployeesList && erpEmployeesList.length > 0) {
-            let matched = erpEmployeesList.find(e => e.name && e.name.toLowerCase() === driPmName.toLowerCase());
-            if (matched) driPmId = matched.id;
+        let driPmId = $('#so-dri-pm-id-hidden').val() || $('#so-dri-pm-select').val() || null;
+        let driPmName = $('#so-dri-pm-input').val().trim() || $('#so-dri-pm-select option:selected').attr('data-name') || '';
+        if (!driPmName && driPmId && erpEmployeesList && erpEmployeesList.length > 0) {
+            let matched = erpEmployeesList.find(e => e.id != null && e.id.toString() === driPmId.toString());
+            if (matched) driPmName = matched.name || matched.entityId || '';
         }
 
         let submitPayload = {

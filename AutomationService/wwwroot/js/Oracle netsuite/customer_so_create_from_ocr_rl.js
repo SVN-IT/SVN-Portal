@@ -174,23 +174,23 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             }
 
             if (empId) {
-                try {
-                    soRecord.setValue({ fieldId: 'custbody_sig_pic', value: parseInt(empId, 10) });
-                    log.audit('Step 7 Result', `Đã gán custbody_sig_pic = ${empId} (${driPm})`);
-                } catch (picErr) {
-                    log.error('Step 7 Error setting custbody_sig_pic', picErr.message);
-                }
+                let numericId = parseInt(empId, 10);
+                setCustomFieldIfExists(soRecord, 'custbody_sig_pic', numericId);
+                setCustomFieldIfExists(soRecord, 'custbody_person_in_charge', numericId);
+                setCustomFieldIfExists(soRecord, 'custbody_dri_pm', numericId);
 
                 try {
-                    soRecord.setValue({ fieldId: 'salesrep', value: parseInt(empId, 10) });
-                    log.audit('Step 7 SalesRep', `Đã gán salesrep = ${empId}`);
+                    soRecord.setValue({ fieldId: 'salesrep', value: numericId });
+                    log.audit('Step 7 SalesRep', `Đã gán salesrep = ${numericId}`);
                 } catch (srErr) {
                     log.debug('Step 7 SalesRep Notice', srErr.message);
                 }
+                log.audit('Step 7 Result', `Đã gán Person in charge = ${numericId} (${driPm})`);
             } else if (driPm) {
                 log.audit('Step 7 Notice', `Không tìm thấy Employee ID tương ứng với "${driPm}", thử gán dạng text.`);
-                setCustomFieldIfExists(soRecord, 'custbody_dri_pm', driPm);
+                setCustomFieldIfExists(soRecord, 'custbody_sig_pic', driPm);
                 setCustomFieldIfExists(soRecord, 'custbody_person_in_charge', driPm);
+                setCustomFieldIfExists(soRecord, 'custbody_dri_pm', driPm);
             }
 
             // =========================================================
