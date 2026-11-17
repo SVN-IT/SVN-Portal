@@ -536,10 +536,17 @@
                 <div class="modal-body">
                     <p id="so-result-modal-message" class="font-weight-bold mb-2 text-dark"></p>
                     <div id="so-result-modal-info" class="small text-muted mb-2">
-                        <span class="lang-text" data-i18n="Sales Order Number">Sales Order Number</span>: <strong id="so-result-modal-number" class="text-primary font-weight-bold"></strong>
+                        <span class="lang-text" data-i18n="Sales Order Number">Sales Order Number</span>: 
+                        <a href="#" id="so-result-modal-number-link" target="_blank" class="text-primary font-weight-bold d-none">
+                            <strong id="so-result-modal-number"></strong> <i class="fas fa-external-link-alt ml-1" style="font-size: 0.75rem;"></i>
+                        </a>
+                        <strong id="so-result-modal-number-text" class="text-primary font-weight-bold"></strong>
                     </div>
-                    <div id="so-result-modal-ref-po" class="small text-muted">
+                    <div id="so-result-modal-ref-po" class="small text-muted mb-1">
                         <span class="lang-text" data-i18n="Ref NetSuite PO:">Ref NetSuite PO:</span> <strong id="so-result-modal-po-number" class="text-success font-weight-bold"></strong>
+                    </div>
+                    <div id="so-result-modal-memo" class="small text-muted">
+                        <span class="lang-text" data-i18n="NetSuite Memo:">NetSuite Memo:</span> <strong id="so-result-modal-memo-text" class="text-dark font-italic"></strong>
                     </div>
                 </div>
                 <div class="modal-footer py-2 bg-light">
@@ -547,6 +554,10 @@
                     <!-- Nút mở link SO NetSuite (Chỉ hiện khi thành công và có URL) -->
                     <a href="#" id="so-result-modal-link-btn" target="_blank" class="btn btn-sm btn-success font-weight-bold d-none">
                         <i class="fas fa-external-link-alt mr-1"></i> <span class="lang-text" data-i18n="Open SO in NetSuite">Open SO in NetSuite</span>
+                    </a>
+                    <!-- Nút xem lịch sử PO Tracking History -->
+                    <a href="@Url.Action("POTrackingHistory", "Oracle")" class="btn btn-sm btn-outline-primary font-weight-bold ml-1 shadow-sm">
+                        <i class="fas fa-list-alt mr-1"></i> <span class="lang-text" data-i18n="PO Tracking History">PO Tracking History</span>
                     </a>
                 </div>
             </div>
@@ -894,12 +905,12 @@
                 let entityId = $el.attr('data-entityid') || '';
                 let extra = email || (entityId && entityId !== name ? entityId : '');
                 if (extra) {
-                    return $(`<div class="d-flex justify-content-between align-items-center">
-                        <span class="font-weight-bold text-dark">${name}</span>
-                        <span class="text-muted small ml-2 font-italic" style="font-size: 0.75rem;">${extra}</span>
-                    </div>`);
+                    var $row = $('<div class="d-flex justify-content-between align-items-center"></div>');
+                    $row.append($('<span class="font-weight-bold text-dark"></span>').text(name));
+                    $row.append($('<span class="text-muted small ml-2 font-italic" style="font-size: 0.75rem;"></span>').text(extra));
+                    return $row;
                 }
-                return $(`<span class="font-weight-bold text-dark">${name}</span>`);
+                return $('<span class="font-weight-bold text-dark"></span>').text(name);
             }
         });
 
@@ -921,6 +932,7 @@
     // Biến đánh dấu bước hiện tại và quản lý Transaction State
     let currentStep = 1;
     let createdPoData = null;
+    let createdSoData = null;
     let proceedingToStep4 = false;
     let currentTransactionId = null;
     let currentPdfPath = '';
@@ -989,6 +1001,9 @@
             CreatedPoId: createdPoData?.poId || null,
             CreatedPoNumber: createdPoData?.poNumber || null,
             CreatedPoUrl: createdPoData?.poUrl || null,
+            CreatedSoId: createdSoData?.soId || null,
+            CreatedSoNumber: createdSoData?.soNumber || null,
+            CreatedSoUrl: createdSoData?.soUrl || null,
             Subsidiary: parseInt($('#select-subsidiary').val(), 10) || (createdPoData?.subsidiary) || null,
             Location: parseInt($('#select-location').val(), 10) || (createdPoData?.location) || null,
             TaxCode: parseInt($('#select-taxcode').val(), 10) || (createdPoData?.taxCode) || null,
@@ -1111,6 +1126,17 @@
                 taxCode: snapshot.TaxCode || snapshot.taxCode || 0,
                 projectCode: projCode,
                 projectCodeText: projCodeText
+            };
+        }
+
+        let soId = snapshot.CreatedSoId || snapshot.createdSoId;
+        let soNumber = snapshot.CreatedSoNumber || snapshot.createdSoNumber;
+        let soUrl = snapshot.CreatedSoUrl || snapshot.createdSoUrl;
+        if (soId || soNumber) {
+            createdSoData = {
+                soId: soId,
+                soNumber: soNumber,
+                soUrl: soUrl
             };
         }
 
@@ -2968,7 +2994,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         };
 
         let processingPoText = t("Creating Purchase Order...");
-        $btnConvert.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${processingPoText}`);
+        $btnConvert.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> ' + processingPoText);
         let btnDefaultText = t("Convert to Purchase Order");
 
         $.ajax({
@@ -3465,8 +3491,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             if (emp.email && empName !== emp.email && !empName.includes(String.fromCharCode(64))) {
                 extraParts.push(emp.email);
             }
-            let extra = extraParts.length > 0 ? ` (${extraParts.join(' - ')})` : '';
-            let displayLabel = `${empName}${extra}`;
+            let extra = extraParts.length > 0 ? (' (' + extraParts.join(' - ') + ')') : '';
+            let displayLabel = empName + extra;
 
             let opt = new Option(displayLabel, empId, false, false);
             $(opt).attr('data-id', empId)
@@ -3476,14 +3502,31 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             $picSelect.append(opt);
         });
 
-        $('#so-pic-count-badge').html(`<i class="fas fa-check text-success mr-1"></i>${employees.length} ERP`);
+        $('#so-pic-count-badge').html('<i class="fas fa-check text-success mr-1"></i>' + employees.length + ' ERP');
 
         // Khôi phục giá trị đã chọn nếu có
-        if (currentVal && employees.some(e => e.id != null && e.id.toString() === currentVal.toString())) {
+        var hasCurrentVal = false;
+        if (currentVal) {
+            for (var i = 0; i < employees.length; i++) {
+                if (employees[i].id != null && employees[i].id.toString() === currentVal.toString()) {
+                    hasCurrentVal = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasCurrentVal) {
             $picSelect.val(currentVal.toString()).trigger('change');
         } else if (currentName) {
-            let matched = employees.find(e => (e.name && e.name.toLowerCase() === currentName.toLowerCase()) ||
-                                              (e.entityId && e.entityId.toLowerCase() === currentName.toLowerCase()));
+            var matched = null;
+            for (var j = 0; j < employees.length; j++) {
+                var emp = employees[j];
+                if ((emp.name && emp.name.toLowerCase() === currentName.toLowerCase()) ||
+                    (emp.entityId && emp.entityId.toLowerCase() === currentName.toLowerCase())) {
+                    matched = emp;
+                    break;
+                }
+            }
             if (matched && matched.id != null) {
                 $picSelect.val(matched.id.toString()).trigger('change');
             }
@@ -3491,10 +3534,17 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             // Tự động kiểm tra theo Requisitioner nếu chưa chọn
             let reqVal = $('#po-requisitioner-display').text().trim();
             if (reqVal && reqVal !== 'N/A' && reqVal !== 'None' && reqVal.length > 2) {
-                let matched = employees.find(e => (e.name && e.name.toLowerCase() === reqVal.toLowerCase()) ||
-                                                  (e.entityId && e.entityId.toLowerCase() === reqVal.toLowerCase()));
-                if (matched && matched.id != null) {
-                    $picSelect.val(matched.id.toString()).trigger('change');
+                var reqMatched = null;
+                for (var k = 0; k < employees.length; k++) {
+                    var rEmp = employees[k];
+                    if ((rEmp.name && rEmp.name.toLowerCase() === reqVal.toLowerCase()) ||
+                        (rEmp.entityId && rEmp.entityId.toLowerCase() === reqVal.toLowerCase())) {
+                        reqMatched = rEmp;
+                        break;
+                    }
+                }
+                if (reqMatched && reqMatched.id != null) {
+                    $picSelect.val(reqMatched.id.toString()).trigger('change');
                 }
             }
         }
@@ -3617,8 +3667,13 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         let driPmId = $('#so-dri-pm-id-hidden').val() || $('#so-dri-pm-select').val() || null;
         let driPmName = $('#so-dri-pm-input').val().trim() || $('#so-dri-pm-select option:selected').attr('data-name') || '';
         if (!driPmName && driPmId && erpEmployeesList && erpEmployeesList.length > 0) {
-            let matched = erpEmployeesList.find(e => e.id != null && e.id.toString() === driPmId.toString());
-            if (matched) driPmName = matched.name || matched.entityId || '';
+            for (var m = 0; m < erpEmployeesList.length; m++) {
+                var empM = erpEmployeesList[m];
+                if (empM.id != null && empM.id.toString() === driPmId.toString()) {
+                    driPmName = empM.name || empM.entityId || '';
+                    break;
+                }
+            }
         }
 
         let submitPayload = {
@@ -3650,7 +3705,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         };
 
         let originalBtnHtml = $btn.html();
-        $btn.prop('disabled', true).html(`<i class="fas fa-spinner fa-spin mr-1"></i> ${t("Submitting Sales Order...")}`);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> ' + t("Submitting Sales Order..."));
 
         $.ajax({
             url: '@Url.Action("CreateSalesOrder", "Oracle")',
@@ -3661,19 +3716,32 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 $btn.prop('disabled', false).html(originalBtnHtml);
 
                 if (response.success) {
+                    createdSoData = {
+                        soId: response.soId,
+                        soNumber: response.soNumber,
+                        soUrl: response.soUrl
+                    };
                     clearLocalSession();
-                    saveServerSession('SO_COMPLETED', 4);
 
                     $('#so-result-modal-header').removeClass('bg-danger').addClass('bg-success');
                     $('#so-result-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
                     $('#so-result-modal-message').text(response.message || t("Sales Order Created Successfully!"));
                     $('#so-result-modal-number').text(response.soNumber || 'N/A');
+                    $('#so-result-modal-number-text').text(response.soNumber || 'N/A');
                     $('#so-result-modal-po-number').text(submitPayload.PONumber);
+                    let loggedMemo = 'Created from NetSuite PO: ' + submitPayload.PONumber + (submitPayload.CustomerPONumber && submitPayload.CustomerPONumber !== submitPayload.PONumber ? ' (Customer PO: ' + submitPayload.CustomerPONumber + ')' : '');
+                    $('#so-result-modal-memo-text').text(loggedMemo);
 
-                    if (response.soUrl) {
-                        $('#so-result-modal-link-btn').attr('href', response.soUrl).removeClass('d-none');
+                    let effectiveSoUrl = response.soUrl || (response.soId ? ('https://7548465-sb1.app.netsuite.com/app/accounting/transactions/salesord.nl?id=' + response.soId + '&compid=7548465_SB1') : '');
+
+                    if (effectiveSoUrl) {
+                        $('#so-result-modal-link-btn').attr('href', effectiveSoUrl).removeClass('d-none');
+                        $('#so-result-modal-number-link').attr('href', effectiveSoUrl).removeClass('d-none');
+                        $('#so-result-modal-number-text').addClass('d-none');
                     } else {
                         $('#so-result-modal-link-btn').addClass('d-none');
+                        $('#so-result-modal-number-link').addClass('d-none');
+                        $('#so-result-modal-number-text').removeClass('d-none');
                     }
 
                     $('#salesOrderResultModal').modal('show');

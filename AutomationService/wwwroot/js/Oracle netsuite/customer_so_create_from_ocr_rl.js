@@ -139,13 +139,62 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             }
 
             // =========================================================
-            // 5. PO# : collect from customer PO (No. 5)
+            // 5. PO# : collect from customer PO (No. 5) & LOG REFERENCE PO
             // =========================================================
-            let poNum = header.po_number || header.customer_po_number || header.ref_po || '';
-            if (poNum) {
-                soRecord.setValue({ fieldId: 'otherrefnum', value: poNum });
-                setCustomFieldIfExists(soRecord, 'custbody_sig_customerpo', poNum);
-                log.audit('Step 5: PO# Set', 'PO# (otherrefnum & custbody_sig_customerpo) -> ' + poNum);
+            let poNum = header.po_number || header.customer_po_number || '';
+            let refPoNum = header.ref_po || header.ref_netsuite_po || '';
+            let refPoId = header.ref_po_id || null;
+
+            // Thiết lập PO# (Số PO của khách hàng)
+            let customerPo = poNum || refPoNum || '';
+            if (customerPo) {
+                soRecord.setValue({ fieldId: 'otherrefnum', value: customerPo });
+                setCustomFieldIfExists(soRecord, 'custbody_sig_customerpo', customerPo);
+                log.audit('Step 5: Customer PO# Set', 'PO# (otherrefnum & custbody_sig_customerpo) -> ' + customerPo);
+            }
+
+            // Ghi nhận liên kết với NetSuite PO tạo ra SO này vào trường Memo và các Custom Fields
+            let memoContent = header.memo || '';
+            if (!memoContent) {
+                if (refPoNum && customerPo && refPoNum !== customerPo) {
+                    memoContent = `Created from NetSuite PO: ${refPoNum} (Customer PO: ${customerPo})`;
+                } else if (refPoNum) {
+                    memoContent = `Created from NetSuite PO: ${refPoNum}`;
+                } else if (customerPo) {
+                    memoContent = `Created from Customer PO: ${customerPo}`;
+                }
+            }
+
+            if (memoContent) {
+                try {
+                    soRecord.setValue({ fieldId: 'memo', value: memoContent });
+                    log.audit('SO Memo Set', 'memo -> ' + memoContent);
+                } catch (memoErr) {
+                    log.error('Set memo error', memoErr.message);
+                }
+            }
+
+            // Tự động gán vào các Custom Body Field nếu NetSuite có định nghĩa trường
+            if (refPoNum) {
+                setCustomFieldIfExists(soRecord, 'custbody_ref_po', refPoNum);
+                setCustomFieldIfExists(soRecord, 'custbody_sig_refpo', refPoNum);
+                setCustomFieldIfExists(soRecord, 'custbody_sig_createdfrom_po', refPoNum);
+                setCustomFieldIfExists(soRecord, 'custbody_created_from_po', refPoNum);
+                setCustomFieldIfExists(soRecord, 'custbody_sig_netsuite_po', refPoNum);
+                setCustomFieldIfExists(soRecord, 'custbody_po_number', refPoNum);
+            }
+
+            if (refPoId) {
+                let parsedPoId = parseInt(refPoId, 10);
+                if (!isNaN(parsedPoId) && parsedPoId > 0) {
+                    setCustomFieldIfExists(soRecord, 'custbody_ref_po_id', parsedPoId);
+                    try {
+                        soRecord.setValue({ fieldId: 'createdfrom', value: parsedPoId });
+                        log.audit('Created From Linked', 'createdfrom -> PO ID ' + parsedPoId);
+                    } catch (cfErr) {
+                        log.debug('createdfrom link skipped (expected if not intercompany)', cfErr.message);
+                    }
+                }
             }
 
             // =========================================================
@@ -310,6 +359,16 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
                     } catch (shipErr) {
                         log.error(`Line [${i + 1}] ShipDate Error`, shipErr.message);
                     }
+                }
+
+                // 16. Cross-Subsidiary Fulfillment: Cần thiết lập Inventory Subsidiary (targetsubsidiary) sang Sigma Asia trước
+                let subAsiaId = getSubsidiaryIdByName('Sigma Asia') || 2;
+                try {
+                    soRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'targetsubsidiary', value: subAsiaId });
+                } catch (subErr) {
+                    try {
+                        soRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'inventorysubsidiary', value: subAsiaId });
+                    } catch (e2) {}
                 }
 
                 // 16. Inventory Location: Choose Sigma Asia (No. 16)

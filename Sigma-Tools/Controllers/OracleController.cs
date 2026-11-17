@@ -172,6 +172,7 @@ namespace Sigma_Tools.Controllers
                                         PoUrl = tx.CreatedPoUrl,
                                         TransactionId = tx.TransactionId,
                                         Customer = tx.Customer,
+                                        CustomerPONumber = tx.CustomerPONumber,
                                         Status = tx.Status,
                                         StatusDisplay = statusDisplay,
                                         CurrentStep = tx.CurrentStep,
@@ -195,6 +196,7 @@ namespace Sigma_Tools.Controllers
                                     PoUrl = tx.CreatedPoUrl,
                                     TransactionId = tx.TransactionId,
                                     Customer = tx.Customer,
+                                    CustomerPONumber = tx.CustomerPONumber,
                                     Status = tx.Status,
                                     StatusDisplay = statusDisplay,
                                     CurrentStep = tx.CurrentStep,
@@ -236,8 +238,10 @@ namespace Sigma_Tools.Controllers
                                         OrderQty = item.OrderQty,
                                         OpenOrderQty = item.OpenOrderQty,
                                         PoUrl = item.PoUrl,
-                                        Status = "SO_COMPLETED",
-                                        StatusDisplay = "Hoàn thành (PO)",
+                                        SoNumber = item.SoNumber,
+                                        SoUrl = item.SoUrl,
+                                        Status = !string.IsNullOrEmpty(item.SoNumber) ? "SO_COMPLETED" : "PO_CREATED",
+                                        StatusDisplay = !string.IsNullOrEmpty(item.SoNumber) ? "Hoàn thành (PO & SO)" : "Hoàn thành (PO)",
                                         CanResume = false
                                     });
                                 }
@@ -964,6 +968,7 @@ namespace Sigma_Tools.Controllers
 
                         //khi tạo PO thì lấy ngày hiện tại
                         ocrData["header"]["po_date"] = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                        ocrData["header"]["memo"] = $"Inbound PO from Customer PO: {poNumber} ({customer})";
 
                         request.RawOcrResponse = JsonConvert.SerializeObject(ocrData);
                     }
@@ -1157,6 +1162,13 @@ namespace Sigma_Tools.Controllers
                         ocrData["header"]["allow_cross_sub_fulfillment"] = true; // No. 14
                         ocrData["header"]["isCrossSubTransaction"] = true; // No. 14
                         ocrData["header"]["ref_po"] = soRefPO;
+                        ocrData["header"]["ref_po_id"] = request.CreatedPoId;
+                        ocrData["header"]["ref_po_url"] = request.CreatedPoUrl ?? "";
+                        string custPoNumber = !string.IsNullOrEmpty(request.CustomerPONumber) ? request.CustomerPONumber : request.PONumber;
+                        ocrData["header"]["customer_po_number"] = custPoNumber;
+                        ocrData["header"]["memo"] = !string.IsNullOrEmpty(soRefPO) && !string.IsNullOrEmpty(custPoNumber) && soRefPO != custPoNumber
+                            ? $"Created from NetSuite PO: {soRefPO} (Customer PO: {custPoNumber})"
+                            : $"Created from PO: {(!string.IsNullOrEmpty(soRefPO) ? soRefPO : custPoNumber)}";
 
                         if (ocrData["line_items"] is JArray rawLineItemsArray)
                         {
@@ -1210,6 +1222,10 @@ namespace Sigma_Tools.Controllers
 
                                 var parsedResponse = JsonConvert.DeserializeObject<CreateSalesOrderResponse>(jsonString);
                                 string createdSoNumber = parsedResponse?.soNumber ?? ("SO-" + soRefPO);
+                                int? soId = parsedResponse?.soId;
+                                string createdSoUrl = !string.IsNullOrEmpty(parsedResponse?.soUrl)
+                                    ? parsedResponse.soUrl
+                                    : (soId.HasValue && soId.Value > 0 ? $"https://7548465-sb1.app.netsuite.com/app/accounting/transactions/salesord.nl?id={soId.Value}&compid=7548465_SB1" : "");
 
                                 // Cập nhật Transaction State sang SO_COMPLETED
                                 if (!string.IsNullOrEmpty(request.TransactionId) && Guid.TryParse(request.TransactionId, out Guid txGuid))
@@ -1228,9 +1244,9 @@ namespace Sigma_Tools.Controllers
                                         }
                                         state.Status = "SO_COMPLETED";
                                         state.CurrentStep = 4;
-                                        state.CreatedSoId = parsedResponse?.soId;
+                                        state.CreatedSoId = soId;
                                         state.CreatedSoNumber = createdSoNumber;
-                                        state.CreatedSoUrl = parsedResponse?.soUrl;
+                                        state.CreatedSoUrl = createdSoUrl;
                                         state.PersonInCharge = request.PersonInCharge;
                                         state.PersonInChargeId = request.PersonInChargeId;
                                         if (request.ProjectCode > 0)
@@ -1255,15 +1271,40 @@ namespace Sigma_Tools.Controllers
                                     }
                                 }
 
-                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. SO Number: {createdSoNumber}, Ref PO: {soRefPO}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, SO ID: {parsedResponse?.soId}", currentUser.UserName);
+                                // Bổ sung ghi log tracking để các màn hình/báo cáo đồng bộ ngay
+                                try
+                                {
+                                    var soTrackingList = new List<PoOrderTrackingDto>();
+                                    if (ocrData != null && ocrData["line_items"] is JArray rawLines)
+                                    {
+                                        foreach (var item in rawLines)
+                                        {
+                                            soTrackingList.Add(new PoOrderTrackingDto
+                                            {
+                                                PartNumber = item["item"]?.ToString() ?? "",
+                                                SigmaPO = soRefPO,
+                                                Description = item["description"]?.ToString() ?? "",
+                                                OrderQty = item["quantity"]?.Value<decimal>() ?? 0,
+                                                OpenOrderQty = item["quantity"]?.Value<decimal>() ?? 0,
+                                                PoUrl = request.CreatedPoUrl ?? "",
+                                                SoNumber = createdSoNumber,
+                                                SoUrl = createdSoUrl
+                                            });
+                                        }
+                                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, JsonConvert.SerializeObject(soTrackingList), currentUser.UserName);
+                                    }
+                                }
+                                catch { }
+
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. SO Number: {createdSoNumber}, Ref PO: {soRefPO}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, SO ID: {soId}, SO URL: {createdSoUrl}", currentUser.UserName);
 
                                 return Json(new
                                 {
                                     success = true,
                                     message = parsedResponse?.message ?? "Tạo Sales Order trên NetSuite thành công!",
-                                    soId = parsedResponse?.soId,
+                                    soId = soId,
                                     soNumber = createdSoNumber,
-                                    soUrl = parsedResponse?.soUrl
+                                    soUrl = createdSoUrl
                                 });
                             }
                             else
@@ -1319,15 +1360,41 @@ namespace Sigma_Tools.Controllers
                         var oldState = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
                         if (oldState != null)
                         {
+                            if (string.IsNullOrEmpty(state.Customer) && !string.IsNullOrEmpty(oldState.Customer))
+                                state.Customer = oldState.Customer;
+                            if (string.IsNullOrEmpty(state.CustomerPONumber) && !string.IsNullOrEmpty(oldState.CustomerPONumber))
+                                state.CustomerPONumber = oldState.CustomerPONumber;
+                            if (string.IsNullOrEmpty(state.Date) && !string.IsNullOrEmpty(oldState.Date))
+                                state.Date = oldState.Date;
+                            if (string.IsNullOrEmpty(state.Currency) && !string.IsNullOrEmpty(oldState.Currency))
+                                state.Currency = oldState.Currency;
+                            if (string.IsNullOrEmpty(state.Requisitioner) && !string.IsNullOrEmpty(oldState.Requisitioner))
+                                state.Requisitioner = oldState.Requisitioner;
                             if (string.IsNullOrEmpty(state.PdfPath) && !string.IsNullOrEmpty(oldState.PdfPath))
                                 state.PdfPath = oldState.PdfPath;
                             if (string.IsNullOrEmpty(state.PdfFileName) && !string.IsNullOrEmpty(oldState.PdfFileName))
                                 state.PdfFileName = oldState.PdfFileName;
+                            if (string.IsNullOrEmpty(state.RawOcrJson) && !string.IsNullOrEmpty(oldState.RawOcrJson))
+                                state.RawOcrJson = oldState.RawOcrJson;
+
+                            // Bảo lưu danh sách LineItems nếu state mới rỗng hoặc các dòng bị mất số lượng (qty = 0)
+                            if ((state.LineItems == null || state.LineItems.Count == 0 || state.LineItems.All(l => l.Quantity <= 0))
+                                && oldState.LineItems != null && oldState.LineItems.Count > 0 && oldState.LineItems.Any(l => l.Quantity > 0))
+                            {
+                                state.LineItems = oldState.LineItems;
+                            }
+
                             if (string.IsNullOrEmpty(state.CreatedPoNumber) && !string.IsNullOrEmpty(oldState.CreatedPoNumber))
                             {
                                 state.CreatedPoNumber = oldState.CreatedPoNumber;
                                 state.CreatedPoId = oldState.CreatedPoId;
                                 state.CreatedPoUrl = oldState.CreatedPoUrl;
+                            }
+                            if (string.IsNullOrEmpty(state.CreatedSoNumber) && !string.IsNullOrEmpty(oldState.CreatedSoNumber))
+                            {
+                                state.CreatedSoNumber = oldState.CreatedSoNumber;
+                                state.CreatedSoId = oldState.CreatedSoId;
+                                state.CreatedSoUrl = oldState.CreatedSoUrl;
                             }
                             if (string.IsNullOrEmpty(state.ProjectCodeText) && !string.IsNullOrEmpty(oldState.ProjectCodeText))
                             {
@@ -1337,6 +1404,14 @@ namespace Sigma_Tools.Controllers
                             {
                                 state.ProjectCode = oldState.ProjectCode;
                             }
+                            if (string.IsNullOrEmpty(state.PersonInCharge) && !string.IsNullOrEmpty(oldState.PersonInCharge))
+                            {
+                                state.PersonInCharge = oldState.PersonInCharge;
+                                state.PersonInChargeId = oldState.PersonInChargeId;
+                            }
+                            if (!state.Subsidiary.HasValue && oldState.Subsidiary.HasValue) state.Subsidiary = oldState.Subsidiary;
+                            if (!state.Location.HasValue && oldState.Location.HasValue) state.Location = oldState.Location;
+                            if (!state.TaxCode.HasValue && oldState.TaxCode.HasValue) state.TaxCode = oldState.TaxCode;
                         }
                     }
                     catch { }
@@ -1645,6 +1720,8 @@ namespace Sigma_Tools.Controllers
         public decimal OrderQty { get; set; }
         public decimal OpenOrderQty { get; set; }
         public string PoUrl { get; set; } // Thêm thuộc tính lưu URL PO
+        public string? SoNumber { get; set; }
+        public string? SoUrl { get; set; }
     }
 
     public class ExportTrackingRequest

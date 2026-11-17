@@ -190,10 +190,19 @@ define(['N/record', 'N/search', 'N/log', 'N/url'], (record, search, log, url) =>
                 log.audit('Set Custom Field', `Original Customer (custbody_sig_po_original_customer) -> ID: ${originalCustomerId}`);
             }
 
-            // Set Customer PO Number Custom Field
+            // Set Customer PO Number Custom Field & Memo
             if (header.po_number) {
                 poRecord.setValue({ fieldId: 'custbody_sig_customerpo', value: header.po_number });
                 log.audit('Set Custom Field', `Customer PO# (custbody_sig_customerpo) -> ${header.po_number}`);
+            }
+
+            // Ghi nhận nguồn gốc vào Memo của NetSuite Purchase Order
+            let poMemo = header.memo || ('Inbound PO from Customer PO: ' + (header.po_number || '') + (header.customer ? ' (' + header.customer + ')' : ''));
+            try {
+                poRecord.setValue({ fieldId: 'memo', value: poMemo });
+                log.audit('Set Header Field', 'Memo -> ' + poMemo);
+            } catch (memoErr) {
+                log.error('Set PO Memo Error', memoErr.message);
             }
 
             // Set Transaction Date

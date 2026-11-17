@@ -105,37 +105,46 @@
                                         else
                                         {
                                             <span class="badge badge-success font-weight-bold px-2 py-1" style="font-size: 0.78rem;">
-                                                <i class="fas fa-check-circle mr-1"></i>Hoàn thành
+                                                <i class="fas @(row.Status == "SO_COMPLETED" ? "fa-check-double" : "fa-check-circle") mr-1"></i>@(string.IsNullOrEmpty(row.StatusDisplay) ? "Hoàn thành" : row.StatusDisplay)
                                             </span>
                                         }
                                     </td>
                                     <td>
-                                        @if (!string.IsNullOrEmpty(row.PoUrl))
-                                        {
-                                            <a href="@row.PoUrl" target="_blank" class="badge badge-primary font-weight-bold px-2 py-1 text-decoration-none" style="font-size: 0.80rem;" title="Mở trên NetSuite">
-                                                @row.SigmaPO <i class="fas fa-external-link-alt ml-1" style="font-size: 0.7rem;"></i>
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-secondary font-weight-bold px-2 py-1" style="font-size: 0.80rem;">
-                                                @row.SigmaPO
-                                            </span>
-                                        }
+                                        <div>
+                                            @if (!string.IsNullOrEmpty(row.PoUrl))
+                                            {
+                                                <a href="@row.PoUrl" target="_blank" class="badge badge-primary font-weight-bold px-2 py-1 text-decoration-none shadow-sm" style="font-size: 0.80rem;" title="Mở NetSuite Purchase Order">
+                                                    <i class="fas fa-file-invoice mr-1"></i>@row.SigmaPO <i class="fas fa-external-link-alt ml-1" style="font-size: 0.65rem;"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary font-weight-bold px-2 py-1" style="font-size: 0.80rem;">
+                                                    @row.SigmaPO
+                                                </span>
+                                            }
+                                        </div>
                                         @if (!string.IsNullOrEmpty(row.SoNumber))
                                         {
-                                            <div class="small mt-1">
-                                                <span class="text-muted" style="font-size: 0.72rem;">SO:</span>
+                                            <div class="mt-1">
                                                 @if (!string.IsNullOrEmpty(row.SoUrl))
                                                 {
-                                                    <a href="@row.SoUrl" target="_blank" class="badge badge-success font-weight-bold px-1" style="font-size: 0.74rem;">
-                                                        @row.SoNumber <i class="fas fa-external-link-alt" style="font-size: 0.65rem;"></i>
+                                                    <a href="@row.SoUrl" target="_blank" class="badge badge-success font-weight-bold px-2 py-1 text-decoration-none shadow-sm" style="font-size: 0.80rem;" title="Mở NetSuite Sales Order">
+                                                        <i class="fas fa-shopping-cart mr-1"></i>@row.SoNumber <i class="fas fa-external-link-alt ml-1" style="font-size: 0.65rem;"></i>
                                                     </a>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge badge-success font-weight-bold px-1" style="font-size: 0.74rem;">@row.SoNumber</span>
+                                                    <span class="badge badge-success font-weight-bold px-2 py-1" style="font-size: 0.80rem;">
+                                                        <i class="fas fa-shopping-cart mr-1"></i>@row.SoNumber
+                                                    </span>
                                                 }
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(row.CustomerPONumber) && row.CustomerPONumber != row.SigmaPO)
+                                        {
+                                            <div class="text-muted small mt-1" style="font-size: 0.70rem;">
+                                                <i class="fas fa-tag mr-1"></i>Cust PO: <strong>@row.CustomerPONumber</strong>
                                             </div>
                                         }
                                     </td>

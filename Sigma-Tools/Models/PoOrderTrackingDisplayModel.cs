@@ -14,6 +14,7 @@
         // Bổ sung các trường quản lý tiến trình Transaction
         public string? TransactionId { get; set; }
         public string? Customer { get; set; }
+        public string? CustomerPONumber { get; set; }
         public string? Status { get; set; } // "PROCESSING", "PO_CREATED", "SO_COMPLETED", "REJECTED", "FAILED"
         public string? StatusDisplay { get; set; }
         public int CurrentStep { get; set; } = 4;

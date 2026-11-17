@@ -41,6 +41,9 @@ namespace SVNShareLib.Request
         public string? subsidiary_name { get; set; }
         public string? location_name { get; set; }
         public string? ref_po { get; set; }
+        public int? ref_po_id { get; set; }
+        public string? ref_po_url { get; set; }
+        public string? memo { get; set; }
         public string? customer { get; set; }
         public string? customer_po_number { get; set; }
         public string? date { get; set; }
