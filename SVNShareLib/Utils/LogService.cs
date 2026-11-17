@@ -55,7 +55,46 @@ namespace SVNShareLib.Utils
                 Log(LogApp.SVNPortal, LogAction.NetsuitePOLogInfo, LogType.Error, $"GetLogs Error: {ex.Message}");
                 return null;
             }
-            
+        }
+
+        public int SaveTransactionState(Guid id, string content, string status, string userCode = "System")
+        {
+            try
+            {
+                SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
+                SVN_summary_logUI log = new SVN_summary_logUI()
+                {
+                    Id = id,
+                    App = LogApp.SigmaTools.ToString(),
+                    Action = LogAction.POTransactionState.ToString(),
+                    Type = status,
+                    Content = content,
+                    CreatedBy = userCode,
+                    CreatedOn = DateTime.Now,
+                    ModifiedBy = userCode,
+                    ModifiedOn = DateTime.Now
+                };
+                return dataPortal.Upsert(log);
+            }
+            catch (Exception ex)
+            {
+                Log(LogApp.SigmaTools, LogAction.POTransactionState, LogType.Error, $"SaveTransactionState Error: {ex.Message}", userCode);
+                return -1;
+            }
+        }
+
+        public SVN_summary_logUI GetTransactionState(Guid id)
+        {
+            try
+            {
+                SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
+                return dataPortal.GetById(id);
+            }
+            catch (Exception ex)
+            {
+                Log(LogApp.SigmaTools, LogAction.POTransactionState, LogType.Error, $"GetTransactionState Error: {ex.Message}");
+                return null;
+            }
         }
 
         public enum LogApp
@@ -78,7 +117,8 @@ namespace SVNShareLib.Utils
             CreateNetsuitePO,
             VerifyErpPrices,
             RejectPO,
-            NetsuitePOLogInfo
+            NetsuitePOLogInfo,
+            POTransactionState
         }
 
         public enum LogType

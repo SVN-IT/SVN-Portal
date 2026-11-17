@@ -361,6 +361,27 @@
     @* <div class="small">User: <strong>Duong Hai Linh</strong> | Role: <strong>IT Administrator</strong></div> *@
 </div>
 
+<!-- Banner Khôi phục Tiến trình (Khi F5 hoặc phát hiện phiên dở dang) -->
+<div id="restore-session-banner" class="alert alert-warning border-warning shadow-sm mx-3 mt-2 mb-2 d-none" style="border-left: 5px solid #f59e0b !important; background-color: #fffbeb;">
+    <div class="d-flex justify-content-between align-items-center flex-wrap py-1">
+        <div class="d-flex align-items-center py-1">
+            <i class="fas fa-history text-warning mr-2" style="font-size: 1.3rem;"></i>
+            <div>
+                <strong class="text-dark"><span class="lang-text" data-i18n="Active Incomplete Session Detected">Phát hiện tiến trình đang thực hiện dở</span>:</strong>
+                <span class="text-dark ml-1">PO <strong id="restore-po-number" class="text-primary">-</strong> | Khách hàng: <strong id="restore-customer-name" class="text-primary">-</strong> (<span id="restore-step-desc" class="badge badge-warning text-dark font-weight-bold">Bước 4</span>)</span>
+            </div>
+        </div>
+        <div class="py-1">
+            <button type="button" id="btn-restore-session-action" class="btn btn-sm btn-primary font-weight-bold shadow-sm mr-2 px-3">
+                <i class="fas fa-play mr-1"></i> <span class="lang-text" data-i18n="Resume Process">Tiếp tục tiến trình này</span>
+            </button>
+            <button type="button" id="btn-discard-session-action" class="btn btn-sm btn-outline-secondary font-weight-bold px-2">
+                <i class="fas fa-times mr-1"></i> <span class="lang-text" data-i18n="Start Fresh">Làm phiên mới</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Step Progress Bar (Đặt ngay trên Action Bar) -->
 <div class="netsuite-stepper-wrapper">
     <div class="netsuite-stepper">
@@ -892,12 +913,322 @@
 
         // Tải trước danh sách Person in charge từ NetSuite ERP để sẵn sàng cho Bước 4
         loadPersonInChargeList();
+
+        // Kiểm tra và khôi phục tiến trình (từ URL param ?transactionId= hoặc LocalStorage khi F5)
+        checkAndRestoreSession();
     });
 
-    // Biến đánh dấu bước hiện tại
+    // Biến đánh dấu bước hiện tại và quản lý Transaction State
     let currentStep = 1;
     let createdPoData = null;
     let proceedingToStep4 = false;
+    let currentTransactionId = null;
+    const LOCAL_SESSION_KEY = 'sigma_po_active_session';
+
+    function getActiveSessionSnapshot() {
+        let lineItems = [];
+        let rawJsonStr = $('#ocr-raw-json-hidden').val();
+        try {
+            if (rawJsonStr) {
+                let ocrObj = JSON.parse(rawJsonStr);
+                if (ocrObj && ocrObj.line_items) {
+                    ocrObj.line_items.forEach((item, idx) => {
+                        lineItems.push({
+                            Line: item.line || (idx + 1),
+                            ItemCode: item.item || item.itemCode || '',
+                            Description: item.description || '',
+                            Quantity: parseFloat(item.quantity || item.qty || 0),
+                            UnitPrice: parseFloat(item.price_each || item.unitPrice || 0),
+                            Amount: parseFloat(item.amount || 0),
+                            ExpectedReceiptDate: item.expected_receipt_date || item.expected_ship_date || ''
+                        });
+                    });
+                }
+            }
+        } catch (e) { }
+
+        if (lineItems.length === 0) {
+            $('#po-line-table tbody tr').each(function (idx) {
+                let $tr = $(this);
+                let itemCode = $tr.find('.display-item-code').text().trim() || $tr.find('td:eq(1)').text().trim();
+                let desc = $tr.find('td:eq(2)').text().trim();
+                let qtyText = $tr.find('td:eq(3)').text().trim().replace(/,/g, '');
+                let priceText = $tr.find('td:eq(4)').text().trim().replace(/[$,]/g, '');
+                let amtText = $tr.find('td:eq(5)').text().trim().replace(/[$,]/g, '');
+
+                if (itemCode && itemCode !== 'No data available') {
+                    lineItems.push({
+                        Line: idx + 1,
+                        ItemCode: itemCode,
+                        Description: desc,
+                        Quantity: parseFloat(qtyText) || 0,
+                        UnitPrice: parseFloat(priceText) || 0,
+                        Amount: parseFloat(amtText) || 0
+                    });
+                }
+            });
+        }
+
+        let snapshot = {
+            TransactionId: currentTransactionId || ('local_' + Date.now()),
+            CustomerPONumber: $('#po-number-display').text().trim(),
+            Customer: $('#po-customer-display').text().trim(),
+            Date: $('#po-date-display').text().trim(),
+            Currency: $('#po-currency-hidden').val() || $('#po-currency-display').text().trim() || 'USD',
+            Requisitioner: $('#po-requisitioner-display').text().trim(),
+            Status: createdPoData ? 'PO_CREATED' : 'PROCESSING',
+            CurrentStep: currentStep,
+            PdfFileName: $('#file-name-display').text().trim() || $('#po-file-name').text().trim(),
+            RawOcrJson: rawJsonStr,
+            LineItems: lineItems,
+            CreatedPoId: createdPoData?.poId || null,
+            CreatedPoNumber: createdPoData?.poNumber || null,
+            CreatedPoUrl: createdPoData?.poUrl || null,
+            Subsidiary: parseInt($('#select-subsidiary').val(), 10) || null,
+            Location: parseInt($('#select-location').val(), 10) || null,
+            TaxCode: parseInt($('#select-taxcode').val(), 10) || null,
+            ProjectCode: $('#so-projcode-input').val() || $('#select-projectcode').val() || null,
+            PersonInCharge: $('#so-dri-pm-input').val() || $('#so-dri-pm-select option:selected').attr('data-name') || '',
+            PersonInChargeId: parseInt($('#so-dri-pm-id-hidden').val() || $('#so-dri-pm-select').val(), 10) || null,
+            PoType: $('#so-potype-select').val() || 'MP',
+            PrType: 'DRI',
+            SoDate: $('#so-date-input').val() || '',
+            AllowCrossSubsidiaryFulfillment: $('#so-cross-sub-chk').is(':checked'),
+            SavedAt: Date.now()
+        };
+        return snapshot;
+    }
+
+    function saveLocalSession() {
+        try {
+            let snap = getActiveSessionSnapshot();
+            if (snap.CustomerPONumber && snap.CustomerPONumber !== '-' && snap.CustomerPONumber !== 'N/A') {
+                localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(snap));
+            }
+        } catch (e) {
+            console.warn("Could not save to localStorage:", e);
+        }
+    }
+
+    function clearLocalSession() {
+        try {
+            localStorage.removeItem(LOCAL_SESSION_KEY);
+        } catch (e) { }
+    }
+
+    function saveServerSession(statusOverride, stepOverride) {
+        let snap = getActiveSessionSnapshot();
+        if (!snap.CustomerPONumber || snap.CustomerPONumber === '-' || snap.CustomerPONumber === 'N/A') return;
+        if (statusOverride) snap.Status = statusOverride;
+        if (stepOverride) snap.CurrentStep = stepOverride;
+
+        $.ajax({
+            url: '@Url.Action("SaveTransactionState", "Oracle")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(snap),
+            success: function (res) {
+                if (res && res.success && res.transactionId) {
+                    currentTransactionId = res.transactionId;
+                    snap.TransactionId = res.transactionId;
+                    localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(snap));
+                }
+            }
+        });
+    }
+
+    function restoreSessionData(snapshot) {
+        if (!snapshot) return;
+
+        currentTransactionId = snapshot.TransactionId || snapshot.transactionId;
+        let poNum = snapshot.CustomerPONumber || snapshot.customerPONumber || '';
+        let customer = snapshot.Customer || snapshot.customer || '';
+        let date = snapshot.Date || snapshot.date || '';
+        let currency = snapshot.Currency || snapshot.currency || 'USD';
+        let req = snapshot.Requisitioner || snapshot.requisitioner || 'N/A';
+        let pdfName = snapshot.PdfFileName || snapshot.pdfFileName || 'Restored_PO.pdf';
+        let rawJson = snapshot.RawOcrJson || snapshot.rawOcrJson || '';
+        let step = snapshot.CurrentStep || snapshot.currentStep || 1;
+        let lines = snapshot.LineItems || snapshot.lineItems || [];
+
+        // 1. Phục hồi Header PO
+        $('#po-number-display').text(poNum);
+        $('#po-customer-display').text(customer);
+        $('#po-date-display').text(date);
+        $('#po-currency-display').text(currency);
+        $('#po-currency-hidden').val(currency);
+        $('#po-requisitioner-display').text(req);
+        $('#file-name-display').text(pdfName);
+        $('#po-file-name').text(pdfName);
+        if (rawJson) {
+            $('#ocr-raw-json-hidden').val(rawJson);
+        }
+
+        // 2. Phục hồi NetSuite PO nếu đã tạo ở Bước 3
+        let poId = snapshot.CreatedPoId || snapshot.createdPoId;
+        let poNumber = snapshot.CreatedPoNumber || snapshot.createdPoNumber;
+        let poUrl = snapshot.CreatedPoUrl || snapshot.createdPoUrl;
+        let projCode = snapshot.ProjectCode || snapshot.projectCode;
+
+        if (poId || poNumber) {
+            createdPoData = {
+                poId: poId,
+                poNumber: poNumber,
+                poUrl: poUrl,
+                projectCode: projCode
+            };
+        }
+
+        // 3. Render bảng Line Items
+        if (lines && lines.length > 0) {
+            let tbodyHtml = '';
+            let totalQty = 0;
+            let totalAmount = 0;
+            lines.forEach((item, idx) => {
+                let lineNo = item.Line || item.line || (idx + 1);
+                let itemCode = item.ItemCode || item.itemCode || '';
+                let desc = item.Description || item.description || '';
+                let qty = parseFloat(item.Quantity || item.qty || 0);
+                let price = parseFloat(item.UnitPrice || item.unitPrice || 0);
+                let amt = parseFloat(item.Amount || item.amount || (qty * price));
+                totalQty += qty;
+                totalAmount += amt;
+
+                let formattedPrice = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                let formattedAmt = amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                tbodyHtml += `<tr>
+                    <td>${lineNo}</td>
+                    <td><span class="display-item-code">${itemCode}</span></td>
+                    <td>${desc}</td>
+                    <td class="text-right">${qty.toLocaleString()}</td>
+                    <td class="text-right" data-original-price="${price}">$${formattedPrice}</td>
+                    <td class="text-right" data-original-amount="${amt}">$${formattedAmt}</td>
+                    <td class="text-center col-action d-none">
+                        <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>`;
+            });
+            $('#po-line-table tbody').html(tbodyHtml);
+            let formattedTotalAmt = totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            $('#calculated-sum-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmt}`);
+            $('#expected-total-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmt}`);
+            $('#line-items-header').text(`EXTRACTED LINE ITEMS (${lines.length} LINES FOUND)`);
+        }
+
+        // 4. Phục hồi cấu hình SO
+        if (projCode) {
+            $('#so-projcode-input').val(projCode);
+        }
+        let soDateVal = snapshot.SoDate || snapshot.soDate;
+        if (soDateVal) {
+            $('#so-date-input').val(soDateVal);
+        } else {
+            $('#so-date-input').val(new Date().toISOString().substring(0, 10));
+        }
+        let pTypeVal = snapshot.PoType || snapshot.poType;
+        if (pTypeVal) {
+            $('#so-potype-select').val(pTypeVal);
+        }
+        if (snapshot.AllowCrossSubsidiaryFulfillment !== undefined || snapshot.allowCrossSubsidiaryFulfillment !== undefined) {
+            let isCross = (snapshot.AllowCrossSubsidiaryFulfillment !== false && snapshot.allowCrossSubsidiaryFulfillment !== false);
+            $('#so-cross-sub-chk').prop('checked', isCross);
+        }
+
+        // 5. Chuyển bước phù hợp
+        let targetStatus = snapshot.Status || snapshot.status || 'PROCESSING';
+        if (createdPoData || step === 4 || targetStatus === 'PO_CREATED') {
+            currentStep = 4;
+            goToStep4();
+
+            let picId = snapshot.PersonInChargeId || snapshot.personInChargeId;
+            let picName = snapshot.PersonInCharge || snapshot.personInCharge;
+            if (picId) {
+                $('#so-dri-pm-select').val(picId.toString()).trigger('change');
+            } else if (picName) {
+                $('#so-dri-pm-input').val(picName);
+            }
+        } else if (step === 2) {
+            currentStep = 2;
+            $('#step-node-1').removeClass('active').addClass('completed');
+            $('#step-node-2').addClass('active');
+            $('#btn-import-wrapper').fadeOut(200);
+            $('#btn-edit-data').fadeOut(200);
+            $('#btn-reload-erp').removeClass('d-none');
+            $('#btn-confirm-next').removeClass('d-none');
+        } else if (step === 3) {
+            currentStep = 3;
+            $('#step-node-1, #step-node-2').removeClass('active').addClass('completed');
+            $('#step-node-3').addClass('active');
+            $('#btn-reload-erp').addClass('d-none');
+            $('#btn-convert').removeClass('d-none').prop('disabled', false);
+        } else {
+            currentStep = 1;
+            $('#step-node-1').addClass('active');
+        }
+
+        $('#restore-session-banner').addClass('d-none');
+        $('#btn-reject-po').removeClass('d-none');
+    }
+
+    function checkAndRestoreSession() {
+        // A. Ưu tiên URL Query Parameter (?transactionId=...)
+        let urlParams = new URLSearchParams(window.location.search);
+        let resumeTxId = urlParams.get('transactionId');
+        if (resumeTxId) {
+            $('#global-loader-overlay').removeClass('d-none');
+            $('#loader-text').text('Đang khôi phục tiến trình...');
+
+            $.ajax({
+                url: '@Url.Action("GetTransactionState", "Oracle")?transactionId=' + resumeTxId,
+                type: 'GET',
+                success: function (res) {
+                    $('#global-loader-overlay').addClass('d-none');
+                    if (res && res.success && res.data) {
+                        restoreSessionData(res.data);
+                    } else {
+                        alert('Không tìm thấy dữ liệu tiến trình từ server.');
+                    }
+                },
+                error: function () {
+                    $('#global-loader-overlay').addClass('d-none');
+                    alert('Lỗi kết nối khi tải tiến trình từ server.');
+                }
+            });
+            return;
+        }
+
+        // B. Kiểm tra LocalStorage khi F5 hoặc mở lại trình duyệt
+        try {
+            let rawLocal = localStorage.getItem(LOCAL_SESSION_KEY);
+            if (rawLocal) {
+                let localSnapshot = JSON.parse(rawLocal);
+                let ageHours = localSnapshot.SavedAt ? (Date.now() - localSnapshot.SavedAt) / (1000 * 60 * 60) : 0;
+                let isComplete = (localSnapshot.Status === 'SO_COMPLETED' || localSnapshot.status === 'SO_COMPLETED');
+                let hasPo = (localSnapshot.CustomerPONumber && localSnapshot.CustomerPONumber !== '-' && localSnapshot.CustomerPONumber !== 'N/A');
+
+                if (!isComplete && hasPo && ageHours < 48) {
+                    $('#restore-po-number').text(localSnapshot.CustomerPONumber || localSnapshot.customerPONumber || '-');
+                    $('#restore-customer-name').text(localSnapshot.Customer || localSnapshot.customer || 'N/A');
+                    let stepDesc = (localSnapshot.CreatedPoId || localSnapshot.createdPoId) ? 'Bước 4 (Đã tạo NetSuite PO)' : ('Bước ' + (localSnapshot.CurrentStep || localSnapshot.currentStep || 1));
+                    $('#restore-step-desc').text(stepDesc);
+                    $('#restore-session-banner').removeClass('d-none');
+
+                    $('#btn-restore-session-action').off('click').on('click', function () {
+                        restoreSessionData(localSnapshot);
+                    });
+                    $('#btn-discard-session-action').off('click').on('click', function () {
+                        clearLocalSession();
+                        $('#restore-session-banner').addClass('d-none');
+                    });
+                } else if (isComplete || ageHours >= 48) {
+                    clearLocalSession();
+                }
+            }
+        } catch (e) {
+            console.warn("Lỗi kiểm tra LocalStorage session:", e);
+        }
+    }
 
 
     document.getElementById('pdf-file-input').addEventListener('change', function (event) {
@@ -955,6 +1286,9 @@
             contentType: false,
             success: function (response) {
                 if (response.success) {
+                    if (response.transactionId) {
+                        currentTransactionId = response.transactionId;
+                    }
                     let m = response.data;
                     let unmappedList = response.unmappedCodes || []; // Lấy danh sách mã chưa ánh xạ được từ server
 
@@ -1030,6 +1364,7 @@
                     const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
 
                     updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
+                    saveLocalSession();
 
                 } else {
                     alert(t('Error:') + ' ' + response.message);
@@ -1119,6 +1454,8 @@
             success: function (response) {
                 if (response.success) {
                     currentStep = 2;
+                    saveLocalSession();
+                    saveServerSession('PROCESSING', 2);
 
                     $('#btn-import-wrapper').fadeOut(200);
                     $('#btn-edit-data').fadeOut(200);
@@ -2241,6 +2578,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 if (response.success) {
                     $('#rejectPoModal').modal('hide');
                     alert(response.message);
+                    clearLocalSession();
+                    saveServerSession('REJECTED', currentStep);
                     // Refresh lại trang khi thành công
                     window.location.reload();
                 } else {
@@ -2536,6 +2875,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         }
 
         let createSoPayload = {
+            TransactionId: currentTransactionId,
             PONumber: poNumber,
             Date: poDate,
             Customer: customer,
@@ -2577,6 +2917,10 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                         projectCodeText: selectedProjectCodeText
                     };
                     proceedingToStep4 = false;
+
+                    // Lưu tiến trình PO_CREATED cả ở LocalStorage và Database
+                    saveLocalSession();
+                    saveServerSession('PO_CREATED', 4);
 
                     $('#ns-modal-header').removeClass('bg-danger').addClass('bg-success');
                     $('#ns-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
@@ -2788,7 +3132,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         $('#ocr-audit-details').html(`
             <li><strong>${t("Ref NetSuite PO:")}</strong> ${refPoNum}</li>
             <li><strong>${t("Sales Order Customization")}:</strong> ${t("You can review and adjust Unit Prices in the table below before creating the Sales Order.")}</li>
-            <li><strong>${t("SO in ERP Rules:")}</strong> Custom Form: <em>Sigma Worldwide Sales Order</em> | Tax Code: <em>0 (SW)</em> | Cross-Sub Fulfillment: <em>Enabled</em> | Inv Loc: <em>Sigma Worldwide</em></li>
+            <li><strong>${t("SO in ERP Rules:")}</strong> Custom Form: <em>Sigma Worldwide Sales Order</em> | Tax Code: <em>0 (SW)</em> | Cross-Sub Fulfillment: <em>Enabled</em> | Inv Loc: <em>Sigma Asia</em></li>
         `);
         $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
                .css('color', '#15803d')
@@ -2881,7 +3225,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                     <input type="date" class="form-control form-control-sm text-center font-weight-bold input-so-shipdate mx-auto" value="${shipDate}" style="max-width: 140px; font-size: 0.82rem;" title="Expected Ship Date" />
                 </td>
                 <td class="align-middle text-center">
-                    <span class="badge badge-info font-weight-normal py-1 px-2" style="font-size: 0.78rem;">Sigma Worldwide</span>
+                    <span class="badge badge-info font-weight-normal py-1 px-2" style="font-size: 0.78rem;">Sigma Asia</span>
                 </td>
                 <td class="align-middle text-right font-weight-bold text-dark cell-step4-amount">$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>`;
@@ -3133,7 +3477,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 price_each: price,
                 amount: qty * price,
                 expected_ship_date: lineShipDate,
-                inventory_location: 'Sigma Worldwide',
+                inventory_location: 'Sigma Asia',
                 tax_code: 0
             });
         });
@@ -3179,6 +3523,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         }
 
         let submitPayload = {
+            TransactionId: currentTransactionId,
             PONumber: createdPoData?.poNumber || poNumber,
             CustomerPONumber: poNumber,
             Customer: customer,
@@ -3197,7 +3542,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             PrType: 'DRI',
             AllowCrossSubsidiaryFulfillment: $('#so-cross-sub-chk').is(':checked'),
             CustomForm: '111', // Rule 1: Sigma Worldwide Sales Order (111)
-            InventoryLocation: 'Sigma Worldwide',
+            InventoryLocation: 'Sigma Asia',
             CreatedPoId: createdPoData?.poId || 0,
             CreatedPoUrl: createdPoData?.poUrl || '',
             LineItems: updatedLines,
@@ -3216,6 +3561,9 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                 $btn.prop('disabled', false).html(originalBtnHtml);
 
                 if (response.success) {
+                    clearLocalSession();
+                    saveServerSession('SO_COMPLETED', 4);
+
                     $('#so-result-modal-header').removeClass('bg-danger').addClass('bg-success');
                     $('#so-result-modal-icon').removeClass('fa-exclamation-triangle').addClass('fa-check-circle');
                     $('#so-result-modal-message').text(response.message || t("Sales Order Created Successfully!"));

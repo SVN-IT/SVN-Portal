@@ -19,7 +19,7 @@
  * 13. Email-Receipt --- created automatically in ERP
  * 14. Choose ALLOW CROSS-SUBSIDIARY FULFILLMENT
  * 15. Expected ship Date --- need to fill in for each line
- * 16. Inventory Location --- Choose Sigma Worldwide (ID: 105)
+ * 16. Inventory Location --- Choose Sigma Asia (ID: 2)
  */
 define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, log, url, query) => {
 
@@ -241,20 +241,21 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
             }
 
             // =========================================================
-            // TÌM TAX CODE 0 CHO SIGMA WORLDWIDE (No. 3) & INVENTORY LOCATION "Sigma Worldwide" (No. 16)
+            // TÌM TAX CODE 0 CHO SIGMA WORLDWIDE (No. 3) & INVENTORY LOCATION "Sigma Asia" (No. 16)
             // =========================================================
             let taxCodeZeroId = header.tax_code ? parseInt(header.tax_code, 10) : getTaxCodeZeroId(1);
             if (!taxCodeZeroId) taxCodeZeroId = 6; // Default to 6 (VAT_HK:UNDEF-HK, 0%)
             log.audit('Step 3: Tax Code 0 ID', 'Tax Code ID: ' + taxCodeZeroId);
 
-            let inventoryLocationId = 105; // Default to 105 (Sigma Worldwide) theo Rule 16
+            let locAsiaId = getLocationIdByName('Sigma Asia');
+            let inventoryLocationId = locAsiaId || 2; // Default to 2 (Sigma Asia) theo Rule 16
             if (header.inventory_location) {
                 let parsedInvLoc = parseInt(header.inventory_location, 10);
                 if (!isNaN(parsedInvLoc) && parsedInvLoc > 0) {
                     inventoryLocationId = parsedInvLoc;
                 } else if (typeof header.inventory_location === 'string') {
                     if (header.inventory_location.toLowerCase().includes('asia')) {
-                        inventoryLocationId = 2;
+                        inventoryLocationId = locAsiaId || 2;
                     } else if (header.inventory_location.toLowerCase().includes('worldwide')) {
                         inventoryLocationId = 105;
                     }
@@ -311,10 +312,27 @@ define(['N/record', 'N/search', 'N/log', 'N/url', 'N/query'], (record, search, l
                     }
                 }
 
-                // 16. Inventory Location: Choose Sigma Worldwide (No. 16)
-                if (inventoryLocationId) {
+                // 16. Inventory Location: Choose Sigma Asia (No. 16)
+                let lineInvLoc = null;
+                if (line.inventory_location) {
+                    let parsed = parseInt(line.inventory_location, 10);
+                    if (!isNaN(parsed) && parsed > 0) {
+                        lineInvLoc = parsed;
+                    } else if (typeof line.inventory_location === 'string') {
+                        if (line.inventory_location.toLowerCase().includes('asia')) {
+                            lineInvLoc = locAsiaId || 2;
+                        } else if (line.inventory_location.toLowerCase().includes('worldwide')) {
+                            lineInvLoc = 105;
+                        }
+                    }
+                }
+                if (!lineInvLoc) {
+                    lineInvLoc = inventoryLocationId;
+                }
+
+                if (lineInvLoc) {
                     try {
-                        soRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'inventorylocation', value: inventoryLocationId });
+                        soRecord.setCurrentSublistValue({ sublistId: 'item', fieldId: 'inventorylocation', value: lineInvLoc });
                     } catch (invLocErr) {
                         log.error(`Line [${i + 1}] Inventory Location Error`, invLocErr.message);
                     }

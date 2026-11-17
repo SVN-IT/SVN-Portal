@@ -77,7 +77,7 @@ namespace Sigma_Tools.Controllers
         /// Action hiển thị trang danh sách PO Tracking được bóc tách từ lịch sử log
         /// </summary>
         [HttpGet]
-        public IActionResult PoTrackingHistory(DateTime? fromDate, DateTime? toDate, int page = 1, int pageSize = 20)
+        public IActionResult PoTrackingHistory(DateTime? fromDate, DateTime? toDate, string? status, int page = 1, int pageSize = 20)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
             {
@@ -120,19 +120,100 @@ namespace Sigma_Tools.Controllers
 
                 ViewBag.FromDate = fDate.ToString("yyyy-MM-dd");
                 ViewBag.ToDate = tDate.ToString("yyyy-MM-dd");
+                ViewBag.SelectedStatus = status ?? "";
 
                 // 2. GỌI LOG SERVICE VỚI KHOẢNG THỜI GIAN ĐÃ CHUẨN HÓA
-                var logList = logger.GetLogs(LogService.LogAction.NetsuitePOLogInfo, fDate, tDate);
+                var poLogList = logger.GetLogs(LogService.LogAction.NetsuitePOLogInfo, fDate, tDate);
+                var txStateList = logger.GetLogs(LogService.LogAction.POTransactionState, fDate, tDate);
 
                 // 3. BÓC TÁCH CONTENT THÀNH DANH SÁCH TRACKING ITEMS
                 var allTrackingItems = new List<PoOrderTrackingDisplayModel>();
+                var seenPoNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                if (logList != null)
+                // A. Xử lý các Transaction States trước (có trạng thái thời gian thực và cờ Resume)
+                if (txStateList != null)
                 {
-                    foreach (var log in logList)
+                    foreach (var log in txStateList)
                     {
                         if (string.IsNullOrEmpty(log.Content)) continue;
+                        try
+                        {
+                            var tx = JsonConvert.DeserializeObject<POTransactionStateModel>(log.Content);
+                            if (tx == null) continue;
 
+                            string poNum = !string.IsNullOrEmpty(tx.CreatedPoNumber) ? tx.CreatedPoNumber : (!string.IsNullOrEmpty(tx.CustomerPONumber) ? tx.CustomerPONumber : "N/A");
+                            if (!string.IsNullOrEmpty(tx.CreatedPoNumber)) seenPoNumbers.Add(tx.CreatedPoNumber);
+                            if (!string.IsNullOrEmpty(tx.CustomerPONumber)) seenPoNumbers.Add(tx.CustomerPONumber);
+
+                            bool canResume = (tx.Status == "PROCESSING" || tx.Status == "PO_CREATED");
+                            string statusDisplay = tx.Status switch
+                            {
+                                "PO_CREATED" => "PO Created (Chờ tạo SO)",
+                                "PROCESSING" => $"Đang xử lý (Bước {tx.CurrentStep})",
+                                "SO_COMPLETED" => "Hoàn thành (PO & SO)",
+                                "REJECTED" => "Đã từ chối",
+                                "FAILED" => "Gặp lỗi",
+                                _ => tx.Status ?? "Processing"
+                            };
+
+                            if (tx.LineItems != null && tx.LineItems.Count > 0)
+                            {
+                                foreach (var line in tx.LineItems)
+                                {
+                                    allTrackingItems.Add(new PoOrderTrackingDisplayModel
+                                    {
+                                        CreatedOn = tx.ModifiedOn != DateTime.MinValue ? tx.ModifiedOn : log.CreatedOn,
+                                        CreatedBy = log.CreatedBy ?? tx.CreatedBy ?? "System",
+                                        PartNumber = line.ItemCode ?? "",
+                                        SigmaPO = poNum,
+                                        Description = line.Description ?? "",
+                                        OrderQty = line.Quantity,
+                                        OpenOrderQty = line.Quantity,
+                                        PoUrl = tx.CreatedPoUrl,
+                                        TransactionId = tx.TransactionId,
+                                        Customer = tx.Customer,
+                                        Status = tx.Status,
+                                        StatusDisplay = statusDisplay,
+                                        CurrentStep = tx.CurrentStep,
+                                        CanResume = canResume,
+                                        SoNumber = tx.CreatedSoNumber,
+                                        SoUrl = tx.CreatedSoUrl
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                allTrackingItems.Add(new PoOrderTrackingDisplayModel
+                                {
+                                    CreatedOn = tx.ModifiedOn != DateTime.MinValue ? tx.ModifiedOn : log.CreatedOn,
+                                    CreatedBy = log.CreatedBy ?? tx.CreatedBy ?? "System",
+                                    PartNumber = "N/A",
+                                    SigmaPO = poNum,
+                                    Description = $"Customer: {tx.Customer}",
+                                    OrderQty = 0,
+                                    OpenOrderQty = 0,
+                                    PoUrl = tx.CreatedPoUrl,
+                                    TransactionId = tx.TransactionId,
+                                    Customer = tx.Customer,
+                                    Status = tx.Status,
+                                    StatusDisplay = statusDisplay,
+                                    CurrentStep = tx.CurrentStep,
+                                    CanResume = canResume,
+                                    SoNumber = tx.CreatedSoNumber,
+                                    SoUrl = tx.CreatedSoUrl
+                                });
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // B. Bổ sung các bản ghi NetsuitePOLogInfo cũ nếu chưa có trong txStateList
+                if (poLogList != null)
+                {
+                    foreach (var log in poLogList)
+                    {
+                        if (string.IsNullOrEmpty(log.Content)) continue;
                         try
                         {
                             var items = JsonConvert.DeserializeObject<List<PoOrderTrackingDto>>(log.Content);
@@ -140,6 +221,11 @@ namespace Sigma_Tools.Controllers
                             {
                                 foreach (var item in items)
                                 {
+                                    if (!string.IsNullOrEmpty(item.SigmaPO) && seenPoNumbers.Contains(item.SigmaPO))
+                                    {
+                                        continue;
+                                    }
+
                                     allTrackingItems.Add(new PoOrderTrackingDisplayModel
                                     {
                                         CreatedOn = log.CreatedOn,
@@ -149,15 +235,28 @@ namespace Sigma_Tools.Controllers
                                         Description = item.Description,
                                         OrderQty = item.OrderQty,
                                         OpenOrderQty = item.OpenOrderQty,
-                                        PoUrl = item.PoUrl
+                                        PoUrl = item.PoUrl,
+                                        Status = "SO_COMPLETED",
+                                        StatusDisplay = "Hoàn thành (PO)",
+                                        CanResume = false
                                     });
                                 }
                             }
                         }
-                        catch
-                        {
-                            continue;
-                        }
+                        catch { }
+                    }
+                }
+
+                // Áp dụng bộ lọc Status nếu có
+                if (!string.IsNullOrEmpty(status))
+                {
+                    if (status == "PROCESSING")
+                    {
+                        allTrackingItems = allTrackingItems.Where(x => x.Status == "PROCESSING" || x.Status == "PO_CREATED").ToList();
+                    }
+                    else
+                    {
+                        allTrackingItems = allTrackingItems.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase)).ToList();
                     }
                 }
 
@@ -328,6 +427,45 @@ namespace Sigma_Tools.Controllers
                         // Trả về kết quả kèm theo danh sách mã chưa mapping để hiển thị cảnh báo trên giao diện
                         string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
 
+                        // Tự động khởi tạo và lưu Transaction State ban đầu để khôi phục khi F5 hoặc gián đoạn
+                        string transactionId = Guid.NewGuid().ToString();
+                        try
+                        {
+                            var initialState = new POTransactionStateModel
+                            {
+                                TransactionId = transactionId,
+                                CustomerPONumber = model.PONumber ?? "",
+                                Customer = model.Customer ?? "",
+                                Date = model.Date ?? "",
+                                Currency = currencyCode,
+                                Requisitioner = model.Requisitioner ?? "",
+                                Status = "PROCESSING",
+                                CurrentStep = 1,
+                                PdfFileName = pdfFile.FileName,
+                                RawOcrJson = rawJsonString,
+                                LineItems = model.LineItems?.Select(l => new POTransactionLineItem
+                                {
+                                    Line = l.Line,
+                                    ItemCode = l.ItemCode,
+                                    Description = l.Description,
+                                    Quantity = l.Qty,
+                                    UnitPrice = l.UnitPrice,
+                                    Amount = l.Amount
+                                }).ToList(),
+                                CreatedBy = currentUser?.UserName ?? "System",
+                                CreatedOn = DateTime.Now,
+                                ModifiedOn = DateTime.Now
+                            };
+                            if (Guid.TryParse(transactionId, out Guid txGuid))
+                            {
+                                logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(initialState), "PROCESSING", currentUser?.UserName ?? "System");
+                            }
+                        }
+                        catch (Exception initEx)
+                        {
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu initial state: {initEx.Message}", currentUser.UserName);
+                        }
+
                         logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser.UserName);
 
                         return Json(new
@@ -336,7 +474,8 @@ namespace Sigma_Tools.Controllers
                             data = model,
                             rawJsonStr = rawJsonString,
                             currency = currencyCode,
-                            unmappedCodes = itemCodeNotFound // Truyền sang giao diện để cảnh báo dòng
+                            unmappedCodes = itemCodeNotFound, // Truyền sang giao diện để cảnh báo dòng
+                            transactionId = transactionId
                         });
                     }
                     else
@@ -859,6 +998,44 @@ namespace Sigma_Tools.Controllers
                                 string trackingJsonLog = JsonConvert.SerializeObject(trackingList);
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, trackingJsonLog, currentUser.UserName);
 
+                                // Cập nhật Transaction State sang PO_CREATED để nếu refresh/mất mạng vẫn tiếp tục được ở Bước 4
+                                if (!string.IsNullOrEmpty(request.TransactionId) && Guid.TryParse(request.TransactionId, out Guid txGuid))
+                                {
+                                    try
+                                    {
+                                        var existingLog = logger.GetTransactionState(txGuid);
+                                        POTransactionStateModel? state = null;
+                                        if (existingLog != null && !string.IsNullOrEmpty(existingLog.Content))
+                                        {
+                                            state = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
+                                        }
+                                        if (state == null)
+                                        {
+                                            state = new POTransactionStateModel { TransactionId = request.TransactionId };
+                                        }
+                                        state.CustomerPONumber = poNumber;
+                                        state.Customer = customer;
+                                        state.Date = request.Date;
+                                        state.Currency = currency;
+                                        state.Status = "PO_CREATED";
+                                        state.CurrentStep = 4;
+                                        state.CreatedPoId = parsedResponse?.poId;
+                                        state.CreatedPoNumber = createdPoNumber;
+                                        state.CreatedPoUrl = createdPoUrl;
+                                        state.Subsidiary = request.Subsidiary;
+                                        state.Location = request.Location;
+                                        state.TaxCode = request.TaxCode;
+                                        state.ProjectCode = request.ProjectCode.ToString();
+                                        state.ModifiedOn = DateTime.Now;
+
+                                        logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "PO_CREATED", currentUser.UserName);
+                                    }
+                                    catch (Exception txEx)
+                                    {
+                                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu state PO_CREATED: {txEx.Message}", currentUser.UserName);
+                                    }
+                                }
+
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Purchase Order trên NetSuite thành công. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, Netsuite PO ID: {parsedResponse?.poId}, Netsuite PO Number: {parsedResponse?.poNumber}", currentUser.UserName);
                                 // Trả kết quả chuẩn về cho client
                                 return Json(parsedResponse);
@@ -965,7 +1142,7 @@ namespace Sigma_Tools.Controllers
                                 itemObj["amount"] = updatedLine.quantity * updatedLine.price_each;
                                 itemObj["tax_code"] = 0; // No. 3: Tax Code 0 for SW
                                 itemObj["expected_ship_date"] = !string.IsNullOrEmpty(updatedLine.expected_ship_date) ? updatedLine.expected_ship_date : (!string.IsNullOrEmpty(updatedLine.eta_date) ? updatedLine.eta_date : request.Date); // No. 15
-                                itemObj["inventory_location"] = !string.IsNullOrEmpty(updatedLine.inventory_location) ? updatedLine.inventory_location : (!string.IsNullOrEmpty(request.InventoryLocation) ? request.InventoryLocation : "Sigma Worldwide"); // No. 16: Sigma Worldwide
+                                itemObj["inventory_location"] = !string.IsNullOrEmpty(updatedLine.inventory_location) ? updatedLine.inventory_location : (!string.IsNullOrEmpty(request.InventoryLocation) ? request.InventoryLocation : "Sigma Asia"); // No. 16: Sigma Asia
                             }
                         }
 
@@ -1008,6 +1185,38 @@ namespace Sigma_Tools.Controllers
                                 var parsedResponse = JsonConvert.DeserializeObject<CreateSalesOrderResponse>(jsonString);
                                 string createdSoNumber = parsedResponse?.soNumber ?? ("SO-" + soRefPO);
 
+                                // Cập nhật Transaction State sang SO_COMPLETED
+                                if (!string.IsNullOrEmpty(request.TransactionId) && Guid.TryParse(request.TransactionId, out Guid txGuid))
+                                {
+                                    try
+                                    {
+                                        var existingLog = logger.GetTransactionState(txGuid);
+                                        POTransactionStateModel? state = null;
+                                        if (existingLog != null && !string.IsNullOrEmpty(existingLog.Content))
+                                        {
+                                            state = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
+                                        }
+                                        if (state == null)
+                                        {
+                                            state = new POTransactionStateModel { TransactionId = request.TransactionId };
+                                        }
+                                        state.Status = "SO_COMPLETED";
+                                        state.CurrentStep = 4;
+                                        state.CreatedSoId = parsedResponse?.soId;
+                                        state.CreatedSoNumber = createdSoNumber;
+                                        state.CreatedSoUrl = parsedResponse?.soUrl;
+                                        state.PersonInCharge = request.PersonInCharge;
+                                        state.PersonInChargeId = request.PersonInChargeId;
+                                        state.ModifiedOn = DateTime.Now;
+
+                                        logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "SO_COMPLETED", currentUser.UserName);
+                                    }
+                                    catch (Exception txEx)
+                                    {
+                                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu state SO_COMPLETED: {txEx.Message}", currentUser.UserName);
+                                    }
+                                }
+
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Info, $"Tạo Sales Order trên NetSuite thành công. SO Number: {createdSoNumber}, Ref PO: {soRefPO}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, SO ID: {parsedResponse?.soId}", currentUser.UserName);
 
                                 return Json(new
@@ -1043,6 +1252,65 @@ namespace Sigma_Tools.Controllers
             {
                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}", currentUser.UserName);
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SaveTransactionState([FromBody] POTransactionStateModel state)
+        {
+            var currentUser = _permissionService.GetCurrentUser();
+            if (state == null || string.IsNullOrEmpty(state.TransactionId))
+            {
+                return Json(new { success = false, message = "Dữ liệu state hoặc TransactionId không hợp lệ" });
+            }
+
+            try
+            {
+                if (!Guid.TryParse(state.TransactionId, out Guid txGuid))
+                {
+                    txGuid = Guid.NewGuid();
+                    state.TransactionId = txGuid.ToString();
+                }
+
+                state.ModifiedOn = DateTime.Now;
+                if (string.IsNullOrEmpty(state.CreatedBy))
+                {
+                    state.CreatedBy = currentUser?.UserName ?? "System";
+                }
+
+                string stateJson = JsonConvert.SerializeObject(state);
+                int result = logger.SaveTransactionState(txGuid, stateJson, state.Status ?? "PROCESSING", currentUser?.UserName ?? "System");
+
+                return Json(new { success = result > 0, transactionId = state.TransactionId });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetTransactionState(string transactionId)
+        {
+            if (string.IsNullOrEmpty(transactionId) || !Guid.TryParse(transactionId, out Guid txGuid))
+            {
+                return Json(new { success = false, message = "TransactionId không hợp lệ" });
+            }
+
+            try
+            {
+                var log = logger.GetTransactionState(txGuid);
+                if (log == null || string.IsNullOrEmpty(log.Content))
+                {
+                    return Json(new { success = false, message = "Không tìm thấy dữ liệu tiến trình" });
+                }
+
+                var state = JsonConvert.DeserializeObject<POTransactionStateModel>(log.Content);
+                return Json(new { success = true, data = state });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 
@@ -1232,6 +1500,7 @@ namespace Sigma_Tools.Controllers
     // Request Model dùng để nhận dữ liệu từ bước Create PO
     public class CreateNetsuiteSORequest
     {
+        public string? TransactionId { get; set; }
         public string PONumber { get; set; }
         public string Date { get; set; }
         public string Customer { get; set; }
@@ -1261,6 +1530,7 @@ namespace Sigma_Tools.Controllers
 
     public class CreateSalesOrderRequest
     {
+        public string? TransactionId { get; set; }
         public string PONumber { get; set; }
         public string CustomerPONumber { get; set; }
         public string Customer { get; set; }
@@ -1282,7 +1552,7 @@ namespace Sigma_Tools.Controllers
         public string? PrType { get; set; } = "DRI"; // No. 12: DRI for purchasing team
         public string? ProjectCodeStr { get; set; } // No. 10: 3 digits
         public bool AllowCrossSubsidiaryFulfillment { get; set; } = true; // No. 14
-        public string? InventoryLocation { get; set; } = "Sigma Worldwide"; // No. 16: Sigma Worldwide
+        public string? InventoryLocation { get; set; } = "Sigma Asia"; // No. 16: Sigma Asia
         public string? CustomForm { get; set; } = "111"; // No. 1: Sigma Worldwide Sales order (111)
     }
 

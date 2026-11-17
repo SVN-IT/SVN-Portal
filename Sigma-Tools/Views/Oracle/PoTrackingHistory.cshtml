@@ -20,6 +20,16 @@
                         <label class="small font-weight-bold mr-2 text-muted"><span>To Date:</span></label>
                         <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control form-control-sm" />
                     </div>
+                    <div class="form-group mr-3 mb-2">
+                        <label class="small font-weight-bold mr-2 text-muted"><span>Status:</span></label>
+                        <select name="status" class="form-control form-control-sm font-weight-bold text-dark">
+                            <option value="">-- All Status --</option>
+                            <option value="PROCESSING" selected="@(ViewBag.SelectedStatus == "PROCESSING")">Processing (Chưa hoàn thành)</option>
+                            <option value="PO_CREATED" selected="@(ViewBag.SelectedStatus == "PO_CREATED")">PO Created (Chờ tạo SO)</option>
+                            <option value="SO_COMPLETED" selected="@(ViewBag.SelectedStatus == "SO_COMPLETED")">Completed (Đã xong PO & SO)</option>
+                            <option value="REJECTED" selected="@(ViewBag.SelectedStatus == "REJECTED")">Rejected</option>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-sm btn-primary font-weight-bold mb-2 px-3">
                         <i class="fas fa-filter mr-1"></i> <span>Filter Data</span>
                     </button>
@@ -49,14 +59,14 @@
                 <table class="table table-bordered table-hover table-striped mb-0 text-dark" style="font-size: 0.88rem;">
                     <thead class="thead-light text-uppercase" style="font-size: 0.78rem;">
                         <tr>
-                            <th style="width: 13%;"><span>Creation time</span></th>
-                            <th style="width: 11%;"><span>Creator</span></th>
-                            <th style="width: 12%;"><span>PO Number</span></th>
-                            <th style="width: 14%;"><span>Part Number</span></th>
-                            <th style="width: 27%;"><span>Description</span></th>
-                            <th style="width: 11%; text-align: right;"><span>Order Qty</span></th>
-                            <!-- Sử dụng text có trong JSON hoặc thay thế tạm thời bằng key tương thích -->
-                            <th style="width: 12%; text-align: right;"><span>Open Order Qty</span></th>
+                            <th style="width: 12%;"><span>Creation time</span></th>
+                            <th style="width: 10%;"><span>Creator</span></th>
+                            <th style="width: 11%;"><span>Status</span></th>
+                            <th style="width: 13%;"><span>PO / SO Number</span></th>
+                            <th style="width: 13%;"><span>Part Number</span></th>
+                            <th style="width: 23%;"><span>Description</span></th>
+                            <th style="width: 8%; text-align: right;"><span>Order Qty</span></th>
+                            <th style="width: 10%; text-align: center;"><span>Action</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,6 +77,38 @@
                                 <tr>
                                     <td>@row.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss")</td>
                                     <td><span class="text-secondary font-weight-bold">@row.CreatedBy</span></td>
+                                    <td>
+                                        @if (row.Status == "PO_CREATED")
+                                        {
+                                            <span class="badge badge-info font-weight-bold px-2 py-1" style="font-size: 0.78rem;" title="Đã tạo NetSuite PO, đang chờ tạo Sales Order">
+                                                <i class="fas fa-clock mr-1"></i>Chờ tạo SO
+                                            </span>
+                                        }
+                                        else if (row.Status == "PROCESSING")
+                                        {
+                                            <span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="font-size: 0.78rem;" title="Đang xử lý Bước @row.CurrentStep">
+                                                <i class="fas fa-spinner fa-spin mr-1"></i>Đang xử lý (B.@row.CurrentStep)
+                                            </span>
+                                        }
+                                        else if (row.Status == "REJECTED")
+                                        {
+                                            <span class="badge badge-secondary font-weight-bold px-2 py-1" style="font-size: 0.78rem;">
+                                                <i class="fas fa-ban mr-1"></i>Đã từ chối
+                                            </span>
+                                        }
+                                        else if (row.Status == "FAILED")
+                                        {
+                                            <span class="badge badge-danger font-weight-bold px-2 py-1" style="font-size: 0.78rem;">
+                                                <i class="fas fa-times-circle mr-1"></i>Lỗi
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-success font-weight-bold px-2 py-1" style="font-size: 0.78rem;">
+                                                <i class="fas fa-check-circle mr-1"></i>Hoàn thành
+                                            </span>
+                                        }
+                                    </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(row.PoUrl))
                                         {
@@ -80,18 +122,45 @@
                                                 @row.SigmaPO
                                             </span>
                                         }
+                                        @if (!string.IsNullOrEmpty(row.SoNumber))
+                                        {
+                                            <div class="small mt-1">
+                                                <span class="text-muted" style="font-size: 0.72rem;">SO:</span>
+                                                @if (!string.IsNullOrEmpty(row.SoUrl))
+                                                {
+                                                    <a href="@row.SoUrl" target="_blank" class="badge badge-success font-weight-bold px-1" style="font-size: 0.74rem;">
+                                                        @row.SoNumber <i class="fas fa-external-link-alt" style="font-size: 0.65rem;"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-success font-weight-bold px-1" style="font-size: 0.74rem;">@row.SoNumber</span>
+                                                }
+                                            </div>
+                                        }
                                     </td>
                                     <td class="font-weight-bold text-dark">@row.PartNumber</td>
                                     <td>@row.Description</td>
-                                    <td class="text-right">@row.OrderQty.ToString("N0")</td>
-                                    <td class="text-right text-success font-weight-bold">@row.OpenOrderQty.ToString("N0")</td>
+                                    <td class="text-right font-weight-bold text-success">@row.OrderQty.ToString("N0")</td>
+                                    <td class="text-center align-middle">
+                                        @if (row.CanResume && !string.IsNullOrEmpty(row.TransactionId))
+                                        {
+                                            <a href="@Url.Action("POInbound", "Oracle", new { transactionId = row.TransactionId })" class="btn btn-sm btn-primary font-weight-bold px-2 py-1 shadow-sm text-nowrap" style="font-size: 0.78rem;" title="Tiếp tục tiến trình này">
+                                                <i class="fas fa-play mr-1"></i>Tiếp tục
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">-</span>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="8" class="text-center text-muted py-4">
                                     <i class="fas fa-info-circle mr-1"></i> <span>There is no tracking data for this period.</span>
                                 </td>
                             </tr>
@@ -109,24 +178,24 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = 1 })" data-i18n="First">Đầu</a>
+                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, status = ViewBag.SelectedStatus, page = 1 })" data-i18n="First">Đầu</a>
                         </li>
                         <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = currentPage - 1 })">&laquo;</a>
+                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, status = ViewBag.SelectedStatus, page = currentPage - 1 })">&laquo;</a>
                         </li>
 
                         @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
                         {
                             <li class="page-item @(i == currentPage ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = i })">@i</a>
+                                <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, status = ViewBag.SelectedStatus, page = i })">@i</a>
                             </li>
                         }
 
                         <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = currentPage + 1 })">&raquo;</a>
+                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, status = ViewBag.SelectedStatus, page = currentPage + 1 })">&raquo;</a>
                         </li>
                         <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, page = totalPages })" data-i18n="Last">Cuối</a>
+                            <a class="page-link" href="@Url.Action("PoTrackingHistory", new { fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, status = ViewBag.SelectedStatus, page = totalPages })" data-i18n="Last">Cuối</a>
                         </li>
                     </ul>
                 </nav>

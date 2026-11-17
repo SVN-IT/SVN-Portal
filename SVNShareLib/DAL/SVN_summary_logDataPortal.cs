@@ -18,6 +18,51 @@ namespace SVNShareLib.DAL
             this.connectionString = connectionString;
         }
 
+        public SVN_summary_logUI GetById(Guid id)
+        {
+            try
+            {
+                string sql = "SELECT * FROM SVN_summary_log WHERE Id = @Id";
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    return connection.QueryFirstOrDefault<SVN_summary_logUI>(sql, new { Id = id }, commandTimeout: timeOut);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public int Upsert(SVN_summary_logUI log)
+        {
+            int timeOut = 1000;
+            try
+            {
+                string sql = @"
+                    IF EXISTS (SELECT 1 FROM [dbo].[SVN_summary_log] WHERE [Id] = @Id)
+                    BEGIN
+                        UPDATE [dbo].[SVN_summary_log]
+                        SET [Type] = @Type, [Content] = @Content, [ModifiedBy] = @ModifiedBy, [ModifiedOn] = @ModifiedOn
+                        WHERE [Id] = @Id;
+                    END
+                    ELSE
+                    BEGIN
+                        INSERT INTO [dbo].[SVN_summary_log]([Id],[App],[Action],[Type],[Content],[CreatedBy],[CreatedOn],[ModifiedBy],[ModifiedOn])
+                        VALUES(@Id,@App,@Action,@Type,@Content,@CreatedBy,@CreatedOn,@ModifiedBy,@ModifiedOn);
+                    END";
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    return connection.Execute(sql, log, commandTimeout: timeOut);
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
         public List<SVN_summary_logUI> ReadListFromDateToData(string Action, DateTime fromDate, DateTime toDate)
         {
             try
