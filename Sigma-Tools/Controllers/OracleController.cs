@@ -301,6 +301,30 @@ namespace Sigma_Tools.Controllers
             try
             {
                 string fileName = pdfFile.FileName;
+                string transactionId = Guid.NewGuid().ToString();
+
+                // Lưu file PDF vào wwwroot/uploads/po_pdf để có thể preview lại khi F5 / Resume
+                string relativePdfUrl = "";
+                try
+                {
+                    string uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "po_pdf");
+                    if (!Directory.Exists(uploadsDir))
+                    {
+                        Directory.CreateDirectory(uploadsDir);
+                    }
+                    string safeFileName = $"{transactionId}_{Path.GetFileName(fileName)}";
+                    string fullPath = Path.Combine(uploadsDir, safeFileName);
+                    using (var fs = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await pdfFile.CopyToAsync(fs);
+                    }
+                    relativePdfUrl = $"/uploads/po_pdf/{safeFileName}";
+                }
+                catch (Exception saveEx)
+                {
+                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu file PDF vào server: {saveEx.Message}", currentUser?.UserName ?? "System");
+                }
+
                 string apiUrl = "";
 
                 // 1. Kiểm tra tên file để chọn endpoint API tương ứng
@@ -428,7 +452,6 @@ namespace Sigma_Tools.Controllers
                         string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
 
                         // Tự động khởi tạo và lưu Transaction State ban đầu để khôi phục khi F5 hoặc gián đoạn
-                        string transactionId = Guid.NewGuid().ToString();
                         try
                         {
                             var initialState = new POTransactionStateModel
@@ -442,6 +465,7 @@ namespace Sigma_Tools.Controllers
                                 Status = "PROCESSING",
                                 CurrentStep = 1,
                                 PdfFileName = pdfFile.FileName,
+                                PdfPath = relativePdfUrl,
                                 RawOcrJson = rawJsonString,
                                 LineItems = model.LineItems?.Select(l => new POTransactionLineItem
                                 {
@@ -463,10 +487,10 @@ namespace Sigma_Tools.Controllers
                         }
                         catch (Exception initEx)
                         {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu initial state: {initEx.Message}", currentUser.UserName);
+                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu initial state: {initEx.Message}", currentUser?.UserName ?? "System");
                         }
 
-                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser.UserName);
+                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser?.UserName ?? "System");
 
                         return Json(new
                         {
@@ -475,7 +499,8 @@ namespace Sigma_Tools.Controllers
                             rawJsonStr = rawJsonString,
                             currency = currencyCode,
                             unmappedCodes = itemCodeNotFound, // Truyền sang giao diện để cảnh báo dòng
-                            transactionId = transactionId
+                            transactionId = transactionId,
+                            pdfUrl = relativePdfUrl
                         });
                     }
                     else
@@ -1026,6 +1051,7 @@ namespace Sigma_Tools.Controllers
                                         state.Location = request.Location;
                                         state.TaxCode = request.TaxCode;
                                         state.ProjectCode = request.ProjectCode.ToString();
+                                        state.ProjectCodeText = !string.IsNullOrEmpty(request.ProjectCodeText) ? request.ProjectCodeText : request.ProjectCode.ToString();
                                         state.ModifiedOn = DateTime.Now;
 
                                         logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "PO_CREATED", currentUser.UserName);
@@ -1207,6 +1233,18 @@ namespace Sigma_Tools.Controllers
                                         state.CreatedSoUrl = parsedResponse?.soUrl;
                                         state.PersonInCharge = request.PersonInCharge;
                                         state.PersonInChargeId = request.PersonInChargeId;
+                                        if (request.ProjectCode > 0)
+                                        {
+                                            state.ProjectCode = request.ProjectCode.ToString();
+                                        }
+                                        if (!string.IsNullOrEmpty(request.ProjectCodeStr))
+                                        {
+                                            state.ProjectCodeText = request.ProjectCodeStr;
+                                        }
+                                        else if (!string.IsNullOrEmpty(request.ProjectCodeText))
+                                        {
+                                            state.ProjectCodeText = request.ProjectCodeText;
+                                        }
                                         state.ModifiedOn = DateTime.Now;
 
                                         logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "SO_COMPLETED", currentUser.UserName);
@@ -1270,6 +1308,38 @@ namespace Sigma_Tools.Controllers
                 {
                     txGuid = Guid.NewGuid();
                     state.TransactionId = txGuid.ToString();
+                }
+
+                // Bảo lưu thông tin quan trọng từ bản ghi trước (ví dụ file PDF, thông tin PO đã tạo)
+                var existingLog = logger.GetTransactionState(txGuid);
+                if (existingLog != null && !string.IsNullOrEmpty(existingLog.Content))
+                {
+                    try
+                    {
+                        var oldState = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
+                        if (oldState != null)
+                        {
+                            if (string.IsNullOrEmpty(state.PdfPath) && !string.IsNullOrEmpty(oldState.PdfPath))
+                                state.PdfPath = oldState.PdfPath;
+                            if (string.IsNullOrEmpty(state.PdfFileName) && !string.IsNullOrEmpty(oldState.PdfFileName))
+                                state.PdfFileName = oldState.PdfFileName;
+                            if (string.IsNullOrEmpty(state.CreatedPoNumber) && !string.IsNullOrEmpty(oldState.CreatedPoNumber))
+                            {
+                                state.CreatedPoNumber = oldState.CreatedPoNumber;
+                                state.CreatedPoId = oldState.CreatedPoId;
+                                state.CreatedPoUrl = oldState.CreatedPoUrl;
+                            }
+                            if (string.IsNullOrEmpty(state.ProjectCodeText) && !string.IsNullOrEmpty(oldState.ProjectCodeText))
+                            {
+                                state.ProjectCodeText = oldState.ProjectCodeText;
+                            }
+                            if (string.IsNullOrEmpty(state.ProjectCode) && !string.IsNullOrEmpty(oldState.ProjectCode))
+                            {
+                                state.ProjectCode = oldState.ProjectCode;
+                            }
+                        }
+                    }
+                    catch { }
                 }
 
                 state.ModifiedOn = DateTime.Now;
@@ -1512,6 +1582,7 @@ namespace Sigma_Tools.Controllers
         public int Location { get; set; }
         public int TaxCode { get; set; }
         public int ProjectCode { get; set; }
+        public string? ProjectCodeText { get; set; }
 
         public List<POLineItem> LineItems { get; set; }
 
@@ -1551,6 +1622,7 @@ namespace Sigma_Tools.Controllers
         public string? PoType { get; set; } = "MP"; // No. 11: MP or NPI
         public string? PrType { get; set; } = "DRI"; // No. 12: DRI for purchasing team
         public string? ProjectCodeStr { get; set; } // No. 10: 3 digits
+        public string? ProjectCodeText { get; set; }
         public bool AllowCrossSubsidiaryFulfillment { get; set; } = true; // No. 14
         public string? InventoryLocation { get; set; } = "Sigma Asia"; // No. 16: Sigma Asia
         public string? CustomForm { get; set; } = "111"; // No. 1: Sigma Worldwide Sales order (111)

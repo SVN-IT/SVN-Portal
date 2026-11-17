@@ -777,7 +777,7 @@
                                 </span>
                                 <a href="javascript:void(0)" id="btn-toggle-edit-projcode" class="text-primary small font-weight-normal" style="font-size: 0.72rem;" title="Nhấn để mở khóa chỉnh sửa nếu cần"><i class="fas fa-pen mr-1"></i><span class="lang-text" data-i18n="Edit">Edit</span></a>
                             </label>
-                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-projcode-input" readonly maxlength="20" placeholder="e.g. 059" />
+                            <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-projcode-input" readonly maxlength="50" placeholder="e.g. TRO" />
                             <input type="hidden" id="so-projcode-id-hidden" value="" />
                         </div>
                         <!-- 11. PO Type (MP or NPI) -->
@@ -923,6 +923,7 @@
     let createdPoData = null;
     let proceedingToStep4 = false;
     let currentTransactionId = null;
+    let currentPdfPath = '';
     const LOCAL_SESSION_KEY = 'sigma_po_active_session';
 
     function getActiveSessionSnapshot() {
@@ -933,14 +934,17 @@
                 let ocrObj = JSON.parse(rawJsonStr);
                 if (ocrObj && ocrObj.line_items) {
                     ocrObj.line_items.forEach((item, idx) => {
+                        let q = parseFloat(item.Quantity !== undefined ? item.Quantity : (item.quantity !== undefined ? item.quantity : (item.qty !== undefined ? item.qty : (item.Qty !== undefined ? item.Qty : 0)))) || 0;
+                        let p = parseFloat(item.UnitPrice !== undefined ? item.UnitPrice : (item.unitPrice !== undefined ? item.unitPrice : (item.price_each !== undefined ? item.price_each : 0))) || 0;
+                        let a = parseFloat(item.Amount !== undefined ? item.Amount : (item.amount !== undefined ? item.amount : (q * p))) || (q * p);
                         lineItems.push({
-                            Line: item.line || (idx + 1),
-                            ItemCode: item.item || item.itemCode || '',
-                            Description: item.description || '',
-                            Quantity: parseFloat(item.quantity || item.qty || 0),
-                            UnitPrice: parseFloat(item.price_each || item.unitPrice || 0),
-                            Amount: parseFloat(item.amount || 0),
-                            ExpectedReceiptDate: item.expected_receipt_date || item.expected_ship_date || ''
+                            Line: item.Line || item.line || item.line_no || (idx + 1),
+                            ItemCode: item.ItemCode || item.itemCode || item.item || '',
+                            Description: item.Description || item.description || '',
+                            Quantity: q,
+                            UnitPrice: p,
+                            Amount: a,
+                            ExpectedReceiptDate: item.ExpectedReceiptDate || item.expectedReceiptDate || item.expected_receipt_date || item.expected_ship_date || ''
                         });
                     });
                 }
@@ -979,15 +983,17 @@
             Status: createdPoData ? 'PO_CREATED' : 'PROCESSING',
             CurrentStep: currentStep,
             PdfFileName: $('#file-name-display').text().trim() || $('#po-file-name').text().trim(),
+            PdfPath: currentPdfPath || '',
             RawOcrJson: rawJsonStr,
             LineItems: lineItems,
             CreatedPoId: createdPoData?.poId || null,
             CreatedPoNumber: createdPoData?.poNumber || null,
             CreatedPoUrl: createdPoData?.poUrl || null,
-            Subsidiary: parseInt($('#select-subsidiary').val(), 10) || null,
-            Location: parseInt($('#select-location').val(), 10) || null,
-            TaxCode: parseInt($('#select-taxcode').val(), 10) || null,
-            ProjectCode: $('#so-projcode-input').val() || $('#select-projectcode').val() || null,
+            Subsidiary: parseInt($('#select-subsidiary').val(), 10) || (createdPoData?.subsidiary) || null,
+            Location: parseInt($('#select-location').val(), 10) || (createdPoData?.location) || null,
+            TaxCode: parseInt($('#select-taxcode').val(), 10) || (createdPoData?.taxCode) || null,
+            ProjectCode: $('#so-projcode-id-hidden').val() || $('#select-projectcode').val() || (createdPoData?.projectCode) || null,
+            ProjectCodeText: (createdPoData?.projectCodeText) || $('#so-projcode-input').val().trim() || ($('#select-projectcode option:selected').text().trim() !== '-- Select --' ? $('#select-projectcode option:selected').text().trim() : '') || '',
             PersonInCharge: $('#so-dri-pm-input').val() || $('#so-dri-pm-select option:selected').attr('data-name') || '',
             PersonInChargeId: parseInt($('#so-dri-pm-id-hidden').val() || $('#so-dri-pm-select').val(), 10) || null,
             PoType: $('#so-potype-select').val() || 'MP',
@@ -1051,7 +1057,7 @@
         let step = snapshot.CurrentStep || snapshot.currentStep || 1;
         let lines = snapshot.LineItems || snapshot.lineItems || [];
 
-        // 1. Phục hồi Header PO
+        // 1. Phục hồi Header PO & PDF View
         $('#po-number-display').text(poNum);
         $('#po-customer-display').text(customer);
         $('#po-date-display').text(date);
@@ -1064,18 +1070,47 @@
             $('#ocr-raw-json-hidden').val(rawJson);
         }
 
+        let pdfPath = snapshot.PdfPath || snapshot.pdfPath || '';
+        currentPdfPath = pdfPath;
+        const $pdfContainer = $('#pdf-preview-container');
+        if (pdfPath) {
+            $pdfContainer.html('');
+            const pdfObject = document.createElement('object');
+            pdfObject.data = pdfPath + '#toolbar=0&view=FitH';
+            pdfObject.type = 'application/pdf';
+            pdfObject.width = '100%';
+            pdfObject.height = '100%';
+            $pdfContainer.append(pdfObject);
+        } else {
+            $pdfContainer.html(`
+                <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted p-4 text-center">
+                    <i class="fas fa-file-pdf fa-4x mb-3 text-primary"></i>
+                    <h5 class="font-weight-bold text-dark mb-1">${pdfName}</h5>
+                    <span class="badge badge-success mb-3 py-1 px-2"><i class="fas fa-check-circle mr-1"></i>${t("PO Session Data Restored Successfully")}</span>
+                    <p class="small text-muted mb-0" style="max-width: 320px;">
+                        ${t("OCR extracted data and line items have been restored. You can continue processing on the right.")}
+                    </p>
+                </div>
+            `);
+        }
+
         // 2. Phục hồi NetSuite PO nếu đã tạo ở Bước 3
         let poId = snapshot.CreatedPoId || snapshot.createdPoId;
         let poNumber = snapshot.CreatedPoNumber || snapshot.createdPoNumber;
         let poUrl = snapshot.CreatedPoUrl || snapshot.createdPoUrl;
         let projCode = snapshot.ProjectCode || snapshot.projectCode;
+        let projCodeText = snapshot.ProjectCodeText || snapshot.projectCodeText || '';
 
         if (poId || poNumber) {
             createdPoData = {
                 poId: poId,
                 poNumber: poNumber,
                 poUrl: poUrl,
-                projectCode: projCode
+                subsidiary: snapshot.Subsidiary || snapshot.subsidiary || 1,
+                location: snapshot.Location || snapshot.location || 105,
+                taxCode: snapshot.TaxCode || snapshot.taxCode || 0,
+                projectCode: projCode,
+                projectCodeText: projCodeText
             };
         }
 
@@ -1085,12 +1120,12 @@
             let totalQty = 0;
             let totalAmount = 0;
             lines.forEach((item, idx) => {
-                let lineNo = item.Line || item.line || (idx + 1);
-                let itemCode = item.ItemCode || item.itemCode || '';
+                let lineNo = item.Line || item.line || item.line_no || (idx + 1);
+                let itemCode = item.ItemCode || item.itemCode || item.item || '';
                 let desc = item.Description || item.description || '';
-                let qty = parseFloat(item.Quantity || item.qty || 0);
-                let price = parseFloat(item.UnitPrice || item.unitPrice || 0);
-                let amt = parseFloat(item.Amount || item.amount || (qty * price));
+                let qty = parseFloat(item.Quantity !== undefined ? item.Quantity : (item.quantity !== undefined ? item.quantity : (item.qty !== undefined ? item.qty : (item.Qty !== undefined ? item.Qty : 0)))) || 0;
+                let price = parseFloat(item.UnitPrice !== undefined ? item.UnitPrice : (item.unitPrice !== undefined ? item.unitPrice : (item.price_each !== undefined ? item.price_each : 0))) || 0;
+                let amt = parseFloat(item.Amount !== undefined ? item.Amount : (item.amount !== undefined ? item.amount : (qty * price))) || (qty * price);
                 totalQty += qty;
                 totalAmount += amt;
 
@@ -1101,7 +1136,7 @@
                     <td>${lineNo}</td>
                     <td><span class="display-item-code">${itemCode}</span></td>
                     <td>${desc}</td>
-                    <td class="text-right">${qty.toLocaleString()}</td>
+                    <td class="text-right" data-original-qty="${qty}">${qty.toLocaleString()}</td>
                     <td class="text-right" data-original-price="${price}">$${formattedPrice}</td>
                     <td class="text-right" data-original-amount="${amt}">$${formattedAmt}</td>
                     <td class="text-center col-action d-none">
@@ -1112,13 +1147,39 @@
             $('#po-line-table tbody').html(tbodyHtml);
             let formattedTotalAmt = totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             $('#calculated-sum-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmt}`);
-            $('#expected-total-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmt}`);
+            $('#expected-sum-display').text(`${totalQty.toLocaleString()} Units / $${formattedTotalAmt}`);
             $('#line-items-header').text(`EXTRACTED LINE ITEMS (${lines.length} LINES FOUND)`);
         }
 
         // 4. Phục hồi cấu hình SO
+        if (projCodeText) {
+            $('#so-projcode-input').val(projCodeText);
+        } else if (projCode) {
+            if (isNaN(projCode)) {
+                $('#so-projcode-input').val(projCode);
+                if (createdPoData) createdPoData.projectCodeText = projCode;
+            } else {
+                $('#so-projcode-id-hidden').val(projCode);
+                let subId = snapshot.Subsidiary || snapshot.subsidiary || 1;
+                $.ajax({
+                    url: '@Url.Action("GetProjectCodesBySubsidiary", "Oracle")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ subsidiaryId: parseInt(subId, 10) }),
+                    success: function (pRes) {
+                        if (pRes && pRes.success && pRes.data && pRes.data.projectCodes) {
+                            let foundPrj = pRes.data.projectCodes.find(p => p.id == projCode);
+                            if (foundPrj && foundPrj.name) {
+                                $('#so-projcode-input').val(foundPrj.name);
+                                if (createdPoData) createdPoData.projectCodeText = foundPrj.name;
+                            }
+                        }
+                    }
+                });
+            }
+        }
         if (projCode) {
-            $('#so-projcode-input').val(projCode);
+            $('#so-projcode-id-hidden').val(projCode);
         }
         let soDateVal = snapshot.SoDate || snapshot.soDate;
         if (soDateVal) {
@@ -1151,20 +1212,33 @@
         } else if (step === 2) {
             currentStep = 2;
             $('#step-node-1').removeClass('active').addClass('completed');
-            $('#step-node-2').addClass('active');
+            $('#step-node-2').addClass('active').removeClass('completed');
+            $('#step-node-3, #step-node-4').removeClass('active completed');
             $('#btn-import-wrapper').fadeOut(200);
             $('#btn-edit-data').fadeOut(200);
             $('#btn-reload-erp').removeClass('d-none');
             $('#btn-confirm-next').removeClass('d-none');
+
+            setTimeout(function () {
+                loadStep2ErpPrices();
+            }, 300);
         } else if (step === 3) {
             currentStep = 3;
             $('#step-node-1, #step-node-2').removeClass('active').addClass('completed');
-            $('#step-node-3').addClass('active');
+            $('#step-node-3').addClass('active').removeClass('completed');
+            $('#step-node-4').removeClass('active completed');
             $('#btn-reload-erp').addClass('d-none');
             $('#btn-convert').removeClass('d-none').prop('disabled', false);
+
+            setTimeout(function () {
+                loadStep2ErpPrices();
+            }, 300);
         } else {
             currentStep = 1;
-            $('#step-node-1').addClass('active');
+            $('#step-node-1').addClass('active').removeClass('completed');
+            $('#step-node-2, #step-node-3, #step-node-4').removeClass('active completed');
+            $('#btn-confirm-next').removeClass('d-none');
+            $('#btn-edit-data').prop('disabled', false);
         }
 
         $('#restore-session-banner').addClass('d-none');
@@ -1289,6 +1363,9 @@
                     if (response.transactionId) {
                         currentTransactionId = response.transactionId;
                     }
+                    if (response.pdfUrl) {
+                        currentPdfPath = response.pdfUrl;
+                    }
                     let m = response.data;
                     let unmappedList = response.unmappedCodes || []; // Lấy danh sách mã chưa ánh xạ được từ server
 
@@ -1392,10 +1469,10 @@
             let itemCode = '';
             let description = '';
 
-            if (currentStep === 1) {
-                itemCode = $tr.find('td:nth-child(2)').text().trim();
+            if (currentStep === 1 || $tr.find('.cell-item-code').length === 0) {
+                itemCode = $tr.find('.display-item-code').text().trim() || $tr.find('td:nth-child(2)').text().trim();
                 description = $tr.find('td:nth-child(3)').text().trim();
-                qty = parseInt($tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
+                qty = parseInt($tr.find('td:nth-child(4)').attr('data-original-qty') || $tr.find('td:nth-child(4)').text().replace(/,/g, '')) || 0;
 
                 ocrPrice = parseFloat($tr.find('td:nth-child(5)').attr('data-original-price'));
                 if (isNaN(ocrPrice)) {
@@ -2885,6 +2962,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             Location: selectedLocation,         // Gửi lên kiểu int
             TaxCode: selectedTaxCode,           // Gửi lên kiểu int
             ProjectCode: selectedProjectCode,   // Gửi lên kiểu int
+            ProjectCodeText: selectedProjectCodeText,
             LineItems: lineItems,
             RawOcrResponse: JSON.stringify(rawOcrData)
         };
@@ -3058,8 +3136,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     function goToStep4() {
         currentStep = 4;
 
-        // Cập nhật Stepper: Bước 3 completed, Bước 4 active
-        $('#step-node-3').removeClass('active').addClass('completed');
+        // Cập nhật Stepper: Tất cả bước trước (1, 2, 3) đều completed, Bước 4 active
+        $('#step-node-1, #step-node-2, #step-node-3').removeClass('active').addClass('completed');
         $('#step-node-4').removeClass('completed').addClass('active');
 
         // Ẩn tất cả nút chức năng của các bước trước, hiển thị nút Submit SO
@@ -3070,9 +3148,11 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         // Hiển thị Card cấu hình "SO in ERP"
         $('#so-config-card').removeClass('d-none');
 
-        // Điền ngày SO mặc định là ngày hôm nay
-        let todayStr = new Date().toISOString().substring(0, 10);
-        $('#so-date-input').val(todayStr);
+        // Điền ngày SO mặc định là ngày hôm nay nếu chưa có
+        if (!$('#so-date-input').val()) {
+            let todayStr = new Date().toISOString().substring(0, 10);
+            $('#so-date-input').val(todayStr);
+        }
 
         // 1. Subsidiary & Location luôn cố định là "Sigma Worldwide" theo quy định SO (No. 8 & No. 9)
         $('#so-subsidiary-display').val('Sigma Worldwide');
@@ -3080,18 +3160,38 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // 2. Tự động kế thừa Project Code từ Bước 3 (PO)
         let projText = (createdPoData && createdPoData.projectCodeText) ? createdPoData.projectCodeText : $('#select-projectcode option:selected').text().trim();
-        let projId = (createdPoData && createdPoData.projectCode) ? createdPoData.projectCode : $('#select-projectcode').val();
+        let projId = (createdPoData && createdPoData.projectCode) ? createdPoData.projectCode : ($('#so-projcode-id-hidden').val() || $('#select-projectcode').val());
 
-        $('#so-projcode-id-hidden').val(projId || '');
+        if (projId) {
+            $('#so-projcode-id-hidden').val(projId);
+        }
 
-        let projMatch = projText.match(/\d{3}/);
-        if (projMatch) {
-            $('#so-projcode-input').val(projMatch[0]);
-        } else if (projText && projText !== '-- Select --' && projText !== '-- Select Project Code --' && !projText.includes('-- Select')) {
+        if (projText && projText !== '-- Select --' && projText !== '-- Select Project Code --' && !projText.includes('-- Select')) {
             $('#so-projcode-input').val(projText);
-        } else if (projId) {
-            let pVal = projId.toString();
-            $('#so-projcode-input').val(pVal.length > 3 ? pVal.substring(pVal.length - 3) : pVal.padStart(3, '0'));
+        } else {
+            let currentVal = $('#so-projcode-input').val().trim();
+            if (!currentVal && projId) {
+                if (isNaN(projId)) {
+                    $('#so-projcode-input').val(projId);
+                } else {
+                    let subId = (createdPoData && createdPoData.subsidiary) ? createdPoData.subsidiary : 1;
+                    $.ajax({
+                        url: '@Url.Action("GetProjectCodesBySubsidiary", "Oracle")',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ subsidiaryId: parseInt(subId, 10) }),
+                        success: function (pRes) {
+                            if (pRes && pRes.success && pRes.data && pRes.data.projectCodes) {
+                                let foundPrj = pRes.data.projectCodes.find(p => p.id == projId);
+                                if (foundPrj && foundPrj.name) {
+                                    $('#so-projcode-input').val(foundPrj.name);
+                                    if (createdPoData) createdPoData.projectCodeText = foundPrj.name;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
 
         // Mặc định khóa readonly và hiển thị trạng thái kế thừa tự động từ PO
@@ -3436,8 +3536,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         // Nếu ô nhập trống thì tự động fallback lấy từ createdPoData hoặc Bước 3
         if (!projCodeVal && createdPoData && createdPoData.projectCodeText) {
-            let m = createdPoData.projectCodeText.match(/\d{3}/);
-            projCodeVal = m ? m[0] : createdPoData.projectCodeText;
+            projCodeVal = createdPoData.projectCodeText;
             $('#so-projcode-input').val(projCodeVal);
         }
         if (!projCodeVal && projCodeId) {
@@ -3446,7 +3545,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         }
 
         if (!projCodeVal && !projCodeId) {
-            alert(t("Project code must be entered (3 digits)!"));
+            alert(t("Project code must be entered!"));
             $('#so-projcode-input').prop('readonly', false).removeClass('bg-light').addClass('bg-white').focus();
             return;
         }
@@ -3536,6 +3635,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             TaxCode: 0,
             ProjectCode: projCodeId || (parseInt(projCodeVal, 10) || 0),
             ProjectCodeStr: projCodeVal,
+            ProjectCodeText: projCodeVal,
             PersonInCharge: driPmName,
             PersonInChargeId: driPmId ? parseInt(driPmId, 10) : null,
             PoType: $('#so-potype-select').val() || 'MP',

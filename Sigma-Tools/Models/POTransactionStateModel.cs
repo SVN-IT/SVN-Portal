@@ -50,6 +50,7 @@ namespace Sigma_Tools.Models
         public string? LocationName { get; set; }
         public int? TaxCode { get; set; }
         public string? ProjectCode { get; set; }
+        public string? ProjectCodeText { get; set; }
         public string? PersonInCharge { get; set; }
         public int? PersonInChargeId { get; set; }
         public string? PoType { get; set; }
