@@ -529,7 +529,9 @@ namespace Sigma_Tools.Controllers
 
                         logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser?.UserName ?? "System");
 
-                        string viewPdfUrl = Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl;
+                        string viewPdfUrl = !string.IsNullOrEmpty(relativePdfUrl) 
+                            ? (Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl) 
+                            : "";
                         return Json(new
                         {
                             success = true,
@@ -539,7 +541,8 @@ namespace Sigma_Tools.Controllers
                             unmappedCodes = itemCodeNotFound, // Truyền sang giao diện để cảnh báo dòng
                             transactionId = transactionId,
                             pdfUrl = relativePdfUrl,
-                            viewPdfUrl = viewPdfUrl
+                            viewPdfUrl = viewPdfUrl,
+                            pdfSaved = !string.IsNullOrEmpty(relativePdfUrl)
                         });
                     }
                     else
