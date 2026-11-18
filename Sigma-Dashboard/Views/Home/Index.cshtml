@@ -105,6 +105,30 @@
         return hour * 60 + min;
     }
 
+    function formatCompensateNumber(val) {
+        if (val == null || isNaN(val)) return '0';
+        if (val % 1 === 0) {
+            return val.toLocaleString('vi-VN');
+        }
+        return (Math.round(val * 10) / 10).toLocaleString('vi-VN');
+    }
+
+    function updateCompensateBadge(charID, barColors) {
+        var $badge = $('#compensateBadge_' + charID);
+        if ($badge.length === 0) return;
+
+        if (!barColors || barColors.compensateQty <= 0) {
+            $badge.hide();
+            return;
+        }
+
+        var prefix = barColors.isShiftEnded ? 'Thiếu:' : 'Bù:';
+        var formattedQty = formatCompensateNumber(barColors.compensateQty);
+        $badge.attr('title', barColors.isShiftEnded ? 'Tổng sản lượng ca chưa đạt target' : 'Số lượng cần sản xuất bù để đạt target ca hiện tại')
+              .html('<i class="fas fa-exclamation-triangle mr-1"></i>' + prefix + ' <b class="ml-1" style="font-size: 15px;">' + formattedQty + '</b>')
+              .css('display', 'inline-flex');
+    }
+
     function calculateBarColors(actualData, targetData, sections) {
         var defaultBg = 'rgba(60, 141, 188, 0.9)';
         var defaultBorder = 'rgba(60, 141, 188, 0.8)';
@@ -114,8 +138,19 @@
         var bgColors = [];
         var borderColors = [];
 
+        var result = {
+            backgroundColors: bgColors,
+            borderColors: borderColors,
+            deficitBefore: 0,
+            compensateQty: 0,
+            hasCompensated: false,
+            isShiftEnded: false
+        };
+
         if (!sections || !Array.isArray(sections) || sections.length === 0) {
-            return { backgroundColors: defaultBg, borderColors: defaultBorder };
+            result.backgroundColors = defaultBg;
+            result.borderColors = defaultBorder;
+            return result;
         }
 
         var now = new Date();
@@ -177,23 +212,52 @@
             totalTargetBefore += (targetData && targetData[i] != null) ? Number(targetData[i]) : 0;
         }
 
-        // Đánh giá không đạt nếu tổng target > 0 và tổng actual < tổng target
-        var isFailedBefore = (totalTargetBefore > 0 && totalActualBefore < totalTargetBefore);
+        var deficitBefore = Math.max(0, totalTargetBefore - totalActualBefore);
+        var compensateQty = 0;
+        var hasCompensated = false;
+        var isShiftEnded = (currentIndex >= sections.length);
+
+        if (!isShiftEnded) {
+            if (deficitBefore > 0) {
+                var currentActual = (actualData && actualData[currentIndex] != null) ? Number(actualData[currentIndex]) : 0;
+                var currentTarget = (targetData && targetData[currentIndex] != null) ? Number(targetData[currentIndex]) : 0;
+                // Khi ca hiện tại đạt target của chính nó và sản xuất dôi dư ra -> bù cho các ca trước
+                var currentExtra = Math.max(0, currentActual - currentTarget);
+                compensateQty = Math.max(0, deficitBefore - currentExtra);
+                if (compensateQty === 0) {
+                    hasCompensated = true; // Đã bù đủ hoàn toàn!
+                }
+            }
+        } else {
+            // Toàn bộ các ca đã kết thúc (hết ca hoặc xem lại quá khứ)
+            compensateQty = deficitBefore;
+        }
+
+        // Làm tròn đến 1 chữ số thập phân nếu có số lẻ
+        compensateQty = Math.round(compensateQty * 10) / 10;
+
+        // Đánh giá không đạt: nếu còn số lượng cần bù > 0
+        var isFailedBefore = (compensateQty > 0);
 
         // 3. Phân bổ màu cho từng cột
         for (var i = 0; i < sections.length; i++) {
             if (i < currentIndex && isFailedBefore) {
-                // Các ca trước đó chuyển sang màu đỏ nếu tổng không đạt target
+                // Các ca trước đó chuyển sang màu đỏ nếu vẫn còn thiếu hụt sản lượng
                 bgColors.push(dangerBg);
                 borderColors.push(dangerBorder);
             } else {
-                // Ca hiện tại hoặc ca tương lai hoặc ca trước đạt target -> màu xanh mặc định
+                // Ca hiện tại hoặc ca tương lai hoặc ca trước đạt target / đã bù đủ -> màu xanh mặc định
                 bgColors.push(defaultBg);
                 borderColors.push(defaultBorder);
             }
         }
 
-        return { backgroundColors: bgColors, borderColors: borderColors };
+        result.deficitBefore = deficitBefore;
+        result.compensateQty = compensateQty;
+        result.hasCompensated = hasCompensated;
+        result.isShiftEnded = isShiftEnded;
+
+        return result;
     }
 
     // Xác định ca/khung giờ hiện tại đang diễn ra và kiểm tra điều kiện áp dụng hiệu ứng
@@ -522,6 +586,9 @@
                                             <div class="col-12">
                                                 <strong>
                                                     <span id="checklist_@charID">@item.CheckListStatus</span> | <span id="workingtime_@charID">@item.WorkingTimeStatus</span> | <span id="downtime_@charID">@item.DowntimeStatus</span>
+                                                    <span id="compensateBadge_@charID" class="compensate-badge badge-deficit ml-2" style="display: none;" title="Số lượng cần sản xuất bù">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>Bù: <b id="compensateQty_@charID" class="ml-1" style="font-size: 15px;">0</b>
+                                                    </span>
                                                 </strong>
                                             </div>
                                         </div>
@@ -691,7 +758,9 @@
                                     type: 'bar',
                                     data: barChartData,
                                     options: barChartOptions
-                                  })
+                                  });
+
+                                  updateCompensateBadge('@charID', initBarColors);
                                 })
                             </script>
                         }
@@ -897,7 +966,10 @@
         updateProductionInfo(textUPH, barUPH, item.uphData, item.uphPercent, isWorkingTime, 'UPH');
         updateProductionInfo(textUPPH, barUPPH, item.upphData, item.upphPercent, isWorkingTime, 'UPPH');
         updateProductionInfo(textDefect, barDefect, item.defectInfo, item.defectPercent, isWorkingTime, 'Defect');
-        
+
+        var barColors = calculateBarColors(item.actualData, item.targetData, sections);
+        updateCompensateBadge(item.chartID, barColors);
+
         var barChart = getChartByCanvasId(chartId);
 
         if (barChart) {
@@ -912,7 +984,6 @@
             barChart.data.datasets[0].label = item.actualLabel;
             barChart.data.datasets[0].data = item.actualData;
 
-            var barColors = calculateBarColors(item.actualData, item.targetData, sections);
             barChart.data.datasets[0].backgroundColor = barColors.backgroundColors;
             barChart.data.datasets[0].borderColor = barColors.borderColors;
 
