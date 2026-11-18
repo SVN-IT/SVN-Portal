@@ -84,13 +84,59 @@ namespace Sigma_Dashboard.Services.Helpers
                 }
                 catch { }
 
+                Dictionary<string, int> targetOrderMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+                // Lấy danh sách target nguyên bản trực tiếp từ bảng SVN_target (không qua stored procedure bị ORDER BY Operation)
+                List<SVN_target_v1UI> rawTargets = null;
+                try
+                {
+                    rawTargets = await targetdataportal.ReadListTargetByDate(date);
+                }
+                catch { }
+
+                if (rawTargets != null && rawTargets.Count > 0)
+                {
+                    var rawTargetsInShift = rawTargets
+                        .Where(x => x.Shift != null && x.Shift.Trim().Equals(shift.Trim(), StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    var rawOrderList = rawTargetsInShift
+                        .Where(x => !string.IsNullOrWhiteSpace(x.Operation))
+                        .Select(x => x.Operation.Trim())
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    targetOrderMap = rawOrderList
+                        .Select((op, index) => new { op, index })
+                        .ToDictionary(x => x.op, x => x.index, StringComparer.OrdinalIgnoreCase);
+                }
+
                 if (targetDataUI != null && targetDataUI.Count > 0)
                 {
                     targetDataUI = targetDataUI.Where(x => x.Shift.Trim().ToLower() == shift.ToLower()).ToList();
 
-                    //Lấy ra các Operation có target để hiển thị trên UI
-                    var operHaveTarget = targetDataUI.Select(x => x.Operation).Distinct().ToList();
-                    opers = opers.Where(x => operHaveTarget.Contains(x.Operation)).ToList();
+                    // Nếu chưa có targetOrderMap từ rawTargets thì fallback lấy từ targetDataUI
+                    if (targetOrderMap.Count == 0)
+                    {
+                        var operHaveTarget = targetDataUI
+                            .Where(x => !string.IsNullOrWhiteSpace(x.Operation))
+                            .Select(x => x.Operation.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+
+                        targetOrderMap = operHaveTarget
+                            .Select((op, index) => new { op, index })
+                            .ToDictionary(x => x.op, x => x.index, StringComparer.OrdinalIgnoreCase);
+                    }
+                }
+
+                if (targetOrderMap != null && targetOrderMap.Count > 0)
+                {
+                    // Lọc và sắp xếp opers theo đúng thứ tự của bảng SVN_target nguyên bản
+                    opers = opers
+                        .Where(x => !string.IsNullOrWhiteSpace(x.Operation) && targetOrderMap.ContainsKey(x.Operation.Trim()))
+                        .OrderBy(x => targetOrderMap[x.Operation.Trim()])
+                        .ToList();
                 }
 
                 if (dataUI != null && dataUI.Count > 0)
@@ -252,7 +298,7 @@ namespace Sigma_Dashboard.Services.Helpers
                         SVN_target_v1UI targetDataUIbyOper = new SVN_target_v1UI();
                         if(targetDataUI != null && targetDataUI.Count > 0)
                         {
-                            targetDataUIbyOper = targetDataUI.FirstOrDefault(x => x.Operation == item.Operation);
+                            targetDataUIbyOper = targetDataUI.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Operation) && x.Operation.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase));
                         }
 
                         double HPlanTarget = 0;
@@ -468,6 +514,14 @@ namespace Sigma_Dashboard.Services.Helpers
                     {
                         dashboardData.BarChartData = dashboardData.BarChartData.Where(x => !string.IsNullOrEmpty(x.Line) && masterOperation.Contains(x.Line)).ToList();
                     }    
+
+                    // Đảm bảo thứ tự hiển thị của BarChartData khớp đúng 100% với thứ tự target nguyên bản lấy ra từ bảng SVN_target
+                    if (targetOrderMap != null && targetOrderMap.Count > 0)
+                    {
+                        dashboardData.BarChartData = dashboardData.BarChartData
+                            .OrderBy(x => !string.IsNullOrWhiteSpace(x.Operation) && targetOrderMap.ContainsKey(x.Operation.Trim()) ? targetOrderMap[x.Operation.Trim()] : int.MaxValue)
+                            .ToList();
+                    }
                     
                 }
             }
