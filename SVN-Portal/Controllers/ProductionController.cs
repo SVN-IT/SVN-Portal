@@ -515,31 +515,73 @@ namespace SVN_Portal.Controllers
                 var existingLog = await dataPortal.GetByProductIDAndSerialCodeAsync(int.Parse(productId), serial);
                 if (existingLog != null)
                 {
-                    //if (existingLog.state == "Used")
-                    //{
-                    //    processResult.OK = false;
-                    //    processResult.Message = $"Serial/Lot {serial} has been used for the WO {existingLog.wo_code}. Please double-check.";
-                    //    //return Json(new { result = processResult.OK, message = processResult.Message });
-                    //}
-                    if (existingLog.state == "Consumed")
+                    bool isLot = existingLog.product_type == "lot" || hasTracking == "lot";
+                    if (isLot)
                     {
-                        processResult.OK = false;
-                        processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check./ 序列号/批号 {serial} 已用于工单 {existingLog.consumed_wo_code}。请仔细核对。";
-                        //return Json(new { result = processResult.OK, message = processResult.Message });
-                    }
-                    else
-                    {
-                        if (existingLog.product_type == "lot" && existingLog.remain_qty <= 0)
+                        if (existingLog.remain_qty <= 0 || existingLog.state == "Consumed")
                         {
-                            processResult.OK = false;
-                            processResult.Message = $"Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check./ 批次 {serial} 已用于工单 {existingLog.consumed_wo_code}，当前剩余数量：{existingLog.remain_qty}。请再次核对。";
+                            // Tự động kiểm tra trên Viindoo xem đã có chuyển thêm hàng vào Lot hay chưa
+                            HttpClientHelper<BODataProcessResult> httpClientHelper = new HttpClientHelper<BODataProcessResult>(aPIConfiguration.BaseURL, 1000);
+                            ProductDataRequest dataRequest = new ProductDataRequest()
+                            {
+                                lotNumber = serial,
+                                seriNumber = masterMOName,
+                                product_id = int.Parse(productId),
+                                hasTracking = hasTracking
+                            };
+                            var viindooResult = await httpClientHelper.PostRequest("api/ViindooConnect/GetUsedLotForComponemt", dataRequest, new CancellationToken(false));
+
+                            decimal newTotalQty = 0;
+                            if (viindooResult != null && viindooResult.OK && viindooResult.Content != null)
+                            {
+                                try
+                                {
+                                    newTotalQty = Convert.ToDecimal(viindooResult.Content);
+                                }
+                                catch
+                                {
+                                    decimal.TryParse(viindooResult.Content.ToString(), out newTotalQty);
+                                }
+                            }
+
+                            // Nếu Total mới từ Viindoo lớn hơn Total cũ trong DB -> Có hàng mới chuyển vào Lot
+                            if (newTotalQty > existingLog.total_qty)
+                            {
+                                decimal deltaQty = newTotalQty - existingLog.total_qty;
+                                decimal currentRemain = existingLog.remain_qty < 0 ? 0 : existingLog.remain_qty;
+                                existingLog.remain_qty = currentRemain + deltaQty;
+                                existingLog.total_qty = newTotalQty;
+                                existingLog.state = "Consuming";
+
+                                await dataPortal.UpdateAsync(existingLog);
+
+                                processResult.OK = true;
+                                processResult.Message = $"Lot {serial} đã được cập nhật thêm {deltaQty} cái từ Viindoo (Tồn mới: {existingLog.remain_qty})./ 批次 {serial} 已从 Viindoo 更新，新增数量：{deltaQty}。";
+                            }
+                            else
+                            {
+                                processResult.OK = false;
+                                processResult.Message = $"Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check./ 批次 {serial} 已用于工单 {existingLog.consumed_wo_code}，当前剩余数量：{existingLog.remain_qty}。请再次核对。";
+                            }
                         }
                         else
                         {
                             processResult.OK = true;
                             processResult.Message = $"Serial/Lot {serial} is valid for use./ 序列号/批号 {serial} 可用。";
                         }
-                        //return Json(new { result = processResult.OK, message = processResult.Message });
+                    }
+                    else
+                    {
+                        if (existingLog.state == "Consumed")
+                        {
+                            processResult.OK = false;
+                            processResult.Message = $"Serial/Lot {serial} has been consumed for WO {existingLog.consumed_wo_code}, current remain qty: {existingLog.remain_qty}. Please double-check./ 序列号/批号 {serial} 已用于工单 {existingLog.consumed_wo_code}。请仔细核对。";
+                        }
+                        else
+                        {
+                            processResult.OK = true;
+                            processResult.Message = $"Serial/Lot {serial} is valid for use./ 序列号/批号 {serial} 可用。";
+                        }
                     }
                 }
                 else
