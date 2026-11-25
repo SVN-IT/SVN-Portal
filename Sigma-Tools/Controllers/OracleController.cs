@@ -254,6 +254,83 @@ namespace Sigma_Tools.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult DeletePendingTransaction([FromBody] DeletePendingTransactionRequest request)
+        {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+            }
+
+            if (!_permissionService.HasRight("potrackinghistory", "read"))
+            {
+                return StatusCode(403, new { success = false, message = "Forbidden" });
+            }
+
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.TransactionId) || !Guid.TryParse(request.TransactionId, out Guid txGuid))
+                {
+                    return BadRequest(new { success = false, message = "Invalid TransactionId." });
+                }
+
+                var existingLog = logger.GetTransactionState(txGuid);
+                if (existingLog == null || !string.Equals(existingLog.Action, LogService.LogAction.POTransactionState.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return Json(new { success = false, message = "Process record not found." });
+                }
+
+                POTransactionStateModel? tx = null;
+                if (!string.IsNullOrEmpty(existingLog.Content))
+                {
+                    tx = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
+                }
+
+                if (tx != null)
+                {
+                    bool hasValidNetSuitePo = (tx.CreatedPoId.HasValue && tx.CreatedPoId.Value > 0) || !string.IsNullOrEmpty(tx.CreatedPoUrl);
+                    bool canDeleteStatus = string.Equals(tx.Status, "PROCESSING", StringComparison.OrdinalIgnoreCase)
+                                           || string.Equals(tx.Status, "FAILED", StringComparison.OrdinalIgnoreCase);
+
+                    if (hasValidNetSuitePo || !canDeleteStatus)
+                    {
+                        return Json(new { success = false, message = "Only incomplete processes without a created NetSuite PO can be deleted." });
+                    }
+                }
+
+                string userName = User.Identity?.Name ?? "System";
+                int deleted = logger.DeleteTransactionState(txGuid, userName);
+                if (deleted <= 0)
+                {
+                    return Json(new { success = false, message = "Failed to delete the process record." });
+                }
+
+                // Dọn file PDF tạm gắn với TransactionId này (nếu có)
+                string uploadsDir = GetPoUploadsDirectory();
+                if (Directory.Exists(uploadsDir))
+                {
+                    string prefix = $"{txGuid}_";
+                    foreach (var filePath in Directory.GetFiles(uploadsDir, $"{prefix}*"))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(filePath);
+                        }
+                        catch
+                        {
+                            // Bỏ qua lỗi xóa file tạm để không làm fail thao tác chính
+                        }
+                    }
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpGet]
         public IActionResult ViewPoPdf(string fileName)
         {
@@ -2174,6 +2251,11 @@ namespace Sigma_Tools.Controllers
     {
         public string? TransactionId { get; set; }
         public string? PdfFileName { get; set; }
+    }
+
+    public class DeletePendingTransactionRequest
+    {
+        public string? TransactionId { get; set; }
     }
 
     public class ExportTrackingRequest

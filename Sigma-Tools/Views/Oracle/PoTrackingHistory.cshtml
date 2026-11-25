@@ -181,11 +181,32 @@
                                     <td>@row.Description</td>
                                     <td class="text-right font-weight-bold text-success">@row.OrderQty.ToString("N0")</td>
                                     <td class="text-center align-middle">
-                                        @if (row.CanResume && !string.IsNullOrEmpty(row.TransactionId))
+                                        @{
+                                            bool canDeletePending = (row.Status == "PROCESSING" || row.Status == "FAILED")
+                                                && !string.IsNullOrEmpty(row.TransactionId)
+                                                && string.IsNullOrEmpty(row.PoUrl);
+                                        }
+                                        @if ((row.CanResume && !string.IsNullOrEmpty(row.TransactionId)) || canDeletePending)
                                         {
-                                            <a href="@Url.Action("POInbound", "Oracle", new { transactionId = row.TransactionId })" class="btn btn-sm btn-primary font-weight-bold px-2 py-1 shadow-sm text-nowrap" style="font-size: 0.78rem;" title="Tiếp tục tiến trình này">
-                                                <i class="fas fa-play mr-1"></i><span class="lang-text" data-i18n="Resume">Tiếp tục</span>
-                                            </a>
+                                            <div class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 4px;">
+                                                @if (row.CanResume && !string.IsNullOrEmpty(row.TransactionId))
+                                                {
+                                                    <a href="@Url.Action("POInbound", "Oracle", new { transactionId = row.TransactionId })" class="btn btn-sm btn-primary font-weight-bold px-2 py-1 shadow-sm text-nowrap" style="font-size: 0.78rem;" title="Tiếp tục tiến trình này">
+                                                        <i class="fas fa-play mr-1"></i><span class="lang-text" data-i18n="Resume">Tiếp tục</span>
+                                                    </a>
+                                                }
+                                                @if (canDeletePending)
+                                                {
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger font-weight-bold px-2 py-1 shadow-sm text-nowrap btn-delete-pending"
+                                                            data-tx-id="@row.TransactionId"
+                                                            data-po-number="@row.SigmaPO"
+                                                            style="font-size: 0.78rem;"
+                                                            title="Xóa tiến trình còn dở">
+                                                        <i class="fas fa-trash-alt mr-1"></i><span class="lang-text" data-i18n="Delete">Xóa</span>
+                                                    </button>
+                                                }
+                                            </div>
                                         }
                                         else
                                         {
@@ -287,6 +308,45 @@
             })
             .finally(() => {
                 $btn.prop('disabled', false).html('<i class="fas fa-file-excel mr-1"></i> <span>' + t('Export Data') + '</span>');
+            });
+        });
+
+        $(document).on('click', '.btn-delete-pending', function () {
+            const $btn = $(this);
+            const txId = $btn.data('tx-id');
+            const poNum = $btn.data('po-number') || '';
+            if (!txId) return;
+
+            const confirmTemplate = t('Confirm delete incomplete process');
+            const confirmMsg = confirmTemplate.replace('{0}', poNum);
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            const originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> <span>' + t('Deleting...') + '</span>');
+
+            fetch('@Url.Action("DeletePendingTransaction", "Oracle")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ TransactionId: txId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    window.location.reload();
+                } else {
+                    alert((data && data.message) ? data.message : t('Delete process failed'));
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            })
+            .catch(error => {
+                console.error('Delete Pending Process Error:', error);
+                alert(t('An error occurred while deleting the process.'));
+                $btn.prop('disabled', false).html(originalHtml);
             });
         });
     </script>

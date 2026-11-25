@@ -97,6 +97,20 @@ namespace SVNShareLib.Utils
             }
         }
 
+        public int DeleteTransactionState(Guid id, string userCode = "System")
+        {
+            try
+            {
+                SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
+                return dataPortal.DeleteTransactionState(id);
+            }
+            catch (Exception ex)
+            {
+                Log(LogApp.SigmaTools, LogAction.POTransactionState, LogType.Error, $"DeleteTransactionState Error: {ex.Message}", userCode);
+                return -1;
+            }
+        }
+
         /// <summary>
         /// Tìm lịch sử các PO đã được tạo thành công trước đây theo Customer PO Number.
         /// </summary>

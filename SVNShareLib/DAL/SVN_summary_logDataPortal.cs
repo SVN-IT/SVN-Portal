@@ -63,6 +63,23 @@ namespace SVNShareLib.DAL
             }
         }
 
+        public int DeleteTransactionState(Guid id)
+        {
+            int timeOut = 1000;
+            try
+            {
+                string sql = "DELETE FROM [dbo].[SVN_summary_log] WHERE [Id] = @Id AND [Action] = 'POTransactionState'";
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    return connection.Execute(sql, new { Id = id }, commandTimeout: timeOut);
+                }
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
         public List<SVN_summary_logUI> ReadListFromDateToData(string Action, DateTime fromDate, DateTime toDate)
         {
             try

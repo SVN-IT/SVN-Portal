@@ -307,5 +307,10 @@
   "Previous NetSuite Error": "上次 NetSuite 错误",
   "Please resolve the issue and retry.": "请解决此问题后重试。",
   "Missing ERP Price": "缺少 ERP 价格",
-  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "在缺少 ERP 基准价格或与 OCR 价格不一致时，无法转换为 ERP PO。请先在第 2 步核对 ERP 价格。"
+  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "在缺少 ERP 基准价格或与 OCR 价格不一致时，无法转换为 ERP PO。请先在第 2 步核对 ERP 价格。",
+  "Delete": "删除",
+  "Deleting...": "删除中...",
+  "Confirm delete incomplete process": "确定要删除 PO“{0}”的未完成流程吗？此操作无法撤销。",
+  "Delete process failed": "删除未完成流程失败。",
+  "An error occurred while deleting the process.": "删除流程时发生错误！"
 }

@@ -307,5 +307,10 @@
   "Previous NetSuite Error": "Previous NetSuite Error",
   "Please resolve the issue and retry.": "Please resolve the issue and retry.",
   "Missing ERP Price": "Missing ERP Price",
-  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first."
+  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.",
+  "Delete": "Delete",
+  "Deleting...": "Deleting...",
+  "Confirm delete incomplete process": "Are you sure you want to delete the incomplete process for PO \"{0}\"? This action cannot be undone.",
+  "Delete process failed": "Failed to delete the incomplete process.",
+  "An error occurred while deleting the process.": "An error occurred while deleting the process!"
 }
