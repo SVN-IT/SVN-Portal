@@ -21,5 +21,9 @@
         public bool CanResume { get; set; } = false;
         public string? SoNumber { get; set; }
         public string? SoUrl { get; set; }
+
+        // Đánh dấu PO được tạo lại trong lịch sử Tracking
+        public bool IsRecreated { get; set; } = false;
+        public string? RecreatedFromPo { get; set; }
     }
 }

@@ -290,5 +290,18 @@
   "Failed": "失败",
   "Rejected": "已拒绝",
   "Completed": "已完成",
-  "Error": "错误"
+  "Error": "错误",
+  "Duplicate PO Warning": "重复 PO 编号警告",
+  "Duplicate PO Detected Message": "以下客户采购订单编号此前已在系统中成功创建：",
+  "Duplicate PO Confirm Question": "您确定要继续重新创建此采购订单吗？如果同意，后续流程将照常进行，且新创建的 PO 将在 PO 跟踪历史页面中被标记。",
+  "Previous Creations Count": "此前创建次数",
+  "Agree & Continue": "同意并继续",
+  "Cancel Upload": "取消",
+  "Recreated PO": "重新创建的 PO",
+  "Recreated": "重新创建",
+  "Recreated from": "重新创建自",
+  "Previous Created NetSuite POs": "此前已创建的 NetSuite 采购订单",
+  "NetSuite PO": "NetSuite 采购单号",
+  "SO Number": "销售订单号",
+  "PO Upload Cancelled": "已取消上传重复的采购订单。"
 }

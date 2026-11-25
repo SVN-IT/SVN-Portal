@@ -58,7 +58,11 @@ namespace Sigma_Tools.Models
         public string? SoDate { get; set; }
         public bool AllowCrossSubsidiaryFulfillment { get; set; } = true;
         public string? InventoryLocation { get; set; } = "Sigma Asia";
-        
+
+        // Đánh dấu PO được tạo lại (trùng số PO đã tạo thành công trước đó)
+        public bool IsRecreated { get; set; } = false;
+        public string? RecreatedFromPo { get; set; }
+
         public string CreatedBy { get; set; } = "System";
         public DateTime CreatedOn { get; set; } = DateTime.Now;
         public DateTime ModifiedOn { get; set; } = DateTime.Now;

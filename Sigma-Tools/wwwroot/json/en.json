@@ -290,5 +290,18 @@
   "Failed": "Failed",
   "Rejected": "Rejected",
   "Completed": "Completed",
-  "Error": "Error"
+  "Error": "Error",
+  "Duplicate PO Warning": "Duplicate PO Warning",
+  "Duplicate PO Detected Message": "The following Customer PO Number has already been created successfully before:",
+  "Duplicate PO Confirm Question": "Do you want to proceed with recreating this PO? If you agree, the workflow will proceed normally and the recreated PO will be marked in PO Tracking History.",
+  "Previous Creations Count": "Previous creations count",
+  "Agree & Continue": "Agree & Continue",
+  "Cancel Upload": "Cancel",
+  "Recreated PO": "Recreated PO",
+  "Recreated": "Recreated",
+  "Recreated from": "Recreated from",
+  "Previous Created NetSuite POs": "Previously Created NetSuite POs",
+  "NetSuite PO": "NetSuite PO",
+  "SO Number": "SO Number",
+  "PO Upload Cancelled": "Duplicate PO upload cancelled."
 }

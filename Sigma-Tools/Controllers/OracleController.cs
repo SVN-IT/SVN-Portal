@@ -10,6 +10,7 @@ using SVNShareLib.Request;
 using SVNShareLib.Utils;
 using ClosedXML.Excel; // Thêm namespace này (hoặc EPPlus tùy dự án)
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Sigma_Tools.Controllers
 {
@@ -47,6 +48,205 @@ namespace Sigma_Tools.Controllers
                 Directory.CreateDirectory(uploadsDir);
             }
             return uploadsDir;
+        }
+
+        /// <summary>
+        /// Kiểm tra xem Customer PO Number đã từng được tạo thành công trên NetSuite trước đây chưa.
+        /// </summary>
+        private DuplicatePoCheckResult CheckDuplicateCustomerPO(string? customerPoNumber)
+        {
+            var result = new DuplicatePoCheckResult
+            {
+                CustomerPONumber = customerPoNumber?.Trim() ?? "",
+                IsDuplicate = false,
+                PreviousCount = 0
+            };
+
+            if (string.IsNullOrWhiteSpace(customerPoNumber) ||
+                string.Equals(customerPoNumber.Trim(), "N/A", StringComparison.OrdinalIgnoreCase))
+            {
+                return result;
+            }
+
+            string targetPo = customerPoNumber.Trim();
+            var rawLogs = logger.FindCreatedPurchaseOrderLogs(targetPo);
+            if (rawLogs == null || rawLogs.Count == 0)
+            {
+                return result;
+            }
+
+            var matches = new List<DuplicatePoMatchDto>();
+            var poPattern = new Regex(@"\bPONumber:\s*" + Regex.Escape(targetPo) + @"\s*,", RegexOptions.IgnoreCase);
+            var nsPoNumPattern = new Regex(@"Netsuite (?:PO|SO) Number:\s*([^,\s]+)", RegexOptions.IgnoreCase);
+            var nsPoIdPattern = new Regex(@"Netsuite PO ID:\s*(\d+)", RegexOptions.IgnoreCase);
+            var customerPattern = new Regex(@"Customer:\s*(.+?),\s*Currency:", RegexOptions.IgnoreCase);
+
+            // 1. Ưu tiên đọc từ POTransactionState trước (có đầy đủ URL PO, URL SO)
+            foreach (var log in rawLogs.Where(l => l.Action == LogService.LogAction.POTransactionState.ToString()))
+            {
+                if (string.IsNullOrWhiteSpace(log.Content)) continue;
+                try
+                {
+                    var tx = JsonConvert.DeserializeObject<POTransactionStateModel>(log.Content);
+                    if (tx == null) continue;
+                    if (!string.Equals(tx.CustomerPONumber?.Trim(), targetPo, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    bool isSuccessStatus = tx.Status == "PO_CREATED" || tx.Status == "SO_COMPLETED" || !string.IsNullOrEmpty(tx.CreatedPoNumber);
+                    if (!isSuccessStatus) continue;
+
+                    DateTime createdTime = tx.ModifiedOn != DateTime.MinValue ? tx.ModifiedOn : log.CreatedOn;
+                    matches.Add(new DuplicatePoMatchDto
+                    {
+                        CreatedPoNumber = tx.CreatedPoNumber ?? "",
+                        CreatedPoUrl = tx.CreatedPoUrl ?? "",
+                        CreatedSoNumber = tx.CreatedSoNumber ?? "",
+                        CreatedSoUrl = tx.CreatedSoUrl ?? "",
+                        Customer = tx.Customer ?? "",
+                        CreatedBy = !string.IsNullOrEmpty(log.CreatedBy) ? log.CreatedBy : (tx.CreatedBy ?? "System"),
+                        CreatedOn = createdTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                        CreatedOnSort = createdTime
+                    });
+                }
+                catch { }
+            }
+
+            var seenNsPos = new HashSet<string>(
+                matches.Where(m => !string.IsNullOrEmpty(m.CreatedPoNumber)).Select(m => m.CreatedPoNumber),
+                StringComparer.OrdinalIgnoreCase);
+
+            // 2. Bổ sung các PO được tạo trước khi có POTransactionState từ log CreateNetsuitePO
+            var legacyMatches = new List<DuplicatePoMatchDto>();
+            foreach (var log in rawLogs.Where(l => l.Action == LogService.LogAction.CreateNetsuitePO.ToString()))
+            {
+                if (string.IsNullOrWhiteSpace(log.Content)) continue;
+                if (!poPattern.IsMatch(log.Content)) continue;
+
+                var poNumMatch = nsPoNumPattern.Match(log.Content);
+                var poIdMatch = nsPoIdPattern.Match(log.Content);
+                string nsPoNum = poNumMatch.Success
+                    ? poNumMatch.Groups[1].Value.Trim()
+                    : (poIdMatch.Success ? $"PO-{poIdMatch.Groups[1].Value}" : "");
+                if (string.IsNullOrEmpty(nsPoNum) || seenNsPos.Contains(nsPoNum)) continue;
+
+                seenNsPos.Add(nsPoNum);
+                var custMatch = customerPattern.Match(log.Content);
+                legacyMatches.Add(new DuplicatePoMatchDto
+                {
+                    CreatedPoNumber = nsPoNum,
+                    CreatedPoUrl = "",
+                    CreatedSoNumber = "",
+                    CreatedSoUrl = "",
+                    Customer = custMatch.Success ? custMatch.Groups[1].Value.Trim() : "",
+                    CreatedBy = log.CreatedBy ?? "System",
+                    CreatedOn = log.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss"),
+                    CreatedOnSort = log.CreatedOn
+                });
+            }
+
+            // Bổ sung URL PO / SO từ NetsuitePOLogInfo cho các bản ghi legacy
+            if (legacyMatches.Count > 0)
+            {
+                var trackingLogs = logger.FindTrackingLogsBySigmaPOs(legacyMatches.Select(m => m.CreatedPoNumber));
+                var urlMap = new Dictionary<string, PoOrderTrackingDto>(StringComparer.OrdinalIgnoreCase);
+                foreach (var tLog in trackingLogs)
+                {
+                    if (string.IsNullOrWhiteSpace(tLog.Content)) continue;
+                    try
+                    {
+                        var dtos = JsonConvert.DeserializeObject<List<PoOrderTrackingDto>>(tLog.Content);
+                        if (dtos == null) continue;
+                        foreach (var dto in dtos)
+                        {
+                            if (string.IsNullOrEmpty(dto.SigmaPO)) continue;
+                            if (!urlMap.TryGetValue(dto.SigmaPO, out var existing))
+                            {
+                                urlMap[dto.SigmaPO] = dto;
+                            }
+                            else
+                            {
+                                if (string.IsNullOrEmpty(existing.PoUrl) && !string.IsNullOrEmpty(dto.PoUrl)) existing.PoUrl = dto.PoUrl;
+                                if (string.IsNullOrEmpty(existing.SoNumber) && !string.IsNullOrEmpty(dto.SoNumber)) existing.SoNumber = dto.SoNumber;
+                                if (string.IsNullOrEmpty(existing.SoUrl) && !string.IsNullOrEmpty(dto.SoUrl)) existing.SoUrl = dto.SoUrl;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                foreach (var lm in legacyMatches)
+                {
+                    if (urlMap.TryGetValue(lm.CreatedPoNumber, out var dto))
+                    {
+                        lm.CreatedPoUrl = dto.PoUrl ?? "";
+                        lm.CreatedSoNumber = dto.SoNumber ?? "";
+                        lm.CreatedSoUrl = dto.SoUrl ?? "";
+                    }
+                    matches.Add(lm);
+                }
+            }
+
+            if (matches.Count > 0)
+            {
+                matches = matches.OrderByDescending(m => m.CreatedOnSort).ToList();
+                result.IsDuplicate = true;
+                result.PreviousCount = matches.Count;
+                result.LatestCreatedPoNumber = matches[0].CreatedPoNumber;
+                result.LatestCreatedPoUrl = matches[0].CreatedPoUrl;
+                result.RecreatedFromPoSummary = string.Join(", ", matches
+                    .Select(m => m.CreatedPoNumber)
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Take(3));
+                result.History = matches.Take(5).ToList();
+            }
+
+            return result;
+        }
+
+        [HttpGet]
+        public IActionResult CheckDuplicatePO(string poNumber)
+        {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+            }
+
+            var dupResult = CheckDuplicateCustomerPO(poNumber);
+            return Json(new
+            {
+                success = true,
+                isDuplicatePo = dupResult.IsDuplicate,
+                duplicateInfo = dupResult
+            });
+        }
+
+        [HttpPost]
+        public IActionResult DiscardPendingPoUpload([FromBody] DiscardPendingPoRequest request)
+        {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+            }
+
+            try
+            {
+                if (request != null && !string.IsNullOrEmpty(request.TransactionId) &&
+                    Guid.TryParse(request.TransactionId, out _) && !string.IsNullOrEmpty(request.PdfFileName))
+                {
+                    string cleanFileName = Path.GetFileName(request.PdfFileName);
+                    string safeFileName = $"{request.TransactionId}_{cleanFileName}";
+                    string fullPath = Path.Combine(GetPoUploadsDirectory(), safeFileName);
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -212,7 +412,9 @@ namespace Sigma_Tools.Controllers
                                         CurrentStep = tx.CurrentStep,
                                         CanResume = canResume,
                                         SoNumber = tx.CreatedSoNumber,
-                                        SoUrl = tx.CreatedSoUrl
+                                        SoUrl = tx.CreatedSoUrl,
+                                        IsRecreated = tx.IsRecreated,
+                                        RecreatedFromPo = tx.RecreatedFromPo
                                     });
                                 }
                             }
@@ -236,7 +438,9 @@ namespace Sigma_Tools.Controllers
                                     CurrentStep = tx.CurrentStep,
                                     CanResume = canResume,
                                     SoNumber = tx.CreatedSoNumber,
-                                    SoUrl = tx.CreatedSoUrl
+                                    SoUrl = tx.CreatedSoUrl,
+                                    IsRecreated = tx.IsRecreated,
+                                    RecreatedFromPo = tx.RecreatedFromPo
                                 });
                             }
                         }
@@ -274,6 +478,9 @@ namespace Sigma_Tools.Controllers
                                         PoUrl = item.PoUrl,
                                         SoNumber = item.SoNumber,
                                         SoUrl = item.SoUrl,
+                                        CustomerPONumber = item.CustomerPONumber,
+                                        IsRecreated = item.IsRecreated,
+                                        RecreatedFromPo = item.RecreatedFromPo,
                                         Status = !string.IsNullOrEmpty(item.SoNumber) ? "SO_COMPLETED" : "PO_CREATED",
                                         StatusDisplay = !string.IsNullOrEmpty(item.SoNumber) ? "Hoàn thành (PO & SO)" : "Hoàn thành (PO)",
                                         CanResume = false
@@ -291,6 +498,10 @@ namespace Sigma_Tools.Controllers
                     if (status == "PROCESSING")
                     {
                         allTrackingItems = allTrackingItems.Where(x => x.Status == "PROCESSING" || x.Status == "PO_CREATED").ToList();
+                    }
+                    else if (status == "RECREATED")
+                    {
+                        allTrackingItems = allTrackingItems.Where(x => x.IsRecreated).ToList();
                     }
                     else
                     {
@@ -487,51 +698,63 @@ namespace Sigma_Tools.Controllers
 
                         // Trả về kết quả kèm theo danh sách mã chưa mapping để hiển thị cảnh báo trên giao diện
                         string rawJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(apiData);
+                        string viewPdfUrl = !string.IsNullOrEmpty(relativePdfUrl)
+                            ? (Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl)
+                            : "";
 
-                        // Tự động khởi tạo và lưu Transaction State ban đầu để khôi phục khi F5 hoặc gián đoạn
-                        try
+                        // Kiểm tra xem Customer PO Number đã từng được tạo thành công trước đây chưa
+                        var duplicateResult = CheckDuplicateCustomerPO(model.PONumber);
+                        bool isDuplicatePo = duplicateResult.IsDuplicate;
+
+                        // Chỉ tự động khởi tạo Transaction State ngay khi KHÔNG trùng PO.
+                        // Nếu trùng PO, chờ người dùng xác nhận "Đồng ý tạo tiếp" mới lưu vào DB để tránh rác Tracking History nếu hủy.
+                        if (!isDuplicatePo)
                         {
-                            var initialState = new POTransactionStateModel
+                            try
                             {
-                                TransactionId = transactionId,
-                                CustomerPONumber = model.PONumber ?? "",
-                                Customer = model.Customer ?? "",
-                                Date = model.Date ?? "",
-                                Currency = currencyCode,
-                                Requisitioner = model.Requisitioner ?? "",
-                                Status = "PROCESSING",
-                                CurrentStep = 1,
-                                PdfFileName = pdfFile.FileName,
-                                PdfPath = !string.IsNullOrEmpty(relativePdfUrl) ? (Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl) : "",
-                                RawOcrJson = rawJsonString,
-                                LineItems = model.LineItems?.Select(l => new POTransactionLineItem
+                                var initialState = new POTransactionStateModel
                                 {
-                                    Line = l.Line,
-                                    ItemCode = l.ItemCode,
-                                    Description = l.Description,
-                                    Quantity = l.Qty,
-                                    UnitPrice = l.UnitPrice,
-                                    Amount = l.Amount
-                                }).ToList(),
-                                CreatedBy = currentUser?.UserName ?? "System",
-                                CreatedOn = DateTime.Now,
-                                ModifiedOn = DateTime.Now
-                            };
-                            if (Guid.TryParse(transactionId, out Guid txGuid))
+                                    TransactionId = transactionId,
+                                    CustomerPONumber = model.PONumber ?? "",
+                                    Customer = model.Customer ?? "",
+                                    Date = model.Date ?? "",
+                                    Currency = currencyCode,
+                                    Requisitioner = model.Requisitioner ?? "",
+                                    Status = "PROCESSING",
+                                    CurrentStep = 1,
+                                    PdfFileName = pdfFile.FileName,
+                                    PdfPath = !string.IsNullOrEmpty(relativePdfUrl) ? viewPdfUrl : "",
+                                    RawOcrJson = rawJsonString,
+                                    LineItems = model.LineItems?.Select(l => new POTransactionLineItem
+                                    {
+                                        Line = l.Line,
+                                        ItemCode = l.ItemCode,
+                                        Description = l.Description,
+                                        Quantity = l.Qty,
+                                        UnitPrice = l.UnitPrice,
+                                        Amount = l.Amount
+                                    }).ToList(),
+                                    IsRecreated = false,
+                                    RecreatedFromPo = null,
+                                    CreatedBy = currentUser?.UserName ?? "System",
+                                    CreatedOn = DateTime.Now,
+                                    ModifiedOn = DateTime.Now
+                                };
+                                if (Guid.TryParse(transactionId, out Guid txGuid))
+                                {
+                                    logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(initialState), "PROCESSING", currentUser?.UserName ?? "System");
+                                }
+                            }
+                            catch (Exception initEx)
                             {
-                                logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(initialState), "PROCESSING", currentUser?.UserName ?? "System");
+                                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu initial state: {initEx.Message}", currentUser?.UserName ?? "System");
                             }
                         }
-                        catch (Exception initEx)
-                        {
-                            logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu initial state: {initEx.Message}", currentUser?.UserName ?? "System");
-                        }
 
-                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, LogService.LogType.Info, $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}", currentUser?.UserName ?? "System");
+                        logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.OCRAIRequest, isDuplicatePo ? LogService.LogType.Warning : LogService.LogType.Info,
+                            $"UploadPO PDF hoàn tất với {itemCodeNotFound.Count} mã chưa mapping ERP. Customer: {model.Customer}, PONumber: {model.PONumber}" + (isDuplicatePo ? $" [Cảnh báo trùng PO đã tạo: {duplicateResult.RecreatedFromPoSummary}]" : ""),
+                            currentUser?.UserName ?? "System");
 
-                        string viewPdfUrl = !string.IsNullOrEmpty(relativePdfUrl) 
-                            ? (Url.Action("ViewPoPdf", "Oracle", new { fileName = safeFileName }) ?? relativePdfUrl) 
-                            : "";
                         return Json(new
                         {
                             success = true,
@@ -542,7 +765,9 @@ namespace Sigma_Tools.Controllers
                             transactionId = transactionId,
                             pdfUrl = relativePdfUrl,
                             viewPdfUrl = viewPdfUrl,
-                            pdfSaved = !string.IsNullOrEmpty(relativePdfUrl)
+                            pdfSaved = !string.IsNullOrEmpty(relativePdfUrl),
+                            isDuplicatePo = isDuplicatePo,
+                            duplicateInfo = duplicateResult
                         });
                     }
                     else
@@ -1044,6 +1269,26 @@ namespace Sigma_Tools.Controllers
 
                                 string createdPoNumber = parsedResponse.poNumber ?? request.PONumber;
 
+                                // Đọc Transaction State hiện tại trước để bảo toàn cờ IsRecreated & thông tin trùng PO
+                                POTransactionStateModel? state = null;
+                                Guid txGuid = Guid.Empty;
+                                bool hasTxGuid = !string.IsNullOrEmpty(request.TransactionId) && Guid.TryParse(request.TransactionId, out txGuid);
+                                if (hasTxGuid)
+                                {
+                                    try
+                                    {
+                                        var existingLog = logger.GetTransactionState(txGuid);
+                                        if (existingLog != null && !string.IsNullOrEmpty(existingLog.Content))
+                                        {
+                                            state = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
+                                        }
+                                    }
+                                    catch { }
+                                }
+
+                                bool isRecreated = request.IsRecreated || (state?.IsRecreated ?? false);
+                                string? recreatedFromPo = !string.IsNullOrEmpty(request.RecreatedFromPo) ? request.RecreatedFromPo : state?.RecreatedFromPo;
+
                                 // Trích xuất list tracking từ RawOcrResponse kết hợp mã PO từ response NetSuite để log
                                 var trackingList = new List<PoOrderTrackingDto>();
                                 string createdPoUrl = parsedResponse?.poUrl ?? "";
@@ -1058,7 +1303,10 @@ namespace Sigma_Tools.Controllers
                                             Description = item["description"]?.ToString() ?? "",
                                             OrderQty = item["quantity"]?.Value<decimal>() ?? 0,
                                             OpenOrderQty = item["quantity"]?.Value<decimal>() ?? 0,
-                                            PoUrl = createdPoUrl
+                                            PoUrl = createdPoUrl,
+                                            CustomerPONumber = poNumber,
+                                            IsRecreated = isRecreated,
+                                            RecreatedFromPo = recreatedFromPo
                                         });
                                     }
                                 }
@@ -1067,19 +1315,13 @@ namespace Sigma_Tools.Controllers
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, trackingJsonLog, currentUser.UserName);
 
                                 // Cập nhật Transaction State sang PO_CREATED để nếu refresh/mất mạng vẫn tiếp tục được ở Bước 4
-                                if (!string.IsNullOrEmpty(request.TransactionId) && Guid.TryParse(request.TransactionId, out Guid txGuid))
+                                if (hasTxGuid)
                                 {
                                     try
                                     {
-                                        var existingLog = logger.GetTransactionState(txGuid);
-                                        POTransactionStateModel? state = null;
-                                        if (existingLog != null && !string.IsNullOrEmpty(existingLog.Content))
-                                        {
-                                            state = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
-                                        }
                                         if (state == null)
                                         {
-                                            state = new POTransactionStateModel { TransactionId = request.TransactionId };
+                                            state = new POTransactionStateModel { TransactionId = request.TransactionId! };
                                         }
                                         state.CustomerPONumber = poNumber;
                                         state.Customer = customer;
@@ -1095,6 +1337,8 @@ namespace Sigma_Tools.Controllers
                                         state.TaxCode = request.TaxCode;
                                         state.ProjectCode = request.ProjectCode.ToString();
                                         state.ProjectCodeText = !string.IsNullOrEmpty(request.ProjectCodeText) ? request.ProjectCodeText : request.ProjectCode.ToString();
+                                        state.IsRecreated = isRecreated;
+                                        state.RecreatedFromPo = recreatedFromPo;
                                         state.ModifiedOn = DateTime.Now;
 
                                         logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "PO_CREATED", currentUser.UserName);
@@ -1265,7 +1509,11 @@ namespace Sigma_Tools.Controllers
                                     ? parsedResponse.soUrl
                                     : (soId.HasValue && soId.Value > 0 ? $"https://7548465-sb1.app.netsuite.com/app/accounting/transactions/salesord.nl?id={soId.Value}&compid=7548465_SB1" : "");
 
-                                // Cập nhật Transaction State sang SO_COMPLETED
+                                // Cập nhật Transaction State sang SO_COMPLETED trước, sau đó đồng bộ log NetsuitePOLogInfo
+                                bool isRecreated = request.IsRecreated;
+                                string? recreatedFromPo = request.RecreatedFromPo;
+                                string custPoNum = !string.IsNullOrEmpty(request.CustomerPONumber) ? request.CustomerPONumber : request.PONumber;
+
                                 if (!string.IsNullOrEmpty(request.TransactionId) && Guid.TryParse(request.TransactionId, out Guid txGuid))
                                 {
                                     try
@@ -1280,6 +1528,17 @@ namespace Sigma_Tools.Controllers
                                         {
                                             state = new POTransactionStateModel { TransactionId = request.TransactionId };
                                         }
+
+                                        if (state.IsRecreated) isRecreated = true;
+                                        if (string.IsNullOrEmpty(recreatedFromPo) && !string.IsNullOrEmpty(state.RecreatedFromPo))
+                                        {
+                                            recreatedFromPo = state.RecreatedFromPo;
+                                        }
+                                        if (!string.IsNullOrEmpty(state.CustomerPONumber))
+                                        {
+                                            custPoNum = state.CustomerPONumber;
+                                        }
+
                                         state.Status = "SO_COMPLETED";
                                         state.CurrentStep = 4;
                                         state.CreatedSoId = soId;
@@ -1287,6 +1546,8 @@ namespace Sigma_Tools.Controllers
                                         state.CreatedSoUrl = createdSoUrl;
                                         state.PersonInCharge = request.PersonInCharge;
                                         state.PersonInChargeId = request.PersonInChargeId;
+                                        state.IsRecreated = isRecreated;
+                                        state.RecreatedFromPo = recreatedFromPo;
                                         if (request.ProjectCode > 0)
                                         {
                                             state.ProjectCode = request.ProjectCode.ToString();
@@ -1326,7 +1587,10 @@ namespace Sigma_Tools.Controllers
                                                 OpenOrderQty = item["quantity"]?.Value<decimal>() ?? 0,
                                                 PoUrl = request.CreatedPoUrl ?? "",
                                                 SoNumber = createdSoNumber,
-                                                SoUrl = createdSoUrl
+                                                SoUrl = createdSoUrl,
+                                                CustomerPONumber = custPoNum,
+                                                IsRecreated = isRecreated,
+                                                RecreatedFromPo = recreatedFromPo
                                             });
                                         }
                                         logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, JsonConvert.SerializeObject(soTrackingList), currentUser.UserName);
@@ -1450,6 +1714,9 @@ namespace Sigma_Tools.Controllers
                             if (!state.Subsidiary.HasValue && oldState.Subsidiary.HasValue) state.Subsidiary = oldState.Subsidiary;
                             if (!state.Location.HasValue && oldState.Location.HasValue) state.Location = oldState.Location;
                             if (!state.TaxCode.HasValue && oldState.TaxCode.HasValue) state.TaxCode = oldState.TaxCode;
+                            if (!state.IsRecreated && oldState.IsRecreated) state.IsRecreated = true;
+                            if (string.IsNullOrEmpty(state.RecreatedFromPo) && !string.IsNullOrEmpty(oldState.RecreatedFromPo))
+                                state.RecreatedFromPo = oldState.RecreatedFromPo;
                         }
                     }
                     catch { }
@@ -1561,7 +1828,10 @@ namespace Sigma_Tools.Controllers
                                         Description = item.Description,
                                         OrderQty = item.OrderQty,
                                         OpenOrderQty = item.OpenOrderQty,
-                                        PoUrl = item.PoUrl
+                                        PoUrl = item.PoUrl,
+                                        CustomerPONumber = item.CustomerPONumber,
+                                        IsRecreated = item.IsRecreated,
+                                        RecreatedFromPo = item.RecreatedFromPo
                                     });
                                 }
                             }
@@ -1586,6 +1856,7 @@ namespace Sigma_Tools.Controllers
                     worksheet.Cell(1, 6).Value = "Order Qty";
                     worksheet.Cell(1, 7).Value = "Open Order Qty";
                     worksheet.Cell(1, 8).Value = "NetSuite Link";
+                    worksheet.Cell(1, 9).Value = "Recreated PO";
 
                     // Định dạng Header
                     var headerRow = worksheet.Row(1);
@@ -1605,6 +1876,9 @@ namespace Sigma_Tools.Controllers
                         worksheet.Cell(rowIdx, 6).Value = item.OrderQty;
                         worksheet.Cell(rowIdx, 7).Value = item.OpenOrderQty;
                         worksheet.Cell(rowIdx, 8).Value = item.PoUrl;
+                        worksheet.Cell(rowIdx, 9).Value = item.IsRecreated
+                            ? (!string.IsNullOrEmpty(item.RecreatedFromPo) ? $"Recreated ({item.RecreatedFromPo})" : "Recreated")
+                            : "";
 
                         rowIdx++;
                     }
@@ -1696,6 +1970,8 @@ namespace Sigma_Tools.Controllers
         public int TaxCode { get; set; }
         public int ProjectCode { get; set; }
         public string? ProjectCodeText { get; set; }
+        public bool IsRecreated { get; set; }
+        public string? RecreatedFromPo { get; set; }
 
         public List<POLineItem> LineItems { get; set; }
 
@@ -1739,6 +2015,8 @@ namespace Sigma_Tools.Controllers
         public bool AllowCrossSubsidiaryFulfillment { get; set; } = true; // No. 14
         public string? InventoryLocation { get; set; } = "Sigma Asia"; // No. 16: Sigma Asia
         public string? CustomForm { get; set; } = "111"; // No. 1: Sigma Worldwide Sales order (111)
+        public bool IsRecreated { get; set; }
+        public string? RecreatedFromPo { get; set; }
     }
 
     public class CreateSalesOrderResponse
@@ -1760,6 +2038,39 @@ namespace Sigma_Tools.Controllers
         public string PoUrl { get; set; } // Thêm thuộc tính lưu URL PO
         public string? SoNumber { get; set; }
         public string? SoUrl { get; set; }
+        public string? CustomerPONumber { get; set; }
+        public bool IsRecreated { get; set; }
+        public string? RecreatedFromPo { get; set; }
+    }
+
+    public class DuplicatePoMatchDto
+    {
+        public string CreatedPoNumber { get; set; } = "";
+        public string CreatedPoUrl { get; set; } = "";
+        public string CreatedSoNumber { get; set; } = "";
+        public string CreatedSoUrl { get; set; } = "";
+        public string Customer { get; set; } = "";
+        public string CreatedBy { get; set; } = "";
+        public string CreatedOn { get; set; } = "";
+        [JsonIgnore]
+        public DateTime CreatedOnSort { get; set; }
+    }
+
+    public class DuplicatePoCheckResult
+    {
+        public bool IsDuplicate { get; set; }
+        public string CustomerPONumber { get; set; } = "";
+        public int PreviousCount { get; set; }
+        public string LatestCreatedPoNumber { get; set; } = "";
+        public string LatestCreatedPoUrl { get; set; } = "";
+        public string RecreatedFromPoSummary { get; set; } = "";
+        public List<DuplicatePoMatchDto> History { get; set; } = new List<DuplicatePoMatchDto>();
+    }
+
+    public class DiscardPendingPoRequest
+    {
+        public string? TransactionId { get; set; }
+        public string? PdfFileName { get; set; }
     }
 
     public class ExportTrackingRequest

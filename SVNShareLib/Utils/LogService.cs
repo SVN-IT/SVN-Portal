@@ -97,6 +97,40 @@ namespace SVNShareLib.Utils
             }
         }
 
+        /// <summary>
+        /// Tìm lịch sử các PO đã được tạo thành công trước đây theo Customer PO Number.
+        /// </summary>
+        public List<SVN_summary_logUI> FindCreatedPurchaseOrderLogs(string customerPoNumber)
+        {
+            try
+            {
+                SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
+                return dataPortal.FindCreatedPurchaseOrderLogs(customerPoNumber);
+            }
+            catch (Exception ex)
+            {
+                Log(LogApp.SigmaTools, LogAction.POTransactionState, LogType.Warning, $"FindCreatedPurchaseOrderLogs Error: {ex.Message}");
+                return new List<SVN_summary_logUI>();
+            }
+        }
+
+        /// <summary>
+        /// Tra cứu các log NetsuitePOLogInfo theo danh sách mã SigmaPO để lấy PO/SO URL.
+        /// </summary>
+        public List<SVN_summary_logUI> FindTrackingLogsBySigmaPOs(IEnumerable<string> sigmaPos)
+        {
+            try
+            {
+                SVN_summary_logDataPortal dataPortal = new SVN_summary_logDataPortal(connectionString);
+                return dataPortal.FindTrackingLogsBySigmaPOs(sigmaPos);
+            }
+            catch (Exception ex)
+            {
+                Log(LogApp.SigmaTools, LogAction.NetsuitePOLogInfo, LogType.Warning, $"FindTrackingLogsBySigmaPOs Error: {ex.Message}");
+                return new List<SVN_summary_logUI>();
+            }
+        }
+
         public enum LogApp
         {
             QACheckList,

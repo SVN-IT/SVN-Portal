@@ -84,6 +84,99 @@ namespace SVNShareLib.DAL
             }
         }
 
+        private static string EscapeSqlLikePattern(string input)
+        {
+            return (input ?? "")
+                .Replace("[", "[[]")
+                .Replace("%", "[%]")
+                .Replace("_", "[_]");
+        }
+
+        /// <summary>
+        /// Tìm các bản ghi log lịch sử cho thấy Customer PO Number đã từng được tạo thành công trên NetSuite trước đây.
+        /// </summary>
+        public List<SVN_summary_logUI> FindCreatedPurchaseOrderLogs(string customerPoNumber)
+        {
+            if (string.IsNullOrWhiteSpace(customerPoNumber))
+            {
+                return new List<SVN_summary_logUI>();
+            }
+
+            try
+            {
+                string escapedPo = EscapeSqlLikePattern(customerPoNumber.Trim());
+                string poPatternJson = $"%{escapedPo}%";
+                string poPatternLog = $"%PONumber: {escapedPo},%";
+
+                string sql = @"
+                    SELECT Id, App, Action, Type, Content, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn
+                    FROM SVN_summary_log
+                    WHERE (
+                        ([Action] = 'POTransactionState' AND [Type] IN ('PO_CREATED', 'SO_COMPLETED') AND [Content] LIKE @PoPatternJson)
+                        OR
+                        ([Action] = 'CreateNetsuitePO' AND [Type] = 'Info' AND [Content] LIKE @PoPatternLog AND [Content] LIKE '%Netsuite PO%')
+                    )
+                    ORDER BY CreatedOn DESC";
+
+                var param = new { PoPatternJson = poPatternJson, PoPatternLog = poPatternLog };
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    return connection.Query<SVN_summary_logUI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text).ToList();
+                }
+            }
+            catch
+            {
+                return new List<SVN_summary_logUI>();
+            }
+        }
+
+        /// <summary>
+        /// Tra cứu các bản ghi NetsuitePOLogInfo chứa URL theo danh sách mã SigmaPO để bổ sung thông tin hiển thị.
+        /// </summary>
+        public List<SVN_summary_logUI> FindTrackingLogsBySigmaPOs(IEnumerable<string> sigmaPos)
+        {
+            var distinctPos = sigmaPos?
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Take(10)
+                .ToList();
+
+            if (distinctPos == null || distinctPos.Count == 0)
+            {
+                return new List<SVN_summary_logUI>();
+            }
+
+            try
+            {
+                var conditions = new List<string>();
+                var parameters = new DynamicParameters();
+                for (int i = 0; i < distinctPos.Count; i++)
+                {
+                    string paramName = $"@Po{i}";
+                    conditions.Add($"[Content] LIKE {paramName}");
+                    parameters.Add(paramName, $"%{EscapeSqlLikePattern(distinctPos[i])}%");
+                }
+
+                string sql = $@"
+                    SELECT Id, App, Action, Type, Content, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn
+                    FROM SVN_summary_log
+                    WHERE [Action] = 'NetsuitePOLogInfo' AND ({string.Join(" OR ", conditions)})
+                    ORDER BY CreatedOn DESC";
+
+                int timeOut = 1000;
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    return connection.Query<SVN_summary_logUI>(sql, parameters, commandTimeout: timeOut, commandType: CommandType.Text).ToList();
+                }
+            }
+            catch
+            {
+                return new List<SVN_summary_logUI>();
+            }
+        }
+
         public int InsertBulk(List<SVN_summary_logUI> dataUI)
         {
             int timeOut = 1000;

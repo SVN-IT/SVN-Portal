@@ -290,5 +290,18 @@
   "Failed": "Gặp lỗi",
   "Rejected": "Đã từ chối",
   "Completed": "Hoàn thành",
-  "Error": "Lỗi"
+  "Error": "Lỗi",
+  "Duplicate PO Warning": "Cảnh báo trùng số PO",
+  "Duplicate PO Detected Message": "Số PO khách hàng dưới đây đã được tạo thành công trên hệ thống trước đây:",
+  "Duplicate PO Confirm Question": "Bạn có đồng ý tiếp tục tạo lại PO này không? Nếu đồng ý, các bước tiếp theo vẫn thực hiện bình thường và PO mới sẽ được đánh dấu trong màn hình PO Tracking History.",
+  "Previous Creations Count": "Số lần đã tạo trước đó",
+  "Agree & Continue": "Đồng ý tạo tiếp",
+  "Cancel Upload": "Hủy bỏ",
+  "Recreated PO": "PO Tạo lại",
+  "Recreated": "Tạo lại",
+  "Recreated from": "Tạo lại từ",
+  "Previous Created NetSuite POs": "Danh sách PO NetSuite đã tạo trước đó",
+  "NetSuite PO": "Số PO NetSuite",
+  "SO Number": "Số SO NetSuite",
+  "PO Upload Cancelled": "Đã hủy tải lên PO trùng lặp."
 }

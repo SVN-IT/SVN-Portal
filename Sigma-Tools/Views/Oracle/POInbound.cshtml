@@ -456,6 +456,74 @@
         </button>
     </div>
 
+    <!-- Modal Cảnh báo trùng số PO (Đã được tạo thành công trước đây) -->
+    <div class="modal fade" id="duplicatePoWarningModal" tabindex="-1" role="dialog" aria-labelledby="duplicatePoWarningModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-warning">
+                <div class="modal-header bg-warning text-dark py-2">
+                    <h6 class="modal-title font-weight-bold" id="duplicatePoWarningModalLabel">
+                        <i class="fas fa-exclamation-triangle mr-2"></i><span class="lang-text" data-i18n="Duplicate PO Warning">Cảnh báo trùng số PO</span>
+                    </h6>
+                    <button type="button" class="close text-dark" id="btn-close-duplicate-po" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning border-warning mb-3" style="background-color: #fffbeb; color: #92400e;">
+                        <p class="mb-2 font-weight-bold">
+                            <span class="lang-text" data-i18n="Duplicate PO Detected Message">Số PO khách hàng dưới đây đã được tạo thành công trên hệ thống trước đây:</span>
+                        </p>
+                        <div class="d-flex flex-wrap align-items-center" style="gap: 16px;">
+                            <div>
+                                <span class="small text-muted"><span class="lang-text" data-i18n="PO Number">Số PO</span>:</span>
+                                <strong id="dup-po-number" class="text-danger ml-1" style="font-size: 1.05rem;">-</strong>
+                            </div>
+                            <div>
+                                <span class="small text-muted"><span class="lang-text" data-i18n="Customer">Khách hàng</span>:</span>
+                                <strong id="dup-po-customer" class="text-dark ml-1">-</strong>
+                            </div>
+                            <div>
+                                <span class="small text-muted"><span class="lang-text" data-i18n="Previous Creations Count">Số lần đã tạo trước đó</span>:</span>
+                                <span id="dup-po-count" class="badge badge-danger font-weight-bold ml-1">1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="small font-weight-bold text-muted mb-1">
+                        <i class="fas fa-history mr-1"></i><span class="lang-text" data-i18n="Previous Created NetSuite POs">Danh sách PO NetSuite đã tạo trước đó</span>:
+                    </div>
+                    <div class="table-responsive mb-3" style="max-height: 200px; overflow-y: auto;">
+                        <table class="table table-sm table-bordered table-striped mb-0" style="font-size: 0.82rem;">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th><span class="lang-text" data-i18n="NetSuite PO">Số PO NetSuite</span></th>
+                                    <th><span class="lang-text" data-i18n="SO Number">Số SO NetSuite</span></th>
+                                    <th><span class="lang-text" data-i18n="Customer">Khách hàng</span></th>
+                                    <th><span class="lang-text" data-i18n="Creator">Người tạo</span></th>
+                                    <th><span class="lang-text" data-i18n="Creation time">Thời gian tạo</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="dup-po-history-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <p class="mb-0 text-dark font-weight-bold" style="font-size: 0.9rem;">
+                        <i class="fas fa-question-circle text-warning mr-1"></i>
+                        <span class="lang-text" data-i18n="Duplicate PO Confirm Question">Bạn có đồng ý tiếp tục tạo lại PO này không? Nếu đồng ý, các bước tiếp theo vẫn thực hiện bình thường và PO mới sẽ được đánh dấu trong màn hình PO Tracking History.</span>
+                    </p>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-sm btn-secondary font-weight-bold" id="btn-cancel-duplicate-po">
+                        <i class="fas fa-times mr-1"></i> <span class="lang-text" data-i18n="Cancel Upload">Hủy bỏ</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-warning font-weight-bold text-dark shadow-sm" id="btn-confirm-duplicate-po">
+                        <i class="fas fa-check mr-1"></i> <span class="lang-text" data-i18n="Agree & Continue">Đồng ý tạo tiếp</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Confirm Reject PO -->
     <div class="modal fade" id="rejectPoModal" tabindex="-1" role="dialog" aria-labelledby="rejectPoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -716,8 +784,12 @@
 
             <!-- PO Header Extracted -->
             <div class="card card-custom">
-                <div class="card-header lang-text" data-key="PO HEADER (AI EXTRACTED)">
-                    PO HEADER (AI EXTRACTED)
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="lang-text" data-key="PO HEADER (AI EXTRACTED)">PO HEADER (AI EXTRACTED)</span>
+                    <span id="po-recreated-badge" class="badge font-weight-bold d-none" style="background-color: #fd7e14; color: #ffffff; font-size: 0.76rem; padding: 4px 8px;">
+                        <i class="fas fa-redo-alt mr-1"></i><span class="lang-text" data-i18n="Recreated PO">PO Tạo lại</span>
+                        <span id="po-recreated-ref" class="ml-1 font-weight-normal"></span>
+                    </span>
                 </div>
                 <div class="card-body py-2">
                     <div class="row text-uppercase text-muted small font-weight-bold">
@@ -936,7 +1008,34 @@
     let proceedingToStep4 = false;
     let currentTransactionId = null;
     let currentPdfPath = '';
+    let currentPdfFileName = '';
+    let isRecreatedPo = false;
+    let recreatedFromPo = '';
+    let pendingDuplicateResponse = null;
+    let pendingDuplicateMode = 'upload'; // 'upload' | 'edit'
+    let pendingEditSaveCallback = null;
+    let lastCheckedPoNumber = '';
     const LOCAL_SESSION_KEY = 'sigma_po_active_session';
+
+    function updateRecreatedPoBadgeUI() {
+        if (isRecreatedPo) {
+            $('#po-recreated-badge').removeClass('d-none');
+            $('#po-recreated-ref').text(recreatedFromPo ? '(' + recreatedFromPo + ')' : '');
+        } else {
+            $('#po-recreated-badge').addClass('d-none');
+            $('#po-recreated-ref').text('');
+        }
+    }
+
+    function setFileNameDisplay(fileName) {
+        currentPdfFileName = fileName || '';
+        const $el = $('#file-name-display');
+        if (currentPdfFileName) {
+            $el.removeAttr('data-key').removeClass('lang-text').text(currentPdfFileName);
+        } else {
+            $el.attr('data-key', 'No File Selected').addClass('lang-text').text(t('No File Selected', 'Chưa chọn file'));
+        }
+    }
 
     function getActiveSessionSnapshot() {
         let lineItems = [];
@@ -985,6 +1084,10 @@
             });
         }
 
+        let rawFileDisplay = $('#file-name-display').text().trim();
+        let fallbackNoFile = t('No File Selected', 'Chưa chọn file');
+        let resolvedPdfName = currentPdfFileName || (rawFileDisplay && rawFileDisplay !== 'Chưa chọn file' && rawFileDisplay !== 'No File Selected' && rawFileDisplay !== fallbackNoFile ? rawFileDisplay : '');
+
         let snapshot = {
             TransactionId: currentTransactionId || ('local_' + Date.now()),
             CustomerPONumber: $('#po-number-display').text().trim(),
@@ -994,7 +1097,7 @@
             Requisitioner: $('#po-requisitioner-display').text().trim(),
             Status: createdPoData ? 'PO_CREATED' : 'PROCESSING',
             CurrentStep: currentStep,
-            PdfFileName: $('#file-name-display').text().trim() || $('#po-file-name').text().trim(),
+            PdfFileName: resolvedPdfName || $('#po-file-name').text().trim(),
             PdfPath: currentPdfPath || '',
             RawOcrJson: rawJsonStr,
             LineItems: lineItems,
@@ -1015,6 +1118,8 @@
             PrType: 'DRI',
             SoDate: $('#so-date-input').val() || '',
             AllowCrossSubsidiaryFulfillment: $('#so-cross-sub-chk').is(':checked'),
+            IsRecreated: isRecreatedPo,
+            RecreatedFromPo: recreatedFromPo,
             SavedAt: Date.now()
         };
         return snapshot;
@@ -1067,10 +1172,25 @@
         let date = snapshot.Date || snapshot.date || '';
         let currency = snapshot.Currency || snapshot.currency || 'USD';
         let req = snapshot.Requisitioner || snapshot.requisitioner || 'N/A';
-        let pdfName = snapshot.PdfFileName || snapshot.pdfFileName || 'Restored_PO.pdf';
+        let pdfName = snapshot.PdfFileName || snapshot.pdfFileName || '';
+        let pdfPath = snapshot.PdfPath || snapshot.pdfPath || '';
+        if ((!pdfName || pdfName === 'Chưa chọn file' || pdfName === 'No File Selected') && pdfPath) {
+            try {
+                let decodedPath = decodeURIComponent(pdfPath);
+                let match = decodedPath.match(/fileName=[^_]+_(.+)$/);
+                if (match && match[1]) pdfName = match[1];
+            } catch (e) { }
+        }
+        if (!pdfName) pdfName = 'Restored_PO.pdf';
+
         let rawJson = snapshot.RawOcrJson || snapshot.rawOcrJson || '';
         let step = snapshot.CurrentStep || snapshot.currentStep || 1;
         let lines = snapshot.LineItems || snapshot.lineItems || [];
+
+        isRecreatedPo = !!(snapshot.IsRecreated || snapshot.isRecreated);
+        recreatedFromPo = snapshot.RecreatedFromPo || snapshot.recreatedFromPo || '';
+        lastCheckedPoNumber = poNum || '';
+        updateRecreatedPoBadgeUI();
 
         // 1. Phục hồi Header PO & PDF View
         $('#po-number-display').text(poNum);
@@ -1079,13 +1199,12 @@
         $('#po-currency-display').text(currency);
         $('#po-currency-hidden').val(currency);
         $('#po-requisitioner-display').text(req);
-        $('#file-name-display').text(pdfName);
+        setFileNameDisplay(pdfName);
         $('#po-file-name').text(pdfName);
         if (rawJson) {
             $('#ocr-raw-json-hidden').val(rawJson);
         }
 
-        let pdfPath = snapshot.PdfPath || snapshot.pdfPath || '';
         if (!pdfPath && currentTransactionId && pdfName) {
             pdfPath = '@Url.Action("ViewPoPdf", "Oracle")?fileName=' + encodeURIComponent(currentTransactionId + '_' + pdfName);
         } else if (pdfPath && !pdfPath.startsWith('http') && !pdfPath.startsWith('blob:')) {
@@ -1338,6 +1457,219 @@
     }
 
 
+    function escapeHtmlText(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function resetPoInboundToInitialState() {
+        $('#pdf-file-input').val('');
+        currentTransactionId = null;
+        currentPdfPath = '';
+        isRecreatedPo = false;
+        recreatedFromPo = '';
+        pendingDuplicateResponse = null;
+        pendingEditSaveCallback = null;
+        lastCheckedPoNumber = '';
+        updateRecreatedPoBadgeUI();
+        setFileNameDisplay('');
+        clearLocalSession();
+
+        const container = document.getElementById('pdf-preview-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
+                    <i class="fas fa-file-pdf fa-4x mb-3 text-secondary"></i>
+                    <p class="mb-1"><span class="lang-text" data-key="Import PDF Notice Part 1">Nhấn</span> <strong class="lang-text" data-key="Import File PDF">"Import File PDF"</strong> <span class="lang-text" data-key="Import PDF Notice Part 2">ở trên để tải file lên.</span></p>
+                    <small class="text-muted lang-text" data-key="Import PDF Notice Sub">Nội dung sẽ tự động hiển thị và bóc tách tại đây.</small>
+                </div>`;
+        }
+
+        $('#po-number-display, #po-date-display, #po-customer-display, #po-requisitioner-display').text('N/A');
+        $('#ocr-raw-json-hidden').val('');
+        $('#po-currency-hidden').val('USD');
+        $('#po-line-table tbody').html('<tr><td colspan="7" class="text-center text-muted py-3" data-key="No Data Notice"><span class="lang-text">No data available</span></td></tr>');
+        $('#line-items-header').text(t('EXTRACTED LINE ITEMS (0 LINES FOUND)'));
+        $('#calculated-sum-display').text('0 Units / $0.00');
+        $('#expected-sum-display').text('0 Units / $0.00');
+        $('#ocr-audit-alert-box').hide();
+        $('#btn-confirm-next').addClass('d-none');
+        $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', true);
+        if (window.i18n && window.i18n.apply) {
+            window.i18n.apply();
+        }
+    }
+
+    function applyUploadedPoData(response) {
+        if (response.transactionId) {
+            currentTransactionId = response.transactionId;
+        }
+        if (response.viewPdfUrl || response.pdfUrl) {
+            currentPdfPath = response.viewPdfUrl || response.pdfUrl;
+        }
+        let m = response.data;
+        let unmappedList = response.unmappedCodes || [];
+        lastCheckedPoNumber = (m && m.poNumber) ? m.poNumber.trim() : '';
+
+        // LƯU TOÀN BỘ RAW JSON VÀO THẺ ẨN
+        if (response.rawJsonStr) {
+            $('#ocr-raw-json-hidden').val(response.rawJsonStr);
+        }
+
+        let currency = response.currency || m.currency || 'USD';
+        $('#po-currency-hidden').val(currency);
+
+        let audit = m.auditReport || {};
+
+        // 1. KÍCH HOẠT LẠI TẤT CẢ CÁC NÚT BẤM
+        $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', false);
+
+        // 2. Cập nhật Header & Bảng
+        document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
+        document.getElementById('po-date-display').innerText = m.date || 'N/A';
+        document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
+        document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
+
+        let lineFoundTemplate = t("EXTRACTED LINE ITEMS (0 LINES FOUND)", "EXTRACTED LINE ITEMS ({0} LINES FOUND)");
+        let formattedLineText = lineFoundTemplate.replace("{0}", m.lineItems.length).replace("0", m.lineItems.length);
+        document.getElementById('line-items-header').innerText = formattedLineText;
+
+        let tbodyHtml = '';
+        m.lineItems.forEach(item => {
+            let formattedPrice = Number(item.unitPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            let formattedAmount = Number(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            let isUnmapped = unmappedList.includes(item.itemCode) || !item.itemCode;
+            let warningIcon = isUnmapped ? `<span class="text-warning ml-1" title="Cảnh báo: Chưa tìm thấy SigmaCode tương ứng trên hệ thống ERP!"><i class="fas fa-exclamation-triangle text-warning"></i></span>` : '';
+
+            tbodyHtml += `<tr>
+                <td>${item.line}</td>
+                <td><span class="display-item-code">${escapeHtmlText(item.itemCode || '')}</span>${warningIcon}</td>
+                <td>${escapeHtmlText(item.description || '')}</td>
+                <td class="text-right">${Number(item.qty).toLocaleString()}</td>
+                <td class="text-right" data-original-price="${item.unitPrice}">$${formattedPrice}</td>
+                <td class="text-right" data-original-amount="${item.amount}">$${formattedAmount}</td>
+                <td class="text-center col-action d-none">
+                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>`;
+        });
+        $('#po-line-table tbody').html(tbodyHtml);
+
+        if (unmappedList.length > 0) {
+            let warnHeader = t('Warning: The following item code(s) could not be mapped to an ERP SigmaCode:', 'Cảnh báo: Các mã hàng sau chưa ánh xạ được sang SigmaCode trên hệ thống ERP:');
+            let checkMsg = t('Please check and update them.', 'Vui lòng kiểm tra lại.');
+            alert(`${warnHeader} (${unmappedList.length})\n\n- ${unmappedList.join('\n- ')}\n\n${checkMsg}`);
+        }
+
+        const calcUnits = Number(m.calculatedUnits).toLocaleString();
+        const calcAmt = Number(m.calculatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const expUnits = Number(m.expectedUnits).toLocaleString();
+        const expAmt = Number(m.expectedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        document.getElementById('calculated-sum-display').innerText = `${calcUnits} Units / $${calcAmt}`;
+        document.getElementById('expected-sum-display').innerText = `${expUnits} Units / $${expAmt}`;
+
+        // 3. HIỂN THỊ VÀ CẬP NHẬT KHUNG CẢNH BÁO AUDIT
+        $('#ocr-audit-alert-box').show();
+        const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
+        updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
+        updateRecreatedPoBadgeUI();
+        saveLocalSession();
+        if (window.i18n && window.i18n.apply) {
+            window.i18n.apply();
+        }
+    }
+
+    function showDuplicatePoWarningModal(dupInfo, mode, uploadResponse, editCallback) {
+        pendingDuplicateMode = mode || 'upload';
+        pendingDuplicateResponse = uploadResponse || null;
+        pendingEditSaveCallback = editCallback || null;
+
+        let poNum = dupInfo.customerPONumber || (uploadResponse?.data?.poNumber) || $('#po-number-display').text().trim() || '-';
+        let historyList = dupInfo.history || [];
+        let custName = (uploadResponse?.data?.customer) || (historyList[0]?.customer) || $('#po-customer-display').text().trim() || '-';
+
+        $('#dup-po-number').text(poNum);
+        $('#dup-po-customer').text(custName);
+        $('#dup-po-count').text(dupInfo.previousCount || historyList.length || 1);
+
+        let rowsHtml = '';
+        historyList.forEach(function (h) {
+            let nsPoCell = h.createdPoUrl
+                ? `<a href="${escapeHtmlText(h.createdPoUrl)}" target="_blank" class="badge badge-primary font-weight-bold text-decoration-none">${escapeHtmlText(h.createdPoNumber)} <i class="fas fa-external-link-alt ml-1" style="font-size: 0.65rem;"></i></a>`
+                : `<span class="badge badge-secondary font-weight-bold">${escapeHtmlText(h.createdPoNumber || '-')}</span>`;
+
+            let nsSoCell = h.createdSoNumber
+                ? (h.createdSoUrl
+                    ? `<a href="${escapeHtmlText(h.createdSoUrl)}" target="_blank" class="badge badge-success font-weight-bold text-decoration-none">${escapeHtmlText(h.createdSoNumber)} <i class="fas fa-external-link-alt ml-1" style="font-size: 0.65rem;"></i></a>`
+                    : `<span class="badge badge-success font-weight-bold">${escapeHtmlText(h.createdSoNumber)}</span>`)
+                : '<span class="text-muted">-</span>';
+
+            rowsHtml += `<tr>
+                <td>${nsPoCell}</td>
+                <td>${nsSoCell}</td>
+                <td>${escapeHtmlText(h.customer || '-')}</td>
+                <td>${escapeHtmlText(h.createdBy || '-')}</td>
+                <td>${escapeHtmlText(h.createdOn || '-')}</td>
+            </tr>`;
+        });
+        $('#dup-po-history-tbody').html(rowsHtml);
+
+        if (window.i18n && window.i18n.apply) {
+            window.i18n.apply('#duplicatePoWarningModal');
+        }
+        $('#duplicatePoWarningModal').modal('show');
+    }
+
+    $(document).on('click', '#btn-confirm-duplicate-po', function () {
+        let dupInfo = pendingDuplicateResponse?.duplicateInfo || window.__lastEditDuplicateInfo;
+        isRecreatedPo = true;
+        recreatedFromPo = dupInfo?.recreatedFromPoSummary || dupInfo?.latestCreatedPoNumber || recreatedFromPo || '';
+        $('#duplicatePoWarningModal').modal('hide');
+
+        if (pendingDuplicateMode === 'upload' && pendingDuplicateResponse) {
+            let respToApply = pendingDuplicateResponse;
+            pendingDuplicateResponse = null;
+            applyUploadedPoData(respToApply);
+            saveServerSession('PROCESSING', 1);
+        } else if (pendingDuplicateMode === 'edit' && typeof pendingEditSaveCallback === 'function') {
+            let cb = pendingEditSaveCallback;
+            pendingEditSaveCallback = null;
+            updateRecreatedPoBadgeUI();
+            cb();
+        }
+    });
+
+    function handleDuplicateCancel() {
+        $('#duplicatePoWarningModal').modal('hide');
+        if (pendingDuplicateMode === 'upload') {
+            let txId = pendingDuplicateResponse?.transactionId || currentTransactionId;
+            let fileName = currentPdfFileName;
+            if (txId && fileName) {
+                $.ajax({
+                    url: '@Url.Action("DiscardPendingPoUpload", "Oracle")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ TransactionId: txId, PdfFileName: fileName })
+                });
+            }
+            resetPoInboundToInitialState();
+        } else {
+            pendingEditSaveCallback = null;
+            window.__lastEditDuplicateInfo = null;
+        }
+    }
+
+    $(document).on('click', '#btn-cancel-duplicate-po, #btn-close-duplicate-po', function () {
+        handleDuplicateCancel();
+    });
+
     document.getElementById('pdf-file-input').addEventListener('change', function (event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1348,8 +1680,15 @@
             return;
         }
 
-        // Hiển thị tên file vừa import
-        document.getElementById('file-name-display').innerText = file.name;
+        // Reset trạng thái PO cũ trước khi xử lý file mới
+        isRecreatedPo = false;
+        recreatedFromPo = '';
+        lastCheckedPoNumber = '';
+        pendingDuplicateResponse = null;
+        updateRecreatedPoBadgeUI();
+
+        // Hiển thị tên file vừa import (loại bỏ data-key để i18n không ghi đè thành 'Chưa chọn file')
+        setFileNameDisplay(file.name);
 
         // Tạo đường dẫn tạm thời cho file PDF
         const fileURL = URL.createObjectURL(file);
@@ -1393,92 +1732,13 @@
             contentType: false,
             success: function (response) {
                 if (response.success) {
-                    if (response.transactionId) {
-                        currentTransactionId = response.transactionId;
+                    if (response.isDuplicatePo && response.duplicateInfo) {
+                        currentTransactionId = response.transactionId || currentTransactionId;
+                        currentPdfPath = response.viewPdfUrl || response.pdfUrl || '';
+                        showDuplicatePoWarningModal(response.duplicateInfo, 'upload', response);
+                    } else {
+                        applyUploadedPoData(response);
                     }
-                    if (response.viewPdfUrl || response.pdfUrl) {
-                        currentPdfPath = response.viewPdfUrl || response.pdfUrl;
-                    }
-                    let m = response.data;
-                    let unmappedList = response.unmappedCodes || []; // Lấy danh sách mã chưa ánh xạ được từ server
-
-                    // LƯU TOÀN BỘ RAW JSON VÀO THẺ ẨN
-                    if (response.rawJsonStr) {
-                        $('#ocr-raw-json-hidden').val(response.rawJsonStr);
-                    }
-
-                    let currency = response.currency || m.currency || 'USD';
-                    $('#po-currency-hidden').val(currency);
-                    console.log("PO Currency:", currency);
-
-                    let audit = m.auditReport || {};
-
-                    // 1. KÍCH HOẠT LẠI TẤT CẢ CÁC NÚT BẤM
-                    $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', false);
-
-                    // 2. Cập nhật Header & Bảng
-                    document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
-                    document.getElementById('po-date-display').innerText = m.date || 'N/A';
-                    document.getElementById('po-customer-display').innerText = m.customer || 'N/A';
-                    document.getElementById('po-requisitioner-display').innerText = m.requisitioner || 'N/A';
-
-                    // Dịch động dòng số lượng lines tìm thấy bằng hàm t()
-                    let lineFoundTemplate = t("EXTRACTED LINE ITEMS (0 LINES FOUND)", "EXTRACTED LINE ITEMS ({0} LINES FOUND)");
-                    let formattedLineText = lineFoundTemplate.replace("{0}", m.lineItems.length).replace("0", m.lineItems.length);
-                    document.getElementById('line-items-header').innerText = formattedLineText;
-
-                    let tbodyHtml = '';
-                    m.lineItems.forEach(item => {
-                        let formattedPrice = Number(item.unitPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                        let formattedAmount = Number(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                        // Kiểm tra xem mã mặt hàng này có nằm trong danh sách thiếu SigmaCode không để gắn icon cảnh báo
-                        let isUnmapped = unmappedList.includes(item.itemCode) || !item.itemCode;
-                        let warningIcon = isUnmapped ? `<span class="text-warning ml-1" title="Cảnh báo: Chưa tìm thấy SigmaCode tương ứng trên hệ thống ERP!"><i class="fas fa-exclamation-triangle text-warning"></i></span>` : '';
-
-                        tbodyHtml += `<tr>
-                            <td>${item.line}</td>
-                            <td><span class="display-item-code">${item.itemCode || ''}</span>${warningIcon}</td>
-                            <td>${item.description || ''}</td>
-                            <td class="text-right">${Number(item.qty).toLocaleString()}</td>
-                            <td class="text-right" data-original-price="${item.unitPrice}">$${formattedPrice}</td>
-                            <td class="text-right" data-original-amount="${item.amount}">$${formattedAmount}</td>
-                            <td class="text-center col-action d-none">
-                                <button type="button" class="btn btn-xs btn-outline-danger btn-delete-line"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>`;
-                    });
-                    $('#po-line-table tbody').html(tbodyHtml);
-
-                    // =========================================================
-                    // THÊM ALERT THÔNG BÁO CÁC MÃ CHƯA ÁNH XẠ Ở ĐÂY
-                    // =========================================================
-                    if (unmappedList.length > 0) {
-                        let warnHeader = t('Warning: The following item code(s) could not be mapped to an ERP SigmaCode:', 'Cảnh báo: Các mã hàng sau chưa ánh xạ được sang SigmaCode trên hệ thống ERP:');
-                        let checkMsg = t('Please check and update them.', 'Vui lòng kiểm tra lại.');
-                        alert(`${warnHeader} (${unmappedList.length})\n\n- ${unmappedList.join('\n- ')}\n\n${checkMsg}`);
-                    }
-                    // =========================================================
-
-                    const calcUnits = Number(m.calculatedUnits).toLocaleString();
-                    const calcAmt = Number(m.calculatedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    const expUnits = Number(m.expectedUnits).toLocaleString();
-                    const expAmt = Number(m.expectedAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                    document.getElementById('calculated-sum-display').innerText = `${calcUnits} Units / $${calcAmt}`;
-                    document.getElementById('expected-sum-display').innerText = `${expUnits} Units / $${expAmt}`;
-
-                    // 3. HIỂN THỊ VÀ CẬP NHẬT KHUNG CẢNH BÁO AUDIT
-                    $('#ocr-audit-alert-box').show();
-
-                    const isPassed = (audit.lineIntegrityPassed == true) && (audit.unitsMatched == true) && (audit.amountMatched == true);
-
-                    updateAuditStatusUI(isPassed, calcUnits, expUnits, calcAmt, expAmt);
-                    saveLocalSession();
-                    if (window.i18n && window.i18n.apply) {
-                        window.i18n.apply();
-                    }
-
                 } else {
                     alert(t('Error:') + ' ' + response.message);
                 }
@@ -1986,30 +2246,59 @@ $('#btn-save-edit').on('click', function () {
             });
         });
 
-        // 4. IN RA CONSOLE HOẶC GỬI NGẦM LÊN SERVER ĐỂ LOG LẠI
-        console.log("--- TRẠNG THÁI TRƯỚC KHI SỬA (BEFORE) ---", originalDataBackup);
-        console.log("--- TRẠNG THÁI SAU KHI SỬA (AFTER) ---", afterStateData);
+        let completeStep1Save = function () {
+            console.log("--- TRẠNG THÁI TRƯỚC KHI SỬA (BEFORE) ---", originalDataBackup);
+            console.log("--- TRẠNG THÁI SAU KHI SỬA (AFTER) ---", afterStateData);
 
-        $.ajax({
-            url: '@Url.Action("LogPoEdits", "Oracle")',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                PONumber: afterStateData.poNumber,
-                BeforeState: JSON.stringify(originalDataBackup),
-                AfterState: JSON.stringify(afterStateData)
-            })
-        });
+            $.ajax({
+                url: '@Url.Action("LogPoEdits", "Oracle")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    PONumber: afterStateData.poNumber,
+                    BeforeState: JSON.stringify(originalDataBackup),
+                    AfterState: JSON.stringify(afterStateData)
+                })
+            });
 
-        // 5. LƯU THỰC THẾ TRÊN GIAO DIỆN
-        saveTableEdits();
-        updateHiddenRawJson();
-        enableEditMode(false);
-        recalculateAndAudit();
-        pendingSaveAction = false; // Reset cờ trạng thái
+            // 5. LƯU THỰC THẾ TRÊN GIAO DIỆN
+            saveTableEdits();
+            updateHiddenRawJson();
+            enableEditMode(false);
+            recalculateAndAudit();
+            pendingSaveAction = false; // Reset cờ trạng thái
+            lastCheckedPoNumber = afterStateData.poNumber;
+            updateRecreatedPoBadgeUI();
+            saveLocalSession();
+            saveServerSession('PROCESSING', 1);
 
-        let successMsg1 = t("PO data updated successfully!");
-        alert(successMsg1);
+            let successMsg1 = t("PO data updated successfully!");
+            alert(successMsg1);
+        };
+
+        // Nếu người dùng thay đổi số PO so với lúc Upload ban đầu -> Kiểm tra lại xem số PO mới có bị trùng không
+        if (afterStateData.poNumber && afterStateData.poNumber !== lastCheckedPoNumber && !isRecreatedPo) {
+            $.ajax({
+                url: '@Url.Action("CheckDuplicatePO", "Oracle")?poNumber=' + encodeURIComponent(afterStateData.poNumber),
+                type: 'GET',
+                success: function (dupRes) {
+                    if (dupRes && dupRes.success && dupRes.isDuplicatePo && dupRes.duplicateInfo) {
+                        window.__lastEditDuplicateInfo = dupRes.duplicateInfo;
+                        pendingSaveAction = false;
+                        showDuplicatePoWarningModal(dupRes.duplicateInfo, 'edit', null, completeStep1Save);
+                    } else {
+                        lastCheckedPoNumber = afterStateData.poNumber;
+                        completeStep1Save();
+                    }
+                },
+                error: function () {
+                    completeStep1Save();
+                }
+            });
+            return;
+        }
+
+        completeStep1Save();
 
     } else if (currentStep === 2) {
         saveStep2Edits();
@@ -2999,6 +3288,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             TaxCode: selectedTaxCode,           // Gửi lên kiểu int
             ProjectCode: selectedProjectCode,   // Gửi lên kiểu int
             ProjectCodeText: selectedProjectCodeText,
+            IsRecreated: isRecreatedPo,
+            RecreatedFromPo: recreatedFromPo,
             LineItems: lineItems,
             RawOcrResponse: JSON.stringify(rawOcrData)
         };
@@ -3714,6 +4005,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             InventoryLocation: 'Sigma Asia',
             CreatedPoId: createdPoData?.poId || 0,
             CreatedPoUrl: createdPoData?.poUrl || '',
+            IsRecreated: isRecreatedPo,
+            RecreatedFromPo: recreatedFromPo,
             LineItems: updatedLines,
             RawOcrResponse: JSON.stringify(rawOcrData)
         };

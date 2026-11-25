@@ -27,6 +27,7 @@
                             <option value="PROCESSING" selected="@(ViewBag.SelectedStatus == "PROCESSING")" class="lang-text" data-i18n="Processing (Incomplete)">Processing (Chưa hoàn thành)</option>
                             <option value="PO_CREATED" selected="@(ViewBag.SelectedStatus == "PO_CREATED")" class="lang-text" data-i18n="PO Created (Pending SO)">PO Created (Chờ tạo SO)</option>
                             <option value="SO_COMPLETED" selected="@(ViewBag.SelectedStatus == "SO_COMPLETED")" class="lang-text" data-i18n="Completed (PO & SO)">Completed (Đã xong PO & SO)</option>
+                            <option value="RECREATED" selected="@(ViewBag.SelectedStatus == "RECREATED")" class="lang-text" data-i18n="Recreated PO">PO Tạo lại</option>
                             <option value="REJECTED" selected="@(ViewBag.SelectedStatus == "REJECTED")" class="lang-text" data-i18n="Rejected">Rejected</option>
                         </select>
                     </div>
@@ -73,7 +74,7 @@
                         {
                             foreach (var row in Model)
                             {
-                                <tr>
+                                <tr style="@(row.IsRecreated ? "background-color: #fffbeb; box-shadow: inset 4px 0 0 #fd7e14;" : "")">
                                     <td>@row.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss")</td>
                                     <td><span class="text-secondary font-weight-bold">@row.CreatedBy</span></td>
                                     <td>
@@ -117,7 +118,7 @@
                                         }
                                     </td>
                                     <td>
-                                        <div>
+                                        <div class="d-flex flex-wrap align-items-center" style="gap: 4px;">
                                             @if (!string.IsNullOrEmpty(row.PoUrl))
                                             {
                                                 <a href="@row.PoUrl" target="_blank" class="badge badge-primary font-weight-bold px-2 py-1 text-decoration-none shadow-sm" style="font-size: 0.80rem;" title="Mở NetSuite Purchase Order">
@@ -128,6 +129,14 @@
                                             {
                                                 <span class="badge badge-secondary font-weight-bold px-2 py-1" style="font-size: 0.80rem;">
                                                     @row.SigmaPO
+                                                </span>
+                                            }
+                                            @if (row.IsRecreated)
+                                            {
+                                                <span class="badge font-weight-bold px-2 py-1 shadow-sm"
+                                                      style="background-color: #fd7e14; color: #ffffff; font-size: 0.72rem;"
+                                                      title="@(!string.IsNullOrEmpty(row.RecreatedFromPo) ? $"PO này đã được tạo trước đó: {row.RecreatedFromPo}" : "PO được tạo lại từ số PO đã tồn tại")">
+                                                    <i class="fas fa-redo-alt mr-1"></i><span class="lang-text" data-i18n="Recreated">Tạo lại</span>
                                                 </span>
                                             }
                                         </div>
@@ -152,6 +161,12 @@
                                         {
                                             <div class="text-muted small mt-1" style="font-size: 0.70rem;">
                                                 <i class="fas fa-tag mr-1"></i>Cust PO: <strong>@row.CustomerPONumber</strong>
+                                            </div>
+                                        }
+                                        @if (row.IsRecreated && !string.IsNullOrEmpty(row.RecreatedFromPo))
+                                        {
+                                            <div class="small mt-1 font-weight-bold" style="font-size: 0.70rem; color: #b45309;">
+                                                <i class="fas fa-history mr-1"></i><span class="lang-text" data-i18n="Recreated from">Tạo lại từ</span>: <span>@row.RecreatedFromPo</span>
                                             </div>
                                         }
                                     </td>
