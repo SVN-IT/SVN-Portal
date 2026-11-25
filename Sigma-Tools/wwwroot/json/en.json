@@ -303,5 +303,9 @@
   "Previous Created NetSuite POs": "Previously Created NetSuite POs",
   "NetSuite PO": "NetSuite PO",
   "SO Number": "SO Number",
-  "PO Upload Cancelled": "Duplicate PO upload cancelled."
+  "PO Upload Cancelled": "Duplicate PO upload cancelled.",
+  "Previous NetSuite Error": "Previous NetSuite Error",
+  "Please resolve the issue and retry.": "Please resolve the issue and retry.",
+  "Missing ERP Price": "Missing ERP Price",
+  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first."
 }

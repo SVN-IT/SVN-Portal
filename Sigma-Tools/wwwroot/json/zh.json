@@ -303,5 +303,9 @@
   "Previous Created NetSuite POs": "此前已创建的 NetSuite 采购订单",
   "NetSuite PO": "NetSuite 采购单号",
   "SO Number": "销售订单号",
-  "PO Upload Cancelled": "已取消上传重复的采购订单。"
+  "PO Upload Cancelled": "已取消上传重复的采购订单。",
+  "Previous NetSuite Error": "上次 NetSuite 错误",
+  "Please resolve the issue and retry.": "请解决此问题后重试。",
+  "Missing ERP Price": "缺少 ERP 价格",
+  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "在缺少 ERP 基准价格或与 OCR 价格不一致时，无法转换为 ERP PO。请先在第 2 步核对 ERP 价格。"
 }

@@ -62,6 +62,7 @@ namespace Sigma_Tools.Models
         // Đánh dấu PO được tạo lại (trùng số PO đã tạo thành công trước đó)
         public bool IsRecreated { get; set; } = false;
         public string? RecreatedFromPo { get; set; }
+        public string? LastErrorMessage { get; set; }
 
         public string CreatedBy { get; set; } = "System";
         public DateTime CreatedOn { get; set; } = DateTime.Now;

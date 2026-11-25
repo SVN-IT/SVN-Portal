@@ -28,6 +28,7 @@
                             <option value="PO_CREATED" selected="@(ViewBag.SelectedStatus == "PO_CREATED")" class="lang-text" data-i18n="PO Created (Pending SO)">PO Created (Chờ tạo SO)</option>
                             <option value="SO_COMPLETED" selected="@(ViewBag.SelectedStatus == "SO_COMPLETED")" class="lang-text" data-i18n="Completed (PO & SO)">Completed (Đã xong PO & SO)</option>
                             <option value="RECREATED" selected="@(ViewBag.SelectedStatus == "RECREATED")" class="lang-text" data-i18n="Recreated PO">PO Tạo lại</option>
+                            <option value="FAILED" selected="@(ViewBag.SelectedStatus == "FAILED")" class="lang-text" data-i18n="Failed">Gặp lỗi</option>
                             <option value="REJECTED" selected="@(ViewBag.SelectedStatus == "REJECTED")" class="lang-text" data-i18n="Rejected">Rejected</option>
                         </select>
                     </div>
@@ -98,9 +99,15 @@
                                         }
                                         else if (row.Status == "FAILED")
                                         {
-                                            <span class="badge badge-danger font-weight-bold px-2 py-1" style="font-size: 0.78rem;">
+                                            <span class="badge badge-danger font-weight-bold px-2 py-1" style="font-size: 0.78rem;" title="@(!string.IsNullOrEmpty(row.LastErrorMessage) ? row.LastErrorMessage : "Khởi tạo thất bại")">
                                                 <i class="fas fa-times-circle mr-1"></i><span class="lang-text" data-i18n="Error">Lỗi</span>
                                             </span>
+                                            @if (!string.IsNullOrEmpty(row.LastErrorMessage))
+                                            {
+                                                <div class="text-danger small mt-1" style="font-size: 0.70rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="@row.LastErrorMessage">
+                                                    @row.LastErrorMessage
+                                                </div>
+                                            }
                                         }
                                         else
                                         {

@@ -25,5 +25,6 @@
         // Đánh dấu PO được tạo lại trong lịch sử Tracking
         public bool IsRecreated { get; set; } = false;
         public string? RecreatedFromPo { get; set; }
+        public string? LastErrorMessage { get; set; }
     }
 }

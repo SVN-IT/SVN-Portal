@@ -303,5 +303,9 @@
   "Previous Created NetSuite POs": "Danh sách PO NetSuite đã tạo trước đó",
   "NetSuite PO": "Số PO NetSuite",
   "SO Number": "Số SO NetSuite",
-  "PO Upload Cancelled": "Đã hủy tải lên PO trùng lặp."
+  "PO Upload Cancelled": "Đã hủy tải lên PO trùng lặp.",
+  "Previous NetSuite Error": "Lỗi NetSuite lần trước",
+  "Please resolve the issue and retry.": "Vui lòng xử lý nguyên nhân lỗi và thực hiện lại.",
+  "Missing ERP Price": "Chưa có giá ERP",
+  "Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.": "Không thể tạo ERP PO khi thiếu giá ERP hoặc giá chưa khớp với OCR. Vui lòng kiểm tra lại giá ERP ở Bước 2 trước."
 }

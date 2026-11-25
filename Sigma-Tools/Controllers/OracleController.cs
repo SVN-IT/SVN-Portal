@@ -91,7 +91,10 @@ namespace Sigma_Tools.Controllers
                     if (tx == null) continue;
                     if (!string.Equals(tx.CustomerPONumber?.Trim(), targetPo, StringComparison.OrdinalIgnoreCase)) continue;
 
-                    bool isSuccessStatus = tx.Status == "PO_CREATED" || tx.Status == "SO_COMPLETED" || !string.IsNullOrEmpty(tx.CreatedPoNumber);
+                    bool hasValidNetSuitePo = (tx.CreatedPoId.HasValue && tx.CreatedPoId.Value > 0)
+                        || !string.IsNullOrEmpty(tx.CreatedPoUrl)
+                        || (!string.IsNullOrEmpty(tx.CreatedPoNumber) && !string.Equals(tx.CreatedPoNumber.Trim(), targetPo, StringComparison.OrdinalIgnoreCase));
+                    bool isSuccessStatus = hasValidNetSuitePo && (tx.Status == "PO_CREATED" || tx.Status == "SO_COMPLETED" || !string.IsNullOrEmpty(tx.CreatedPoNumber));
                     if (!isSuccessStatus) continue;
 
                     DateTime createdTime = tx.ModifiedOn != DateTime.MinValue ? tx.ModifiedOn : log.CreatedOn;
@@ -123,10 +126,12 @@ namespace Sigma_Tools.Controllers
 
                 var poNumMatch = nsPoNumPattern.Match(log.Content);
                 var poIdMatch = nsPoIdPattern.Match(log.Content);
-                string nsPoNum = poNumMatch.Success
-                    ? poNumMatch.Groups[1].Value.Trim()
-                    : (poIdMatch.Success ? $"PO-{poIdMatch.Groups[1].Value}" : "");
-                if (string.IsNullOrEmpty(nsPoNum) || seenNsPos.Contains(nsPoNum)) continue;
+                int parsedPoId = poIdMatch.Success && int.TryParse(poIdMatch.Groups[1].Value, out int tmpId) ? tmpId : 0;
+                string nsPoNum = poNumMatch.Success ? poNumMatch.Groups[1].Value.Trim() : "";
+
+                // Bỏ qua các bản ghi lỗi từng bị ghi nhầm (Netsuite PO ID: 0 hoặc không có số PO NetSuite)
+                if (parsedPoId <= 0 || string.IsNullOrEmpty(nsPoNum)) continue;
+                if (seenNsPos.Contains(nsPoNum)) continue;
 
                 seenNsPos.Add(nsPoNum);
                 var custMatch = customerPattern.Match(log.Content);
@@ -308,6 +313,44 @@ namespace Sigma_Tools.Controllers
         }
 
         /// <summary>
+        /// Ghi nhận trạng thái FAILED cho tiến trình khi bước tạo PO hoặc SO trên NetSuite thất bại.
+        /// </summary>
+        private void MarkTransactionStateFailed(string? transactionId, int failedStep, string errorMessage, string userName)
+        {
+            if (string.IsNullOrEmpty(transactionId) || !Guid.TryParse(transactionId, out Guid txGuid)) return;
+            try
+            {
+                var existingLog = logger.GetTransactionState(txGuid);
+                POTransactionStateModel? state = null;
+                if (existingLog != null && !string.IsNullOrEmpty(existingLog.Content))
+                {
+                    state = JsonConvert.DeserializeObject<POTransactionStateModel>(existingLog.Content);
+                }
+                if (state == null)
+                {
+                    state = new POTransactionStateModel { TransactionId = transactionId };
+                }
+
+                state.Status = "FAILED";
+                state.CurrentStep = failedStep;
+                state.LastErrorMessage = errorMessage;
+                if (failedStep <= 3 && (!state.CreatedPoId.HasValue || state.CreatedPoId.Value <= 0))
+                {
+                    state.CreatedPoId = null;
+                    state.CreatedPoNumber = null;
+                    state.CreatedPoUrl = null;
+                }
+                state.ModifiedOn = DateTime.Now;
+
+                logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "FAILED", string.IsNullOrEmpty(userName) ? "System" : userName);
+            }
+            catch (Exception txEx)
+            {
+                logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.POTransactionState, LogService.LogType.Warning, $"Không thể lưu state FAILED: {txEx.Message}", string.IsNullOrEmpty(userName) ? "System" : userName);
+            }
+        }
+
+        /// <summary>
         /// Action hiển thị trang danh sách PO Tracking được bóc tách từ lịch sử log
         /// </summary>
         [HttpGet]
@@ -375,19 +418,26 @@ namespace Sigma_Tools.Controllers
                             var tx = JsonConvert.DeserializeObject<POTransactionStateModel>(log.Content);
                             if (tx == null) continue;
 
-                            string poNum = !string.IsNullOrEmpty(tx.CreatedPoNumber) ? tx.CreatedPoNumber : (!string.IsNullOrEmpty(tx.CustomerPONumber) ? tx.CustomerPONumber : "N/A");
-                            if (!string.IsNullOrEmpty(tx.CreatedPoNumber)) seenPoNumbers.Add(tx.CreatedPoNumber);
+                            bool hasValidNetSuitePo = (tx.CreatedPoId.HasValue && tx.CreatedPoId.Value > 0) || !string.IsNullOrEmpty(tx.CreatedPoUrl);
+                            bool isFakePoCreated = tx.Status == "PO_CREATED" && !hasValidNetSuitePo;
+                            string effectiveStatus = isFakePoCreated ? "FAILED" : (tx.Status ?? "PROCESSING");
+                            int effectiveStep = isFakePoCreated ? 3 : tx.CurrentStep;
+
+                            string poNum = (effectiveStatus == "PO_CREATED" || effectiveStatus == "SO_COMPLETED") && !string.IsNullOrEmpty(tx.CreatedPoNumber)
+                                ? tx.CreatedPoNumber
+                                : (!string.IsNullOrEmpty(tx.CustomerPONumber) ? tx.CustomerPONumber : "N/A");
+                            if (hasValidNetSuitePo && !string.IsNullOrEmpty(tx.CreatedPoNumber)) seenPoNumbers.Add(tx.CreatedPoNumber);
                             if (!string.IsNullOrEmpty(tx.CustomerPONumber)) seenPoNumbers.Add(tx.CustomerPONumber);
 
-                            bool canResume = (tx.Status == "PROCESSING" || tx.Status == "PO_CREATED");
-                            string statusDisplay = tx.Status switch
+                            bool canResume = (effectiveStatus == "PROCESSING" || effectiveStatus == "PO_CREATED" || effectiveStatus == "FAILED");
+                            string statusDisplay = effectiveStatus switch
                             {
                                 "PO_CREATED" => "PO Created (Chờ tạo SO)",
-                                "PROCESSING" => $"Đang xử lý (Bước {tx.CurrentStep})",
+                                "PROCESSING" => $"Đang xử lý (Bước {effectiveStep})",
                                 "SO_COMPLETED" => "Hoàn thành (PO & SO)",
                                 "REJECTED" => "Đã từ chối",
                                 "FAILED" => "Gặp lỗi",
-                                _ => tx.Status ?? "Processing"
+                                _ => effectiveStatus
                             };
 
                             if (tx.LineItems != null && tx.LineItems.Count > 0)
@@ -403,18 +453,19 @@ namespace Sigma_Tools.Controllers
                                         Description = line.Description ?? "",
                                         OrderQty = line.Quantity,
                                         OpenOrderQty = line.Quantity,
-                                        PoUrl = tx.CreatedPoUrl,
+                                        PoUrl = hasValidNetSuitePo ? tx.CreatedPoUrl : "",
                                         TransactionId = tx.TransactionId,
                                         Customer = tx.Customer,
                                         CustomerPONumber = tx.CustomerPONumber,
-                                        Status = tx.Status,
+                                        Status = effectiveStatus,
                                         StatusDisplay = statusDisplay,
-                                        CurrentStep = tx.CurrentStep,
+                                        CurrentStep = effectiveStep,
                                         CanResume = canResume,
                                         SoNumber = tx.CreatedSoNumber,
                                         SoUrl = tx.CreatedSoUrl,
                                         IsRecreated = tx.IsRecreated,
-                                        RecreatedFromPo = tx.RecreatedFromPo
+                                        RecreatedFromPo = tx.RecreatedFromPo,
+                                        LastErrorMessage = tx.LastErrorMessage
                                     });
                                 }
                             }
@@ -429,18 +480,19 @@ namespace Sigma_Tools.Controllers
                                     Description = $"Customer: {tx.Customer}",
                                     OrderQty = 0,
                                     OpenOrderQty = 0,
-                                    PoUrl = tx.CreatedPoUrl,
+                                    PoUrl = hasValidNetSuitePo ? tx.CreatedPoUrl : "",
                                     TransactionId = tx.TransactionId,
                                     Customer = tx.Customer,
                                     CustomerPONumber = tx.CustomerPONumber,
-                                    Status = tx.Status,
+                                    Status = effectiveStatus,
                                     StatusDisplay = statusDisplay,
-                                    CurrentStep = tx.CurrentStep,
+                                    CurrentStep = effectiveStep,
                                     CanResume = canResume,
                                     SoNumber = tx.CreatedSoNumber,
                                     SoUrl = tx.CreatedSoUrl,
                                     IsRecreated = tx.IsRecreated,
-                                    RecreatedFromPo = tx.RecreatedFromPo
+                                    RecreatedFromPo = tx.RecreatedFromPo,
+                                    LastErrorMessage = tx.LastErrorMessage
                                 });
                             }
                         }
@@ -1267,7 +1319,23 @@ namespace Sigma_Tools.Controllers
                                 // Sau khi đã lọc sạch text thừa, tiến hành parse chuỗi JSON an toàn
                                 var parsedResponse = JsonConvert.DeserializeObject<CreateNetsuiteSOResponse>(jsonString);
 
-                                string createdPoNumber = parsedResponse.poNumber ?? request.PONumber;
+                                // Kiểm tra chặt chẽ kết quả thực tế từ NetSuite RESTlet: chỉ coi là thành công khi Success=true và có poId > 0 + poNumber hợp lệ
+                                bool isPoCreatedSuccess = parsedResponse != null
+                                    && parsedResponse.Success
+                                    && parsedResponse.poId > 0
+                                    && !string.IsNullOrWhiteSpace(parsedResponse.poNumber);
+
+                                if (!isPoCreatedSuccess)
+                                {
+                                    string nsErrMsg = !string.IsNullOrWhiteSpace(parsedResponse?.Message)
+                                        ? parsedResponse.Message
+                                        : "Tạo Purchase Order trên NetSuite thất bại (không nhận được mã PO hợp lệ từ NetSuite).";
+                                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {nsErrMsg}", currentUser.UserName);
+                                    MarkTransactionStateFailed(request.TransactionId, 3, nsErrMsg, currentUser.UserName);
+                                    return Json(new { success = false, message = nsErrMsg });
+                                }
+
+                                string createdPoNumber = parsedResponse!.poNumber;
 
                                 // Đọc Transaction State hiện tại trước để bảo toàn cờ IsRecreated & thông tin trùng PO
                                 POTransactionStateModel? state = null;
@@ -1339,6 +1407,7 @@ namespace Sigma_Tools.Controllers
                                         state.ProjectCodeText = !string.IsNullOrEmpty(request.ProjectCodeText) ? request.ProjectCodeText : request.ProjectCode.ToString();
                                         state.IsRecreated = isRecreated;
                                         state.RecreatedFromPo = recreatedFromPo;
+                                        state.LastErrorMessage = null;
                                         state.ModifiedOn = DateTime.Now;
 
                                         logger.SaveTransactionState(txGuid, JsonConvert.SerializeObject(state), "PO_CREATED", currentUser.UserName);
@@ -1355,27 +1424,35 @@ namespace Sigma_Tools.Controllers
                             }
                             else
                             {
+                                string apiErrMsg = "Lỗi khi tạo Purchase Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết");
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, ErrorMessage: {processResult?.Message}", currentUser.UserName);
-                                return Json(new { success = false, message = "Lỗi khi tạo Purchase Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
+                                MarkTransactionStateFailed(request.TransactionId, 3, apiErrMsg, currentUser.UserName);
+                                return Json(new { success = false, message = apiErrMsg });
                             }
                         }
                         else
                         {
+                            string httpErrMsg = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}";
                             logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}", currentUser.UserName);
-                            return Json(new { success = false, message = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" });
+                            MarkTransactionStateFailed(request.TransactionId, 3, httpErrMsg, currentUser.UserName);
+                            return Json(new { success = false, message = httpErrMsg });
                         }
                     }
                 }
                 else
                 {
+                    string rawErrMsg = "Dữ liệu Raw OCR Response bị trống, không thể tạo Purchase Order trên NetSuite.";
                     logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống, không thể tạo Purchase Order trên NetSuite. PONumber: {poNumber}, Customer: {customer}, Currency: {currency}, TotalLines: {totalLines}", currentUser.UserName);
-                    return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Purchase Order trên NetSuite." });
+                    MarkTransactionStateFailed(request.TransactionId, 3, rawErrMsg, currentUser.UserName);
+                    return Json(new { success = false, message = rawErrMsg });
                 }
             }
             catch (Exception ex)
             {
+                string sysErrMsg = "Lỗi hệ thống: " + ex.Message;
                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Purchase Order trên NetSuite: {ex.Message}", currentUser.UserName);
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+                MarkTransactionStateFailed(request.TransactionId, 3, sysErrMsg, currentUser.UserName);
+                return Json(new { success = false, message = sysErrMsg });
             }
         }
 
@@ -1503,9 +1580,26 @@ namespace Sigma_Tools.Controllers
                                 }
 
                                 var parsedResponse = JsonConvert.DeserializeObject<CreateSalesOrderResponse>(jsonString);
-                                string createdSoNumber = parsedResponse?.soNumber ?? ("SO-" + soRefPO);
-                                int? soId = parsedResponse?.soId;
-                                string createdSoUrl = !string.IsNullOrEmpty(parsedResponse?.soUrl)
+
+                                // Kiểm tra chặt chẽ kết quả từ NetSuite RESTlet trước khi ghi SO_COMPLETED
+                                bool isSoCreatedSuccess = parsedResponse != null
+                                    && parsedResponse.success
+                                    && (parsedResponse.soId ?? 0) > 0
+                                    && !string.IsNullOrWhiteSpace(parsedResponse.soNumber);
+
+                                if (!isSoCreatedSuccess)
+                                {
+                                    string nsSoErrMsg = !string.IsNullOrWhiteSpace(parsedResponse?.message)
+                                        ? parsedResponse.message
+                                        : "Tạo Sales Order trên NetSuite thất bại (không nhận được mã SO hợp lệ từ NetSuite).";
+                                    logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. Ref PO: {soRefPO}, Customer: {customer}, ErrorMessage: {nsSoErrMsg}", currentUser.UserName);
+                                    MarkTransactionStateFailed(request.TransactionId, 4, nsSoErrMsg, currentUser.UserName);
+                                    return Json(new { success = false, message = nsSoErrMsg });
+                                }
+
+                                string createdSoNumber = parsedResponse!.soNumber;
+                                int? soId = parsedResponse.soId;
+                                string createdSoUrl = !string.IsNullOrEmpty(parsedResponse.soUrl)
                                     ? parsedResponse.soUrl
                                     : (soId.HasValue && soId.Value > 0 ? $"https://7548465-sb1.app.netsuite.com/app/accounting/transactions/salesord.nl?id={soId.Value}&compid=7548465_SB1" : "");
 
@@ -1548,6 +1642,7 @@ namespace Sigma_Tools.Controllers
                                         state.PersonInChargeId = request.PersonInChargeId;
                                         state.IsRecreated = isRecreated;
                                         state.RecreatedFromPo = recreatedFromPo;
+                                        state.LastErrorMessage = null;
                                         if (request.ProjectCode > 0)
                                         {
                                             state.ProjectCode = request.ProjectCode.ToString();
@@ -1611,28 +1706,36 @@ namespace Sigma_Tools.Controllers
                             }
                             else
                             {
+                                string apiSoErrMsg = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết");
                                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi tạo Sales Order trên NetSuite. Ref PO: {soRefPO}, Customer: {customer}, ErrorMessage: {processResult?.Message}", currentUser.UserName);
-                                return Json(new { success = false, message = "Lỗi khi tạo Sales Order trên NetSuite: " + (processResult?.Message ?? "Không có thông tin chi tiết") });
+                                MarkTransactionStateFailed(request.TransactionId, 4, apiSoErrMsg, currentUser.UserName);
+                                return Json(new { success = false, message = apiSoErrMsg });
                             }
                         }
                         else
                         {
                             string errContent = await apiResponse.Content.ReadAsStringAsync();
+                            string httpSoErrMsg = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" + (!string.IsNullOrWhiteSpace(errContent) ? $": {errContent}" : "");
                             logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi khi gọi API tạo Sales Order trên NetSuite. Ref PO: {soRefPO}, StatusCode: {apiResponse.StatusCode}, ReasonPhrase: {apiResponse.ReasonPhrase}, Detail: {errContent}", currentUser.UserName);
-                            return Json(new { success = false, message = $"{apiResponse.StatusCode} - {apiResponse.ReasonPhrase}" + (!string.IsNullOrWhiteSpace(errContent) ? $": {errContent}" : "") });
+                            MarkTransactionStateFailed(request.TransactionId, 4, httpSoErrMsg, currentUser.UserName);
+                            return Json(new { success = false, message = httpSoErrMsg });
                         }
                     }
                 }
                 else
                 {
+                    string rawSoErrMsg = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite.";
                     logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Dữ liệu Raw OCR Response bị trống khi tạo Sales Order. Ref PO: {soRefPO}", currentUser.UserName);
-                    return Json(new { success = false, message = "Dữ liệu Raw OCR Response bị trống, không thể tạo Sales Order trên NetSuite." });
+                    MarkTransactionStateFailed(request.TransactionId, 4, rawSoErrMsg, currentUser.UserName);
+                    return Json(new { success = false, message = rawSoErrMsg });
                 }
             }
             catch (Exception ex)
             {
+                string sysSoErrMsg = "Lỗi hệ thống: " + ex.Message;
                 logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.CreateNetsuitePO, LogService.LogType.Error, $"Lỗi hệ thống khi tạo Sales Order trên NetSuite: {ex.Message}", currentUser.UserName);
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+                MarkTransactionStateFailed(request.TransactionId, 4, sysSoErrMsg, currentUser.UserName);
+                return Json(new { success = false, message = sysSoErrMsg });
             }
         }
 

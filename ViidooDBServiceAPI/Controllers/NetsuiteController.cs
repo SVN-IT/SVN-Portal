@@ -178,6 +178,13 @@ namespace ViidooDBServiceAPI.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    if (TryExtractNetSuiteFailureMessage(responseString, out string nsErrorMessage))
+                    {
+                        processResult.OK = false;
+                        processResult.Message = nsErrorMessage;
+                        return processResult;
+                    }
+
                     processResult.OK = true;
                     processResult.Message = "Tạo Purchase Order trên NetSuite thành công: " + responseString;
                     return processResult;
@@ -193,6 +200,49 @@ namespace ViidooDBServiceAPI.Controllers
                 processResult.Message = ex.Message;
                 return processResult;
             }
+        }
+
+        private static bool TryExtractNetSuiteFailureMessage(string responseString, out string errorMessage)
+        {
+            errorMessage = "";
+            if (string.IsNullOrWhiteSpace(responseString)) return false;
+            try
+            {
+                string trimmed = responseString.Trim();
+                int jsonStart = trimmed.IndexOf('{');
+                if (jsonStart < 0) return false;
+                string jsonPart = trimmed.Substring(jsonStart);
+
+                // NetSuite RESTlet đôi khi trả JSON bọc chuỗi hoặc JSON object trực tiếp
+                using var doc = JsonDocument.Parse(jsonPart);
+                var root = doc.RootElement;
+                if (root.ValueKind == JsonValueKind.String)
+                {
+                    string? inner = root.GetString();
+                    if (!string.IsNullOrWhiteSpace(inner))
+                    {
+                        using var innerDoc = JsonDocument.Parse(inner);
+                        root = innerDoc.RootElement.Clone();
+                    }
+                }
+
+                if (root.ValueKind == JsonValueKind.Object &&
+                    root.TryGetProperty("success", out var successProp) &&
+                    successProp.ValueKind == JsonValueKind.False)
+                {
+                    if (root.TryGetProperty("message", out var msgProp) && msgProp.ValueKind == JsonValueKind.String)
+                    {
+                        errorMessage = msgProp.GetString() ?? "NetSuite RESTlet returned success=false.";
+                    }
+                    else
+                    {
+                        errorMessage = "NetSuite RESTlet returned success=false.";
+                    }
+                    return true;
+                }
+            }
+            catch { }
+            return false;
         }
 
         [HttpPost("CreateSalesOrderAsync")]
@@ -244,6 +294,13 @@ namespace ViidooDBServiceAPI.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
+                    if (TryExtractNetSuiteFailureMessage(responseString, out string nsErrorMessage))
+                    {
+                        processResult.OK = false;
+                        processResult.Message = nsErrorMessage;
+                        return processResult;
+                    }
+
                     processResult.OK = true;
                     processResult.Message = "Tạo Sales Order trên NetSuite thành công: " + responseString;
                     return processResult;

@@ -773,6 +773,18 @@
         <!-- Cột phải: Dữ liệu AI Extracted & Bảng chi tiết -->
         <div class="col-md-7 p-3">
 
+            <!-- Banner lỗi NetSuite lần trước khi Resume record FAILED (không bị Step 2 audit overwrite) -->
+            <div id="resume-failed-error-banner" class="alert alert-danger alert-dismissible fade show mb-3 d-none" role="alert">
+                <div class="font-weight-bold mb-1">
+                    <i class="fas fa-exclamation-circle mr-1"></i> <span id="resume-failed-error-title"></span>
+                </div>
+                <div id="resume-failed-error-message" class="small mb-1"></div>
+                <div id="resume-failed-error-action" class="small font-weight-bold"></div>
+                <button type="button" class="close" aria-label="Close" onclick="$('#resume-failed-error-banner').addClass('d-none');">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
             <!-- Cảnh báo Audit OCR (Mặc định ẩn khi chưa upload PDF) -->
             <div id="ocr-audit-alert-box" class="alert-error-custom mb-3" style="display: none;">
                 <div id="ocr-audit-title" class="font-weight-bold mb-1">
@@ -1239,9 +1251,12 @@
         let projCode = snapshot.ProjectCode || snapshot.projectCode;
         let projCodeText = snapshot.ProjectCodeText || snapshot.projectCodeText || '';
 
-        if (poId || poNumber) {
+        let numericPoId = parseInt(poId, 10) || 0;
+        let hasValidNetSuitePo = numericPoId > 0 || !!(poUrl && poUrl.trim());
+
+        if (hasValidNetSuitePo) {
             createdPoData = {
-                poId: poId,
+                poId: numericPoId,
                 poNumber: poNumber,
                 poUrl: poUrl,
                 subsidiary: snapshot.Subsidiary || snapshot.subsidiary || 1,
@@ -1250,6 +1265,8 @@
                 projectCode: projCode,
                 projectCodeText: projCodeText
             };
+        } else {
+            createdPoData = null;
         }
 
         let soId = snapshot.CreatedSoId || snapshot.createdSoId;
@@ -1347,7 +1364,8 @@
 
         // 5. Chuyển bước phù hợp
         let targetStatus = snapshot.Status || snapshot.status || 'PROCESSING';
-        if (createdPoData || step === 4 || targetStatus === 'PO_CREATED') {
+        let lastErr = snapshot.LastErrorMessage || snapshot.lastErrorMessage || '';
+        if (createdPoData || (step === 4 && hasValidNetSuitePo && targetStatus !== 'FAILED')) {
             currentStep = 4;
             goToStep4();
 
@@ -1358,36 +1376,43 @@
             } else if (picName) {
                 $('#so-dri-pm-input').val(picName);
             }
-        } else if (step === 2) {
+        } else if (step === 2 || step === 3) {
+            // Khi khôi phục Bước 2 hoặc Bước 3 (kể cả record FAILED), luôn bắt đầu ở trạng thái chờ kiểm tra giá ERP;
+            // tuyệt đối không bật #btn-convert hay Step 3 trước khi VerifyErpPrices xác nhận toàn bộ giá khớp hợp lệ.
             currentStep = 2;
             $('#step-node-1').removeClass('active').addClass('completed');
             $('#step-node-2').addClass('active').removeClass('completed');
             $('#step-node-3, #step-node-4').removeClass('active completed');
             $('#btn-import-wrapper').fadeOut(200);
             $('#btn-edit-data').fadeOut(200);
+            $('#btn-convert').addClass('d-none').prop('disabled', true);
+            $('#so-badge-status').addClass('d-none');
             $('#btn-reload-erp').removeClass('d-none');
-            $('#btn-confirm-next').removeClass('d-none');
+            $('#btn-confirm-next').addClass('d-none');
 
             setTimeout(function () {
-                loadStep2ErpPrices();
-            }, 300);
-        } else if (step === 3) {
-            currentStep = 3;
-            $('#step-node-1, #step-node-2').removeClass('active').addClass('completed');
-            $('#step-node-3').addClass('active').removeClass('completed');
-            $('#step-node-4').removeClass('active completed');
-            $('#btn-reload-erp').addClass('d-none');
-            $('#btn-convert').removeClass('d-none').prop('disabled', false);
-
-            setTimeout(function () {
-                loadStep2ErpPrices();
+                loadStep2ErpPrices({
+                    targetStepOnMatch: step === 3 ? 3 : 2,
+                    skipServerSave: (targetStatus === 'FAILED')
+                });
             }, 300);
         } else {
             currentStep = 1;
             $('#step-node-1').addClass('active').removeClass('completed');
             $('#step-node-2, #step-node-3, #step-node-4').removeClass('active completed');
+            $('#btn-convert').addClass('d-none').prop('disabled', true);
             $('#btn-confirm-next').removeClass('d-none');
             $('#btn-edit-data').prop('disabled', false);
+        }
+
+        if (targetStatus === 'FAILED' && lastErr) {
+            $('#resume-failed-error-title').text(t('Previous NetSuite Error'));
+            $('#resume-failed-error-message').text(lastErr);
+            $('#resume-failed-error-action').text(t('Please resolve the issue and retry.'));
+            $('#resume-failed-error-banner').removeClass('d-none');
+        } else {
+            $('#resume-failed-error-banner').addClass('d-none');
+            $('#resume-failed-error-message').text('');
         }
 
         $('#restore-session-banner').addClass('d-none');
@@ -1436,7 +1461,8 @@
                 if (!isComplete && hasPo && ageHours < 48) {
                     $('#restore-po-number').text(localSnapshot.CustomerPONumber || localSnapshot.customerPONumber || '-');
                     $('#restore-customer-name').text(localSnapshot.Customer || localSnapshot.customer || 'N/A');
-                    let stepDesc = (localSnapshot.CreatedPoId || localSnapshot.createdPoId) ? t('Step 4 (NetSuite PO Created)', 'Bước 4 (Đã tạo NetSuite PO)') : (t('Step', 'Bước') + ' ' + (localSnapshot.CurrentStep || localSnapshot.currentStep || 1));
+                    let hasValidPo = (parseInt(localSnapshot.CreatedPoId || localSnapshot.createdPoId || 0, 10) > 0) || !!(localSnapshot.CreatedPoUrl || localSnapshot.createdPoUrl);
+                    let stepDesc = hasValidPo ? t('Step 4 (NetSuite PO Created)', 'Bước 4 (Đã tạo NetSuite PO)') : (t('Step', 'Bước') + ' ' + (localSnapshot.CurrentStep || localSnapshot.currentStep || 1));
                     $('#restore-step-desc').text(stepDesc);
                     $('#restore-session-banner').removeClass('d-none');
 
@@ -1498,8 +1524,11 @@
         $('#calculated-sum-display').text('0 Units / $0.00');
         $('#expected-sum-display').text('0 Units / $0.00');
         $('#ocr-audit-alert-box').hide();
+        $('#resume-failed-error-banner').addClass('d-none');
+        $('#resume-failed-error-message').text('');
         $('#btn-confirm-next').addClass('d-none');
-        $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', true);
+        $('#btn-convert').addClass('d-none').prop('disabled', true);
+        $('#btn-edit-data, #btn-reject').prop('disabled', true);
         if (window.i18n && window.i18n.apply) {
             window.i18n.apply();
         }
@@ -1526,8 +1555,11 @@
 
         let audit = m.auditReport || {};
 
-        // 1. KÍCH HOẠT LẠI TẤT CẢ CÁC NÚT BẤM
-        $('#btn-convert, #btn-edit-data, #btn-reject').prop('disabled', false);
+        // 1. KÍCH HOẠT CÁC NÚT BƯỚC 1 (giữ #btn-convert ẩn & khóa cho tới khi đạt Bước 3)
+        $('#resume-failed-error-banner').addClass('d-none');
+        $('#resume-failed-error-message').text('');
+        $('#btn-convert').addClass('d-none').prop('disabled', true);
+        $('#btn-edit-data, #btn-reject').prop('disabled', false);
 
         // 2. Cập nhật Header & Bảng
         document.getElementById('po-number-display').innerText = m.poNumber || 'N/A';
@@ -1751,9 +1783,125 @@
     });
 
     // =============================================================
-    // HÀM CHUNG: LẤY VÀ ĐỐI CHIẾU GIÁ ERP CHO BƯỚC 2
+    // HÀM CHUNG: KIỂM TRA KHỚP GIÁ ERP & CHUYỂN BƯỚC 2 / BƯỚC 3
     // =============================================================
-    function loadStep2ErpPrices() {
+    function isStep2RowPriceMatched(ocrPrice, erpPrice) {
+        const ocr = parseFloat(ocrPrice) || 0;
+        const erp = parseFloat(erpPrice) || 0;
+        return erp > 0 && Math.abs(ocr - erp) < 0.0001;
+    }
+
+    function buildStep2RowStatus(ocrPrice, erpPrice, serverMatchedFlag) {
+        const ocr = parseFloat(ocrPrice) || 0;
+        const erp = parseFloat(erpPrice) || 0;
+        const variance = ocr - erp;
+        const isMatched = serverMatchedFlag !== false && isStep2RowPriceMatched(ocr, erp);
+
+        if (isMatched) {
+            return {
+                isMatched: true,
+                statusHtml: `<span class="text-matched"><i class="fas fa-check mr-1"></i> ${t('Matched')}</span>`
+            };
+        }
+        if (erp <= 0 && Math.abs(variance) < 0.0001) {
+            return {
+                isMatched: false,
+                statusHtml: `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${t('Missing ERP Price')}</span>`
+            };
+        }
+        const sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
+        return {
+            isMatched: false,
+            statusHtml: `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${t('Variance')}: ${sign}</span>`
+        };
+    }
+
+    function isStep2DataAllMatched(dataList) {
+        return Array.isArray(dataList) && dataList.length > 0 && dataList.every(item =>
+            item.isMatched !== false && isStep2RowPriceMatched(item.ocrPrice, item.erpBasePrice)
+        );
+    }
+
+    function isStep2TableMatched() {
+        let rowCount = 0;
+        let allMatched = true;
+
+        $('#po-line-table tbody tr').each(function () {
+            const $tr = $(this);
+            if ($tr.find('td').length <= 1) return;
+            rowCount++;
+
+            let ocrVal = 0;
+            if ($tr.find('.input-ocr-price').length > 0) {
+                ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
+            } else {
+                ocrVal = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
+            }
+            const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
+
+            if (!isStep2RowPriceMatched(ocrVal, erpVal)) {
+                allMatched = false;
+                return false;
+            }
+        });
+
+        return rowCount > 0 && allMatched;
+    }
+
+    function enterStep3ReadyUi(options) {
+        const opts = options || {};
+        currentStep = 3;
+
+        if ($('#btn-confirm-next').length > 0) {
+            let proceedText = t('Proceed to Create ERP PO');
+            $('#btn-confirm-next')
+                .html(`<i class="fas fa-arrow-right mr-1"></i> ${proceedText}`)
+                .attr('id', 'btn-proceed-step3');
+        }
+
+        $('#step-node-1, #step-node-2').removeClass('active').addClass('completed');
+        $('#step-node-3').addClass('active').removeClass('completed');
+        $('#step-node-4').removeClass('active completed');
+
+        $('#btn-import-wrapper, #btn-edit-data').fadeOut(200);
+        $('#btn-reload-erp').addClass('d-none');
+        $('#btn-proceed-step3').addClass('d-none');
+        $('#btn-convert').removeClass('d-none').prop('disabled', false);
+
+        const $cardContainer = $('#po-line-table').closest('.card-custom');
+        $cardContainer.find('.card-header span:first').text('READY TO CONVERT PURCHASE ORDER (STEP 3)');
+
+        $('#erp-badge-status').removeClass('d-none');
+        $('#so-badge-status')
+            .removeClass('d-none')
+            .removeClass('badge-secondary badge-warning')
+            .addClass('badge-success')
+            .css({ 'background-color': '#28a745', 'color': '#fff' });
+        $('#so-badge-text').text('Purchase Order: Ready for Conversion');
+
+        const $alertBox = $('#ocr-audit-alert-box');
+        $alertBox.show()
+                 .removeClass('alert-error-custom alert-warning-custom')
+                 .addClass('alert-success-custom')
+                 .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
+
+        $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> PURCHASE ORDER CREATION READY: Re-verified Successfully');
+        $('#ocr-audit-details').html(`
+            <li><strong>Final Price Check:</strong> ERP base prices re-verified successfully just before conversion.</li>
+            <li><strong>Status:</strong> All compliance checkpoints passed securely. Ready for NetSuite PO generation.</li>
+        `);
+        $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
+               .css('color', '#0e9f6e')
+               .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to ERP PO"</strong> above to finalize.');
+
+        if (!opts.skipServerSave) {
+            saveLocalSession();
+            saveServerSession('PROCESSING', 3);
+        }
+    }
+
+    function loadStep2ErpPrices(options) {
+        const opts = options || {};
         let currentLineItems = [];
 
         $('#po-line-table tbody tr').each(function () {
@@ -1826,22 +1974,14 @@
             data: JSON.stringify(requestData),
             success: function (response) {
                 if (response.success) {
-                    currentStep = 2;
-                    saveLocalSession();
-                    saveServerSession('PROCESSING', 2);
+                    const dataList = Array.isArray(response.data) ? response.data : [];
+                    const canEnterStep3 = opts.targetStepOnMatch === 3 && isStep2DataAllMatched(dataList);
 
                     $('#btn-import-wrapper').fadeOut(200);
                     $('#btn-edit-data').fadeOut(200);
-                    $('#btn-reload-erp').removeClass('d-none');
 
                     const $cardContainer = $('#po-line-table').closest('.card-custom');
                     $cardContainer.fadeOut(200, function () {
-
-                        $('#step-node-1').removeClass('active').addClass('completed');
-                        $('#step-node-2').addClass('active');
-
-                        // Cập nhật tiêu đề card header theo ngôn ngữ nếu cần, hoặc giữ nguyên key
-                        $cardContainer.find('.card-header span:first').text('LINE ITEMS & PRICE VERIFICATION');
 
                         let tableHeaderHtml = `
                             <tr>
@@ -1855,17 +1995,41 @@
                         `;
                         $('#po-line-table thead').html(tableHeaderHtml);
 
-                        renderStep2Table(response.data);
+                        if (canEnterStep3) {
+                            currentStep = 3;
+                            renderStep2Table(dataList);
+                            enterStep3ReadyUi({ skipServerSave: opts.skipServerSave });
+                        } else {
+                            currentStep = 2;
+                            if (!opts.skipServerSave) {
+                                saveLocalSession();
+                                saveServerSession('PROCESSING', 2);
+                            }
 
-                        if ($('#btn-confirm-next').length > 0) {
-                            let proceedText = t('Proceed to Create ERP PO');
+                            $('#step-node-1').removeClass('active').addClass('completed');
+                            $('#step-node-2').addClass('active').removeClass('completed');
+                            $('#step-node-3, #step-node-4').removeClass('active completed');
 
-                            $('#btn-confirm-next')
-                                .html(`<i class="fas fa-arrow-right mr-1"></i> ${proceedText}`)
-                                .attr('id', 'btn-proceed-step3');
+                            $('#btn-convert').addClass('d-none').prop('disabled', true);
+                            $('#so-badge-status').addClass('d-none');
+                            $('#btn-reload-erp').removeClass('d-none');
+
+                            // Cập nhật tiêu đề card header theo ngôn ngữ nếu cần, hoặc giữ nguyên key
+                            $cardContainer.find('.card-header span:first').text('LINE ITEMS & PRICE VERIFICATION');
+
+                            renderStep2Table(dataList);
+
+                            if ($('#btn-confirm-next').length > 0) {
+                                let proceedText = t('Proceed to Create ERP PO');
+
+                                $('#btn-confirm-next')
+                                    .html(`<i class="fas fa-arrow-right mr-1"></i> ${proceedText}`)
+                                    .attr('id', 'btn-proceed-step3');
+                            }
+
+                            checkAllStep2Matched();
                         }
 
-                        checkAllStep2Matched();
                         $cardContainer.fadeIn(300);
                     });
 
@@ -1935,62 +2099,27 @@
             contentType: 'application/json',
             data: JSON.stringify(requestData),
             success: function (response) {
-                let btnResetHtml = `<i class="fas fa-arrow-right mr-1"></i> ${t('Proceed to Create PO (Step 3)')}`;
+                let btnResetHtml = `<i class="fas fa-arrow-right mr-1"></i> ${t('Proceed to Create ERP PO')}`;
 
                 if (response.success) {
-                    let hasNewVariance = false;
-                    response.data.forEach(item => {
-                        if (!item.isMatched) {
-                            hasNewVariance = true;
-                        }
-                    });
+                    const dataList = Array.isArray(response.data) ? response.data : [];
+                    const hasNewVariance = !isStep2DataAllMatched(dataList);
 
                     // Cập nhật lại giao diện bảng với dữ liệu mới nhất từ server
-                    renderStep2Table(response.data);
+                    renderStep2Table(dataList);
 
                     if (hasNewVariance) {
                         alert(t("WARNING: ERP system prices have changed compared to last check. Please review before proceeding to Step 3."));
                         $btnStep3.prop('disabled', false).html(btnResetHtml);
+                        checkAllStep2Matched();
                         return;
                     }
 
                     // ==========================================
                     // MỌI THỨ VẪN KHỚP HOÀN TOÀN -> CHUYỂN SANG BƯỚC 3
                     // ==========================================
-                    currentStep = 3;
-
-                    $('#step-node-2').removeClass('active').addClass('completed');
-                    $('#step-node-3').addClass('active');
-
-                    $('#btn-reload-erp').addClass('d-none');
-                    $('#btn-convert').removeClass('d-none').prop('disabled', false);
-                    $btnStep3.fadeOut(200);
-
-                    const $cardContainer = $('#po-line-table').closest('.card-custom');
-                    $cardContainer.find('.card-header span:first').text('READY TO CONVERT PURCHASE ORDER (STEP 3)');
-
-                    $('#erp-badge-status').removeClass('d-none');
-                    $('#so-badge-status')
-                        .removeClass('d-none')
-                        .removeClass('badge-secondary badge-warning')
-                        .addClass('badge-success')
-                        .css({ 'background-color': '#28a745', 'color': '#fff' });
-                    $('#so-badge-text').text('Purchase Order: Ready for Conversion');
-
-                    const $alertBox = $('#ocr-audit-alert-box');
-                    $alertBox.show()
-                             .removeClass('alert-error-custom alert-warning-custom')
-                             .addClass('alert-success-custom')
-                             .css({ 'background-color': '#f3faf7', 'border': '1px solid #bcf0da', 'color': '#03543f' });
-
-                    $('#ocr-audit-title').html('<span class="text-success mr-1">●</span> PURCHASE ORDER CREATION READY: Re-verified Successfully');
-                    $('#ocr-audit-details').html(`
-                        <li><strong>Final Price Check:</strong> ERP base prices re-verified successfully just before conversion.</li>
-                        <li><strong>Status:</strong> All compliance checkpoints passed securely. Ready for NetSuite PO generation.</li>
-                    `);
-                    $('#ocr-audit-action').removeClass('text-danger text-warning').addClass('text-success')
-                           .css('color', '#0e9f6e')
-                           .html('<strong>Status:</strong> Security check passed. Click <strong>"Convert to ERP PO"</strong> above to finalize.');
+                    enterStep3ReadyUi();
+                    $btnStep3.prop('disabled', false).html(btnResetHtml);
 
                     alert(t("Confirmation successful! ERP prices re-checked and ready for PO creation."));
 
@@ -2001,7 +2130,7 @@
             },
             error: function () {
                 alert(t("Connection error while re-verifying ERP prices from server!"));
-                let btnResetHtml = `<i class="fas fa-arrow-right mr-1"></i> ${t('Proceed to Create PO (Step 3)')}`;
+                let btnResetHtml = `<i class="fas fa-arrow-right mr-1"></i> ${t('Proceed to Create ERP PO')}`;
                 $btnStep3.prop('disabled', false).html(btnResetHtml);
             }
         });
@@ -2015,20 +2144,15 @@
         let tbodyHtml = '';
 
         dataList.forEach(item => {
-            let statusHtml = '';
-            let rowClass = '';
             const ocrPrice = parseFloat(item.ocrPrice) || 0;
             const erpPrice = parseFloat(item.erpBasePrice) || 0;
-            const variance = ocrPrice - erpPrice;
-            const isMatched = Math.abs(variance) < 0.0001;
+            const statusInfo = buildStep2RowStatus(ocrPrice, erpPrice, item.isMatched);
+            const isMatched = statusInfo.isMatched;
+            let rowClass = '';
 
-            if (isMatched) {
-                statusHtml = `<span class="text-matched"><i class="fas fa-check mr-1"></i> ${t('Matched')}</span>`;
-            } else {
+            if (!isMatched) {
                 hasVariance = true;
                 rowClass = 'row-variance animate-fade-in';
-                let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
-                statusHtml = `<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${t('Variance')}: ${sign}</span>`;
             }
 
             // ĐÃ XÓA CỘT DESCRIPTION TRÊN GIAO DIỆN, LƯU NGẦM QUA data-description
@@ -2039,7 +2163,7 @@
                     <td class="text-right cell-qty" data-original-qty="${item.qty}">${item.qty.toLocaleString()}</td>
                     <td class="text-right cell-ocr-price ${!isMatched ? 'text-variance font-weight-bold' : ''}" data-original-price="${ocrPrice}">$${ocrPrice}</td>
                     <td class="text-right cell-erp-price">$${erpPrice}</td>
-                    <td class="text-center cell-status">${statusHtml}</td>
+                    <td class="text-center cell-status">${statusInfo.statusHtml}</td>
                 </tr>
             `;
         });
@@ -2049,7 +2173,9 @@
         updateStep2NoticeBox(hasVariance);
         updateStep2BadgeStatus(hasVariance);
         updateStep2AuditAlertBox(dataList, hasVariance); // CẬP NHẬT KHUNG THÔNG BÁO PHÍA TRÊN
-        $('#btn-reload-erp').removeClass('d-none');
+        if (currentStep === 2) {
+            $('#btn-reload-erp').removeClass('d-none');
+        }
         checkAllStep2Matched();
     }
 
@@ -2729,20 +2855,15 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         const $tr = $(this).closest('tr');
         const newOcrPrice = parseFloat($(this).val()) || 0;
         const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
-        const variance = newOcrPrice - erpPrice;
-        const isMatched = Math.abs(variance) < 0.0001;
+        const statusInfo = buildStep2RowStatus(newOcrPrice, erpPrice);
 
         // Cập nhật nhãn trạng thái trực tiếp trên dòng
-        if (isMatched) {
-            let matchedText = t('Matched');
+        if (statusInfo.isMatched) {
             $tr.removeClass('row-variance');
-            $tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> ${matchedText}</span>`);
         } else {
-            let varianceLabel = t('Variance');
             $tr.addClass('row-variance');
-            let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
-            $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${varianceLabel}: ${sign}</span>`);
         }
+        $tr.find('.cell-status').html(statusInfo.statusHtml);
 
         // Kiểm tra xem còn dòng nào bị lệch giá để ẩn/hiện Notice Box
         checkAndUpdateStep2Notice();
@@ -2755,6 +2876,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         $('#po-line-table tbody tr').each(function () {
             const $tr =$(this);
+            if ($tr.find('td').length <= 1) return;
             let ocrVal = 0;
             if ($tr.find('.input-ocr-price').length > 0) {
                 ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
@@ -2763,7 +2885,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             }
             const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
 
-            if (Math.abs(ocrVal - erpVal) >= 0.0001) {
+            if (!isStep2RowPriceMatched(ocrVal, erpVal)) {
                 hasVariance = true;
             }
         });
@@ -2785,60 +2907,44 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
             if ($input.length > 0) {
                 const newOcrPrice = parseFloat($input.val()) || 0;
                 const erpPrice = parseFloat($tr.attr('data-erp-price')) || 0;
-                const variance = newOcrPrice - erpPrice;
-                const isMatched = Math.abs(variance) < 0.0001;
+                const statusInfo = buildStep2RowStatus(newOcrPrice, erpPrice);
 
                 $tr.find('.cell-ocr-price')
                     .attr('data-original-price', newOcrPrice)
                     .text(`$${newOcrPrice}`);
 
-                if (isMatched) {
-                    let matchedText = t('Matched');
+                if (statusInfo.isMatched) {
                     $tr.removeClass('row-variance');
                     $tr.find('.cell-ocr-price').removeClass('text-variance font-weight-bold');
-                    $tr.find('.cell-status').html(`<span class="text-matched"><i class="fas fa-check mr-1"></i> ${matchedText}</span>`);
                 } else {
                     hasVariance = true;
-                    let varianceLabel = t('Variance');
                     $tr.addClass('row-variance');
                     $tr.find('.cell-ocr-price').addClass('text-variance font-weight-bold');
-                    let sign = variance > 0 ? `+$${variance.toFixed(2)}` : `-$${Math.abs(variance).toFixed(2)}`;
-                    $tr.find('.cell-status').html(`<span class="text-variance"><i class="fas fa-exclamation-triangle mr-1"></i> ${varianceLabel}: ${sign}</span>`);
                 }
+                $tr.find('.cell-status').html(statusInfo.statusHtml);
             }
         });
 
         updateStep2NoticeBox(hasVariance);
     }
 
-        // Hàm kiểm tra trạng thái khớp giá ở Bước 2 để ẩn/hiện nút sang Bước 3
+        // Hàm kiểm tra trạng thái khớp giá ở Bước 2 để ẩn/hiện nút sang Bước 3 và khóa #btn-convert khi chưa hợp lệ
         function checkAllStep2Matched() {
-            let allMatched = true;
-
-            $('#po-line-table tbody tr').each(function () {
-                const $tr = $(this);
-                let ocrVal = 0;
-                if ($tr.find('.input-ocr-price').length > 0) {
-                    ocrVal = parseFloat($tr.find('.input-ocr-price').val()) || 0;
-                } else {
-                    ocrVal = parseFloat($tr.find('.cell-ocr-price').attr('data-original-price')) || 0;
-                }
-                const erpVal = parseFloat($tr.attr('data-erp-price')) || 0;
-
-                if (Math.abs(ocrVal - erpVal) >= 0.0001) {
-                    allMatched = false;
-                    return false; // Thoát vòng lặp nếu có 1 dòng chưa khớp
-                }
-            });
+            const allMatched = isStep2TableMatched();
 
             if (currentStep === 2) {
+                $('#btn-convert').addClass('d-none').prop('disabled', true);
+                $('#so-badge-status').addClass('d-none');
                 if (allMatched) {
                     // Khớp hết -> Hiện nút sang Bước 3
                     $('#btn-proceed-step3').removeClass('d-none');
                 } else {
-                    // Còn dòng lệch -> Ẩn nút sang Bước 3
+                    // Còn dòng lệch / thiếu giá ERP -> Ẩn nút sang Bước 3
                     $('#btn-proceed-step3').addClass('d-none');
                 }
+            } else if (!allMatched) {
+                $('#btn-convert').addClass('d-none').prop('disabled', true);
+                $('#so-badge-status').addClass('d-none');
             }
         }
 
@@ -3002,6 +3108,17 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     // =============================================================
     // 1. Khi bấm nút Convert trên Action Bar -> Gọi API lấy Subsidiaries và mở Modal
     $(document).on('click', '#btn-convert', function () {
+        if (currentStep !== 3 || !isStep2TableMatched()) {
+            alert(t('Cannot convert to ERP PO while ERP base prices are missing or do not match OCR prices. Please verify ERP prices in Step 2 first.'));
+            currentStep = 2;
+            $('#step-node-1').removeClass('active').addClass('completed');
+            $('#step-node-2').addClass('active').removeClass('completed');
+            $('#step-node-3, #step-node-4').removeClass('active completed');
+            $('#btn-reload-erp').removeClass('d-none');
+            checkAllStep2Matched();
+            return;
+        }
+
         $('#select-location, #select-taxcode, #select-projectcode').prop('disabled', true);
         $('#btn-confirm-create-so').prop('disabled', true);
 
@@ -3455,6 +3572,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     // 1. Khi bấm nút "Proceed to Create SO (Step 4)" từ Modal kết quả PO
     $(document).on('click', '#btn-proceed-step4-so', function () {
         proceedingToStep4 = true;
+        $('#resume-failed-error-banner').addClass('d-none');
+        $('#resume-failed-error-message').text('');
         $('#netsuiteResultModal').modal('hide');
         goToStep4();
     });
