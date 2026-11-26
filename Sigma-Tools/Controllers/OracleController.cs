@@ -94,14 +94,17 @@ namespace Sigma_Tools.Controllers
                     bool hasValidNetSuitePo = (tx.CreatedPoId.HasValue && tx.CreatedPoId.Value > 0)
                         || !string.IsNullOrEmpty(tx.CreatedPoUrl)
                         || (!string.IsNullOrEmpty(tx.CreatedPoNumber) && !string.Equals(tx.CreatedPoNumber.Trim(), targetPo, StringComparison.OrdinalIgnoreCase));
-                    bool isSuccessStatus = hasValidNetSuitePo && (tx.Status == "PO_CREATED" || tx.Status == "SO_COMPLETED" || !string.IsNullOrEmpty(tx.CreatedPoNumber));
+                    bool hasCreatedSoOnly = tx.Status == "SO_COMPLETED"
+                        && (!string.IsNullOrEmpty(tx.CreatedSoNumber) || (tx.CreatedSoId.HasValue && tx.CreatedSoId.Value > 0));
+                    bool isSuccessStatus = (hasValidNetSuitePo && (tx.Status == "PO_CREATED" || tx.Status == "SO_COMPLETED" || !string.IsNullOrEmpty(tx.CreatedPoNumber)))
+                        || hasCreatedSoOnly;
                     if (!isSuccessStatus) continue;
 
                     DateTime createdTime = tx.ModifiedOn != DateTime.MinValue ? tx.ModifiedOn : log.CreatedOn;
                     matches.Add(new DuplicatePoMatchDto
                     {
-                        CreatedPoNumber = tx.CreatedPoNumber ?? "",
-                        CreatedPoUrl = tx.CreatedPoUrl ?? "",
+                        CreatedPoNumber = hasValidNetSuitePo ? (tx.CreatedPoNumber ?? "") : "",
+                        CreatedPoUrl = hasValidNetSuitePo ? (tx.CreatedPoUrl ?? "") : "",
                         CreatedSoNumber = tx.CreatedSoNumber ?? "",
                         CreatedSoUrl = tx.CreatedSoUrl ?? "",
                         Customer = tx.Customer ?? "",
@@ -195,10 +198,10 @@ namespace Sigma_Tools.Controllers
                 matches = matches.OrderByDescending(m => m.CreatedOnSort).ToList();
                 result.IsDuplicate = true;
                 result.PreviousCount = matches.Count;
-                result.LatestCreatedPoNumber = matches[0].CreatedPoNumber;
-                result.LatestCreatedPoUrl = matches[0].CreatedPoUrl;
+                result.LatestCreatedPoNumber = !string.IsNullOrEmpty(matches[0].CreatedPoNumber) ? matches[0].CreatedPoNumber : matches[0].CreatedSoNumber;
+                result.LatestCreatedPoUrl = !string.IsNullOrEmpty(matches[0].CreatedPoUrl) ? matches[0].CreatedPoUrl : matches[0].CreatedSoUrl;
                 result.RecreatedFromPoSummary = string.Join(", ", matches
-                    .Select(m => m.CreatedPoNumber)
+                    .Select(m => !string.IsNullOrEmpty(m.CreatedPoNumber) ? m.CreatedPoNumber : m.CreatedSoNumber)
                     .Where(s => !string.IsNullOrEmpty(s))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .Take(3));
@@ -499,6 +502,7 @@ namespace Sigma_Tools.Controllers
                             bool isFakePoCreated = tx.Status == "PO_CREATED" && !hasValidNetSuitePo;
                             string effectiveStatus = isFakePoCreated ? "FAILED" : (tx.Status ?? "PROCESSING");
                             int effectiveStep = isFakePoCreated ? 3 : tx.CurrentStep;
+                            bool isDirectSoWithoutPo = tx.SkipPoCreation || (effectiveStatus == "SO_COMPLETED" && !hasValidNetSuitePo);
 
                             string poNum = (effectiveStatus == "PO_CREATED" || effectiveStatus == "SO_COMPLETED") && !string.IsNullOrEmpty(tx.CreatedPoNumber)
                                 ? tx.CreatedPoNumber
@@ -511,7 +515,7 @@ namespace Sigma_Tools.Controllers
                             {
                                 "PO_CREATED" => "PO Created (Chờ tạo SO)",
                                 "PROCESSING" => $"Đang xử lý (Bước {effectiveStep})",
-                                "SO_COMPLETED" => "Hoàn thành (PO & SO)",
+                                "SO_COMPLETED" => isDirectSoWithoutPo ? "Hoàn thành (Chỉ SO)" : "Hoàn thành (PO & SO)",
                                 "REJECTED" => "Đã từ chối",
                                 "FAILED" => "Gặp lỗi",
                                 _ => effectiveStatus
@@ -542,7 +546,8 @@ namespace Sigma_Tools.Controllers
                                         SoUrl = tx.CreatedSoUrl,
                                         IsRecreated = tx.IsRecreated,
                                         RecreatedFromPo = tx.RecreatedFromPo,
-                                        LastErrorMessage = tx.LastErrorMessage
+                                        LastErrorMessage = tx.LastErrorMessage,
+                                        SkipPoCreation = isDirectSoWithoutPo
                                     });
                                 }
                             }
@@ -569,7 +574,8 @@ namespace Sigma_Tools.Controllers
                                     SoUrl = tx.CreatedSoUrl,
                                     IsRecreated = tx.IsRecreated,
                                     RecreatedFromPo = tx.RecreatedFromPo,
-                                    LastErrorMessage = tx.LastErrorMessage
+                                    LastErrorMessage = tx.LastErrorMessage,
+                                    SkipPoCreation = isDirectSoWithoutPo
                                 });
                             }
                         }
@@ -595,6 +601,7 @@ namespace Sigma_Tools.Controllers
                                         continue;
                                     }
 
+                                    bool isLegacySoOnly = item.SkipPoCreation || (!string.IsNullOrEmpty(item.SoNumber) && string.IsNullOrEmpty(item.PoUrl));
                                     allTrackingItems.Add(new PoOrderTrackingDisplayModel
                                     {
                                         CreatedOn = log.CreatedOn,
@@ -610,8 +617,9 @@ namespace Sigma_Tools.Controllers
                                         CustomerPONumber = item.CustomerPONumber,
                                         IsRecreated = item.IsRecreated,
                                         RecreatedFromPo = item.RecreatedFromPo,
+                                        SkipPoCreation = isLegacySoOnly,
                                         Status = !string.IsNullOrEmpty(item.SoNumber) ? "SO_COMPLETED" : "PO_CREATED",
-                                        StatusDisplay = !string.IsNullOrEmpty(item.SoNumber) ? "Hoàn thành (PO & SO)" : "Hoàn thành (PO)",
+                                        StatusDisplay = !string.IsNullOrEmpty(item.SoNumber) ? (isLegacySoOnly ? "Hoàn thành (Chỉ SO)" : "Hoàn thành (PO & SO)") : "Hoàn thành (PO)",
                                         CanResume = false
                                     });
                                 }
@@ -631,6 +639,10 @@ namespace Sigma_Tools.Controllers
                     else if (status == "RECREATED")
                     {
                         allTrackingItems = allTrackingItems.Where(x => x.IsRecreated).ToList();
+                    }
+                    else if (status == "SO_ONLY")
+                    {
+                        allTrackingItems = allTrackingItems.Where(x => x.Status == "SO_COMPLETED" && x.SkipPoCreation).ToList();
                     }
                     else
                     {
@@ -1597,14 +1609,27 @@ namespace Sigma_Tools.Controllers
                         ocrData["header"]["pr_type"] = !string.IsNullOrEmpty(request.PrType) ? request.PrType : "DRI"; // No. 12: DRI
                         ocrData["header"]["allow_cross_sub_fulfillment"] = true; // No. 14
                         ocrData["header"]["isCrossSubTransaction"] = true; // No. 14
-                        ocrData["header"]["ref_po"] = soRefPO;
-                        ocrData["header"]["ref_po_id"] = request.CreatedPoId;
-                        ocrData["header"]["ref_po_url"] = request.CreatedPoUrl ?? "";
                         string custPoNumber = !string.IsNullOrEmpty(request.CustomerPONumber) ? request.CustomerPONumber : request.PONumber;
+                        bool isDirectSoWithoutPo = request.SkipPoCreation || (request.CreatedPoId <= 0 && string.IsNullOrEmpty(request.CreatedPoUrl));
+                        ocrData["header"]["skip_po_creation"] = isDirectSoWithoutPo;
                         ocrData["header"]["customer_po_number"] = custPoNumber;
-                        ocrData["header"]["memo"] = !string.IsNullOrEmpty(soRefPO) && !string.IsNullOrEmpty(custPoNumber) && soRefPO != custPoNumber
-                            ? $"Created from NetSuite PO: {soRefPO} (Customer PO: {custPoNumber})"
-                            : $"Created from PO: {(!string.IsNullOrEmpty(soRefPO) ? soRefPO : custPoNumber)}";
+
+                        if (isDirectSoWithoutPo)
+                        {
+                            ocrData["header"]["ref_po"] = "";
+                            ocrData["header"]["ref_po_id"] = 0;
+                            ocrData["header"]["ref_po_url"] = "";
+                            ocrData["header"]["memo"] = $"Created directly from Customer PO: {custPoNumber} (No NetSuite PO)";
+                        }
+                        else
+                        {
+                            ocrData["header"]["ref_po"] = soRefPO;
+                            ocrData["header"]["ref_po_id"] = request.CreatedPoId;
+                            ocrData["header"]["ref_po_url"] = request.CreatedPoUrl ?? "";
+                            ocrData["header"]["memo"] = !string.IsNullOrEmpty(soRefPO) && !string.IsNullOrEmpty(custPoNumber) && soRefPO != custPoNumber
+                                ? $"Created from NetSuite PO: {soRefPO} (Customer PO: {custPoNumber})"
+                                : $"Created from PO: {(!string.IsNullOrEmpty(soRefPO) ? soRefPO : custPoNumber)}";
+                        }
 
                         if (ocrData["line_items"] is JArray rawLineItemsArray)
                         {
@@ -1681,6 +1706,7 @@ namespace Sigma_Tools.Controllers
                                     : (soId.HasValue && soId.Value > 0 ? $"https://7548465-sb1.app.netsuite.com/app/accounting/transactions/salesord.nl?id={soId.Value}&compid=7548465_SB1" : "");
 
                                 // Cập nhật Transaction State sang SO_COMPLETED trước, sau đó đồng bộ log NetsuitePOLogInfo
+                                bool isDirectSoWithoutPoForTx = request.SkipPoCreation || (request.CreatedPoId <= 0 && string.IsNullOrEmpty(request.CreatedPoUrl));
                                 bool isRecreated = request.IsRecreated;
                                 string? recreatedFromPo = request.RecreatedFromPo;
                                 string custPoNum = !string.IsNullOrEmpty(request.CustomerPONumber) ? request.CustomerPONumber : request.PONumber;
@@ -1712,6 +1738,13 @@ namespace Sigma_Tools.Controllers
 
                                         state.Status = "SO_COMPLETED";
                                         state.CurrentStep = 4;
+                                        state.SkipPoCreation = isDirectSoWithoutPoForTx;
+                                        if (isDirectSoWithoutPoForTx)
+                                        {
+                                            state.CreatedPoId = null;
+                                            state.CreatedPoNumber = null;
+                                            state.CreatedPoUrl = null;
+                                        }
                                         state.CreatedSoId = soId;
                                         state.CreatedSoNumber = createdSoNumber;
                                         state.CreatedSoUrl = createdSoUrl;
@@ -1753,16 +1786,17 @@ namespace Sigma_Tools.Controllers
                                             soTrackingList.Add(new PoOrderTrackingDto
                                             {
                                                 PartNumber = item["item"]?.ToString() ?? "",
-                                                SigmaPO = soRefPO,
+                                                SigmaPO = isDirectSoWithoutPoForTx ? custPoNum : soRefPO,
                                                 Description = item["description"]?.ToString() ?? "",
                                                 OrderQty = item["quantity"]?.Value<decimal>() ?? 0,
                                                 OpenOrderQty = item["quantity"]?.Value<decimal>() ?? 0,
-                                                PoUrl = request.CreatedPoUrl ?? "",
+                                                PoUrl = isDirectSoWithoutPoForTx ? "" : (request.CreatedPoUrl ?? ""),
                                                 SoNumber = createdSoNumber,
                                                 SoUrl = createdSoUrl,
                                                 CustomerPONumber = custPoNum,
                                                 IsRecreated = isRecreated,
-                                                RecreatedFromPo = recreatedFromPo
+                                                RecreatedFromPo = recreatedFromPo,
+                                                SkipPoCreation = isDirectSoWithoutPoForTx
                                             });
                                         }
                                         logger.Log(LogService.LogApp.SigmaTools, LogService.LogAction.NetsuitePOLogInfo, LogService.LogType.Info, JsonConvert.SerializeObject(soTrackingList), currentUser.UserName);
@@ -1897,6 +1931,9 @@ namespace Sigma_Tools.Controllers
                             if (!state.IsRecreated && oldState.IsRecreated) state.IsRecreated = true;
                             if (string.IsNullOrEmpty(state.RecreatedFromPo) && !string.IsNullOrEmpty(oldState.RecreatedFromPo))
                                 state.RecreatedFromPo = oldState.RecreatedFromPo;
+                            bool incomingHasPo = (state.CreatedPoId.HasValue && state.CreatedPoId.Value > 0) || !string.IsNullOrEmpty(state.CreatedPoUrl);
+                            if (!state.SkipPoCreation && oldState.SkipPoCreation && !incomingHasPo && state.CurrentStep == 4)
+                                state.SkipPoCreation = true;
                         }
                     }
                     catch { }
@@ -2009,9 +2046,12 @@ namespace Sigma_Tools.Controllers
                                         OrderQty = item.OrderQty,
                                         OpenOrderQty = item.OpenOrderQty,
                                         PoUrl = item.PoUrl,
+                                        SoNumber = item.SoNumber,
+                                        SoUrl = item.SoUrl,
                                         CustomerPONumber = item.CustomerPONumber,
                                         IsRecreated = item.IsRecreated,
-                                        RecreatedFromPo = item.RecreatedFromPo
+                                        RecreatedFromPo = item.RecreatedFromPo,
+                                        SkipPoCreation = item.SkipPoCreation || (!string.IsNullOrEmpty(item.SoNumber) && string.IsNullOrEmpty(item.PoUrl))
                                     });
                                 }
                             }
@@ -2031,12 +2071,14 @@ namespace Sigma_Tools.Controllers
                     worksheet.Cell(1, 1).Value = "Created Time";
                     worksheet.Cell(1, 2).Value = "Creator";
                     worksheet.Cell(1, 3).Value = "PO Number";
-                    worksheet.Cell(1, 4).Value = "Part Number";
-                    worksheet.Cell(1, 5).Value = "Description";
-                    worksheet.Cell(1, 6).Value = "Order Qty";
-                    worksheet.Cell(1, 7).Value = "Open Order Qty";
-                    worksheet.Cell(1, 8).Value = "NetSuite Link";
-                    worksheet.Cell(1, 9).Value = "Recreated PO";
+                    worksheet.Cell(1, 4).Value = "SO Number";
+                    worksheet.Cell(1, 5).Value = "Part Number";
+                    worksheet.Cell(1, 6).Value = "Description";
+                    worksheet.Cell(1, 7).Value = "Order Qty";
+                    worksheet.Cell(1, 8).Value = "Open Order Qty";
+                    worksheet.Cell(1, 9).Value = "NetSuite Link";
+                    worksheet.Cell(1, 10).Value = "Creation Mode";
+                    worksheet.Cell(1, 11).Value = "Recreated PO";
 
                     // Định dạng Header
                     var headerRow = worksheet.Row(1);
@@ -2048,15 +2090,22 @@ namespace Sigma_Tools.Controllers
                     int rowIdx = 2;
                     foreach (var item in allTrackingItems)
                     {
+                        string nsLink = !string.IsNullOrEmpty(item.PoUrl) ? item.PoUrl : (item.SoUrl ?? "");
+                        string modeText = item.SkipPoCreation
+                            ? "SO Only"
+                            : (!string.IsNullOrEmpty(item.SoNumber) ? "PO & SO" : "PO Only");
+
                         worksheet.Cell(rowIdx, 1).Value = item.CreatedOn.ToString("yyyy-MM-dd HH:mm:ss");
                         worksheet.Cell(rowIdx, 2).Value = item.CreatedBy;
                         worksheet.Cell(rowIdx, 3).Value = item.SigmaPO;
-                        worksheet.Cell(rowIdx, 4).Value = item.PartNumber;
-                        worksheet.Cell(rowIdx, 5).Value = item.Description;
-                        worksheet.Cell(rowIdx, 6).Value = item.OrderQty;
-                        worksheet.Cell(rowIdx, 7).Value = item.OpenOrderQty;
-                        worksheet.Cell(rowIdx, 8).Value = item.PoUrl;
-                        worksheet.Cell(rowIdx, 9).Value = item.IsRecreated
+                        worksheet.Cell(rowIdx, 4).Value = item.SoNumber ?? "";
+                        worksheet.Cell(rowIdx, 5).Value = item.PartNumber;
+                        worksheet.Cell(rowIdx, 6).Value = item.Description;
+                        worksheet.Cell(rowIdx, 7).Value = item.OrderQty;
+                        worksheet.Cell(rowIdx, 8).Value = item.OpenOrderQty;
+                        worksheet.Cell(rowIdx, 9).Value = nsLink;
+                        worksheet.Cell(rowIdx, 10).Value = modeText;
+                        worksheet.Cell(rowIdx, 11).Value = item.IsRecreated
                             ? (!string.IsNullOrEmpty(item.RecreatedFromPo) ? $"Recreated ({item.RecreatedFromPo})" : "Recreated")
                             : "";
 
@@ -2197,6 +2246,7 @@ namespace Sigma_Tools.Controllers
         public string? CustomForm { get; set; } = "111"; // No. 1: Sigma Worldwide Sales order (111)
         public bool IsRecreated { get; set; }
         public string? RecreatedFromPo { get; set; }
+        public bool SkipPoCreation { get; set; } = false;
     }
 
     public class CreateSalesOrderResponse
@@ -2221,6 +2271,7 @@ namespace Sigma_Tools.Controllers
         public string? CustomerPONumber { get; set; }
         public bool IsRecreated { get; set; }
         public string? RecreatedFromPo { get; set; }
+        public bool SkipPoCreation { get; set; } = false;
     }
 
     public class DuplicatePoMatchDto

@@ -312,5 +312,12 @@
   "Deleting...": "Deleting...",
   "Confirm delete incomplete process": "Are you sure you want to delete the incomplete process for PO \"{0}\"? This action cannot be undone.",
   "Delete process failed": "Failed to delete the incomplete process.",
-  "An error occurred while deleting the process.": "An error occurred while deleting the process!"
+  "An error occurred while deleting the process.": "An error occurred while deleting the process!",
+  "Create SO Only (Skip PO)": "Create SO Only (Skip PO)",
+  "Completed (SO Only)": "Completed (SO Only)",
+  "Direct SO (No NetSuite PO)": "Direct SO (No NetSuite PO)",
+  "Select Project Code": "Select Project Code",
+  "-- Select Project Code --": "-- Select Project Code --",
+  "Customer PO (No NetSuite PO)": "Customer PO (No NetSuite PO)",
+  "SO Only": "SO Only"
 }

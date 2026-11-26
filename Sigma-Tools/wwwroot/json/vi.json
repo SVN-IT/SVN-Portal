@@ -312,5 +312,12 @@
   "Deleting...": "Đang xóa...",
   "Confirm delete incomplete process": "Bạn có chắc chắn muốn xóa tiến trình còn dở cho PO \"{0}\" không? Thao tác này không thể hoàn tác.",
   "Delete process failed": "Xóa tiến trình thất bại.",
-  "An error occurred while deleting the process.": "Đã xảy ra lỗi khi xóa tiến trình!"
+  "An error occurred while deleting the process.": "Đã xảy ra lỗi khi xóa tiến trình!",
+  "Create SO Only (Skip PO)": "Chỉ tạo SO (Không tạo PO)",
+  "Completed (SO Only)": "Hoàn thành (Chỉ SO)",
+  "Direct SO (No NetSuite PO)": "Tạo thẳng SO (Không qua NetSuite PO)",
+  "Select Project Code": "Chọn Project Code",
+  "-- Select Project Code --": "-- Chọn Project Code --",
+  "Customer PO (No NetSuite PO)": "Số PO khách hàng (Không có NetSuite PO)",
+  "SO Only": "Chỉ tạo SO"
 }

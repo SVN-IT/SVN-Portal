@@ -63,6 +63,7 @@ namespace Sigma_Tools.Models
         public bool IsRecreated { get; set; } = false;
         public string? RecreatedFromPo { get; set; }
         public string? LastErrorMessage { get; set; }
+        public bool SkipPoCreation { get; set; } = false;
 
         public string CreatedBy { get; set; } = "System";
         public DateTime CreatedOn { get; set; } = DateTime.Now;

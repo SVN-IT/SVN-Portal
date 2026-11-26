@@ -312,5 +312,12 @@
   "Deleting...": "删除中...",
   "Confirm delete incomplete process": "确定要删除 PO“{0}”的未完成流程吗？此操作无法撤销。",
   "Delete process failed": "删除未完成流程失败。",
-  "An error occurred while deleting the process.": "删除流程时发生错误！"
+  "An error occurred while deleting the process.": "删除流程时发生错误！",
+  "Create SO Only (Skip PO)": "仅创建 SO（跳过 PO）",
+  "Completed (SO Only)": "已完成（仅 SO）",
+  "Direct SO (No NetSuite PO)": "直接创建 SO（无 NetSuite PO）",
+  "Select Project Code": "选择项目代码",
+  "-- Select Project Code --": "-- 选择项目代码 --",
+  "Customer PO (No NetSuite PO)": "客户采购单号（无 NetSuite PO）",
+  "SO Only": "仅 SO"
 }
