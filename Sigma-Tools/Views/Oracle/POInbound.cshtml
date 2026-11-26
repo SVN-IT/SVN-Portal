@@ -885,9 +885,11 @@
                                 </span>
                                 <a href="javascript:void(0)" id="btn-toggle-edit-projcode" class="text-primary small font-weight-normal" style="font-size: 0.72rem;" title="Nhấn để mở khóa chỉnh sửa nếu cần"><i class="fas fa-pen mr-1"></i><span class="lang-text" data-i18n="Edit">Edit</span></a>
                             </label>
-                            <select class="form-control form-control-sm font-weight-bold text-dark d-none" id="so-projcode-select">
-                                <option value="">-- Select Project Code --</option>
-                            </select>
+                            <div id="so-projcode-select-wrapper" class="d-none">
+                                <select class="form-control form-control-sm font-weight-bold text-dark" id="so-projcode-select">
+                                    <option value="">-- Select Project Code --</option>
+                                </select>
+                            </div>
                             <input type="text" class="form-control form-control-sm font-weight-bold text-dark bg-light" id="so-projcode-input" readonly maxlength="50" placeholder="e.g. TRO" />
                             <input type="hidden" id="so-projcode-id-hidden" value="" />
                         </div>
@@ -1017,6 +1019,14 @@
             }
         });
 
+        // Khởi tạo Select2 cho Project Code khi Skip PO (tìm kiếm giống Person in charge)
+        $('#so-projcode-select').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: '-- Select Project Code --',
+            allowClear: true
+        });
+
         // Tự động focus vào ô search khi mở Select2 dropdown
         $(document).on('select2:open', function () {
             let searchField = document.querySelector('.select2-container--open .select2-search__field');
@@ -1122,10 +1132,10 @@
         let fallbackNoFile = t('No File Selected', 'Chưa chọn file');
         let resolvedPdfName = currentPdfFileName || (rawFileDisplay && rawFileDisplay !== 'Chưa chọn file' && rawFileDisplay !== 'No File Selected' && rawFileDisplay !== fallbackNoFile ? rawFileDisplay : '');
 
-        let activeProjId = $('#so-projcode-id-hidden').val() || (!$('#so-projcode-select').hasClass('d-none') ? $('#so-projcode-select').val() : '') || $('#select-projectcode').val() || (createdPoData?.projectCode) || null;
+        let activeProjId = $('#so-projcode-id-hidden').val() || (!$('#so-projcode-select-wrapper').hasClass('d-none') ? $('#so-projcode-select').val() : '') || $('#select-projectcode').val() || (createdPoData?.projectCode) || null;
         let activeProjText = (createdPoData?.projectCodeText) || '';
         if (!activeProjText) {
-            if (!$('#so-projcode-select').hasClass('d-none') && $('#so-projcode-select').val()) {
+            if (!$('#so-projcode-select-wrapper').hasClass('d-none') && $('#so-projcode-select').val()) {
                 activeProjText = $('#so-projcode-select option:selected').attr('data-name') || $('#so-projcode-select option:selected').text().trim();
             } else if ($('#so-projcode-input').val().trim()) {
                 activeProjText = $('#so-projcode-input').val().trim();
@@ -3715,14 +3725,14 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         if (skipPoCreation && !createdPoData) {
             $('#so-projcode-badge').addClass('d-none');
             $('#so-projcode-direct-badge').removeClass('d-none');
-            $('#so-projcode-select').removeClass('d-none');
+            $('#so-projcode-select-wrapper').removeClass('d-none');
             $('#so-projcode-input').addClass('d-none').prop('readonly', false).removeClass('bg-light').addClass('bg-white');
             $('#btn-toggle-edit-projcode').html(`<i class="fas fa-keyboard mr-1"></i><span class="lang-text">${t("Edit")}</span>`);
             loadStep4ProjectCodes();
         } else {
             $('#so-projcode-badge').removeClass('d-none');
             $('#so-projcode-direct-badge').addClass('d-none');
-            $('#so-projcode-select').addClass('d-none');
+            $('#so-projcode-select-wrapper').addClass('d-none');
             $('#so-projcode-input').removeClass('d-none');
 
             let projText = (createdPoData && createdPoData.projectCodeText) ? createdPoData.projectCodeText : $('#select-projectcode option:selected').text().trim();
@@ -3993,13 +4003,13 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
                     renderStep4ProjectCodeOptions(erpProjectCodesList);
                 } else {
                     // Fallback sang nhập tay nếu không lấy được danh sách từ NetSuite
-                    $('#so-projcode-select').addClass('d-none');
+                    $('#so-projcode-select-wrapper').addClass('d-none');
                     $('#so-projcode-input').removeClass('d-none').prop('readonly', false).removeClass('bg-light').addClass('bg-white');
                 }
             },
             error: function () {
                 isProjectCodesLoading = false;
-                $('#so-projcode-select').addClass('d-none');
+                $('#so-projcode-select-wrapper').addClass('d-none');
                 $('#so-projcode-input').removeClass('d-none').prop('readonly', false).removeClass('bg-light').addClass('bg-white');
             }
         });
@@ -4018,15 +4028,19 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
         });
 
         if (currentId && $sel.find(`option[value="${currentId}"]`).length > 0) {
-            $sel.val(currentId);
+            $sel.val(currentId).trigger('change');
             let selectedName = $sel.find('option:selected').attr('data-name') || '';
             if (selectedName) $('#so-projcode-input').val(selectedName);
         } else if (currentText) {
             let matched = projectCodes.find(p => p.name && p.name.toLowerCase() === currentText.toLowerCase());
             if (matched && matched.id != null) {
-                $sel.val(matched.id.toString());
+                $sel.val(matched.id.toString()).trigger('change');
                 $('#so-projcode-id-hidden').val(matched.id.toString());
+            } else {
+                $sel.trigger('change.select2');
             }
+        } else {
+            $sel.trigger('change.select2');
         }
     }
 
@@ -4040,16 +4054,16 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
     // Cho phép người dùng chuyển đổi giữa chế độ Khóa (Readonly) / Dropdown và Chỉnh sửa tay Project Code nếu cần
     $(document).on('click', '#btn-toggle-edit-projcode', function () {
         let $input = $('#so-projcode-input');
-        let $select = $('#so-projcode-select');
+        let $selectWrapper = $('#so-projcode-select-wrapper');
 
         if (skipPoCreation && !createdPoData) {
-            if ($select.hasClass('d-none')) {
+            if ($selectWrapper.hasClass('d-none')) {
                 $input.addClass('d-none');
-                $select.removeClass('d-none');
+                $selectWrapper.removeClass('d-none');
                 loadStep4ProjectCodes();
                 $(this).html(`<i class="fas fa-keyboard mr-1"></i><span class="lang-text">${t("Edit")}</span>`);
             } else {
-                $select.addClass('d-none');
+                $selectWrapper.addClass('d-none');
                 $input.removeClass('d-none').prop('readonly', false).removeClass('bg-light').addClass('bg-white').focus();
                 $('#so-projcode-id-hidden').val('');
                 $(this).html(`<i class="fas fa-list mr-1"></i><span class="lang-text">${t("Select Project Code")}</span>`);
@@ -4217,7 +4231,7 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         let projCodeVal = '';
         let projCodeId = 0;
-        if (!$('#so-projcode-select').hasClass('d-none')) {
+        if (!$('#so-projcode-select-wrapper').hasClass('d-none')) {
             projCodeId = parseInt($('#so-projcode-select').val(), 10) || parseInt($('#so-projcode-id-hidden').val(), 10) || 0;
             if (projCodeId > 0) {
                 projCodeVal = $('#so-projcode-select option:selected').attr('data-name') || $('#so-projcode-input').val().trim();
@@ -4239,8 +4253,8 @@ $(document).on('click', '#btn-cancel-sigmacode', function () {
 
         if (!projCodeVal && !projCodeId) {
             alert(t("Project code must be entered!"));
-            if (!$('#so-projcode-select').hasClass('d-none')) {
-                $('#so-projcode-select').focus();
+            if (!$('#so-projcode-select-wrapper').hasClass('d-none')) {
+                $('#so-projcode-select').select2('open');
             } else {
                 $('#so-projcode-input').prop('readonly', false).removeClass('bg-light').addClass('bg-white').focus();
             }
