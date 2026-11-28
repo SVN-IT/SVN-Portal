@@ -251,6 +251,64 @@ namespace Sigma_Dashboard.Services
 
             return totalGap;
         }
+
+        /// <summary>
+        /// Tính tổng số phút giao nhau giữa khoảng thời gian [start, end] và danh sách khung giờ làm việc sectionTimes,
+        /// giúp tự động loại bỏ thời gian nghỉ giải lao, nghỉ trưa hoặc ngoài giờ làm việc.
+        /// </summary>
+        public double CalculateEffectiveOverlapMinutes(DateTime start, DateTime end, List<SectionTime> sectionTimes)
+        {
+            if (end <= start)
+                return 0;
+
+            if (sectionTimes == null || sectionTimes.Count == 0)
+                return (end - start).TotalMinutes;
+
+            double totalMinutes = 0;
+            foreach (var sec in sectionTimes)
+            {
+                var overlapStart = start > sec.StartTime ? start : sec.StartTime;
+                var overlapEnd = end < sec.EndTime ? end : sec.EndTime;
+                if (overlapEnd > overlapStart)
+                {
+                    totalMinutes += (overlapEnd - overlapStart).TotalMinutes;
+                }
+            }
+            return totalMinutes;
+        }
+
+        /// <summary>
+        /// Gộp các khoảng thời gian chồng lấp nhau rồi tính tổng số phút nằm trong khung giờ làm việc sectionTimes.
+        /// </summary>
+        public double CalculateMergedEffectiveMinutes(IEnumerable<(DateTime Start, DateTime End)> intervals, List<SectionTime> sectionTimes)
+        {
+            if (intervals == null)
+                return 0;
+
+            var valid = intervals
+                .Where(x => x.End > x.Start)
+                .OrderBy(x => x.Start)
+                .ThenBy(x => x.End)
+                .ToList();
+
+            if (valid.Count == 0)
+                return 0;
+
+            var merged = new List<(DateTime Start, DateTime End)>();
+            foreach (var item in valid)
+            {
+                if (merged.Count == 0 || item.Start > merged[^1].End)
+                {
+                    merged.Add(item);
+                }
+                else if (item.End > merged[^1].End)
+                {
+                    merged[^1] = (merged[^1].Start, item.End);
+                }
+            }
+
+            return merged.Sum(m => CalculateEffectiveOverlapMinutes(m.Start, m.End, sectionTimes));
+        }
     }
 
     public class SectionTime

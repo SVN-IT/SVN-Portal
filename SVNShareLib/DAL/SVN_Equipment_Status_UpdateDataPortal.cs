@@ -190,5 +190,68 @@ ORDER BY TotalMinutes DESC";
                 return new List<SVN_Top_Downtime_UI>();
             }
         }
+
+        /// <summary>
+        /// Lấy danh sách các khoảng thời gian (StartTime, EndTime) của từng sự kiện downtime trong ngày
+        /// để có thể loại bỏ thời gian nghỉ giải lao / nghỉ trưa theo từng ca làm việc.
+        /// </summary>
+        public async Task<List<SVN_Downtime_Event_UI>> GetDowntimeEventsByDate(string date)
+        {
+            int timeOut = 1000;
+            try
+            {
+                string sql = @"
+WITH StopRuns AS (
+    SELECT 
+        s.Code,
+        ISNULL(NULLIF(s.Operation, ''), s.Code) AS Operation,
+        s.[ISS-Code] AS IssCode,
+        ISNULL(r.reason_name, N'Chưa xác định') AS ErrorName,
+        s.Datetime AS StopTime,
+        s.EstimateTime,
+        (
+            SELECT MIN(r2.Datetime)
+            FROM dbo.SVN_Downtime_Info r2
+            WHERE (r2.Code = s.Code OR (s.Code IS NULL AND r2.Operation = s.Operation))
+              AND r2.State = 'Run'
+              AND r2.Datetime > s.Datetime
+              AND CAST(r2.Datetime AS DATE) = CAST(s.Datetime AS DATE)
+        ) AS NextRunTime
+    FROM dbo.SVN_Downtime_Info s
+    LEFT JOIN dbo.SVN_Downtime_Reason r ON s.[ISS-Code] = r.reason_code
+    WHERE s.State <> 'Run'
+      AND CAST(s.Datetime AS DATE) = @WorkDate
+)
+SELECT 
+    Operation,
+    Code,
+    IssCode,
+    ErrorName,
+    StopTime AS StartTime,
+    CASE 
+        WHEN NextRunTime IS NOT NULL AND NextRunTime > StopTime 
+            THEN NextRunTime
+        WHEN NextRunTime IS NULL AND @WorkDate = CAST(GETDATE() AS DATE) AND GETDATE() > StopTime
+            THEN GETDATE()
+        WHEN NextRunTime IS NULL AND Try_Convert(time, EstimateTime) IS NOT NULL
+             AND DATEADD(SECOND, DATEDIFF(SECOND, 0, Try_Convert(time, EstimateTime)), CAST(@WorkDate AS DATETIME)) > StopTime
+            THEN DATEADD(SECOND, DATEDIFF(SECOND, 0, Try_Convert(time, EstimateTime)), CAST(@WorkDate AS DATETIME))
+        ELSE StopTime
+    END AS EndTime
+FROM StopRuns
+WHERE Operation IS NOT NULL AND Operation <> ''";
+
+                var param = new { WorkDate = date };
+                using (IDbConnection connection = new SqlConnection(connectionString))
+                {
+                    var data = await connection.QueryAsync<SVN_Downtime_Event_UI>(sql, param, commandTimeout: timeOut, commandType: CommandType.Text);
+                    return data.ToList();
+                }
+            }
+            catch
+            {
+                return new List<SVN_Downtime_Event_UI>();
+            }
+        }
     }
 }

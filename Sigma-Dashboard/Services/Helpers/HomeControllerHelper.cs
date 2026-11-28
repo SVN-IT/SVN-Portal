@@ -76,11 +76,11 @@ namespace Sigma_Dashboard.Services.Helpers
                 quantity_ReasonUI = await quntityreasondataportal.ReadList(); //lấy dữ liệu quantity reason từ csdl (các mã lỗi và tên lỗi)
                 dataUI = await productionResultDataPortal.ReadListByOperationsRunning(date, tableName); //lấy dữ liệu sản xuất thực tế theo ngày và theo các operation đang chạy hiện tại
 
-                List<SVN_Top_Downtime_UI> allDowntimeSummary = new List<SVN_Top_Downtime_UI>();
+                List<SVN_Downtime_Event_UI> allDowntimeEvents = new List<SVN_Downtime_Event_UI>();
                 try
                 {
                     DateTime workDate = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                    allDowntimeSummary = await svn_equipment_StatusDataPortal.GetTopDowntimeByDate(workDate.ToString("yyyy-MM-dd"));
+                    allDowntimeEvents = await svn_equipment_StatusDataPortal.GetDowntimeEventsByDate(workDate.ToString("yyyy-MM-dd"));
                 }
                 catch { }
 
@@ -270,30 +270,6 @@ namespace Sigma_Dashboard.Services.Helpers
                             barChartData.DefectData = defectData.ToArray();
                         }
 
-                        // Lấy Top 5 Downtime trong ngày cho operation này
-                        if (allDowntimeSummary != null && allDowntimeSummary.Count > 0)
-                        {
-                            var opDowntimes = allDowntimeSummary
-                                .Where(x => !string.IsNullOrEmpty(x.Operation) &&
-                                            (x.Operation.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase) ||
-                                             (!string.IsNullOrEmpty(x.Code) && x.Code.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase))))
-                                .GroupBy(x => new { x.IssCode, x.ErrorName })
-                                .Select(g => new TopDowntimeItem
-                                {
-                                    Operation = item.Operation,
-                                    IssCode = g.Key.IssCode,
-                                    ErrorName = g.Key.ErrorName,
-                                    Occurrences = g.Sum(x => x.Occurrences),
-                                    TotalMinutes = Math.Round(g.Sum(x => x.TotalMinutes), 1),
-                                    FormattedDuration = FormatDowntimeDuration(g.Sum(x => x.TotalMinutes))
-                                })
-                                .OrderByDescending(x => x.TotalMinutes)
-                                .Take(5)
-                                .ToList();
-
-                            barChartData.TopDowntimes = opDowntimes;
-                        }
-
                         //Lấy Daily target của từng operation
                         SVN_target_v1UI targetDataUIbyOper = new SVN_target_v1UI();
                         if(targetDataUI != null && targetDataUI.Count > 0)
@@ -313,6 +289,7 @@ namespace Sigma_Dashboard.Services.Helpers
                         double UPPHPercent = 0;
                         double DefectCurrent = 0;
                         double DefectPercent = 0;
+                        List<SectionTime> effectiveSections = new List<SectionTime>();
 
                         if (targetDataUIbyOper != null)
                         {
@@ -331,6 +308,7 @@ namespace Sigma_Dashboard.Services.Helpers
                             var listSection = sectionTimes.Where(x => x.Target != 0).ToList();
 
                             sectionTimes = sectionTimeServices.GetListSectionTime(listSection, today, currentDate);
+                            effectiveSections = sectionTimes;
 
                             barChartData.IsWorkingTime = sectionTimes.FirstOrDefault(x => x.StartTime <= curDateTime && x.EndTime >= curDateTime) != null;
 
@@ -343,13 +321,18 @@ namespace Sigma_Dashboard.Services.Helpers
                             if (minStartSection != DateTime.MinValue &&
                                 maxEndSection != DateTime.MinValue)
                             {
+                                // Tính tổng giờ downtime thực tế trong khung giờ làm việc (bao gồm cả sự kiện đang diễn ra, loại bỏ giờ nghỉ giải lao / nghỉ trưa)
                                 double Duration = 0;
-                                DateTime datetime = DateTime.ParseExact(date, "yyyyMMdd", CultureInfo.InvariantCulture);
-                                var equipmentStatus = await svn_equipment_StatusDataPortal.GetCalDuration(datetime.ToString("yyyy-MM-dd"), item.Operation);
-                                if (equipmentStatus != null)
+                                if (allDowntimeEvents != null && allDowntimeEvents.Count > 0)
                                 {
-                                    //Duration = equipmentStatus.TotalDuration;
-                                    Duration = equipmentStatus.Select(x => x.DurationHours).Sum();
+                                    var opEvents = allDowntimeEvents
+                                        .Where(x => !string.IsNullOrEmpty(x.Operation) &&
+                                                    (x.Operation.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase) ||
+                                                     (!string.IsNullOrEmpty(x.Code) && x.Code.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase))))
+                                        .Select(x => (x.StartTime, x.EndTime));
+
+                                    double totalDowntimeMinutes = sectionTimeServices.CalculateMergedEffectiveMinutes(opEvents, sectionTimes);
+                                    Duration = totalDowntimeMinutes / 60.0;
                                 }
                                 DateTime finishedTime = curDateTime;
                                 DateTime startDatetime = minStartSection;
@@ -429,6 +412,50 @@ namespace Sigma_Dashboard.Services.Helpers
                             DefectTarget = Math.Round(targetDataUIbyOper.Defect * 100, 2);
                             DefectCurrent = Math.Round(targetDataUIbyOper.Total_Qty != 0 ? (targetDataUIbyOper.Total_NG_Qty / targetDataUIbyOper.Total_Qty) * 100 : 0, 2);
                             DefectPercent = Math.Round(targetDataUIbyOper.Total_Qty != 0 && targetDataUIbyOper.Defect != 0 ? (DefectCurrent / DefectTarget) * 100 : 0, 2);
+                        }
+
+                        // Lấy Top 5 Downtime trong ngày cho operation này (loại bỏ giờ nghỉ giải lao / nghỉ trưa)
+                        if (allDowntimeEvents != null && allDowntimeEvents.Count > 0)
+                        {
+                            if ((effectiveSections == null || effectiveSections.Count == 0) && dashboardData.Sections != null && dashboardData.Sections.Length > 0)
+                            {
+                                var allSec = sectionTimeServices.SplitSectionTime(dashboardData.Sections, barChartData.TargetData);
+                                effectiveSections = sectionTimeServices.GetListSectionTime(allSec, currentDate, currentDate);
+                            }
+
+                            var opDowntimes = allDowntimeEvents
+                                .Where(x => !string.IsNullOrEmpty(x.Operation) &&
+                                            (x.Operation.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase) ||
+                                             (!string.IsNullOrEmpty(x.Code) && x.Code.Trim().Equals(item.Operation.Trim(), StringComparison.OrdinalIgnoreCase))))
+                                .Select(x => new
+                                {
+                                    x.IssCode,
+                                    x.ErrorName,
+                                    EffectiveMinutes = sectionTimeServices.CalculateEffectiveOverlapMinutes(x.StartTime, x.EndTime, effectiveSections)
+                                })
+                                .GroupBy(x => new { x.IssCode, x.ErrorName })
+                                .Select(g => new
+                                {
+                                    g.Key.IssCode,
+                                    g.Key.ErrorName,
+                                    Occurrences = g.Count(),
+                                    TotalMinutes = g.Sum(x => x.EffectiveMinutes)
+                                })
+                                .Where(x => x.TotalMinutes > 0)
+                                .Select(g => new TopDowntimeItem
+                                {
+                                    Operation = item.Operation,
+                                    IssCode = g.IssCode,
+                                    ErrorName = g.ErrorName,
+                                    Occurrences = g.Occurrences,
+                                    TotalMinutes = Math.Round(g.TotalMinutes, 1),
+                                    FormattedDuration = FormatDowntimeDuration(g.TotalMinutes)
+                                })
+                                .OrderByDescending(x => x.TotalMinutes)
+                                .Take(5)
+                                .ToList();
+
+                            barChartData.TopDowntimes = opDowntimes;
                         }
                         barChartData.HourlyPlanData = HPlanCurrent + "/" + HPlanTarget;
                         barChartData.HourlyPlanPercent = $"{HPlanPercent}%";

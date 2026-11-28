@@ -9,4 +9,14 @@ namespace SVNShareLib.DTO
         public int Occurrences { get; set; }
         public double TotalMinutes { get; set; }
     }
+
+    public class SVN_Downtime_Event_UI
+    {
+        public string Operation { get; set; }
+        public string Code { get; set; }
+        public string IssCode { get; set; }
+        public string ErrorName { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+    }
 }
